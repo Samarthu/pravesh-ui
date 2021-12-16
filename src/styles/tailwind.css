@@ -1,0 +1,1156 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.navbarTop{
+  @apply  fixed  w-full flex bg-bgErBlue z-50 h-h58px items-center
+}
+
+.sidenav{
+    @apply w-width70px bg-bgSideNav h-heightSideNav fixed top-top58px 
+}
+
+.svgIcon{
+    @apply hover:bg-white bg-bgIcon rounded-full h-h35px w-w35px p-p7px m-auto
+}
+
+.homelogo{
+    @apply  border-r h-h58px border-borderhome w-width70px flex items-center justify-center
+}
+
+.listItem{
+    @apply px-1.5 text-center mb-mb19px
+}
+
+.mainContent{
+    @apply ml-ml70px mt-mt58px w-widthMain sm:ml-0 xs:ml-0 xs:w-full sm:w-full
+}
+
+.searchbox{
+    @apply pl-10 pr-4 text-white font-normal rounded-full outline-none bg-bgDarkBlue w-serchwidth text-base placeholder-white  py-1
+}
+
+.inputbox{
+    @apply  text-greycolor bg-white  appearance-none border inline-block pt-3.5 pb-3.5 pl-12 pr-8 rounded leading-tight w-full outline-none
+}
+
+.inputboxsearch{
+
+    @apply  text-grey bg-white  w-64 appearance-none border border-grey inline-block pt-2 pb-2 pl-12 pr-8 rounded-full leading-tight outline-none  text-sm
+}
+
+.searchicon{
+    @apply absolute inset-y-0 left-0 flex items-center pl-3
+}
+
+
+.menuname{
+  @apply  text-greyLightShade text-font10px flex justify-center pt-pt2px font-medium
+}
+
+.breadcrumb{
+    @apply w-full  px-3 pr-pr14px pl-pr14px sm:sticky lg:sticky md:sticky xl:sticky 2xl:sticky top-top58px bg-bgBody z-10 xs:px-0
+}
+
+.breadcrumbtext{
+    @apply text-xl font-medium pt-pt21 pb-pb30 xs:p-pt21 sm:p-pt21 border-borderBreadcrumb border-b flex items-center xs:flex-wrap xs:py-4
+}
+
+
+
+.breadcrumbtextDetails{
+    @apply text-xl font-medium pt-pt21 pb-pt21 xs:p-pt21 sm:p-pt21  flex items-center xs:flex-wrap xs:py-4 justify-between
+}
+
+.contentsection{
+    @apply w-full pr-p19 pl-p19  flex gap-x-5 xs:p-p10 sm:p-p10
+}
+
+.breadcrumbmedia{
+    @apply xs:px-0 sm:px-0 border-b-0
+}
+
+
+
+.innersection{
+    @apply bg-white py-p26 px-p35 xs:p-p15 sm:p-p15  rounded-br12 mt-mt19px  sm:mt-m13 xs:mt-m13 mb-6 w-full
+}
+
+.headingText{
+  @apply  text-2xl font-medium  xs:text-xl sm:text-xl
+}
+
+.descriptionText{
+    @apply text-lg font-light text-greycolor  xs:text-base sm:text-base
+}
+
+.cardsection{
+    @apply  mt-m26 mb-m26 text-gray-800 z-40
+}
+
+.cardWrapper{
+    @apply grid lg:grid-cols-3 2xl:grid-cols-4 xl:grid-cols-3 md:grid-cols-2 gap-9  xs:gap-4 sm:gap-4 pt-5
+}
+
+.cardItems{
+    @apply rounded-br5  transition duration-500 ease-in-out  transform hover:-translate-y-1 hover:scale-105
+}
+
+.cardContainer{
+    @apply flex items-center  pl-3.5  pt-3.5 pb-3.5 h-h106 pr-2
+}
+.cardImage{
+    @apply flex flex-shrink-0 items-center justify-center h-16 w-16 
+}
+.cardContent{
+  @apply  flex-grow flex flex-col ml-4
+}
+.cardText{
+    @apply flex items-center justify-between
+}
+.cardHeading{
+    @apply text-xl text-erBlue font-medium leading-6
+}
+
+.cardDescription{
+    @apply text-sm font-normal text-greycolor
+}
+.placeholderIcon{
+   @apply w-6 h-6 text-white
+}
+.secText{
+    @apply font-medium text-erBlue italic
+}
+.editLink{
+    @apply text-erBlue underline font-medium
+}
+.uploadedImage{
+    @apply w-20 h-12 object-cover
+}
+
+.associateProfile{
+    @apply w-14 h-14 rounded-full object-cover
+}
+
+.branchText{
+    @apply text-base font-normal text-blackshade mt-4
+}
+
+.locationText{
+    @apply text-xs font-normal text-blackshade mt-1
+}
+
+.radioLable{
+    @apply flex items-center cursor-pointer text-base text-greycolor
+}
+.radioCirle{
+    @apply w-4 h-4 inline-block mr-1 rounded-full border border-greycolor
+}
+
+
+.onboardForm{
+    @apply bg-white pt-p26 pl-p19 rounded-br8 mt-mt19px pr-p19 sm:pr-p35 md:pr-p35 pb-4 xs:py-p19 xs:px-3.5
+}
+
+
+.onboardFormNot{
+    @apply bg-white pt-p19  pl-p19 rounded-br8 mt-mt19px pr-p35 pb-p19 xs:py-p19 xs:px-3.5 mb-5
+}
+
+.formTextSection{
+    @apply flex justify-between pb-pt21 xs:flex-wrap
+}
+.formTextVerification{
+    @apply  pb-pt21
+}
+
+.mandatoryIcon{
+    @apply text-mandatorysign pl-0.5
+}
+
+
+
+.backButton{
+    @apply w-w35px h-h35px rounded-br8 border flex justify-center items-center p-1.5 border-erBlue cursor-pointer
+}
+
+.formHeadingLabel{
+    @apply text-font18 text-blackshade font-medium  xs:text-greycolor xs:text-base xs:font-normal sm:text-greycolor sm:text-base sm:font-normal
+}
+
+.formLabelText{
+    @apply text-font18 text-blackshade font-medium  xs:text-xl xs:font-medium  sm:text-xs sm:font-medium
+}
+
+.formRequiredtext{
+    @apply text-sm text-greycolor  xs:hidden sm:hidden
+}
+.formGroup{
+    @apply w-full flex mb-2.5 pr-0 md:pr-4 items-center  xs:flex-wrap sm:flex-wrap
+}
+.formGroupBaseLine{
+    @apply w-full flex mb-2.5 pr-0 md:pr-4 items-baseline  xs:flex-wrap sm:flex-wrap
+}
+.formGroupNote{
+    @apply w-full flex mb-2.5 pr-0 items-center
+}
+.formLable{
+    @apply text-blackshade text-base font-normal flex flex-nowrap whitespace-nowrap pr-3 w-w300 xs:pb-2 sm:pb-2 justify-end xs:justify-start sm:justify-start
+}
+.formInnerGroup{
+    @apply  relative w-selectboxwidth  xs:w-full sm:w-full border-none
+}
+.formInnerGroupNote{
+    @apply  relative w-auto border-none
+}
+.formSelectArrow{
+    @apply pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 pr-4
+}
+
+.formSelectArrowclick{
+    @apply  absolute inset-y-0 right-0 flex items-center px-2 pr-4
+}
+.tablinksForm{
+    @apply mt-mt19px w-w345
+}
+
+.bgtablinks{
+    @apply h-auto bg-white rounded-br8 sticky top-top157 xs:flex sm:flex xs:justify-between sm:justify-between
+}
+
+.tabAchorSection{
+    @apply  flex justify-between w-full items-center pt-4 pb-4  pl-2.5 pr-5 xs:px-3 sm:px-8
+}
+
+.contentTitles{
+    @apply  pl-3 w-full sm:hidden xs:hidden
+}
+
+.contentheadingAnchor{
+    @apply text-base text-blackshade 
+} 
+
+.contentDescriptionText{
+    @apply text-font13px text-grey
+}
+
+.saveandproceed{
+    @apply bg-erBlue font-medium rounded text-yellow-50 text-sm px-5 py-2 ml-3.5
+}
+
+
+.ErBlueButton{
+    @apply bg-erBlue font-medium rounded text-yellow-50 text-sm px-5 py-2 
+}
+
+.ErBlueupdated{
+    @apply bg-erBlue font-medium rounded text-yellow-50 text-sm px-3 py-2 
+}
+
+
+.noteDescription{
+    @apply text-xs text-grey font-normal
+}
+
+
+.smxslabel{
+    @apply text-xl text-blackshade font-medium hidden xs:block sm:block
+}
+.uploadbutton{
+    @apply bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px
+}
+
+.formFooterAction{
+    @apply flex justify-end xs:justify-between
+}
+.formFooterActionSubmit{
+    @apply flex justify-end xs:justify-between
+}
+
+
+
+.verifyDescription{
+    @apply text-blackshade text-base font-normal mt-3
+}
+
+.profileimage{
+    @apply flex items-center gap-4
+}
+
+.formSection{
+    @apply w-widthforFormSection w100xs
+}
+
+
+.statusContent{
+    @apply flex items-center whitespace-nowrap text-orange
+}
+
+
+.statusContentTag{
+    @apply flex items-center whitespace-nowrap
+}
+
+
+.contentsectionDetailview{
+    @apply w-full pl-pr14px pr-pr14px  flex gap-x-5 xs:p-p10 sm:p-p10 mt-5 sm:flex-wrap xs:flex-wrap   wrapmd mb-5 sm:mt-3 xs:mt-3
+}
+
+
+.associateDetails{
+    @apply bg-white rounded-lg w-w445px sm:w-full mdl:mb-5 h-full mdl:w-full
+}
+
+.smButton{
+    @apply py-1 px-2 rounded border-erBlue border
+}
+
+.detailsHeader{
+    @apply flex items-center justify-between px-5 py-3 rounded-tl-br8 rounded-tr-br8 bg-lighterGrey
+}
+
+.profilepic{
+    @apply  px-5 py-5 flex items-center gap-4
+}
+
+.imgName{
+    @apply text-base text-greycolor font-light
+}
+
+.detailsTitle{
+    @apply text-erBlue text-lg font-medium
+}
+
+
+.detailsUpdate{
+    @apply text-font11 italic text-greycolor font-light
+}
+
+.userInfoSec3{
+  @apply  px-5 py-5 flex items-start  justify-between
+}
+
+.detailLbale{
+    @apply text-sm text-greycolor font-light
+}
+
+.detailData{
+    @apply text-base  text-greycolor font-normal
+}
+
+.userStatusTick{
+    @apply flex items-center text-sm text-green italic font-medium
+}
+
+.userInfoSecPadding{
+    @apply px-5 py-5
+}
+
+.wrapperInfoFirst{
+    @apply w-full flex justify-between
+}
+
+.verifyText{
+    @apply flex items-center text-sm text-orange italic font-medium
+}
+
+.rejectText{
+    @apply flex items-center text-sm text-rejectcolor font-medium
+}
+.verifiedTextGreen{
+    @apply flex items-center text-sm text-green font-medium
+}
+
+.wrapperInfo{
+    @apply w-full flex justify-between items-center pt-3
+}
+
+.smButtonText{
+    @apply text-font13px text-erBlue  font-normal
+}
+
+.headingWithIcon{
+    @apply px-5 pt-5 pb-3 flex items-center gap-4
+}
+
+.innercardSection{
+    @apply rounded-lg flex justify-between bg-bgRedLight px-4 py-4 items-end sm:flex-wrap xs:flex-wrap xs:gap-5
+}
+
+.Username{
+    @apply flex xs:text-base xs:items-center text-font26 items-center
+}
+
+.userIconMedia{
+    @apply pr-2.5 pl-5 xs:pl-0 sm:pl-2
+}
+
+.userDesignation{
+    @apply text-sm font-light pl-1 xs:text-base xs:font-medium sm:font-medium sm:text-base
+}
+
+.breadcrumbRight{
+    @apply flex items-center xs:hidden sm:hidden
+}
+.breadRightIcons{
+    @apply text-erBlue font-normal  text-sm flex pr-7
+}
+
+.backlistText{
+   @apply text-mandatorysign font-normal  text-sm flex
+}
+
+.statusbar{
+    @apply bg-lighterGrey flex p-p15 justify-between xs:flex-wrap sm:flex-wrap mdl:flex-wrap border-b border-t border-bordercolor
+}
+
+.statusBarSec{
+    @apply flex gap-5 items-center sm:flex-wrap xs:flex-wrap
+}
+
+.statusbarLeft{
+    @apply flex gap-5 items-center
+}
+
+.statusbarMiddle{
+    @apply flex gap-5 items-center xs:flex-wrap sm:flex-wrap
+}
+
+.statusText{
+    @apply font-light text-blackshade whitespace-nowrap
+}
+
+
+.statusrightlink{
+    @apply  flex items-center xsl:pt-5 sm:mt-5 mdl:mt-5
+}
+
+.initiateText{
+    @apply text-sm flex font-normal whitespace-nowrap
+}
+
+.fullsection{
+    @apply xsl:w-full mdl:w-full
+}
+
+.detailsrow{
+    @apply flex justify-between gap-5 xsl:flex-wrap
+}
+
+.myactionitems{
+    @apply bg-white rounded-br10 p-p15 w-full mb-5
+}
+
+.cardAction{
+    @apply flex justify-between bg-redshade p-5 rounded-br5 items-center
+}
+
+.cardActionsaved{
+    @apply flex justify-between bg-greylightbg p-5 rounded-br5 items-center
+}
+
+.cardActionother{
+    @apply flex justify-between bg-bglightyello p-5 rounded-br5 items-center
+}
+
+.cards{
+    @apply grid grid-cols-2 gap-4 mt-mt19px mb-mt19px mdl:grid-cols-1 
+}
+
+.cardhead{
+    @apply text-2xl text-blackshade font-medium
+}
+
+.cardDes{
+    @apply font-light text-lg text-greycolor
+}
+.dashHeading{
+    @apply text-lg text-blackshade font-medium
+}
+.dashDes{
+    @apply  text-base font-light text-greycolor
+}
+.bgcircle{
+    @apply bg-bglightred rounded-full w-w68px h-h68px flex items-center justify-center
+}
+
+.bgcirclesaved{
+    @apply bg-white rounded-full w-w68px h-h68px flex items-center justify-center
+}
+
+.bgcircleother{
+    @apply bg-bglightorange rounded-full w-w68px h-h68px flex items-center justify-center
+}
+
+.countcircle{
+    @apply text-font28 text-mandatorysign font-bold
+}
+.countcirclesaved{
+    @apply text-font28 text-ligherblack font-bold
+}
+
+.countcircleother{
+    @apply text-font28 text-boldyellow font-bold
+}
+
+.newonboard{
+    @apply bg-orange font-bold text-font18 pl-7 rounded-br5 text-white pr-7 pt-p10 pb-p10 flex items-center
+}
+
+.filter{
+    @apply bg-erBlue font-bold text-font18 pl-3 xs:px-4 rounded-br5 text-white pr-3 pt-p10 pb-p10 flex items-center h-10 sm:hidden xs:hidden
+}
+.filterxsl{
+    @apply bg-erBlue font-bold text-font18  w-10 rounded-br5 justify-center text-white  pt-p10 pb-p10 flex items-center h-10 lg:hidden xl:hidden 2xl:hidden md:hidden
+}
+
+
+.activeProfileWrapper{
+    @apply bg-white rounded-br10 
+}
+
+.headingCount{
+    @apply flex justify-between items-center px-p15 pt-6 pb-5
+}
+
+.venderheadText{
+    @apply  text-lg flex font-medium rounded-br5 py-3 text-blackshade px-p15 bg-greylightbg mb-3
+}
+.plr{
+    @apply px-p15 mb-1
+}
+
+
+.dashboardWrapper{
+    @apply flex gap-4 xsl:flex-wrap
+}
+
+.listli{
+@apply flex justify-between items-center border-b border-bordercolor py-1 font-light text-sm text-blackshade
+
+}
+
+.listhb{
+    @apply flex justify-between items-center py-1 font-light text-sm text-blackshade
+}
+
+
+.selectInputbox{
+    @apply  text-greycolor bg-white text-sm h-h34px font-normal appearance-none border border-textgrey inline-block pt-2 pb-2 pl-6 pr-8 rounded-full leading-tight w-full outline-none
+}
+
+.formLableSelect{
+    @apply text-blackshade  text-sm font-light pl-2
+}
+
+.formInnerGroupSelect{
+    @apply  relative w-56  xs:w-full sm:w-full border-none 
+}
+
+
+.SectionsCounts{
+    @apply bg-white rounded-br10 py-pr14px px-3.5  w-full
+}
+
+
+.SectionsCountsSaved{
+    @apply bg-white rounded-br10 py-pr14px px-3.5 flex gap-26 text-center
+}
+
+.SectionsCountsmobile{
+    @apply bg-white  py-pr14px px-3.5 w-full overflow-scroll
+}
+.SectionsCountsmobileLast{
+@apply flex gap-26 text-center  py-pr14px px-3.5
+}
+
+.docReject{
+    @apply text-base font-normal text-mandatorysign mb-2
+}
+.PendingVeri{
+    @apply text-base font-normal text-boldyellow mb-2
+}
+.otherCounts{
+    @apply text-base font-light text-blackshade mb-2
+}
+.countHeading{
+    @apply text-blackshade text-sm font-normal
+}
+
+.idproof{
+    @apply bg-bglightorangeshade py-p7px px-p10 rounded-full text-center
+}
+.idproofcount{
+    @apply text-mandatorysign font-bold text-base text-center
+}
+
+.bgdocreject{
+    @apply bg-bglightyello py-p7px px-p10 rounded-full text-center
+}
+
+.bgsavedCount{
+@apply bg-bgbluecolor py-p7px px-p15 rounded-full
+}
+
+.bgActiveCount{
+    @apply bg-bgGreenlight py-p7px px-p15 rounded-full
+    }
+
+    .bgDeactiveCount{
+        @apply bg-bgmandatorysign py-p7px px-p15 rounded-full
+        }
+
+        .bgAllCount{
+            @apply bg-black py-p7px px-p15 rounded-full
+            }
+
+.docRejectCount{
+    @apply text-boldyellow font-bold text-base text-center
+}
+.otherCountNumbers{
+    @apply text-white font-bold text-base  text-center
+}
+
+.theading{
+   @apply text-base font-medium text-white capitalize text-left py-p11px 
+}
+
+.auditTrail{
+    @apply border border-erBlue rounded-br5 px-2 py-2 flex w-16 items-center text-sm text-textdarkgrey
+}
+
+.smallText{
+    @apply text-sm  text-textdarkgrey whitespace-nowrap font-light
+}
+.hText{
+    @apply text-base text-blackshade font-normal
+}
+.designationTextsmall{
+    @apply text-xs text-grey
+}
+
+.smLable{
+    @apply text-base text-blackshade font-normal whitespace-nowrap
+}
+
+.supplerDetails{
+    @apply flex flex-col xs:px-2 sm:px-2  
+}
+.vendorDetailsText{
+    @apply text-font13px text-textdarkgrey font-normal italic flex
+}
+.idproofRejected{
+    @apply text-font13px text-mandatorysign font-normal italic flex
+}
+.pendingBankVerfi{
+    @apply text-font13px text-boldyellow font-normal italic flex
+}
+
+.statusDetails{
+    @apply bg-bglightgrey p-p9px mt-2
+}
+
+.listitems{
+    @apply  text-textdarkgrey text-sm font-normal 
+}
+
+
+
+.breadcrumbSupplier{
+    @apply text-xl font-medium  pt-pt21 pb-pt21 xs:p-pt21 sm:p-pt21 border-borderBreadcrumb  flex items-center xs:flex-wrap xs:py-4
+}
+
+.breadcrumbgrey{
+    @apply  text-textgrey pr-1 text-base
+}
+
+.Onboardedbyme{
+    @apply flex justify-between w-full xs:mt-3 
+}
+
+.checkFormgroup{
+    @apply  flex items-center ml-9 xs:ml-0
+}
+
+.inputChecked{
+  @apply  w-4  h-4 text-red-400 border-gray-200 rounded focus:bg-bgdarkgrey
+}
+
+.onboardedText{
+    @apply block ml-2 text-base font-normal text-blackshade
+}
+
+.filterModal{
+    @apply fixed z-zindex99 inset-0 overflow-y-auto hidden mb-3 xs:mb-0 sm:mb-0
+}
+
+.filterModalDesktop{
+    @apply relative z-zindex99  overflow-y-auto  xs:mb-0 sm:mb-0  top-top16 
+}
+
+
+.modalwrapper{
+    @apply flex  justify-center xs:min-h-screen sm:min-h-screen  border-r-0 text-center sm:block sm:p-0 h-full
+}
+
+.filterModalwrapper{
+    @apply inline-block align-bottom bg-white  text-left overflow-hidden xs:max-h-screen sm:max-h-screen  transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full w-full rounded-br10 xs:rounded-none sm:rounded-none
+}
+.filterContainer{
+    @apply bg-white sm:px-4 xs:px-4 sm:p-6 sm:pb-4
+}
+.filterSection{
+    @apply sm:flex sm:items-start sm:flex-wrap 
+}
+.filterXsheader{
+    @apply hidden xs:block sm:block
+}
+.filterxsContent{
+    @apply flex justify-between mt-5 sm:w-screen
+}
+.filterTextLable{
+    @apply text-font26 text-textdarkgrey font-medium 
+}
+.filterSectionContainer{
+    @apply xs:mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left
+}
+
+.filterValues{
+    @apply p-p15 bg-white rounded-br10
+}
+.filterActions{
+    @apply mt-4  md:justify-between xl:flex xl:justify-between 2xl:flex 2xl:justify-between
+}
+.selectOptions{
+    @apply flex gap-3 sm:gap-4 sm:flex-wrap sm:mt-4 xs:gap-4 xs:flex-wrap xs:mt-4
+}
+.selectSection{
+    @apply xs:w-screen xs:text-left sm:text-left text-left sm:w-full
+}
+.applyfilterbutton{
+    @apply flex items-end xs:justify-end sm:justify-end sm:w-full xs:w-full xsl:mt-4 sm:mt-4
+}
+.filterCancelbtn{
+    @apply bg-bgCancelbutton py-2 px-pr14px font-medium text-sm text-white rounded-br5 xsl:mr-3 sm:mr-3 sm:block xs:block hidden 
+}
+
+.filterApplybtn{
+    @apply bg-erBlue py-2 px-pr14px font-medium text-sm text-white rounded-br5
+}
+
+.countsSection{
+    @apply flex gap-3 flex-shrink sm:hidden xs:hidden
+}
+
+.mobiletabsSection{
+    @apply mx-2.5 bg-white rounded-br8 hidden xsl:block sm:block
+}
+
+.tabsmobile{
+    @apply inline-flex w-full px-1 pt-2 mb-2 border-b
+}
+.tablink{
+    @apply px-4 py-2  text-blackshade text-base font-normal rounded-t opacity-100
+}
+
+.searchPagi{
+    @apply flex justify-between items-center sm:py-3 xs:py-3 sm:px-3 xs:px-3
+}
+
+.leftsearchPagi{
+ @apply   xs:w-full sm:w-full
+}
+
+.rightSearchPagi{
+    @apply   py-p15  xs:hidden sm:hidden
+   }
+
+   .recordCount{
+       @apply flex justify-between items-center gap-4 xs:justify-between sm:justify-around
+   }
+
+   .supplierRecords{
+   @apply font-bold text-xl text-blackshade
+}
+
+.searchSupplier{
+    @apply xs:hidden sm:hidden
+}
+.serchCloseIconSection{
+    @apply xs:block sm:block hidden
+}
+.closeIconCon{
+    @apply formSelectArrowclick z-zindex99
+}
+.searchIconPlace{
+    @apply bg-white h-10 w-10 rounded-full  flex justify-center items-center
+}
+.searchClickbtn{
+    @apply hidden xs:block sm:block
+}
+
+.itemsPagi{
+    @apply flex items-center gap-10
+}
+.itemsNo{
+    @apply flex items-center gap-2
+}
+.pagiWrapper{
+    @apply inline-flex space-x-2 items-center gap-2
+}
+.preNextbtn{
+    @apply flex items-center justify-center py-p5px px-p7px rounded-br5 border border-erBlue  text-erBlue bg-white text-font13px transition-colors  hover:bg-indigo-100
+}
+.pagiItemsNumber{
+    @apply w-8 h-8 text-blackshade transition-colors duration-150 rounded-full  hover:bg-indigo-100
+}
+.pagiItemsNumberActive{
+    @apply w-8 h-8 text-blackshade transition-colors duration-150 rounded-full   bg-white border  border-erBlue  
+}
+.tableSectionSuppliers{
+@apply -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8
+}
+.tableWrapper{
+    @apply shadow overflow-x-visible overflow-y-visible
+}
+.mainTable{
+    @apply min-w-full divide-y divide-gray-200
+}
+.tdfirstshortInfo{
+    @apply leading-relaxed px-3 py-p9px
+}
+.tdfirstDetails{
+    @apply leading-relaxed px-3 py-p9px
+}
+.tdfirstDetailsformodal{
+    @apply leading-relaxed
+}
+.itemList{
+    @apply w-full flex items-center 
+}
+
+.paddingrt{
+    @apply pr-3 py-p9px
+}
+
+.statusWrapper{
+    @apply text-font13px font-normal inline-flex items-center whitespace-nowrap
+}
+
+.statusredcircle{
+    @apply bg-bgmandatorysign rounded-full w-w10px h-h10px mr-2 whitespace-nowrap
+}
+.statusGreencircle{
+    @apply bg-bgGreenlight rounded-full w-w10px h-h10px mr-2 whitespace-nowrap
+}
+
+.auditTrailtd{
+    @apply flex items-center gap-3
+}
+.chatIcon{
+    @apply  w-4 h-4 mr-2 ml-1
+}
+.mtextaudit{
+    @apply text-font11 font-light text-blackshade w-10
+}
+
+.arrowCollaps{
+    @apply bg-erBlue rounded-full w-w30px h-h30px  ml-5  flex cursor-pointer
+}
+
+.downArrowIcon{
+    @apply  w-w30px h-h30px  px-2
+}
+
+.detailsarrowCollaps{
+    @apply bg-black rounded-full w-w30px h-h30px   ml-5  flex cursor-pointer
+}
+.downArrowIconDetails{
+    @apply  w-w30px h-h30px transform rotate-180 px-2
+}
+
+.timelinesection{
+    @apply col-start-2 col-end-4 mr-1 md:mx-auto relative
+}
+.timeline{
+    @apply h-full w-6 flex items-center justify-center
+}
+.timelineImg{
+    @apply w-5 h-5 absolute top-1/3 -mt-3 rounded-full bg-white  text-center
+}
+.timelineContent{
+    @apply col-start-4 col-end-12 p-4 rounded-xl my-0 mr-auto  w-full
+}
+.timeCommenterName{
+    @apply font-medium text-sm mb-1 text-textdarkgrey flex items-center justify-between
+}
+.timeCommentDate{
+    @apply text-textdarkgrey italic text-xs font-light
+}
+.timeStatus{
+    @apply leading-tight text-justify w-full text-font13px text-textdarkgrey font-normal  p-2 flex justify-items-start items-center
+}
+.timeStatusbglightPink{
+    @apply bg-bglightPink
+}
+.timeStatusbglightPurple{
+    @apply bg-bgpurplelight
+}
+.timeStatusbglightGreen{
+    @apply bg-bgGreenLight
+}
+
+
+
+
+.timeCircle{
+    @apply  rounded-full w-1.5 h-1.5 bg-bgdarkgrey mr-2
+}
+
+.supplierInfoModalSection{
+    @apply w-full bg-black bg-opacity-80 hidden fixed z-zindex99 right-0 top-0 h-screen overflow-hidden
+}
+.mainSupInfo{
+    @apply bg-white   w-w450px xs:w-full xs:ml-0 sm:ml-0  ml-auto  h-screen
+}
+.supInfoWrapper{
+    @apply flex flex-col md:grid grid-cols-12 text-black
+}
+.infoUserdetailsSection{
+    @apply flex justify-between
+}
+.updatebutton{
+    @apply xs:hidden sm:hidden
+}
+.closesup{
+    @apply bg-black p-1.5 rounded-full cursor-pointer
+}
+.commentBox{
+    @apply  relative bottom-bottom6
+}
+.textAndSubmitButton{
+    @apply bg-black flex justify-between p-2 px-3
+}
+
+.btnsubmitComment{
+    @apply bg-withRun text-erBlue rounded border border-erBlue text-font13px p-p5px
+}
+
+.textareaComment{
+    @apply border resize-none border-blackshade w-full outline-none border-opacity-10 px-2
+}
+
+.timelinescroll{
+    @apply overflow-scroll h-h600 pb-36 xs:overflow-scroll sm:overflow-scroll xs:pb-20 sm:pb-20 xs:h-h600 sm:h-h600
+}
+.timelineGreyline{
+    @apply h-full w-1 bg-bgvlight pointer-events-none
+}
+
+.supDetailsTitle{
+    @apply bg-black text-sm text-white w-24 text-right pt-p7px pr-p7px pb-p15
+}
+.supDetailsTitleAuditTrail{
+    @apply bg-black text-sm text-white w-24 text-right pt-p7px pr-p7px pb-p15 flex justify-end items-center
+}
+.supName{
+    @apply text-base font-normal text-textdarkgrey
+}
+.subDeg{
+    @apply text-sm font-light text-textdarkgrey
+}
+.supDetailsData{
+    @apply bg-white w-full flex justify-between pb-p15
+}
+.paddingArrow{
+    @apply pt-p15 pr-p11px
+}
+.venderListDetails{
+    @apply pb-2
+}
+
+
+
+
+
+
+
+
+@media (max-width:1024px) {
+    .wrapmd{
+    flex-wrap: wrap;
+}
+}
+
+.caret {
+    border-left: solid 10px transparent;
+    border-right: solid 10px transparent;
+    border-bottom: solid 10px #fff;
+    height: 0;
+    width: 0;
+    margin-left: auto;
+    position: relative;
+    left: -36px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.statusDetails p{
+    margin-bottom: 12px;
+}
+
+.statusDetails p:last-child{
+    margin-bottom: 0px;
+}
+
+.valgin{
+    vertical-align: top;
+}
+
+input[type="radio"] + label span {
+    transition: .2s,
+      transform .2s;
+}
+
+input[type="radio"] + label span:hover,
+input[type="radio"] + label:hover span{
+  transform: scale(1.2);
+} 
+
+input[type="radio"]:checked + label span {
+  background-color: #19191D; 
+  box-shadow: 0px 0px 0px 2px white inset;
+}
+
+
+ul.bgtablinks li:first-child a.active{
+     border-radius:8px 8px 0px 0px;
+    background: #FF2F12;
+  }
+
+  ul.bgtablinks li:last-child a.active{
+     border-radius:0px 0px 8px 8px;
+    background: #FF2F12;
+  }
+
+  ul.bgtablinks li a.active{
+   background: #FF2F12;
+ }
+
+ ul.bgtablinks li a.active .markSection img{
+    display: none;
+}
+ 
+
+a.tabAchorSection.active div p.contentheadingAnchor, a.tabAchorSection.active div p.contentDescriptionText {
+    color: white;
+}
+
+
+ul.bgtablinks li a.active svg path {
+    fill: white !important;
+} 
+
+
+ul.menuList li:hover svg path {
+    stroke: #787885 !important;
+  }
+
+  ul.menuList li:hover svg  {
+    background: #ffffff !important;
+  }
+
+ul.menuList li a.active svg {
+    background: #ffffff;
+    stroke: #787885 !important;
+}
+
+ul.menuList li a.active svg path{
+    stroke: #787885 !important;
+}
+
+
+ul.menuList li a.active span{
+    color: #ffffff !important;
+}
+
+
+  @media(max-width:768px){
+ 
+    .xshidden{
+        display: none;
+    }
+ 
+    .d-block-content{
+        display: block;
+    }
+
+    .border-r-none{
+        border-color: transparent;
+    }
+
+    div#mobilemenu {
+        width: 251px;
+        z-index: 50;
+    }
+    ul.menuList li a {
+        display: flex;
+        align-items: center;
+        column-gap: 14px;
+    }
+    ul.menuList li {
+        margin-left: 17px;
+    }
+    ul.menuList li a svg {
+        margin: 0;
+    }
+    ul.menuList li a span {
+        font-size: 15px;
+        font-weight: 500;
+    }
+    .flexwrapSm{
+        flex-wrap: wrap;
+    }
+    .w100xs{
+      width:calc(100% - 0px);
+    }
+    ul.bgtablinks li:first-child a.active{
+        border-radius:8px 0px 0px 8px;
+       background: #FF2F12;
+     }
+   
+     ul.bgtablinks li:last-child a.active{
+        border-radius:0px 8px 8px 0px;
+       background: #FF2F12;
+     }
+  }
+
+  table, th, td {
+    border: 1px solid transparent;
+}
+
+
+
