@@ -35,6 +35,17 @@
     @apply  text-greycolor bg-white  appearance-none border inline-block pt-3.5 pb-3.5 pl-12 pr-8 rounded leading-tight w-full outline-none
 }
 
+.inputboxpopover{
+    @apply  text-greycolor bg-white  appearance-none border inline-block pt-3.5 pb-3.5 pl-pr14px  rounded leading-tight w-full   outline-none
+}
+.inputboxpopoverdate{
+    @apply  text-greycolor bg-white  appearance-none border inline-block pt-3.5 pb-3.5 pl-pr14px  rounded leading-tight  w-full  outline-none pr-p11px 
+}
+
+.inputboxbgv{
+    @apply  text-greycolor bg-white  appearance-none border inline-block pt-3.5 pb-3.5 pl-pr14px pr-pr14px rounded leading-tight w-full outline-none
+}
+
 .inputboxsearch{
 
     @apply  text-grey bg-white  w-64 appearance-none border border-grey inline-block pt-2 pb-2 pl-12 pr-8 rounded-full leading-tight outline-none  text-sm
@@ -52,9 +63,15 @@
 .breadcrumb{
     @apply w-full  px-3 pr-pr14px pl-pr14px sm:sticky lg:sticky md:sticky xl:sticky 2xl:sticky top-top58px bg-bgBody z-10 xs:px-0
 }
+.breadcrumbSup{
+    @apply w-full     top-top58px bg-bgBody z-10 xs:px-0
+}
 
 .breadcrumbtext{
     @apply text-xl font-medium pt-pt21 pb-pb30 xs:p-pt21 sm:p-pt21 border-borderBreadcrumb border-b flex items-center xs:flex-wrap xs:py-4
+}
+.breadcrumbtextbgv{
+    @apply text-xl font-medium pt-p19 pb-p19 xs:p-pt21 sm:p-pt21 border-borderBreadcrumb border-b flex items-center xs:flex-wrap xs:py-4
 }
 
 
@@ -132,6 +149,9 @@
 .associateProfile{
     @apply w-14 h-14 rounded-full object-cover
 }
+.associateProfilephoto{
+    @apply w-14 h-14  object-cover
+}
 
 .branchText{
     @apply text-base font-normal text-blackshade mt-4
@@ -189,6 +209,9 @@
 .formGroup{
     @apply w-full flex mb-2.5 pr-0 md:pr-4 items-center  xs:flex-wrap sm:flex-wrap
 }
+.formGroupbgv{
+    @apply w-full flex mb-2.5 pr-0 md:pr-4 items-baseline  xs:flex-wrap sm:flex-wrap 
+}
 .formGroupBaseLine{
     @apply w-full flex mb-2.5 pr-0 md:pr-4 items-baseline  xs:flex-wrap sm:flex-wrap
 }
@@ -201,12 +224,20 @@
 .formInnerGroup{
     @apply  relative w-selectboxwidth  xs:w-full sm:w-full border-none
 }
+.formInnerGroupp{
+    @apply  relative w-w224  xs:w-full sm:w-full border-none
+}
 .formInnerGroupNote{
     @apply  relative w-auto border-none
 }
 .formSelectArrow{
     @apply pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 pr-4
 }
+
+.formSelectArrowpopover{
+    @apply pointer-events-none  inset-y-0 right-0 flex items-center px-2 pr-4
+}
+
 
 .formSelectArrowclick{
     @apply  absolute inset-y-0 right-0 flex items-center px-2 pr-4
@@ -232,12 +263,20 @@
 } 
 
 .contentDescriptionText{
-    @apply text-font13px text-grey
+    @apply text-font13px text-grey font-normal
 }
 
 .saveandproceed{
     @apply bg-erBlue font-medium rounded text-yellow-50 text-sm px-5 py-2 ml-3.5
 }
+
+.Initiatebgv{
+    @apply bg-bgGreen font-medium rounded text-yellow-50 text-sm px-5 py-2 ml-3.5
+}
+.bgveripending{
+    @apply text-orange  italic text-sm font-medium whitespace-nowrap flex items-center mr-4
+}
+
 
 
 .ErBlueButton{
@@ -299,11 +338,11 @@
 
 
 .associateDetails{
-    @apply bg-white rounded-lg w-w445px sm:w-full mdl:mb-5 h-full mdl:w-full
+    @apply bg-white rounded-lg w-w445px md:w-w445px lg:w-w445px xl:w-w445px sm:w-full mdl:mb-5 h-full mdl:w-full
 }
 
 .smButton{
-    @apply py-1 px-2 rounded border-erBlue border
+    @apply py-1 px-2 rounded border-erBlue border cursor-pointer
 }
 
 .detailsHeader{
@@ -340,7 +379,7 @@
 }
 
 .userStatusTick{
-    @apply flex items-center text-sm text-green italic font-medium
+    @apply flex items-center text-sm text-green italic font-medium flex justify-end
 }
 
 .userInfoSecPadding{
@@ -379,15 +418,24 @@
 }
 
 .Username{
-    @apply flex xs:text-base xs:items-center text-font26 items-center
+    @apply flex xs:text-base xs:items-center text-font26 items-center font-medium
 }
-
+.modalheader{
+   @apply flex xs:text-base xs:items-center text-lg items-center font-medium
+}
 .userIconMedia{
     @apply pr-2.5 pl-5 xs:pl-0 sm:pl-2
 }
 
+.userIconMediaModal{
+    @apply pr-2.5  xs:pl-0 sm:pl-2
+}
+
 .userDesignation{
     @apply text-sm font-light pl-1 xs:text-base xs:font-medium sm:font-medium sm:text-base
+}
+.userDesignationbgv{
+    @apply text-sm font-light pl-1 xs:text-base  sm:text-base
 }
 
 .breadcrumbRight{
@@ -525,6 +573,9 @@
 .dashboardWrapper{
     @apply flex gap-4 xsl:flex-wrap
 }
+.dashboardWrappersup{
+    @apply flex gap-4 xsl:flex-wrap m-m15 xs:mx-3 xs:mt-0 sm:mx-3 sm:flex-wrap xs:flex-wrap
+}
 
 .listli{
 @apply flex justify-between items-center border-b border-bordercolor py-1 font-light text-sm text-blackshade
@@ -541,7 +592,7 @@
 }
 
 .formLableSelect{
-    @apply text-blackshade  text-sm font-light pl-2
+    @apply text-blackshade  text-sm font-light pl-2 
 }
 
 .formInnerGroupSelect{
@@ -674,7 +725,7 @@
 }
 
 .inputChecked{
-  @apply  w-4  h-4 text-red-400 border-gray-200 rounded focus:bg-bgdarkgrey
+  @apply  w-4  h-4 text-red-400 border-gray-200 rounded focus:bg-bgdarkgrey 
 }
 
 .onboardedText{
@@ -942,7 +993,7 @@
 }
 
 .timelinescroll{
-    @apply overflow-scroll h-h600 pb-36 xs:overflow-scroll sm:overflow-scroll xs:pb-20 sm:pb-20 xs:h-h600 sm:h-h600
+    @apply overflow-scroll h-h600 pb-48 xs:overflow-scroll sm:overflow-scroll xs:pb-20 sm:pb-20 xs:h-h600 sm:h-h600
 }
 .timelineGreyline{
     @apply h-full w-1 bg-bgvlight pointer-events-none
@@ -970,16 +1021,120 @@
     @apply pb-2
 }
 
+.emailsup{
+    @apply flex items-center text-lg font-bold text-blackshade leading-9 mt-2 border-b border-bordercolor pb-pr14px
+}
+.emailsuplast{
+    @apply flex items-center text-lg font-bold text-blackshade leading-9 mt-2  pb-pr14px
+}
+.titleSup{
+    @apply text-sm text-blackshade font-light
+}
 
+.editbgv{
+    @apply border-erBlue border py-p5px px-p5px rounded ml-2
+}
+.smNotebgv{
+    @apply text-xs font-normal text-textgrey mt-m5
+}
+.veriTextEmail{
+    @apply flex text-green font-medium text-sm italic items-center
+}
 
+.modalWrappersuccess{
+    @apply  h-screen     fixed  left-0 top-0 flex justify-center items-center inset-0 z-50 outline-none focus:outline-none
+}
 
+.viewDocmodal{
+    @apply  h-screen  xs:px-2 sm:px-2 xs:overflow-y-scroll   fixed  left-0 top-0 flex justify-center items-center inset-0 z-50 outline-none focus:outline-none
+}
+.modalsuccessbody{
+    @apply w-full  max-w-2xl p-5 relative mx-auto my-auto rounded-xl shadow-lg  bg-white xs:mx-2
+}
 
+.viewDocmodalsuccessbody{
+    @apply w-full  max-w-4xl  relative mx-auto my-auto  shadow-lg  bg-white xs:mx-2
+}
 
+.allDocmodalsuccessbody{
+    @apply w-full    max-w-6xl relative mx-auto my-auto  shadow-lg  bg-white xs:mx-2
+}
+
+.mainbodyModal{
+    @apply  text-center p-5 py-8 flex-auto justify-center
+}
+.viewDocmainbodyModal{
+    @apply   pt-p19 pl-p15 pr-p15 pb-pt21 flex-auto justify-center
+}
+.viewDocPanmainbodyModal{
+    @apply   pt-p19 pl-p26 pr-p26 pb-pt21 flex-auto justify-center
+}
+.successTextgreen{
+    @apply text-3xl font-medium text-green py-4 xs:text-xl sm:text-xl
+}
+.successDes{
+@apply text-blackshade font-medium text-lg xs:text-sm sm:text-sm px-8
+}
+
+.ChangeAssociateTypeWrapper{
+    @apply flex absolute  md:flex-row flex-col items-start justify-center w-full
+}
+.changeAssoMain{
+@apply absolute xs:fixed  w-w420 xs:w-full sm:w-full transition duration-150 ease-in-out md:mt-0 mt-8  xs:left-0 sm:left-0 xs:top-0 sm:top-0 left-left651 top-top183 z-zindex99
+}
+
+.light14grey{
+    @apply text-greycolor text-sm font-light w-36  xs:mb-2
+}
+.light14greylable{
+    @apply text-greycolor text-sm font-light w-24
+}
+
+.dataValue{
+@apply text-greycolor font-normal text-base
+}
+
+.bglightcolormodal{
+    @apply absolute bg-black opacity-80 inset-0 z-0
+}
+.DocCardlist{
+    @apply xs:w-full sm:w-full w-7/12 pr-8 h-h442 overflow-y-scroll
+}
+
+.cardDocWrapper{
+    @apply border-b py-4
+}
+
+.mainContainerWrapper{
+    @apply flex gap-6 xs:flex-wrap
+}
+.infoDivCard{
+    @apply flex gap-4
+}
+.infofSection{
+    @apply flex justify-between w-full xs:flex-wrap sm:flex-wrap
+}
+.secFirstDoc{
+    @apply flex gap-4 xs:flex-wrap sm:flex-wrap
+}
+
+.addDocumentSection{
+    @apply w-5/12  xs:w-full sm:w-full
+}
+.addSecform{
+    @apply bg-lighterGrey rounded-lg h-full
+}
 
 
 @media (max-width:1024px) {
     .wrapmd{
     flex-wrap: wrap;
+}
+.changeAssoMain {
+    position: fixed;
+    top: 0px;
+    left: 8px;
+    width: 95%;
 }
 }
 
@@ -994,6 +1149,27 @@
     left: -36px;
 }
 
+.theadpopover tr th{
+    font-size: 13px;
+    font-weight: 500;
+    background: #060606;
+    color: white;
+    text-align: center;
+    padding: 5px 9px;
+
+}
+.tbodypopover tr td{
+    color: #575757;
+    font-size: 13px;
+    font-weight: 400;
+    white-space: nowrap;
+    text-align: center;
+    padding: 10px 0px;
+}
+
+.tbodypopover tr{
+    border-bottom: 2px solid #BECDD7;
+}
 
 
 
@@ -1017,6 +1193,23 @@
 
 
 
+
+
+.swiper-pagination.relative.swiper-pagination-clickable.swiper-pagination-bullets.swiper-pagination-horizontal {
+    position: relative!important;
+}
+.swiper-pagination-bullet {
+    width: var(--swiper-pagination-bullet-width,var(--swiper-pagination-bullet-size,10px))!important;
+    height: var(--swiper-pagination-bullet-height,var(--swiper-pagination-bullet-size,10px))!important;
+    
+}
+span.swiper-pagination-bullet.swiper-pagination-bullet-active {
+    background: #374EA2;
+}
+span.swiper-pagination-bullet {
+    background: #B4B4BB;
+    opacity: 1;
+}
 
 .statusDetails p{
     margin-bottom: 12px;

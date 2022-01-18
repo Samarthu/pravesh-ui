@@ -6,6 +6,8 @@
     let routeOnboard = "";
     let routeDashboard = "";
     let routeSupplier = "";
+    let routeDownloads = "";
+    let routeSupport = "";
 
     export let url = "";
 
@@ -24,9 +26,21 @@
         goto(routeSupplier, { replaceState });
     }
 
+    function routeToPageDownloads() {
+        let replaceState = false;
+        goto(routeDownloads, { replaceState });
+    }
+
+    function routeToPageSupport() {
+        let replaceState = false;
+        goto(routeSupport, { replaceState });
+    }
+
     routeOnboard = "bussines"; 
     routeDashboard = "dashboard";
     routeSupplier = "supplier";   
+    routeDownloads = "downloads"; 
+    routeSupport = "support"; 
 </script>
 
 <div class="w-full flex">
@@ -60,7 +74,8 @@
                 </a>
             </li>
             <li on:click={routeToPageOnboard}  class="listItem">
-                <a href="javascript:void(0)" class="active">
+                <a href="javascript:void(0)" >
+                    <!-- class="active" -->
                     <svg
                         class="svgIcon"
                         width="22"
@@ -265,7 +280,7 @@
                     <span class="menuname">Work Order</span>
                 </a>
             </li>
-            <li class="listItem">
+            <li on:click={routeToPageDownloads} class="listItem">
                 <a class="" href="javascript:void(0)">
                     <svg
                         class="svgIcon"
@@ -299,7 +314,7 @@
                     <span class="menuname">Downloads</span>
                 </a>
             </li>
-            <li class="listItem">
+            <li on:click={routeToPageSupport} class="listItem">
                 <a class="" href="javascript:void(0)">
                     <svg
                         class="svgIcon"

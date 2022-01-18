@@ -5,6 +5,9 @@
     import Breadcrumb from "./breadcrumb.svelte";
 
     let routeNext = "";
+    let routeBgv = "";
+    let temp = "Add";
+    let temp1 = "change";
 
     export let url = "";
 
@@ -12,6 +15,29 @@
         let replaceState = false;
         goto(routeNext, { replaceState });
     }
+
+    function routeToBgv() {
+        let replaceState = false;
+        goto(routeBgv, { replaceState });
+    }
+    
+    function myBtn() {
+        associateModal.style.display = "block";
+    };
+
+    function tagAddRemove() {
+        addRemoveModal.style.display = "block";
+    };
+
+    function clear() {
+        addRemoveModal.style.display = "none";
+    };
+
+    function close() {
+        associateModal.style.display = "none";
+    };
+
+    routeBgv = "bgv";
 
     routeNext = "catagory";
 </script>
@@ -92,7 +118,7 @@
                         </div>
                         <div class="statusrightlink">
                             <div>
-                                <p class="initiateText">
+                                <p on:click={routeToBgv} class="initiateText">
                                     <a href="" class="flex"> <img src="../src/img/InitiateBGVerification.png"
                                             class=" pr-2" alt=""> Initiate BG
                                         Verification</a>
@@ -272,11 +298,252 @@
                                 </p>
                             </div>
                             <div class="right flex">
-                                <p class="flex items-center smButtonText pr-3">
+                                <p class="flex items-center smButtonText pr-3" on:click="{tagAddRemove}">
                                     <a href="" class="smButton">
                                         Add/Remove Tags
                                     </a>
                                 </p>
+
+                                <!-- Add Remove Tag Modal -->
+
+                                <div class="hidden" id="addRemoveModal">
+                                    <div class="ChangeAssociateTypeWrapper" >
+                                        <div  class="changeAssoMain ">
+                                            <div class=" w-full bg-white rounded shadow-2xl">
+                                                <div class="relative  rounded-t ">
+                                                    <svg class="absolute top-36 transform rotate-90 -right-6 -mt-5 block md:hidden xs:hidden"
+                                                        xmlns="http://www.w3.org/2000/svg" width="26" height="23"
+                                                        viewBox="0 0 26 23" fill="none">
+                                                        <path id="Polygon 2" d="M13 0L25.9904 22.5H0.00961876L13 0Z"
+                                                            fill="#ffffff" stroke='#E7E7E7' />
+                                                    </svg>
+                                                </div>
+                                                <div class="w-full h-full  pb-5 ">
+                                                    <div
+                                                        class="bg-black px-4 flex py-4 justify-between rounded-t-md rounded-tr-md">
+                                                        <div class="leftHeadingpopover text-white">
+                                                            <p>Add / Remove Tags</p>
+                                                        </div>
+                                                        <div class="rightcloseIconBlack" on:click="{clear}">
+                                                            <img src="../src/img/closewhite.svg" class="cursor-pointer" id="closeAddRemove" alt="">
+                                                        </div>
+                                                    </div>
+                                                    <div class="tabwrapper flex justify-between text-center">
+                                                        <div class="changetype py-3 w-2/4 " on:click={()=>{temp="Add"}}>
+                                                            <p>Add Tags</p>
+                                                        </div>
+                                                        <div class="Historytab py-3 w-2/4	 bg-bglightgreye"  on:click={()=>{temp="tag"}}>
+                                                            <p>Tag Audit Trail</p>
+                                                        </div>
+                                                    </div>
+
+                                                    {#if temp=="Add"}
+                                                    <div class="changetypeSection ">
+
+                                                       
+                                                      
+                                                        <div class="flex px-2 pt-3 items-center xs:flex-wrap">
+                                                            <div class="light14grey">Select Tag</div>
+                                                            <div class="formInnerGroup ">
+                                                                <select class="inputboxpopover">
+                                                                    <option class="pt-6">Select</option>
+                                                                    <option>ICICI</option>
+                                                                    <option>Axis</option>
+                                                                    <option>SIB</option>
+                                                                </select>
+                                                                <div class="formSelectArrow ">
+                                                                    <img src="../src/img/selectarrow.png"
+                                                                        class="w-5 h-auto" alt="">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                       
+                                                        <div class="flex px-2 py-3 items-center xs:flex-wrap">
+                                                            <div class="light14grey">Remove On</div>
+                                                            <div class="formInnerGroup ">
+                                                                <input type="date" class="inputboxpopoverdate"
+                                                                    placeholder=" ">
+                                                                    <p
+                                                                    class="text-grey whitespace-nowrap text-xs px-1 mt-1">
+                                                                    Note: Use only if required</p>
+                                                            </div>
+                                                        </div>
+                                                       
+                                                        <div class="flex px-2 py-0 items-center xs:flex-wrap">
+                                                            <div class="light14grey w-36">Remarks</div>
+                                                            <div class="formInnerGroup">
+                                                                <input class="inputboxpopover" type="text">
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="flex px-3 justify-between mt-4">
+                                                            <div class="light14grey w-36"></div>
+                                                            <button class="saveandproceed">Add</button>
+                                                        </div>
+
+                                                        <div class="OtherAppliedTagsTable px-3">
+                                                            <p class="text-lg text-blackshade font-medium">Other Applied Tags</p>
+                                                            <table class="table  w-full text-center mt-2 xs:hidden sm:hidden">
+                                                                <thead class="theadpopover">
+                                                                  <tr>
+                                                                    <th>Tag</th>
+                                                                    <th>Remarks</th>
+                                                                    <th>Added by</th>
+                                                                    <th>Added On</th>
+                                                                    <th>Auto Removal On</th>
+                                                                    <th>Remove</th>
+                                                                  </tr>
+                                                                </thead>
+                                                                <tbody class="tbodypopover">
+                                                                  <tr class="border-b">
+                                                                    <td>Addhoc Facility</td>
+                                                                    <td>No Remarks</td>
+                                                                    <td>User name</td>
+                                                                    <td>10-09-2020</td>
+                                                                    <td>No date</td>
+                                                                    <td>
+                                                                        <div class="flex justify-center">
+                                                                            <img src="../src/img/reject.png" alt="">
+                                                                        </div>
+                                                                    </td>
+                                                                  </tr>
+                                                                  <tr class="border-b">
+                                                                    <td>Addhoc Facility</td>
+                                                                    <td>No Remarks</td>
+                                                                    <td>User name</td>
+                                                                    <td>10-09-2020</td>
+                                                                    <td>No date</td>
+                                                                    <td>
+                                                                        <div class="flex justify-center">
+                                                                            <img src="../src/img/reject.png" alt="">
+                                                                        </div>
+                                                                    </td>
+                                                                  </tr>
+                                                                 
+                                                                
+                                                                </tbody>
+                                                              </table>
+                                                              ​
+                                                              <div class="associateCard  border p-p7px  rounded-md hidden xs:block sm:block">
+      
+                                                                  <div class="flex px-4 py-1 items-center">
+                                                                      <div class="light14grey">Tag</div>
+                                                                      <div class="dataValue">Addhoc Facility	 </div>
+                                                                  </div>
+                                                                  <div class="flex px-4 py-1 items-center">
+                                                                      <div class="light14grey">Remarks	</div>
+                                                                      <div class="dataValue">No Remarks	 </div>
+                                                                  </div>
+                                                                  <div class="flex px-4 py-1 items-center">
+                                                                      <div class="light14grey">Added by	</div>
+                                                                      <div class="dataValue">User name	</div>
+                                                                  </div>
+                                                                  <div class="flex px-4 py-1 items-center">
+                                                                      <div class="light14grey">Added On	</div>
+                                                                      <div class="dataValue">13-Apr-2021 </div>
+                                                                  </div>
+                                                                  <div class="flex px-4 py-1 items-center">
+                                                                      <div class="light14grey">Auto Removal On	</div>
+                                                                      <div class="dataValue">No date	  </div>
+                                                                  </div>
+                                                                  <div class="flex px-4 py-1 items-center">
+                                                                      <div class="light14grey">Remove</div>
+                                                                      <div class="dataValue">    <img src="../src/img/reject.png" alt=""> </div>
+                                                                  </div>
+                                                                 
+                                                                 
+                                                              </div>
+                                                        </div>    
+
+
+                                                    </div>
+                                                    {/if}
+
+                                                    {#if temp=="tag"}
+                                                    <div class="changeAssociateSection mx-3 ">
+                                                        <table class="table  mt-2 w-full xs:hidden sm:hidden">
+                                                            <thead class="theadpopover">
+                                                              <tr>
+                                                                <th>Tag</th>
+                                                                <th>Date</th>
+                                                                <th>Given by</th>
+                                                                <th>Status</th>
+                                                            
+                                                              </tr>
+                                                            </thead>
+                                                            <tbody class="tbodypopover">
+                                                              <tr class="border-b">
+                                                                <td>Addhoc Facility</td>
+                                                                <td>10-09-2020</td>
+                                                                <td>User name</td>
+                                                                <td>Active</td>
+                                                               
+                                                              </tr>
+                                                              <tr class="border-b">
+                                                                <td>Addhoc Facility</td>
+                                                                <td>10-09-2020</td>
+                                                                <td>User name</td>
+                                                                <td>Active</td>
+                                                              </tr>
+                                                            
+                                                            </tbody>
+                                                          </table>
+                                                          ​
+                                                        <div class="associateCard  border p-p7px rounded-md hidden xs:block sm:block">
+
+                                                            <div class="flex px-4 py-1 items-center">
+                                                                <div class="light14grey">Tag</div>
+                                                                <div class="dataValue">Addhoc Facility </div>
+                                                            </div>
+                                                            <div class="flex px-4 py-1 items-center">
+                                                                <div class="light14grey">Date</div>
+                                                                <div class="dataValue">10-09-2020 </div>
+                                                            </div>
+                                                            <div class="flex px-4 py-1 items-center">
+                                                                <div class="light14grey"> Given by</div>
+                                                                <div class="dataValue">User name</div>
+                                                            </div>
+                                                            <div class="flex px-4 py-1 items-center">
+                                                                <div class="light14grey">Status</div>
+                                                                <div class="dataValue">Active</div>
+                                                            </div>
+                                                         
+                                                        </div>
+
+                                                        <div class="associateCard  border p-p7px  rounded-md hidden xs:block sm:block">
+
+                                                            <div class="flex px-4 py-1 items-center">
+                                                                <div class="light14grey">Tag</div>
+                                                                <div class="dataValue">Addhoc Facility </div>
+                                                            </div>
+                                                            <div class="flex px-4 py-1 items-center">
+                                                                <div class="light14grey">Date</div>
+                                                                <div class="dataValue">10-09-2020 </div>
+                                                            </div>
+                                                            <div class="flex px-4 py-1 items-center">
+                                                                <div class="light14grey"> Given by</div>
+                                                                <div class="dataValue">User name</div>
+                                                            </div>
+                                                            <div class="flex px-4 py-1 items-center">
+                                                                <div class="light14grey">Status</div>
+                                                                <div class="dataValue">Active</div>
+                                                            </div>
+                                                         
+                                                        </div>
+                                                    </div>
+                                                    {/if}
+                                                </div>
+                                            </div>
+                                        </div>
+                                   </div>
+                                  </div>
+                                <!-- </div> -->
+
+
+
+
+
+
                                 <p class="flex items-center smButtonText pr-3">
                                     <a href="" class="smButton">
                                         Work Contract
@@ -299,11 +566,196 @@
                                         </div>
                                     </div>
                                     <div class="userStatus ">
-                                        <p class="flex items-center smButtonText">
+                                        <p class="flex items-center smButtonText" on:click="{myBtn}">
                                             <a href="" class="smButton">
                                                 Change
                                             </a>
                                         </p>
+
+                                        <div class="hidden" id="associateModal">
+                                            <div class="ChangeAssociateTypeWrapper" >
+                                                <div  class="changeAssoMain ">
+                                                    <div class=" w-full bg-white rounded shadow-2xl">
+                                                        <div class="relative  rounded-t ">
+                                                            <svg class="absolute top-36 transform rotate-90 -right-6 -mt-5 block md:hidden xs:hidden"
+                                                                xmlns="http://www.w3.org/2000/svg" width="26" height="23"
+                                                                viewBox="0 0 26 23" fill="none">
+                                                                <path id="Polygon 2" d="M13 0L25.9904 22.5H0.00961876L13 0Z"
+                                                                    fill="#ffffff" stroke='#E7E7E7' />
+                                                            </svg>
+                                                        </div>
+                                                        <div class="w-full h-full  pb-5 ">
+                                                            <div
+                                                                class="bg-black px-4 flex py-4 justify-between rounded-t-md rounded-tr-md">
+                                                                <div class="leftHeadingpopover text-white">
+                                                                    <p>Change Associate Type</p>
+                                                                </div>
+                                                                <div class="rightcloseIconBlack" on:click="{close}">
+                                                                    <img src="../src/img/closewhite.svg" class="cursor-pointer" id="closeAssociate" alt="">
+                                                                </div>
+                                                            </div>
+                                                            <div class="tabwrapper flex justify-between text-center">
+                                                                <div class="changetype py-4 w-2/4" on:click="{()=>{temp1="change"}}">
+                                                                    <p>Change Type</p>
+                                                                </div>
+                                                                <div class="Historytab py-4 w-2/4	 bg-bglightgreye" on:click="{()=>{temp1="history"}}">
+                                                                    <p>History</p>
+                                                                </div>
+                                                            </div>
+
+                                                            {#if temp1=="change"}
+                                                            <div class="changetypeSection ">
+
+                                                                <div class="flex px-4 pt-4 items-center gap-10 xs:gap-4 xs:flex-wrap">
+                                                                    <div class="flex items-center">
+                                                                        <div class="light14greylable">Current Type</div>
+                                                                        <div class="dataValue">NDA </div>
+                                                                    </div>
+                                                                    <div class="flex items-center">
+                                                                        <div class="light14greylable">Pravesh ID</div>
+                                                                        <div class="dataValue">EFVS00072</div>
+                                                                    </div>
+                                                                    
+                                                                </div>
+                                                              
+                                                                <div class="flex px-4 py-3 items-center xs:flex-wrap">
+                                                                    <div class="light14grey">New Type</div>
+                                                                    <div class="formInnerGroup ">
+                                                                        <select class="inputboxpopover">
+                                                                            <option class="pt-6">Select</option>
+                                                                            <option>ICICI</option>
+                                                                            <option>Axis</option>
+                                                                            <option>SIB</option>
+                                                                        </select>
+                                                                        <div class="formSelectArrow ">
+                                                                            <img src="../src/img/selectarrow.png"
+                                                                                class="w-5 h-auto" alt="">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="flex px-4 py-0 items-center xs:flex-wrap">
+                                                                    <div class="light14grey">Type of Attendance</div>
+                                                                    <div class="formInnerGroup">
+                                                                        <select class="inputboxpopover">
+                                                                            <option class="pt-6">Select</option>
+                                                                            <option>ICICI</option>
+                                                                            <option>Axis</option>
+                                                                            <option>SIB</option>
+                                                                        </select>
+                                                                        <div class="formSelectArrow ">
+                                                                            <img src="../src/img/selectarrow.png"
+                                                                                class="w-5 h-auto" alt="">
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="flex px-4 py-3 items-center xs:flex-wrap">
+                                                                    <div class="light14grey">From Date</div>
+                                                                    <div class="formInnerGroup ">
+                                                                        <input type="date" class="inputboxpopoverdate"
+                                                                            placeholder=" ">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="flex px-4 py-0 items-center xs:flex-wrap">
+                                                                    <div class="light14grey w-36">To Date</div>
+                                                                    <div class="formInnerGroup">
+                                                                        <input type="date" class="inputboxpopoverdate">
+                                                                        <p
+                                                                            class="light14grey whitespace-nowrap text-xs px-1">
+                                                                            Leave empty if no end date</p>
+                                                                    </div>
+
+                                                                </div>
+                                                                <div class="flex px-4 py-3 items-center xs:flex-wrap">
+                                                                    <div class="light14grey w-36">Remarks</div>
+                                                                    <div class="formInnerGroup">
+                                                                        <input class="inputboxpopover" type="text">
+                                                                    </div>
+                                                                </div>
+                                                                <div class="flex px-9 justify-between">
+                                                                    <div class="light14grey w-36"></div>
+                                                                    <button class="saveandproceed">Submit</button>
+                                                                </div>
+                                                            </div>
+                                                            {/if}
+
+                                                            {#if temp1=="history"}
+                                                            <div class="changeAssociateSection">
+                                                                <table class="table mx-3 mt-2 xs:hidden sm:hidden">
+                                                                    <thead class="theadpopover">
+                                                                      <tr>
+                                                                        <th>Associate Type</th>
+                                                                        <th>Type of Attendance</th>
+                                                                        <th>Effective From</th>
+                                                                        <th>Effective Till</th>
+                                                                        <th>Requested On</th>
+                                                                        <th>Requested By</th>
+                                                                        <th>Remarks</th>
+                                                                      </tr>
+                                                                    </thead>
+                                                                    <tbody class="tbodypopover">
+                                                                      <tr class="border-b">
+                                                                        <td>NDA</td>
+                                                                        <td>HDA</td>
+                                                                        <td>11-06-2020</td>
+                                                                        <td>10-09-2020</td>
+                                                                        <td>10-06-2020</td>
+                                                                        <td>suraj.takale@el...</td>
+                                                                        <td>OK</td>
+                                                                      </tr>
+                                                                      <tr class="border-b">
+                                                                        <td>NDA</td>
+                                                                        <td>HDA</td>
+                                                                        <td>11-06-2020</td>
+                                                                        <td>10-09-2020</td>
+                                                                        <td>10-06-2020</td>
+                                                                        <td>suraj.takale@el...</td>
+                                                                        <td>OK</td>
+                                                                      </tr>
+                                                                    
+                                                                    </tbody>
+                                                                  </table>
+                                                                  ​
+                                                                <div class="associateCard  border p-p7px m-2.5 rounded-md hidden xs:block sm:block">
+
+                                                                    <div class="flex px-4 py-1 items-center">
+                                                                        <div class="light14grey">Associate Type</div>
+                                                                        <div class="dataValue">NDA </div>
+                                                                    </div>
+                                                                    <div class="flex px-4 py-1 items-center">
+                                                                        <div class="light14grey">Type for Attendance</div>
+                                                                        <div class="dataValue">NDA </div>
+                                                                    </div>
+                                                                    <div class="flex px-4 py-1 items-center">
+                                                                        <div class="light14grey">Efffective From</div>
+                                                                        <div class="dataValue">11-Jun-2020 </div>
+                                                                    </div>
+                                                                    <div class="flex px-4 py-1 items-center">
+                                                                        <div class="light14grey">Effective Till</div>
+                                                                        <div class="dataValue">13-Apr-2021 </div>
+                                                                    </div>
+                                                                    <div class="flex px-4 py-1 items-center">
+                                                                        <div class="light14grey">Requested on </div>
+                                                                        <div class="dataValue">14-Apr-2021</div>
+                                                                    </div>
+                                                                    <div class="flex px-4 py-1 items-center">
+                                                                        <div class="light14grey">Requested by </div>
+                                                                        <div class="dataValue">suraj.takale@elasti... </div>
+                                                                    </div>
+                                                                    <div class="flex px-4 py-1 items-center">
+                                                                        <div class="light14grey">Remarks</div>
+                                                                        <div class="dataValue">Ok </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            {/if}
+
+                                                        </div>
+
+
+                                                    </div>
+                                                </div>
+                                           </div>
+                                          </div>
                                     </div>
                                 </div>
                                 <div class="userInfoSec3 ">

@@ -10,7 +10,7 @@
         goto(routePrev, { replaceState });
     }
 
-    function routeToSummary() {
+    function routeToSuccess() {
         let replaceState = false;
         goto(routeSubmit, { replaceState });
     }
@@ -837,7 +837,7 @@
                     </div>
                     <div>
                     <button class="saveandproceed">Save</button>
-                        <button on:click={routeToSummary} class="saveandproceed">Submit</button>
+                        <button on:click={routeToSuccess} class="saveandproceed">Submit</button>
                     </div>
                 </div>
             </div>

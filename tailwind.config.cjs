@@ -48,6 +48,7 @@ module.exports = {
         'bglightPink':'#FCE7E7',
         'bgpurplelight':'#E9E9FF',
         'bgGreenLight':'#DEFABB',
+        'bglightgreye':'#EEEEEE',
        
        }),
        zIndex: {
@@ -84,7 +85,9 @@ module.exports = {
         'textdarkgrey': "#575757",
         'bluecolor': "#3A4EFF",
         'pinkcolor':'#FF1E8A',
-        'bgvlight':'#E3E3E3'
+        'bgvlight':'#E3E3E3',
+        'bgGreen': '#54D119'
+
 
 
       },
@@ -111,10 +114,12 @@ module.exports = {
         'width70px': '70px',
         'w79px': '79px',
         'w115px': '115px',
+        'w224':'224px',
         'w300':'300px',
         'w325' : '325px',
         'w345':'345px',
         'serchwidth': '21rem',
+        'w420': '626px',
         'w445px': '445px',  
         'w450px': '450px',  
         'selectboxwidth':'461px',
@@ -132,6 +137,7 @@ module.exports = {
         'h58px': '58px',
         'h68px' : '68px',
         'h106': '106px',
+        'h442':'442px',
         'h600': '600px',
         'heightSideNav':'calc(100vh - 58px)',
 
@@ -141,7 +147,11 @@ module.exports = {
         'top58px': '58px',
         'top157': '157px',
         'top16': '-16px',
-        'bottom6': '-6px'
+        'bottom6': '-6px',
+        'left651': '-651px',
+        'top183': '-183px' ,
+        'top121': '-121px',
+
       },
 
       borderColor: theme => ({
