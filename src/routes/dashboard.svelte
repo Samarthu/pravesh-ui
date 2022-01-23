@@ -1,16 +1,30 @@
+<script context="module">
+ import {onMount} from 'svelte';
+</script>
 <script>
     import { goto } from "$app/navigation";
+    import {demo_api_fun} from '../services/dashboard_services';
+
+    onMount(async () =>{
+        let response = await demo_api_fun();
+        console.log("demo api response",response);
+    })
+
+    
 
     let routeNew = "";
 
-    export let url = "";
+    export let url = "/bussines";;
 
     function routeToBussiness() {
         let replaceState = false;
         goto(routeNew, { replaceState });
     }
 
-    routeNew = "bussines";
+    // routeNew = "/bussines";
+    async function demo_clickhandle(){
+        alert("button clicked");
+    }
 </script>
 
 <!-- Dashboard  -->
@@ -222,4 +236,8 @@
         </div>
     </div>
 
+</div>
+<div>
+    <h1>this is for testing</h1>
+    <button on:click={() =>demo_clickhandle()}>click me bbbbbbbbbbbbbbbbbbbbbbbbb</button>
 </div>

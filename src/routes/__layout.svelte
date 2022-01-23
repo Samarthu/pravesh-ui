@@ -1,5 +1,5 @@
 <script>
-  import "../styles/tailwind-output.css";
+  import "/src/styles/tailwind-output.css";
   import tailwind from "../styles/tailwind.css";
   import Breadcrumb from "./breadcrumb.svelte";
   import Nav from "./nav.svelte";
