@@ -40,7 +40,7 @@
     }
 
     routePrev = "catagory";
-    routeNDA = "nda";
+    routeNDA = "workdetails";
     routeHouse = "housekeeping";
     routeStationStaff = "stationstaff";
     routeTeamLead = "teamlead";
