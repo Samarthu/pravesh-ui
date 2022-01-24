@@ -11,7 +11,7 @@
 
     export let url = "";
 
-    function routeToPage() {
+    function editWorkDetail() {
         let replaceState = false;
         goto(routeNext, { replaceState });
     }
@@ -39,7 +39,7 @@
 
     routeBgv = "bgv";
 
-    routeNext = "catagory";
+    routeNext = "workdetails";
 
     function auditTrial(){
         supplierInfoModal.style.display = "block";
@@ -148,7 +148,7 @@
                             </p>
                         </div>
                         <div class="right flex">
-                            <a href="" class="smButton">
+                            <a href="" class="smButton" on:click="{editWorkDetail}">
                                 <img src="../src/img/edit.png" alt="">
                             </a>
                         </div>

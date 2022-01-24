@@ -1,3 +1,16 @@
+<script>
+    import { goto } from "$app/navigation";
+
+    function routeToSuccess(){
+        let replaceState = false;
+        goto("successpopup", { replaceState });
+    }
+
+    function routeToBack(){
+        let replaceState = false;
+        goto("identityproof", { replaceState });
+    }
+</script>
 
 <div class="mainContent ">
     <div class="breadcrumb ">
@@ -280,7 +293,7 @@
     </div>
     <div class="onboardFormNot ">
         <div class="formFooterActionSubmit">
-            <div on:click={()=>{temp="d"}} class="backButton">
+            <div on:click="{routeToBack}" class="backButton">
                 <img src="../src/img/arrowleft.png" alt="">
             </div>
             <div>

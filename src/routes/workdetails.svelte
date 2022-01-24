@@ -8,6 +8,7 @@ import { goto } from "$app/navigation";
         let replaceState = false;
         goto(routeTo, { replaceState });
     }
+    
     function routeToWorkforce(){
         let replaceState = false;
         goto("workforce", { replaceState });
