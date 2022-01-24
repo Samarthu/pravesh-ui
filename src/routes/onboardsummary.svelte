@@ -40,6 +40,14 @@
     routeBgv = "bgv";
 
     routeNext = "catagory";
+
+    function auditTrial(){
+        supplierInfoModal.style.display = "block";
+    }
+
+    function closeAuditTrailModal(){
+        supplierInfoModal.style.display = "none";
+    }
 </script>
 
 
@@ -61,7 +69,7 @@
                         <p class="breadcrumbRight">
                             <a href=""> <span class="breadRightIcons"> <img
                                         src="../src/img/document.png" class="pr-2" alt=""> Documents</span> </a>
-                            <a href=""> <span class="breadRightIcons"> <img
+                            <a href=""> <span class="breadRightIcons" on:click="{auditTrial}"> <img
                                         src="../src/img/audittrail.png" class="pr-2" alt=""> Audit Trial (12)</span>
                             </a>
                             <span class="backlistText"> <img
@@ -1156,4 +1164,281 @@
 
             </div>
 
+        </div>
+
+
+        <div class="supplierInfoModalSection " id="supplierInfoModal">
+            <div class="mainSupInfo">
+                <div class="p-4">
+                    <div class="supInfoWrapper ">
+                        <div class="infoUserdetailsSection ">
+                            <div class="detailsInfoSection">
+                                <div class="tdfirstDetailsformodal">
+                                    <div class="itemList ">
+                                        <div class="smallText w-w115px">Vendor Name </div>
+                                        <div class="smLable">Nandkishore Services</div>
+                                    </div>
+                                    <div class="itemList ">
+                                        <div class="smallText w-w115px">Vendor Type</div>
+                                        <div class="smLable">Man Power Contractor</div>
+                                    </div>
+                                    <div class="itemList ">
+                                        <div class="smallText w-w115px">Vendor ID</div>
+                                        <div class="smLable">SUPP-35479</div>
+                                    </div>
+                                    <div class="itemList">
+                                        <div class="smallText w-w115px">Location </div>
+                                        <div class="smLable">Pune</div>
+                                    </div>
+                                    <div class="itemList">
+                                        <div class="smallText w-w115px">Status </div>
+                                        <div class="statusinformation">
+                                            <div class="statusWrapper  ">
+                                                <div class="statusredcircle"></div>
+                                                Documents Rejected
+                                            </div>
+                                            <p class="text-xs text-grey ml-4">(ID Proof)</p>
+                                        </div>
+                                    </div>
+    
+    
+                                </div>
+                            </div>
+                            <div class="updatebutton ">
+                                <button class="ErBlueupdated">Update</button>
+                            </div>
+                            <div class="closebuttonsection" on:click="{closeAuditTrailModal}">
+                                <img src="../src/img/close.png" id="closeAuditTrailModal" class="closesup" alt="">
+                            </div>
+                        </div>
+                        <div class="commentBox">
+                            <div class="textAndSubmitButton ">
+                                <p class="text-base text-white">Add your comment</p>
+                                <button class="btnsubmitComment " type="submit"> Submit</button>
+                            </div>
+    
+                            <textarea name="" class="textareaComment " id="" cols="30" rows="3"></textarea>
+                        </div>
+    
+                        <div class="timelinescroll ">
+                            <div class="flex md:contents">
+                                <div class="timelinesection">
+                                    <div class="timeline ">
+                                        <div class="timelineGreyline"></div>
+                                    </div>
+                                    <div class="timelineImg ">
+                                        <img src="../src/img/chat2.svg" class="w-5 h-5" alt="">
+                                    </div>
+                                </div>
+                                <div class="timelineContent ">
+                                    <h3 class="timeCommenterName ">Vivekanand Dasar
+                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
+                                    </h3>
+                                    <div class="timeStatus  timeStatusbglightPink">
+                                        <p class="timeCircle"></p> Voter ID not clear
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex md:contents">
+                                <div class="timelinesection">
+                                    <div class="timeline ">
+                                        <div class="timelineGreyline"></div>
+                                    </div>
+                                    <div class="timelineImg ">
+                                        <img src="../src/img/chat2.svg" class="w-5 h-5" alt="">
+                                    </div>
+                                </div>
+                                <div class="timelineContent ">
+                                    <h3 class="timeCommenterName "> Selvaraj Jayaraman
+                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
+                                    </h3>
+                                    <div class="timeStatus  timeStatusbglightPink">
+                                        <p class="timeCircle"></p> Pancard number mismatch
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex md:contents">
+                                <div class="timelinesection">
+                                    <div class="timeline ">
+                                        <div class="timelineGreyline"></div>
+                                    </div>
+                                    <div class="timelineImg ">
+                                        <img src="../src/img/chat2.svg" class="w-5 h-5" alt="">
+                                    </div>
+                                </div>
+                                <div class="timelineContent ">
+                                    <h3 class="timeCommenterName ">Akshay Saini
+                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
+                                    </h3>
+                                    <div class="timeStatus  timeStatusbglightPurple">
+                                        <p class="timeCircle"></p> Vendor details verified
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex md:contents">
+                                <div class="timelinesection">
+                                    <div class="timeline ">
+                                        <div class="timelineGreyline"></div>
+                                    </div>
+                                    <div class="timelineImg ">
+                                        <img src="../src/img/chat2.svg" class="w-5 h-5" alt="">
+                                    </div>
+                                </div>
+                                <div class="timelineContent ">
+                                    <h3 class="timeCommenterName "> Selvaraj Jayaraman
+                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
+                                    </h3>
+                                    <div class="timeStatus  timeStatusbglightPurple">
+                                        <p class="timeCircle"></p> Vendor Details
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex md:contents">
+                                <div class="timelinesection">
+                                    <div class="timeline ">
+                                        <div class="timelineGreyline"></div>
+                                    </div>
+                                    <div class="timelineImg ">
+                                        <img src="../src/img/chat2.svg" class="w-5 h-5" alt="">
+                                    </div>
+                                </div>
+                                <div class="timelineContent ">
+                                    <h3 class="timeCommenterName ">Vivekanand Dasar
+                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
+                                    </h3>
+                                    <div class="timeStatus  timeStatusbglightGreen">
+                                        <p class="timeCircle"></p> Voter ID not clear
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex md:contents">
+                                <div class="timelinesection">
+                                    <div class="timeline ">
+                                        <div class="timelineGreyline"></div>
+                                    </div>
+                                    <div class="timelineImg ">
+                                        <img src="../src/img/chat2.svg" class="w-5 h-5" alt="">
+                                    </div>
+                                </div>
+                                <div class="timelineContent ">
+                                    <h3 class="timeCommenterName ">Vivekanand Dasar
+                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
+                                    </h3>
+                                    <div class="timeStatus  timeStatusbglightPink">
+                                        <p class="timeCircle"></p> Voter ID not clear
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex md:contents">
+                                <div class="timelinesection">
+                                    <div class="timeline ">
+                                        <div class="timelineGreyline"></div>
+                                    </div>
+                                    <div class="timelineImg ">
+                                        <img src="../src/img/chat2.svg" class="w-5 h-5" alt="">
+                                    </div>
+                                </div>
+                                <div class="timelineContent ">
+                                    <h3 class="timeCommenterName ">Vivekanand Dasar
+                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
+                                    </h3>
+                                    <div class="timeStatus  timeStatusbglightPink">
+                                        <p class="timeCircle"></p> Voter ID not clear
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex md:contents">
+                                <div class="timelinesection">
+                                    <div class="timeline ">
+                                        <div class="timelineGreyline"></div>
+                                    </div>
+                                    <div class="timelineImg ">
+                                        <img src="../src/img/chat2.svg" class="w-5 h-5" alt="">
+                                    </div>
+                                </div>
+                                <div class="timelineContent ">
+                                    <h3 class="timeCommenterName ">Vivekanand Dasar
+                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
+                                    </h3>
+                                    <div class="timeStatus  timeStatusbglightPink">
+                                        <p class="timeCircle"></p> Voter ID not clear
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex md:contents">
+                                <div class="timelinesection">
+                                    <div class="timeline ">
+                                        <div class="timelineGreyline"></div>
+                                    </div>
+                                    <div class="timelineImg ">
+                                        <img src="../src/img/chat2.svg" class="w-5 h-5" alt="">
+                                    </div>
+                                </div>
+                                <div class="timelineContent ">
+                                    <h3 class="timeCommenterName ">Vivekanand Dasar
+                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
+                                    </h3>
+                                    <div class="timeStatus  timeStatusbglightPink">
+                                        <p class="timeCircle"></p> Voter ID not clear
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex md:contents">
+                                <div class="timelinesection">
+                                    <div class="timeline ">
+                                        <div class="timelineGreyline"></div>
+                                    </div>
+                                    <div class="timelineImg ">
+                                        <img src="../src/img/chat2.svg" class="w-5 h-5" alt="">
+                                    </div>
+                                </div>
+                                <div class="timelineContent ">
+                                    <h3 class="timeCommenterName ">Vivekanand Dasar
+                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
+                                    </h3>
+                                    <div class="timeStatus  timeStatusbglightPink">
+                                        <p class="timeCircle"></p> Voter ID not clear
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex md:contents">
+                                <div class="timelinesection">
+                                    <div class="timeline ">
+                                        <div class="timelineGreyline"></div>
+                                    </div>
+                                    <div class="timelineImg ">
+                                        <img src="../src/img/chat2.svg" class="w-5 h-5" alt="">
+                                    </div>
+                                </div>
+                                <div class="timelineContent ">
+                                    <h3 class="timeCommenterName ">Vivekanand Dasar
+                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
+                                    </h3>
+                                    <div class="timeStatus  timeStatusbglightPink">
+                                        <p class="timeCircle"></p> Voter ID not clear
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex md:contents">
+                                <div class="timelinesection">
+                                    <div class="timeline ">
+                                        <div class="timelineGreyline"></div>
+                                    </div>
+                                    <div class="timelineImg ">
+                                        <img src="../src/img/chat2.svg" class="w-5 h-5" alt="">
+                                    </div>
+                                </div>
+                                <div class="timelineContent ">
+                                    <h3 class="timeCommenterName ">Vivekanand Dasar
+                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
+                                    </h3>
+                                    <div class="timeStatus  timeStatusbglightPink">
+                                        <p class="timeCircle"></p> Voter ID not clear
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
