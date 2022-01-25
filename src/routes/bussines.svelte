@@ -1,8 +1,15 @@
 <script>
+    import {onMount} from 'svelte';
     import { Router, Link, Route } from "svelte-routing";
     import Catagory from "./catagory.svelte";
     import { goto } from "$app/navigation";
+    import {get_verticles_fun} from '../services/business_vertical_services';
+    import {vectore_name} from '../stores/vectore_store';
     import Breadcrumb from "./breadcrumb.svelte";
+
+    let org_list= [];
+    let verticle_list = [];
+
 
     let routeNext = "";
 
@@ -12,8 +19,29 @@
         let replaceState = false;
         goto(routeNext, { replaceState });
     }
+    function org_page_routing(verticle_value){
+        vectore_name.set({    verticle: verticle_value})
+        let replaceState = false;
+        goto("organisation-selection", { replaceState });
+
+        // alert("button clicked");
+    }
+    onMount(async () =>{
+        let response = await get_verticles_fun();
+        console.log("verticles api response",response);
+        org_list = response.body.data;
+        console.log(org_list);
+        for(let i =0;i<org_list.length;i++){
+            if(!verticle_list.includes(org_list[i].domain)){
+                verticle_list.push(org_list[i].domain);
+            }
+        }
+        verticle_list = verticle_list;
+        console.log('verticle list',verticle_list);
+    })
 
     routeNext = "catagory";
+
 </script>
 
 <!-- Business Verticle -->
@@ -151,7 +179,15 @@
                         </a>
                     </div>
                 </div>
+                <div>
+                    {#each verticle_list as verticle }
+                     <button on:click={org_page_routing(verticle)} class="transition duration-500 ease-in-out transform hover:-translate-y-1 hover:scale-110 bg-blue-600 hover:bg-red-600 text-white font-semibold py-3 px-6 rounded-md">{verticle}</button>
+                        
+                    {/each}
+                </div>
             </div>
         </div>
+        
     </div>
 </div>
+
