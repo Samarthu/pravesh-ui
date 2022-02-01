@@ -1,5 +1,15 @@
 <script>
 import { goto } from "$app/navigation";
+import {onMount} from 'svelte';
+import {org_name} from '../stores/organisation_store';
+
+
+
+let org_id = null;
+let msme_value = null;
+
+
+
 
 
     let routeTo = "";
@@ -15,6 +25,14 @@ import { goto } from "$app/navigation";
     }
 
     routeTo = "verifycontactnumber";
+    onMount(async () =>{
+        org_name.subscribe(value =>{
+
+          org_id = value.org_id;
+        }); 
+        console.log("org_id",org_id);
+
+    })
 </script>
 
 <div class="mainContent ">
@@ -420,6 +438,69 @@ import { goto } from "$app/navigation";
                         <div class="flex">
                             <div class="formGroup">
                                 <label class="formLable "
+                                    >Is MSME Registered ? <span class="mandatoryIcon"
+                                        >*</span
+                                    ></label
+                                >
+                                <div class="formInnerGroup ">
+                                    <span class="searchicon">
+                                        <img
+                                            src="../src/img/warehouse.png"
+                                            class="placeholderIcon"
+                                            alt=""
+                                        />
+                                    </span>
+                                    <select class="inputbox" bind:value={msme_value}>
+                                        <!-- <option class="pt-6" disabled
+                                            >Select Yes Or No</option
+                                        > -->
+                                        <option value="" disabled selected>Select Yes or No</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                       
+                                    </select>
+                                    <div class="formSelectArrow ">
+                                        <img
+                                            src="../src/img/selectarrow.png"
+                                            class="w-5 h-auto"
+                                            alt=""
+                                        />
+                                    </div>
+                                    {#if (msme_value == 'Yes') }
+                                    <label class="formLable "
+                                    >Attach MSME Certificate<span
+                                        class="mandatoryIcon">*</span
+                                    ></label
+                                >
+                                <div class="formInnerGroup ">
+                                    <label class="cursor-pointer ">
+                                        <div
+                                            class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px"
+                                        >
+                                            Upload
+                                        </div>
+                                        <input type="file" class="hidden" />
+                                    </label>
+                                </div>
+                                {:else if (msme_value == 'No')}
+                                <h1>Accept NON-MSME Declaration<br>
+                                    - I hereby declare that I have confirmed with the vendor and they are not registered under The Micro, Small and Medium Enterprises Development Act, 2006 (MSMED Act).
+                                    </h1>
+                                    <br>
+                                    <input type="checkbox" name="msme_agreement" >
+                                    <label for=""> I Accept</label>
+                                     
+                                        
+                                    {/if}
+
+                                    
+
+                                </div>
+                            </div>
+                        </div>
+                        <!-- <div class="flex">
+                            <div class="formGroup">
+                                <label class="formLable "
                                     >Offer Letter Copy<span
                                         class="mandatoryIcon">*</span
                                     ></label
@@ -451,7 +532,7 @@ import { goto } from "$app/navigation";
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </form>
             </div>
             <div class="onboardFormNot ">
