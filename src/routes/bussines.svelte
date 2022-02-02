@@ -4,7 +4,7 @@
     import Catagory from "./catagory.svelte";
     import { goto } from "$app/navigation";
     import {get_verticles_fun} from '../services/business_vertical_services';
-    import {vectore_name} from '../stores/vectore_store';
+    import {vercticle_name} from '../stores/verticle_store';
     import {get_verticles_ui_fun} from '../services/business_vertical_services';
     import Breadcrumb from "./breadcrumb.svelte";
 
@@ -22,7 +22,7 @@
         goto(routeNext, { replaceState });
     }
     function org_page_routing(verticle_value){
-        vectore_name.set({    verticle: verticle_value})
+        vercticle_name.set({    verticle: verticle_value})
         let replaceState = false;
         goto("organisation-selection", { replaceState });
 

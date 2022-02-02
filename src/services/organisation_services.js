@@ -1,5 +1,5 @@
 import {request} from './interceptor';
-import {get_organization_link} from '../stores/vectore_store';
+import {get_organization_link} from '../stores/verticle_store';
 
 
 
