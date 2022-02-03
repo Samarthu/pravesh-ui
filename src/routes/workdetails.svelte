@@ -1,5 +1,25 @@
 <script>
 import { goto } from "$app/navigation";
+import {onMount} from 'svelte';
+import {org_name} from '../stores/organisation_store';
+import {get_user_scope_function,get_facility_types_function} from '../services/workdetails_services';
+import {station_type_name,get_facility_type_link} from '../stores/station_store';
+import { each } from "svelte/internal";
+
+
+
+let org_id = null;
+let msme_value = null;
+let city_value = null;
+let station_value = null;
+let city_list=[];
+let station_list = [];
+let user_scope_response = null;
+let scope_list={};
+let associate_type_list = [];
+
+
+
 
 
     let routeTo = "";
@@ -15,6 +35,90 @@ import { goto } from "$app/navigation";
     }
 
     routeTo = "verifycontactnumber";
+    onMount(async () =>{
+        org_name.subscribe(value =>{
+
+          org_id = value.org_id;
+        }); 
+        console.log("org_id",org_id);
+         user_scope_response = await get_user_scope_function();
+        console.log("user_scope_response",user_scope_response);
+        for(let i=0;i<user_scope_response.body.data.length;i++){
+            if(!city_list.includes( user_scope_response.body.data[i]['location_name'])){
+                city_list.push(user_scope_response.body.data[i]['location_name']);
+            }
+
+        }
+        city_list = city_list;
+        console.log("city_list",city_list);
+        // for(let i=0;i<city_list.length;i++){
+        //     scope_list[city_list[i]] = [];
+        //     for(let j=0;j<user_scope_response.body.data.length;j++){
+        //         if(city_list[i] == user_scope_response.body.data[j]['location_name']){
+        //             station_list.push(user_scope_response.body.data[j]['stations']);
+                    
+
+        //         }
+        //         // scope_list[city_list[i]] = scope_list[city_list[i]];
+
+
+                    
+                
+        //     }
+            
+        // }
+        
+        scope_list = scope_list;
+        console.log("scope_list",scope_list);
+        let temp;
+        get_facility_type_link.subscribe((value =>{
+            temp = value;
+        }));
+        console.log("facility link",temp);
+        
+
+    })
+    $:{
+        if(user_scope_response != null){
+            for(let i=0;i<user_scope_response.body.data.length;i++){
+            if(city_value == user_scope_response.body.data[i]['location_name']){
+                for(let j=0;j<user_scope_response.body.data[i]['stations'].length;j++){
+                   station_list.push(user_scope_response.body.data[i]['stations'][j]);
+                }
+                break;
+            }
+        }
+        station_list = station_list;
+        console.log("station_list",station_list);
+
+
+        }
+        
+    }
+    async function get_facility_types(){
+        let facility_type_response = await get_facility_types_function();
+        console.log("facility_type_response",facility_type_response);
+        if(facility_type_response.body.status =="green"){
+            associate_type_list = facility_type_response.body.data;
+            console.log("associate_type_list",associate_type_list);
+        }
+
+    }
+    $:{
+        // let demo ;
+        // station_type_name.subscribe(value =>{
+        //     demo = value.station_name;
+        // });
+
+        // let temp;
+        // get_facility_type_link.subscribe((value =>{
+        //     temp = value;
+        // }));
+        let demo =$get_facility_type_link;
+        console.log("facility type link",demo);
+        get_facility_types();
+        
+    }
 </script>
 
 <div class="mainContent ">
@@ -304,11 +408,12 @@ import { goto } from "$app/navigation";
                                             alt=""
                                         />
                                     </span>
-                                    <select class="inputbox">
-                                        <option class="pt-6">Pune</option>
-                                        <option>Nagpur</option>
-                                        <option>Hydrabad</option>
-                                        <option>Kolhapur</option>
+                                    <select class="inputbox" bind:value={city_value}>
+                                        <option value="" disabled selected>Select City</option>
+                                        {#each city_list as city }
+                                        <option value={city}>{city}</option>
+                                            
+                                        {/each}
                                     </select>
                                     <div class="formSelectArrow ">
                                         <img
@@ -335,13 +440,17 @@ import { goto } from "$app/navigation";
                                             alt=""
                                         />
                                     </span>
-                                    <select class="inputbox">
-                                        <option class="pt-6"
+                                    <select class="inputbox" bind:value={$station_type_name.station_name}>
+                                        {#each station_list as station }
+                                         <option value={station.station_code}>{station.station_name} / {station.station_code}</option>
+                                            
+                                        {/each}
+                                        <!-- <option class="pt-6"
                                             >MHPD - Mulshi SP</option
                                         >
                                         <option>MHPD - Haveli SP</option>
                                         <option>HBPD - Bangloru SP</option>
-                                        <option>MHPD - Mulshi SP</option>
+                                        <option>MHPD - Mulshi SP</option> -->
                                     </select>
                                     <div class="formSelectArrow ">
                                         <img
@@ -369,10 +478,14 @@ import { goto } from "$app/navigation";
                                         />
                                     </span>
                                     <select class="inputbox">
-                                        <option class="pt-6">NDA</option>
+                                        {#each associate_type_list as associate_type }
+                                        <option value={associate_type.name}>{associate_type.facility_type_name}</option>
+                                            
+                                        {/each}
+                                        <!-- <option class="pt-6">NDA</option>
                                         <option>Leader</option>
                                         <option>Velocity</option>
-                                        <option>Corporate</option>
+                                        <option>Corporate</option> -->
                                     </select>
                                     <div class="formSelectArrow ">
                                         <img
@@ -420,6 +533,69 @@ import { goto } from "$app/navigation";
                         <div class="flex">
                             <div class="formGroup">
                                 <label class="formLable "
+                                    >Is MSME Registered ? <span class="mandatoryIcon"
+                                        >*</span
+                                    ></label
+                                >
+                                <div class="formInnerGroup ">
+                                    <span class="searchicon">
+                                        <img
+                                            src="../src/img/warehouse.png"
+                                            class="placeholderIcon"
+                                            alt=""
+                                        />
+                                    </span>
+                                    <select class="inputbox" bind:value={msme_value}>
+                                        <!-- <option class="pt-6" disabled
+                                            >Select Yes Or No</option
+                                        > -->
+                                        <option value="" disabled selected>Select Yes or No</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                       
+                                    </select>
+                                    <div class="formSelectArrow ">
+                                        <img
+                                            src="../src/img/selectarrow.png"
+                                            class="w-5 h-auto"
+                                            alt=""
+                                        />
+                                    </div>
+                                    {#if (msme_value == 'Yes') }
+                                    <label class="formLable "
+                                    >Attach MSME Certificate<span
+                                        class="mandatoryIcon">*</span
+                                    ></label
+                                >
+                                <div class="formInnerGroup ">
+                                    <label class="cursor-pointer ">
+                                        <div
+                                            class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px"
+                                        >
+                                            Upload
+                                        </div>
+                                        <input type="file" class="hidden" />
+                                    </label>
+                                </div>
+                                {:else if (msme_value == 'No')}
+                                <h1>Accept NON-MSME Declaration<br>
+                                    - I hereby declare that I have confirmed with the vendor and they are not registered under The Micro, Small and Medium Enterprises Development Act, 2006 (MSMED Act).
+                                    </h1>
+                                    <br>
+                                    <input type="checkbox" name="msme_agreement" >
+                                    <label for=""> I Accept</label>
+                                     
+                                        
+                                    {/if}
+
+                                    
+
+                                </div>
+                            </div>
+                        </div>
+                        <!-- <div class="flex">
+                            <div class="formGroup">
+                                <label class="formLable "
                                     >Offer Letter Copy<span
                                         class="mandatoryIcon">*</span
                                     ></label
@@ -451,7 +627,11 @@ import { goto } from "$app/navigation";
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
+                    <!-- <div>
+                        {$get_facility_type_link}
+                    </div> -->
+                    
                 </form>
             </div>
             <div class="onboardFormNot ">

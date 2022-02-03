@@ -247,12 +247,14 @@ export function request(
     let { body, method } = options;
     console.log("Body is---->",body);
     console.log("Method is--->",method)
+    console.log("options is------>",options);
     options = {
       headers: {
         "Content-Type": "application/json;charset=utf-8",
+        "dataType" : 'json',
 
       },
-      mode: "cors",
+      
       ...options,
     };
   
@@ -270,9 +272,9 @@ export function request(
     //   delete options.body;
     // }
   
-    if (options.body && typeof options.body === "object") {
-      options.body = JSON.stringify(options.body);
-    }
+    // if (options.body && typeof options.body === "object") {
+    //   options.body = JSON.stringify(options.body);
+    // }
   
     // if ((method === "POST" || method === "PUT") && syncOfflineFirst) {
     //   // erjs.loadSpinner.hide();
