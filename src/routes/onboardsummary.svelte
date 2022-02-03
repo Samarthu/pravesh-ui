@@ -8,6 +8,9 @@
     let routeBgv = "";
     let temp = "Add";
     let temp1 = "change";
+    let temp2 = "gst1";
+    let temp3="e-contracts";
+    let temp4="p-contracts-1";
 
     export let url = "";
 
@@ -37,6 +40,14 @@
         associateModal.style.display = "none";
     };
 
+    function allDoc(){
+        modalid.style.display = "block";
+    }
+
+    function closeDoc(){
+        modalid.style.display = "none";
+    }
+
     routeBgv = "bgv";
 
     routeNext = "workdetails";
@@ -47,6 +58,30 @@
 
     function closeAuditTrailModal(){
         supplierInfoModal.style.display = "none";
+    }
+
+    function gstModel(){
+        modalidgst.style.display = "block";
+    }
+
+    function closeGST(){
+        modalidgst.style.display = "none";
+    }
+
+    function erpModel(){
+        erpIdModel.style.display = "block";
+    }
+
+    function closeERP(){
+        erpIdModel.style.display = "none";
+    }
+
+    function workContract(){
+        workContractModel.style.display = "block";
+    }
+
+    function closeWorkContract(){
+        workContractModel.style.display = "none";
     }
 </script>
 
@@ -67,7 +102,8 @@
 
                         </p>
                         <p class="breadcrumbRight">
-                            <a href=""> <span class="breadRightIcons"> <img
+                            <a href="" > <span class="breadRightIcons" on:click="{erpModel}"> ERP Details </span> </a>
+                            <a href=""> <span class="breadRightIcons" on:click="{allDoc}"> <img
                                         src="../src/img/document.png" class="pr-2" alt=""> Documents</span> </a>
                             <a href=""> <span class="breadRightIcons" on:click="{auditTrial}"> <img
                                         src="../src/img/audittrail.png" class="pr-2" alt=""> Audit Trial (12)</span>
@@ -240,8 +276,8 @@
                             </div>
                         </div>
                         <div class="userStatus ">
-                            <p class="flex items-center smButtonText">
-                                <a href="" class="smButton">
+                            <p class="flex items-center smButtonText" >
+                                <a href="" class="smButton" on:click="{gstModel}">
                                     Add
                                 </a>
                             </p>
@@ -553,7 +589,7 @@
 
 
                                 <p class="flex items-center smButtonText pr-3">
-                                    <a href="" class="smButton">
+                                    <a href="" class="smButton" on:click="{workContract}">
                                         Work Contract
                                     </a>
                                 </p>
@@ -1442,3 +1478,966 @@
                 </div>
             </div>
         </div>
+
+        <!-- All Documents modal -->
+      <div class="hidden" id="modalid">
+        <div class=" viewDocmodal  " >
+            <div class="bglightcolormodal"></div>
+            <div class="allDocmodalsuccessbody rounded-lg">
+                <div class="">
+                    <div class="viewDocPanmainbodyModal">
+                        <div class="flex justify-between mb-3">
+                            <div class="leftmodalInfo">
+                                <p class="text-lg text-erBlue font-medium  ">
+                                    <span class=""> All Documents</span>
+                                </p>
+                                <p class="text-sm ">
+                                    <span class="font-medium text-lg"> Dhiraj Shah</span>
+                                    <span class="userDesignation"> - Associate- NDA, MHPD  - Mulsi SP</span>
+                                </p>
+                            </div>
+                            <div class="rightmodalclose" on:click="{closeDoc}">
+                                <img src="../src/img/blackclose.svg" alt="">
+                            </div>
+                        </div>
+                        <div class="innermodal">
+                            <hr>
+                            <div class="scrollbar ">
+                              <div class="mainContainerWrapper ">
+                                    <div class="DocCardlist ">
+                                        <div class="cardDocWrapper ">
+                                            <div class="infoDivCard ">
+                                                <div class="infofSection  ">
+                                                <div class="secFirstDoc ">
+                                                    <div class="docImageSec">
+                                                        <img src="../src/img/pancard.png" alt="">
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale">Document Type</p>
+                                                        <p class="detailData">PAN Card</p>
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale">Uploaded By</p>
+                                                        <p class="detailData">Admin</p>
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale">Uploaded On</p>
+                                                        <p class="detailData">27-Apr-2021 23:29 pm</p>
+                                                    </div>
+                                                  </div>  
+                                                  <div class="secSecond xs:mt-3"> 
+                                                        
+                                                <div class="pl-4">
+                                                    <p class="verifyText">
+                                                        <a href="" class="smButton">
+                                                            <img src="../src/img/view.png" alt="">
+                                                        </a>
+                                                    </p>
+                                                </div>
+                                                </div>
+                                               
+                                             
+                                            </div>
+                                            </div>
+                                            <div class="statusSecForDoc">
+                                               <p class="userStatusTick ">
+                                                   <img src="../src/img/checked.png" alt="" class="pr-1"> Verify
+                                               </p>
+                                            </div>    
+                                        </div> 
+                                        <div class="cardDocWrapper ">
+                                            <div class="infoDivCard ">
+                                                <div class="infofSection  ">
+                                                <div class="secFirstDoc ">
+                                                    <div class="docImageSec">
+                                                        <img src="../src/img/pancard.png" alt="">
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale">Document Type</p>
+                                                        <p class="detailData">PAN Card</p>
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale">Uploaded By</p>
+                                                        <p class="detailData">Admin</p>
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale">Uploaded On</p>
+                                                        <p class="detailData">27-Apr-2021 23:29 pm</p>
+                                                    </div>
+                                                  </div>  
+                                                  <div class="secSecond xs:mt-3"> 
+                                                        
+                                                <div class="pl-4">
+                                                    <p class="verifyText">
+                                                        <a href="" class="smButton">
+                                                            <img src="../src/img/view.png" alt="">
+                                                        </a>
+                                                    </p>
+                                                </div>
+                                                </div>
+                                               
+                                             
+                                            </div>
+                                            </div>
+                                            <div class="statusSecForDoc">
+                                               <p class="userStatusTick ">
+                                                   <img src="../src/img/checked.png" alt="" class="pr-1"> Verify
+                                               </p>
+                                            </div>    
+                                        </div> 
+                                        <div class="cardDocWrapper ">
+                                            <div class="infoDivCard ">
+                                                <div class="infofSection  ">
+                                                <div class="secFirstDoc ">
+                                                    <div class="docImageSec">
+                                                        <img src="../src/img/pancard.png" alt="">
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale">Document Type</p>
+                                                        <p class="detailData">PAN Card</p>
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale">Uploaded By</p>
+                                                        <p class="detailData">Admin</p>
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale">Uploaded On</p>
+                                                        <p class="detailData">27-Apr-2021 23:29 pm</p>
+                                                    </div>
+                                                  </div>  
+                                                  <div class="secSecond xs:mt-3"> 
+                                                        
+                                                <div class="pl-4">
+                                                    <p class="verifyText">
+                                                        <a href="" class="smButton">
+                                                            <img src="../src/img/view.png" alt="">
+                                                        </a>
+                                                    </p>
+                                                </div>
+                                                </div>
+                                               
+                                             
+                                            </div>
+                                            </div>
+                                            <div class="statusSecForDoc">
+                                               <p class="userStatusTick ">
+                                                   <img src="../src/img/checked.png" alt="" class="pr-1"> Verify
+                                               </p>
+                                            </div>    
+                                        </div> 
+                                        <div class="cardDocWrapper ">
+                                            <div class="infoDivCard ">
+                                                <div class="infofSection  ">
+                                                <div class="secFirstDoc ">
+                                                    <div class="docImageSec">
+                                                        <img src="../src/img/pancard.png" alt="">
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale">Document Type</p>
+                                                        <p class="detailData">PAN Card</p>
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale">Uploaded By</p>
+                                                        <p class="detailData">Admin</p>
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale">Uploaded On</p>
+                                                        <p class="detailData">27-Apr-2021 23:29 pm</p>
+                                                    </div>
+                                                  </div>  
+                                                  <div class="secSecond xs:mt-3"> 
+                                                        
+                                                <div class="pl-4">
+                                                    <p class="verifyText">
+                                                        <a href="" class="smButton">
+                                                            <img src="../src/img/view.png" alt="">
+                                                        </a>
+                                                    </p>
+                                                </div>
+                                                </div>
+                                               
+                                             
+                                            </div>
+                                            </div>
+                                            <div class="statusSecForDoc">
+                                               <p class="userStatusTick ">
+                                                   <img src="../src/img/checked.png" alt="" class="pr-1"> Verify
+                                               </p>
+                                            </div>    
+                                        </div> 
+                                        <div class="cardDocWrapper ">
+                                            <div class="infoDivCard ">
+                                                <div class="infofSection  ">
+                                                <div class="secFirstDoc ">
+                                                    <div class="docImageSec">
+                                                        <img src="../src/img/pancard.png" alt="">
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale">Document Type</p>
+                                                        <p class="detailData">PAN Card</p>
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale">Uploaded By</p>
+                                                        <p class="detailData">Admin</p>
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale">Uploaded On</p>
+                                                        <p class="detailData">27-Apr-2021 23:29 pm</p>
+                                                    </div>
+                                                  </div>  
+                                                  <div class="secSecond xs:mt-3"> 
+                                                        
+                                                <div class="pl-4">
+                                                    <p class="verifyText">
+                                                        <a href="" class="smButton">
+                                                            <img src="../src/img/view.png" alt="">
+                                                        </a>
+                                                    </p>
+                                                </div>
+                                                </div>
+                                               
+                                             
+                                            </div>
+                                            </div>
+                                            <div class="statusSecForDoc">
+                                               <p class="userStatusTick ">
+                                                   <img src="../src/img/checked.png" alt="" class="pr-1"> Verify
+                                               </p>
+                                            </div>    
+                                        </div> 
+                                       
+                                       
+                                    </div>
+                                    <div class="addDocumentSection ">
+                                            <div class="addSecform ">
+
+                                                <div class="addButtonSection my-3 py-16 text-center hidden">
+                                                    <div class="updateAction">
+                                                        <button class="ErBlueButton">Add New Document</button>
+                                                    </div>
+                                                </div>
+
+                                                <div class="my-3 py-4 px-4 ">
+                                                    <p class="text-lg font-medium">Add New Document</p>
+
+                                                    <div class="flex  py-3 items-center flex-wrap">
+                                                        <div class="light14grey mb-1">Document Type</div>
+                                                        <div class="formInnerGroup ">
+                                                            <select class="inputboxpopover">
+                                                                <option class="pt-6">Select</option>
+                                                                <option>ICICI</option>
+                                                                <option>Axis</option>
+                                                                <option>SIB</option>
+                                                            </select>
+                                                            <div class="formSelectArrow ">
+                                                                <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex  py-1 items-center flex-wrap">
+                                                        <div class="light14grey  mb-1">Document Detail</div>
+                                                        <div class="formInnerGroup">
+                                                            <input class="inputboxpopover" type="text">
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex  py-3 items-center flex-wrap">
+                                                        <div class="light14grey  mb-1">Upload Document</div>
+                                                        <div class="formInnerGroup">
+                                                            <label class="cursor-pointer flex">
+                                                                <div class="ErBlueButton">Select File</div>
+                                                                <input type="file" class="hidden">
+                                                            </label>
+                                                           
+                                                        </div>
+                                                    </div>
+
+
+                                                    <div class="flex items-center justify-end mt-5">
+                                                        <div class="updateAction text-erBlue">
+                                                           Cancel
+                                                        </div>
+                                                        <div class="updateAction ml-5">
+                                                            <button class="ErBlueButton">Upload</button>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                    </div>
+                              </div>  
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GST Details modal -->
+    <div class="hidden" id="modalidgst">
+        <div class=" viewDocmodal  " >
+            <div class="bglightcolormodal"></div>
+            <div class="allDocmodalsuccessbody rounded-lg">
+                <div class="">
+                    <div class="viewDocPanmainbodyModal">
+                        <div class="flex justify-between mb-3">
+                            <div class="leftmodalInfo">
+                                <p class="text-lg text-erBlue font-medium  ">
+                                    <span class=""> GST Details</span>
+                                </p>
+                                <p class="text-sm ">
+                                    <span class="font-medium text-lg"> Dhiraj Shah</span>
+                                    <span class="userDesignation"> - Associate- NDA, MHPD  - Mulsi SP</span>
+                                </p>
+                            </div>
+                            <div class="rightmodalclose" on:click="{closeGST}">
+                                <img src="../src/img/blackclose.svg" alt="">
+                            </div>
+                        </div>
+                        <div class="innermodal">
+                            <hr>
+                            <div class="scrollbar ">
+                              <div class="mainContainerWrapper ">
+                                    <div class="DocCardlist ">
+                                        <div class="cardDocWrapper ">
+                                            <div class="infoDivCard ">
+                                                <div class="infofSection  ">
+                                                <div class="secFirstDoc ">
+                                                
+                                                    <div class="locationInformation">
+                                                            <div class="flex">
+                                                                <p class="detailLbalesm pr-3">Address</p>
+                                                                <p class="detailDatasm">B615, Marvad, near aarvi school</p>
+                                                            </div>
+                                                            <div class="flex">
+                                                                <p class="detailLbalesm pr-3">City</p>
+                                                            <p class="detailDatasm">Amravati</p>
+                                                            </div>
+                                                            <div class="flex">
+                                                                <p class="detailLbalesm pr-3">GST State</p>
+                                                                <p class="detailDatasm">Maharastra</p>
+                                                            </div>
+                                                    </div>
+                                                   
+                                                  
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale whitespace-nowrap mb-2">GST Number</p>
+                                                        <p class="detailData">22 GHDGS0000A 1Z5</p>
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale whitespace-nowrap mb-2">GST Certificate</p>
+                                                        <p class="verifyText">
+                                                            <a href="" class="smButton">
+                                                                <img src="../src/img/view.png" alt="">
+                                                            </a>
+                                                        </p>
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale mb-2">Edit</p>
+                                                        <p class="verifyText">
+                                                            <a href="" class="smButton">
+                                                                <img src="../src/img/view.png" alt="">
+                                                            </a>
+                                                        </p>
+                                                    </div>
+                                                  </div>  
+                                                
+                                               
+                                             
+                                            </div>
+                                            
+                                            </div>
+                                            <div class="statusSecForDoc">
+                                                <p class="userStatusTick ">
+                                                    <img src="../src/img/checked.png" alt="" class="pr-1"> Verified
+                                                </p>
+                                             </div> 
+                                        </div> 
+                                       
+                                       
+                                       
+                                    </div>
+                                    <div class="addDocumentSection ">
+                                            <div class="addSecform hidden">
+                                                <div class="addButtonSection my-3 py-16 text-center hidden">
+                                                    <div class="updateAction">
+                                                        <button class="ErBlueButton">Add New GST Details</button>
+                                                    </div>
+                                                </div>
+                                                <div class="my-3 py-4 px-4 ">
+                                                    <p class="text-lg font-medium">Add new GST details</p>
+
+                                                    <div class="flex  py-1 items-center flex-wrap">
+                                                        <div class="light14grey  mb-1">Address</div>
+                                                        <div class="formInnerGroup">
+                                                            <input class="inputboxpopover" type="text">
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex  py-3 items-center flex-wrap">
+                                                        <div class="light14grey mb-1">City</div>
+                                                        <div class="formInnerGroup ">
+                                                            <select class="inputboxpopover">
+                                                                <option class="pt-6">Select</option>
+                                                                <option>ICICI</option>
+                                                                <option>Axis</option>
+                                                                <option>SIB</option>
+                                                            </select>
+                                                            <div class="formSelectArrow ">
+                                                                <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex  py-1 items-center flex-wrap">
+                                                        <div class="light14grey  mb-1">GST State</div>
+                                                        <div class="formInnerGroup">
+                                                            <input class="inputboxpopover" type="text">
+                                                        </div>
+                                                    </div>
+                                                    
+                                                   
+                                                    <div class="flex  py-3 items-center flex-wrap">
+                                                        <div class="light14grey  mb-1">Upload Document</div>
+                                                        <div class="formInnerGroup">
+                                                            <label class="cursor-pointer flex">
+                                                                <div class="ErBlueButton">Select File</div>
+                                                                <input type="file" class="hidden">
+                                                            </label>
+                                                           
+                                                        </div>
+                                                    </div>
+
+
+                                                    <div class="flex items-center justify-end mt-5">
+                                                        <div class="updateAction text-erBlue">
+                                                           Cancel
+                                                        </div>
+                                                        <div class="updateAction ml-5">
+                                                            <button class="ErBlueButton">Upload</button>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+
+                                            <div class=" bg-lighterGrey rounded-lg h-full">
+                                                {#if temp2=="gst1"}
+                                                <div class="addButtonSection my-3 py-3  text-center ">
+                                                    <div class="updateAction mt-5">
+                                                        <button class="ErBlueButton" on:click={()=>{temp2="gst2"}}>Add New GST Details</button>
+                                                    </div>
+                                                </div>
+                                                {/if}
+                                            
+                                                {#if temp2=="gst2"}
+                                                <div class="my-0 py-4 px-4 ">
+                                                    <div class="h-80 max-h-80 overflow-y-scroll pr-4 border-b-2">
+
+                                                        <p class="text-lg font-medium">Add new GST details</p>
+
+                                                        <div class="flex  py-1 items-center flex-wrap">
+                                                            <div class="light14grey  mb-1">Address</div>
+                                                            <div class="formInnerGroup">
+                                                                <input class="inputboxpopover" type="text">
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex  py-3 items-center flex-wrap">
+                                                            <div class="light14grey mb-1">City</div>
+                                                            <div class="formInnerGroup ">
+                                                                <select class="inputboxpopover">
+                                                                    <option class="pt-6">Select</option>
+                                                                    <option>ICICI</option>
+                                                                    <option>Axis</option>
+                                                                    <option>SIB</option>
+                                                                </select>
+                                                                <div class="formSelectArrow ">
+                                                                    <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex  py-1 items-center flex-wrap">
+                                                            <div class="light14grey  mb-1">GST State</div>
+                                                            <div class="formInnerGroup">
+                                                                <input class="inputboxpopover" type="text">
+                                                            </div>
+                                                        </div>
+                                                        <div class="flex  py-1 items-center flex-wrap">
+                                                            <div class="light14grey  mb-1">GST Number</div>
+                                                            <div class="formInnerGroup">
+                                                                <input class="inputboxpopover" type="text">
+                                                            </div>
+                                                        </div>
+                                                        
+                                                       
+                                                        <div class="flex  py-3 items-center flex-wrap">
+                                                            <div class="light14greylong  mb-1">Upload GST Certificate</div>
+                                                            <div class="formInnerGroup">
+                                                                <label class="cursor-pointer flex">
+                                                                    <div class="ErBlueButton">Select File</div>
+                                                                    <input type="file" class="hidden">
+                                                                </label>
+                                                               
+                                                            </div>
+                                                        </div>
+                                                    
+                                                </div>
+
+                                                    <div class="flex items-center justify-end mt-5">
+                                                        <div class="updateAction text-erBlue cursor-pointer " on:click={()=>{temp2="gst1"}}>
+                                                           Cancel
+                                                        </div>
+                                                        <div class="updateAction ml-5">
+                                                            <button class="ErBlueButton">Add</button>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
+                                                {/if}
+
+                                                
+                                            </div>
+                                    </div>
+                              </div>  
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ERP Details modal -->
+    <div class="hidden" id="erpIdModel">
+        <div class=" viewDocmodal  " >
+            <div class="bglightcolormodal"></div>
+            <div class="allDocmodalsuccessbodyErp rounded-lg">
+                <div class="">
+                    <div class="viewDocPanmainbodyModal">
+                        <div class="flex justify-between mb-3">
+                            <div class="leftmodalInfo">
+                                <p class="text-lg text-erBlue font-medium  ">
+                                    <span class=""> ERP Details</span>
+                                </p>
+                                <p class="detailsUpdate">
+                                    <span><span class="font-medium">Created On </span> - 27-Apr-2021 03:28 pm.</span>
+                                </p>
+                            </div>
+                            <div class="rightmodalclose" on:click="{closeERP}">
+                                <img src="../src/img/blackclose.svg" alt="">
+                            </div>
+                        </div>
+                        <div class="innermodal">
+                            <hr>
+                            <div class="ERPDetails mt-4">
+                                <div class="flex mb-3 xs:flex-col sm:flex-col">
+                                    <p class="detailLbalesm pr-3">ERP ID</p>
+                                    <p class="detailDatasm">SUPP-06943</p>
+                                </div>
+                                <div class="flex mb-3 xs:flex-col sm:flex-col">
+                                    <p class="detailLbalesm pr-3">ERP Name</p>
+                                <p class="detailDatasm">SUPP-06943-MEX00094</p>
+                                </div>
+                                <div class="flex mb-3 xs:flex-col sm:flex-col">
+                                    <p class="detailLbalesm pr-3">Address ID</p>
+                                    <p class="detailDatasm">SUPP-06943-Delhi</p>
+                                </div>
+                                <div class="flex mb-3 xs:flex-col sm:flex-col">
+                                    <p class="detailLbalesm pr-3">Address Title</p>
+                                    <p class="detailDatasm">SUPP-06943-Delhi</p>
+                                </div>
+                                <div class="flex mb-3 xs:flex-col sm:flex-col">
+                                    <p class="detailLbalesm pr-3">Contact ID</p>
+                                    <p class="detailDatasm">SUPP-06943-Delhi</p>
+                                </div>
+                        </div>
+                           
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!--  Work Contract Details modal -->
+<div class="hidden" id="workContractModel">
+    <div class="viewDocmodal " >
+        <div class="absolute bg-black opacity-80 inset-0 z-0"></div>
+        <div class="allDocmodalsuccessbody rounded-lg">
+            <div class="">
+                <div class="viewDocPanmainbodyModal">
+                    <div class="flex justify-between mb-3">
+                        <div class="leftmodalInfo">
+                            <p class="text-lg text-erBlue font-medium  ">
+                                <span class=""> Work Contract Details</span>
+                            </p>
+                            <p class="text-sm ">
+                                <span class="font-medium text-lg"> Dhiraj Shah</span>
+                                <span class="userDesignation"> - Associate- NDA, MHPD  - Mulsi SP</span>
+                            </p>
+                        </div>
+                        <div class="rightmodalclose" on:click="{closeWorkContract}">
+                            <img src="../src/img/blackclose.svg" alt="">
+                        </div>
+                    </div>
+                    <div class="innermodal">
+                        <hr>
+                        <div class="tabwrapper flex justify-between text-center py-2">
+                            <div class="changetype py-3 w-2/4	" on:click={()=>{temp3="e-contracts"}}>
+                                <p>E-Contracts</p>
+                            </div>
+                            <div class="Historytab py-3 w-2/4	 bg-bglightgreye" on:click={()=>{temp3="p-contracts"}}>
+                                <p>Physical Contracts</p>
+                            </div>
+                        </div>
+
+                        {#if temp3=="e-contracts"}
+                        <div class="scrollbar ">
+                        <div class="OtherAppliedTagsTable px-3 overflow-y-scroll">
+                            <table class="table  w-full text-center mt-2 ">
+                                <thead class="theadpopover h-10">
+                                  <tr>
+                                    <th>Contract Name</th>
+                                    <th>Contract Type</th>
+                                    <th> <div class="flex"> Accepted ? <img src="../src/img/arrowupdown.svg" class="ml-2" alt=""></div></th>
+                                    <th>Accepted On</th>
+                                    <th>Is Mandatory ?</th>
+                                    <th>View</th>
+                                    <th>Print/Save</th>
+                                  </tr>
+                                </thead>
+                                <tbody class="tbodypopover">
+                                  <tr class="border-b">
+                                    <td>Background Verification Concent</td>
+                                    <td>Concent</td>
+                                    <td><span class="text-green">Yes</span> </td>
+                                    <td>10-06-2020</td>
+                                    <td>Yes</td>
+                                    <td>
+                                        <p class="flex justify-center">
+                                            <a href="" class="smButton">
+                                                <img src="../src/img/view.png" alt="">
+                                            </a>
+                                        </p>
+                                    </td>
+                                    <td>
+                                        <p class="flex justify-center">
+                                            <a href="" class="smButton">
+                                                <img src="../src/img/printer.svg" alt="">
+                                            </a>
+                                        </p>
+                                    </td>
+                                  </tr>
+                                  <tr class="border-b">
+                                    <td>Background Verification Concent</td>
+                                    <td>Concent</td>
+                                    <td><span class="text-red-700">No</span> </td>
+                                    <td>10-06-2020</td>
+                                    <td>Yes</td>
+                                    <td>
+                                        <p class="flex justify-center">
+                                            <a href="" class="smButton">
+                                                <img src="../src/img/view.png" alt="">
+                                            </a>
+                                        </p>
+                                    </td>
+                                    <td>
+                                        <p class="flex justify-center">
+                                            <a href="" class="smButton">
+                                                <img src="../src/img/printer.svg" alt="">
+                                            </a>
+                                        </p>
+                                    </td>
+                                  </tr>
+                                  <tr class="border-b">
+                                    <td>Background Verification Concent</td>
+                                    <td>Concent</td>
+                                    <td><span class="text-green">Yes</span> </td>
+                                    <td>10-06-2020</td>
+                                    <td>Yes</td>
+                                    <td>
+                                        <p class="flex justify-center">
+                                            <a href="" class="smButton">
+                                                <img src="../src/img/view.png" alt="">
+                                            </a>
+                                        </p>
+                                    </td>
+                                    <td>
+                                        <p class="flex justify-center">
+                                            <a href="" class="smButton">
+                                                <img src="../src/img/printer.svg" alt="">
+                                            </a>
+                                        </p>
+                                    </td>
+                                  </tr>
+                                  <tr class="border-b">
+                                    <td>Background Verification Concent</td>
+                                    <td>Concent</td>
+                                    <td><span class="text-green">Yes</span> </td>
+                                    <td>10-06-2020</td>
+                                    <td>Yes</td>
+                                    <td>
+                                        <p class="flex justify-center">
+                                            <a href="" class="smButton">
+                                                <img src="../src/img/view.png" alt="">
+                                            </a>
+                                        </p>
+                                    </td>
+                                    <td>
+                                        <p class="flex justify-center">
+                                            <a href="" class="smButton">
+                                                <img src="../src/img/printer.svg" alt="">
+                                            </a>
+                                        </p>
+                                    </td>
+                                  </tr>
+                                  <tr class="border-b">
+                                    <td>Background Verification Concent</td>
+                                    <td>Concent</td>
+                                    <td><span class="text-green">Yes</span> </td>
+                                    <td>10-06-2020</td>
+                                    <td>Yes</td>
+                                    <td>
+                                        <p class="flex justify-center">
+                                            <a href="" class="smButton">
+                                                <img src="../src/img/view.png" alt="">
+                                            </a>
+                                        </p>
+                                    </td>
+                                    <td>
+                                        <p class="flex justify-center">
+                                            <a href="" class="smButton">
+                                                <img src="../src/img/printer.svg" alt="">
+                                            </a>
+                                        </p>
+                                    </td>
+                                  </tr>
+                                  <tr class="border-b">
+                                    <td>Background Verification Concent</td>
+                                    <td>Concent</td>
+                                    <td><span class="text-green">Yes</span> </td>
+                                    <td>10-06-2020</td>
+                                    <td>Yes</td>
+                                    <td>
+                                        <p class="flex justify-center">
+                                            <a href="" class="smButton">
+                                                <img src="../src/img/view.png" alt="">
+                                            </a>
+                                        </p>
+                                    </td>
+                                    <td>
+                                        <p class="flex justify-center">
+                                            <a href="" class="smButton">
+                                                <img src="../src/img/printer.svg" alt="">
+                                            </a>
+                                        </p>
+                                    </td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                              <div class="associateCard  border p-p7px  rounded-md hidden xs:block sm:block">
+
+                                  <div class="flex px-4 py-1 items-center">
+                                      <div class="light14grey">Tag</div>
+                                      <div class="dataValue">Addhoc Facility	 </div>
+                                  </div>
+                                  <div class="flex px-4 py-1 items-center">
+                                      <div class="light14grey">Remarks	</div>
+                                      <div class="dataValue">No Remarks	 </div>
+                                  </div>
+                                  <div class="flex px-4 py-1 items-center">
+                                      <div class="light14grey">Added by	</div>
+                                      <div class="dataValue">User name	</div>
+                                  </div>
+                                  <div class="flex px-4 py-1 items-center">
+                                      <div class="light14grey">Added On	</div>
+                                      <div class="dataValue">13-Apr-2021 </div>
+                                  </div>
+                                  <div class="flex px-4 py-1 items-center">
+                                      <div class="light14grey">Auto Removal On	</div>
+                                      <div class="dataValue">No date	  </div>
+                                  </div>
+                                  <div class="flex px-4 py-1 items-center">
+                                      <div class="light14grey">Remove</div>
+                                      <div class="dataValue">    <img src="../src/img/reject.png" alt=""> </div>
+                                  </div>
+                                 
+                                 
+                              </div>
+                        </div>  
+                      </div>
+                      {/if}
+
+                      {#if temp3=="p-contracts"}
+                        <div class="scrollbar ">
+                          <div class="mainContainerWrapper flex gap-6">
+                                <div class="DocCardlist w-7/12 pr-4 h-h442 overflow-y-scroll">
+                                    <table class="table  w-full text-center mt-2 ">
+                                        <thead class="theadpopover h-10">
+                                          <tr>
+
+
+                                            <th>Contract Type</th>
+                                            <th>Starts From</th>
+                                            <th> Ends On</th>
+                                            <th>Cost Center</th>
+                                            <th> View</th>
+                                            
+                                          </tr>
+                                        </thead>
+                                        <tbody class="tbodypopover">
+                                          <tr class="border-b">
+                                            <td>Procurement agreement</td>
+                                            <td>16-01-2020</td>
+                                            <td>11-06-2020</td>
+                                            <td>Mulshi - MHPD - NTEX</td>
+                                            <td>
+                                                <p class="flex justify-center">
+                                                    <a href="" class="smButton">
+                                                        <img src="../src/img/view.png" alt="">
+                                                    </a>
+                                                </p>
+                                            </td>
+                                          </tr>
+                                          <tr class="border-b">
+                                            <td>Procurement agreement</td>
+                                            <td>16-01-2020</td>
+                                            <td>11-06-2020</td>
+                                            <td>Mulshi - MHPD - NTEX</td>
+                                            <td>
+                                                <p class="flex justify-center">
+                                                    <a href="" class="smButton">
+                                                        <img src="../src/img/view.png" alt="">
+                                                    </a>
+                                                </p>
+                                            </td>
+                                          </tr>
+                                          <tr class="border-b">
+                                            <td>Procurement agreement</td>
+                                            <td>16-01-2020</td>
+                                            <td>11-06-2020</td>
+                                            <td>Mulshi - MHPD - NTEX</td>
+                                            <td>
+                                                <p class="flex justify-center">
+                                                    <a href="" class="smButton">
+                                                        <img src="../src/img/view.png" alt="">
+                                                    </a>
+                                                </p>
+                                            </td>
+                                          </tr>
+                                       
+                                        
+                                        </tbody>
+                                      </table>
+                                      ​
+                                </div>
+                                <div class="addDocumentSection w-5/12  ">
+                                        <div class=" bg-lighterGrey rounded-lg h-full">
+                                            {#if temp4=="p-contracts-1"}
+                                            <div class="addButtonSection my-3 py-3 text-center ">
+                                                <p class="text-lg font-medium text-blackshade mb-3">Upload New Physical contract here</p>
+                                                <div class="updateAction">
+                                                    <button class="ErBlueButton" on:click={()=>{temp4="p-contracts-2"}}>Upload</button>
+                                                </div>
+                                            </div>
+                                            {/if}
+                                            {#if temp4=="p-contracts-2"}
+                                            <div class="addButtonSection mt-3 pt-3 text-center ">
+                                                <p class="text-lg font-medium text-blackshade">Upload New Physical Contract</p>
+                                            </div>
+                                            <div class="my-0 py-4 px-4 ">
+                                                <div class="h-80 max-h-80 overflow-y-scroll pr-4 border-b-2">
+
+                                               
+                                                <div class="flex  py-3 items-center flex-wrap">
+                                                    <div class="light14grey mb-1">Select Contract Type</div>
+                                                    <div class="formInnerGroup ">
+                                                        <select class="inputboxpopover">
+                                                            <option class="pt-6">Select</option>
+                                                            <option>ICICI</option>
+                                                            <option>Axis</option>
+                                                            <option>SIB</option>
+                                                        </select>
+                                                        <div class="formSelectArrow ">
+                                                            <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="flex  py-3 items-center flex-wrap">
+                                                    <div class="light14grey mb-1">Select Organization</div>
+                                                    <div class="formInnerGroup ">
+                                                        <select class="inputboxpopover">
+                                                            <option class="pt-6">Select</option>
+                                                            <option>ICICI</option>
+                                                            <option>Axis</option>
+                                                            <option>SIB</option>
+                                                        </select>
+                                                        <div class="formSelectArrow ">
+                                                            <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="flex  py-3 items-center flex-wrap">
+                                                    <div class="light14grey mb-1">Select Station</div>
+                                                    <div class="formInnerGroup ">
+                                                        <select class="inputboxpopover">
+                                                            <option class="pt-6">Select</option>
+                                                            <option>ICICI</option>
+                                                            <option>Axis</option>
+                                                            <option>SIB</option>
+                                                        </select>
+                                                        <div class="formSelectArrow ">
+                                                            <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="flex py-3 items-center flex-wrap ">
+                                                    <div class="light14grey">From Date</div>
+                                                    <div class="formInnerGroup ">
+                                                        <input type="date" class="inputboxpopoverdate"
+                                                            placeholder=" ">
+                                                    </div>
+                                                </div>
+                                                <div class="flex py-3 items-center flex-wrap ">
+                                                    <div class="light14grey">End Date</div>
+                                                    <div class="formInnerGroup ">
+                                                        <input type="date" class="inputboxpopoverdate"
+                                                            placeholder=" ">
+                                                    </div>
+                                                </div>
+                                                <div class="flex  py-3 items-center flex-wrap">
+                                                    <div class="light14grey  mb-1">Upload Document</div>
+                                                    <div class="formInnerGroup">
+                                                        <label class="cursor-pointer flex">
+                                                            <div class="ErBlueButton">Select File</div>
+                                                            <input type="file" class="hidden">
+                                                        </label>
+                                                       
+                                                    </div>
+                                                </div>
+                                                
+                                            </div>
+                                        
+
+                                                <div class="flex items-center justify-end mt-5">
+                                                    <div class="updateAction text-erBlue cursor-pointer" on:click={()=>{temp4="p-contracts-1"}}>
+                                                       Cancel
+                                                    </div>
+                                                    <div class="updateAction ml-5">
+                                                        <button class="ErBlueButton">Upload</button>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                            {/if}
+                                            
+                                        </div>
+                                </div>
+                          </div>  
+                        </div>
+                      {/if}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

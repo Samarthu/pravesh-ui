@@ -373,6 +373,12 @@
 .detailLbale{
     @apply text-sm text-greycolor font-light
 }
+.detailLbalesm{
+    @apply text-sm text-greycolor font-light w-1/3
+}
+.detailDatasm{
+    @apply text-base  text-greycolor font-normal w-4/6
+}
 
 .detailData{
     @apply text-base  text-greycolor font-normal
@@ -1056,8 +1062,12 @@
     @apply w-full  max-w-4xl  relative mx-auto my-auto  shadow-lg  bg-white xs:mx-2
 }
 
+
 .allDocmodalsuccessbody{
     @apply w-full    max-w-6xl relative mx-auto my-auto  shadow-lg  bg-white xs:mx-2
+}
+.allDocmodalsuccessbodyErp{
+    @apply w-full    max-w-2xl relative mx-auto my-auto  shadow-lg  bg-white xs:mx-2
 }
 
 .mainbodyModal{
@@ -1085,6 +1095,9 @@
 
 .light14grey{
     @apply text-greycolor text-sm font-light w-36  xs:mb-2
+}
+.light14greylong{
+    @apply text-greycolor text-sm font-light w-full  xs:mb-2
 }
 .light14greylable{
     @apply text-greycolor text-sm font-light w-24
