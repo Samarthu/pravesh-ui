@@ -2,8 +2,11 @@
 import { goto } from "$app/navigation";
 import {onMount} from 'svelte';
 import {org_name} from '../stores/organisation_store';
-import {get_user_scope_function,get_facility_types_function} from '../services/workdetails_services';
-import {station_type_name,get_facility_type_link} from '../stores/station_store';
+import {get_user_scope_function,get_facility_types_function,get_vendor_by_config_method} from '../services/workdetails_services';
+import {station_type_name} from '../stores/station_store';
+import {facility_data_store} from '../stores/facility_store';
+import { get_facility_type_link} from '../stores/facility_store';
+// import PdfViewer from 'svelte-pdf';
 import { each } from "svelte/internal";
 
 
@@ -15,8 +18,10 @@ let station_value = null;
 let city_list=[];
 let station_list = [];
 let user_scope_response = null;
+let vendor_list_response = null;
 let scope_list={};
 let associate_type_list = [];
+let vendor_list =[];
 
 
 
@@ -36,16 +41,19 @@ let associate_type_list = [];
 
     routeTo = "verifycontactnumber";
     onMount(async () =>{
-        org_name.subscribe(value =>{
+        // org_name.subscribe(value =>{
 
-          org_id = value.org_id;
-        }); 
+        //   org_id = value.org_id;
+        // }); 
+        facility_data_store.subscribe(value =>{
+            org_id = value.org_id;
+        });
         console.log("org_id",org_id);
          user_scope_response = await get_user_scope_function();
         console.log("user_scope_response",user_scope_response);
         for(let i=0;i<user_scope_response.body.data.length;i++){
             if(!city_list.includes( user_scope_response.body.data[i]['location_name'])){
-                city_list.push(user_scope_response.body.data[i]['location_name']);
+                city_list.push({city_name:user_scope_response.body.data[i]['location_name'],location_id:user_scope_response.body.data[i]['location_id']});
             }
 
         }
@@ -71,17 +79,26 @@ let associate_type_list = [];
         scope_list = scope_list;
         console.log("scope_list",scope_list);
         let temp;
+        // get_facility_type_link.subscribe((value =>{
+        //     temp = value;
+        // }));
         get_facility_type_link.subscribe((value =>{
             temp = value;
         }));
         console.log("facility link",temp);
+
+        vendor_list_response = await get_vendor_by_config_method();
+        console.log("vendor list",vendor_list_response);
         
 
     })
     $:{
         if(user_scope_response != null){
+            station_list =[];
+
+            
             for(let i=0;i<user_scope_response.body.data.length;i++){
-            if(city_value == user_scope_response.body.data[i]['location_name']){
+            if(city_value == user_scope_response.body.data[i]['location_id']){
                 for(let j=0;j<user_scope_response.body.data[i]['stations'].length;j++){
                    station_list.push(user_scope_response.body.data[i]['stations'][j]);
                 }
@@ -89,11 +106,26 @@ let associate_type_list = [];
             }
         }
         station_list = station_list;
+       
         console.log("station_list",station_list);
+       
 
 
         }
         
+    }
+    $:{
+        if(vendor_list_response != null){
+            vendor_list =[];
+            for(let i=0;i<vendor_list_response.body.data.length;i++){
+                if(city_value == vendor_list_response.body.data[i]['location_id']){
+                    vendor_list.push(vendor_list_response.body.data[i]);
+                }
+                
+            }
+            vendor_list = vendor_list;
+            console.log("vendor list",vendor_list);
+        }
     }
     async function get_facility_types(){
         let facility_type_response = await get_facility_types_function();
@@ -116,6 +148,7 @@ let associate_type_list = [];
         // }));
         let demo =$get_facility_type_link;
         console.log("facility type link",demo);
+
         get_facility_types();
         
     }
@@ -411,7 +444,7 @@ let associate_type_list = [];
                                     <select class="inputbox" bind:value={city_value}>
                                         <option value="" disabled selected>Select City</option>
                                         {#each city_list as city }
-                                        <option value={city}>{city}</option>
+                                        <option value={city.location_id}>{city.city_name}</option>
                                             
                                         {/each}
                                     </select>
@@ -440,7 +473,7 @@ let associate_type_list = [];
                                             alt=""
                                         />
                                     </span>
-                                    <select class="inputbox" bind:value={$station_type_name.station_name}>
+                                    <select class="inputbox" bind:value={$facility_data_store.station_code}>
                                         {#each station_list as station }
                                          <option value={station.station_code}>{station.station_name} / {station.station_code}</option>
                                             
@@ -477,7 +510,7 @@ let associate_type_list = [];
                                             alt=""
                                         />
                                     </span>
-                                    <select class="inputbox">
+                                    <select class="inputbox" bind:value={$facility_data_store.facility_type}>
                                         {#each associate_type_list as associate_type }
                                         <option value={associate_type.name}>{associate_type.facility_type_name}</option>
                                             
@@ -512,13 +545,17 @@ let associate_type_list = [];
                                             alt=""
                                         />
                                     </span>
-                                    <select class="inputbox">
-                                        <option class="pt-6"
+                                    <select class="inputbox" bind:value={$facility_data_store.vendor_code}>
+                                        {#each vendor_list as vendor }
+                                        <option value={vendor.vendor_id}>{vendor.vendor_name}</option>
+                                            
+                                        {/each}
+                                        <!-- <option class="pt-6"
                                             >Vitthal Sutar - MHPD00012</option
                                         >
                                         <option>Rakesh Raj - MHPD00012</option>
                                         <option>Vishwas Patil</option>
-                                        <option>Somnath Narule</option>
+                                        <option>Somnath Narule</option> -->
                                     </select>
                                     <div class="formSelectArrow ">
                                         <img

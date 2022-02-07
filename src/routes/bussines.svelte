@@ -5,6 +5,7 @@
     import { goto } from "$app/navigation";
     import {get_verticles_fun} from '../services/business_vertical_services';
     import {vercticle_name} from '../stores/verticle_store';
+    
     import {get_verticles_ui_fun} from '../services/business_vertical_services';
     import Breadcrumb from "./breadcrumb.svelte";
 
@@ -23,6 +24,7 @@
     }
     function org_page_routing(verticle_value){
         vercticle_name.set({    verticle: verticle_value})
+        
         let replaceState = false;
         goto("organisation-selection", { replaceState });
 
