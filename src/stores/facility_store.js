@@ -82,3 +82,9 @@ export const get_facility_type_link = derived([facility_data_store,category_stor
     set('/api/method/pravesh.facility.routes.facility_type_master.get_facility_types?org_id='+$values[0].org_id+'&category='+$values[1].category_name+'&station='+$values[0].station_code);
 });
 
+export const verify_contact_number_api_link = derived(facility_data_store,
+    $facility_data_store =>'/api/method/pravesh.facility.routes.facility.verify_facility_contact?contact_no='+$facility_data_store.phone_number)
+
+export const verify_contact_number_otp_api_link = derived(facility_data_store,
+    $facility_data_store =>'/api/method/pravesh.facility.routes.otp.verify_otp?mobile_no='+$facility_data_store.phone_number+'&otp=');
+
