@@ -1,8 +1,32 @@
 <script>
     import { goto } from "$app/navigation";
+    import {onMount} from 'svelte';
+    import {facility_data_store} from '../stores/facility_store';
+    import {verify_associate_name,verify_associate_email} from '../services/associate_details_services';
+    import { DateInput, DatePicker } from 'date-picker-svelte'
+  let date = new Date()
+  const d = new Date("2015-03-25");
+  let max_date;
 
 
 let routeTo = "identityproof";
+let facility_name_message = "";
+let facility_email_message ="";
+onMount(async () => {
+    function get_max_date(){
+        let current_date = new Date();
+        
+        console.log("year",parseInt(current_date.getFullYear()));
+        let current_year = parseInt(current_date.getFullYear());
+        let max_year = current_year - 18;
+        console.log("max year",max_year);
+        max_date = new Date(String(max_year+"-"+parseInt(current_date.getMonth())+"-"+parseInt(current_date.getDate())));
+        console.log("max date",max_date);
+
+    }
+    get_max_date();
+
+})
 
 function gotoidentityproof() {
     let replaceState = false;
@@ -11,6 +35,57 @@ function gotoidentityproof() {
 function gotoverifycontactnumber() {
     let replaceState = false;
     goto("verifycontactnumber", { replaceState });
+}
+async function verify_facility_name(){
+    facility_name_message ="";
+    if($facility_data_store.facility_name != null){
+        let verify_name_response = await verify_associate_name();
+    console.log("verify_name_response",verify_name_response);
+    try{
+        if(verify_name_response.body.data == true)
+        {
+            facility_name_message ="";
+
+        }
+        else{
+            facility_name_message = verify_name_response.body.message;
+        }
+    }
+    catch{
+
+    }
+
+    }
+    
+
+
+}
+async function verify_email(){
+    let verify_email_response = await verify_associate_email();
+    console.log("verify_email_response",verify_email_response);
+    try{
+        if(verify_email_response.body.data == true){
+            facility_email_message = "";
+
+        }
+        else{
+            facility_email_message = verify_email_response.body.message;
+        }
+    }
+    catch{
+
+    }
+    
+
+}
+$:{
+
+
+}
+function testing_function(){
+    console.log("month",String(date.getMonth()+1));
+    console.log("day",String(date.getDate()));
+    console.log("year",String(date.getFullYear()));
 }
 
 </script>
@@ -191,9 +266,16 @@ function gotoverifycontactnumber() {
                                 <img src="../src/img/Subtract.png" class="w-6 h-auto text-white"
                                     alt="">
                             </span>
-                            <input type="text" class="inputbox">
+                            <input type="text" class="inputbox" bind:value={$facility_data_store.facility_name}
+                            on:blur={()=>verify_facility_name()}>
+                            <div class="text-red-500">
+                                {facility_name_message}
+                            </div>
+                            
                         </div>
+                       
                     </div>
+                    
                 </div>
                 <div class="flex">
                     <div class="formGroup ">
@@ -203,7 +285,10 @@ function gotoverifycontactnumber() {
                                 <img src="../src/img/email.png" class="w-6 h-auto text-white"
                                     alt="">
                             </span>
-                            <input type="Email" class="inputbox">
+                            <input type="Email" class="inputbox" bind:value={$facility_data_store.facility_email} on:blur={() =>verify_email()}>
+                            <div class="text-red-500">
+                                {facility_email_message}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -216,7 +301,8 @@ function gotoverifycontactnumber() {
                                 <img src="../src/img/date.png" class="placeholderIcon"
                                     alt="">
                             </span>
-                            <input type="Email" class="inputbox">
+                            <!-- <input type="Email" class="inputbox"> -->
+                            <DateInput placeholder="testing" bind:value={date}  format="dd/MM/yyyy" max={max_date}/>
                         </div>
                     </div>
                 </div>
@@ -225,20 +311,13 @@ function gotoverifycontactnumber() {
                         <label class="formLable ">Associate Photo <span
                                 class="mandatoryIcon">*</span></label>
                         <div class="formInnerGroup ">
-                            <label class="cursor-pointer ">
-                                <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
-                                <input type='file' class="hidden" />
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex">
-                    <div class="formGroupNote">
-                        <label class="formLable xs:hidden sm:hidden"></label>
-                        <div class="formInnerGroupNote">
-                            <p class="noteDescription mt-2"><span class="font-medium">Note:</span>
-                                Photo must be clear and in JPG, PNG, or PDF format to process faster
-                                verification</p>
+
+                            <span class="profileimage hidden">
+                                <img src="../src/img/Maskprofile.jpg"
+                                    class="associateProfile" alt="">
+                                <span>dhiraj-shah.jpeg </span>
+                                <span><img src="../src/img/closeblue.png" alt=""></span>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -287,7 +366,7 @@ function gotoverifycontactnumber() {
                         <div class="formInnerGroup ">
                             <label class="cursor-pointer ">
                                 <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
-                                <input type='file' class="hidden" />
+                                <input type='file' class="hidden" on:click={()=>testing_function()} />
                             </label>
                         </div>
                     </div>
@@ -309,6 +388,15 @@ function gotoverifycontactnumber() {
                         </div>
                     </div>
                 </div>
+            </div>
+            <div>
+                <DateInput placeholder="testing" bind:value={date}  format="dd/MM/yyyy" max={max_date}/>
+            </div>
+            <div>
+                {date}
+            </div>
+            <div>
+                {d}
             </div>
         </form>
     </div>
