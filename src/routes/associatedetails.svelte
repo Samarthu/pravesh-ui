@@ -225,13 +225,20 @@ function gotoverifycontactnumber() {
                         <label class="formLable ">Associate Photo <span
                                 class="mandatoryIcon">*</span></label>
                         <div class="formInnerGroup ">
-
-                            <span class="profileimage hidden">
-                                <img src="../src/img/Maskprofile.jpg"
-                                    class="associateProfile" alt="">
-                                <span>dhiraj-shah.jpeg </span>
-                                <span><img src="../src/img/closeblue.png" alt=""></span>
-                            </span>
+                            <label class="cursor-pointer ">
+                                <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
+                                <input type='file' class="hidden" />
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex">
+                    <div class="formGroupNote">
+                        <label class="formLable xs:hidden sm:hidden"></label>
+                        <div class="formInnerGroupNote">
+                            <p class="noteDescription mt-2"><span class="font-medium">Note:</span>
+                                Photo must be clear and in JPG, PNG, or PDF format to process faster
+                                verification</p>
                         </div>
                     </div>
                 </div>

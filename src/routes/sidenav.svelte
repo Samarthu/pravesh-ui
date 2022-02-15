@@ -8,6 +8,7 @@
     let routeSupplier = "";
     let routeDownloads = "";
     let routeSupport = "";
+    let current  = ""
 
     export let url = "";
 
@@ -74,7 +75,9 @@
                 </a>
             </li>
             <li on:click={routeToPageOnboard}  class="listItem">
-                <a href="javascript:void(0)" >
+                <a href="javascript:void(0)" 
+                class="{current === 'routeToPageOnboard' ? 'active' : ''}"
+	on:click="{() => current = 'routeToPageOnboard'}">
                     <!-- class="active" -->
                     <svg
                         class="svgIcon"
@@ -116,7 +119,10 @@
                 </a>
             </li>
             <li on:click={routeToPageSupplier} class="listItem">
-                <a class="" href="javascript:void(0)">
+                <a href="javascript:void(0)"
+                class="{current === 'routeToPageSupplier' ? 'active' : ''}"
+	on:click="{() => current = 'routeToPageSupplier'}"
+                >
                     <svg
                         class="svgIcon"
                         width="22"

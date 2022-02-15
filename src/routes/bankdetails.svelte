@@ -251,6 +251,39 @@
                                 </div>
                     </div>
                 </div>
+                <div class="flex">
+                    <div class="formGroup ">
+                        <label class="formLable ">Bank Type<span class="mandatoryIcon">*</span></label>
+                        <div class="formInnerGroup ">
+                            <span class="searchicon">
+                                <img src="../src/img/bank.png" class="placeholderIcon"
+                                    alt="">
+                            </span>
+                            <select class="inputbox" aria-placeholder="Select Type">
+                                <option class="pt-6">Select Type</option>
+                                <option>Co-Operative Bank</option>
+                                <option>Nationalised Bank</option>
+                            </select>
+                            <div class="formSelectArrow ">
+                                <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex">
+                    <div class="formGroup ">
+                        <label class="formLable ">Branch pincode<span
+                                class="mandatoryIcon">*</span></label>
+                                <div class="formInnerGroup ">
+                                    <span class="searchicon">
+                                        <img src="../src/img/bank.png" class="placeholderIcon"
+                                            alt="">
+                                    </span>
+                                    <input type="text" class="inputbox">
+                                   
+                                </div>
+                    </div>
+                </div>
 
                 <div class="flex mt-2">
                     <div class="formGroupBaseLine ">
@@ -265,6 +298,13 @@
                                         <label for="radio1" class="radioLable">
                                          <span class="radioCirle"></span>
                                          Cancel Cheque</label>
+                                       </div>
+
+                                       <div class="flex items-center mr-4 mt-2">
+                                        <input id="radio1" type="radio" name="radio" class="hidden" checked />
+                                        <label for="radio1" class="radioLable">
+                                         <span class="radioCirle"></span>
+                                         Passbook</label>
                                        </div>
                                     
                                        <div class="flex items-center  mt-2">

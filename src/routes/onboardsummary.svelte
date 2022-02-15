@@ -11,6 +11,10 @@
     let temp2 = "gst1";
     let temp3="e-contracts";
     let temp4="p-contracts-1";
+    let temp5="newMap";
+    let temp6="cheque";
+    let child="linkchild";
+    let childlink="childlink";   
 
     export let url = "";
 
@@ -82,6 +86,30 @@
 
     function closeWorkContract(){
         workContractModel.style.display = "none";
+    }
+
+    function workorganization(){
+        workorganizationModel.style.display = "block";
+    }
+
+    function closeWorkorganization(){
+        workorganizationModel.style.display = "none";
+    }
+
+    function chequeDetails(){
+        chequeModel.style.display = "block";
+    }
+
+    function closechequeDetails(){
+        chequeModel.style.display = "none";
+    }
+
+    function linkChild(){
+        linkChildModel.style.display = "block";
+    }
+
+    function linkChildModelclose(){
+        linkChildModel.style.display = "none";
     }
 </script>
 
@@ -325,6 +353,27 @@
                             <p class="flex items-center smButtonText">
                                 <a href="" class="smButton">
                                     Add Owner
+                                </a>
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="border-gray-200 px-5">
+                        <hr>
+                    </div>
+
+                    <div class="userInfoSec3">
+                        <div class="flex items-start">
+                            <img src="../src/img/workforce.svg" alt="">
+                            <div class="pl-4">
+                                <p class="detailLbale">Link Child Associate</p>
+                                <p class="detailData">2</p>
+                            </div>
+                        </div>
+                        <div class="userStatus ">
+                            <p class="flex items-center smButtonText" on:click="{linkChild}">
+                                <a href="" class="smButton"     >
+                                    Link/View
                                 </a>
                             </p>
                         </div>
@@ -821,7 +870,7 @@
                                         </div>
                                     </div>
                                     <div class="userStatus ">
-                                        <p class="flex items-center smButtonText">
+                                        <p class="flex items-center smButtonText" on:click="{workorganization}">
                                             <a href="" class="smButton">
                                                 Add/Edit
                                             </a>
@@ -1151,7 +1200,7 @@
                                                 </div>
                                             </div>
                                             <div class="pl-4">
-                                                <p class="flex items-center smButtonText">
+                                                <p class="flex items-center smButtonText" on:click="{chequeDetails}">
                                                     <a href="" class="smButton">
                                                         Cheque Details
                                                     </a>
@@ -2435,6 +2484,651 @@
                         </div>
                       {/if}
 
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--View/edit client name modal -->
+              
+<div class="hidden" id="workorganizationModel">
+    <div class=" viewDocmodal  " id="modal-id">
+        <div class="bglightcolormodal"></div>
+        <div class="allDocmodalsuccessbody rounded-lg">
+            <div class="">
+                <div class="viewDocPanmainbodyModal">
+                    <div class="flex justify-between mb-3">
+                        <div class="leftmodalInfo">
+                            <p class="text-lg text-erBlue font-medium  ">
+                                <span class=""> View/Edit Client Name</span>
+                            </p>
+                            <p class="text-sm ">
+                                <span class="font-medium text-lg"> Dhiraj Shah</span>
+                                <span class="userDesignation"> - Associate- NDA, MHPD - Mulsi SP</span>
+                            </p>
+                        </div>
+                        <div class="rightmodalclose" on:click="{closeWorkorganization}">
+                            <img src="../src/img/blackclose.svg" alt="">
+                        </div>
+                    </div>
+                    <div class="innermodal">
+                        <hr>
+                        <div class="scrollbar ">
+                            <div class="mainContainerWrapper ">
+                                <div class="DocCardlist ">
+                                    <div class="cardDocWrapper ">
+                                        <div class="grid grid-cols-2 xs:grid-cols-1 gap-4">
+                                            <div>
+                                                <div class="grid grid-cols-2 gap-4 mb-1">
+                                                    <div class="detailLbale"> Organisation</div>
+                                                    <div class="detailData"> Amazon</div>
+                                                </div>
+                                                <div class="grid grid-cols-2 gap-4 mb-1">
+                                                    <div class="detailLbale"> Station Name & code </div>
+                                                    <div class="detailData"> Akola, SP</div>
+                                                </div>
+                                                <div class="grid grid-cols-2 gap-4 mb-1">
+                                                    <div class="detailLbale"> Org specified name </div>
+                                                    <div class="detailData"> Dhiraj Shah</div>
+                                                </div>
+                                                <div class="grid grid-cols-2 gap-4 mb-1">
+                                                    <div class="detailLbale"> Client Employee ID</div>
+                                                    <div class="detailData"> AMA00300</div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="grid grid-cols-2 gap-4 mb-1">
+                                                    <div class="detailLbale"> Added On</div>
+                                                    <div class="detailData"> 23-01-2021</div>
+                                                </div>
+                                                <div class="grid grid-cols-2 gap-4 mb-1">
+                                                    <div class="detailLbale"> Added by </div>
+                                                    <div class="detailData"> Admin</div>
+                                                </div>
+                                                <div class="grid grid-cols-2 gap-4 mb-1">
+                                                    <div class="detailLbale"> Client ID status/info </div>
+                                                    <div class="detailData"> ----</div>
+                                                </div>
+                                                <div class="grid grid-cols-2 gap-4 mb-1">
+                                                    <div class="detailLbale"> Status</div>
+                                                    <div > 
+                                                        <p class="userStatusTickVerified ">
+                                                            <img src="../src/img/checked.png" alt="" class="pr-1"> Verified
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="addDocumentSection ">
+                                    <div class="addSecform hidden">
+                                        {#if temp5=="newMap"}
+                                        <div class="addButtonSection my-3 py-16 text-center">
+                                            <div class="updateAction">
+                                                <button class="ErBlueButton" on:click={()=>{temp5="newMap-2"}}>Add New Mapping</button>
+                                            </div>
+                                        </div>
+                                        {/if}
+                                        {#if temp5=="newMap-2"}
+                                        <div class="my-3 py-4 px-4 ">
+                                            <p class="text-lg font-medium">Add new Mapping</p>
+
+                                            <div class="flex  py-1 items-center flex-wrap">
+                                                <div class="light14grey  mb-1">Address</div>
+                                                <div class="formInnerGroup">
+                                                    <input class="inputboxpopover" type="text">
+                                                </div>
+                                            </div>
+                                            <div class="flex  py-3 items-center flex-wrap">
+                                                <div class="light14grey mb-1">City</div>
+                                                <div class="formInnerGroup ">
+                                                    <select class="inputboxpopover">
+                                                        <option class="pt-6">Select</option>
+                                                        <option>ICICI</option>
+                                                        <option>Axis</option>
+                                                        <option>SIB</option>
+                                                    </select>
+                                                    <div class="formSelectArrow ">
+                                                        <img src="../src/img/selectarrow.png" class="w-5 h-auto"
+                                                            alt="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="flex  py-1 items-center flex-wrap">
+                                                <div class="light14grey  mb-1">GST State</div>
+                                                <div class="formInnerGroup">
+                                                    <input class="inputboxpopover" type="text">
+                                                </div>
+                                            </div>
+
+
+                                            <div class="flex  py-3 items-center flex-wrap">
+                                                <div class="light14grey  mb-1">Upload Document</div>
+                                                <div class="formInnerGroup">
+                                                    <label class="cursor-pointer flex">
+                                                        <div class="ErBlueButton">Select File</div>
+                                                        <input type="file" class="hidden">
+                                                    </label>
+
+                                                </div>
+                                            </div>
+
+
+                                            <div class="flex items-center justify-end mt-5">
+                                                <div class="updateAction text-erBlue" on:click={()=>{temp3="newMap"}}>
+                                                    Cancel
+                                                </div>
+                                                <div class="updateAction ml-5">
+                                                    <button class="ErBlueButton">Upload</button>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        {/if}
+                                    </div>
+
+                                    <div class=" bg-lighterGrey rounded-lg h-full">
+                                        {#if temp5=="newMap"}
+                                        <div class="addButtonSection my-3 py-3  text-center ">
+                                            <div class="updateAction mt-5">
+                                                <button class="ErBlueButton" on:click={()=>{temp5="newMap-2"}}>Add New Mapping</button>
+                                            </div>
+                                        </div>
+                                        {/if}
+                                        {#if temp5=="newMap-2"}
+                                        <div class="my-0 py-4 px-4 ">
+                                            <div class="h-80 max-h-80 overflow-y-scroll pr-4 border-b-2">
+
+                                                <p class="text-lg font-medium">Add New Mapping</p>
+
+                                            
+                                                <div class="flex  py-3 items-center flex-wrap">
+                                                    <div class="light14grey mb-1">Organization</div>
+                                                    <div class="formInnerGroup ">
+                                                        <select class="inputboxpopover">
+                                                            <option class="pt-6">Select</option>
+                                                        </select>
+                                                        <div class="formSelectArrow ">
+                                                            <img src="../src/img/selectarrow.png" class="w-5 h-auto"
+                                                                alt="">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="flex  py-3 items-center flex-wrap">
+                                                    <div class="light14grey mb-1">Station</div>
+                                                    <div class="formInnerGroup ">
+                                                        <select class="inputboxpopover">
+                                                            <option class="pt-6">Select</option>
+                                                        </select>
+                                                        <div class="formSelectArrow ">
+                                                            <img src="../src/img/selectarrow.png" class="w-5 h-auto"
+                                                                alt="">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="flex  py-3 items-center flex-wrap">
+                                                    <div class="light14grey mb-1">Name in COMP</div>
+                                                    <div class="formInnerGroup ">
+                                                        <select class="inputboxpopover">
+                                                            <option class="pt-6">Select</option>
+                                                        </select>
+                                                        <div class="formSelectArrow ">
+                                                            <img src="../src/img/selectarrow.png" class="w-5 h-auto"
+                                                                alt="">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="flex  py-1 items-center flex-wrap">
+                                                    <div class="light14greylong  mb-1">Client Empployee ID ( If available)</div>
+                                                    <div class="formInnerGroup">
+                                                        <input class="inputboxpopover" type="text">
+                                                    </div>
+                                                </div>
+                                                <div class="flex  py-1 items-center flex-wrap mb-4">
+                                                    <div class="light14greylong  mb-1">Create new Rabbit ID/Comp ID</div>
+                                                    <div class="formInnerGroup">
+                                                        <div class="text-center flex mb-2 ml-1">
+                                                
+                                                            <div class="flex items-center mr-4">
+                                                            <input id="radio1" type="radio" name="radio" class="hidden" checked="">
+                                                            <label for="radio1" class="radioLable">
+                                                            <span class="radioCirle"></span>
+                                                            Rabbit ID</label>
+                                                            </div>
+                                                        
+                                                            <div class="flex items-center ">
+                                                            <input id="radio2" type="radio" name="radio" class="hidden">
+                                                            <label for="radio2" class="radioLable">
+                                                            <span class="radioCirle"></span>
+                                                            COMP ID</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            
+
+                                            </div>
+
+                                            <div class="flex items-center justify-end mt-5">
+                                                <div class="updateAction text-erBlue cursor-pointer" on:click={()=>{temp5="newMap"}}>
+                                                    Cancel
+                                                </div>
+                                                <div class="updateAction ml-5">
+                                                    <button class="ErBlueButton">Map</button>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        {/if}
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cheque Details modal -->
+              
+<div class="hidden" id="chequeModel">
+    <div class=" viewDocmodal  " id="modal-id">
+        <div class="bglightcolormodal"></div>
+        <div class="allDocmodalsuccessbody rounded-lg">
+            <div class="">
+                <div class="viewDocPanmainbodyModal">
+                    <div class="flex justify-between mb-3">
+                        <div class="leftmodalInfo">
+                            <p class="text-lg text-erBlue font-medium  ">
+                                <span class=""> Cheque Details </span>
+                            </p>
+                            <p class="text-sm ">
+                                <span class="font-medium text-lg"> Dhiraj Shah</span>
+                                <span class="userDesignation"> - Associate- NDA, MHPD - Mulsi SP</span>
+                            </p>
+                        </div>
+                        <div class="rightmodalclose" on:click="{closechequeDetails}">
+                            <img src="../src/img/blackclose.svg" alt="">
+                        </div>
+                    </div>
+                    <div class="innermodal">
+                        <hr>
+                        <div class="scrollbar ">
+                            <div class="mainContainerWrapper ">
+                                <div class="DocCardlist ">
+                                    <div class="cardDocWrapper ">
+                                        <div class="grid grid-cols-2 xs:grid-cols-1 gap-4">
+                                            <div>
+                                                <div class="grid grid-cols-2 gap-4 mb-1">
+                                                    <div class="detailLbale"> Bank Name</div>
+                                                    <div class="detailData"> HDFC</div>
+                                                </div>
+                                                <div class="grid grid-cols-2 gap-4 mb-1">
+                                                    <div class="detailLbale"> Cheque Type</div>
+                                                    <div class="detailData"> crossed</div>
+                                                </div>
+                                                <div class="grid grid-cols-2 gap-4 mb-1">
+                                                    <div class="detailLbale"> Cheque Date </div>
+                                                    <div class="detailData"> 20-10-2021</div>
+                                                </div>
+                                                <div class="grid grid-cols-2 gap-4 mb-1">
+                                                    <div class="detailLbale"> Cheque Number</div>
+                                                    <div class="detailData"> 952400</div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="grid grid-cols-2 gap-4 mb-1">
+                                                    <div class="detailLbale">Amount</div>
+                                                    <div class="detailData"> Rs 5,000</div>
+                                                </div>
+                                                <div class="grid grid-cols-2 gap-4 mb-1">
+                                                    <div class="detailLbale"> Recrun Number </div>
+                                                    <div class="detailData"> 48324372</div>
+                                                </div>
+                                                <div class="grid grid-cols-2 gap-4 mb-1">
+                                                    <div class="detailLbale"> View Cheque</div>
+                                                    <div class="userStatus ">
+                                                        <p class="verifyText">
+                                                            <a href="" class="smButton">
+                                                                <img src="../src/img/view.png" alt="">
+                                                            </a>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="addDocumentSection ">
+                                    <div class="addSecform hidden">
+                                        <div class="addButtonSection my-3 py-16 text-center hidden">
+                                            <div class="updateAction">
+                                                <button class="ErBlueButton">Add New GST Details</button>
+                                            </div>
+                                        </div>
+                                        <div class="my-3 py-4 px-4 ">
+                                            <p class="text-lg font-medium">Add new GST details</p>
+
+                                            <div class="flex  py-1 items-center flex-wrap">
+                                                <div class="light14grey  mb-1">Address</div>
+                                                <div class="formInnerGroup">
+                                                    <input class="inputboxpopover" type="text">
+                                                </div>
+                                            </div>
+                                            <div class="flex  py-3 items-center flex-wrap">
+                                                <div class="light14grey mb-1">City</div>
+                                                <div class="formInnerGroup ">
+                                                    <select class="inputboxpopover">
+                                                        <option class="pt-6">Select</option>
+                                                        <option>ICICI</option>
+                                                        <option>Axis</option>
+                                                        <option>SIB</option>
+                                                    </select>
+                                                    <div class="formSelectArrow ">
+                                                        <img src="../src/img/selectarrow.png" class="w-5 h-auto"
+                                                            alt="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="flex  py-1 items-center flex-wrap">
+                                                <div class="light14grey  mb-1">GST State</div>
+                                                <div class="formInnerGroup">
+                                                    <input class="inputboxpopover" type="text">
+                                                </div>
+                                            </div>
+
+
+                                            <div class="flex  py-3 items-center flex-wrap">
+                                                <div class="light14grey  mb-1">Upload Document</div>
+                                                <div class="formInnerGroup">
+                                                    <label class="cursor-pointer flex">
+                                                        <div class="ErBlueButton">Select File</div>
+                                                        <input type="file" class="hidden">
+                                                    </label>
+
+                                                </div>
+                                            </div>
+
+
+                                            <div class="flex items-center justify-end mt-5">
+                                                <div class="updateAction text-erBlue">
+                                                    Cancel
+                                                </div>
+                                                <div class="updateAction ml-5">
+                                                    <button class="ErBlueButton">Upload</button>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+
+                                    <div class=" bg-lighterGrey rounded-lg h-full">
+                                        {#if temp6=="cheque"}
+                                        <div class="addButtonSection my-3 py-3  text-center">
+                                            <div class="updateAction mt-5" on:click={()=>{temp6="cheque-2"}}>
+                                                <button class="ErBlueButton">Add New Cheque Details</button>
+                                            </div>
+                                        </div>
+                                        {/if}
+
+                                        {#if temp6=="cheque-2"}
+                                        <div class="my-0 py-4 px-4 ">
+                                            <div class="h-80 max-h-80 overflow-y-scroll pr-4 border-b-2">
+
+                                                <p class="text-lg font-medium">Add New Cheque Details</p>
+
+                                            
+                                                <div class="flex  py-3 items-center flex-wrap">
+                                                    <div class="light14grey mb-1">Bank Name</div>
+                                                    <div class="formInnerGroup ">
+                                                        <select class="inputboxpopover">
+                                                            <option class="pt-6">Select</option>
+                                                        </select>
+                                                        <div class="formSelectArrow ">
+                                                            <img src="../src/img/selectarrow.png" class="w-5 h-auto"
+                                                                alt="">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="flex  py-3 items-center flex-wrap">
+                                                    <div class="light14grey mb-1">Cheque Type</div>
+                                                    <div class="formInnerGroup ">
+                                                        <select class="inputboxpopover">
+                                                            <option class="pt-6">Select</option>
+                                                        </select>
+                                                        <div class="formSelectArrow ">
+                                                            <img src="../src/img/selectarrow.png" class="w-5 h-auto"
+                                                                alt="">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="flex  py-3 items-center flex-wrap">
+                                                    <div class="light14grey mb-1">Cheque Date</div>
+                                                    <div class="formInnerGroup ">
+                                                        <select class="inputboxpopover">
+                                                            <option class="pt-6">Select</option>
+                                                        </select>
+                                                        <div class="formSelectArrow ">
+                                                            <img src="../src/img/selectarrow.png" class="w-5 h-auto"
+                                                                alt="">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="flex  py-1 items-center flex-wrap">
+                                                    <div class="light14greylong  mb-1">Cheque Number</div>
+                                                    <div class="formInnerGroup">
+                                                        <input class="inputboxpopover" type="text">
+                                                    </div>
+                                                </div>
+                                                <div class="flex  py-1 items-center flex-wrap">
+                                                    <div class="light14greylong  mb-1">Amount</div>
+                                                    <div class="formInnerGroup">
+                                                        <input class="inputboxpopover" type="text">
+                                                    </div>
+                                                </div>
+                                                <div class="flex  py-1 items-center flex-wrap">
+                                                    <div class="light14greylong  mb-1">Recrun Number</div>
+                                                    <div class="formInnerGroup">
+                                                        <input class="inputboxpopover" type="text">
+                                                    </div>
+                                                </div>
+                                                <div class="flex  py-1 items-center flex-wrap">
+                                                    <div class="light14greylong  mb-1">File Number</div>
+                                                    <div class="formInnerGroup">
+                                                        <input class="inputboxpopover" type="text">
+                                                    </div>
+                                                </div>
+                                                <div class="flex  py-3 items-center flex-wrap">
+                                                    <div class="light14greylong  mb-1">Upload Cheque</div>
+                                                    <div class="formInnerGroup">
+                                                        <label class="cursor-pointer flex">
+                                                            <div class="ErBlueButton">Select File</div>
+                                                            <input type="file" class="hidden">
+                                                        </label>
+                                                       
+                                                    </div>
+                                                </div>
+                                                
+                                            
+
+                                            </div>
+
+                                            <div class="flex items-center justify-end mt-5">
+                                                <div class="updateAction text-erBlue" on:click={()=>{temp6="cheque"}}>
+                                                    Cancel
+                                                </div>
+                                                <div class="updateAction ml-5">
+                                                    <button class="ErBlueButton">Submit</button>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        {/if}
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Link Child Associates modal -->
+              
+<div class="hidden" id="linkChildModel">
+    <div class=" viewDocmodal  " id="modal-id">
+        <div class="bglightcolormodal"></div>
+        <div class="allDocmodalsuccessbody rounded-lg">
+            <div class="">
+                <div class="viewDocPanmainbodyModal">
+                    <div class="flex justify-between mb-3">
+                        <div class="leftmodalInfo">
+                            <p class="text-lg text-erBlue font-medium  ">
+                                <span class=""> View/Edit Client Name</span>
+                            </p>
+                            <p class="text-sm ">
+                                <span class="font-medium text-lg"> Dhiraj Shah</span>
+                                <span class="userDesignation"> - Associate- NDA, MHPD - Mulsi SP</span>
+                            </p>
+                        </div>
+                        <div class="rightmodalclose" on:click="{linkChildModelclose}">
+                            <img src="../src/img/blackclose.svg" alt="">
+                        </div>
+                    </div>
+                    <div class="innermodal">
+                        <hr>
+                        <div class="scrollbar ">
+                            <div class="mainContainerWrapper ">
+                                <div class="DocCardlist ">
+                                    <div class="bg-bglightyellow py-2 px-3 mt-2 ">
+                                          <div class="flex items-center">
+                                                <div class="detailLbale"> Tags added for this Associate 
+                                                    <span class="detailData "> 3P Associate Not to be Paid , P 30</span>
+                                                </div>
+                                          </div>
+                                    </div>
+                                    <div class="flex  py-3 items-center ">
+                                        <div class="light14grey mb-1" >Select Location</div>
+                                        <div class="formInnerGroup ">
+                                            <select class="inputboxpopover" on:click={()=>{child="linkchild2"}}>
+                                                <option class="pt-6">Select</option>
+                                              
+                                            </select>
+                                            <div class="formSelectArrow ">
+                                                <img src="../src/img/selectarrow.png" class="w-5 h-auto"
+                                                    alt="">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="OtherAppliedTagsTable ">
+                                        <table class="table  w-full text-center mt-2 xs:hidden sm:hidden">
+                                            <thead class="theadpopover">
+                                              <tr>
+                                                <th>Facility Name</th>
+                                                <th>Unique ID</th>
+                                                <th>Station</th>
+                                                <th>Mobile No</th>
+                                                <th>Select</th>
+                                              </tr>
+                                            </thead>
+                                            <tbody class="tbodypopover">
+                                                {#if child=="linkchild"}
+                                                <tr class="hidde">
+                                                    <td colspan="5" class="text-center">
+
+                                                    <div class="light14greylong w-full mb-1">Select a location to view Associates</div>
+                                                    </td>
+                                                </tr>
+                                                {/if}
+
+                                                {#if child=="linkchild2"}
+                                                    <tr class="border-b">
+                                                        <td>	Avinash Gopal Katari</td>
+                                                        <td>EFAU00088</td>
+                                                        <td>BOMG</td>
+                                                        <td>7620350909</td>
+                                                        <td><input type="checkbox" class=" checked:bg-blue-500 ..." /></td>
+                                                        
+                                                      </tr>
+                                                      <tr class="border-b">
+                                                        <td>	Avinash Gopal Katari</td>
+                                                        <td>EFAU00088</td>
+                                                        <td>BOMG</td>
+                                                        <td>7620350909</td>
+                                                        <td><input type="checkbox" class=" checked:bg-blue-500 ..." /></td>
+                                                        
+                                                      </tr>
+                                                {/if}
+                                            </tbody>
+                                          </table>
+                                          <div class="text-right mt-3">
+                                            <button class="ErBlueButton" on:click={()=>{childlink="childlink2"}}>Link Child Associate</button>
+                                          </div>
+                                    </div> 
+
+
+
+                                </div>
+                                <div class="addDocumentSection ">
+                                    <div class="addSecform ">
+                                        <div class="my-3 py-4 px-4 ">
+                                            <p class="text-lg font-medium">Linked Child Associates</p>
+                                        </div>
+                                        {#if childlink=="childlink"}
+                                        <div class="light14greylong w-full mb-1 text-center"> No child assosiates are linked</div>
+                                        {/if}
+                                        {#if childlink=="childlink2"}
+                                        <div class="cardforlinkedChild px-5 border-b pb-3">
+                                            <div class="flex justify-end">
+                                                    <div class="detailData" on:click={()=>{childlink="childlink"}}> <img src="../src/img/reject.png" width="25px" alt=""></div>
+                                              </div>
+                                        <div class="flex ">
+                                            <div class="w-1/3 ">
+                                                <div class="detailLbale"> Location</div>
+                                            </div>
+                                            <div class="w-2/3 ">
+                                                <div class="detailData"> Pune</div>
+                                            </div>
+                                          </div>
+                                          <div class="flex ">
+                                            <div class="w-1/3 ">
+                                                <div class="detailLbale"> Facility Name</div>
+                                            </div>
+                                            <div class="w-2/3 ">
+                                                <div class="detailData"> Avinash Gopal Katari</div>
+                                            </div>
+                                          </div>
+                                          <div class="flex ">
+                                            <div class="w-1/3 ">
+                                                <div class="detailLbale">  Unique ID</div>
+                                            </div>
+                                            <div class="w-2/3 ">
+                                                <div class="detailData"> EFAU00088</div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                       {/if}
+
+
+
+
+
+                                    </div>
+
+                                 
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -200,7 +200,7 @@ function gotobankdetails() {
                     <div class="formGroupBaseLine py-1">
                         <label class="formLable ">PAN Card Copy <span
                                 class="mandatoryIcon">*</span></label>
-                        <div class="formInnerGroup ">
+                        <!-- <div class="formInnerGroup ">
 
                             <span class="profileimage">
                                 <span>dhiraj-shah.jpeg </span>
@@ -210,6 +210,15 @@ function gotobankdetails() {
                                 <img src="../src/img/pancard.png" class="uploadedImage"
                                     alt="">
                             </div>
+                        </div> -->
+                        <div class="formInnerGroup ">
+                            <label class="cursor-pointer ">
+                                <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
+                                <input type='file' class="hidden" />
+                            </label>
+                            <p class="noteDescription mt-2"><span class="font-medium">Note:</span>
+                                Photo must be clear and in JPG, PNG, or PDF format to process faster
+                                verification</p>
                         </div>
                     </div>
                 </div>
@@ -259,7 +268,7 @@ function gotobankdetails() {
                     <div class="formGroupBaseLine py-1">
                         <label class="formLable ">Voter ID Copy <span
                                 class="mandatoryIcon">*</span></label>
-                        <div class="formInnerGroup ">
+                        <!-- <div class="formInnerGroup ">
 
                             <span class="profileimage">
                                 <span>voter-id.jpeg </span>
@@ -269,6 +278,15 @@ function gotobankdetails() {
                                 <img src="../src/img/pancard.png" class="uploadedImage"
                                     alt="">
                             </div>
+                        </div> -->
+                        <div class="formInnerGroup ">
+                            <label class="cursor-pointer ">
+                                <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
+                                <input type='file' class="hidden" />
+                            </label>
+                            <p class="noteDescription mt-2"><span class="font-medium">Note:</span>
+                                Photo must be clear and in JPG, PNG, or PDF format to process faster
+                                verification</p>
                         </div>
                     </div>
                 </div>
