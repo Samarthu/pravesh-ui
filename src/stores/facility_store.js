@@ -88,3 +88,9 @@ export const verify_contact_number_api_link = derived(facility_data_store,
 export const verify_contact_number_otp_api_link = derived(facility_data_store,
     $facility_data_store =>'/api/method/pravesh.facility.routes.otp.verify_otp?mobile_no='+$facility_data_store.phone_number+'&otp=');
 
+
+export const verify_associate_name_api_link = derived(facility_data_store,
+    $facility_data_store => '/api/method/pravesh.facility.routes.facility.verify_facility_name?facility_name='+$facility_data_store.facility_name+'&station_code='+$facility_data_store.station_code+'&fac_id=');
+
+    export const verify_email_name_api_link = derived(facility_data_store,
+        $facility_data_store => 'api/method/pravesh.facility.routes.facility.verify_facility_email?email_id='+$facility_data_store.facility_email);
