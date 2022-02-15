@@ -17,7 +17,7 @@
 
     function routeToPage() {
         let replaceState = false;
-        goto(routeNext, { replaceState });
+        goto("organisation-selection", { replaceState });
     }
 
     function routeToPage2() {

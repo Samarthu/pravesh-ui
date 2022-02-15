@@ -1,17 +1,18 @@
 <script>
     import {onMount} from 'svelte';
     import { goto } from "$app/navigation";
-    import {vercticle_name} from '../stores/verticle_store';
+    // import {vercticle_name} from '../stores/verticle_store';
     import {get_organistaion_method} from '../services/organisation_services';
+    import {facility_data_store} from '../stores/facility_store';
     import {org_name} from '../stores/organisation_store';
     let verticle = null;
     let org_list = [];
     let org_select = null;
     onMount(async () =>{
-        vercticle_name.subscribe(value =>{
-            verticle = value.verticle;
-        });
-        console.log("vectore name", verticle);
+        // vercticle_name.subscribe(value =>{
+        //     verticle = value.verticle;
+        // });
+        // console.log("vectore name", verticle);
         let response = await get_organistaion_method();
         console.log("response", response);
         org_list = response.body.data;
@@ -19,7 +20,8 @@
 
     });
     function onclickhandel(){
-        org_name.set({org_id:org_select});
+        // org_name.set({org_id:org_select});
+        facility_data_store.set({org_id:org_select});
         let replaceState = false;
         goto("catagory", { replaceState });
         // alert(org_select);

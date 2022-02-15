@@ -1,12 +1,97 @@
 <script>
     import { goto } from "$app/navigation";
+    import {facility_data_store} from '../stores/facility_store';
+    import {verify_mobile_number_function,send_mobile_number_otp,verify_mobile_number_otp} from '../services/contact_number_services';
 
 
 let routeTo = "associatedetails";
+var mobile_no_pattern = /^[6-9]{1}[0-9]{9}$/;
+var mobile_number_message = "";
+var otp_message = "";
+let otp_message_status;
+let send_otp_disabled = true;
+let toggele = true;
+let otp = null;
+
+
 
 function route() {
+
     let replaceState = false;
     goto(routeTo, { replaceState });
+}
+
+async function check_mobile_number(){
+    let valid = true;
+    if(!$facility_data_store.phone_number.match(mobile_no_pattern)){
+        valid = false;
+        mobile_number_message = "Please enter a valid Mobile number";
+    }
+    else{
+        mobile_number_message = "";
+    }
+    if(valid){
+        send_otp_disabled = true;
+        let valid_mobile_number_response = await verify_mobile_number_function();
+        try{
+            if(valid_mobile_number_response.body.data == true){
+                // console.log("mobile no available");
+                send_otp_disabled = false;
+
+
+            }
+            else if(valid_mobile_number_response.body.data == false){
+                mobile_number_message = valid_mobile_number_response.body.message
+            }
+        }
+        catch{
+            alert("Error in verifying mobile number.")
+
+        }
+    console.log("verify mobile number",valid_mobile_number_response);
+
+    }
+    
+
+}
+async function send_otp_function(){
+    let otp_response = await send_mobile_number_otp();
+    console.log("otp response",otp_response);
+    if(otp_response.body.data == true)
+    {
+        toggele = false;
+
+    }
+    // alert("button pressed");
+
+}
+function switch_toggele(){
+    if(toggele){
+        toggele = false
+    }
+    else{
+        toggele = true
+    }
+}
+async function verify_otp(){
+    let verify_otp_response = await verify_mobile_number_otp(otp)
+    console.log("verify_otp_response",verify_otp_response);
+    try{
+        otp_message="";
+        if(verify_otp_response.body.message.data == true){
+            otp_message_status = true;
+            otp_message="OTP Verified ( click on save button on the next section to save the data )"
+            route();
+
+        }
+        else{
+            otp_message_status = false;
+            otp_message = "Invalid OTP" ;
+        }
+    }
+    catch{
+
+    }
 }
 </script>
 
@@ -171,7 +256,8 @@ function route() {
         </div>
 <div class="w-widthforFormSection w100xs ">   
     <!-- Associate Mobile -->
-    <div class="onboardForm hidden">
+    {#if toggele}
+    <div class="onboardForm ">
         <div class="formTextSection">
             <p class="formLabelText ">Verify associate contact Number</p>
         </div>
@@ -185,7 +271,7 @@ function route() {
                             <span class="searchicon">
                                 <img src="../src/img/mobilephone.png" class="placeholderIcon" alt="">
                             </span>
-                            <input type="text" class="inputbox">
+                            <input type="text" class="inputbox" bind:value={$facility_data_store.phone_number} on:blur={()=> check_mobile_number()}>
                         </div>
                     </div>
                 </div>
@@ -199,14 +285,17 @@ function route() {
                         <div class="formInnerGroupNote">
                             <p class="noteDescription"><span class="font-medium">Note:</span>
                                 An OTP code will send to associate mobile number</p>
-                            <button class="ErBlueButton mt-3">Send OTP</button>
+                            <div class="text-red-500">
+                                {mobile_number_message}
+                            </div>
+                            <button class="ErBlueButton mt-3" disabled={send_otp_disabled} on:click|preventDefault={() => send_otp_function()}>Send OTP</button>
                         </div>
                     </div>
                 </div>
             </div>
         </form>
     </div>
-    <!-- OTP Verification -->
+    {:else}
     <div class="onboardForm ">
         <div class="formTextVerification">
             <p class="formLabelText ">OTP Verification</p>
@@ -222,11 +311,19 @@ function route() {
                             <span class="searchicon">
                                 <img src="../src/img/mobilephone.png" class="placeholderIcon" alt="">
                             </span>
-                            <input type="text" class="inputbox">
+                            <input type="text" class="inputbox" bind:value={otp}>
                         </div>
                     </div>
                 </div>
 
+            </div>
+            <div>
+                {#if  otp_message_status}
+                <div class="text-green">{otp_message}</div>
+                {:else}
+                <div class="text-red-500">{otp_message}</div>
+                    
+                {/if}
             </div>
 
             <div class="formElements">
@@ -236,10 +333,9 @@ function route() {
                         <div class="formInnerGroup">
                             <p class="noteDescription  flex justify-between">
                                 <span class="secText">60 Sec</span>
-                                <span> OTP sent on 8856022890 <a href="#"
-                                        class="editLink">Edit</a> </span>
+                                <span> OTP sent on {$facility_data_store.phone_number} <span class="cursor: pointer text-blue-600 text-decoration-line: underline " on:click={()=>switch_toggele()}>Edit</span>  </span>
                             </p>
-                            <button on:click={()=>{route()}} class="ErBlueButton mt-3">Verify & Proceed</button>
+                            <button on:click|preventDefault={()=>{verify_otp()}} class="ErBlueButton mt-3">Verify & Proceed</button>
                         </div>
                     </div>
                 </div>
@@ -247,6 +343,12 @@ function route() {
         </form>
     </div>
 
+
+        
+    {/if}
+    
+    <!-- OTP Verification -->
+    
 </div>
     </div>
 </div>

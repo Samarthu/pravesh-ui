@@ -1,26 +1,32 @@
 <script>
-import { goto } from "$app/navigation";
-import {onMount} from 'svelte';
-import {org_name} from '../stores/organisation_store';
-import {get_user_scope_function,get_facility_types_function} from '../services/workdetails_services';
-import {station_type_name,get_facility_type_link} from '../stores/station_store';
-import { each } from "svelte/internal";
+    import { goto } from "$app/navigation";
+    import { onMount } from "svelte";
+    import { org_name } from "../stores/organisation_store";
+    import {
+        get_user_scope_function,
+        get_facility_types_function,
+        get_vendor_by_config_method,
+    } from "../services/workdetails_services";
+    import { station_type_name } from "../stores/station_store";
+    import { facility_data_store } from "../stores/facility_store";
+    import { get_facility_type_link } from "../stores/facility_store";
+    // import PdfViewer from 'svelte-pdf';
+    import { each } from "svelte/internal";
 
-
-
-let org_id = null;
-let msme_value = null;
-let city_value = null;
-let station_value = null;
-let city_list=[];
-let station_list = [];
-let user_scope_response = null;
-let scope_list={};
-let associate_type_list = [];
-
-
-
-
+    let org_id = null;
+    let msme_value = null;
+    let city_value = null;
+    let station_value = null;
+    let fileinput;
+    let pdf_name;
+    let city_list = [];
+    let station_list = [];
+    let user_scope_response = null;
+    let vendor_list_response = null;
+    let scope_list = {};
+    let associate_type_list = [];
+    let vendor_list = [];
+    let msme_agreement ;
 
     let routeTo = "";
 
@@ -28,83 +34,117 @@ let associate_type_list = [];
         let replaceState = false;
         goto(routeTo, { replaceState });
     }
-    
-    function routeToWorkforce(){
+
+    function routeToWorkforce() {
         let replaceState = false;
         goto("workforce", { replaceState });
     }
 
     routeTo = "verifycontactnumber";
-    onMount(async () =>{
-        org_name.subscribe(value =>{
+    onMount(async () => {
+        // org_name.subscribe(value =>{
 
-          org_id = value.org_id;
-        }); 
-        console.log("org_id",org_id);
-         user_scope_response = await get_user_scope_function();
-        console.log("user_scope_response",user_scope_response);
-        for(let i=0;i<user_scope_response.body.data.length;i++){
-            if(!city_list.includes( user_scope_response.body.data[i]['location_name'])){
-                city_list.push(user_scope_response.body.data[i]['location_name']);
+        //   org_id = value.org_id;
+        // });
+        facility_data_store.subscribe((value) => {
+            org_id = value.org_id;
+        });
+        console.log("org_id", org_id);
+        user_scope_response = await get_user_scope_function();
+        console.log("user_scope_response", user_scope_response);
+        for (let i = 0; i < user_scope_response.body.data.length; i++) {
+            if (
+                !city_list.includes(
+                    user_scope_response.body.data[i]["location_name"]
+                )
+            ) {
+                city_list.push({
+                    city_name:
+                        user_scope_response.body.data[i]["location_name"],
+                    location_id:
+                        user_scope_response.body.data[i]["location_id"],
+                });
             }
-
         }
         city_list = city_list;
-        console.log("city_list",city_list);
+        console.log("city_list", city_list);
         // for(let i=0;i<city_list.length;i++){
         //     scope_list[city_list[i]] = [];
         //     for(let j=0;j<user_scope_response.body.data.length;j++){
         //         if(city_list[i] == user_scope_response.body.data[j]['location_name']){
         //             station_list.push(user_scope_response.body.data[j]['stations']);
-                    
 
         //         }
         //         // scope_list[city_list[i]] = scope_list[city_list[i]];
 
-
-                    
-                
         //     }
-            
+
         // }
-        
+
         scope_list = scope_list;
-        console.log("scope_list",scope_list);
+        console.log("scope_list", scope_list);
         let temp;
-        get_facility_type_link.subscribe((value =>{
+        // get_facility_type_link.subscribe((value =>{
+        //     temp = value;
+        // }));
+        get_facility_type_link.subscribe((value) => {
             temp = value;
-        }));
-        console.log("facility link",temp);
-        
+        });
+        console.log("facility link", temp);
 
-    })
-    $:{
-        if(user_scope_response != null){
-            for(let i=0;i<user_scope_response.body.data.length;i++){
-            if(city_value == user_scope_response.body.data[i]['location_name']){
-                for(let j=0;j<user_scope_response.body.data[i]['stations'].length;j++){
-                   station_list.push(user_scope_response.body.data[i]['stations'][j]);
+        vendor_list_response = await get_vendor_by_config_method();
+        console.log("vendor list", vendor_list_response);
+    });
+    $: {
+        if (user_scope_response != null) {
+            station_list = [];
+
+            for (let i = 0; i < user_scope_response.body.data.length; i++) {
+                if (
+                    city_value ==
+                    user_scope_response.body.data[i]["location_id"]
+                ) {
+                    for (
+                        let j = 0;
+                        j < user_scope_response.body.data[i]["stations"].length;
+                        j++
+                    ) {
+                        station_list.push(
+                            user_scope_response.body.data[i]["stations"][j]
+                        );
+                    }
+                    break;
                 }
-                break;
             }
-        }
-        station_list = station_list;
-        console.log("station_list",station_list);
+            station_list = station_list;
 
-
+            console.log("station_list", station_list);
         }
-        
     }
-    async function get_facility_types(){
+    $: {
+        if (vendor_list_response != null) {
+            vendor_list = [];
+            for (let i = 0; i < vendor_list_response.body.data.length; i++) {
+                if (
+                    city_value ==
+                    vendor_list_response.body.data[i]["location_id"]
+                ) {
+                    vendor_list.push(vendor_list_response.body.data[i]);
+                }
+            }
+            vendor_list = vendor_list;
+            console.log("vendor list", vendor_list);
+        }
+    }
+    async function get_facility_types() {
         let facility_type_response = await get_facility_types_function();
-        console.log("facility_type_response",facility_type_response);
-        if(facility_type_response.body.status =="green"){
+        console.log("facility_type_response", facility_type_response);
+        if (facility_type_response.body.status == "green") {
             associate_type_list = facility_type_response.body.data;
-            console.log("associate_type_list",associate_type_list);
+            console.log("associate_type_list", associate_type_list);
         }
-
     }
-    $:{
+    $: {
         // let demo ;
         // station_type_name.subscribe(value =>{
         //     demo = value.station_name;
@@ -114,11 +154,36 @@ let associate_type_list = [];
         // get_facility_type_link.subscribe((value =>{
         //     temp = value;
         // }));
-        let demo =$get_facility_type_link;
-        console.log("facility type link",demo);
+        let demo = $get_facility_type_link;
+        console.log("facility type link", demo);
+
         get_facility_types();
-        
     }
+    let avatar;
+
+    const onFileSelected = (e) => {
+        let pdf = e.target.files[0];
+        pdf_name = pdf.name;
+        console.log("pdf name",pdf.name);
+        let reader = new FileReader();
+        reader.readAsDataURL(pdf);
+        reader.onload = (e) => {
+            fileinput = e.target.result;
+            console.log(fileinput);
+        };
+    };
+//     function open_pdf_window(base_64_string){
+//         let new_url = base_64_string.substring(base_64_string.indexOf(",")+1);
+//         console.log("new_url", new_url);
+//         let pdfWindow = window.open("")
+// pdfWindow.document.write(
+//     "<iframe width='100%' height='100%' src='data:application/pdf;base64, " +
+//     encodeURI(new_url) + "'></iframe>"
+// )
+//     }
+
+    
+
 </script>
 
 <div class="mainContent ">
@@ -408,11 +473,17 @@ let associate_type_list = [];
                                             alt=""
                                         />
                                     </span>
-                                    <select class="inputbox" bind:value={city_value}>
-                                        <option value="" disabled selected>Select City</option>
-                                        {#each city_list as city }
-                                        <option value={city}>{city}</option>
-                                            
+                                    <select
+                                        class="inputbox"
+                                        bind:value={city_value}
+                                    >
+                                        <option value="" disabled selected
+                                            >Select City</option
+                                        >
+                                        {#each city_list as city}
+                                            <option value={city.location_id}
+                                                >{city.city_name}</option
+                                            >
                                         {/each}
                                     </select>
                                     <div class="formSelectArrow ">
@@ -440,10 +511,14 @@ let associate_type_list = [];
                                             alt=""
                                         />
                                     </span>
-                                    <select class="inputbox" bind:value={$station_type_name.station_name}>
-                                        {#each station_list as station }
-                                         <option value={station.station_code}>{station.station_name} / {station.station_code}</option>
-                                            
+                                    <select
+                                        class="inputbox"
+                                        bind:value={$facility_data_store.station_code}
+                                    >
+                                        {#each station_list as station}
+                                            <option value={station.station_code}
+                                                >{station.station_name} / {station.station_code}</option
+                                            >
                                         {/each}
                                         <!-- <option class="pt-6"
                                             >MHPD - Mulshi SP</option
@@ -452,6 +527,7 @@ let associate_type_list = [];
                                         <option>HBPD - Bangloru SP</option>
                                         <option>MHPD - Mulshi SP</option> -->
                                     </select>
+                                    
                                     <div class="formSelectArrow ">
                                         <img
                                             src="../src/img/selectarrow.png"
@@ -477,10 +553,14 @@ let associate_type_list = [];
                                             alt=""
                                         />
                                     </span>
-                                    <select class="inputbox">
-                                        {#each associate_type_list as associate_type }
-                                        <option value={associate_type.name}>{associate_type.facility_type_name}</option>
-                                            
+                                    <select
+                                        class="inputbox"
+                                        bind:value={$facility_data_store.facility_type}
+                                    >
+                                        {#each associate_type_list as associate_type}
+                                            <option value={associate_type.name}
+                                                >{associate_type.facility_type_name}</option
+                                            >
                                         {/each}
                                         <!-- <option class="pt-6">NDA</option>
                                         <option>Leader</option>
@@ -512,13 +592,21 @@ let associate_type_list = [];
                                             alt=""
                                         />
                                     </span>
-                                    <select class="inputbox">
-                                        <option class="pt-6"
+                                    <select
+                                        class="inputbox"
+                                        bind:value={$facility_data_store.vendor_code}
+                                    >
+                                        {#each vendor_list as vendor}
+                                            <option value={vendor.vendor_id}
+                                                >{vendor.vendor_name}</option
+                                            >
+                                        {/each}
+                                        <!-- <option class="pt-6"
                                             >Vitthal Sutar - MHPD00012</option
                                         >
                                         <option>Rakesh Raj - MHPD00012</option>
                                         <option>Vishwas Patil</option>
-                                        <option>Somnath Narule</option>
+                                        <option>Somnath Narule</option> -->
                                     </select>
                                     <div class="formSelectArrow ">
                                         <img
@@ -533,8 +621,8 @@ let associate_type_list = [];
                         <div class="flex">
                             <div class="formGroup">
                                 <label class="formLable "
-                                    >Is MSME Registered ? <span class="mandatoryIcon"
-                                        >*</span
+                                    >Is MSME Registered ? <span
+                                        class="mandatoryIcon">*</span
                                     ></label
                                 >
                                 <div class="formInnerGroup ">
@@ -545,14 +633,18 @@ let associate_type_list = [];
                                             alt=""
                                         />
                                     </span>
-                                    <select class="inputbox" bind:value={msme_value}>
+                                    <select
+                                        class="inputbox"
+                                        bind:value={msme_value}
+                                    >
                                         <!-- <option class="pt-6" disabled
                                             >Select Yes Or No</option
                                         > -->
-                                        <option value="" disabled selected>Select Yes or No</option>
+                                        <option value="" disabled selected
+                                            >Select Yes or No</option
+                                        >
                                         <option value="Yes">Yes</option>
                                         <option value="No">No</option>
-                                       
                                     </select>
                                     <div class="formSelectArrow ">
                                         <img
@@ -561,38 +653,61 @@ let associate_type_list = [];
                                             alt=""
                                         />
                                     </div>
-                                    {#if (msme_value == 'Yes') }
-                                    <label class="formLable "
-                                    >Attach MSME Certificate<span
-                                        class="mandatoryIcon">*</span
-                                    ></label
-                                >
-                                <div class="formInnerGroup ">
-                                    <label class="cursor-pointer ">
-                                        <div
-                                            class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px"
+                                    {#if msme_value == "Yes"}
+                                        <label class="formLable "
+                                            >Attach MSME Certificate<span
+                                                class="mandatoryIcon">*</span
+                                            ></label
                                         >
-                                            Upload
+                                        <div class="formInnerGroup ">
+                                            <label class="cursor-pointer ">
+                                                <div
+                                                    class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px"
+                                                >
+                                                    Upload
+                                                </div>
+                                                <input
+                                                    type="file"
+                                                    class="hidden"
+                                                    accept=".pdf"
+                                                    
+                                                    on:change={(e) =>
+                                                        onFileSelected(e)}
+                                                />
+                                            </label>
                                         </div>
-                                        <input type="file" class="hidden" />
-                                    </label>
-                                </div>
-                                {:else if (msme_value == 'No')}
-                                <h1>Accept NON-MSME Declaration<br>
-                                    - I hereby declare that I have confirmed with the vendor and they are not registered under The Micro, Small and Medium Enterprises Development Act, 2006 (MSMED Act).
-                                    </h1>
-                                    <br>
-                                    <input type="checkbox" name="msme_agreement" >
-                                    <label for=""> I Accept</label>
-                                     
-                                        
+                                    {:else if msme_value == "No"}
+                                        <h1>
+                                            Accept NON-MSME Declaration<br />
+                                            - I hereby declare that I have confirmed
+                                            with the vendor and they are not registered
+                                            under The Micro, Small and Medium Enterprises
+                                            Development Act, 2006 (MSMED Act).
+                                        </h1>
+                                        <br />
+                                        <input
+                                            type="checkbox"
+                                            name="msme_agreement"
+                                            bind:checked={msme_agreement}
+                                        />
+                                        <label for=""> I Accept</label>
                                     {/if}
-
-                                    
-
                                 </div>
                             </div>
                         </div>
+                        <div class="flex">
+                            {#if fileinput && fileinput[0]}
+                                <p>
+                                    {pdf_name}
+                                    
+                                    <!-- <iframe width='100%' height='100%' src={avatar}></iframe> -->
+                                    
+                                    <!-- <embed src={fileinput[0]} width="800px" height="2100px" /> -->
+                                </p>
+                            {/if}
+                            <!-- {fileinput[0].name} -->
+                        </div>
+                       
                         <!-- <div class="flex">
                             <div class="formGroup">
                                 <label class="formLable "
@@ -628,10 +743,10 @@ let associate_type_list = [];
                             </div>
                         </div>
                     </div> -->
-                    <!-- <div>
+                        <!-- <div>
                         {$get_facility_type_link}
                     </div> -->
-                    
+                    </div>
                 </form>
             </div>
             <div class="onboardFormNot ">
