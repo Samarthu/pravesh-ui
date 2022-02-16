@@ -8,7 +8,6 @@
     let routeSupplier = "";
     let routeDownloads = "";
     let routeSupport = "";
-    let current  = ""
 
     export let url = "";
 
@@ -37,6 +36,7 @@
         goto(routeSupport, { replaceState });
     }
 
+    let current = 'routeToPageOnboard';
     routeOnboard = "bussines"; 
     routeDashboard = "dashboard";
     routeSupplier = "supplier";   
@@ -76,8 +76,9 @@
             </li>
             <li on:click={routeToPageOnboard}  class="listItem">
                 <a href="javascript:void(0)" 
-                class="{current === 'routeToPageOnboard' ? 'active' : ''}"
-	on:click="{() => current = 'routeToPageOnboard'}">
+             class="{current === 'routeToPageOnboard' ? 'active' : ''}"
+                on:click="{() => current = 'routeToPageOnboard'}"
+                >
                     <!-- class="active" -->
                     <svg
                         class="svgIcon"
@@ -119,9 +120,9 @@
                 </a>
             </li>
             <li on:click={routeToPageSupplier} class="listItem">
-                <a href="javascript:void(0)"
+                <a  href="javascript:void(0)"
                 class="{current === 'routeToPageSupplier' ? 'active' : ''}"
-	on:click="{() => current = 'routeToPageSupplier'}"
+                on:click="{() => current = 'routeToPageSupplier'}"
                 >
                     <svg
                         class="svgIcon"
@@ -287,7 +288,10 @@
                 </a>
             </li>
             <li on:click={routeToPageDownloads} class="listItem">
-                <a class="" href="javascript:void(0)">
+                <a  href="javascript:void(0)"
+                class="{current === 'routeToPageDownloads' ? 'active' : ''}"
+                on:click="{() => current = 'routeToPageDownloads'}"
+                >
                     <svg
                         class="svgIcon"
                         width="22"
@@ -321,7 +325,10 @@
                 </a>
             </li>
             <li on:click={routeToPageSupport} class="listItem">
-                <a class="" href="javascript:void(0)">
+                <a  href="javascript:void(0)"
+                class="{current === 'routeToPageSupport' ? 'active' : ''}"
+                on:click="{() => current = 'routeToPageSupport'}"
+                >
                     <svg
                         class="svgIcon"
                         width="22"

@@ -1359,4 +1359,16 @@ ul.menuList li a.active span{
 }
 
 
+.swiper-wrapper {
+    padding-bottom: 30px!important;
+}
 
+.swiper-horizontal>.swiper-pagination-bullets, .swiper-pagination-bullets.swiper-pagination-horizontal, .swiper-pagination-custom, .swiper-pagination-fraction {
+    bottom: 1px!important;
+}
+
+@media (max-width:767px) {
+    .swiper-slide {
+        width: 100%!important;
+    }
+}

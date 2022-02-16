@@ -10,6 +10,7 @@
     import "swiper/css/scrollbar";
 </script>
 
+
 <div class="mainContent ">
     <div class="dashboardWrappersup">
         <div class="dashboardSection w-2/3 xs:w-full sm:w-full">
@@ -17,7 +18,7 @@
                 <div
                     class="breadcrumb-section flex justify-between items-center xs:px-3 xs:mt-3"
                 >
-                    <p class="pt-p7px pb-5">
+                    <p class="pt-4 pb-5">
                         <span class=" pr-1 text-font32 font-medium xs:text-2xl"
                             >Support</span
                         >
@@ -91,7 +92,7 @@
             </div>
         </div>
         <div class="activeProfile w-1/3  xs:w-full sm:w-full">
-            <div class="myactionitems ">
+            <div class="myactionitems mt-5">
                 <div class="headingMyactions mb-4">
                     <h1 class="cardhead mb-2">NivaRun Support</h1>
                     <p class="cardDes">Create tickets for any queries</p>
