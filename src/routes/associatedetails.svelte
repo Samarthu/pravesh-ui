@@ -3,10 +3,24 @@
     import {onMount} from 'svelte';
     import {facility_data_store} from '../stores/facility_store';
     import {verify_associate_name,verify_associate_email} from '../services/associate_details_services';
-    import { DateInput, DatePicker } from 'date-picker-svelte'
+    import { DateInput, DatePicker } from 'date-picker-svelte';
+    import {get_user_scope_function} from '../services/workdetails_services';
+import { each } from "svelte/internal";
+    
+
   let date = new Date()
   const d = new Date("2015-03-25");
   let max_date;
+  let  avatar, fileinput;
+  let img_name = "";
+  let city_data = [];
+  let address_proof_copy;
+  let address_proof_copy_name;
+  let present_address_proof_copy;
+  let present_address_proof_copy_name;
+  let profile_pic;
+  let profile_pic_name;
+  let address_check;
 
 
 let routeTo = "identityproof";
@@ -25,6 +39,28 @@ onMount(async () => {
 
     }
     get_max_date();
+    let user_scope_response = await get_user_scope_function();
+    console.log("user_scope_response",user_scope_response);
+    try{
+        if(user_scope_response.body.status == "green"){
+            city_data =[];
+            let user_scope_data = user_scope_response.body.data;
+            for(let i=0;i<user_scope_data.length;i++){
+                if(!city_data.includes(user_scope_data[i]['location_name'])){
+                    city_data.push({
+                        "city_name":user_scope_data[i]['location_name'],
+                        "city_id":user_scope_data[i]['location_id'],
+                        "state_name":user_scope_data[i]['location_state'],
+                    });
+                }
+
+            }
+            
+        }
+    }
+    catch{
+
+    }
 
 })
 
@@ -60,6 +96,40 @@ async function verify_facility_name(){
 
 
 }
+const onFileSelected =(e)=>{
+  let image = e.target.files[0];
+  profile_pic_name = image.name;
+//   img_name = image.name;
+  let reader = new FileReader();
+    reader.readAsDataURL(image);
+    reader.onload = e => {
+            profile_pic = e.target.result;
+            console.log("profile_pic",profile_pic);
+        };
+        
+}
+const onadders_prrof =(e) =>{
+    let image = e.target.files[0];
+    address_proof_copy_name = image.name;
+    let reader = new FileReader();
+    reader.readAsDataURL(image);
+    reader.onload = e => {
+            address_proof_copy = e.target.result;
+            console.log("address_proof_copy",address_proof_copy);
+        };
+    
+}
+const onpresent_address_proof =(e) =>{
+    let image = e.target.files[0];
+    present_address_proof_copy_name  = image.name;
+    let reader = new FileReader();
+    reader.readAsDataURL(image);
+    reader.onload = e => {
+            present_address_proof_copy = e.target.result;
+            console.log("present_address_proof_copy",present_address_proof_copy);
+        };
+
+}
 async function verify_email(){
     let verify_email_response = await verify_associate_email();
     console.log("verify_email_response",verify_email_response);
@@ -79,14 +149,19 @@ async function verify_email(){
 
 }
 $:{
+    // console.log("reactive blocks");
+    console.log(String(date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate()));
+    facility_data_store.set({date_of_birth: String(date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate())})
+    
+
 
 
 }
-function testing_function(){
-    console.log("month",String(date.getMonth()+1));
-    console.log("day",String(date.getDate()));
-    console.log("year",String(date.getFullYear()));
-}
+// function testing_function(){
+//     console.log("month",String(date.getMonth()+1));
+//     console.log("day",String(date.getDate()));
+//     console.log("year",String(date.getFullYear()));
+// }
 
 </script>
 
@@ -279,7 +354,7 @@ function testing_function(){
                 </div>
                 <div class="flex">
                     <div class="formGroup ">
-                        <label class="formLable ">Email ID <span class="mandatoryIcon">*</span></label>
+                        <label class="formLable ">Email ID </label>
                         <div class="formInnerGroup ">
                             <span class="searchicon">
                                 <img src="../src/img/email.png" class="w-6 h-auto text-white"
@@ -313,11 +388,38 @@ function testing_function(){
                         <div class="formInnerGroup ">
 
                             <span class="profileimage hidden">
-                                <img src="../src/img/Maskprofile.jpg"
+                                <!-- <img src="../src/img/Maskprofile.jpg"
                                     class="associateProfile" alt="">
                                 <span>dhiraj-shah.jpeg </span>
-                                <span><img src="../src/img/closeblue.png" alt=""></span>
+                                <span><img src="../src/img/closeblue.png" alt=""></span> -->
+                                <label class="cursor-pointer ">
+                                    <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
+                                    <input type='file' class="hidden" accept=".jpg, .jpeg, .png" on:change={(e)=>onFileSelected(e)} bind:this={fileinput} />
+                                    {#if profile_pic_name}
+                                    {profile_pic_name}
+                                    {/if}
+                                </label>
                             </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex">
+                    <div class="formGroup ">
+                        <label class="formLable ">City <span
+                                class="mandatoryIcon">*</span></label>
+                        <div class="formInnerGroup ">
+                            <span class="searchicon">
+                                <img src="../src/img/location1.png" class="placeholderIcon"
+                                    alt="">
+                            </span>
+                            <!-- <input type="Email" class="inputbox"> -->
+                            <select name="" id="" class="inputbox">
+                                <option value="" selected disabled>Select City</option>
+                                {#each city_data as city}
+                                <option value={city.city_id}>{city.city_name}({city.state_name})</option>
+                                {/each}
+                                
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -330,11 +432,12 @@ function testing_function(){
                                 <img src="../src/img/location1.png" class="placeholderIcon"
                                     alt="">
                             </span>
-                            <input type="Email" class="inputbox">
+                            <!-- <input type="Email" class="inputbox"> -->
+                            <textarea id="w3review" name="w3review" rows="4" cols="50" class="inputbox"></textarea>
                         </div>
                     </div>
                 </div>
-                <div class="flex">
+                <!-- <div class="flex">
                     <div class="formGroup ">
                         <label class="formLable invisible xs:hidden">Permanent Address <span
                                 class="mandatoryIcon">*</span></label>
@@ -344,6 +447,87 @@ function testing_function(){
                                     alt="">
                             </span>
                             <input type="Email" class="inputbox">
+                        </div>
+                    </div>
+                </div> -->
+                <div class="flex">
+                    <div class="formGroup">
+                        <label class="formLable ">Address Proof Copy<span
+                                class="mandatoryIcon">*</span></label>
+                        <div class="formInnerGroup ">
+                            <label class="cursor-pointer ">
+                                <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
+                                <input type='file' class="hidden" accept=".jpg, .jpeg, .png" on:change={(e)=>onadders_prrof(e)} bind:this={fileinput} />
+                                {#if address_proof_copy_name}
+                                {address_proof_copy_name}
+                                {/if}
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex">
+                    <div class="formGroup ">
+                        <label class="formLable">Pin Code<span class="mandatoryIcon">*</span></label>
+                        <div class="formInnerGroup ">
+                            <span class="searchicon">
+                                <img src="../src/img/pincode.png" class="placeholderIcon"
+                                    alt="">
+                            </span>
+                            <input type="Email" class="inputbox">
+                        </div>
+                    </div>
+                </div>
+                <div class="flex">
+                    <div class="formGroup ">
+                        <label class="formLable ">Permanent Address Same As<br>Present/Shipping Address ? <span
+                                class="mandatoryIcon">*</span></label>
+                        <div class="formInnerGroup ">
+                            <span class="searchicon">
+                                <img src="../src/img/location1.png" class="placeholderIcon"
+                                    alt="">
+                            </span>
+                            <!-- <input type="Email" class="inputbox"> -->
+                            <select name="" id="" class="inputbox" bind:value={address_check}>
+                                <option value="" selected disabled>Select</option>
+                                <option value="Yes">yes</option>
+                                <option value="No">No</option>
+                                
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                {#if address_check == "No"}
+                <div class="flex">
+                    <div class="formGroup ">
+                        <label class="formLable ">Select Associate's<br>Present/Shipping City <span
+                                class="mandatoryIcon">*</span></label>
+                        <div class="formInnerGroup ">
+                            <span class="searchicon">
+                                <img src="../src/img/location1.png" class="placeholderIcon"
+                                    alt="">
+                            </span>
+                            <!-- <input type="Email" class="inputbox"> -->
+                            <select name="" id="" class="inputbox">
+                                <option value="" selected disabled>Select City</option>
+                                {#each city_data as city}
+                                <option value={city.city_id}>{city.city_name}({city.state_name})</option>
+                                {/each}
+                                
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex">
+                    <div class="formGroup ">
+                        <label class="formLable ">Enter Associate's<br> Present/Shipping Address <span
+                                class="mandatoryIcon">*</span></label>
+                        <div class="formInnerGroup ">
+                            <span class="searchicon">
+                                <img src="../src/img/location1.png" class="placeholderIcon"
+                                    alt="">
+                            </span>
+                            <!-- <input type="Email" class="inputbox"> -->
+                            <textarea id="w3review" name="w3review" rows="4" cols="50" class="inputbox"></textarea>
                         </div>
                     </div>
                 </div>
@@ -361,16 +545,24 @@ function testing_function(){
                 </div>
                 <div class="flex">
                     <div class="formGroup">
-                        <label class="formLable ">Address Proof Copy<span
+                        <label class="formLable ">Upload Associate's Present/<br>Shipping Address Proof<span
                                 class="mandatoryIcon">*</span></label>
                         <div class="formInnerGroup ">
                             <label class="cursor-pointer ">
                                 <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
-                                <input type='file' class="hidden" on:click={()=>testing_function()} />
+                                <input type='file' class="hidden" accept=".jpg, .jpeg, .png" on:change={(e)=>onpresent_address_proof(e)} bind:this={fileinput} />
+                                {#if present_address_proof_copy_name}
+                                {present_address_proof_copy_name}
+                                {/if}
                             </label>
                         </div>
                     </div>
                 </div>
+
+
+                    
+                {/if}
+               
 
 
 
@@ -389,7 +581,7 @@ function testing_function(){
                     </div>
                 </div>
             </div>
-            <div>
+            <!-- <div>
                 <DateInput placeholder="testing" bind:value={date}  format="dd/MM/yyyy" max={max_date}/>
             </div>
             <div>
@@ -398,6 +590,13 @@ function testing_function(){
             <div>
                 {d}
             </div>
+            <div>
+                {$facility_data_store.date_of_birth}
+            </div>
+            <div>
+                {avatar}
+            </div> -->
+            <!-- <div>{fileinput}</div> -->
         </form>
     </div>
     <div class="onboardFormNot ">
