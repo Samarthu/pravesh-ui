@@ -4,10 +4,35 @@
 <script>
     import { goto } from "$app/navigation";
     import {demo_api_fun} from '../services/dashboard_services';
+    import {dashboard_data} from '../services/dashboard_services';
+    import {dashboard_details} from '../stores/dashboard_store';
+import Supplier from './supplier.svelte';
+    
+    let id_proof_rejected;
+    let bank_details_rejected;
+    let bgv_pending;
+    let id_verifiaction_pending;
+    let bank_verification_pending;
+    let pending_offer_letter;
+    let bgv_rejected;
 
+    
+    // console.log(dashboard)
     onMount(async () =>{
+
+
         let response = await demo_api_fun();
         console.log("demo api response",response);
+        await dashboard_data();
+        let dashboard = $dashboard_details;
+        console.log("innnn dashboard_details",dashboard)
+        id_proof_rejected = dashboard.id_proof_rejected
+        bank_details_rejected = dashboard.bank_details_rejected;
+        bgv_pending = dashboard.bgv_pending;
+        id_verifiaction_pending = dashboard.id_verifiaction_pending;
+        bank_verification_pending = dashboard.bank_verification_pending;
+        pending_offer_letter = dashboard.pending_offer_letter;
+        bgv_rejected = dashboard.bgv_rejected;
     })
 
     
@@ -24,6 +49,10 @@
     // routeNew = "/bussines";
     async function demo_clickhandle(){
         alert("button clicked");
+    }
+
+    function demoClick(){
+        console.log("clicked")
     }
 </script>
 
@@ -49,7 +78,7 @@
                     <p class="cardDes">Take appropriate action to complete onboarding</p>
                 </div>
                 <div class="cards">
-                    <div class="cardAction ">
+                    <div class="cardAction " on:click={demoClick}>
                         <div class="cardContentText flex">
                         <div class="cardimg mr-3">
                             <img src="../src/img/idproofRejected.png" alt="">
@@ -61,7 +90,7 @@
                         </div>
                         <div class="cardCount">
                            <div class="bgcircle ">
-                          <span class="countcircle  ">1321</span>  
+                          <span class="countcircle  ">{id_proof_rejected}</span>  
                            </div> 
                         </div>
                     </div>
@@ -77,7 +106,7 @@
                         </div>
                         <div class="cardCount">
                            <div class="bgcircle ">
-                          <span class="countcircle  ">07</span>  
+                          <span class="countcircle  ">{bank_details_rejected}</span>  
                            </div> 
                         </div>
                     </div>
@@ -93,7 +122,7 @@
                         </div>
                         <div class="cardCount">
                            <div class="bgcircle ">
-                          <span class="countcircle  ">34</span>  
+                          <span class="countcircle  ">{bgv_pending}</span>  
                            </div> 
                         </div>
                     </div>
@@ -134,7 +163,7 @@
                         </div>
                         <div class="cardCount">
                            <div class="bgcircleother ">
-                          <span class="countcircleother  ">12</span>  
+                          <span class="countcircleother  ">{id_verifiaction_pending}</span>  
                            </div> 
                         </div>
                     </div>
@@ -150,7 +179,7 @@
                         </div>
                         <div class="cardCount">
                            <div class="bgcircleother ">
-                          <span class="countcircleother  ">12</span>  
+                          <span class="countcircleother  ">{bank_verification_pending}</span>  
                            </div> 
                         </div>
                     </div>
@@ -166,7 +195,7 @@
                         </div>
                         <div class="cardCount">
                            <div class="bgcircleother ">
-                          <span class="countcircleother  ">16</span>  
+                          <span class="countcircleother  ">{pending_offer_letter}</span>  
                            </div> 
                         </div>
                     </div>
@@ -182,7 +211,7 @@
                         </div>
                         <div class="cardCount">
                            <div class="bgcircle ">
-                          <span class="countcircle  ">34</span>  
+                          <span class="countcircle  ">{bgv_rejected}</span>  
                            </div> 
                         </div>
                     </div>

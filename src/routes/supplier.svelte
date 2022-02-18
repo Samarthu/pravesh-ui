@@ -1,4 +1,91 @@
 <script>
+    ///////////tushar edit/////////////
+    import {onMount} from 'svelte';
+    import {dashboard_details} from '../stores/dashboard_store';
+    import {dashboard_data} from '../services/dashboard_services';
+    import {supplier_data} from '../services/supplier_services';
+    import {filter_city_data} from '../services/supplier_services';
+    import {filter_status_data} from '../services/supplier_services';
+    import {audit_trail_data} from '../services/supplier_services';
+    // import {audit_details} from '../stores/audit_details_store';
+    ///////////tushar edit pagination/////////////
+    let offset=0;
+    let limit=20;
+    let supplier_data_from_service = [];
+    let total_count_associates;
+    // let city_data;
+    // let audit_array = [];
+    let audit_details_array= [];
+    let filter_city_array = [];
+    let filter_status_res;
+    let filter_city_res;
+    let filter_status_array= [];
+    let status,city;
+    let searchTerm;
+    let searchResult;
+    let new_city;
+    let drop_limit;
+    let audit_supplier_data = [];
+  
+    $:new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Beneficiary Pending"}
+    // $:new_associate_data = {"city":"-1","totalSkip":0,"prevFlag":false,"prevSkip":20,"search_keyword":"","limit":10,"offset":0,"status":"Bank Beneficiary Pending    Bank Beneficiary Pending"}
+
+    ///////////tushar edit/////////////
+    let id_proof_rejected,bank_details_rejected,id_verification_pending,bank_verification_pending,pending_offer_letter,bgv_rejected;
+    let json_associate_data,json_associate_new_data;
+    onMount(async () =>{
+    ///////////dashboard/////////////////////
+    await dashboard_data();
+    let dashboard = $dashboard_details;
+    console.log("innnn dashboard_detailssss222",$dashboard_details)
+    id_proof_rejected = dashboard.id_proof_rejected
+    bank_details_rejected = dashboard.bank_details_rejected;
+    id_verification_pending = dashboard.id_verification_pending;
+    bank_verification_pending = dashboard.bank_verification_pending;
+    pending_offer_letter = dashboard.pending_offer_letter;
+    bgv_rejected = dashboard.bgv_rejected;
+    ///////////dashboard/////////////////////
+    
+    json_associate_data=JSON.stringify(new_associate_data);
+    let res=await supplier_data(json_associate_data);
+    
+    supplier_data_from_service = res.body.data.data_list;
+    total_count_associates = res.body.data.total_records;
+
+
+    ////////////filter city-data///////////
+    filter_city_res = await filter_city_data();
+    filter_city_array = filter_city_res.body.data;
+
+    filter_status_res = await filter_status_data();
+    filter_status_array = filter_status_res.body.data;
+
+    ///////////////////dropdown count///////////
+        console.log("new_lllliiimmmiitttt",drop_limit)
+        console.log("dropdown_function",supplier_data_from_service)
+
+    })
+
+    // console.log("supplier_data_from_store++++++ outside",supplier_data_from_store)
+    
+    async function next_function(){
+    offset=offset+limit;
+    new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Beneficiary Pending"}
+    json_associate_new_data=JSON.stringify(new_associate_data);
+    let next_res =await supplier_data(json_associate_new_data);
+    supplier_data_from_service = next_res.body.data.data_list;
+    total_count_associates = next_res.body.data.total_records;
+}
+    
+    async function previous_function(){
+    offset=offset-limit;
+    new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Beneficiary Pending"}
+    json_associate_new_data=JSON.stringify(new_associate_data);
+    let prev_res =await supplier_data(json_associate_new_data);
+    supplier_data_from_service = prev_res.body.data.data_list;
+    total_count_associates = prev_res.body.data.total_records;
+    }
+
     // function myFunction() {
     //     var x = document.getElementById("mobilemenu");
     //     if (x.style.display === "none") {
@@ -21,14 +108,6 @@
     //             .classList.remove("border-r-none");
     //     }
     // }
-
-
-
-
-
-
-
-
     // // modal for filter mobile           {{{Done}}}
 
     // var modal = document.getElementById("myModal");
@@ -41,16 +120,11 @@
     function close() {
         myModal.style.display = "none";
     };
-    window.onclick = function (event) {
-        if (event.target == myModal) {
-            myModal.style.display = "none";
-        }
-    };
-
-
-
-
-
+    // window.onclick = function (event) {
+    //     if (event.target == myModal) {
+    //         myModal.style.display = "none";
+    //     }
+    // };
 
     // // modal for supplierInfoModal mobile                {{{{{Done}}}}}
 
@@ -60,7 +134,16 @@
 
     // closeAuditTrailModal;
 
-    function SupplerModalbuttonClick() {
+    async function SupplerModalbuttonClick(datalist_name) {
+        console.log("dataList name",datalist_name)
+        let audit_res = await audit_trail_data(datalist_name.name)
+        console.log("inside audit trail",audit_res)
+        audit_details_array = audit_res.body.data
+        // console.log("supplier_data_from_serviceeeeeee",supplier_data_from_service)
+        audit_supplier_data = datalist_name;
+        console.log("audit_supplier_dataaaaa",audit_supplier_data)
+        console.log("audit_supplier_dataaaaa",audit_supplier_data.addresess[0].address)     
+        
         supplierInfoModal.style.display = "block";
     };
     
@@ -68,13 +151,35 @@
         supplierInfoModal.style.display = "none";
     };
 
-    window.onclick = function (event) {
-        if (event.target == supplierInfoMsupplierInfoModalodalId) {
-            supplierInfoModal.style.display = "none";
+    // window.onclick = function (event) {
+    //     if (event.target == supplierInfoMsupplierInfoModalodalId) {
+    //         supplierInfoModal.style.display = "none";
+    //     }
+    // };
+
+    async function filterButton(){
+        city = document.getElementById("select_city").value.trim();
+       
+        for(let cityK  of filter_city_array){
+            if (city == cityK.location_name){
+                new_city =cityK.location_id
+            }    
+        } 
+        status = document.getElementById("select_status").value.trim();
+        // if(city.value == All && status.value == All)    ------We dont have any API returning values for all statuses
+        if(new_city == "All"){
+        new_associate_data = {city:"-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}
         }
-    };
-
-
+        else{
+        new_associate_data = {city:new_city,limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
+        }
+        console.log("new_associate_data",new_associate_data)
+        json_associate_new_data=JSON.stringify(new_associate_data);
+        let filter_res =await supplier_data(json_associate_new_data);
+        supplier_data_from_service = filter_res.body.data.data_list;
+        total_count_associates = filter_res.body.data.total_records;
+        
+    }
 
 
 
@@ -92,15 +197,7 @@
             y.style.background = "#000";
         }
     }
-
-
-
-
-
-
-
-
-    // // show search textbox hide supplier count          {{{{{{{pending}}}}}}}
+// // show search textbox hide supplier count          {{{{{{{pending}}}}}}}
 
     // var btnSearch = document.getElementById("SearchClick");
     // var searchInput = document.getElementById("searchBox");
@@ -120,15 +217,24 @@
         searchBox.style.display = "none";
         SearchClick.style.display = "block";
     };
+    function filterResults(){
+        for(let searchK  of supplier_data_from_service){
+            searchResult = supplier_data_from_service.filter(searchK=>searchK.facility_name == searchTerm)
+        }
+        supplier_data_from_service = searchResult;
+    }
 
-
-
-
-
+    function dropdown_function(){
+        console.log("new_lllliiimmmiitttt",drop_limit)
+        // new_associate_data = {city:new_city,limit:drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}
+        console.log("dropdown_function",supplier_data_from_service)
+        
+    }
 
     // // supplier table collaps
 
     function collapse() {
+        
         var shortInfo = document.querySelectorAll(".shortInfo");
         var elems = document.querySelectorAll(".detailsInfo");
         var trow = document.querySelector(".trow");
@@ -137,12 +243,16 @@
 
         shortInfo.forEach.call(shortInfo, function (el) {
             el.classList.add("hidden");
+
+
         });
 
         elems.forEach.call(elems, function (el) {
             el.classList.remove("hidden");
         });
     };
+
+ 
 
     function collapsedown() {
         var shortInfo = document.querySelectorAll(".shortInfo");
@@ -198,6 +308,9 @@
 
 
 
+    
+
+
     // {{{{{{{pending}}}}}}}
 
 
@@ -238,7 +351,6 @@
 
     // document.getElementById("default-tab").click();
 </script>
-
 <div class="mainContent ">
     <div class="breadcrumb">
         <div class="breadcrumb-section">
@@ -247,7 +359,7 @@
                     <p>
                         <span class="breadcrumbgrey">Home / 
                             <span class="text-base text-black">
-                                Suppliers
+                                Associates
                             </span>
                         </span>
                     </p>
@@ -381,13 +493,15 @@
                                                             <select
                                                                 class="selectInputbox"
                                                             >
+                                                            
+                                                                    {#each filter_city_array as data_city}
                                                                 <option
-                                                                    class="pt-6"
-                                                                    >Agra</option
-                                                                >
-                                                                <option
-                                                                    >Pune</option
-                                                                >
+                                                                    class="pt-6" value="">
+                                                                    {data_city.location_name}
+                                                                    </option>
+                                                                {/each}
+                                                                
+                                                                
                                                             </select>
                                                             <div
                                                                 class="formSelectArrow "
@@ -440,15 +554,17 @@
                                                         >
                                                             <select
                                                                 class="selectInputbox"
-                                                            >
-                                                                <option
-                                                                    class="pt-6"
-                                                                    >ID proof
-                                                                    rejected</option
-                                                                >
-                                                                <option
+                                                            >{#each filter_status_array as data_status}
+                                                                {#if data_status.display_name != undefined}
+                                                                 <option class="pt-6"> {data_status.display_name}
+                                                                 </option>
+            
+                                                                {/if}
+                                                            
+                                                                <!-- <option
                                                                     >Lorem</option
-                                                                >
+                                                                > -->
+                                                                {/each}
                                                             </select>
                                                             <div
                                                                 class="formSelectArrow "
@@ -567,7 +683,7 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div class="selectSection">
+                                                    <div class="selectSection" >
                                                         <label
                                                             class="formLableSelect "
                                                             >Select City
@@ -577,14 +693,16 @@
                                                         >
                                                             <select
                                                                 class="selectInputbox"
-                                                            >
-                                                                <option
-                                                                    class="pt-6"
-                                                                    >Agra</option
+                                                                id= "select_city"
                                                                 >
+                                                                <option class="pt-6" 
+                                                                >All</option>
+                                                            {#each filter_city_array as data_city}
                                                                 <option
-                                                                    >Pune</option
-                                                                >
+                                                                    class="pt-6">
+                                                                    {data_city.location_name}
+                                                                    </option>
+                                                                {/each}
                                                             </select>
                                                             <div
                                                                 class="formSelectArrow "
@@ -627,7 +745,7 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div class="selectSection ">
+                                                    <div class="selectSection " >
                                                         <label
                                                             class="formLableSelect "
                                                             >Select Status
@@ -635,18 +753,19 @@
                                                         <div
                                                             class="formInnerGroupSelect "
                                                         >
-                                                            <select
-                                                                class="selectInputbox"
-                                                            >
-                                                                <option
-                                                                    class="pt-6"
-                                                                    >ID proof
-                                                                    rejected</option
-                                                                >
-                                                                <option
-                                                                    >Lorem</option
-                                                                >
-                                                            </select>
+                                                        <select
+                                                        class="selectInputbox" id= "select_status"> 
+                                                    <option class="pt-6" 
+                                                        >All</option>
+                                                        {#each filter_status_array as data_status}   
+                                                        {#if data_status.display_name != undefined}
+                                                        <option class="pt-6"> {data_status.display_name}
+                                                        </option>
+   
+                                                       {/if}
+                                                        {/each}
+                                                        
+                                                    </select>
                                                             <div
                                                                 class="formSelectArrow "
                                                             >
@@ -665,10 +784,10 @@
                                                         class="filterCancelbtn close"
                                                         >Cancel</a
                                                     >
-                                                    <a
+                                                    <button
                                                         href="#"
-                                                        class="filterApplybtn "
-                                                        >Apply</a
+                                                        class="filterApplybtn" on:click={filterButton}
+                                                        >Apply</button
                                                     >
                                                 </div>
                                             </div>
@@ -687,19 +806,19 @@
                     <div class="docRejctedCon flex gap-2">
                         <div class="idproof flex-grow">
                             <p class="countHeading">
-                                ID Proof <span class="idproofcount">1253</span>
+                                ID Proof <span class="idproofcount">{id_proof_rejected}</span>
                             </p>
                         </div>
                         <div class="idproof flex-grow">
                             <p class="countHeading">
                                 Bank Details <span class="idproofcount"
-                                    >456</span
+                                    >{bank_details_rejected}</span
                                 >
                             </p>
                         </div>
                         <div class="idproof flex-grow">
                             <p class="countHeading">
-                                BGV Pending <span class="idproofcount">343</span
+                                BGV Pending <span class="idproofcount">{bgv_rejected}</span
                                 >
                             </p>
                         </div>
@@ -710,21 +829,21 @@
                     <div class="docRejctedCon flex gap-2">
                         <div class="bgdocreject flex-grow">
                             <p class="countHeading">
-                                ID Proof <span class="docRejectCount">1253</span
+                                ID Proof <span class="docRejectCount">{id_verification_pending}</span
                                 >
                             </p>
                         </div>
                         <div class="bgdocreject flex-grow">
                             <p class="countHeading">
                                 Bank Details <span class="docRejectCount"
-                                    >456</span
+                                    >{bank_verification_pending}</span
                                 >
                             </p>
                         </div>
                         <div class="bgdocreject flex-grow">
                             <p class="countHeading">
                                 Offer Letter <span class="docRejectCount"
-                                    >343</span
+                                    >{pending_offer_letter}</span
                                 >
                             </p>
                         </div>
@@ -872,8 +991,8 @@
                             <h4 class="supplierRecords">
                                 <span
                                     class="xs:text-rejectcolor sm:text-rejectcolor"
-                                    >1235</span
-                                > <span class="text-grey">All Suppliers</span>
+                                    >{total_count_associates}</span
+                                > <span class="text-grey">All ASSOCIATES</span>
                             </h4>
                         </div>
 
@@ -884,9 +1003,9 @@
                                         src="../src/img/search.svg"
                                         class="placeholderIcon"
                                         alt=""
-                                    />
+                                        on:click="{filterResults}"/>
                                 </span>
-                                <input
+                                <input bind:value="{searchTerm}"
                                     class="inputboxsearch"
                                     id="inputboxsearch"
                                     placeholder="Search"
@@ -902,7 +1021,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class=" searchClickbtn" on:click="{SearchClick}">
+                        <div class=" searchClickbtn" on:click="{SearchClick}" >
                             <p class="searchIconPlace">
                                 <img
                                     src="../src/img/search.svg"
@@ -918,9 +1037,9 @@
                         <div class="itemsNo ">
                             <div class="selectSection">
                                 <div class="formInnerGroupSelect ">
-                                    <select class="selectInputbox">
-                                        <option class="pt-6">20 items</option>
-                                        <option>30 items</option>
+                                    <select class="selectInputbox" bind:value ="{drop_limit}" on:change="{dropdown_function}">
+                                        <option class="pt-6" value="20">20 items</option>
+                                        <option value="30">30 items</option>
                                     </select>
                                     <div class="formSelectArrow ">
                                         <img
@@ -939,9 +1058,10 @@
                             <nav aria-label="Page navigation">
                                 <ul class="pagiWrapper ">
                                     <li>
-                                        <button class="preNextbtn">
-                                            Previus</button
+                                        <button class="preNextbtn"on:click={previous_function}>
+                                            Previous</button
                                         >
+                                        <!-- <button on:click={setValuechange}>value change</button> -->
                                     </li>
                                     <li>
                                         <button class="pagiItemsNumber"
@@ -960,7 +1080,7 @@
                                     </li>
 
                                     <li>
-                                        <button class="preNextbtn">
+                                        <button class="preNextbtn" on:click={next_function}>
                                             Next</button
                                         >
                                     </li>
@@ -983,7 +1103,7 @@
                                             width="25%"
                                             class="theading px-3"
                                         >
-                                            Supplier
+                                            Associate
                                         </th>
                                         <th
                                             scope="col"
@@ -1013,17 +1133,16 @@
                                 </thead>
 
                                 <tbody class="bg-white ">
+                                    {#each supplier_data_from_service as facility_data} 
                                     <tr class="border-b-2 trow ">
                                         <td>
                                             <div
                                                 class="tdfirstshortInfo shortInfo"
-                                                id="shortInfo"
-                                            >
-                                                <p class="hText">
-                                                    Nandkishore Services
-                                                </p>
+                                                id="shortInfo"> 
+        
+                                                <p class="hText">{facility_data.facility_name}</p>
                                                 <p class="text-xs text-grey">
-                                                    Vendor
+                                                
                                                 </p>
                                             </div>
                                             <div class="detailsInfo hidden">
@@ -1035,7 +1154,7 @@
                                                             Vendor
                                                         </div>
                                                         <div class="smLable">
-                                                            Nandkishore Services
+                                                            {facility_data.facility_name}
                                                         </div>
                                                     </div>
                                                     <div class="itemList ">
@@ -1045,7 +1164,7 @@
                                                             Vendor Type
                                                         </div>
                                                         <div class="smLable">
-                                                            Man Power Contractor
+                                                            {facility_data.facility_type}
                                                         </div>
                                                     </div>
                                                     <div class="itemList ">
@@ -1055,7 +1174,7 @@
                                                             Vendor ID
                                                         </div>
                                                         <div class="smLable">
-                                                            SUPP-35479
+                                                            {facility_data.name}
                                                         </div>
                                                     </div>
                                                     <div class="itemList">
@@ -1065,7 +1184,9 @@
                                                             Location
                                                         </div>
                                                         <div class="smLable">
-                                                            Pune
+                                                            {#each facility_data.addresess as curr_address}
+                                                            {curr_address.address}
+                                                            {/each}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1080,7 +1201,7 @@
                                                     <div
                                                         class="statusredcircle"
                                                     />
-                                                    Documents Rejected
+                                                    {facility_data.status}
                                                 </div>
                                                 <p
                                                     class="text-xs text-grey ml-4"
@@ -1095,7 +1216,7 @@
                                                         <div
                                                             class="statusredcircle "
                                                         />
-                                                        Documents Rejected
+                                                        {facility_data.status}
                                                     </div>
                                                     <div class="statusDetails">
                                                         <p
@@ -1133,7 +1254,7 @@
                                         <td>
                                             <div class="shortInfo">
                                                 <div class="paddingrt">
-                                                    <p class="smallText">2</p>
+                                                    <p class="smallText">{facility_data.remarks.length}</p>
                                                 </div>
                                             </div>
 
@@ -1143,11 +1264,9 @@
                                                 >
                                                     <ul class="list-disc ">
                                                         <li class="listitems">
-                                                            Pancard number
-                                                            mismatch
-                                                        </li>
-                                                        <li class="listitems">
-                                                            Voter ID not clear
+                                                            {#each facility_data.remarks as remark}
+                                                            {remark}
+                                                            {/each}
                                                         </li>
                                                     </ul>
                                                 </div>
@@ -1156,7 +1275,10 @@
                                         <td>
                                             <div class="shortInfo">
                                                 <div class="paddingrt">
-                                                    <p class="smallText">2</p>
+                                                    <p class="smallText">
+                                                        1
+                                                        
+                                                        </p>
                                                 </div>
                                             </div>
 
@@ -1166,11 +1288,7 @@
                                                 >
                                                     <ul class="list-disc ">
                                                         <li class="listitems">
-                                                            Pancard number
-                                                            mismatch
-                                                        </li>
-                                                        <li class="listitems">
-                                                            Voter ID not clear
+                                                            {facility_data.action}
                                                         </li>
                                                     </ul>
                                                     <div class="actionBtn mt-3">
@@ -1189,7 +1307,7 @@
                                             >
                                                 <button
                                                     class="auditTrail"
-                                                    on:click="{SupplerModalbuttonClick}"
+                                                    on:click="{SupplerModalbuttonClick(facility_data)}"
                                                 >
                                                     <img
                                                         src="../src/img/chat1.svg"
@@ -1197,8 +1315,7 @@
                                                         alt=""
                                                     />
                                                     <span class="text-sm"
-                                                        >12
-                                                    </span>
+                                                        ></span>
                                                 </button>
                                                 <p class="mtextaudit">11 M</p>
                                                 <div class="shortInfo">
@@ -1230,7 +1347,7 @@
                                         </td>
                                     </tr>
 
-                                    <tr class="border-b-2">
+                                    <!-- <tr class="border-b-2">
                                         <td>
                                             <div
                                                 class="leading-relaxed px-3 py-p9px"
@@ -1291,9 +1408,9 @@
                                                 </p>
                                             </div>
                                         </td>
-                                    </tr>
+                                    </tr> -->
 
-                                    <tr class="border-b-2">
+                                    <!-- <tr class="border-b-2">
                                         <td>
                                             <div
                                                 class="leading-relaxed px-3 py-p9px"
@@ -1352,8 +1469,8 @@
                                                 </p>
                                             </div>
                                         </td>
-                                    </tr>
-                                    <tr class="border-b-2">
+                                    </tr> -->
+                                    <!-- <tr class="border-b-2">
                                         <td>
                                             <div
                                                 class="leading-relaxed px-3 py-p9px"
@@ -1414,9 +1531,9 @@
                                                 </p>
                                             </div>
                                         </td>
-                                    </tr>
+                                    </tr> -->
 
-                                    <tr class="border-b-2">
+                                    <!-- <tr class="border-b-2">
                                         <td>
                                             <div
                                                 class="leading-relaxed px-3 py-p9px"
@@ -1480,9 +1597,9 @@
                                                 </p>
                                             </div>
                                         </td>
-                                    </tr>
+                                    </tr> -->
 
-                                    <tr class="border-b-2">
+                                    <!-- <tr class="border-b-2">
                                         <td>
                                             <div
                                                 class="leading-relaxed px-3 py-p9px"
@@ -1546,8 +1663,8 @@
                                                 </p>
                                             </div>
                                         </td>
-                                    </tr>
-                                    <tr class="border-b-2">
+                                    </tr> -->
+                                    <!-- <tr class="border-b-2">
                                         <td>
                                             <div
                                                 class="leading-relaxed px-3 py-p9px"
@@ -1608,9 +1725,9 @@
                                                 </p>
                                             </div>
                                         </td>
-                                    </tr>
+                                    </tr> -->
 
-                                    <tr class="border-b-2">
+                                    <!-- <tr class="border-b-2">
                                         <td>
                                             <div
                                                 class="leading-relaxed px-3 py-p9px"
@@ -1669,9 +1786,9 @@
                                                 </p>
                                             </div>
                                         </td>
-                                    </tr>
+                                    </tr> -->
 
-                                    <tr class="border-b-2">
+                                    <!-- <tr class="border-b-2">
                                         <td>
                                             <div
                                                 class="leading-relaxed px-3 py-p9px"
@@ -1730,9 +1847,9 @@
                                                 </p>
                                             </div>
                                         </td>
-                                    </tr>
+                                    </tr> -->
 
-                                    <tr class="border-b-2">
+                                    <!-- <tr class="border-b-2">
                                         <td>
                                             <div
                                                 class="leading-relaxed px-3 py-p9px"
@@ -1791,9 +1908,9 @@
                                                 </p>
                                             </div>
                                         </td>
-                                    </tr>
+                                    </tr> -->
 
-                                    <tr>
+                                    <!-- <tr>
                                         <td>
                                             <div
                                                 class="leading-relaxed px-3 py-p9px"
@@ -1854,7 +1971,8 @@
                                                 </p>
                                             </div>
                                         </td>
-                                    </tr>
+                                    </tr> -->
+                                    {/each}
                                 </tbody>
                             </table>
                         </div>
@@ -1865,14 +1983,16 @@
             <div
                 class="supplierDetailMobile md:hidden lg:hidden xl:hidden 2xl:hidden px-p10"
             >
+            {#each supplier_data_from_service as facility_data}
                 <div class="mobilecardSup mb-m5">
                     <div class="supDetailsrow flex">
                         <div class="supDetailsTitle ">
                             <p>Supplier</p>
                         </div>
                         <div class="supDetailsData">
+                            
                             <div class="pl-p7px pt-p7px shortInfoMobile ">
-                                <p class="supName">Nandkishore Services</p>
+                                <p class="supName"> </p>
                                 <p class="subDeg ">(Vendor)</p>
                             </div>
 
@@ -1881,19 +2001,23 @@
                             >
                                 <div class="venderListDetails">
                                     <p class="subDeg ">Vendor</p>
-                                    <p class="supName">Nandkishore Services</p>
+                                    <p class="supName">{facility_data.facility_name}</p>
                                 </div>
                                 <div class="venderListDetails">
                                     <p class="subDeg ">Vendor Type</p>
-                                    <p class="supName">Man Power Contractor</p>
+                                    <p class="supName">{facility_data.facility_type}</p>
                                 </div>
                                 <div class="venderListDetails">
                                     <p class="subDeg ">Vendor ID</p>
-                                    <p class="supName">SUPP-35479</p>
+                                    <p class="supName">{facility_data.name}</p>
                                 </div>
                                 <div class="venderListDetails">
                                     <p class="subDeg ">Station</p>
-                                    <p class="supName">PNQP- Pune</p>
+                                    <p class="supName">
+                                        {#each facility_data.addresess as curr_address}
+                                        {curr_address.address}
+                                        {/each}
+                                    </p>
                                 </div>
                             </div>
 
@@ -1925,6 +2049,7 @@
                                     </div>
                                 </div>
                             </div>
+                          
                         </div>
                     </div>
                     <div class="supDetailsrow flex">
@@ -2046,7 +2171,8 @@
                                 <div class="auditTrailtd">
                                     <button
                                         class="auditTrail"
-                                        on:click="{SupplerModalbuttonClick}"
+                                        
+                                        on:click={SupplerModalbuttonClick}
                                     >
                                         <img
                                             src="../src/img/chat1.svg"
@@ -2068,7 +2194,7 @@
                     <nav aria-label="Page navigation">
                         <ul class="pagiWrapper ">
                             <li>
-                                <button class="preNextbtn"> Previus</button>
+                                <button class="preNextbtn"> Previous</button>
                             </li>
                             <li><button class="pagiItemsNumber">1</button></li>
                             <li>
@@ -2080,12 +2206,14 @@
                         </ul>
                     </nav>
                 </div>
+                {/each}
             </div>
         </div>
     </div>
 </div>
 
 <div class="supplierInfoModalSection" id="supplierInfoModal">
+    <!-- {#each audit_supplier_data as audit_data}  -->
     <div class="mainSupInfo">
         <div class="p-4">
             <div class="supInfoWrapper ">
@@ -2096,28 +2224,33 @@
                                 <div class="smallText w-w115px">
                                     Vendor Name
                                 </div>
-                                <div class="smLable">Nandkishore Services</div>
+                                <div class="smLable">{audit_supplier_data.facility_name}</div>
                             </div>
                             <div class="itemList ">
                                 <div class="smallText w-w115px">
                                     Vendor Type
                                 </div>
-                                <div class="smLable">Man Power Contractor</div>
+                                <div class="smLable">{audit_supplier_data.facility_type}</div>
                             </div>
                             <div class="itemList ">
                                 <div class="smallText w-w115px">Vendor ID</div>
-                                <div class="smLable">SUPP-35479</div>
+                                <div class="smLable">{audit_supplier_data.name}</div>
                             </div>
                             <div class="itemList">
                                 <div class="smallText w-w115px">Location</div>
-                                <div class="smLable">Pune</div>
+                                <div class="smLable">
+                                    <!-- {#each audit_supplier_data.addresess as curr_address}
+                                    {curr_address.address}
+                                    {/each} -->
+                                   
+                                </div>
                             </div>
                             <div class="itemList">
                                 <div class="smallText w-w115px">Status</div>
                                 <div class="statusinformation">
                                     <div class="statusWrapper  ">
                                         <div class="statusredcircle" />
-                                        Documents Rejected
+                                        {audit_supplier_data.status}
                                     </div>
                                     <p class="text-xs text-grey ml-4">
                                         (ID Proof)
@@ -2170,19 +2303,21 @@
                             </div>
                         </div>
                         <div class="timelineContent ">
+                            {#each audit_details_array as new_audit_data}
                             <h3 class="timeCommenterName ">
-                                Vivekanand Dasar
+                                {new_audit_data.owner}
                                 <span class="timeCommentDate "
-                                    >Thurs, 07 Sept 21, 12:24 PM</span
+                                    >{new_audit_data.creation}</span
                                 >
                             </h3>
                             <div class="timeStatus  timeStatusbglightPink">
                                 <p class="timeCircle" />
-                                 Voter ID not clear
+                                {new_audit_data.remarks}
                             </div>
+                            {/each}
                         </div>
                     </div>
-                    <div class="flex md:contents">
+                    <!-- <div class="flex md:contents">
                         <div class="timelinesection">
                             <div class="timeline ">
                                 <div class="timelineGreyline" />
@@ -2467,9 +2602,11 @@
                                  Voter ID not clear
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+

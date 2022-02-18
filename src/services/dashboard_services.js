@@ -6,7 +6,16 @@ let dashboard_data_url = '/api/method/pravesh.facility.routes.dashboard.get_dash
 const demo_api_fun = () => {
     return request(demo_api_url,{mode: 'no-cors'},true,false,"GET")
 }
-
+// const dashboard_data = () => {
+//     return request(dashboard_data_url,{mode: 'no-cors'},true,false,"GET")
+//     .then((data)=>{
+//         // console.log("in service",data)
+//         dashboard.set({
+//             dashboard: data
+//         })
+//         // console.log(dashboard)
+//     })
+// }
 const dashboard_data = () =>{
     return request(
         dashboard_data_url,{
