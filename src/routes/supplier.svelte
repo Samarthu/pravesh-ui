@@ -1,90 +1,480 @@
 <script>
     ///////////tushar edit/////////////
     import {onMount} from 'svelte';
-    import {dashboard_details} from '../stores/dashboard_store';
+    // import {dashboard_details} from '../stores/dashboard_store';
     import {dashboard_data} from '../services/dashboard_services';
     import {supplier_data} from '../services/supplier_services';
     import {filter_city_data} from '../services/supplier_services';
     import {filter_status_data} from '../services/supplier_services';
+    import {filter_vendortype_data} from '../services/supplier_services';
     import {audit_trail_data} from '../services/supplier_services';
-    // import {audit_details} from '../stores/audit_details_store';
-    ///////////tushar edit pagination/////////////
+    import {logged_user} from '../services/supplier_services'
+    import { page } from '$app/stores';
+    
+    let total_count;
     let offset=0;
     let limit=20;
+    let userdetails,username,userid;
     let supplier_data_from_service = [];
     let total_count_associates;
-    // let city_data;
-    // let audit_array = [];
     let audit_details_array= [];
-    let filter_city_array = [];
     let filter_status_res;
     let filter_city_res;
     let filter_status_array= [];
+    let filter_city_array = [];
+    let filter_vendortype_array = [];
     let status,city;
     let searchTerm;
-    let searchResult;
     let new_city;
+    let total_pages = null;
+    let pages = [];
+    let new_vendor_type;
+    let result;
     let drop_limit;
     let audit_supplier_data = [];
-  
-    $:new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Beneficiary Pending"}
-    // $:new_associate_data = {"city":"-1","totalSkip":0,"prevFlag":false,"prevSkip":20,"search_keyword":"","limit":10,"offset":0,"status":"Bank Beneficiary Pending    Bank Beneficiary Pending"}
-
-    ///////////tushar edit/////////////
-    let id_proof_rejected,bank_details_rejected,id_verification_pending,bank_verification_pending,pending_offer_letter,bgv_rejected;
-    let json_associate_data,json_associate_new_data;
-    onMount(async () =>{
-    ///////////dashboard/////////////////////
-    await dashboard_data();
-    let dashboard = $dashboard_details;
-    console.log("innnn dashboard_detailssss222",$dashboard_details)
-    id_proof_rejected = dashboard.id_proof_rejected
-    bank_details_rejected = dashboard.bank_details_rejected;
-    id_verification_pending = dashboard.id_verification_pending;
-    bank_verification_pending = dashboard.bank_verification_pending;
-    pending_offer_letter = dashboard.pending_offer_letter;
-    bgv_rejected = dashboard.bgv_rejected;
-    ///////////dashboard/////////////////////
+    let audit_supplier_address;
+    let filter_vendortype_res;
+    let vendor_type_select;
+    let vendor_checkbox = false;
+    let onboarded_by_me_checkbox = false;
+    let workforce_checkbox = true;
+    let new_associate_data;
+    let logged_user_data;
+    let new_new_associate_data;
+    // let pages= [];
+//pagination////////////
+    $:new_pages = [];
+    let mapped_pages = [];
     
+    $:if(searchTerm == ''){
+        clearedSearchFunc();
+    }
+
+    // $:if(vendor_checkbox === true){
+       
+    // }
+
+    // $:if(workforce_checkbox === true){
+       
+    // }
+    $:if(onboarded_by_me_checkbox === true){
+        // console.log("onboarded_by_me_checkbox selected from checkbox")
+        onboarded_by_me_checkbox = true;
+    }
+
+            if(onboarded_by_me_checkbox == true){    
+
+        // console.log("usernameaascasca",username,userid)
+        new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending",username:username,userid:userid}
+
+        }
+        else{
+// console.log("username",username)
+    new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending"}  
+    }
+        async function clearedSearchFunc(){
+        json_associate_data=JSON.stringify(new_associate_data);
+         console.log("json_associate_data",json_associate_data)
+        let cleared_search_res=await supplier_data(json_associate_data);
+        try{
+            if(cleared_search_res.body.status == "green"){
+                supplier_data_from_service = cleared_search_res.body.data.data_list;
+                total_count_associates = cleared_search_res.body.data.total_records;
+                console.log("RESULT",result)
+                result = true;
+                console.log("RESULT",result)
+                // filter_vendortype_res = await filter_vendortype_data();
+                var new_drop_limit=parseInt(drop_limit)
+                var total_pages=Math.ceil(total_count_associates/new_drop_limit)
+                pages = createPagesArray(total_pages)
+                console.log("pagesRESULT",pages)
+                for(let pageination in pages){
+                    
+                if(pageination <= 3 && pageination>0){
+                    console.log("pageination",pageination)
+                    new_pages.push(pageination)
+                    mapped_pages=new_pages.map(Number)  
+                    console.log("mappedpagesRESULT inside",mapped_pages)  
+                }
+            }
+                console.log("mappedpagesRESULT",mapped_pages)
+                
+            
+    // async function clearedSearchFunc(){
+    // var new_drop_limit=parseInt(drop_limit)
+    // console.log("new_associate_data from cleared search function",new_vendor_type)
+    // new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending"}
+    // json_associate_new_data=JSON.stringify(new_associate_data);
+    // let cleared_search_res=await supplier_data(json_associate_data);
+    
+        // try{
+        //     if(cleared_search_res.body.status == "green"){
+        //         supplier_data_from_service = cleared_search_res.body.data.data_list;
+        //         total_count_associates = cleared_search_res.body.data.total_records;
+                // console.log("cleaed search ascadscvdvs",mapped_pages)
+                // filter_vendortype_res = await filter_vendortype_data();
+                // console.log("filter_vendortype_res",filter_vendortype_res)
+            /////tryyyy///////
+                
+        //         for(let pageination in pages){   
+        //             if(pageination <= 3 && pageination>0){
+        //                 console.log("HERE IN AFTER SEARCH CLEARED")
+        //                 new_pages.push(pageination)
+        //                 mapped_pages=new_pages.map(Number)
+        //                 console.log(mapped_pages)    
+        //     }
+        // }
+            }
+        }
+        catch(err) {
+        // message.innerHTML = "Error is " + err;
+        }
+        }
+        // async function user_data () {
+        // logged_user_data = await logged_user();
+        // // console.log("logged_user_datalogged_user_data",logged_user_data)
+        // username = logged_user_data.body.data.user.email;
+        // userid = logged_user_data.body.data.user.username;
+        // // console.log("username and iuserid",username,userid)
+        // }
+    // user_data();
+    
+
+    let id_proof_rejected,bank_details_rejected,id_verification_pending,bank_verification_pending,pending_offer_letter,bgv_rejected,active,deactive,
+    bank_details_pending,bank_beneficiary_pending,background_verification_pending,onboarding_in_progress;
+    let json_associate_data,json_associate_new_data;
+    
+    onMount(async () =>{
+    let dashboard_res = await dashboard_data();
+
+    if(dashboard_res != null){
+        let dashboard = dashboard_res.body.data;
+        for(let new_dash_data of dashboard){
+            
+            if(new_dash_data.name == "active"){
+                active = new_dash_data.count
+            }
+            if(new_dash_data.name == "deactive"){
+                deactive = new_dash_data.count
+            }
+            if(new_dash_data.name == "id proof rejected"){
+                id_proof_rejected = new_dash_data.count
+            }
+            if(new_dash_data.name == "background verification pending"){
+                background_verification_pending = new_dash_data.count
+            }
+            if(new_dash_data.name == "bank details rejected"){
+                bank_details_rejected = new_dash_data.count
+            }
+            if(new_dash_data.name == "id verification pending"){
+                id_verification_pending = new_dash_data.count
+            }
+            if(new_dash_data.name == "bank details pending"){
+                bank_details_pending = new_dash_data.count
+            }
+            if(new_dash_data.name == "bank beneficiary pending"){
+                bank_beneficiary_pending = new_dash_data.count
+            }
+            if(new_dash_data.name == "onboarding in progress"){
+                onboarding_in_progress = new_dash_data.count
+            }
+            if(new_dash_data.name == "bank verification pending"){
+                bank_verification_pending = new_dash_data.count
+            }
+            if(new_dash_data.name == "pending offer letter"){
+                pending_offer_letter = new_dash_data.count
+            }
+            if(new_dash_data.name == "background verification rejected"){
+                bgv_rejected = new_dash_data.count
+            }
+        }
+        // active = dashboard.active;
+        // deactive = dashboard.deactive;
+        // id_proof_rejected = dashboard.id_proof_rejected
+        // bank_details_rejected = dashboard.bank_details_rejected;
+        // id_verification_pending = dashboard.id_verification_pending;
+        // bank_details_pending = dashboard.bank_details_pending;
+        // bank_beneficiary_pending =dashboard.bank_beneficiary_pending;
+        // onboarding_in_progress = dashboard.onboarding_in_progress;
+        // bank_verification_pending = dashboard.bank_verification_pending;
+        // pending_offer_letter = dashboard.pending_offer_letter;
+        // bgv_rejected = dashboard.bgv_rejected;
+        
+        total_count = (active+deactive+id_proof_rejected+bank_details_rejected+
+        id_verification_pending+bank_verification_pending+pending_offer_letter+bgv_rejected+
+        bank_details_pending+bank_beneficiary_pending+onboarding_in_progress);
+    
+    }
+    /////////from dashboard redirect with filter on//////////////
+
+    let urlString = window.location.href;	
+    let paramString = urlString.split('=')[1];
+    console.log("PARAMSTRING",paramString)
+    if(paramString == undefined){
+        console.log("PARAMSTRING undefined",paramString)
+    
+    var new_drop_limit=parseInt(drop_limit)
+   
+    new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:"Bank Details Pending"}
+    json_associate_new_data=JSON.stringify(new_associate_data);
+    let filter_res_from_dash =await supplier_data(json_associate_new_data);
+    total_count_associates = filter_res_from_dash.body.data.total_records;
+        total_pages = Math.ceil(total_count_associates/new_drop_limit)
+        pages = createPagesArray(total_pages)
+
+        try{
+            if(filter_res_from_dash.body.status == "green"){
+                supplier_data_from_service = filter_res_from_dash.body.data.data_list;
+                total_count_associates = filter_res_from_dash.body.data.total_records; 
+            }
+        }
+        catch(err) {
+        message.innerHTML = "Error is  " + err;
+        }
+    }
+
+
+    /////////from dashboard redirect with filter on///////////////
+else
+    {
+    console.log("INside if blcok of paramString",paramString)
+    let new_paramString = decodeURI(paramString)
+    console.log("drop_limit inside urlString",drop_limit)
+    var new_drop_limit=parseInt(drop_limit)
+    new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:new_paramString}
     json_associate_data=JSON.stringify(new_associate_data);
     let res=await supplier_data(json_associate_data);
+        try{
+            if(res.body.status == "green"){
+            supplier_data_from_service = res.body.data.data_list;
+            total_count_associates = res.body.data.total_records;
+            }
+        }
+        catch(err) {
+        message.innerHTML = "Error is " + err;
+        }
+       
+        userdetails = await logged_user();
+        username = userdetails.body.data.user.email;
+        userid = userdetails.body.data.user.username;
     
-    supplier_data_from_service = res.body.data.data_list;
-    total_count_associates = res.body.data.total_records;
-
-
-    ////////////filter city-data///////////
+        
+        // var new_drop_limit=parseInt(drop_limit)
+        total_count_associates = res.body.data.total_records;
+        total_pages = Math.ceil(total_count_associates/new_drop_limit)
+        pages = createPagesArray(total_pages)
+        }
+////////////filter city status -data///////////
     filter_city_res = await filter_city_data();
-    filter_city_array = filter_city_res.body.data;
-
-    filter_status_res = await filter_status_data();
-    filter_status_array = filter_status_res.body.data;
-
-    ///////////////////dropdown count///////////
-        console.log("new_lllliiimmmiitttt",drop_limit)
-        console.log("dropdown_function",supplier_data_from_service)
-
-    })
-
-    // console.log("supplier_data_from_store++++++ outside",supplier_data_from_store)
+        try{
+            if(filter_city_res.body.status == "green"){
+                filter_city_array = filter_city_res.body.data;
+            }
+        }
+        catch(err) {
+        message.innerHTML = "Error is " + err;
+        }      
     
-    async function next_function(){
-    offset=offset+limit;
-    new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Beneficiary Pending"}
-    json_associate_new_data=JSON.stringify(new_associate_data);
-    let next_res =await supplier_data(json_associate_new_data);
-    supplier_data_from_service = next_res.body.data.data_list;
-    total_count_associates = next_res.body.data.total_records;
+    filter_status_res = await filter_status_data();
+        try{
+            if(filter_status_res.body.status == "green"){
+                filter_status_array = filter_status_res.body.data;
+            }
+        }
+        catch(err) {
+        message.innerHTML = "Error is " + err;
+        }
+   
+
+    filter_vendortype_res = await filter_vendortype_data();
+        try{
+            filter_vendortype_array = filter_vendortype_res.body.data;
+        }
+        catch(err) {
+        message.innerHTML = "Error is  " + err;
+        }
+        for(let pageination in pages){   
+            
+            if(pageination <= 3 && pageination>0){
+                new_pages.push(pageination)
+                mapped_pages=new_pages.map(Number)    
+            }
+        }
+        
+    })
+    
+   
+
+    function createPagesArray(total) {
+    let arr = []
+    for(let i = 1; i <= total; i++) {
+        arr.push(i)
+    }
+    return arr
+    }
+
+//     async function next_function(){
+//     var new_drop_limit=parseInt(drop_limit)
+//     offset=offset+limit;
+    
+//     new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending"}
+//     json_associate_new_data=JSON.stringify(new_associate_data);
+//     let next_res =await supplier_data(json_associate_new_data);
+
+//     // total_count_associates = next_res.body.data.total_records;
+//     // page_count = Math.ceil(total_count_associates/new_drop_limit)
+//     // console.log("page_count_______",page_count) 
+//     try{
+//             if(next_res.body.status == "green"){   
+//                 supplier_data_from_service = next_res.body.data.data_list;
+//             }
+//         }
+//         catch(err) {
+//         message.innerHTML = "Error is  " + err;
+//         }               
+    
+// }
+    
+//     async function previous_function(){
+//     var new_drop_limit=parseInt(drop_limit)
+//     offset=offset-limit;
+//     new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending"}
+//     json_associate_new_data=JSON.stringify(new_associate_data);
+//     let prev_res =await supplier_data(json_associate_new_data);
+//         try{
+//             if(prev_res.body.status == "green"){
+//             supplier_data_from_service = prev_res.body.data.data_list;
+//             }
+//         }
+//         catch(err) {
+//         message.innerHTML = "Error is  " + err;
+//         }
+//     }
+    // async function user_data () {
+    //     logged_user_data = await logged_user();
+    //     username = logged_user_data.body.data.user.name;
+    //     userid = logged_user_data.body.data.user.username;
+    //     console.log("username and useridddd",username,userid)
+    //     return username,userid;
+    //     }
+    async function onboarded_check_func(){
+        onboarded_by_me_checkbox = true;
+        
+        // try{
+            // if(onboarded_check_res.body.status == "green"){
+                // if(onboarded_by_me_checkbox == true){  
+                // user_data();
+                // async function user_data () {
+                logged_user_data = await logged_user();
+                username = logged_user_data.body.data.user.name;
+                userid = logged_user_data.body.data.user.username;
+                console.log("username and useridddd",username,userid)
+                
+                // }
+                
+                console.log("username and userid",username,userid)
+                var new_drop_limit=parseInt(drop_limit)  
+                // new_new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending",username:username,userid:userid}
+                // }
+                // else{
+                    if(onboarded_by_me_checkbox == true){ 
+                        console.log("inside if block onboarded_by_me_checkbox",username,userid)
+                        new_new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending",username:username,userid:userid}  }
+                    else{
+                        console.log("inside else block ")
+                        new_new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending"}
+                    }
+                // }
+                console.log("onboarded_check_func checked")
+                json_associate_data=JSON.stringify(new_new_associate_data);
+                let onboarded_check_res=await supplier_data(json_associate_data);
+                
+                    supplier_data_from_service = onboarded_check_res.body.data.data_list;
+                    total_count_associates = onboarded_check_res.body.data.total_records;
+                    // }
+                
+            }
+          
+        // catch(err) {
+        // message.innerHTML = "Error is  " + err;
+        // }
+
+    // }
+    if(onboarded_by_me_checkbox == true){    
+    // user_data();
+    new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending",username:username,userid:userid}
+    }
+    else{
+    new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending"}  
+    }
+
+    function next_function(){
+        
+        let last_num_from_pages = pages.length
+        if(mapped_pages.includes(last_num_from_pages)){
+
+        }
+         else{  
+       for (var i = 0; i < mapped_pages.length; i++){       
+        mapped_pages[i] = mapped_pages[i] + 1;
+       }
+    }
+    // console.log("mapped_pagessss",mapped_pages)
+    // console.log("mapped_pagessss",mapped_pages[0])
+    pageChange(mapped_pages[2])
 }
     
-    async function previous_function(){
-    offset=offset-limit;
-    new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Beneficiary Pending"}
-    json_associate_new_data=JSON.stringify(new_associate_data);
-    let prev_res =await supplier_data(json_associate_new_data);
-    supplier_data_from_service = prev_res.body.data.data_list;
-    total_count_associates = prev_res.body.data.total_records;
+    function previous_function(){ 
+        let first_num_from_pages = pages[0];
+        if(mapped_pages.includes(first_num_from_pages)){
+        
+        }
+            else{
+       for (var i = 0; i < mapped_pages.length; i++){
+        mapped_pages[i] = mapped_pages[i] - 1;
+       }
     }
+    pageChange(mapped_pages[0])
+    }
+
+   async function pageChange(pagenumber){
+    //    console.log("Pagenumberrrrr",pagenumber);
+       var new_drop_limit=parseInt(drop_limit)
+    //    console.log("new_drop_limit in pagechange",new_drop_limit)
+       
+       if(pagenumber == 1){
+        if(onboarded_by_me_checkbox == true){    
+        new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending",username:"username",userid:"userid"}
+        }
+        else{
+        new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending"}  
+        }  
+        // new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending"}
+        json_associate_new_data=JSON.stringify(new_associate_data);
+        let page_res =await supplier_data(json_associate_new_data);
+        supplier_data_from_service = page_res.body.data.data_list;
+       }
+    //    else if(pagenumber>3 && pagenumber<total_pages){
+    //         pagenumber = pagenumber+1;
+    //         console.log("else if pagenumber",pagenumber)
+    //    }
+       else{
+        //    console.log("pagenumberrrr",pagenumber - 1)
+           let new_offset = (pagenumber-1)*drop_limit
+        //    console.log(new_offset)
+        if(onboarded_by_me_checkbox == true){    
+            new_associate_data = {city: "-1",limit:new_drop_limit,offset:new_offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending",username:username,userid:userid}
+        }
+        else{
+            new_associate_data = {city: "-1",limit:new_drop_limit,offset:new_offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending"}  
+        }
+        //    new_associate_data = {city: "-1",limit:new_drop_limit,offset:new_offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending"}
+            json_associate_new_data=JSON.stringify(new_associate_data);
+            let page_res =await supplier_data(json_associate_new_data);
+            // console.log("page_res",page_res)
+            supplier_data_from_service = page_res.body.data.data_list;
+       }
+   }
 
     // function myFunction() {
     //     var x = document.getElementById("mobilemenu");
@@ -135,15 +525,17 @@
     // closeAuditTrailModal;
 
     async function SupplerModalbuttonClick(datalist_name) {
-        console.log("dataList name",datalist_name)
         let audit_res = await audit_trail_data(datalist_name.name)
-        console.log("inside audit trail",audit_res)
-        audit_details_array = audit_res.body.data
-        // console.log("supplier_data_from_serviceeeeeee",supplier_data_from_service)
-        audit_supplier_data = datalist_name;
-        console.log("audit_supplier_dataaaaa",audit_supplier_data)
-        console.log("audit_supplier_dataaaaa",audit_supplier_data.addresess[0].address)     
-        
+        try{
+            if(audit_res.body.status == "green"){
+                audit_details_array = audit_res.body.data
+                audit_supplier_data = datalist_name;
+                audit_supplier_address = audit_supplier_data.addresess[0].address
+            }
+        }
+        catch(err) {
+        message.innerHTML = "Error is  " + err;
+        }
         supplierInfoModal.style.display = "block";
     };
     
@@ -158,27 +550,53 @@
     // };
 
     async function filterButton(){
-        city = document.getElementById("select_city").value.trim();
-       
-        for(let cityK  of filter_city_array){
-            if (city == cityK.location_name){
-                new_city =cityK.location_id
+        vendor_type_select = document.getElementById("select_vendor_type").value.trim();
+        console.log("vendor_type_select",vendor_type_select)
+        for(let vendorData  of filter_vendortype_array){
+            if (vendor_type_select == vendorData.facility_type_name){
+                new_vendor_type = vendorData.facility_type
+             
             }    
         } 
+        city = document.getElementById("select_city").value.trim();
+        var new_drop_limit=parseInt(drop_limit)
+        for(let cityData  of filter_city_array){
+            if (city == cityData.location_name){
+                new_city =cityData.location_id
+            }    
+        } 
+        
+        
         status = document.getElementById("select_status").value.trim();
+        // console.log("in filter new drop limit",new_drop_limit)
         // if(city.value == All && status.value == All)    ------We dont have any API returning values for all statuses
-        if(new_city == "All"){
-        new_associate_data = {city:"-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}
+        
+        // if(new_city == "All"){
+        //     new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}
+        // }
+        // else{
+        //     new_associate_data = {city:new_city,limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
+        // }
+        if(new_city == "All" && onboarded_by_me_checkbox == true){
+            
+            new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:"username",userid:"userid"}
         }
-        else{
-        new_associate_data = {city:new_city,limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
+        else
+        {
+            new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status} 
         }
-        console.log("new_associate_data",new_associate_data)
+
         json_associate_new_data=JSON.stringify(new_associate_data);
         let filter_res =await supplier_data(json_associate_new_data);
-        supplier_data_from_service = filter_res.body.data.data_list;
-        total_count_associates = filter_res.body.data.total_records;
-        
+            try{
+                if(filter_res.body.status == "green"){
+                    supplier_data_from_service = filter_res.body.data.data_list;
+                    total_count_associates = filter_res.body.data.total_records; 
+                }
+            }
+            catch(err) {
+        message.innerHTML = "Error is  " + err;
+        }   
     }
 
 
@@ -217,17 +635,85 @@
         searchBox.style.display = "none";
         SearchClick.style.display = "block";
     };
-    function filterResults(){
-        for(let searchK  of supplier_data_from_service){
-            searchResult = supplier_data_from_service.filter(searchK=>searchK.facility_name == searchTerm)
-        }
-        supplier_data_from_service = searchResult;
-    }
 
-    function dropdown_function(){
-        console.log("new_lllliiimmmiitttt",drop_limit)
-        // new_associate_data = {city:new_city,limit:drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}
-        console.log("dropdown_function",supplier_data_from_service)
+    const enterKeyPress = e => {
+    if (e.charCode === 13) {
+        filterResults();
+    }
+  };
+
+    async function filterResults(){
+        let searchArray= [];
+        for(let searchK  of supplier_data_from_service){
+            const search_supplier = searchK.facility_name
+             result=search_supplier.toLowerCase().includes(searchTerm.toLowerCase());
+            // newsearchK = result.append(...result);
+            // console.log("newsearchKn",newsearchK)
+            if(result === true){
+            console.log("pages in search array",pages)
+            mapped_pages.length=0
+            searchArray = [...searchArray,searchK]
+            total_count_associates = searchArray.length;
+            console.log("searchK-----",total_count_associates)
+            }
+            
+            // else{
+            //     // console.log("Inn else block of searc")
+            //     json_associate_new_data=JSON.stringify(new_associate_data);
+            //     let search_res = await supplier_data(json_associate_new_data);
+            //     // console.log(search_res)
+            //     supplier_data_from_service = search_res.body.data.data_list;
+            // }
+        }
+        supplier_data_from_service = searchArray;
+            // console.log("supplier_data_from_service inside filterresult",supplier_data_from_service)
+    }
+    
+    // async function myFunc(){
+    // var input = document.getElementById("inputboxsearch").value;
+    
+    //    // console.log("Value of inputtttttttt",input)
+    //     // if(input == '')
+    //     // {
+    //     //     let prev_res =await supplier_data(json_associate_new_data);
+    //     //     supplier_data_from_service = prev_res.body.data.data_list;
+    //     //     total_count_associates = prev_res.body.data.total_records;
+    //     //    console.log("inside if cleared");
+    //     // }
+    // }
+
+    async function dropdown_function(){
+    // console.log("new_lllliiimmmiitttt",drop_limit)
+    var new_drop_limit=parseInt(drop_limit)
+
+    if(onboarded_by_me_checkbox == true){    
+        new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending",username:"username",userid:"userid"}
+        }
+        else{
+            new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending"}  
+        }
+    // new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending",onboarded_by_me:true}
+    json_associate_new_data=JSON.stringify(new_associate_data);
+    let dropdown_res =await supplier_data(json_associate_new_data);
+    
+    total_count_associates = dropdown_res.body.data.total_records;
+    total_pages = Math.ceil(total_count_associates/new_drop_limit)
+    // console.log("page_count_______",total_pages)
+    pages = createPagesArray(total_pages)
+    // console.log("pages,,,,,",pages)
+
+
+    try{
+        if(dropdown_res.body.status == "green"){
+        supplier_data_from_service = dropdown_res.body.data.data_list;
+        }
+    }
+    catch(err) {
+        message.innerHTML = "Error is " + err;
+        }
+    
+    // new_associate_data = {city:new_city,limit:drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}
+    // console.log("dropdown_function",supplier_data_from_service)
         
     }
 
@@ -246,7 +732,6 @@
 
 
         });
-
         elems.forEach.call(elems, function (el) {
             el.classList.remove("hidden");
         });
@@ -269,16 +754,7 @@
             el.classList.add("hidden");
         });
     };
-
-
-
-
-
-
-
-
-
-    // supplier mobile collaps
+ // supplier mobile collaps
 
     function collapseMobile() {
         var shortInfom = document.querySelectorAll(".shortInfoMobile");
@@ -305,12 +781,6 @@
             el.classList.add("hidden");
         });
     };
-
-
-
-    
-
-
     // {{{{{{{pending}}}}}}}
 
 
@@ -370,9 +840,10 @@
                             id="remember-me"
                             name="remember-me"
                             type="checkbox"
-                            checked
                             placeholder="Your password"
                             class="inputChecked"
+                            bind:checked = "{onboarded_by_me_checkbox}"
+                            on:click="{onboarded_check_func}"
                         />
                         <label for="remember-me" class="onboardedText ">
                             Onboarded by me
@@ -428,7 +899,7 @@
                                                         <input
                                                             type="checkbox"
                                                             class="form-checkbox"
-                                                            checked
+                                                            bind:checked = "{vendor_checkbox}"
                                                         />
                                                         <span class="ml-2"
                                                             >Vendor</span
@@ -442,6 +913,7 @@
                                                         <input
                                                             type="checkbox"
                                                             class="form-checkbox"
+                                                            bind:checked = "{workforce_checkbox}"
                                                         />
                                                         <span class="ml-2"
                                                             >Workforce</span
@@ -493,14 +965,14 @@
                                                             <select
                                                                 class="selectInputbox"
                                                             >
-                                                            
-                                                                    {#each filter_city_array as data_city}
+                                                            <option class="pt-6" 
+                                                                >All</option>
+                                                            {#each filter_city_array as data_city}
                                                                 <option
-                                                                    class="pt-6" value="">
+                                                                    class="pt-6">
                                                                     {data_city.location_name}
                                                                     </option>
                                                                 {/each}
-                                                                
                                                                 
                                                             </select>
                                                             <div
@@ -525,13 +997,29 @@
                                                             <select
                                                                 class="selectInputbox"
                                                             >
-                                                                <option
+                                                            {#if workforce_checkbox == true}
+                                                            {#each filter_vendortype_array as vendor_type}
+                                                            {#if vendor_type.category == "Workforce"}
+                                                            <option
                                                                     class="pt-6"
-                                                                    >Man power</option
+                                                                    >{vendor_type.facility_type_name}</option
                                                                 >
-                                                                <option
-                                                                    >Lorem</option
+                                                                {/if}
+                                                                {/each}
+                                                           
+                                                           {/if}
+
+                                                           {#if vendor_checkbox == true}
+                                                            {#each filter_vendortype_array as vendor_type}
+                                                            {#if vendor_type.category == "Vendor"}
+                                                            <option
+                                                                    class="pt-6"
+                                                                    >{vendor_type.facility_type_name}</option
                                                                 >
+                                                            {/if}
+                                                            {/each}
+                                                           
+                                                           {/if}
                                                             </select>
                                                             <div
                                                                 class="formSelectArrow "
@@ -554,17 +1042,16 @@
                                                         >
                                                             <select
                                                                 class="selectInputbox"
-                                                            >{#each filter_status_array as data_status}
+                                                            ><option class="pt-6" 
+                                                            >All</option>
+                                                            {#each filter_status_array as data_status}   
                                                                 {#if data_status.display_name != undefined}
-                                                                 <option class="pt-6"> {data_status.display_name}
-                                                                 </option>
-            
+                                                                <option class="pt-6"> {data_status.display_name}
+                                                                </option>
+        
                                                                 {/if}
+                                                            {/each}
                                                             
-                                                                <!-- <option
-                                                                    >Lorem</option
-                                                                > -->
-                                                                {/each}
                                                             </select>
                                                             <div
                                                                 class="formSelectArrow "
@@ -626,10 +1113,16 @@
                                                     <label
                                                         class="inline-flex items-center"
                                                     >
-                                                        <input
+                                                        <!-- <input
                                                             type="checkbox"
                                                             class="form-checkbox"
                                                             checked
+                                                            value = "Vendor"
+                                                        /> -->
+                                                        <input
+                                                            type="checkbox"
+                                                            class="form-checkbox"
+                                                            bind:checked = "{vendor_checkbox}"
                                                         />
                                                         <span class="ml-2"
                                                             >Vendor</span
@@ -643,6 +1136,7 @@
                                                         <input
                                                             type="checkbox"
                                                             class="form-checkbox"
+                                                            bind:checked = "{workforce_checkbox}"
                                                         />
                                                         <span class="ml-2"
                                                             >Workforce</span
@@ -725,14 +1219,32 @@
                                                         >
                                                             <select
                                                                 class="selectInputbox"
+                                                                id= "select_vendor_type"
                                                             >
-                                                                <option
+                                                           {#if workforce_checkbox == true}
+                                                            {#each filter_vendortype_array as vendor_type}
+                                                            {#if vendor_type.category == "Workforce"}
+                                                            <option
                                                                     class="pt-6"
-                                                                    >Man power</option
+                                                                    >{vendor_type.facility_type_name}</option
                                                                 >
-                                                                <option
-                                                                    >Lorem</option
+                                                                {/if}
+                                                                {/each}
+                                                           
+                                                           {/if}
+
+                                                           {#if vendor_checkbox == true}
+                                                            {#each filter_vendortype_array as vendor_type}
+                                                            {#if vendor_type.category == "Vendor"}
+                                                            <option
+                                                                    class="pt-6"
+                                                                    >{vendor_type.facility_type_name}</option
                                                                 >
+                                                            {/if}
+                                                            {/each}
+                                                           
+                                                           {/if}
+                                                            
                                                             </select>
                                                             <div
                                                                 class="formSelectArrow "
@@ -850,28 +1362,28 @@
                     </div>
                 </div>
                 <div class="SectionsCountsSaved ">
-                    <div class="savedcount ">
+                    <!-- <div class="savedcount ">
                         <p class="otherCounts">Saved</p>
                         <div class="bgsavedCount flex-grow">
                             <p class="otherCountNumbers">05</p>
                         </div>
-                    </div>
+                    </div> -->
                     <div class="savedcount">
                         <p class="otherCounts">Active</p>
                         <div class="bgActiveCount flex-grow">
-                            <p class="otherCountNumbers">1122</p>
+                            <p class="otherCountNumbers">{active}</p>
                         </div>
                     </div>
                     <div class="savedcount">
                         <p class="otherCounts">Deactive</p>
                         <div class="bgDeactiveCount flex-grow">
-                            <p class="otherCountNumbers">05</p>
+                            <p class="otherCountNumbers">{deactive}</p>
                         </div>
                     </div>
                     <div class="savedcount">
                         <p class="otherCounts">All</p>
                         <div class="bgAllCount flex-grow">
-                            <p class="otherCountNumbers">1212</p>
+                            <p class="otherCountNumbers">{total_count}</p>
                         </div>
                     </div>
                 </div>
@@ -901,7 +1413,7 @@
                                 >
                                     <p class="countHeading">
                                         ID Proof <span class="idproofcount"
-                                            >1253</span
+                                            >{id_proof_rejected}</span
                                         >
                                     </p>
                                 </div>
@@ -910,7 +1422,7 @@
                                 >
                                     <p class="countHeading">
                                         Bank Details <span class="idproofcount"
-                                            >456</span
+                                            >{bank_verification_pending}</span
                                         >
                                     </p>
                                 </div>
@@ -919,7 +1431,7 @@
                                 >
                                     <p class="countHeading">
                                         BGV Pending <span class="idproofcount"
-                                            >343</span
+                                            >{bgv_rejected}</span
                                         >
                                     </p>
                                 </div>
@@ -932,21 +1444,21 @@
                                 <div class="bgdocreject flex-grow">
                                     <p class="countHeading whitespace-nowrap">
                                         ID Proof <span class="docRejectCount"
-                                            >1253</span
+                                            >{id_proof_rejected}</span
                                         >
                                     </p>
                                 </div>
                                 <div class="bgdocreject flex-grow">
                                     <p class="countHeading whitespace-nowrap">
                                         Bank Details <span
-                                            class="docRejectCount">456</span
+                                            class="docRejectCount">{bank_verification_pending}</span
                                         >
                                     </p>
                                 </div>
                                 <div class="bgdocreject flex-grow">
                                     <p class="countHeading whitespace-nowrap">
                                         Offer Letter <span
-                                            class="docRejectCount">343</span
+                                            class="docRejectCount">{pending_offer_letter}</span
                                         >
                                     </p>
                                 </div>
@@ -955,28 +1467,28 @@
                     </div>
                     <div id="third" class="hidden">
                         <div class="SectionsCountsmobileLast ">
-                            <div class="savedcount ">
+                            <!-- <div class="savedcount ">
                                 <p class="otherCounts">Saved</p>
                                 <div class="bgsavedCount flex-grow">
                                     <p class="otherCountNumbers">05</p>
                                 </div>
-                            </div>
+                            </div> -->
                             <div class="savedcount">
                                 <p class="otherCounts">Active</p>
                                 <div class="bgActiveCount flex-grow">
-                                    <p class="otherCountNumbers">1122</p>
+                                    <p class="otherCountNumbers">{active}</p>
                                 </div>
                             </div>
                             <div class="savedcount">
                                 <p class="otherCounts">Deactive</p>
                                 <div class="bgDeactiveCount flex-grow">
-                                    <p class="otherCountNumbers">05</p>
+                                    <p class="otherCountNumbers">{deactive}</p>
                                 </div>
                             </div>
                             <div class="savedcount">
                                 <p class="otherCounts">All</p>
                                 <div class="bgAllCount flex-grow">
-                                    <p class="otherCountNumbers">1212</p>
+                                    <p class="otherCountNumbers">{total_count}</p>
                                 </div>
                             </div>
                         </div>
@@ -992,24 +1504,38 @@
                                 <span
                                     class="xs:text-rejectcolor sm:text-rejectcolor"
                                     >{total_count_associates}</span
-                                > <span class="text-grey">All ASSOCIATES</span>
+                                > <span class="text-grey">ASSOCIATES</span>
                             </h4>
                         </div>
 
                         <div class="searchSupplier " id="searchBox">
                             <div class="formInnerGroup ">
-                                <span class="searchicon">
+                                <!-- <span class="searchicon">
                                     <img
                                         src="../src/img/search.svg"
                                         class="placeholderIcon"
                                         alt=""
                                         on:click="{filterResults}"/>
+                                </span> -->
+                                <span class="searchicon">
+                                    <img
+                                        src="../src/img/search.svg"
+                                        class="placeholderIcon"
+                                        alt=""
+                                       />
                                 </span>
                                 <input bind:value="{searchTerm}"
                                     class="inputboxsearch"
                                     id="inputboxsearch"
                                     placeholder="Search"
+                                    on:keypress="{enterKeyPress}"
+                                    
                                 />
+                                <!-- <input
+                                        placeholder="Type some gibberish here"
+                                        id="text"
+                                        on:input={myFunc}
+                                > -->
                                 <div class="serchCloseIconSection " id="">
                                     <div class="closeIconCon " on:click="{closeSearch}">
                                         <img
@@ -1038,7 +1564,7 @@
                             <div class="selectSection">
                                 <div class="formInnerGroupSelect ">
                                     <select class="selectInputbox" bind:value ="{drop_limit}" on:change="{dropdown_function}">
-                                        <option class="pt-6" value="20">20 items</option>
+                                        <option value="20">20 items</option>
                                         <option value="30">30 items</option>
                                     </select>
                                     <div class="formSelectArrow ">
@@ -1063,12 +1589,34 @@
                                         >
                                         <!-- <button on:click={setValuechange}>value change</button> -->
                                     </li>
-                                    <li>
-                                        <button class="pagiItemsNumber"
-                                            >1</button
-                                        >
+                                    
+                                    {#if result === false}
+                                    <li >
+                                        <button id = "curr_page" class="pagiItemsNumber">
+                                           1
+                                        </button>
+                                        </li>
+                                    {:else}
+                                    {#each mapped_pages as page}
+                                     
+                                    <li >
+                                        <button id = "curr_page" class="pagiItemsNumber" on:click="{pageChange(page)}">
+                                           {page}
+                                        </button>
                                     </li>
-                                    <li>
+                                    {/each}
+                                    {/if}
+                                    
+                                    <!-- <li>
+                                        <button class="pagiItemsNumber"
+                                            >
+                                            {#each {length:page_count} as _,i}
+                                                {i+1}
+                                            {/each}
+                                            </button
+                                        >
+                                    </li> -->
+                                    <!-- <li>
                                         <button class="pagiItemsNumberActive"
                                             >2</button
                                         >
@@ -1077,7 +1625,7 @@
                                         <button class="pagiItemsNumber"
                                             >3</button
                                         >
-                                    </li>
+                                    </li> -->
 
                                     <li>
                                         <button class="preNextbtn" on:click={next_function}>
@@ -1100,7 +1648,7 @@
                                     <tr>
                                         <th
                                             scope="col"
-                                            width="25%"
+                                            width="20%"
                                             class="theading px-3"
                                         >
                                             Associate
@@ -1113,8 +1661,15 @@
                                             Status
                                         </th>
                                         <th
+                                        scope="col"
+                                        width="20%"
+                                        class="theading px-3"
+                                    >
+                                        What is Pending?
+                                    </th>
+                                        <th
                                             scope="col"
-                                            width="20%"
+                                            width="10%"
                                             class="theading"
                                         >
                                             Remarks
@@ -1218,7 +1773,7 @@
                                                         />
                                                         {facility_data.status}
                                                     </div>
-                                                    <div class="statusDetails">
+                                                    <!-- <div class="statusDetails">
                                                         <p
                                                             class="vendorDetailsText"
                                                         >
@@ -1247,14 +1802,17 @@
                                                                 alt=""
                                                             /> Pending Bank Verification
                                                         </p>
-                                                    </div>
+                                                    </div> -->
                                                 </div>
                                             </div>
                                         </td>
                                         <td>
                                             <div class="shortInfo">
-                                                <div class="paddingrt">
+                                                <div class="paddingrt">{#if facility_data.remarks.length == ""} 
+                                                    <p class="smallText">-</p>
+                                                    {:else}
                                                     <p class="smallText">{facility_data.remarks.length}</p>
+                                                    {/if}
                                                 </div>
                                             </div>
 
@@ -1263,11 +1821,37 @@
                                                     class="remarklist ml-5 paddingrt"
                                                 >
                                                     <ul class="list-disc ">
+                                                        {#each facility_data.remarks as remark}
                                                         <li class="listitems">
-                                                            {#each facility_data.remarks as remark}
-                                                            {remark}
-                                                            {/each}
+                                                        {remark}
                                                         </li>
+                                                        {/each}
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="shortInfo">
+                                                <div class="paddingrt">{#if facility_data.message == ""} 
+                                                    <p class="smallText">-</p>
+                                                    {:else}
+                                                    <p class="smallText">1</p>
+                                                    {/if}
+                                                </div>
+                                            </div>
+
+                                            <div class="detailsInfo hidden">
+                                                <div
+                                                    class="remarklist ml-5 paddingrt"
+                                                >
+                                                    <ul class="list-disc ">
+                                                        <div class="paddingrt">{#if facility_data.message == ""} 
+                                                            <p class="smallText">-</p>
+                                                            {:else}
+                                                            <p class="smallText">{facility_data.message}</p>
+                                                            {/if}
+                                                        </div>
+                                                        
                                                     </ul>
                                                 </div>
                                             </div>
@@ -1276,8 +1860,11 @@
                                             <div class="shortInfo">
                                                 <div class="paddingrt">
                                                     <p class="smallText">
+                                                        {#if facility_data.action == ""}
+                                                        -
+                                                        {:else}
                                                         1
-                                                        
+                                                        {/if}
                                                         </p>
                                                 </div>
                                             </div>
@@ -1317,7 +1904,7 @@
                                                     <span class="text-sm"
                                                         ></span>
                                                 </button>
-                                                <p class="mtextaudit">11 M</p>
+                                                <!-- <p class="mtextaudit">11 M</p> -->
                                                 <div class="shortInfo">
                                                     <p
                                                         on:click="{collapse}"
@@ -2079,7 +2666,7 @@
                                         Documents Rejected
                                     </div>
                                 </div>
-                                <div class="statusDetails">
+                                <!-- <div class="statusDetails">
                                     <p class="vendorDetailsText">
                                         <img
                                             src="../src/img/checked.png"
@@ -2102,7 +2689,7 @@
                                             alt=""
                                         /> Pending Bank Verification
                                     </p>
-                                </div>
+                                </div> -->
                             </div>
                             <div />
                         </div>
@@ -2242,6 +2829,7 @@
                                     <!-- {#each audit_supplier_data.addresess as curr_address}
                                     {curr_address.address}
                                     {/each} -->
+                                    {audit_supplier_address}
                                    
                                 </div>
                             </div>
@@ -2259,9 +2847,9 @@
                             </div>
                         </div>
                     </div>
-                    <div class="updatebutton ">
+                    <!-- <div class="updatebutton ">
                         <button class="ErBlueupdated">Update</button>
-                    </div>
+                    </div> -->
                     <div class="closebuttonsection">
                         <img
                             src="../src/img/close.png"
@@ -2271,7 +2859,7 @@
                         />
                     </div>
                 </div>
-                <div class="commentBox">
+                <!-- <div class="commentBox">
                     <div class="textAndSubmitButton ">
                         <p class="text-base text-white">Add your comment</p>
                         <button class="btnsubmitComment " type="submit">
@@ -2286,7 +2874,7 @@
                         cols="30"
                         rows="3"
                     />
-                </div>
+                </div> -->
 
                 <div class="timelinescroll ">
                     <div class="flex md:contents">

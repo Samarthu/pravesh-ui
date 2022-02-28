@@ -3,7 +3,7 @@ import {request} from './interceptor';
 // import {audit_details} from '../stores/audit_details_store';
 // import {status_store_details} from '../stores/status_details_store';
 
-let supplier_data_url = '/api/method/pravesh.facility.routes.dashboard.get_facilities';
+
 // const supplier_data = (data) =>{
 //     return request(
 //         supplier_data_url,{
@@ -29,6 +29,7 @@ let supplier_data_url = '/api/method/pravesh.facility.routes.dashboard.get_facil
 // }
 
 const supplier_data=(data)=>{
+    let supplier_data_url = '/api/method/pravesh.facility.routes.dashboard.get_facilities';
     return request(
         supplier_data_url,{
             method: "POST",
@@ -58,6 +59,14 @@ const audit_trail_data = (data) =>{
             method: "POST"
         },true)
 }
+const logged_user= () => {
+    let logged_user_url = '/api/method/pravesh.facility.routes.user.get_session_user?only_user=true';
+    return request(
+        logged_user_url, {
+        method: "GET"
+    }, true
+    )
+}
 
 
 const filter_city_data =  () => {
@@ -85,9 +94,19 @@ const  filter_status_data = () => {
     // });  
 }
 
+const filter_vendortype_data = () => {
+    let filter_vendortype_url = '/api/resource/Facility%20Type%20Master?filters=[["status","=","Active"]]&fields=["facility_type","facility_type_name","category"]&limit_page_length=["*"]';
+    return request(
+        filter_vendortype_url, {
+        method: "GET"
+    }, true)
+}
+
 export{
+    logged_user,
    supplier_data,
    filter_city_data,
    audit_trail_data,
-   filter_status_data
+   filter_status_data,
+   filter_vendortype_data
 }

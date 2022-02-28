@@ -5,35 +5,88 @@
     import { goto } from "$app/navigation";
     import {demo_api_fun} from '../services/dashboard_services';
     import {dashboard_data} from '../services/dashboard_services';
-    import {dashboard_details} from '../stores/dashboard_store';
+    // import {dashboard_details} from '../stores/dashboard_store';
 import Supplier from './supplier.svelte';
     
-    let id_proof_rejected;
-    let bank_details_rejected;
-    let bgv_pending;
-    let id_verifiaction_pending;
-    let bank_verification_pending;
-    let pending_offer_letter;
-    let bgv_rejected;
+    let active;
+    // let background_verification_pending;
+    // let bank_beneficiary_pending;
+    let id_proof_rejected,id_proof_rejected_display_name;
+    let bank_details_rejected,bank_details_rejected_display_name;
+    let bgv_pending,bgv_pending_display_name;
+    let id_verification_pending,id_verification_pending_display_name;
+    let bank_verification_pending,bank_verification_pending_display_name;
+    let pending_offer_letter,pending_offer_letter_display_name;
+    let bgv_rejected,bgv_rejected_display_name;
 
     
     // console.log(dashboard)
     onMount(async () =>{
-
-
         let response = await demo_api_fun();
         console.log("demo api response",response);
-        await dashboard_data();
-        let dashboard = $dashboard_details;
-        console.log("innnn dashboard_details",dashboard)
-        id_proof_rejected = dashboard.id_proof_rejected
-        bank_details_rejected = dashboard.bank_details_rejected;
-        bgv_pending = dashboard.bgv_pending;
-        id_verifiaction_pending = dashboard.id_verifiaction_pending;
-        bank_verification_pending = dashboard.bank_verification_pending;
-        pending_offer_letter = dashboard.pending_offer_letter;
-        bgv_rejected = dashboard.bgv_rejected;
-    })
+        let dashboard_res = await dashboard_data();
+        if(dashboard_res != null){
+        let dashboard = dashboard_res.body.data;
+        for(let new_dash_data of dashboard){
+            
+            if(new_dash_data.name == "active"){
+                active = new_dash_data.count
+                console.log("active++",active)
+            }
+            // if(new_dash_data.name == "deactive"){
+            //     deactive = new_dash_data.count
+            //     console.log("deactive++",deactive)
+            // }
+            if(new_dash_data.name == "id proof rejected"){
+                id_proof_rejected = new_dash_data.count
+                id_proof_rejected_display_name = new_dash_data.display_name
+                
+            }
+            if(new_dash_data.name == "background verification pending"){
+                bgv_pending = new_dash_data.count
+                bgv_pending_display_name = new_dash_data.display_name
+                console.log("background_verification_pending++",bgv_pending)
+            }
+            if(new_dash_data.name == "bank details rejected"){
+                bank_details_rejected = new_dash_data.count
+                bank_details_rejected_display_name = new_dash_data.display_name
+                console.log("bank_details_rejected++",bank_details_rejected)
+            }
+            if(new_dash_data.name == "id verification pending"){
+                id_verification_pending = new_dash_data.count
+                id_verification_pending_display_name = new_dash_data.display_name
+                console.log("id_verification_pending++",id_verification_pending)
+            }
+            // if(new_dash_data.name == "bank details pending"){
+            //     bank_details_pending = new_dash_data.count
+            //     console.log("bank_details_pending++",bank_details_pending)
+            // }
+            // if(new_dash_data.name == "bank beneficiary pending"){
+            //     bank_beneficiary_pending = new_dash_data.count
+            //     console.log("bank_beneficiary_pending++",bank_beneficiary_pending)
+            // }
+            // if(new_dash_data.name == "onboarding in progress"){
+            //     onboarding_in_progress = new_dash_data.count
+            //     console.log("onboarding_in_progress++",onboarding_in_progress)
+            // }
+            if(new_dash_data.name == "bank verification pending"){
+                bank_verification_pending = new_dash_data.count
+                bank_verification_pending_display_name = new_dash_data.display_name
+                console.log("bank_verification_pending++",bank_verification_pending)
+            }
+            if(new_dash_data.name == "pending offer letter"){
+                pending_offer_letter = new_dash_data.count
+                pending_offer_letter_display_name = new_dash_data.display_name
+                console.log("pending_offer_letter++",pending_offer_letter)
+            }
+            if(new_dash_data.name == "background verification rejected"){
+                bgv_rejected = new_dash_data.count
+                bgv_rejected_display_name = new_dash_data.display_name
+                console.log("bgv_rejected++",bgv_rejected)
+            }
+        }
+    }
+})
 
     
 
@@ -51,9 +104,40 @@ import Supplier from './supplier.svelte';
         alert("button clicked");
     }
 
-    function demoClick(){
-        console.log("clicked")
+    // function demoClick(){
+    //     console.log("clicked")
+    // }
+    function id_proof_clicked(){
+        goto("./supplier?status="+id_proof_rejected_display_name);
+        console.log("id_proof_clicked",id_proof_rejected)
+
     }
+    function bank_details_rejected_clicked(){
+        goto("./supplier?status="+bank_details_rejected_display_name);
+        console.log("bank_details_rejected_clicked")
+    }
+    function bgv_pending_clicked(){
+        goto("./supplier?status="+bgv_pending_display_name);
+        console.log("bgv_pending_clicked")
+    }
+    function id_verification_pending_clicked(){
+        goto("./supplier?status="+id_verification_pending_display_name);
+        console.log("id_verification_pending_clicked")
+    }
+    function bank_verification_pending_clicked(){
+        goto("./supplier?status="+bank_verification_pending_display_name);
+        console.log("bank_verification_pending_clicked")
+    }
+    function pending_offer_clicked(){
+        goto("./supplier?status="+pending_offer_letter_display_name);
+        console.log("pending_offer_clicked")
+    }
+    function bgv_rejected_clicked(){
+        goto("./supplier?status="+bgv_rejected_display_name);
+        console.log("bgv_rejected_clicked")
+    }
+
+
 </script>
 
 <!-- Dashboard  -->
@@ -78,7 +162,7 @@ import Supplier from './supplier.svelte';
                     <p class="cardDes">Take appropriate action to complete onboarding</p>
                 </div>
                 <div class="cards">
-                    <div class="cardAction " on:click={demoClick}>
+                    <div class="cardAction " on:click={id_proof_clicked}>
                         <div class="cardContentText flex">
                         <div class="cardimg mr-3">
                             <img src="../src/img/idproofRejected.png" alt="">
@@ -94,7 +178,7 @@ import Supplier from './supplier.svelte';
                            </div> 
                         </div>
                     </div>
-                    <div class="cardAction ">
+                    <div class="cardAction" on:click={bank_details_rejected_clicked}>
                         <div class="cardContentText flex">
                         <div class="cardimg mr-3">
                             <img src="../src/img/bankdetails.png" alt="">
@@ -110,7 +194,7 @@ import Supplier from './supplier.svelte';
                            </div> 
                         </div>
                     </div>
-                    <div class="cardAction ">
+                    <div class="cardAction " on:click={bgv_pending_clicked}>
                         <div class="cardContentText flex">
                         <div class="cardimg mr-3">
                             <img src="../src/img/bgv.png" alt="">
@@ -151,7 +235,7 @@ import Supplier from './supplier.svelte';
                     <p class="cardDes">Teams are activily working on document verifications</p>
                 </div>
                 <div class="cards">
-                    <div class="cardActionother ">
+                    <div class="cardActionother" on:click={id_verification_pending_clicked}>
                         <div class="cardContentText flex">
                         <div class="cardimg mr-3">
                             <img src="../src/img/pendingid.png" alt="">
@@ -163,11 +247,11 @@ import Supplier from './supplier.svelte';
                         </div>
                         <div class="cardCount">
                            <div class="bgcircleother ">
-                          <span class="countcircleother  ">{id_verifiaction_pending}</span>  
+                          <span class="countcircleother  ">{id_verification_pending}</span>  
                            </div> 
                         </div>
                     </div>
-                    <div class="cardActionother ">
+                    <div class="cardActionother "  on:click={bank_verification_pending_clicked}>
                         <div class="cardContentText flex">
                         <div class="cardimg mr-3">
                             <img src="../src/img/pendingbank.png" alt="">
@@ -183,7 +267,7 @@ import Supplier from './supplier.svelte';
                            </div> 
                         </div>
                     </div>
-                    <div class="cardActionother ">
+                    <div class="cardActionother "   on:click={pending_offer_clicked}>
                         <div class="cardContentText flex">
                         <div class="cardimg mr-3">
                             <img src="../src/img/pendingletter.png" alt="">
@@ -199,7 +283,7 @@ import Supplier from './supplier.svelte';
                            </div> 
                         </div>
                     </div>
-                    <div class="cardAction ">
+                    <div class="cardAction " on:click={bgv_rejected_clicked}>
                         <div class="cardContentText flex">
                         <div class="cardimg mr-3">
                             <img src="../src/img/bvgreject.png" alt="">
@@ -224,7 +308,7 @@ import Supplier from './supplier.svelte';
                 <div class="activeProfileWrapper w-w325 xs:w-full">
                         <div class="headingCount ">
                             <p class="cardhead">Active Profiles</p>
-                            <p class="cardhead">84</p>
+                            <p class="cardhead">{active}</p>
                         </div>
                         <div class="venderHead plr ">
                             <p class="venderheadText "><img src="../src/img/manager.svg" class="pr-p15" alt=""> Vendors</p>

@@ -160,7 +160,7 @@
                             stroke-linejoin="round"
                         />
                     </svg>
-                    <span class="menuname">Suppliers</span>
+                    <span class="menuname">Associates</span>
                 </a>
             </li>
             <li class="listItem">
