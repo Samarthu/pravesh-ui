@@ -58,46 +58,44 @@
        
     // }
     $:if(onboarded_by_me_checkbox === true){
-        // console.log("onboarded_by_me_checkbox selected from checkbox")
         onboarded_by_me_checkbox = true;
     }
 
-            if(onboarded_by_me_checkbox == true){    
-
-        // console.log("usernameaascasca",username,userid)
-        new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending",username:username,userid:userid}
+            if(onboarded_by_me_checkbox == true){ 
+            new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending",username:username,userid:userid}
 
         }
-        else{
-// console.log("username",username)
-    new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending"}  
-    }
+            else{
+            new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending"}  
+            }
+        
         async function clearedSearchFunc(){
         json_associate_data=JSON.stringify(new_associate_data);
-         console.log("json_associate_data",json_associate_data)
+        //  console.log("json_associate_data",json_associate_data)
         let cleared_search_res=await supplier_data(json_associate_data);
         try{
             if(cleared_search_res.body.status == "green"){
                 supplier_data_from_service = cleared_search_res.body.data.data_list;
                 total_count_associates = cleared_search_res.body.data.total_records;
-                console.log("RESULT",result)
+                // console.log("RESULT",result)
                 result = true;
-                console.log("RESULT",result)
+                // console.log("RESULT",result)
                 // filter_vendortype_res = await filter_vendortype_data();
                 var new_drop_limit=parseInt(drop_limit)
                 var total_pages=Math.ceil(total_count_associates/new_drop_limit)
                 pages = createPagesArray(total_pages)
-                console.log("pagesRESULT",pages)
-                for(let pageination in pages){
+                // console.log("pagesRESULT",pages)
+                for(let pagination in pages){
+                 if(pagination <= 3 && pagination>0){
+                    console.log("PAGES") 
+                    // new_pages.push(pagination)
                     
-                if(pageination <= 3 && pageination>0){
-                    console.log("pageination",pageination)
-                    new_pages.push(pageination)
                     mapped_pages=new_pages.map(Number)  
-                    console.log("mappedpagesRESULT inside",mapped_pages)  
+                    console.log("mappedpagesRESULT inside",mapped_pages)
+                    
                 }
+            
             }
-                console.log("mappedpagesRESULT",mapped_pages)
                 
             
     // async function clearedSearchFunc(){
@@ -116,10 +114,10 @@
                 // console.log("filter_vendortype_res",filter_vendortype_res)
             /////tryyyy///////
                 
-        //         for(let pageination in pages){   
-        //             if(pageination <= 3 && pageination>0){
+        //         for(let pagination in pages){   
+        //             if(pagination <= 3 && pagination>0){
         //                 console.log("HERE IN AFTER SEARCH CLEARED")
-        //                 new_pages.push(pageination)
+        //                 new_pages.push(pagination)
         //                 mapped_pages=new_pages.map(Number)
         //                 console.log(mapped_pages)    
         //     }
@@ -127,7 +125,7 @@
             }
         }
         catch(err) {
-        // message.innerHTML = "Error is " + err;
+        message.innerHTML = "Error is " + err;
         }
         }
         // async function user_data () {
@@ -209,23 +207,20 @@
 
     let urlString = window.location.href;	
     let paramString = urlString.split('=')[1];
-    console.log("PARAMSTRING",paramString)
     if(paramString == undefined){
-        console.log("PARAMSTRING undefined",paramString)
-    
     var new_drop_limit=parseInt(drop_limit)
    
     new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:"Bank Details Pending"}
     json_associate_new_data=JSON.stringify(new_associate_data);
     let filter_res_from_dash =await supplier_data(json_associate_new_data);
-    total_count_associates = filter_res_from_dash.body.data.total_records;
-        total_pages = Math.ceil(total_count_associates/new_drop_limit)
-        pages = createPagesArray(total_pages)
-
-        try{
+    
+    try{
             if(filter_res_from_dash.body.status == "green"){
                 supplier_data_from_service = filter_res_from_dash.body.data.data_list;
                 total_count_associates = filter_res_from_dash.body.data.total_records; 
+                total_count_associates = filter_res_from_dash.body.data.total_records;
+                total_pages = Math.ceil(total_count_associates/new_drop_limit)
+                pages = createPagesArray(total_pages)
             }
         }
         catch(err) {
@@ -253,16 +248,24 @@ else
         catch(err) {
         message.innerHTML = "Error is " + err;
         }
-       
-        userdetails = await logged_user();
-        username = userdetails.body.data.user.email;
+
+         userdetails = await logged_user();
+        
+        try{
+            if(userdetails.body.status == "green"){
+                username = userdetails.body.data.user.email;
         userid = userdetails.body.data.user.username;
-    
+            }
+        }
+        catch(err) {
+        message.innerHTML = "Error is " + err;
+        }
         
         // var new_drop_limit=parseInt(drop_limit)
         total_count_associates = res.body.data.total_records;
         total_pages = Math.ceil(total_count_associates/new_drop_limit)
         pages = createPagesArray(total_pages)
+        
         }
 ////////////filter city status -data///////////
     filter_city_res = await filter_city_data();
@@ -293,10 +296,10 @@ else
         catch(err) {
         message.innerHTML = "Error is  " + err;
         }
-        for(let pageination in pages){   
+        for(let pagination in pages){   
             
-            if(pageination <= 3 && pageination>0){
-                new_pages.push(pageination)
+            if(pagination <= 3 && pagination>0){
+                new_pages.push(pagination)
                 mapped_pages=new_pages.map(Number)    
             }
         }
@@ -365,14 +368,12 @@ else
                 // if(onboarded_by_me_checkbox == true){  
                 // user_data();
                 // async function user_data () {
+           
                 logged_user_data = await logged_user();
+            try{
                 username = logged_user_data.body.data.user.name;
                 userid = logged_user_data.body.data.user.username;
                 console.log("username and useridddd",username,userid)
-                
-                // }
-                
-                console.log("username and userid",username,userid)
                 var new_drop_limit=parseInt(drop_limit)  
                 // new_new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending",username:username,userid:userid}
                 // }
@@ -391,8 +392,11 @@ else
                 
                     supplier_data_from_service = onboarded_check_res.body.data.data_list;
                     total_count_associates = onboarded_check_res.body.data.total_records;
-                    // }
-                
+                    }
+                    
+            catch(err) {
+                message.innerHTML = "Error is  " + err;
+                } 
             }
           
         // catch(err) {

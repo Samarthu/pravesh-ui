@@ -23,7 +23,6 @@ import Supplier from './supplier.svelte';
     // console.log(dashboard)
     onMount(async () =>{
         let response = await demo_api_fun();
-        console.log("demo api response",response);
         let dashboard_res = await dashboard_data();
         if(dashboard_res != null){
         let dashboard = dashboard_res.body.data;
@@ -31,12 +30,9 @@ import Supplier from './supplier.svelte';
             
             if(new_dash_data.name == "active"){
                 active = new_dash_data.count
-                console.log("active++",active)
+               
             }
-            // if(new_dash_data.name == "deactive"){
-            //     deactive = new_dash_data.count
-            //     console.log("deactive++",deactive)
-            // }
+            
             if(new_dash_data.name == "id proof rejected"){
                 id_proof_rejected = new_dash_data.count
                 id_proof_rejected_display_name = new_dash_data.display_name
@@ -45,17 +41,17 @@ import Supplier from './supplier.svelte';
             if(new_dash_data.name == "background verification pending"){
                 bgv_pending = new_dash_data.count
                 bgv_pending_display_name = new_dash_data.display_name
-                console.log("background_verification_pending++",bgv_pending)
+                
             }
             if(new_dash_data.name == "bank details rejected"){
                 bank_details_rejected = new_dash_data.count
                 bank_details_rejected_display_name = new_dash_data.display_name
-                console.log("bank_details_rejected++",bank_details_rejected)
+                
             }
             if(new_dash_data.name == "id verification pending"){
                 id_verification_pending = new_dash_data.count
                 id_verification_pending_display_name = new_dash_data.display_name
-                console.log("id_verification_pending++",id_verification_pending)
+               
             }
             // if(new_dash_data.name == "bank details pending"){
             //     bank_details_pending = new_dash_data.count
@@ -72,17 +68,17 @@ import Supplier from './supplier.svelte';
             if(new_dash_data.name == "bank verification pending"){
                 bank_verification_pending = new_dash_data.count
                 bank_verification_pending_display_name = new_dash_data.display_name
-                console.log("bank_verification_pending++",bank_verification_pending)
+                
             }
             if(new_dash_data.name == "pending offer letter"){
                 pending_offer_letter = new_dash_data.count
                 pending_offer_letter_display_name = new_dash_data.display_name
-                console.log("pending_offer_letter++",pending_offer_letter)
+               
             }
             if(new_dash_data.name == "background verification rejected"){
                 bgv_rejected = new_dash_data.count
                 bgv_rejected_display_name = new_dash_data.display_name
-                console.log("bgv_rejected++",bgv_rejected)
+                
             }
         }
     }
@@ -109,32 +105,32 @@ import Supplier from './supplier.svelte';
     // }
     function id_proof_clicked(){
         goto("./supplier?status="+id_proof_rejected_display_name);
-        console.log("id_proof_clicked",id_proof_rejected)
+        
 
     }
     function bank_details_rejected_clicked(){
         goto("./supplier?status="+bank_details_rejected_display_name);
-        console.log("bank_details_rejected_clicked")
+        
     }
     function bgv_pending_clicked(){
         goto("./supplier?status="+bgv_pending_display_name);
-        console.log("bgv_pending_clicked")
+       
     }
     function id_verification_pending_clicked(){
         goto("./supplier?status="+id_verification_pending_display_name);
-        console.log("id_verification_pending_clicked")
+        
     }
     function bank_verification_pending_clicked(){
         goto("./supplier?status="+bank_verification_pending_display_name);
-        console.log("bank_verification_pending_clicked")
+       
     }
     function pending_offer_clicked(){
         goto("./supplier?status="+pending_offer_letter_display_name);
-        console.log("pending_offer_clicked")
+        
     }
     function bgv_rejected_clicked(){
         goto("./supplier?status="+bgv_rejected_display_name);
-        console.log("bgv_rejected_clicked")
+       
     }
 
 
