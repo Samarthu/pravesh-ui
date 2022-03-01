@@ -7,6 +7,7 @@
     import {org_name} from '../stores/organisation_store';
     let verticle = null;
     let org_list = [];
+    let final_list = [];
     let org_select = null;
     onMount(async () =>{
         // vercticle_name.subscribe(value =>{
@@ -17,13 +18,79 @@
         console.log("response", response);
         org_list = response.body.data;
         console.log("org_list", org_list);
+        console.log("org_list_number", org_list.length);
         let ui_response = await get_organisation_ui_fun();
+        
+        // ui_response = JSON.parse(ui_response.body.data["get_organisation_ui_fun"]);
+        ui_response = JSON.parse(ui_response.body.data["organisation_properties"]);
         console.log("ui_response", ui_response);
-        ui_response = JSON.parse(ui_response.body.data.get_organisation_ui_fun);
-        console.log("ui_response", ui_response);
+        let count = 0;
+        for (let i = 0; i < org_list.length; i++) {
+            // console.log(i);
+            let temp={
+                org_id: null,
+                org_name: null,
+                class_name: null
+            }
+           
+            if(count <= ui_response.length-1){
+                console.log("inside if");
+                temp.org_id = org_list[i].org_id;
+                temp.org_name = org_list[i].org_name;
+                temp.class_name = ui_response[count].class_name;
+                count++;
+
+
+
+                
+            }
+            else{
+                count = 0;
+                temp.org_id = org_list[i].org_id;
+                temp.org_name = org_list[i].org_name;
+                temp.class_name = ui_response[count].class_name;
+            }
+            
+            final_list.push(temp);
+            final_list = final_list;
+            
+            
+        }
+        
+        
+        // for(let i=0;i <= org_list.lenght ;i++){
+        //     console.log(i);
+        //     let temp={
+        //         org_id: null,
+        //         org_name: null,
+        //         class_name: null
+        //     }
+        //     console.log(i);
+        //     if(count <= ui_response.length-1){
+        //         console.log("inside if");
+        //         temp.org_id = org_list[i].org_id;
+        //         temp.org_name = org_list[i].org_name;
+        //         temp.class_name = ui_response[count].class_name;
+        //         count++;
+
+
+
+                
+        //     }
+        //     else{
+        //         count = 0;
+        //         temp.org_id = org_list[i].org_id;
+        //         temp.org_name = org_list[i].org_name;
+        //         temp.class_name = ui_response[count].class_name;
+        //     }
+            
+        //     final_list.push(temp);
+        // }
+        console.log("final_list", final_list);
 
     });
-    function onclickhandel(){
+    function onclickhandel(org_id){
+        org_select = org_id;
         // org_name.set({org_id:org_select});
         // facility_data_store.set({org_id:org_select});
         $facility_data_store.org_id = org_select;
@@ -34,7 +101,7 @@
 
 </script>
 
-<div class="mainContent ">
+<!-- <div class="mainContent ">
     <h1>you are on the organization page</h1>
     <label for="org">Select Organisation</label>
     <select name="org" id="org" bind:value={org_select} on:change={() => onclickhandel()}  >
@@ -48,7 +115,7 @@
     </div>
 
 
-</div>
+</div> -->
 <!-- <nav class="navbarTop">
     <div class="top-left">
         <div class="flex items-center">
@@ -249,7 +316,7 @@
                 
 
                 <div class="grid grid-cols-3 xsl:grid-cols-1 gap-4 mt-4">
-                    <div> 
+                    <!-- <div> 
                        <div class="bglightgreycolor "> eCommerce</div>
                      </div>
                    
@@ -268,7 +335,11 @@
                     <div>
                         <div class="bglightbluecolor"> WithRun</div>
 
-                    </div>
+                    </div> -->
+                    {#each final_list as org }
+                    <div class={org.class_name} on:click={() => onclickhandel(org.org_id)}>{org.org_name}</div>
+                        
+                    {/each}
                    
                  
                 </div>
