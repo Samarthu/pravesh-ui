@@ -1,8 +1,15 @@
 <script>
     import { goto } from "$app/navigation";
+    import {verify_pancard_function,save_facility_function } from "../services/identity_proof_services";
+    import {facility_data_store} from '../stores/facility_store';
 
 
 // let routeTo = "identityproof";
+let pan_card_number = null;
+var pan_card_pattern = /[A-Z]{3}[ABCFGHLJPTF]{1}[A-Z]{1}[0-9]{4}[A-Z]{1}/gm
+let pan_card_message = "";
+let temp ;
+
 
 function gotoassociatedetails() {
     let replaceState = false;
@@ -11,6 +18,35 @@ function gotoassociatedetails() {
 function gotobankdetails() {
     let replaceState = false;
     goto("bankdetails", { replaceState });
+}
+async function verify_pancard(){
+    if(pan_card_number != null){
+        if(!pan_card_number.match(pan_card_pattern)){
+        pan_card_message = "Invalid Pan Card Number";
+
+    }
+    else{
+        pan_card_message = "";
+        let identity_proof_response = await verify_pancard_function(pan_card_number);
+        console.log(identity_proof_response);
+    }
+
+    }
+    
+
+}
+function temp_function(){
+    facility_data_store.subscribe(value => {
+        temp = value;
+        
+    });
+    console.log("store value",temp);
+}
+async function save_facility(){
+    let save_facility_response = await save_facility_function();
+    console.log(save_facility_response);
+    // gotobankdetails();
+
 }
 
 </script>
@@ -192,7 +228,10 @@ function gotobankdetails() {
                                 <img src="../src/img/pan.png" class="placeholderIcon"
                                     alt="">
                             </span>
-                            <input type="text" class="inputbox">
+                            <input type="text" class="inputbox" bind:value={pan_card_number} on:blur={()=>verify_pancard()}>
+                            <div class="text-red-500">
+                                {pan_card_message}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -318,6 +357,7 @@ function gotobankdetails() {
                         </div>
                     </div>
                 </div>
+                <button on:click|preventDefault={()=>{temp_function()}} class="saveandproceed">Temp</button>
 
 
             </div>
@@ -329,7 +369,7 @@ function gotobankdetails() {
             <div on:click={()=>{gotoassociatedetails()}} class="backButton">
                 <img src="../src/img/arrowleft.png" alt="">
             </div>
-            <button on:click={()=>{gotobankdetails()}} class="saveandproceed">Save &
+            <button on:click={()=>{save_facility()}} class="saveandproceed">Save &
                 Proceed</button>
         </div>
     </div>

@@ -10,8 +10,10 @@
     import { station_type_name } from "../stores/station_store";
     import { facility_data_store } from "../stores/facility_store";
     import { get_facility_type_link } from "../stores/facility_store";
+    import {msme_store} from "../stores/facility_id_store";
     // import PdfViewer from 'svelte-pdf';
     import { each } from "svelte/internal";
+    let temp_name;
 
     let org_id = null;
     let msme_value = null;
@@ -38,6 +40,35 @@
     function routeToWorkforce() {
         let replaceState = false;
         goto("workforce", { replaceState });
+    }
+    function select_vendor_name(sel){
+        // console.log(sel);
+        var sel = document.getElementById("vendor_selection");
+        // alert(sel.options[sel.selectedIndex].text);
+        console.log("station data",$facility_data_store.station_code);
+        console.log("associate type",$facility_data_store.facility_type);
+       
+        // facility_data_store.set({
+        //     vendor_name: sel.options[sel.selectedIndex].text
+        // });
+        $facility_data_store.vendor_name = sel.options[sel.selectedIndex].text;
+        
+        console.log("station data",$facility_data_store.station_code);
+        console.log("associate type",$facility_data_store.facility_type);
+        console.log("vendor name",$facility_data_store.vendor_name);
+    }
+    function select_store_id(){
+        // console.log("store id",document.getElementById("station_id").value);
+        // facility_data_store.set({
+        //     store_id: document.getElementById("station_id").value
+        // });
+        $facility_data_store.store_id = $facility_data_store.station_code;
+        let temp;
+        facility_data_store.subscribe(value => {
+            temp = value.store_id;
+        });
+        console.log("store_id_temp",temp);
+
     }
 
     routeTo = "verifycontactnumber";
@@ -159,17 +190,45 @@
 
         get_facility_types();
     }
+    // $:{
+    //    facility_data_store.set({
+    //        owner_name: $facility_data_store.vendor_code
+    //    });
+    //    console.log("owner name",$facility_data_store.owner_name);
+    // }
     let avatar;
 
     const onFileSelected = (e) => {
         let pdf = e.target.files[0];
         pdf_name = pdf.name;
-        console.log("pdf name",pdf.name);
+        // msme_store.set({
+        //     file_name: pdf.name
+        // });
+        $:msme_store.set({
+            file_name: pdf.name
+        });
+        
+        
+        $:temp_name= $msme_store.file_name;
+        // msme_store.subscribe((value) => {
+        //     temp_name = value.file_name;
+        // });
+        // console.log("store",);
+        
+
+        console.log("pdf name",temp_name);
         let reader = new FileReader();
         reader.readAsDataURL(pdf);
         reader.onload = (e) => {
             fileinput = e.target.result;
-            console.log(fileinput);
+            msme_store.set({
+                pod: e.target.result
+            });
+            let temp;
+            msme_store.subscribe((value) => {
+                temp = value.pod;
+            });
+            console.log("store",temp);
         };
     };
 //     function open_pdf_window(base_64_string){
@@ -513,7 +572,9 @@
                                     </span>
                                     <select
                                         class="inputbox"
+                                        id = "station_id"
                                         bind:value={$facility_data_store.station_code}
+                                        on:change={() => select_store_id()}
                                     >
                                         {#each station_list as station}
                                             <option value={station.station_code}
@@ -594,11 +655,13 @@
                                     </span>
                                     <select
                                         class="inputbox"
+                                        id="vendor_selection"
                                         bind:value={$facility_data_store.vendor_code}
+                                        on:change|preventDefault={(e)=>select_vendor_name(e)}
                                     >
                                         {#each vendor_list as vendor}
                                             <option value={vendor.vendor_id}
-                                                >{vendor.vendor_name}</option
+                                                >{vendor.vendor_name} - {vendor.vendor_id}</option
                                             >
                                         {/each}
                                         <!-- <option class="pt-6"
@@ -619,32 +682,24 @@
                             </div>
                         </div>
                         <div class="flex">
-                            <div class="formGroup">
+                            <div class="formGroup ">
                                 <label class="formLable "
-                                    >Is MSME Registered ? <span
+                                    >Is MSME Registered <span
                                         class="mandatoryIcon">*</span
                                     ></label
                                 >
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/warehouse.png"
+                                            src="../src/img/organization.png"
                                             class="placeholderIcon"
                                             alt=""
                                         />
                                     </span>
-                                    <select
-                                        class="inputbox"
-                                        bind:value={msme_value}
-                                    >
-                                        <!-- <option class="pt-6" disabled
-                                            >Select Yes Or No</option
-                                        > -->
-                                        <option value="" disabled selected
-                                            >Select Yes or No</option
-                                        >
-                                        <option value="Yes">Yes</option>
-                                        <option value="No">No</option>
+                                    <select class="inputbox" bind:value={$facility_data_store.msme_registered}>
+                                        <option class="pt-6" value="" disabled selected>Select Yes or No</option>
+                                        <option  value="1">Yes</option>
+                                        <option  value="0">No</option>
                                     </select>
                                     <div class="formSelectArrow ">
                                         <img
@@ -653,14 +708,25 @@
                                             alt=""
                                         />
                                     </div>
-                                    {#if msme_value == "Yes"}
-                                        <label class="formLable "
+                                </div>
+                            </div>
+                        </div>
+                        {#if $facility_data_store.msme_registered == "1"}
+                        <div class="flex">
+                            <div class="formGroup ">
+                                <label class="formLable "
+                                   ></label
+                                > 
+                                <div class="formInnerGroup ">
+                                    <!-- <label class="formLable "
                                             >Attach MSME Certificate<span
                                                 class="mandatoryIcon">*</span
-                                            ></label
-                                        >
+                                            ></label> -->
                                         <div class="formInnerGroup ">
                                             <label class="cursor-pointer ">
+                                                <h1 class="contentDescriptionText pb-3">Attach MSME Certificate<span
+                                                    class="mandatoryIcon">*</span
+                                                ></h1>
                                                 <div
                                                     class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px"
                                                 >
@@ -676,35 +742,63 @@
                                                 />
                                             </label>
                                         </div>
-                                    {:else if msme_value == "No"}
-                                        <h1>
+                                </div>
+                            </div>
+                        </div>
+                        {/if}
+
+
+                        {#if $facility_data_store.msme_registered == "0"}
+                        <div class="flex">
+                            <div class="formGroup ">
+                                <label class="formLable "
+                                    ><span
+                                        class="mandatoryIcon"></span
+                                    ></label
+                                >
+                                <div class="formInnerGroup ">
+                                    <div class="pt-1">
+                                        <h1 class="contentDescriptionText">
                                             Accept NON-MSME Declaration<br />
+                                            <br>
                                             - I hereby declare that I have confirmed
                                             with the vendor and they are not registered
                                             under The Micro, Small and Medium Enterprises
                                             Development Act, 2006 (MSMED Act).
                                         </h1>
-                                        <br />
-                                        <input
+                                        <!-- <br /> -->
+                                        <div class="pt-2">
+                                            <input class="pt-3"
                                             type="checkbox"
                                             name="msme_agreement"
                                             bind:checked={msme_agreement}
                                         />
-                                        <label for=""> I Accept</label>
-                                    {/if}
+                                        <label class="contentDescriptionText" for=""> I Accept</label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        {/if}
+
+
+
+
+
+
                         <div class="flex">
-                            {#if fileinput && fileinput[0]}
+                            
                                 <p>
-                                    {pdf_name}
+                                    <!-- {#if $msme_store.file_name != null}
+                                    {$msme_store.file_name}
+                                    {/if} -->
+                                    {temp_name}
                                     
                                     <!-- <iframe width='100%' height='100%' src={avatar}></iframe> -->
                                     
                                     <!-- <embed src={fileinput[0]} width="800px" height="2100px" /> -->
                                 </p>
-                            {/if}
+                           
                             <!-- {fileinput[0].name} -->
                         </div>
                        
@@ -746,6 +840,9 @@
                         <!-- <div>
                         {$get_facility_type_link}
                     </div> -->
+                    <div>
+                        {$msme_store}
+                    </div>
                     </div>
                 </form>
             </div>

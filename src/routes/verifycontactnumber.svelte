@@ -73,6 +73,15 @@ function switch_toggele(){
         toggele = true
     }
 }
+function temp_function(){
+    let temp;
+    facility_data_store.subscribe(value =>{
+        temp = value;
+    });
+    console.log("facility data store",temp);
+
+   
+}
 async function verify_otp(){
     let verify_otp_response = await verify_mobile_number_otp(otp)
     console.log("verify_otp_response",verify_otp_response);
@@ -292,6 +301,9 @@ async function verify_otp(){
                         </div>
                     </div>
                 </div>
+            </div>
+            <div>
+                <button on:click|preventDefault={()=>{temp_function()}} class="ErBlueButton mt-3">temp</button>
             </div>
         </form>
     </div>

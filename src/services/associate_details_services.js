@@ -20,8 +20,25 @@ verify_email_name_api_link.subscribe(value => {
 
 
 const verify_associate_name = () => {
+    // let temp;
+    // facility_data_store.subscribe(value => {
+    //     temp = value;
+    //     console.log(value);
+    // });
+    
+    // console.log("store value",facility_data_store.facility_id);
+    
     associate_name = associate_name.replace(/ /g, "_");
     let fac_id = associate_name + "_" + station_name.toLowerCase();
+    
+    //  facility_data_store.update(f=>({facility_id:fac_id}));
+     let temp;
+    facility_data_store.subscribe(value => {
+        temp = value;
+        console.log(value);
+    });
+    
+   
     console.log("station code",station_name);
     console.log("fac_id",fac_id);
     let link = verify_associate_name_link+fac_id;

@@ -1185,6 +1185,24 @@
 }
 
 
+.bglightgreycolor{
+    @apply border rounded p-2 px-4 hover:bg-bglightgreycolor cursor-pointer transition duration-500 ease-in-out  transform hover:-translate-y-1 hover:scale-100
+}
+.bglightgreencolor{
+    @apply border rounded p-2 px-4 hover:bg-bglightgreencolor cursor-pointer transition duration-500 ease-in-out  transform hover:-translate-y-1 hover:scale-100
+}
+
+.bglightyellowcolor{
+    @apply border rounded p-2 px-4 hover:bg-bglightyellowcolor cursor-pointer transition duration-500 ease-in-out  transform hover:-translate-y-1 hover:scale-100
+}
+.bglightredcolor{
+    @apply border rounded p-2 px-4 hover:bg-bglightredcolor cursor-pointer transition duration-500 ease-in-out  transform hover:-translate-y-1 hover:scale-100
+}
+.bglightbluecolor{
+    @apply border rounded p-2 px-4 hover:bg-bglightbluecolor cursor-pointer transition duration-500 ease-in-out  transform hover:-translate-y-1 hover:scale-100
+}
+
+
 
 
 

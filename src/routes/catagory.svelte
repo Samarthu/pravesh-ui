@@ -31,6 +31,7 @@
     }
     function clickhandle(category_id) {
         category_store_name.set({category_name:category_id});
+        
         let replaceState = false;
         goto("workdetails", { replaceState });
         console.log("category_id",category_id);

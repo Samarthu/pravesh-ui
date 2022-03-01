@@ -21,6 +21,26 @@ import { each } from "svelte/internal";
   let profile_pic;
   let profile_pic_name;
   let address_check;
+  let final_address =[];
+  let work_address= {
+        "city": null,
+		"address": null,
+		"postal": null,
+		"address_type": "Work Address",
+		"parentfield": "address",
+		"parenttype": "Facility",
+		"tier": "3",
+		"state": "Maharashtra"
+  }
+  let present_address={
+        "location_id": null,
+		"address": null,
+		"postal": null,
+		"address_type": "Present Address",
+		"parentfield": "address",
+		"parenttype": "Facility",
+		"tier": "3"
+  }
 
 
 let routeTo = "identityproof";
@@ -65,6 +85,7 @@ onMount(async () => {
 })
 
 function gotoidentityproof() {
+    save_address_to_store();
     let replaceState = false;
     goto(routeTo, { replaceState });
 }
@@ -119,6 +140,16 @@ const onadders_prrof =(e) =>{
         };
     
 }
+function temp_show_value(){
+    console.log("present data",present_address);
+    console.log("permenant data",work_address);
+    let temp;
+    facility_data_store.subscribe(value =>{
+        temp = value;
+    });
+    console.log("facility data store",temp);
+
+}
 const onpresent_address_proof =(e) =>{
     let image = e.target.files[0];
     present_address_proof_copy_name  = image.name;
@@ -149,19 +180,44 @@ async function verify_email(){
 
 }
 $:{
+    $facility_data_store.owner_name = $facility_data_store.facility_name;
+}
+
+$:{
     // console.log("reactive blocks");
     console.log(String(date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate()));
-    facility_data_store.set({date_of_birth: String(date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate())})
+    
+    //facility_data_store.set({dob: String(date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate())})
+    $facility_data_store.dob = String(date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate());
     
 
 
 
+}
+function save_address_to_store(){
+    
+    if(present_address.location_id != null && present_address.address != null && present_address.postal != null){
+        final_address.push(present_address);
+
+
+    }
+    if(address_check == "No"){
+        if(work_address.city != null && work_address.address != null && work_address.postal != null && work_address.state){
+            final_address.push(work_address);
+
+        }
+    }
+    // facility_data_store.set({address: final_address});
+    $facility_data_store.address = final_address;
 }
 // function testing_function(){
 //     console.log("month",String(date.getMonth()+1));
 //     console.log("day",String(date.getDate()));
 //     console.log("year",String(date.getFullYear()));
 // }
+async function save_facility(){
+    
+}
 
 </script>
 
@@ -413,7 +469,7 @@ $:{
                                     alt="">
                             </span>
                             <!-- <input type="Email" class="inputbox"> -->
-                            <select name="" id="" class="inputbox">
+                            <select name="" id="" class="inputbox" bind:value={present_address.location_id}>
                                 <option value="" selected disabled>Select City</option>
                                 {#each city_data as city}
                                 <option value={city.city_id}>{city.city_name}({city.state_name})</option>
@@ -433,7 +489,7 @@ $:{
                                     alt="">
                             </span>
                             <!-- <input type="Email" class="inputbox"> -->
-                            <textarea id="w3review" name="w3review" rows="4" cols="50" class="inputbox"></textarea>
+                            <textarea id="w3review" name="w3review" rows="4" cols="50" class="inputbox" bind:value={present_address.address}></textarea>
                         </div>
                     </div>
                 </div>
@@ -473,7 +529,7 @@ $:{
                                 <img src="../src/img/pincode.png" class="placeholderIcon"
                                     alt="">
                             </span>
-                            <input type="Email" class="inputbox">
+                            <input type="Email" class="inputbox" bind:value={present_address.postal}>
                         </div>
                     </div>
                 </div>
@@ -507,10 +563,10 @@ $:{
                                     alt="">
                             </span>
                             <!-- <input type="Email" class="inputbox"> -->
-                            <select name="" id="" class="inputbox">
+                            <select name="" id="select_working_city" class="inputbox" bind:value={work_address.city} >
                                 <option value="" selected disabled>Select City</option>
                                 {#each city_data as city}
-                                <option value={city.city_id}>{city.city_name}({city.state_name})</option>
+                                <option value={city.city_name}>{city.city_name}({city.state_name})</option>
                                 {/each}
                                 
                             </select>
@@ -527,7 +583,7 @@ $:{
                                     alt="">
                             </span>
                             <!-- <input type="Email" class="inputbox"> -->
-                            <textarea id="w3review" name="w3review" rows="4" cols="50" class="inputbox"></textarea>
+                            <textarea id="w3review" name="w3review" rows="4" cols="50" class="inputbox" bind:value={work_address.address}></textarea>
                         </div>
                     </div>
                 </div>
@@ -539,7 +595,7 @@ $:{
                                 <img src="../src/img/pincode.png" class="placeholderIcon"
                                     alt="">
                             </span>
-                            <input type="Email" class="inputbox">
+                            <input type="Email" class="inputbox" bind:value={work_address.postal}>
                         </div>
                     </div>
                 </div>
@@ -558,6 +614,7 @@ $:{
                         </div>
                     </div>
                 </div>
+                <button on:click|preventDefault={()=>{temp_show_value()}} class="saveandproceed">temp</button>
 
 
                     
@@ -601,10 +658,10 @@ $:{
     </div>
     <div class="onboardFormNot ">
         <div class="formFooterAction">
-            <div on:click={()=>{gotoverifycontactnumber()}} class="backButton">
+            <div on:click|preventDefault={()=>{gotoverifycontactnumber()}} class="backButton">
                 <img src="../src/img/arrowleft.png" alt="">
             </div>
-            <button on:click={()=>{gotoidentityproof()}} class="saveandproceed">Save &
+            <button on:click|preventDefault={()=>{gotoidentityproof()}} class="saveandproceed">Save &
                 Proceed</button>
         </div>
     </div>

@@ -25,6 +25,7 @@
     function org_page_routing(verticle_value){
         vercticle_name.set({    verticle: verticle_value})
         
+        
         let replaceState = false;
         goto("organisation-selection", { replaceState });
 

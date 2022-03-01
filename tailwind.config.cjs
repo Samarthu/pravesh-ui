@@ -86,7 +86,12 @@ module.exports = {
         'bluecolor': "#3A4EFF",
         'pinkcolor':'#FF1E8A',
         'bgvlight':'#E3E3E3',
-        'bgGreen': '#54D119'
+        'bgGreen': '#54D119',
+        'bglightgreycolor':'#F6F5F7',
+        'bglightgreencolor':'#F6FFEB',
+        'bglightbluecolor':'#F3FBFF',
+        'bglightyellowcolor':'#FBF9E6',
+        'bglightredcolor':'#FFF4F4',
 
 
 
@@ -140,6 +145,7 @@ module.exports = {
         'h442':'442px',
         'h600': '600px',
         'heightSideNav':'calc(100vh - 58px)',
+        'max-h-85vh':'85vh',
 
       },
      
