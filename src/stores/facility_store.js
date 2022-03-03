@@ -5,8 +5,8 @@ export var facility_data_store = writable({
         address:"",
         user_type: "FieldAuditor",
         dob:null,
-        name :null,
-        owner:null,
+        
+        
         station_code:null,
         er_network_facility:true,
         owner_name:null,
@@ -24,7 +24,7 @@ export var facility_data_store = writable({
         non_msme_confirmed_by:null,
         non_msme_confirmed_on:null,
         msme_registered:null,
-        facility_type_name:null,
+        
         facility_email:null,
 
 });
@@ -55,4 +55,9 @@ export const verify_associate_name_api_link = derived(facility_data_store,
 
 export const verify_email_name_api_link = derived(facility_data_store,
         $facility_data_store => 'api/method/pravesh.facility.routes.facility.verify_facility_email?email_id='+$facility_data_store.facility_email);
+
+export const check_bgv_config_api_link = derived(facility_data_store,
+        $facility_data_store => 'api/method/pravesh.facility.routes.facility_bgv_configuration.check_bgv_config?org_id='+$facility_data_store.org_id+'&station_code='+$facility_data_store.station_code+'&facility_type='+$facility_data_store.facility_type);
+    
+        //https://doha-crun.elasticrun.in/api/method/pravesh.facility.routes.facility_bgv_configuration.check_bgv_config?org_id=AN&station_code=MHPD&facility_type=HDA
 

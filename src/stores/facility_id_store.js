@@ -5,16 +5,8 @@ export const facility_id = writable({
     
 });
 
+export const BGV_api_link = derived(facility_id,
+    $facility_id => '/api/resource/Facility%20BGV?filters=[[%22facility_id%22,%22=%22,%22'+$facility_id.facility_id_number+'%22]]&fields=[%22*%22]');
 
-export const msme_store = writable( {
-    
-doc_category: "MSME Certificate",
-doc_number: "",
-doc_type: "msme-certi",
-file_name: null,
-pod: null,
-resource_id: null,
-status: "created",
-user_id: null
-   
-});
+
+

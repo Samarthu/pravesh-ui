@@ -3,8 +3,9 @@
 </script>
 <script>
     import { goto } from "$app/navigation";
-    import {demo_api_fun} from '../services/dashboard_services';
+    import {get_current_user_function} from '../services/dashboard_services';
     import {dashboard_data} from '../services/dashboard_services';
+    import {current_user} from '../stores/current_user_store';
     // import {dashboard_details} from '../stores/dashboard_store';
 import Supplier from './supplier.svelte';
     
@@ -22,7 +23,24 @@ import Supplier from './supplier.svelte';
     
     // console.log(dashboard)
     onMount(async () =>{
-        let response = await demo_api_fun();
+        
+        let current_user_response = await get_current_user_function();
+        console.log("current_user_response",current_user_response);
+        if(current_user_response.body.status == "green"){
+            $current_user.email = current_user_response.body.data.user.email;
+            $current_user.name = current_user_response.body.data.user.name;
+            $current_user.username = current_user_response.body.data.user.username;
+            // console.log("email",current_user_response.body.data);
+        }
+        else{
+            alert("Session User not found");
+        }
+        // let current_user_temp;
+        // current_user.subscribe(value => {
+        //     current_user_temp = value;
+        // });
+        // console.log("current_user_temp",current_user_temp);
+
         let dashboard_res = await dashboard_data();
         if(dashboard_res != null){
         let dashboard = dashboard_res.body.data;
@@ -96,9 +114,7 @@ import Supplier from './supplier.svelte';
     }
 
     // routeNew = "/bussines";
-    async function demo_clickhandle(){
-        alert("button clicked");
-    }
+    
 
     // function demoClick(){
     //     console.log("clicked")
@@ -346,7 +362,7 @@ import Supplier from './supplier.svelte';
     </div>
 
 </div>
-<div>
+<!-- <div>
     <h1>this is for testing</h1>
     <button on:click={() =>demo_clickhandle()}>click me bbbbbbbbbbbbbbbbbbbbbbbbb</button>
-</div>
+</div> -->

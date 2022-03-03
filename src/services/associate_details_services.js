@@ -4,6 +4,7 @@ import {facility_data_store} from '../stores/facility_store';
 let verify_associate_name_link ;
 let station_name;
 let associate_name;
+let fac_id;
 let verify_associate_email_link;
 verify_associate_name_api_link.subscribe(value => {
     verify_associate_name_link = value;
@@ -12,6 +13,7 @@ verify_associate_name_api_link.subscribe(value => {
 facility_data_store.subscribe(value => {
     station_name = value.station_code;
     associate_name = value.facility_name;
+    fac_id = value.facility_id;
 });
 verify_email_name_api_link.subscribe(value => {
     verify_associate_email_link = value;
@@ -28,15 +30,10 @@ const verify_associate_name = () => {
     
     // console.log("store value",facility_data_store.facility_id);
     
-    associate_name = associate_name.replace(/ /g, "_");
-    let fac_id = associate_name + "_" + station_name.toLowerCase();
+    // associate_name = associate_name.replace(/ /g, "_");
+    // let fac_id = associate_name + "_" + station_name.toLowerCase();
     
-    //  facility_data_store.update(f=>({facility_id:fac_id}));
-     let temp;
-    facility_data_store.subscribe(value => {
-        temp = value;
-        console.log(value);
-    });
+    
     
    
     console.log("station code",station_name);
@@ -58,10 +55,23 @@ const verify_associate_email = () =>{
     
 
 }
+const set_facility_id = () =>{
+    if(associate_name != null){
+        associate_name = associate_name.replace(/ /g, "_");
+        let fac_id = associate_name + "_" + station_name.toLowerCase();
+        console.log("inside set_facility_id");
+        return fac_id;
+
+    }
+    
+   
+
+}
 
 export{
     verify_associate_name,
-    verify_associate_email
+    verify_associate_email,
+    set_facility_id
 
 }
  

@@ -2,10 +2,11 @@
     import { goto } from "$app/navigation";
     import {onMount} from 'svelte';
     import {facility_data_store} from '../stores/facility_store';
-    import {verify_associate_name,verify_associate_email} from '../services/associate_details_services';
+    import {verify_associate_name,verify_associate_email,set_facility_id} from '../services/associate_details_services';
     import { DateInput, DatePicker } from 'date-picker-svelte';
     import {get_user_scope_function} from '../services/workdetails_services';
 import { each } from "svelte/internal";
+import {get_date_format} from "../services/date_format_servives";
     
 
   let date = new Date()
@@ -49,12 +50,13 @@ let facility_email_message ="";
 onMount(async () => {
     function get_max_date(){
         let current_date = new Date();
+        console.log("current date",current_date);
         
         console.log("year",parseInt(current_date.getFullYear()));
         let current_year = parseInt(current_date.getFullYear());
         let max_year = current_year - 18;
         console.log("max year",max_year);
-        max_date = new Date(String(max_year+"-"+parseInt(current_date.getMonth())+"-"+parseInt(current_date.getDate())));
+        max_date = new Date(String(max_year+"-"+parseInt(current_date.getMonth()+1)+"-"+parseInt(current_date.getDate())));
         console.log("max date",max_date);
 
     }
@@ -81,6 +83,8 @@ onMount(async () => {
     catch{
 
     }
+    let date_formatter = get_date_format(max_date,"dd-mm-yyyy");
+    console.log("date_formatter",date_formatter);
 
 })
 
@@ -94,7 +98,17 @@ function gotoverifycontactnumber() {
     goto("verifycontactnumber", { replaceState });
 }
 async function verify_facility_name(){
+    /////////////
+    
+    if($facility_data_store.facility_name != null){
+        let res = set_facility_id();
+    console.log("set_facility_id",res);
+    $facility_data_store.facility_id = res;
+
+    }
+    ///////////////////////
     facility_name_message ="";
+
     if($facility_data_store.facility_name != null){
         let verify_name_response = await verify_associate_name();
     console.log("verify_name_response",verify_name_response);
@@ -180,15 +194,47 @@ async function verify_email(){
 
 }
 $:{
+    console.log("inside reactive block");
     $facility_data_store.owner_name = $facility_data_store.facility_name;
+    
+    // let response =set_facility_id();
+    // console.log("response",response);
+    // $facility_data_store.facility_id = response;
+    // let associate_name =$facility_data_store.facility_name
+    // associate_name = associate_name.replace(/ /g, "_");
+    // $facility_data_store.facility_id = associate_name + "_" + $facility_data_store.station_code.toLowerCase()
 }
+// $:{
+//     let demo = $facility_data_store.facility_name;
+//     let res = set_facility_id();
+//     console.log("res",res);
+//     $facility_data_store.facility_id = res;
+// }
 
 $:{
+    console.log("date",date);
     // console.log("reactive blocks");
-    console.log(String(date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate()));
+    let dob_date = date.getDate();
+    // console.log("_____",moment(date, 'YYYY-MM-DD').format("DD/MM/YYYY"))
+    // console.log("_____",date.getDate())
+    console.log(typeof(dob_date)); 
+    if(dob_date < 10){
+        dob_date = "0"+String( dob_date);
+    }
+    console.log("dob_date",dob_date);
+    let dob_month = date.getMonth()+1;
+    console.log(typeof(dob_month));
+    if(dob_month < 10){
+        dob_month = "0"+String( dob_month);
+    }
+    console.log("dob_month",dob_month);
+
+    console.log(String(dob_date+"-"+dob_month+"-"+date.getFullYear()));
     
     //facility_data_store.set({dob: String(date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate())})
-    $facility_data_store.dob = String(date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate());
+    // $facility_data_store.dob = String(date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate());
+    
+    $facility_data_store.dob = String(date.getDate()+"-"+(date.getMonth()+1)+"-"+date.getFullYear());
     
 
 
@@ -409,6 +455,7 @@ async function save_facility(){
                     
                 </div>
                 <div class="flex">
+                    <button on:click|preventDefault={()=>{temp_show_value()}} class="saveandproceed">temp</button>
                     <div class="formGroup ">
                         <label class="formLable ">Email ID </label>
                         <div class="formInnerGroup ">
@@ -614,7 +661,7 @@ async function save_facility(){
                         </div>
                     </div>
                 </div>
-                <button on:click|preventDefault={()=>{temp_show_value()}} class="saveandproceed">temp</button>
+                
 
 
                     

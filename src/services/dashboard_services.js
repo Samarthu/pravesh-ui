@@ -2,6 +2,7 @@ import {request} from './interceptor';
 // import {dashboard_details} from '../stores/dashboard_store'
 
 let demo_api_url = '/api/resource/Organization?fields=["*"]&filters=[["domain","=","Ecom"]]';
+let get_current_user_api_url = '/api/method/pravesh.facility.routes.user.get_session_user';
 // let dashboard_data_url = '/api/method/pravesh.facility.routes.dashboard.get_dashboard_summary';
 const demo_api_fun = () => {
     return request(demo_api_url,{mode: 'no-cors'},true,false,"GET")
@@ -14,6 +15,11 @@ const dashboard_data= () => {
         method: "GET"
     }, true
     )
+}
+
+const get_current_user_function = () => {
+    return request(get_current_user_api_url,{mode: 'no-cors',method:"GET"},true)
+
 }
 
 // const dashboard_data = () =>{
@@ -45,5 +51,6 @@ const dashboard_data= () => {
 
 export{
     demo_api_fun,
-    dashboard_data
+    dashboard_data,
+    get_current_user_function
 }

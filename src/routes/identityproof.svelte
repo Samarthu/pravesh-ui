@@ -1,7 +1,9 @@
 <script>
     import { goto } from "$app/navigation";
-    import {verify_pancard_function,save_facility_function } from "../services/identity_proof_services";
+    import {verify_document_function,save_facility_function,check_bgv_config_function,BGV_function} from "../services/identity_proof_services";
     import {facility_data_store} from '../stores/facility_store';
+    import {facility_id} from '../stores/facility_id_store';
+    // import {}
 
 
 // let routeTo = "identityproof";
@@ -27,11 +29,47 @@ async function verify_pancard(){
     }
     else{
         pan_card_message = "";
-        let identity_proof_response = await verify_pancard_function(pan_card_number);
-        console.log(identity_proof_response);
+        let identity_proof_response = await verify_document_function(pan_card_number);
+        console.log("verify_document_function",identity_proof_response);
     }
 
     }
+
+    // const onFileSelected = (e) => {
+    //     let pdf = e.target.files[0];
+    //     pdf_name = pdf.name;
+    //     // msme_store.set({
+    //     //     file_name: pdf.name
+    //     // });
+    //     // $:msme_store.set({
+    //     //     file_name: pdf.name
+    //     // });
+    //     $msme_store.file_name = pdf.name;
+        
+        
+    //     temp_name= $msme_store.file_name;
+    //     // msme_store.subscribe((value) => {
+    //     //     temp_name = value.file_name;
+    //     // });
+    //     // console.log("store",);
+        
+
+    //     console.log("pdf name",temp_name);
+    //     let reader = new FileReader();
+    //     reader.readAsDataURL(pdf);
+    //     reader.onload = (e) => {
+    //         fileinput = e.target.result;
+    //         // msme_store.set({
+    //         //     pod: e.target.result
+    //         // });
+    //         $msme_store.pod = fileinput;
+    //         let temp;
+    //         msme_store.subscribe((value) => {
+    //             temp = value;
+    //         });
+    //         console.log("store",temp);
+    //     };
+    // };
     
 
 }
@@ -42,9 +80,69 @@ function temp_function(){
     });
     console.log("store value",temp);
 }
+function temp_value_filled(){
+    $facility_data_store.address = [
+		{
+			"location_id": "L1004",
+			"address": "lorem ipsum",
+			"postal": "416009",
+			"address_type": "Present Address",
+			"parentfield": "address",
+			"parenttype": "Facility",
+			"tier": "3"
+		},
+		{
+			"city": "Pune",
+			"address": "lorem bacon",
+			"postal": "416004",
+			"address_type": "Work Address",
+			"parentfield": "address",
+			"parenttype": "Facility",
+			"tier": "3",
+			"state": "Maharashtra"
+		}
+	];
+    $facility_data_store.dob = "02-01-2004";
+    $facility_data_store.facility_email = "testing@nomail.com";
+    $facility_data_store.facility_id = "tejas_bhosale_mhpd";
+    $facility_data_store.facility_name = "tejas bhosale";
+    $facility_data_store.facility_type = "HDA";
+    $facility_data_store.msme_registered = "1";
+    $facility_data_store.org_id = "AN";
+    $facility_data_store.owner_name = "tejas bhosale";
+    $facility_data_store.phone_number = "9890637091";
+    $facility_data_store.station_code = "MHPD";
+    $facility_data_store.store_id = "MHPD";
+    $facility_data_store.store_name = "MHPD00012";
+    $facility_data_store.vendor_code = "MHPD00012";
+    $facility_data_store.vendor_name = "Vitthal Sutar - MHPD00012";
+}
 async function save_facility(){
     let save_facility_response = await save_facility_function();
     console.log(save_facility_response);
+    if(save_facility_response.body.status == "green"){
+        try{
+            $facility_id.facility_id_number = save_facility_response.body.data.name;
+            let temp;
+            facility_id.subscribe(value => {
+                temp = value.facility_id_number;
+                
+            });
+            
+            console.log("facility id",temp);
+            let bgv_config_check_response = await check_bgv_config_function();
+            console.log("bgv_config_check_response",bgv_config_check_response);
+            let BGV_response = await BGV_function();
+            console.log("BGV_response",BGV_response);
+
+        }
+        catch{
+
+        }
+    }
+    else{
+        alert("Facility not created");
+    }
     // gotobankdetails();
 
 }
@@ -253,7 +351,7 @@ async function save_facility(){
                         <div class="formInnerGroup ">
                             <label class="cursor-pointer ">
                                 <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
-                                <input type='file' class="hidden" />
+                                <input type='file' class="hidden" on/>
                             </label>
                             <p class="noteDescription mt-2"><span class="font-medium">Note:</span>
                                 Photo must be clear and in JPG, PNG, or PDF format to process faster
@@ -358,6 +456,7 @@ async function save_facility(){
                     </div>
                 </div>
                 <button on:click|preventDefault={()=>{temp_function()}} class="saveandproceed">Temp</button>
+                <button on:click|preventDefault={()=>{temp_value_filled()}} class="saveandproceed">fill_value</button>
 
 
             </div>
