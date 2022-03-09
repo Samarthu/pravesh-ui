@@ -1,5 +1,9 @@
 <script>
     import { goto } from "$app/navigation";
+    import {verify_ifsc_code_function} from '../services/bank_details_services';
+    import {bank_details} from '../stores/bank_details_store';
+
+    let ifsc_code;
 
     function routeToSuccess(){
         let replaceState = false;
@@ -9,6 +13,13 @@
     function routeToBack(){
         let replaceState = false;
         goto("identityproof", { replaceState });
+    }
+
+    async function verify_ifsc_code(){
+        let verify_ifsc_code_response = await verify_ifsc_code_function();
+        console.log("verify_ifsc_code_response", verify_ifsc_code_response);
+
+
     }
 </script>
 
@@ -179,6 +190,23 @@
         </div>
         <form action="#">
             <div class="formElements">
+
+                <div class="flex">
+                    <div class="formGroup ">
+                        <label class="formLable ">IFSC Code<span
+                                class="mandatoryIcon">*</span></label>
+                                <div class="formInnerGroup ">
+                                    <span class="searchicon">
+                                        <img src="../src/img/bank.png" class="placeholderIcon"
+                                            alt="">
+                                    </span>
+                                    <input type="text" class="inputbox" bind:value={$bank_details.ifsc_code} on:blur={()=> verify_ifsc_code()} >
+                                   
+                                </div>
+                    </div>
+                </div>
+                
+
                 <div class="flex">
                     <div class="formGroup ">
                         <label class="formLable ">Bank Details<span class="mandatoryIcon">*</span></label>
@@ -225,21 +253,8 @@
                                 </div>
                     </div>
                 </div>
-                <div class="flex">
-                    <div class="formGroup ">
-                        <label class="formLable ">IFSC Code<span
-                                class="mandatoryIcon">*</span></label>
-                                <div class="formInnerGroup ">
-                                    <span class="searchicon">
-                                        <img src="../src/img/bank.png" class="placeholderIcon"
-                                            alt="">
-                                    </span>
-                                    <input type="text" class="inputbox">
-                                   
-                                </div>
-                    </div>
-                </div>
-                <div class="flex">
+                
+                <!-- <div class="flex">
                     <div class="formGroup ">
                         <label class="formLable invisible xs:hidden">IFSC Code<span
                                 class="mandatoryIcon">*</span></label>
@@ -250,7 +265,7 @@
                                         <p class="locationText">Pune - East Street</p>
                                 </div>
                     </div>
-                </div>
+                </div> -->
                 <div class="flex">
                     <div class="formGroup ">
                         <label class="formLable ">Bank Type<span class="mandatoryIcon">*</span></label>

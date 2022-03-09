@@ -7,6 +7,7 @@
     import {get_user_scope_function} from '../services/workdetails_services';
 import { each } from "svelte/internal";
 import {get_date_format} from "../services/date_format_servives";
+import { documents_store } from "../stores/document_store";
     
 
   let date = new Date()
@@ -42,6 +43,39 @@ import {get_date_format} from "../services/date_format_servives";
 		"parenttype": "Facility",
 		"tier": "3"
   }
+  let profile_pic_data = {
+    doc_category: "Profile Pic",
+    doc_number: "",
+    doc_type: "fac-photo",
+    file_name: null,
+    pod: null,
+    resource_id: null,
+    status: "created",
+    user_id: null
+
+  }
+  let address_proof_data =  {
+    doc_category: "Address Proof",
+    doc_number: "",
+    doc_type: "addproof-photo",
+    file_name: null,
+    pod: null,
+    resource_id: null,
+    status: "created",
+    user_id: null
+
+  }
+  let present_address_proof_data = {
+    doc_category: "Present Address Proof",
+    doc_number: "",
+    doc_type: "pre-addproof-photo",
+    file_name: null,
+    pod: null,
+    resource_id: null,
+    status: "created",
+    user_id: null
+
+  }
 
 
 let routeTo = "identityproof";
@@ -58,6 +92,7 @@ onMount(async () => {
         console.log("max year",max_year);
         max_date = new Date(String(max_year+"-"+parseInt(current_date.getMonth()+1)+"-"+parseInt(current_date.getDate())));
         console.log("max date",max_date);
+        date = max_date;
 
     }
     get_max_date();
@@ -90,6 +125,11 @@ onMount(async () => {
 
 function gotoidentityproof() {
     save_address_to_store();
+    $documents_store.documents.push(profile_pic_data);
+    $documents_store.documents.push(address_proof_data);
+    $documents_store.documents.push(present_address_proof_data);
+    console.log("document store",$documents_store);
+
     let replaceState = false;
     goto(routeTo, { replaceState });
 }
@@ -133,12 +173,14 @@ async function verify_facility_name(){
 }
 const onFileSelected =(e)=>{
   let image = e.target.files[0];
-  profile_pic_name = image.name;
+//   profile_pic_name = image.name;
+  profile_pic_data.file_name = image.name;
 //   img_name = image.name;
   let reader = new FileReader();
     reader.readAsDataURL(image);
     reader.onload = e => {
-            profile_pic = e.target.result;
+            // profile_pic = e.target.result;
+            profile_pic_data.pod = e.target.result;
             console.log("profile_pic",profile_pic);
         };
         
@@ -146,10 +188,12 @@ const onFileSelected =(e)=>{
 const onadders_prrof =(e) =>{
     let image = e.target.files[0];
     address_proof_copy_name = image.name;
+    address_proof_data.file_name = image.name;
     let reader = new FileReader();
     reader.readAsDataURL(image);
     reader.onload = e => {
             address_proof_copy = e.target.result;
+            address_proof_data.pod = e.target.result;
             console.log("address_proof_copy",address_proof_copy);
         };
     
@@ -167,10 +211,12 @@ function temp_show_value(){
 const onpresent_address_proof =(e) =>{
     let image = e.target.files[0];
     present_address_proof_copy_name  = image.name;
+    present_address_proof_data.file_name = image.name;
     let reader = new FileReader();
     reader.readAsDataURL(image);
     reader.onload = e => {
             present_address_proof_copy = e.target.result;
+            present_address_proof_data.pod = e.target.result;
             console.log("present_address_proof_copy",present_address_proof_copy);
         };
 
@@ -498,8 +544,8 @@ async function save_facility(){
                                 <label class="cursor-pointer ">
                                     <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
                                     <input type='file' class="hidden" accept=".jpg, .jpeg, .png" on:change={(e)=>onFileSelected(e)} bind:this={fileinput} />
-                                    {#if profile_pic_name}
-                                    {profile_pic_name}
+                                    {#if profile_pic_data.file_name}
+                                    {profile_pic_data.file_name}
                                     {/if}
                                 </label>
                             </span>
@@ -561,8 +607,8 @@ async function save_facility(){
                             <label class="cursor-pointer ">
                                 <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
                                 <input type='file' class="hidden" accept=".jpg, .jpeg, .png" on:change={(e)=>onadders_prrof(e)} bind:this={fileinput} />
-                                {#if address_proof_copy_name}
-                                {address_proof_copy_name}
+                                {#if address_proof_data.file_name}
+                                {address_proof_data.file_name}
                                 {/if}
                             </label>
                         </div>
@@ -654,8 +700,8 @@ async function save_facility(){
                             <label class="cursor-pointer ">
                                 <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
                                 <input type='file' class="hidden" accept=".jpg, .jpeg, .png" on:change={(e)=>onpresent_address_proof(e)} bind:this={fileinput} />
-                                {#if present_address_proof_copy_name}
-                                {present_address_proof_copy_name}
+                                {#if present_address_proof_data.file_name}
+                                {present_address_proof_data.file_name}
                                 {/if}
                             </label>
                         </div>

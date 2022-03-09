@@ -1,4 +1,9 @@
 import { writable,derived } from 'svelte/store';
+// import {current_user} from './current_user_store';
+// let user_id_value;
+// current_user.subscribe(value => {
+//     user_id_value = value.email;
+// })
 
 export const msme_store = writable( {
     
@@ -12,3 +17,7 @@ export const msme_store = writable( {
     user_id: null
        
     });
+
+export const documents_store = writable({
+    documents:[]
+});

@@ -10,7 +10,7 @@
     import { station_type_name } from "../stores/station_store";
     import { facility_data_store } from "../stores/facility_store";
     import { get_facility_type_link } from "../stores/facility_store";
-    import { msme_store } from "../stores/document_store";
+    import { msme_store,documents_store } from "../stores/document_store";
     import { current_user } from "../stores/current_user_store";
     import { get_current_user_function } from "../services/dashboard_services";
     
@@ -34,9 +34,23 @@
     let msme_agreement = false;
 
     let routeTo = "";
+    let msme_data = {
+    doc_category: "MSME Certificate",
+    doc_number: "",
+    doc_type: "msme-certi",
+    file_name: null,
+    pod: null,
+    resource_id: null,
+    status: "created",
+    user_id: null
+    }
 
     function route() {
+        $documents_store.documents.push(msme_data);
+        console.log("msme_data",$documents_store);
+
         let replaceState = false;
+
         goto(routeTo, { replaceState });
     }
 
@@ -129,18 +143,9 @@
         console.log("vendor list", vendor_list_response);
         
     });
-    async function get_session_user() {
-        console.log("inside get session user");
-        console.log(msme_agreement);
-        console.log(typeof msme_agreement);
-        //TODO: Possible bug in sveltekit where the value is not being reversed.
-        if (msme_agreement == false) {
-            console.log(
-                "inside msme agreement if statement",
-            );
-            if ($current_user.email == null) {
-                console.log("inside  $current_user.email if statement");
-                let current_user_response = await get_current_user_function();
+    async function  get_current_user(){
+        console.log("inside get_current_user");
+        let current_user_response = await get_current_user_function();
                 console.log("current_user_response", current_user_response);
                 if (current_user_response.body.status == "green") {
                     console.log("inside current_user_response if statement");
@@ -154,6 +159,21 @@
                 else{
                     alert("Session user not found error!")
                 }
+
+    }
+    async function get_session_user() {
+        console.log("inside get session user");
+        console.log(msme_agreement);
+        console.log(typeof msme_agreement);
+        //TODO: Possible bug in sveltekit where the value is not being reversed.
+        if (msme_agreement == false) {
+            // console.log(
+            //     "inside msme agreement if statement",
+            // );
+            if ($current_user.email == null) {
+                // console.log("inside  $current_user.email if statement");
+                get_current_user();
+                
                 
                 // console.log("current on",$facility_data_store.non_msme_confirmed_on);
 
@@ -265,6 +285,8 @@
     let avatar;
 
     const onFileSelected = (e) => {
+        var cookie_data = document.cookie;
+        console.log("cookie data", cookie_data);
         let pdf = e.target.files[0];
         pdf_name = pdf.name;
         // msme_store.set({
@@ -274,6 +296,7 @@
         //     file_name: pdf.name
         // });
         $msme_store.file_name = pdf.name;
+        msme_data.file_name = pdf.name;
 
         temp_name = $msme_store.file_name;
         // msme_store.subscribe((value) => {
@@ -290,11 +313,23 @@
             //     pod: e.target.result
             // });
             $msme_store.pod = fileinput;
+            msme_data.pod = fileinput;
+            if(
+                $current_user.email == null
+            ){
+                console.log("inside if statement file upload");
+                get_current_user();
+            }
+            $msme_store.user_id = $current_user.email;
+            msme_data.user_id = $current_user.email;
             let temp;
             msme_store.subscribe((value) => {
                 temp = value;
             });
             console.log("store", temp);
+            console.log("msme store user id", msme_data);
+            let temp_current = $current_user;
+            console.log("current user", temp_current);
         };
     };
     //     function open_pdf_window(base_64_string){

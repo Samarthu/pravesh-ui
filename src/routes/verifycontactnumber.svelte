@@ -1,6 +1,8 @@
 <script>
     import { goto } from "$app/navigation";
     import {facility_data_store} from '../stores/facility_store';
+    import { current_user } from "../stores/current_user_store";
+    import { msme_store,documents_store } from "../stores/document_store";
     import {verify_mobile_number_function,send_mobile_number_otp,verify_mobile_number_otp} from '../services/contact_number_services';
 
 
@@ -79,6 +81,23 @@ function temp_function(){
         temp = value;
     });
     console.log("facility data store",temp);
+    let temp_current;
+    current_user.subscribe(value =>{
+        temp_current = value.email;
+    });
+    console.log("current user",temp_current);
+    let temp_msme ;
+    msme_store.subscribe(value =>{
+        temp_msme = value;
+    });
+    console.log("msme store",temp_msme);
+    let temp_documents;
+    documents_store.subscribe(value =>{
+        temp_documents = value;
+    });
+    console.log("documents store",temp_documents);
+
+
 
    
 }
