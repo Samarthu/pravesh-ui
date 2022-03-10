@@ -1202,6 +1202,11 @@
     @apply border rounded p-2 px-4 hover:bg-bglightbluecolor cursor-pointer transition duration-500 ease-in-out  transform hover:-translate-y-1 hover:scale-100
 }
 
+.formGroupnote{
+    @apply w-full flex mb-0 pr-0 md:pr-4 items-center  xs:flex-wrap sm:flex-wrap
+}
+
+
 
 
 

@@ -11,6 +11,7 @@
     let re_account_number_message = "";
     let pincode_message = "";
     var acc_number_check = /^[0-9]*$/;
+
     let blank_cheque_data = {
         doc_category: "Blank Cheque",
         doc_number: null,
@@ -22,14 +23,36 @@
         status: "created",
         user_id: null
     }
-    let passbook_data = {doc_category: "Passbook",
-doc_type: "passbook",
-facility_id: "testing_for_documents_mhae",
-file_name: "MyBike Employee Assistance Scheme 22nd Dec.pdf",
-pod: null,
-resource_id: null,
-status: "created",
-user_id: null}
+    let passbook_data = {
+        doc_category: "Passbook",
+        doc_type: "passbook",
+        facility_id: null,
+        file_name: null,
+        pod: null,
+        resource_id: null,
+        status: "created",
+        user_id: null
+    }
+    let Cancel_cheque_data = {
+        doc_category: "Cancel Cheque",
+        doc_type: "can-cheque",
+        facility_id: null,
+        file_name: null,
+        pod: null,
+        resource_id: null,
+        status: "created",
+        user_id: null
+    }
+    let account_statement_data = {
+        doc_category: "Account Statement",
+        doc_type: "acc-stat",
+        facility_id: null,
+        file_name: null,
+        pod: null,
+        resource_id: null,
+        status: "created",
+        user_id: null,
+    }
     onMount(async () =>{
         // let temp_res = await fetch("https://elasticrun.in/ifscapi/KARB0000001")
         // console.log("temp_res",temp_res)
@@ -140,6 +163,45 @@ user_id: null}
             
             blank_cheque_data.pod = e.target.result;
             console.log("blank cheque data",blank_cheque_data);
+        };
+
+}
+const on_passbook_upload =(e) =>{
+    let image = e.target.files[0];
+    
+    passbook_data.file_name = image.name;
+    let reader = new FileReader();
+    reader.readAsDataURL(image);
+    reader.onload = e => {
+            
+            passbook_data.pod = e.target.result;
+            console.log("passbook data",passbook_data);
+        };
+
+}
+const on_cancle_cheque_upload =(e) =>{
+    let image = e.target.files[0];
+    
+    Cancel_cheque_data.file_name = image.name;
+    let reader = new FileReader();
+    reader.readAsDataURL(image);
+    reader.onload = e => {
+            
+            Cancel_cheque_data.pod = e.target.result;
+            console.log("Cancel_cheque_data",Cancel_cheque_data);
+        };
+
+}
+const on_account_statement_upload =(e) =>{
+    let image = e.target.files[0];
+    
+    account_statement_data.file_name = image.name;
+    let reader = new FileReader();
+    reader.readAsDataURL(image);
+    reader.onload = e => {
+            
+            account_statement_data.pod = e.target.result;
+            console.log("account_statement_data",account_statement_data);
         };
 
 }
@@ -314,44 +376,67 @@ user_id: null}
             <div class="formElements">
 
                 <div class="flex">
-                    <div class="formGroup ">
-                        <label class="formLable ">IFSC Code<span
-                                class="mandatoryIcon">*</span></label>
-                                <div class="formInnerGroup ">
-                                    <span class="searchicon">
-                                        <img src="../src/img/bank.png" class="placeholderIcon"
-                                            alt="">
-                                    </span>
-                                    <input type="text" class="inputbox" bind:value={$bank_details.ifsc_code} on:blur={()=> verify_ifsc_code()} >
-                                    <p class="noteDescription"><span class="font-medium">Note:</span>
-                                        Do not add white space </p>
-                                    <div class="text-red-500">
-                                        {ifsc_code_message}
-                                    </div>
-                                   
-                                </div>
+                    <div class="formGroupnote ">
+                        <label class="formLable "
+                            >IFSC Code<span class="mandatoryIcon"
+                                >*</span
+                            ></label
+                        >
+                        <div class="formInnerGroup ">
+                            <span class="searchicon">
+                                <img
+                                    src="../src/img/bank.png"
+                                    class="placeholderIcon"
+                                    alt=""
+                                />
+                            </span>
+                            <input
+                                type="text"
+                                class="inputbox"
+                                bind:value={$bank_details.ifsc_code}
+                                on:blur={() => verify_ifsc_code()}
+                            />
+                            
+                        </div>
                     </div>
                 </div>
+                <div class="flex">
+                    <div class="formGroup ">
+                        <label class="formLable invisible" ></label>
+                        <div class="formInnerGroup mt-2">
+                           
+                            <p class="noteDescription">
+                                <span class="font-medium">Note:</span>
+                                Do not add white space
+                            </p>
+                            <div class="text-red-500 text-xs">
+                                {ifsc_code_message}
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                </div>    
                 {#if $bank_details.bank_name}
                 <div >
                     <div class="formGroup ">
                         <label class="formLable invisible xs:hidden"></label>
                                 <div class="grid md:grid-cols-3 gap-4 formInnerGroup ">
                                     <div  >
-                                        <p class="branchText ">Branch</p>
-                                        <p class="locationText">Pune - East Street</p>
+                                        <p class="branchText ">Bank Name</p>
+                                        <p class="locationText">{$bank_details.bank_name}</p>
 
 
                                     </div>
                                     <div >
                                         <p class="branchText ">Branch</p>
-                                        <p class="locationText">Pune - East Street</p>
+                                        <p class="locationText">{$bank_details.branch_name}</p>
 
 
                                     </div>
                                     <div >
-                                        <p class="branchText ">Branch</p>
-                                        <p class="locationText">Pune - East Street</p>
+                                        <p class="branchText ">Branch City</p>
+                                        <p class="locationText">{$bank_details.branch_city}</p>
 
 
                                     </div>
@@ -384,37 +469,81 @@ user_id: null}
                     </div>
                 </div> -->
                 <div class="flex">
-                    <div class="formGroup ">
-                        <label class="formLable ">Account Number<span
-                                class="mandatoryIcon">*</span></label>
-                                <div class="formInnerGroup ">
-                                    <span class="searchicon">
-                                        <img src="../src/img/account.png" class="placeholderIcon"
-                                            alt="">
-                                    </span>
-                                    <input type="text" class="inputbox" bind:value={$bank_details.account_number} on:blur={()=> verify_account_number()} >
-                                    <div class="text-red-500">
-                                        {account_number_message}
-                                    </div>
-                                </div>
+                    <div class="formGroupnote ">
+                        <label class="formLable "
+                            >Account Number<span class="mandatoryIcon"
+                                >*</span
+                            ></label
+                        >
+                        <div class="formInnerGroup ">
+                            <span class="searchicon">
+                                <img
+                                    src="../src/img/account.png"
+                                    class="placeholderIcon"
+                                    alt=""
+                                />
+                            </span>
+                            <input
+                                type="text"
+                                class="inputbox"
+                                bind:value={$bank_details.account_number}
+                                on:blur={() => verify_account_number()}
+                            />
+                           
+                        </div>
                     </div>
                 </div>
                 <div class="flex">
                     <div class="formGroup ">
-                        <label class="formLable ">Confirm Account Number <span
-                                class="mandatoryIcon">*</span></label>
-                                <div class="formInnerGroup ">
-                                    <span class="searchicon">
-                                        <img src="../src/img/account.png" class="placeholderIcon"
-                                            alt="">
-                                    </span>
-                                    <input type="text" class="inputbox" bind:value={$bank_details.re_enter_account_number} on:blur={() => verify_re_account_number()}>
-                                    <div class="text-red-500">
-                                        {re_account_number_message}
-                                    </div>
-                                </div>
+                        <label class="formLable invisible" ></label>
+                        <div class="formInnerGroup mt-1">
+                            <div class="text-red-500 text-xs">
+                                {account_number_message}
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                </div>  
+                <div class="flex">
+                    <div class="formGroupnote ">
+                        <label class="formLable "
+                            >Confirm Account Number <span
+                                class="mandatoryIcon">*</span
+                            ></label
+                        >
+                        <div class="formInnerGroup ">
+                            <span class="searchicon">
+                                <img
+                                    src="../src/img/account.png"
+                                    class="placeholderIcon"
+                                    alt=""
+                                />
+                            </span>
+                            <input
+                                type="text"
+                                class="inputbox"
+                                bind:value={$bank_details.re_enter_account_number}
+                                on:blur={() =>
+                                    verify_re_account_number()}
+                            />
+                          
+                        </div>
                     </div>
                 </div>
+                <div class="flex">
+                    <div class="formGroup ">
+                        <label class="formLable invisible" ></label>
+                        <div class="formInnerGroup mt-1">
+                            <div class="text-red-500 text-xs">
+                                {re_account_number_message}
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                </div> 
+
                 
                 <!-- <div class="flex">
                     <div class="formGroup ">
@@ -448,22 +577,42 @@ user_id: null}
                     </div>
                 </div>
                 <div class="flex">
-                    <div class="formGroup ">
-                        <label class="formLable ">Branch pincode<span
-                                class="mandatoryIcon">*</span></label>
-                                <div class="formInnerGroup ">
-                                    <span class="searchicon">
-                                        <img src="../src/img/bank.png" class="placeholderIcon"
-                                            alt="">
-                                    </span>
-                                    <input type="text" class="inputbox" bind:value={$bank_details.branch_pin_code} on:blur={() => verify_pincode()}>
-                                    <div class="text-red-500">
-                                        {pincode_message}
-                                    </div>
-                                   
-                                </div>
+                    <div class="formGroupnote ">
+                        <label class="formLable "
+                            >Branch pincode<span class="mandatoryIcon"
+                                >*</span
+                            ></label
+                        >
+                        <div class="formInnerGroup ">
+                            <span class="searchicon">
+                                <img
+                                    src="../src/img/bank.png"
+                                    class="placeholderIcon"
+                                    alt=""
+                                />
+                            </span>
+                            <input
+                                type="text"
+                                class="inputbox"
+                                bind:value={$bank_details.branch_pin_code}
+                                on:blur={() => verify_pincode()}
+                            />
+                           
+                        </div>
                     </div>
                 </div>
+                <div class="flex">
+                    <div class="formGroup ">
+                        <label class="formLable invisible" ></label>
+                        <div class="formInnerGroup mt-1">
+                            <div class="text-red-500 text-xs">
+                                {pincode_message}
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                </div> 
                 
                 <div class="flex">
                     <div class="formGroup ">
@@ -488,8 +637,12 @@ user_id: null}
                                 <div class="formInnerGroup ">
                                     <label class="cursor-pointer">
                                         <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
-                                        <input type='file' class="hidden" />
+                                        <input type='file' class="hidden"  accept=".jpg, .jpeg, .png" on:change={(e)=>on_passbook_upload(e)}  />
                                     </label>
+                                    {#if passbook_data.file_name}
+                                    {passbook_data.file_name}
+                                        
+                                    {/if}
                                     
                                    
                                 </div>
@@ -501,8 +654,12 @@ user_id: null}
                                 <div class="formInnerGroup ">
                                     <label class="cursor-pointer">
                                         <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
-                                        <input type='file' class="hidden" />
+                                        <input type='file' class="hidden"  accept=".jpg, .jpeg, .png" on:change={(e)=>on_cancle_cheque_upload(e)}  />
                                     </label>
+                                    {#if Cancel_cheque_data.file_name}
+                                    {Cancel_cheque_data.file_name}
+                                        
+                                    {/if}
                                     
                                    
                                 </div>
@@ -514,7 +671,11 @@ user_id: null}
                                 <div class="formInnerGroup ">
                                     <label class="cursor-pointer">
                                         <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
-                                        <input type='file' class="hidden" />
+                                        <input type='file' class="hidden"  accept=".jpg, .jpeg, .png" on:change={(e)=>on_account_statement_upload(e)}  />
+                                        {#if account_statement_data.file_name}
+                                    {account_statement_data.file_name}
+                                        
+                                    {/if}
                                     </label>
                                     
                                     
