@@ -5,10 +5,12 @@ let ifsc_verify_api_url ;
 
 
 
-const verify_ifsc_code_function = () => {
+ const verify_ifsc_code_function = () => {
     verify_ifsc_code_api_url.subscribe(value => {
         ifsc_verify_api_url = value;
     })
+    // return fetch("https://elasticrun.in/ifscapi/KARB0000001")
+    
     // let ifsc_code;
     // bank_details.subscribe(value => {
     //     ifsc_code = value.ifsc_code;
@@ -17,8 +19,11 @@ const verify_ifsc_code_function = () => {
     
     
 
-    return request(ifsc_verify_api_url,{mode: 'no-cors'},true,false,"GET")
+    // return request(ifsc_verify_api_url,{mode: 'no-cors'},true,false,"GET")
     // return fetch(ifsc_verify_api_url)
+    // return await fetch("https://elasticrun.in/ifscapi/KARB0000001")
+    return request("https://elasticrun.in/ifscapi/KARB0000001",{mode: 'no-cors'},true,false,"GET")
+    
 }
 
 export{

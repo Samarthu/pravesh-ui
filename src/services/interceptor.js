@@ -228,7 +228,7 @@
 //   };
 export const handleResponse = async (response) =>{
   // console.log( await response.text(),"response"  );
-  // console.log("response",response);
+  console.log("response",response);
   // let temp = await response.text();
   // console.log("temp",temp);
   
@@ -262,9 +262,10 @@ export function request(
     options = {
       headers: {
         "Content-Type": "application/json;charset=utf-8",
-        "dataType" : 'json',
+        // "dataType" : 'json',
         "Contains-Array" : 'true',
-        "Accept": "application/json",
+        // "Accept": "application/json",
+        "accept": "application/json"
         
         // "Access-Control-Allow-Origin": "https://elasticrun.in",
         // "Access-Control-Allow-Origin":" *"

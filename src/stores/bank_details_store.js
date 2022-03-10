@@ -17,3 +17,6 @@ re_enter_account_number: null
 
 export const verify_ifsc_code_api_url = derived(bank_details,
     $bank_details =>'https://elasticrun.in/ifscapi/'+$bank_details.ifsc_code);
+
+    // export const verify_ifsc_code_api_url = derived(bank_details,
+    //     $bank_details =>'https://ifsc.razorpay.com/'+$bank_details.ifsc_code);

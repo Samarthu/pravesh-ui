@@ -1,9 +1,42 @@
 <script>
     import { goto } from "$app/navigation";
+    import {onMount} from 'svelte';
     import {verify_ifsc_code_function} from '../services/bank_details_services';
     import {bank_details} from '../stores/bank_details_store';
+    import {verify_ifsc_code_api_url} from '../stores/bank_details_store';
 
     let ifsc_code;
+    let ifsc_code_message = "";
+    let account_number_message = "";
+    let re_account_number_message = "";
+    let pincode_message = "";
+    var acc_number_check = /^[0-9]*$/;
+    let blank_cheque_data = {
+        doc_category: "Blank Cheque",
+        doc_number: null,
+        doc_type: "blcheque",
+        facility_id: null,
+        file_name: null,
+        pod: null,
+        resource_id: null,
+        status: "created",
+        user_id: null
+    }
+    let passbook_data = {doc_category: "Passbook",
+doc_type: "passbook",
+facility_id: "testing_for_documents_mhae",
+file_name: "MyBike Employee Assistance Scheme 22nd Dec.pdf",
+pod: null,
+resource_id: null,
+status: "created",
+user_id: null}
+    onMount(async () =>{
+        // let temp_res = await fetch("https://elasticrun.in/ifscapi/KARB0000001")
+        // console.log("temp_res",temp_res)
+        // let result = await temp_res.json();
+        // console.log("TEMP RESULT",result)
+
+    })
 
     function routeToSuccess(){
         let replaceState = false;
@@ -15,12 +48,101 @@
         goto("identityproof", { replaceState });
     }
 
+    function verify_account_number(){
+        
+            if(!$bank_details.account_number.match(acc_number_check)){
+                account_number_message = "Please enter a valid account number";
+                
+            }
+            else{
+                account_number_message = "";
+                
+            }
+        
+    }
+
+    function verify_re_account_number(){
+        
+            if(!$bank_details.re_enter_account_number.match(acc_number_check)){
+                re_account_number_message = "Please enter a valid account number";
+                
+            }
+            else if($bank_details.account_number != $bank_details.re_enter_account_number){
+                re_account_number_message = "Account number does not match";
+                
+            }
+            
+            else{
+                re_account_number_message = "";
+                
+            }
+        
+    }
+    function verify_pincode(){
+        if(!$bank_details.branch_pin_code.match(acc_number_check)){
+            pincode_message = "Please enter a valid pincode";
+            
+        }
+        else{
+            pincode_message = "";
+            
+        }
+    }
+
+    
+
+
+   
+
     async function verify_ifsc_code(){
-        let verify_ifsc_code_response = await verify_ifsc_code_function();
-        console.log("verify_ifsc_code_response", verify_ifsc_code_response);
+        // let verify_ifsc_code_response = await verify_ifsc_code_function();
+        // console.log("verify_ifsc_code_response", verify_ifsc_code_response);
+        // let temp = await verify_ifsc_code_response.json();
+        // console.log("temp", temp);
+        if($bank_details.ifsc_code != null){
+            console.log("ifsc_api", $verify_ifsc_code_api_url);
+        let temp_res = await fetch($verify_ifsc_code_api_url)
+        console.log("temp_res",temp_res.status)
+        if(temp_res.status == 404){
+
+            ifsc_code_message = "Invalid IFSC Code";
+        }
+        else if(temp_res.status == 200){
+            let result = await temp_res.json();
+            console.log("TEMP RESULT",result);
+
+            ifsc_code_message = "";
+            $bank_details.bank_name = result.BANK;
+            $bank_details.branch_city = result.CITY;
+            $bank_details.branch_name =  result.BRANCH;
+        }
+        else{
+            alert("Something went wrong!");
+        }
+        
+        // console.log("TEMP RESULT",result);
+        console.log("bank_details", $bank_details);
+
+        }
+        
+        // console.log("status code",result);
+
 
 
     }
+    const on_blank_cheque_upload =(e) =>{
+    let image = e.target.files[0];
+    
+    blank_cheque_data.file_name = image.name;
+    let reader = new FileReader();
+    reader.readAsDataURL(image);
+    reader.onload = e => {
+            
+            blank_cheque_data.pod = e.target.result;
+            console.log("blank cheque data",blank_cheque_data);
+        };
+
+}
 </script>
 
 <div class="mainContent ">
@@ -201,13 +323,47 @@
                                             alt="">
                                     </span>
                                     <input type="text" class="inputbox" bind:value={$bank_details.ifsc_code} on:blur={()=> verify_ifsc_code()} >
+                                    <p class="noteDescription"><span class="font-medium">Note:</span>
+                                        Do not add white space </p>
+                                    <div class="text-red-500">
+                                        {ifsc_code_message}
+                                    </div>
                                    
                                 </div>
                     </div>
                 </div>
+                {#if $bank_details.bank_name}
+                <div >
+                    <div class="formGroup ">
+                        <label class="formLable invisible xs:hidden"></label>
+                                <div class="grid md:grid-cols-3 gap-4 formInnerGroup ">
+                                    <div  >
+                                        <p class="branchText ">Branch</p>
+                                        <p class="locationText">Pune - East Street</p>
+
+
+                                    </div>
+                                    <div >
+                                        <p class="branchText ">Branch</p>
+                                        <p class="locationText">Pune - East Street</p>
+
+
+                                    </div>
+                                    <div >
+                                        <p class="branchText ">Branch</p>
+                                        <p class="locationText">Pune - East Street</p>
+
+
+                                    </div>
+                                   
+                                        
+                                </div>
+                    </div>
+                </div>
+                {/if}
                 
 
-                <div class="flex">
+                <!-- <div class="flex">
                     <div class="formGroup ">
                         <label class="formLable ">Bank Details<span class="mandatoryIcon">*</span></label>
                         <div class="formInnerGroup ">
@@ -226,7 +382,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> -->
                 <div class="flex">
                     <div class="formGroup ">
                         <label class="formLable ">Account Number<span
@@ -236,7 +392,10 @@
                                         <img src="../src/img/account.png" class="placeholderIcon"
                                             alt="">
                                     </span>
-                                    <input type="text" class="inputbox">
+                                    <input type="text" class="inputbox" bind:value={$bank_details.account_number} on:blur={()=> verify_account_number()} >
+                                    <div class="text-red-500">
+                                        {account_number_message}
+                                    </div>
                                 </div>
                     </div>
                 </div>
@@ -249,7 +408,10 @@
                                         <img src="../src/img/account.png" class="placeholderIcon"
                                             alt="">
                                     </span>
-                                    <input type="text" class="inputbox">
+                                    <input type="text" class="inputbox" bind:value={$bank_details.re_enter_account_number} on:blur={() => verify_re_account_number()}>
+                                    <div class="text-red-500">
+                                        {re_account_number_message}
+                                    </div>
                                 </div>
                     </div>
                 </div>
@@ -274,10 +436,10 @@
                                 <img src="../src/img/bank.png" class="placeholderIcon"
                                     alt="">
                             </span>
-                            <select class="inputbox" aria-placeholder="Select Type">
-                                <option class="pt-6">Select Type</option>
-                                <option>Co-Operative Bank</option>
-                                <option>Nationalised Bank</option>
+                            <select class="inputbox" aria-placeholder="Select Type" bind:value={$bank_details.bank_type}>
+                                <!-- <option class="pt-6" >Select Type</option> -->
+                                <option value="Co-Operative Bank">Co-Operative Bank</option>
+                                <option value="Nationalised Bank">Nationalised Bank</option>
                             </select>
                             <div class="formSelectArrow ">
                                 <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
@@ -294,13 +456,83 @@
                                         <img src="../src/img/bank.png" class="placeholderIcon"
                                             alt="">
                                     </span>
-                                    <input type="text" class="inputbox">
+                                    <input type="text" class="inputbox" bind:value={$bank_details.branch_pin_code} on:blur={() => verify_pincode()}>
+                                    <div class="text-red-500">
+                                        {pincode_message}
+                                    </div>
                                    
                                 </div>
                     </div>
                 </div>
+                
+                <div class="flex">
+                    <div class="formGroup ">
+                        <label class="formLable ">Upload Blank Cheque Copy</label>
+                                <div class="formInnerGroup ">
+                                    <label class="cursor-pointer">
+                                        <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
+                                        <input type='file' class="hidden"  accept=".jpg, .jpeg, .png" on:change={(e)=>on_blank_cheque_upload(e)}  />
+                                    </label>
+                                    {#if blank_cheque_data.file_name}
+                                    {blank_cheque_data.file_name}
+                                        
+                                    {/if}
+                                    
+                                   
+                                </div>
+                    </div>
+                </div>
+                <div class="flex">
+                    <div class="formGroup ">
+                        <label class="formLable ">Passbook</label>
+                                <div class="formInnerGroup ">
+                                    <label class="cursor-pointer">
+                                        <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
+                                        <input type='file' class="hidden" />
+                                    </label>
+                                    
+                                   
+                                </div>
+                    </div>
+                </div>
+                <div class="flex">
+                    <div class="formGroup ">
+                        <label class="formLable ">Cancel Cheque</label>
+                                <div class="formInnerGroup ">
+                                    <label class="cursor-pointer">
+                                        <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
+                                        <input type='file' class="hidden" />
+                                    </label>
+                                    
+                                   
+                                </div>
+                    </div>
+                </div>
+                <div class="flex">
+                    <div class="formGroup ">
+                        <label class="formLable ">Account Statement</label>
+                                <div class="formInnerGroup ">
+                                    <label class="cursor-pointer">
+                                        <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
+                                        <input type='file' class="hidden" />
+                                    </label>
+                                    
+                                    
+                                   
+                                </div>
+                    </div>
+                </div>
+                <div class="flex">
+                    <div class="formGroup ">
+                        <p class="noteDescription mt-2 "><span class="font-medium">Note:</span>
+                            Photo must be clear and in JPG, PNG, or PDF format to process faster verification</p>
+                        
 
-                <div class="flex mt-2">
+                    </div>
+                    
+                </div>
+
+                <!-- <div class="flex mt-2">
                     <div class="formGroupBaseLine ">
                         <label class="formLable">Bank Document<span
                                 class="mandatoryIcon">*</span></label>
@@ -316,7 +548,7 @@
                                        </div>
 
                                        <div class="flex items-center mr-4 mt-2">
-                                        <input id="radio1" type="radio" name="radio" class="hidden" checked />
+                                        <input id="radio1" type="radio"  name="radio" class="hidden" checked />
                                         <label for="radio1" class="radioLable">
                                          <span class="radioCirle"></span>
                                          Passbook</label>
@@ -337,7 +569,7 @@
                                     Photo must be clear and in JPG, PNG, or PDF format to process faster verification</p>
                                 </div>
                     </div>
-                </div>
+                </div> -->
 
              
 
