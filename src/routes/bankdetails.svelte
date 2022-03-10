@@ -1,16 +1,23 @@
 <script>
     import { goto } from "$app/navigation";
+import { facility_id } from "../stores/facility_id_store";
     import {onMount} from 'svelte';
-    import {verify_ifsc_code_function} from '../services/bank_details_services';
+    import {verify_ifsc_code_function,save_bank_details_function} from '../services/bank_details_services';
     import {bank_details} from '../stores/bank_details_store';
     import {verify_ifsc_code_api_url} from '../stores/bank_details_store';
+    import {current_user} from '../stores/current_user_store';
+import { facility_data_store } from "../stores/facility_store";
+// import {facility_id} from '../stores/facility_id_store';
 
     let ifsc_code;
     let ifsc_code_message = "";
     let account_number_message = "";
     let re_account_number_message = "";
     let pincode_message = "";
+    let account_holder_message = "";
     var acc_number_check = /^[0-9]*$/;
+    var ifsc_code_check = /^[A-Za-z]{4}\d{7}$/;
+    var account_holder_check = /^\w+$/gm;
 
     let blank_cheque_data = {
         doc_category: "Blank Cheque",
@@ -62,8 +69,9 @@
     })
 
     function routeToSuccess(){
-        let replaceState = false;
-        goto("successpopup", { replaceState });
+        save_bank_details();
+        // let replaceState = false;
+        // goto("successpopup", { replaceState });
     }
 
     function routeToBack(){
@@ -111,6 +119,17 @@
             
         }
     }
+    function verify_account_holder(){
+        if(!$bank_details.account_holder.match(account_holder_check)){
+            account_holder_message = "Please enter a valid account holder name";
+            
+        }
+        else{
+            account_holder_message = "";
+            
+        }
+
+    }
 
     
 
@@ -122,13 +141,29 @@
         // console.log("verify_ifsc_code_response", verify_ifsc_code_response);
         // let temp = await verify_ifsc_code_response.json();
         // console.log("temp", temp);
-        if($bank_details.ifsc_code != null){
+        if(!$bank_details.ifsc_code.match(ifsc_code_check)){
+            ifsc_code_message = "Please enter a valid IFSC code";
+            $bank_details.bank_name = null;
+            $bank_details.branch_city = null;
+            $bank_details.branch_name =  null;
+            console.log("bank details", $bank_details);
+            
+        }
+        else{
+            ifsc_code_message = "";
+            console.log("ifsc code", $bank_details.ifsc_code);
+        if($bank_details.ifsc_code != null || $bank_details.ifsc_code != ""){
             console.log("ifsc_api", $verify_ifsc_code_api_url);
         let temp_res = await fetch($verify_ifsc_code_api_url)
         console.log("temp_res",temp_res.status)
         if(temp_res.status == 404){
 
             ifsc_code_message = "Invalid IFSC Code";
+            $bank_details.bank_name = null;
+            $bank_details.branch_city = null;
+            $bank_details.branch_name =  null;
+            console.log("bank details", $bank_details);
+
         }
         else if(temp_res.status == 200){
             let result = await temp_res.json();
@@ -148,6 +183,10 @@
 
         }
         
+
+            
+        }
+        
         // console.log("status code",result);
 
 
@@ -157,6 +196,7 @@
     let image = e.target.files[0];
     
     blank_cheque_data.file_name = image.name;
+    blank_cheque_data.doc_number = $bank_details.account_number;
     let reader = new FileReader();
     reader.readAsDataURL(image);
     reader.onload = e => {
@@ -205,6 +245,66 @@ const on_account_statement_upload =(e) =>{
         };
 
 }
+async function save_bank_details(){
+    $bank_details.facility_id = "MHPD01271";
+    $facility_data_store.facility_id = "tejas_testing_mhpd";
+    $current_user.username = "tejas";
+    $facility_id.facility_id_number = "MHPD01271";
+
+    
+    if(blank_cheque_data.file_name != null){
+    blank_cheque_data.facility_id = $facility_data_store.facility_id;
+    blank_cheque_data.user_id = $current_user.username;
+    blank_cheque_data.resource_id = $facility_id.facility_id_number;
+    console.log("blank cheque data",blank_cheque_data);
+    $bank_details.document_details.push(blank_cheque_data);
+
+    }
+    
+    
+    if(passbook_data.file_name != null){
+        passbook_data.facility_id = $facility_data_store.facility_id;
+        passbook_data.user_id = $current_user.username;
+        passbook_data.resource_id = $facility_id.facility_id_number;
+        console.log("passbook_data",passbook_data);
+        $bank_details.document_details.push(passbook_data);
+        
+    }
+    if(Cancel_cheque_data.file_name != null){
+        Cancel_cheque_data.facility_id = $facility_data_store.facility_id;
+        Cancel_cheque_data.user_id = $current_user.username;
+        Cancel_cheque_data.resource_id = $facility_id.facility_id_number;
+        console.log("Cancel_cheque_data",Cancel_cheque_data);
+        $bank_details.document_details.push(Cancel_cheque_data);
+        
+    }
+    if(account_statement_data.file_name != null){
+        account_statement_data.facility_id = $facility_data_store.facility_id;
+        account_statement_data.user_id = $current_user.username;
+        account_statement_data.resource_id = $facility_id.facility_id_number;
+        console.log("account_statement_data",account_statement_data);
+        $bank_details.document_details.push(account_statement_data);
+        
+    }
+    console.log("bank details", $bank_details);
+    let save_bank_details = await save_bank_details_function();
+    console.log("save_bank_details", save_bank_details);
+    if(save_bank_details.body.status ="green"){
+        alert("Bank Details Saved Successfully");
+        let replaceState = false;
+        goto("successpopup", { replaceState });
+        
+    }
+    else{
+        alert("Something went wrong!");
+    }
+
+
+    
+
+
+
+}
 </script>
 
 <div class="mainContent ">
@@ -245,7 +345,7 @@ const on_account_statement_upload =(e) =>{
                     </a>
                 </li>
                 <li class="tabactivelink">
-                    <a href="#" class="tabAchorSection active">
+                    <a href="#" class="tabAchorSection ">
                         <div class="iconSection">
                             <svg width="35" height="35" viewBox="0 0 31 31" fill="none">
                                 <path
@@ -323,7 +423,7 @@ const on_account_statement_upload =(e) =>{
                     </a>
                 </li>
                 <li class="tabactivelink">
-                    <a href="#" class="tabAchorSection ">
+                    <a href="#" class="tabAchorSection active ">
                         <div class="iconSection">
 
                             <svg width="35" height="35" viewBox="0 0 32 32" fill="none">
@@ -543,6 +643,44 @@ const on_account_statement_upload =(e) =>{
                     </div>
                     
                 </div> 
+                <div class="flex">
+                    <div class="formGroupnote ">
+                        <label class="formLable "
+                            >Account Holder Name <span
+                                class="mandatoryIcon">*</span
+                            ></label
+                        >
+                        <div class="formInnerGroup ">
+                            <span class="searchicon">
+                                <img
+                                    src="../src/img/account.png"
+                                    class="placeholderIcon"
+                                    alt=""
+                                />
+                            </span>
+                            <input
+                                type="text"
+                                class="inputbox"
+                                bind:value={$bank_details.account_holder}
+                                on:blur={() =>
+                                    verify_account_holder()}
+                            />
+                          
+                        </div>
+                    </div>
+                </div>
+                <div class="flex">
+                    <div class="formGroup ">
+                        <label class="formLable invisible" ></label>
+                        <div class="formInnerGroup mt-1">
+                            <div class="text-red-500 text-xs">
+                                {account_holder_message}
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                </div> 
 
                 
                 <!-- <div class="flex">
@@ -746,7 +884,7 @@ const on_account_statement_upload =(e) =>{
             </div>
             <div>
             <button class="saveandproceed">Save</button>
-                <button on:click={routeToSuccess} class="saveandproceed">Submit</button>
+                <button on:click={()=>save_bank_details()} class="saveandproceed">Submit</button>
             </div>
         </div>
     </div>

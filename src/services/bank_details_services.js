@@ -2,6 +2,7 @@ import {request} from './interceptor';
 import {bank_details,verify_ifsc_code_api_url} from '../stores/bank_details_store';
 
 let ifsc_verify_api_url ;
+let save_bank_details_api_url = '/api/method/pravesh.facility.routes.bank.save_bank';
 
 
 
@@ -25,8 +26,16 @@ let ifsc_verify_api_url ;
     return request("https://elasticrun.in/ifscapi/KARB0000001",{mode: 'no-cors'},true,false,"GET")
     
 }
+const save_bank_details_function = () =>{
+    let save_bank_data;
+    bank_details.subscribe(value => {
+        save_bank_data = value;
+    })
+    return request(save_bank_details_api_url,{method:"POST",body : JSON.stringify(save_bank_data)},true,false)
+}
 
 export{
-    verify_ifsc_code_function
+    verify_ifsc_code_function,
+    save_bank_details_function
 
 }

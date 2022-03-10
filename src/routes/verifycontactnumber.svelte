@@ -184,9 +184,9 @@ async function verify_otp(){
                             <p class="contentheadingAnchor">Verify Contact Number</p>
                             <p class="contentDescriptionText">Verify associate by OTP</p>
                         </div>
-                        <div class="markSection pl-3 xs:hidden sm:hidden">
+                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="">
-                        </div>
+                        </div> -->
                     </a>
                 </li>
                 <li class="tabactivelink">
@@ -202,9 +202,9 @@ async function verify_otp(){
                             <p class="contentheadingAnchor">Associate Details </p>
                             <p class="contentDescriptionText">Submit basic details of the associate</p>
                         </div>
-                        <div class="markSection pl-3 xs:hidden sm:hidden">
+                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="">
-                        </div>
+                        </div> -->
                     </a>
                 </li>
                 <li class="tabactivelink">
@@ -235,9 +235,9 @@ async function verify_otp(){
                             <p class="contentheadingAnchor">Identity Proof</p>
                             <p class="contentDescriptionText">Upload identity proof documents</p>
                         </div>
-                        <div class="markSection pl-3 xs:hidden sm:hidden">
+                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="">
-                        </div>
+                        </div> -->
                     </a>
                 </li>
                 <li class="tabactivelink">
@@ -275,9 +275,9 @@ async function verify_otp(){
                             <p class="contentheadingAnchor">Bank Details</p>
                             <p class="contentDescriptionText">Submit bank details and documents</p>
                         </div>
-                        <div class="markSection pl-3 xs:hidden sm:hidden">
+                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="">
-                        </div>
+                        </div> -->
                     </a>
                 </li>
             </ul>

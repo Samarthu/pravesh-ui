@@ -364,7 +364,7 @@
         <div class="tablinksForm w100xs">
             <ul class="bgtablinks ">
                 <li class="tabactivelink">
-                    <a href="#" class="tabAchorSection ">
+                    <a href="#" class="tabAchorSection active ">
                         <div class="iconSection">
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -393,13 +393,13 @@
                                 Submit associate work details
                             </p>
                         </div>
-                        <div class="markSection pl-3 xs:hidden sm:hidden">
+                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="" />
-                        </div>
+                        </div> -->
                     </a>
                 </li>
                 <li class="tabactivelink">
-                    <a href="#" class="tabAchorSection active">
+                    <a href="#" class="tabAchorSection ">
                         <div class="iconSection">
                             <svg
                                 width="35"
@@ -433,9 +433,9 @@
                                 Verify associate by OTP
                             </p>
                         </div>
-                        <div class="markSection pl-3 xs:hidden sm:hidden">
+                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="" />
-                        </div>
+                        </div> -->
                     </a>
                 </li>
                 <li class="tabactivelink">
@@ -463,9 +463,9 @@
                                 Submit basic details of the associate
                             </p>
                         </div>
-                        <div class="markSection pl-3 xs:hidden sm:hidden">
+                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="" />
-                        </div>
+                        </div> -->
                     </a>
                 </li>
                 <li class="tabactivelink">
@@ -509,9 +509,9 @@
                                 Upload identity proof documents
                             </p>
                         </div>
-                        <div class="markSection pl-3 xs:hidden sm:hidden">
+                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="" />
-                        </div>
+                        </div> -->
                     </a>
                 </li>
                 <li class="tabactivelink">
@@ -563,9 +563,9 @@
                                 Submit bank details and documents
                             </p>
                         </div>
-                        <div class="markSection pl-3 xs:hidden sm:hidden">
+                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="" />
-                        </div>
+                        </div> -->
                     </a>
                 </li>
             </ul>

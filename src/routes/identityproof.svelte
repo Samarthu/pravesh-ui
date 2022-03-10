@@ -392,7 +392,7 @@ async function save_facility(){
                     </a>
                 </li>
                 <li class="tabactivelink">
-                    <a href="#" class="tabAchorSection active">
+                    <a href="#" class="tabAchorSection ">
                         <div class="iconSection">
                             <svg width="35" height="35" viewBox="0 0 31 31" fill="none">
                                 <path
@@ -437,7 +437,7 @@ async function save_facility(){
                     </a>
                 </li>
                 <li class="tabactivelink">
-                    <a href="#" class="tabAchorSection ">
+                    <a href="#" class="tabAchorSection active ">
                         <div class="iconSection">
                             <svg width="35" height="35" viewBox="0 0 30 30" fill="none">
                                 <path
@@ -464,9 +464,9 @@ async function save_facility(){
                             <p class="contentheadingAnchor">Identity Proof</p>
                             <p class="contentDescriptionText">Upload identity proof documents</p>
                         </div>
-                        <div class="markSection pl-3 xs:hidden sm:hidden">
+                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="">
-                        </div>
+                        </div> -->
                     </a>
                 </li>
                 <li class="tabactivelink">
@@ -504,9 +504,9 @@ async function save_facility(){
                             <p class="contentheadingAnchor">Bank Details</p>
                             <p class="contentDescriptionText">Submit bank details and documents</p>
                         </div>
-                        <div class="markSection pl-3 xs:hidden sm:hidden">
+                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="">
-                        </div>
+                        </div> -->
                     </a>
                 </li>
             </ul>
