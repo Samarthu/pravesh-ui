@@ -1,6 +1,8 @@
 <script>
     import { goto } from "$app/navigation";
     import {facility_data_store} from '../stores/facility_store';
+    import { current_user } from "../stores/current_user_store";
+    import { msme_store,documents_store } from "../stores/document_store";
     import {verify_mobile_number_function,send_mobile_number_otp,verify_mobile_number_otp} from '../services/contact_number_services';
 
 
@@ -79,6 +81,23 @@ function temp_function(){
         temp = value;
     });
     console.log("facility data store",temp);
+    let temp_current;
+    current_user.subscribe(value =>{
+        temp_current = value.email;
+    });
+    console.log("current user",temp_current);
+    let temp_msme ;
+    msme_store.subscribe(value =>{
+        temp_msme = value;
+    });
+    console.log("msme store",temp_msme);
+    let temp_documents;
+    documents_store.subscribe(value =>{
+        temp_documents = value;
+    });
+    console.log("documents store",temp_documents);
+
+
 
    
 }
@@ -165,9 +184,9 @@ async function verify_otp(){
                             <p class="contentheadingAnchor">Verify Contact Number</p>
                             <p class="contentDescriptionText">Verify associate by OTP</p>
                         </div>
-                        <div class="markSection pl-3 xs:hidden sm:hidden">
+                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="">
-                        </div>
+                        </div> -->
                     </a>
                 </li>
                 <li class="tabactivelink">
@@ -183,9 +202,9 @@ async function verify_otp(){
                             <p class="contentheadingAnchor">Associate Details </p>
                             <p class="contentDescriptionText">Submit basic details of the associate</p>
                         </div>
-                        <div class="markSection pl-3 xs:hidden sm:hidden">
+                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="">
-                        </div>
+                        </div> -->
                     </a>
                 </li>
                 <li class="tabactivelink">
@@ -216,9 +235,9 @@ async function verify_otp(){
                             <p class="contentheadingAnchor">Identity Proof</p>
                             <p class="contentDescriptionText">Upload identity proof documents</p>
                         </div>
-                        <div class="markSection pl-3 xs:hidden sm:hidden">
+                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="">
-                        </div>
+                        </div> -->
                     </a>
                 </li>
                 <li class="tabactivelink">
@@ -256,9 +275,9 @@ async function verify_otp(){
                             <p class="contentheadingAnchor">Bank Details</p>
                             <p class="contentDescriptionText">Submit bank details and documents</p>
                         </div>
-                        <div class="markSection pl-3 xs:hidden sm:hidden">
+                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="">
-                        </div>
+                        </div> -->
                     </a>
                 </li>
             </ul>

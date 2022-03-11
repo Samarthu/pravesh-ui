@@ -1,16 +1,72 @@
 <script>
     import { goto } from "$app/navigation";
-    import {verify_document_function,save_facility_function,check_bgv_config_function,BGV_function} from "../services/identity_proof_services";
+    import {verify_document_function,save_facility_function,check_bgv_config_function,BGV_function,save_or_update_documents_function,save_or_update_documents_function_1} from "../services/identity_proof_services";
     import {facility_data_store} from '../stores/facility_store';
     import {facility_id} from '../stores/facility_id_store';
+import { msme_store,documents_store } from "../stores/document_store";
+import { current_user } from "../stores/current_user_store";
+import { get_current_user_function } from "../services/dashboard_services";
     // import {}
 
 
 // let routeTo = "identityproof";
 let pan_card_number = null;
-var pan_card_pattern = /[A-Z]{3}[ABCFGHLJPTF]{1}[A-Z]{1}[0-9]{4}[A-Z]{1}/gm
+var pan_card_pattern = /[A-Z]{3}[ABCFGHLJPTF]{1}[A-Z]{1}[0-9]{4}[A-Z]{1}/gm;
+var adhar_crad_pattern = /^[0-9]{12}$/gm;
+var voter_id_pattern = /^([a-zA-Z]){3}([0-9]){7}?$/;
+var driving_license_pattern = /^(([A-Z]{2}[0-9]{2})( )|([A-Z]{2}-[0-9]{2})|([A-Z]{2}[0-9]{2}))((19|20)[0-9][0-9])[0-9]{7}$/gm; 
+
+
 let pan_card_message = "";
+let adhar_card_message = "";
+let voter_id_message = "";
+let driving_license_message = "";
 let temp ;
+let pan_card_data = {
+    doc_category: "Pancard",
+    doc_number: null,
+    doc_type:  "pan-photo",
+    file_name: null,
+    pod: null,
+    resource_id: null,
+    status: "created",
+    user_id: null
+    }
+
+let adhar_card_data = {
+    doc_category: "Aadhar Id proof",
+    doc_number: null,
+    doc_type:   "aadhar-id-proof",
+    file_name: null,
+    pod: null,
+    resource_id: null,
+    status: "created",
+    user_id: null
+    }
+
+let voter_id_card_data = {
+    doc_category: "Voter Id proof",
+    doc_number: null,
+    doc_type:    "voter-id-proof",
+    file_name: null,
+    pod: null,
+    resource_id: null,
+    status: "created",
+    user_id: null
+    }
+
+let driving_license_data = {
+    doc_category: "Driving License",
+    doc_number: null,
+    doc_type:    "dl-photo",
+    file_name: null,
+    pod: null,
+    resource_id: null,
+    status: "created",
+    user_id: null
+    }
+// let driving_lice
+
 
 
 function gotoassociatedetails() {
@@ -22,63 +78,87 @@ function gotobankdetails() {
     goto("bankdetails", { replaceState });
 }
 async function verify_pancard(){
-    if(pan_card_number != null){
-        if(!pan_card_number.match(pan_card_pattern)){
+    if(pan_card_data.doc_number != null){
+        if(!pan_card_data.doc_number.match(pan_card_pattern)){
         pan_card_message = "Invalid Pan Card Number";
 
     }
     else{
         pan_card_message = "";
-        let identity_proof_response = await verify_document_function(pan_card_number);
-        console.log("verify_document_function",identity_proof_response);
+        let pan_card_proof_response = await verify_document_function(pan_card_data.doc_number);
+        console.log("pan_card_proof_response",pan_card_proof_response);
     }
 
     }
 
-    // const onFileSelected = (e) => {
-    //     let pdf = e.target.files[0];
-    //     pdf_name = pdf.name;
-    //     // msme_store.set({
-    //     //     file_name: pdf.name
-    //     // });
-    //     // $:msme_store.set({
-    //     //     file_name: pdf.name
-    //     // });
-    //     $msme_store.file_name = pdf.name;
-        
-        
-    //     temp_name= $msme_store.file_name;
-    //     // msme_store.subscribe((value) => {
-    //     //     temp_name = value.file_name;
-    //     // });
-    //     // console.log("store",);
-        
-
-    //     console.log("pdf name",temp_name);
-    //     let reader = new FileReader();
-    //     reader.readAsDataURL(pdf);
-    //     reader.onload = (e) => {
-    //         fileinput = e.target.result;
-    //         // msme_store.set({
-    //         //     pod: e.target.result
-    //         // });
-    //         $msme_store.pod = fileinput;
-    //         let temp;
-    //         msme_store.subscribe((value) => {
-    //             temp = value;
-    //         });
-    //         console.log("store",temp);
-    //     };
-    // };
     
 
 }
+async function verify_adhar_card(){
+    if(adhar_card_data.doc_number != null){
+        if(!adhar_card_data.doc_number.match(adhar_crad_pattern)){
+        adhar_card_message = "Invalid Aadhar Card Number";
+
+    }
+    else{
+        adhar_card_message  = "";
+        let adhar_card_proof_response = await verify_document_function(adhar_card_data.doc_number);
+        console.log("adhar_card_proof_response",adhar_card_proof_response);
+    }
+
+    }
+}
+async function verify_voter_id_card(){
+    if(voter_id_card_data.doc_number != null){
+        if(!voter_id_card_data.doc_number.match(voter_id_pattern)){
+        voter_id_message = "Invalid Voter Id Number";
+
+    }
+    else{
+        voter_id_message = "";
+        let voter_id_proof_response = await verify_document_function(voter_id_card_data.doc_number);
+        console.log("voter_id_proof_response",voter_id_proof_response);
+    }
+
+    
+}
+}
+async function verify_driving_license(){
+    if(driving_license_data.doc_number != null){
+        if(!driving_license_data.doc_number.match(driving_license_pattern)){
+        driving_license_message = "Invalid Driving License Number";
+
+    }
+    else{
+        driving_license_message = "";
+        let driving_license_proof_response = await verify_document_function(driving_license_data.doc_number);
+        console.log("driving_license_proof_response",driving_license_proof_response);
+    }
+
+    }
+}
+    
+
 function temp_function(){
     facility_data_store.subscribe(value => {
         temp = value;
         
     });
     console.log("store value",temp);
+    let temp_document;
+    msme_store.subscribe(value => {
+        temp_document = value;
+    });
+    console.log("document dtore value",temp_document);
+    let temp_documents_store;
+    documents_store.subscribe(value => {
+        temp_documents_store = value;
+    });
+    console.log("documents store value",temp_documents_store);
+    console.log("pan card data",pan_card_data);
+    console.log("adhar card data",adhar_card_data);
+    console.log("voter id card data",voter_id_card_data);
+    console.log("driving license data",driving_license_data);
 }
 function temp_value_filled(){
     $facility_data_store.address = [
@@ -117,7 +197,86 @@ function temp_value_filled(){
     $facility_data_store.vendor_code = "MHPD00012";
     $facility_data_store.vendor_name = "Vitthal Sutar - MHPD00012";
 }
+function set_user_id_to_document_store(){
+    $msme_store.user_id= $current_user.email;
+}
+const on_pan_upload =(e) =>{
+    let image = e.target.files[0];
+    
+    pan_card_data.file_name = image.name;
+    let reader = new FileReader();
+    reader.readAsDataURL(image);
+    reader.onload = e => {
+            
+            pan_card_data.pod = e.target.result;
+            console.log("pan_card_copy",pan_card_data);
+        };
+
+}
+const on_adhar_upload =(e) =>{
+    let image = e.target.files[0];
+    
+    adhar_card_data.file_name = image.name;
+    let reader = new FileReader();
+    reader.readAsDataURL(image);
+    reader.onload = e => {
+            
+            adhar_card_data.pod = e.target.result;
+            console.log("adhar_card_copy",adhar_card_data);
+        };
+
+}
+const on_voter_id_upload =(e) =>{
+    let image = e.target.files[0];
+    
+    voter_id_card_data.file_name = image.name;
+    let reader = new FileReader();
+    reader.readAsDataURL(image);
+    reader.onload = e => {
+            
+            voter_id_card_data.pod = e.target.result;
+            console.log("voter_id_card_copy",voter_id_card_data);
+        };
+
+}
+const on_driving_license_upload =(e) =>{
+    let image = e.target.files[0];
+    
+    driving_license_data.file_name = image.name;
+    let reader = new FileReader();
+    reader.readAsDataURL(image);
+    reader.onload = e => {
+            
+            driving_license_data.pod = e.target.result;
+            console.log("driving_license_copy",driving_license_data);
+        };
+
+}
+async function  get_current_user(){
+        console.log("inside get_current_user");
+        let current_user_response = await get_current_user_function();
+                console.log("current_user_response", current_user_response);
+                if (current_user_response.body.status == "green") {
+                    console.log("inside current_user_response if statement");
+                    $current_user.email =
+                        current_user_response.body.data.user.email;
+                    $current_user.name =
+                        current_user_response.body.data.user.name;
+                    $current_user.username =
+                        current_user_response.body.data.user.username;
+                }
+                else{
+                    alert("Session user not found error!")
+                }
+
+    }
 async function save_facility(){
+    $documents_store.documents.push(pan_card_data);
+    $documents_store.documents.push(adhar_card_data);
+    $documents_store.documents.push(voter_id_card_data);
+    $documents_store.documents.push(driving_license_data);
+    console.log("documents_store",$documents_store);
+    set_user_id_to_document_store();
     let save_facility_response = await save_facility_function();
     console.log(save_facility_response);
     if(save_facility_response.body.status == "green"){
@@ -128,12 +287,57 @@ async function save_facility(){
                 temp = value.facility_id_number;
                 
             });
-            
             console.log("facility id",temp);
-            let bgv_config_check_response = await check_bgv_config_function();
-            console.log("bgv_config_check_response",bgv_config_check_response);
-            let BGV_response = await BGV_function();
-            console.log("BGV_response",BGV_response);
+            try{
+                let current_user_response = await get_current_user_function();
+                console.log("current_user_response", current_user_response);
+                if (current_user_response.body.status == "green") {
+                    console.log("inside current_user_response if statement");
+                    $current_user.email =
+                        current_user_response.body.data.user.email;
+                    $current_user.name =
+                        current_user_response.body.data.user.name;
+                    $current_user.username =
+                        current_user_response.body.data.user.username;
+                }
+                else{
+                    alert("Session user not found error!")
+                }
+
+            }
+            catch{
+                alert("Session user not found error!")
+            console.log("current user data",$current_user);
+
+
+            }
+            for(let i=0;i<$documents_store.documents.length;i++){
+                console.log("inside for loop");
+                // console.log("documents store",$documents_store.documents[i]);
+                $documents_store.documents[i].resource_id = $facility_id.facility_id_number;
+                $documents_store.documents[i].user_id = $current_user.email;
+                console.log("documents store",$documents_store.documents[i]);
+                let document_upload_response = await save_or_update_documents_function_1($documents_store.documents[i]);
+                console.log("document_upload_response",document_upload_response);
+
+            }
+
+            
+            $msme_store.resource_id = $facility_id.facility_id_number;
+            // let msme_store_value;
+            // msme_store.subscribe(value => {
+            //     msme_store_value = value;
+            // });
+            // console.log("msme store value",msme_store_value);
+            // let document_upload_response = await save_or_update_documents_function(msme_store);
+            // console.log("document_upload_response",document_upload_response);
+            
+            
+            // let bgv_config_check_response = await check_bgv_config_function();
+            // console.log("bgv_config_check_response",bgv_config_check_response);
+            // let BGV_response = await BGV_function();
+            // console.log("BGV_response",BGV_response);
+            
 
         }
         catch{
@@ -188,7 +392,7 @@ async function save_facility(){
                     </a>
                 </li>
                 <li class="tabactivelink">
-                    <a href="#" class="tabAchorSection active">
+                    <a href="#" class="tabAchorSection ">
                         <div class="iconSection">
                             <svg width="35" height="35" viewBox="0 0 31 31" fill="none">
                                 <path
@@ -233,7 +437,7 @@ async function save_facility(){
                     </a>
                 </li>
                 <li class="tabactivelink">
-                    <a href="#" class="tabAchorSection ">
+                    <a href="#" class="tabAchorSection active ">
                         <div class="iconSection">
                             <svg width="35" height="35" viewBox="0 0 30 30" fill="none">
                                 <path
@@ -260,9 +464,9 @@ async function save_facility(){
                             <p class="contentheadingAnchor">Identity Proof</p>
                             <p class="contentDescriptionText">Upload identity proof documents</p>
                         </div>
-                        <div class="markSection pl-3 xs:hidden sm:hidden">
+                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="">
-                        </div>
+                        </div> -->
                     </a>
                 </li>
                 <li class="tabactivelink">
@@ -300,9 +504,9 @@ async function save_facility(){
                             <p class="contentheadingAnchor">Bank Details</p>
                             <p class="contentDescriptionText">Submit bank details and documents</p>
                         </div>
-                        <div class="markSection pl-3 xs:hidden sm:hidden">
+                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="">
-                        </div>
+                        </div> -->
                     </a>
                 </li>
             </ul>
@@ -326,7 +530,7 @@ async function save_facility(){
                                 <img src="../src/img/pan.png" class="placeholderIcon"
                                     alt="">
                             </span>
-                            <input type="text" class="inputbox" bind:value={pan_card_number} on:blur={()=>verify_pancard()}>
+                            <input type="text" class="inputbox" bind:value={pan_card_data.doc_number} on:blur={()=>verify_pancard()}>
                             <div class="text-red-500">
                                 {pan_card_message}
                             </div>
@@ -351,7 +555,12 @@ async function save_facility(){
                         <div class="formInnerGroup ">
                             <label class="cursor-pointer ">
                                 <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
-                                <input type='file' class="hidden" on/>
+                                <input type='file' class="hidden" accept=".jpg, .jpeg, .png" on:change={(e)=>on_pan_upload(e)}  />
+                                {#if  pan_card_data.file_name}
+                                {pan_card_data.file_name}
+                                    
+                                {/if}
+                                
                             </label>
                             <p class="noteDescription mt-2"><span class="font-medium">Note:</span>
                                 Photo must be clear and in JPG, PNG, or PDF format to process faster
@@ -368,7 +577,10 @@ async function save_facility(){
                                 <img src="../src/img/pan.png" class="placeholderIcon"
                                     alt="">
                             </span>
-                            <input type="text" class="inputbox">
+                            <input type="text" class="inputbox" bind:value={adhar_card_data.doc_number} on:blur={()=> verify_adhar_card()}>
+                            <div class="text-red-500">
+                                {adhar_card_message}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -379,7 +591,11 @@ async function save_facility(){
                         <div class="formInnerGroup ">
                             <label class="cursor-pointer ">
                                 <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
-                                <input type='file' class="hidden" />
+                                <input type='file' class="hidden"  accept=".jpg, .jpeg, .png" on:change={(e)=>on_adhar_upload(e)}  />
+                                {#if  adhar_card_data.file_name}
+                                {adhar_card_data.file_name}
+                                    
+                                {/if}
                             </label>
                             <p class="noteDescription mt-2"><span class="font-medium">Note:</span>
                                 Photo must be clear and in JPG, PNG, or PDF format to process faster
@@ -397,7 +613,10 @@ async function save_facility(){
                                 <img src="../src/img/pan.png" class="placeholderIcon"
                                     alt="">
                             </span>
-                            <input type="text" class="inputbox">
+                            <input type="text" class="inputbox" bind:value={voter_id_card_data.doc_number} on:blur={()=>verify_voter_id_card()}>
+                            <div class="text-red-500">
+                                {voter_id_message}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -419,7 +638,13 @@ async function save_facility(){
                         <div class="formInnerGroup ">
                             <label class="cursor-pointer ">
                                 <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
-                                <input type='file' class="hidden" />
+                                <input type='file' class="hidden"  accept=".jpg, .jpeg, .png" on:change={(e)=>on_voter_id_upload(e)}  />
+                                {#if  voter_id_card_data.file_name}
+                                {voter_id_card_data.file_name}
+                                    
+                                {/if}
+                                
+
                             </label>
                             <p class="noteDescription mt-2"><span class="font-medium">Note:</span>
                                 Photo must be clear and in JPG, PNG, or PDF format to process faster
@@ -436,7 +661,10 @@ async function save_facility(){
                                 <img src="../src/img/pan.png" class="placeholderIcon"
                                     alt="">
                             </span>
-                            <input type="text" class="inputbox">
+                            <input type="text" class="inputbox" bind:value={driving_license_data.doc_number} on:blur={()=>verify_driving_license()}>
+                            <div class="text-red-500">
+                                {driving_license_message}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -447,7 +675,11 @@ async function save_facility(){
                         <div class="formInnerGroup ">
                             <label class="cursor-pointer ">
                                 <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
-                                <input type='file' class="hidden" />
+                                <input type='file' class="hidden"  accept=".jpg, .jpeg, .png" on:change={(e)=>on_driving_license_upload(e)}  />
+                                {#if  driving_license_data.file_name}
+                                {driving_license_data.file_name}
+                                    
+                                {/if}
                             </label>
                             <p class="noteDescription mt-2"><span class="font-medium">Note:</span>
                                 Photo must be clear and in JPG, PNG, or PDF format to process faster
@@ -468,8 +700,8 @@ async function save_facility(){
             <div on:click={()=>{gotoassociatedetails()}} class="backButton">
                 <img src="../src/img/arrowleft.png" alt="">
             </div>
-            <button on:click={()=>{save_facility()}} class="saveandproceed">Save &
-                Proceed</button>
+            <button on:click={()=>{save_facility()}} class="saveandproceed">Save</button>
+            <button on:click={()=>{save_facility()}} class="saveandproceed">Proceed</button>
         </div>
     </div>
 </div>

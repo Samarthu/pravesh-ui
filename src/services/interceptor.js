@@ -227,6 +227,17 @@
 //     });
 //   };
 export const handleResponse = async (response) =>{
+  // console.log( await response.text(),"response"  );
+  console.log("response",response);
+  // let temp = await response.text();
+  // console.log("temp",temp);
+  
+  // let temp = await response.text().then((text) => {
+  //   console.log(text);
+  // });
+  // console.log("temp",temp);
+  // response = response.text();
+  
     let data = await response.json();
     return {
         body: data
@@ -252,7 +263,13 @@ export function request(
       headers: {
         "Content-Type": "application/json;charset=utf-8",
         // "dataType" : 'json',
-        "Contains-Array" : 'true'
+        "Contains-Array" : 'true',
+        // "Accept": "application/json",
+        "accept": "application/json"
+        
+        // "Access-Control-Allow-Origin": "https://elasticrun.in",
+        // "Access-Control-Allow-Origin":" *"
+        
 
       },
       
