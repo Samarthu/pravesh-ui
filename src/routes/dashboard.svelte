@@ -4,10 +4,10 @@
 <script>
     import { goto } from "$app/navigation";
     import {get_current_user_function} from '../services/dashboard_services';
-    import {dashboard_data} from '../services/dashboard_services';
+    import {dashboard_data,get_fac_count} from '../services/dashboard_services';
     import {current_user} from '../stores/current_user_store';
     // import {dashboard_details} from '../stores/dashboard_store';
-import Supplier from './supplier.svelte';
+    import Supplier from './supplier.svelte';
     
     let active;
     // let background_verification_pending;
@@ -19,13 +19,23 @@ import Supplier from './supplier.svelte';
     let bank_verification_pending,bank_verification_pending_display_name;
     let pending_offer_letter,pending_offer_letter_display_name;
     let bgv_rejected,bgv_rejected_display_name;
+    let fac_count_array=[];
+    let ven_type_arr = [];
+    let workf_type_arr = [];
+    
+    
 
     
     // console.log(dashboard)
     onMount(async () =>{
+
+        // let temp_res = await fetch("https://elasticrun.in/ifscapi/KARB0000001")
+        // console.log("temp_res",temp_res)
+        // let result = await temp_res.json();
+        // console.log("TEMP RESULT",result)
+
         
         let current_user_response = await get_current_user_function();
-        console.log("current_user_response",current_user_response);
         if(current_user_response.body.status == "green"){
             $current_user.email = current_user_response.body.data.user.email;
             $current_user.name = current_user_response.body.data.user.name;
@@ -35,11 +45,35 @@ import Supplier from './supplier.svelte';
         else{
             alert("Session User not found");
         }
-        // let current_user_temp;
-        // current_user.subscribe(value => {
-        //     current_user_temp = value;
-        // });
-        // console.log("current_user_temp",current_user_temp);
+
+        let fac_count_res = await get_fac_count();
+        
+        fac_count_array = fac_count_res.body.data;
+       
+        for (let i=0 ; i<fac_count_array.length ; i++) {
+            if(fac_count_array[i].category == "Workforce"){
+                if(fac_count_array[i].count != "0"){
+                workf_type_arr.push({
+                    "new_type":fac_count_array[i].facility_type_name,
+                    "new_count":fac_count_array[i].count
+                })
+            }
+            }
+            else if(fac_count_array[i].category == "Vendor"){
+               if(fac_count_array[i].count != "0")
+               ven_type_arr.push({
+                    "new_type":fac_count_array[i].facility_type_name,
+                    "new_count":fac_count_array[i].count
+                });
+            }
+            else{
+                console.log("ERROR")
+            }
+
+    }
+    workf_type_arr=workf_type_arr;   
+    ven_type_arr=ven_type_arr;
+    
 
         let dashboard_res = await dashboard_data();
         if(dashboard_res != null){
@@ -326,31 +360,40 @@ import Supplier from './supplier.svelte';
                             <p class="venderheadText "><img src="../src/img/manager.svg" class="pr-p15" alt=""> Vendors</p>
                         </div>
                         <div class="venderHead plr ">
-                        <ul >
-                            <li class="listli"><a href=""> Man Power Contractors</a> <span class="text-lg text-blackshade font-bold">02</span></li>
-                            <li class="listli"><a href=""> Van Vendors</a> <span class="text-lg text-blackshade font-bold">04</span></li>
-                            <li class="listli"><a href=""> Service Providers</a><span class="text-lg text-blackshade font-bold">10</span></li>
-                            <li class="listhb"><a href=""> Food Vendors </a><span class="text-lg text-blackshade font-bold">09</span></li>
-                          
+                        
+                            <ul >
+                            
+                            {#each ven_type_arr as ven_det}
+                           
+                                <li class="listli"><a href="">{ven_det.new_type}</a> <span class="text-lg text-blackshade font-bold">{ven_det.new_count}</span></li>
+                               
+                            {/each}
                         </ul>
+                    
+                       
                         </div>
+                    
 
                         <div class="venderHead plr mt-4">
                             <p class="venderheadText "><img src="../src/img/workforce.svg" class="pr-p15" alt=""> Workforce</p>
                         </div>
                         <div class="venderHead plr ">
                             <ul >
-                                <li class="listli"><a href=""> NDA </a><span class="text-lg text-blackshade font-bold">02</span></li>
-                                <li class="listli"><a href="">Delivery Associates (DA)</a> <span class="text-lg text-blackshade font-bold">04</span></li>
-                                <li class="listli"><a href="">Hybrid Delivery Associates (NDA)</a><span class="text-lg text-blackshade font-bold">10</span></li>
-                                <li class="listli"><a href="">House Keeping </a><span class="text-lg text-blackshade font-bold">09</span></li>
-                                <li class="listli"><a href="">Van Driver</a> <span class="text-lg text-blackshade font-bold">09</span></li>
-                                <li class="listli"><a href="">Process Associate</a> <span class="text-lg text-blackshade font-bold">09</span></li>
-                                <li class="listli"><a href="">Station Staff</a><span class="text-lg text-blackshade font-bold">09</span></li>
+                                <!-- <li class="listli"><a href=""> NDA </a><span class="text-lg text-blackshade font-bold"></span></li>
+                                <li class="listli"><a href="">Delivery Associates (DA)</a> <span class="text-lg text-blackshade font-bold"></span></li>
+                                <li class="listli"><a href="">Hybrid Delivery Associates (HDA)</a><span class="text-lg text-blackshade font-bold"></span></li>
+                                <li class="listli"><a href="">House Keeping </a><span class="text-lg text-blackshade font-bold"></span></li>
+                                <li class="listli"><a href="">Van Driver</a> <span class="text-lg text-blackshade font-bold"></span></li>
+                                <li class="listli"><a href="">Process Associate</a> <span class="text-lg text-blackshade font-bold">02</span></li>
+                                <li class="listli"><a href="">Station Staff</a><span class="text-lg text-blackshade font-bold">05</span></li>
                                 <li class="listli"><a href="">Landlords</a> <span class="text-lg text-blackshade font-bold">09</span></li>
-                                <li class="listli"><a href="">Station Managers </a><span class="text-lg text-blackshade font-bold">09</span></li>
-                                <li class="listhb"><a href="">Team Leads </a><span class="text-lg text-blackshade font-bold">09</span></li>
+                                <li class="listli"><a href="">Station Managers </a><span class="text-lg text-blackshade font-bold"></span></li>
+                                <li class="listhb"><a href="">Team Leads </a><span class="text-lg text-blackshade font-bold"></span></li> -->
+                            {#each workf_type_arr as workf_det}
+                           
+                            <li class="listli"><a href="">{workf_det.new_type}</a><span class="text-lg text-blackshade font-bold">{workf_det.new_count}</span></li>
                                
+                            {/each} 
                             </ul>
                             </div>
 

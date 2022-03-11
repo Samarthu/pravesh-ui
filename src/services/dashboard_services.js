@@ -5,7 +5,11 @@ let demo_api_url = '/api/resource/Organization?fields=["*"]&filters=[["domain","
 let get_current_user_api_url = '/api/method/pravesh.facility.routes.user.get_session_user';
 // let dashboard_data_url = '/api/method/pravesh.facility.routes.dashboard.get_dashboard_summary';
 const demo_api_fun = () => {
-    return request(demo_api_url,{mode: 'no-cors'},true,false,"GET")
+    return request(
+        demo_api_url,{
+            mode: 'no-cors'}
+            ,true,false,
+            "GET")
 }
 
 const dashboard_data= () => {
@@ -18,8 +22,20 @@ const dashboard_data= () => {
 }
 
 const get_current_user_function = () => {
-    return request(get_current_user_api_url,{mode: 'no-cors',method:"GET"},true)
+    return request(
+        get_current_user_api_url,{
+            mode: 'no-cors',
+            method:"GET"
+        },true)
 
+}
+const get_fac_count = () => {
+    let get_fac_url = '/api/method/pravesh.facility.routes.dashboard.get_fac_types_counts';
+    return request(
+        get_fac_url, {
+        method: "GET"
+    }, true
+    )
 }
 
 // const dashboard_data = () =>{
@@ -52,5 +68,6 @@ const get_current_user_function = () => {
 export{
     demo_api_fun,
     dashboard_data,
-    get_current_user_function
+    get_current_user_function,
+    get_fac_count
 }

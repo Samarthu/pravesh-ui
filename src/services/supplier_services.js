@@ -103,7 +103,7 @@ const filter_vendortype_data = () => {
 }
 
 export{
-    logged_user,
+   logged_user,
    supplier_data,
    filter_city_data,
    audit_trail_data,

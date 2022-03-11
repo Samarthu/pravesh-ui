@@ -1,5 +1,6 @@
 <script>
     import { goto } from "$app/navigation";
+    
 
     function routeToSuccess(){
         let replaceState = false;
@@ -10,6 +11,8 @@
         let replaceState = false;
         goto("identityproof", { replaceState });
     }
+
+   
 </script>
 
 <div class="mainContent ">

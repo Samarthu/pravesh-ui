@@ -1,10 +1,53 @@
 <script>
     import { goto } from "$app/navigation";
+    import { onMount } from "svelte";
+    import {facility_bgv_init} from "../services/onboardsummary_services"
+    import {facility_bgv_check} from "../services/bgv_services"
 
     let temp = "a";
     let routePrev = "";
     let routeNext = "";
+    let is_address_info_mandatory;
+    let is_basic_info_mandatory;
+    let is_driving_license_mandatory;
+    let is_email_verification_mandatory;
+    let is_pan_info_mandatory;
+    let is_police_verification_mandatory;
 
+
+    onMount(async () => {
+        let bgv_init_res = await facility_bgv_init();
+    if (bgv_init_res.body.status == "green"){
+        console.log("bgv_init_res",bgv_init_res.body.data.is_address_info_mandatory)
+        is_address_info_mandatory = bgv_init_res.body.data.is_address_info_mandatory;
+        is_basic_info_mandatory = bgv_init_res.body.data.is_basic_info_mandatory;
+        is_driving_license_mandatory = bgv_init_res.body.data.is_driving_license_mandatory;
+        is_email_verification_mandatory = bgv_init_res.body.data.is_email_verification_mandatory;
+        is_pan_info_mandatory = bgv_init_res.body.data.is_pan_info_mandatory;
+        is_police_verification_mandatory = bgv_init_res.body.data.is_police_verification_mandatory;
+    }
+    else{
+        console.log("ERROR")
+    }
+
+    let facility_bgv_check_res = await facility_bgv_check();
+    try {
+        if(!facility_bgv_check_res || facility_bgv_check_res.body.length == "0"){
+            console.log("NO Data")
+        }
+        else{
+            console.log("facility_bgv_check_res",facility_bgv_check_res)
+            console.log("facility_bgv_check_res",facility_bgv_check_res.body.data)
+
+        }
+
+        
+    } catch(err) {
+        message.innerHTML = "Error is " + err;
+    }
+
+
+    })
     function routeToOnboardsummary() {
         let replaceState = false;
         goto(routePrev, { replaceState });
@@ -55,6 +98,7 @@
     <div class="contentsection flexwrapSm">
         <div class="tablinksForm w100xs">
             <ul class="bgtablinks ">
+                {#if is_basic_info_mandatory == "1"}
                 <li class="tabactivelink">
                     <a href="#" class="tabAchorSection active">
                         <div class="iconSection">
@@ -80,6 +124,8 @@
                         </div>
                     </a>
                 </li>
+                {/if}
+                {#if is_address_info_mandatory =="1"}
                 <li class="tabactivelink">
                     <a href="#" class="tabAchorSection ">
                         <div class="iconSection">
@@ -103,7 +149,8 @@
                         </div>
                     </a>
                 </li>
-
+                {/if}
+                {#if is_pan_info_mandatory == "1"}
                 <li class="tabactivelink">
                     <a href="#" class="tabAchorSection ">
                         <div class="iconSection">
@@ -137,6 +184,8 @@
                         </div>
                     </a>
                 </li>
+                {/if}
+                {#if is_driving_license_mandatory == "1"}
                 <li class="tabactivelink">
                     <a href="#" class="tabAchorSection ">
                         <div class="iconSection">
@@ -171,6 +220,8 @@
                         </div>
                     </a>
                 </li>
+                {/if}
+                {#if is_police_verification_mandatory == "1"}
                 <li class="tabactivelink">
                     <a href="#" class="tabAchorSection ">
                         <div class="iconSection">
@@ -200,6 +251,7 @@
                         </div>
                     </a>
                 </li>
+                {/if}
             </ul>
         </div>
 
