@@ -6,6 +6,7 @@
         get_user_scope_function,
         get_facility_types_function,
         get_vendor_by_config_method,
+        get_pravesh_properties_method
     } from "../services/workdetails_services";
     import { station_type_name } from "../stores/station_store";
     import { facility_data_store } from "../stores/facility_store";
@@ -13,10 +14,14 @@
     import { msme_store,documents_store } from "../stores/document_store";
     import { current_user } from "../stores/current_user_store";
     import { get_current_user_function } from "../services/dashboard_services";
+    import {get_organistaion_method} from '../services/organisation_services';
+    import {allowed_pdf_size,sorting_pravesh_properties} from '../services/pravesh_config';
     
     // import PdfViewer from 'svelte-pdf';
     import { each } from "svelte/internal";
     let temp_name;
+    let org_array = [];
+    let valid = true;
 
     let org_id = null;
     let msme_value = null;
@@ -44,10 +49,127 @@
     status: "created",
     user_id: null
     }
+    let org_message = "";
+    let city_message = "";
+    let station_message = "";
+    let associate_type_message = "";
+    let vendor_message = "";
+    let msme_message = "";
 
     function route() {
-        $documents_store.documents.push(msme_data);
+        // let valid = true;
+        valid = true;
+        if($facility_data_store.org_id == null)
+        {
+            valid = false;
+            org_message = "Please select an organisation";
+        }
+        else{
+            org_message = "";
+        }
+
+        if(city_value == null)
+        {
+            valid = false;
+            city_message = "Please select a city";
+        }
+        else{
+            city_message = "";
+        }
+
+        if($facility_data_store.station_code == null){
+            // console.log("$facility_data_store.station_code",$facility_data_store.station_code);
+            valid = false;
+            station_message = "Please select a station";
+        }
+        else{
+            station_message = "";
+        }
+
+
+        if($facility_data_store.facility_type == null){
+            valid = false;
+            associate_type_message = "Please select a facility type";
+        }
+        else{
+            associate_type_message = "";
+        }
+
+        if($facility_data_store.vendor_code == null){
+            valid = false;
+            vendor_message = "Please select a vendor";
+        }
+        else{
+            vendor_message = "";
+        }
+
+        if($facility_data_store.msme_registered == null ){
+            valid = false;
+
+            msme_message = "Please select a msme status";
+        }
+        else if($facility_data_store.msme_registered == "0"){
+            console.log("msme agreement value",msme_agreement);
+            console.log("non_msme_confirmed_by",$facility_data_store.non_msme_confirmed_by == null );
+            console.log("non_msme_confirmed_on",$facility_data_store.non_msme_confirmed_by == null );
+            console.log("msme aggrement test",msme_agreement  == 1);
+            
+            if($facility_data_store.non_msme_confirmed_by == null || $facility_data_store.non_msme_confirmed_by == null ||(msme_agreement  != 1)){
+                console.log("$facility_data_store.non_msme_confirmed_by",$facility_data_store.non_msme_confirmed_by);
+                console.log("$facility_data_store.non_msme_confirmed_by",$facility_data_store.non_msme_confirmed_by);
+                valid = false;
+                msme_message = "Please accept NON-MSME Declaration";
+            }
+            else{
+                msme_message = "";
+            }
+        }
+        else if($facility_data_store.msme_registered == "1"){
+            if(msme_data.file_name == null){
+                valid = false;
+                msme_message = "Please upload a msme certificate";
+            }
+            else{
+                msme_message = "";
+            }
+        }
+        else{
+            
+            msme_message = "";
+        }
+
+        // if($facility_data_store.msme_registered == "0"){
+        //     if($facility_data_store.non_msme_confirmed_by == null || $facility_data_store.non_msme_confirmed_by == null){
+        //         valid = false;
+        //         msme_message = "Please accept NON-MSME Declaration";
+        //     }
+        //     else{
+        //         msme_message = "";
+        //     }
+        // }
+
+        // if($facility_data_store.msme_registered == "1"){
+        //     if(msme_data.file_name == null){
+        //         valid = false;
+        //         msme_message = "Please upload a msme certificate";
+        //     }
+        //     else{
+        //         msme_message = "";
+        //     }
+        // }
+
+
+        if($facility_data_store.msme_registered == 1 || $facility_data_store.msme_registered == "1"){
+            if(msme_data.file_name != null && msme_data.pod != null){
+                $documents_store.documents.push(msme_data);
         console.log("msme_data",$documents_store);
+
+            }
+        
+
+        }
+        
+       
 
         let replaceState = false;
 
@@ -93,6 +215,17 @@
 
         //   org_id = value.org_id;
         // });
+        let get_pravesh_properties_response = await get_pravesh_properties_method();
+        console.log("get_pravesh_properties_response", get_pravesh_properties_response);
+        if(get_pravesh_properties_response.body.status == "green"){
+            sorting_pravesh_properties(get_pravesh_properties_response.body.data);
+        }
+        
+        let org_response = await get_organistaion_method();
+        console.log("org_response",org_response);
+        org_array = org_response.body.data;
+        console.log("org_array",org_array);
+
         facility_data_store.subscribe((value) => {
             org_id = value.org_id;
         });
@@ -155,6 +288,7 @@
                         current_user_response.body.data.user.name;
                     $current_user.username =
                         current_user_response.body.data.user.username;
+                        console.log("$current_user", $current_user);
                 }
                 else{
                     alert("Session user not found error!")
@@ -163,16 +297,31 @@
     }
     async function get_session_user() {
         console.log("inside get session user");
-        console.log(msme_agreement);
-        console.log(typeof msme_agreement);
+        // console.log(msme_agreement);
+        // console.log(typeof msme_agreement);
         //TODO: Possible bug in sveltekit where the value is not being reversed.
-        if (msme_agreement == false) {
+        if (msme_agreement == 0) {
             // console.log(
             //     "inside msme agreement if statement",
             // );
             if ($current_user.email == null) {
                 // console.log("inside  $current_user.email if statement");
-                get_current_user();
+                console.log("inside get_current_user");
+        let current_user_response = await get_current_user_function();
+                console.log("current_user_response", current_user_response);
+                if (current_user_response.body.status == "green") {
+                    console.log("inside current_user_response if statement");
+                    $current_user.email =
+                        current_user_response.body.data.user.email;
+                    $current_user.name =
+                        current_user_response.body.data.user.name;
+                    $current_user.username =
+                        current_user_response.body.data.user.username;
+                        console.log("$current_user", $current_user);
+                }
+                else{
+                    alert("Session user not found error!")
+                }
                 
                 
                 // console.log("current on",$facility_data_store.non_msme_confirmed_on);
@@ -183,7 +332,7 @@
                 console.log("current user",$current_user);
             }
             $facility_data_store.non_msme_confirmed_by =
-                    $current_user.email;
+                    $current_user.username;
                 var current_date = new Date();
                 console.log("current date", current_date);
                 console.log("type of date",typeof(current_date));
@@ -206,6 +355,8 @@
                         ":" +
                         current_seconds
                 );
+                console.log("$facility_data_store.non_msme_confirmed_on",$facility_data_store.non_msme_confirmed_on);
+                console.log("$facility_data_store.non_msme_confirmed_by",$facility_data_store.non_msme_confirmed_by);
         }
     }
     $: {
@@ -288,7 +439,9 @@
         var cookie_data = document.cookie;
         console.log("cookie data", cookie_data);
         let pdf = e.target.files[0];
-        pdf_name = pdf.name;
+        console.log("pdf size", pdf.size);
+        if(pdf.size < allowed_pdf_size){
+            pdf_name = pdf.name;
         // msme_store.set({
         //     file_name: pdf.name
         // });
@@ -331,6 +484,12 @@
             let temp_current = $current_user;
             console.log("current user", temp_current);
         };
+        
+
+        }else{
+            alert("File size is greater than "+ Number(allowed_pdf_size/1048576)+"MB. Please upload a file less than "+Number(allowed_pdf_size/1048576)+"MB .");
+        }
+        
     };
     //     function open_pdf_window(base_64_string){
     //         let new_url = base_64_string.substring(base_64_string.indexOf(",")+1);
@@ -599,11 +758,15 @@
                                             alt=""
                                         />
                                     </span>
-                                    <select class="inputbox">
-                                        <option class="pt-6">Amazon</option>
+                                    <select class="inputbox" bind:value={$facility_data_store.org_id} disabled>
+                                        <!-- <option class="pt-6">Amazon</option>
                                         <option>Flipkart</option>
                                         <option>Velocity</option>
-                                        <option>Corporate</option>
+                                        <option>Corporate</option> -->
+                                        {#each org_array as org }
+                                        <option value={org.org_id}>{org.org_name}</option>
+                                            
+                                        {/each}
                                     </select>
                                     <div class="formSelectArrow ">
                                         <img
@@ -615,6 +778,18 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="flex">
+                            <div class="formGroup ">
+                                <label class="formLable invisible" ></label>
+                                <div class="formInnerGroup mt-1">
+                                    <div class="text-red-500 text-xs">
+                                        {org_message}
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                        </div> 
                         <div class="flex">
                             <div class="formGroup">
                                 <label class="formLable "
@@ -653,6 +828,18 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="flex">
+                            <div class="formGroup ">
+                                <label class="formLable invisible" ></label>
+                                <div class="formInnerGroup mt-1">
+                                    <div class="text-red-500 text-xs">
+                                        {city_message}
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                        </div> 
                         <div class="flex">
                             <div class="formGroup">
                                 <label class="formLable "
@@ -698,6 +885,18 @@
                             </div>
                         </div>
                         <div class="flex">
+                            <div class="formGroup ">
+                                <label class="formLable invisible" ></label>
+                                <div class="formInnerGroup mt-1">
+                                    <div class="text-red-500 text-xs">
+                                        {station_message}
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                        </div> 
+                        <div class="flex">
                             <div class="formGroup">
                                 <label class="formLable "
                                     >Associate Type <span class="mandatoryIcon"
@@ -736,6 +935,18 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="flex">
+                            <div class="formGroup ">
+                                <label class="formLable invisible" ></label>
+                                <div class="formInnerGroup mt-1">
+                                    <div class="text-red-500 text-xs">
+                                        {associate_type_message}
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                        </div> 
                         <div class="flex">
                             <div class="formGroup">
                                 <label class="formLable "
@@ -780,6 +991,18 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="flex">
+                            <div class="formGroup ">
+                                <label class="formLable invisible" ></label>
+                                <div class="formInnerGroup mt-1">
+                                    <div class="text-red-500 text-xs">
+                                        {vendor_message}
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                            
+                        </div> 
                         <div class="flex">
                             <div class="formGroup ">
                                 <label class="formLable "
@@ -955,6 +1178,18 @@
                         </div>
                         <div>{msme_agreement}</div>
                     </div>
+                    <div class="flex">
+                        <div class="formGroup ">
+                            <label class="formLable invisible" ></label>
+                            <div class="formInnerGroup mt-1">
+                                <div class="text-red-500 text-xs">
+                                    {msme_message}
+                                </div>
+                                
+                            </div>
+                        </div>
+                        
+                    </div> 
                 </form>
             </div>
             <div class="onboardFormNot ">
@@ -963,7 +1198,7 @@
                         <img src="../src/img/arrowleft.png" alt="" />
                     </div>
                     <button on:click={route} class="saveandproceed"
-                        >Save & Proceed</button
+                        >Proceed</button
                     >
                 </div>
             </div>

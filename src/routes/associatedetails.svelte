@@ -8,9 +8,12 @@
 import { each } from "svelte/internal";
 import {get_date_format} from "../services/date_format_servives";
 import { documents_store } from "../stores/document_store";
+import {allowed_pdf_size} from '../services/pravesh_config';
+// import { facility_data } from "src/services/onboardsummary_services";
     
 
   let date = new Date()
+  let valid = true;
   const d = new Date("2015-03-25");
   let max_date;
   let  avatar, fileinput;
@@ -81,6 +84,16 @@ import { documents_store } from "../stores/document_store";
 let routeTo = "identityproof";
 let facility_name_message = "";
 let facility_email_message ="";
+let facility_dob_message = "";
+let present_address_proof_data_message = "";
+let present_address_city_message = "";
+let present_address_address_message = "";
+let present_address_postal_message = "";
+let present_address_address_proof_message = "";
+let address_check_message = "";
+let work_address_city_message = "";
+let work_address_address_message ="";
+let work_address_postal_message = "";
 onMount(async () => {
     function get_max_date(){
         let current_date = new Date();
@@ -120,18 +133,150 @@ onMount(async () => {
     }
     let date_formatter = get_date_format(max_date,"dd-mm-yyyy");
     console.log("date_formatter",date_formatter);
+    console.log("dob ",$facility_data_store.dob);
 
 })
 
 function gotoidentityproof() {
     save_address_to_store();
-    $documents_store.documents.push(profile_pic_data);
-    $documents_store.documents.push(address_proof_data);
-    $documents_store.documents.push(present_address_proof_data);
+    if($facility_data_store.facility_name == null){
+        valid = false;
+        facility_name_message = "Please enter a facility name";
+    }
+    else{
+        valid = true;
+        facility_name_message = "";
+    }
+
+    if($facility_data_store.dob == null){
+        valid = false;
+        facility_dob_message = "Please enter a date of birth";
+    }
+    else{
+        valid = true;
+        facility_dob_message = "";
+    }
+
+    // if(present_address_proof_data.pod == null || present_address_proof_data.pod == ""){
+    //     valid = false;
+    //     present_address_proof_data_message = "Please upload a document";
+    // }
+    // else{
+    //     valid = true;
+    //     present_address_proof_data_message = "";
+    // }
+    
+    if(present_address.location_id == null){
+        valid = false;
+        present_address_city_message = "Please select a city";
+    }
+    else{
+        valid = true;
+        present_address_city_message = "";
+    }
+
+    if(present_address.address == null){
+        valid = false;
+        present_address_address_message = "Please enter an address";
+    }
+    else{
+        valid = true;
+        present_address_address_message = "";
+    }
+
+    if(present_address.postal == null){
+        valid = false;
+        present_address_postal_message = "Please enter a pin code.";
+    }
+    else{
+        valid = true;
+        present_address_postal_message = "";
+    }
+
+    if(address_check == "No"){
+        if(work_address.city == null){
+            valid = false;
+            work_address_city_message = "Please select a city.";
+        }
+        else{
+            valid = true;
+            work_address_city_message = "";
+        }
+
+        if(work_address.address == null){
+            valid = false;
+            work_address_address_message = "Please enter an address.";
+        }
+        else{
+            valid = true;
+            work_address_address_message = "";
+        }
+
+        if(work_address.postal == null){
+            valid = false;
+            work_address_postal_message = "Please enter a pin code.";
+        }
+        else{
+            valid = true;
+            work_address_postal_message = "";
+        }
+    }
+
+    if(address_proof_data.pod == null || address_proof_data.file_name == null || address_proof_data.pod == "" || address_proof_data.file_name == ""){
+        valid = false;
+        present_address_address_proof_message = "Please upload a document";
+    }
+    else{
+        valid = true;
+        present_address_address_proof_message = "";
+    }
+
+    if(address_check != "Yes" && address_check!= "No"){
+        valid = false;
+        address_check_message = "Please select an option";
+    }
+    else{
+        valid = true;
+        address_check_message = "";
+
+
+    }
+    if(valid){
+        if(profile_pic_data.pod != null || profile_pic_data.file_name != null){
+        $documents_store.documents.push(profile_pic_data);
+        
+    }
+
+    if(present_address_proof_data.pod != null || present_address_proof_data.file_name != null){
+        $documents_store.documents.push(present_address_proof_data);
+        
+    }
+
+    if(address_proof_data.pod != null || address_proof_data.file_name != null){
+        $documents_store.documents.push(address_proof_data);
+        
+    }
+
+    }
+
+
+
+
+
+
+   
+    
+    
+    // $documents_store.documents.push(address_proof_data);
+    // if(work_address != null){
+        
+    //     $documents_store.documents.push(present_address_proof_data);
+    // }
+    
     console.log("document store",$documents_store);
 
-    let replaceState = false;
-    goto(routeTo, { replaceState });
+    // let replaceState = false;
+    // goto(routeTo, { replaceState });
 }
 function gotoverifycontactnumber() {
     let replaceState = false;
@@ -174,20 +319,30 @@ async function verify_facility_name(){
 const onFileSelected =(e)=>{
   let image = e.target.files[0];
 //   profile_pic_name = image.name;
-  profile_pic_data.file_name = image.name;
+  
 //   img_name = image.name;
-  let reader = new FileReader();
+if(image.size <= allowed_pdf_size){
+    profile_pic_data.file_name = image.name;
+
+    let reader = new FileReader();
     reader.readAsDataURL(image);
     reader.onload = e => {
             // profile_pic = e.target.result;
             profile_pic_data.pod = e.target.result;
             console.log("profile_pic",profile_pic);
         };
-        
+
+}else{
+    alert("File size is greater than "+ Number(allowed_pdf_size/1048576)+"MB. Please upload a file less than "+Number(allowed_pdf_size/1048576)+"MB .");
 }
+}
+  
+        
+
 const onadders_prrof =(e) =>{
     let image = e.target.files[0];
-    address_proof_copy_name = image.name;
+    if(image.size <= allowed_pdf_size){
+        address_proof_copy_name = image.name;
     address_proof_data.file_name = image.name;
     let reader = new FileReader();
     reader.readAsDataURL(image);
@@ -196,6 +351,12 @@ const onadders_prrof =(e) =>{
             address_proof_data.pod = e.target.result;
             console.log("address_proof_copy",address_proof_copy);
         };
+
+    }else{
+        alert("File size is greater than "+ Number(allowed_pdf_size/1048576)+"MB. Please upload a file less than "+Number(allowed_pdf_size/1048576)+"MB .");
+
+    }
+    
     
 }
 function temp_show_value(){
@@ -210,7 +371,8 @@ function temp_show_value(){
 }
 const onpresent_address_proof =(e) =>{
     let image = e.target.files[0];
-    present_address_proof_copy_name  = image.name;
+    if(image.size <= allowed_pdf_size){
+        present_address_proof_copy_name  = image.name;
     present_address_proof_data.file_name = image.name;
     let reader = new FileReader();
     reader.readAsDataURL(image);
@@ -220,6 +382,12 @@ const onpresent_address_proof =(e) =>{
             console.log("present_address_proof_copy",present_address_proof_copy);
         };
 
+
+    }else{
+        alert("File size is greater than "+ Number(allowed_pdf_size/1048576)+"MB. Please upload a file less than "+Number(allowed_pdf_size/1048576)+"MB .");
+
+    }
+    
 }
 async function verify_email(){
     let verify_email_response = await verify_associate_email();
@@ -273,9 +441,9 @@ $:{
     if(dob_month < 10){
         dob_month = "0"+String( dob_month);
     }
-    console.log("dob_month",dob_month);
+    // console.log("dob_month",dob_month);
 
-    console.log(String(dob_date+"-"+dob_month+"-"+date.getFullYear()));
+    // console.log(String(dob_date+"-"+dob_month+"-"+date.getFullYear()));
     
     //facility_data_store.set({dob: String(date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate())})
     // $facility_data_store.dob = String(date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate());
@@ -287,6 +455,8 @@ $:{
 
 }
 function save_address_to_store(){
+    $facility_data_store.address = [];
+    final_address = [];
     
     if(present_address.location_id != null && present_address.address != null && present_address.postal != null){
         final_address.push(present_address);
@@ -301,6 +471,7 @@ function save_address_to_store(){
     }
     // facility_data_store.set({address: final_address});
     $facility_data_store.address = final_address;
+    console.log("$facility_data_store.address",$facility_data_store.address);
 }
 // function testing_function(){
 //     console.log("month",String(date.getMonth()+1));
@@ -309,6 +480,9 @@ function save_address_to_store(){
 // }
 async function save_facility(){
     
+}
+function dob_clicked(){
+    console.log("dob clicked");
 }
 
 </script>
@@ -476,7 +650,7 @@ async function save_facility(){
             <p class="smxslabel"> Associate Details</p>
             <p class="formHeadingLabel ">Submit basic details of associate</p>
             <p class="formRequiredtext "><span class="text-mandatorysign">* </span>marked fields are
-                required </p>
+                required.</p>
         </div>
         <form action="#">
             <div class="formElements">
@@ -491,9 +665,9 @@ async function save_facility(){
                             </span>
                             <input type="text" class="inputbox" bind:value={$facility_data_store.facility_name}
                             on:blur={()=>verify_facility_name()}>
-                            <div class="text-red-500">
+                            <!-- <div class="text-red-500">
                                 {facility_name_message}
-                            </div>
+                            </div> -->
                             
                         </div>
                        
@@ -501,6 +675,18 @@ async function save_facility(){
                     
                 </div>
                 <div class="flex">
+                    <div class="formGroup ">
+                        <label class="formLable invisible" ></label>
+                        <div class="formInnerGroup mt-1">
+                            <div class="text-red-500 text-xs">
+                                {facility_name_message}
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                </div> 
+                <!-- <div class="flex">
                     <button on:click|preventDefault={()=>{temp_show_value()}} class="saveandproceed">temp</button>
                     <div class="formGroup ">
                         <label class="formLable ">Email ID </label>
@@ -515,7 +701,7 @@ async function save_facility(){
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> -->
                 <div class="flex">
                     <div class="formGroup ">
                         <label class="formLable ">Date of Birth <span
@@ -526,14 +712,25 @@ async function save_facility(){
                                     alt="">
                             </span>
                             <!-- <input type="Email" class="inputbox"> -->
-                            <DateInput placeholder="testing" bind:value={date}  format="dd/MM/yyyy" max={max_date}/>
+                            <DateInput placeholder="testing" bind:value={date}  format="dd/MM/yyyy" max={max_date} />
                         </div>
                     </div>
                 </div>
                 <div class="flex">
+                    <div class="formGroup ">
+                        <label class="formLable invisible" ></label>
+                        <div class="formInnerGroup mt-1">
+                            <div class="text-red-500 text-xs">
+                                {facility_dob_message}
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                </div> 
+                <div class="flex">
                     <div class="formGroup py-1">
-                        <label class="formLable ">Associate Photo <span
-                                class="mandatoryIcon">*</span></label>
+                        <label class="formLable ">Associate Photo </label>
                         <div class="formInnerGroup ">
 
                             <span class="profileimage hidden">
@@ -543,7 +740,7 @@ async function save_facility(){
                                 <span><img src="../src/img/closeblue.png" alt=""></span> -->
                                 <label class="cursor-pointer ">
                                     <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
-                                    <input type='file' class="hidden" accept=".jpg, .jpeg, .png" on:change={(e)=>onFileSelected(e)} bind:this={fileinput} />
+                                    <input type='file' class="hidden" accept=".jpg, .jpeg, .png, .pdf" on:change={(e)=>onFileSelected(e)} bind:this={fileinput} />
                                     {#if profile_pic_data.file_name}
                                     {profile_pic_data.file_name}
                                     {/if}
@@ -552,6 +749,18 @@ async function save_facility(){
                         </div>
                     </div>
                 </div>
+                <div class="flex">
+                    <div class="formGroup ">
+                        <label class="formLable invisible" ></label>
+                        <div class="formInnerGroup mt-1">
+                            <div class="text-red-500 text-xs">
+                                {present_address_proof_data_message}
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                </div> 
                 <div class="flex">
                     <div class="formGroup ">
                         <label class="formLable ">City <span
@@ -574,6 +783,18 @@ async function save_facility(){
                 </div>
                 <div class="flex">
                     <div class="formGroup ">
+                        <label class="formLable invisible" ></label>
+                        <div class="formInnerGroup mt-1">
+                            <div class="text-red-500 text-xs">
+                                {present_address_city_message}
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                </div> 
+                <div class="flex">
+                    <div class="formGroup ">
                         <label class="formLable ">Permanent Address <span
                                 class="mandatoryIcon">*</span></label>
                         <div class="formInnerGroup ">
@@ -586,6 +807,18 @@ async function save_facility(){
                         </div>
                     </div>
                 </div>
+                <div class="flex">
+                    <div class="formGroup ">
+                        <label class="formLable invisible" ></label>
+                        <div class="formInnerGroup mt-1">
+                            <div class="text-red-500 text-xs">
+                                {present_address_address_message}
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                </div> 
                 <!-- <div class="flex">
                     <div class="formGroup ">
                         <label class="formLable invisible xs:hidden">Permanent Address <span
@@ -606,7 +839,7 @@ async function save_facility(){
                         <div class="formInnerGroup ">
                             <label class="cursor-pointer ">
                                 <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
-                                <input type='file' class="hidden" accept=".jpg, .jpeg, .png" on:change={(e)=>onadders_prrof(e)} bind:this={fileinput} />
+                                <input type='file' class="hidden" accept=".jpg, .jpeg, .png,.pdf" on:change={(e)=>onadders_prrof(e)} bind:this={fileinput} />
                                 {#if address_proof_data.file_name}
                                 {address_proof_data.file_name}
                                 {/if}
@@ -614,6 +847,18 @@ async function save_facility(){
                         </div>
                     </div>
                 </div>
+                <div class="flex">
+                    <div class="formGroup ">
+                        <label class="formLable invisible" ></label>
+                        <div class="formInnerGroup mt-1">
+                            <div class="text-red-500 text-xs">
+                                { present_address_address_proof_message}
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                </div> 
                 <div class="flex">
                     <div class="formGroup ">
                         <label class="formLable">Pin Code<span class="mandatoryIcon">*</span></label>
@@ -626,6 +871,18 @@ async function save_facility(){
                         </div>
                     </div>
                 </div>
+                <div class="flex">
+                    <div class="formGroup ">
+                        <label class="formLable invisible" ></label>
+                        <div class="formInnerGroup mt-1">
+                            <div class="text-red-500 text-xs">
+                                {present_address_postal_message}
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                </div> 
                 <div class="flex">
                     <div class="formGroup ">
                         <label class="formLable ">Permanent Address Same As<br>Present/Shipping Address ? <span
@@ -644,6 +901,18 @@ async function save_facility(){
                             </select>
                         </div>
                     </div>
+                </div>
+                <div class="flex">
+                    <div class="formGroup ">
+                        <label class="formLable invisible" ></label>
+                        <div class="formInnerGroup mt-1">
+                            <div class="text-red-500 text-xs">
+                                {address_check_message}
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
                 </div>
                 {#if address_check == "No"}
                 <div class="flex">
@@ -668,6 +937,18 @@ async function save_facility(){
                 </div>
                 <div class="flex">
                     <div class="formGroup ">
+                        <label class="formLable invisible" ></label>
+                        <div class="formInnerGroup mt-1">
+                            <div class="text-red-500 text-xs">
+                                {work_address_city_message}
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                </div> 
+                <div class="flex">
+                    <div class="formGroup ">
                         <label class="formLable ">Enter Associate's<br> Present/Shipping Address <span
                                 class="mandatoryIcon">*</span></label>
                         <div class="formInnerGroup ">
@@ -682,6 +963,18 @@ async function save_facility(){
                 </div>
                 <div class="flex">
                     <div class="formGroup ">
+                        <label class="formLable invisible" ></label>
+                        <div class="formInnerGroup mt-1">
+                            <div class="text-red-500 text-xs">
+                                {work_address_address_message}
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                </div> 
+                <div class="flex">
+                    <div class="formGroup ">
                         <label class="formLable">Pin Code<span class="mandatoryIcon">*</span></label>
                         <div class="formInnerGroup ">
                             <span class="searchicon">
@@ -693,13 +986,24 @@ async function save_facility(){
                     </div>
                 </div>
                 <div class="flex">
+                    <div class="formGroup ">
+                        <label class="formLable invisible" ></label>
+                        <div class="formInnerGroup mt-1">
+                            <div class="text-red-500 text-xs">
+                                {work_address_postal_message}
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                </div> 
+                <div class="flex">
                     <div class="formGroup">
-                        <label class="formLable ">Upload Associate's Present/<br>Shipping Address Proof<span
-                                class="mandatoryIcon">*</span></label>
+                        <label class="formLable ">Upload Associate's Present/<br>Shipping Address Proof</label>
                         <div class="formInnerGroup ">
                             <label class="cursor-pointer ">
                                 <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
-                                <input type='file' class="hidden" accept=".jpg, .jpeg, .png" on:change={(e)=>onpresent_address_proof(e)} bind:this={fileinput} />
+                                <input type='file' class="hidden" accept=".jpg, .jpeg, .png,.pdf" on:change={(e)=>onpresent_address_proof(e)} bind:this={fileinput} />
                                 {#if present_address_proof_data.file_name}
                                 {present_address_proof_data.file_name}
                                 {/if}

@@ -14,7 +14,7 @@ let otp_message_status;
 let send_otp_disabled = true;
 let toggele = true;
 let otp = null;
-
+var seconds = 60;
 
 
 function route() {
@@ -25,13 +25,20 @@ function route() {
 
 async function check_mobile_number(){
     let valid = true;
-    if(!$facility_data_store.phone_number.match(mobile_no_pattern)){
+    if($facility_data_store.phone_number != null){
+        if(!$facility_data_store.phone_number.match(mobile_no_pattern)){
         valid = false;
         mobile_number_message = "Please enter a valid Mobile number";
     }
     else{
         mobile_number_message = "";
     }
+
+    }else{
+        valid = false;
+        mobile_number_message = "Please enter a Mobile number";
+    }
+    
     if(valid){
         send_otp_disabled = true;
         let valid_mobile_number_response = await verify_mobile_number_function();
@@ -363,7 +370,7 @@ async function verify_otp(){
                         <label class="formLable xs:hidden sm:hidden"></label>
                         <div class="formInnerGroup">
                             <p class="noteDescription  flex justify-between">
-                                <span class="secText">60 Sec</span>
+                                <span class="secText">{seconds} Sec</span>
                                 <span> OTP sent on {$facility_data_store.phone_number} <span class="cursor: pointer text-blue-600 text-decoration-line: underline " on:click={()=>switch_toggele()}>Edit</span>  </span>
                             </p>
                             <button on:click|preventDefault={()=>{verify_otp()}} class="ErBlueButton mt-3">Verify & Proceed</button>

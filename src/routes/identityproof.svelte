@@ -6,6 +6,7 @@
 import { msme_store,documents_store } from "../stores/document_store";
 import { current_user } from "../stores/current_user_store";
 import { get_current_user_function } from "../services/dashboard_services";
+import {allowed_pdf_size} from '../services/pravesh_config';
     // import {}
 
 
@@ -87,6 +88,12 @@ async function verify_pancard(){
         pan_card_message = "";
         let pan_card_proof_response = await verify_document_function(pan_card_data.doc_number);
         console.log("pan_card_proof_response",pan_card_proof_response);
+        if(pan_card_proof_response.body.data == false){
+            pan_card_message = pan_card_proof_response.body.message;
+        }
+        else{
+            pan_card_message = "";
+        }
     }
 
     }
@@ -104,6 +111,13 @@ async function verify_adhar_card(){
         adhar_card_message  = "";
         let adhar_card_proof_response = await verify_document_function(adhar_card_data.doc_number);
         console.log("adhar_card_proof_response",adhar_card_proof_response);
+        if(adhar_card_proof_response.body.data == false){
+            console.log("inside if adhar_card_proof_response");
+            adhar_card_message = adhar_card_proof_response.body.message;
+        }
+        else{
+            adhar_card_message = "";
+        }
     }
 
     }
@@ -118,6 +132,12 @@ async function verify_voter_id_card(){
         voter_id_message = "";
         let voter_id_proof_response = await verify_document_function(voter_id_card_data.doc_number);
         console.log("voter_id_proof_response",voter_id_proof_response);
+        if(voter_id_proof_response.body.data == false){
+            voter_id_message = voter_id_proof_response.body.message;
+        }
+        else{
+            voter_id_message = "";
+        }
     }
 
     
@@ -133,6 +153,12 @@ async function verify_driving_license(){
         driving_license_message = "";
         let driving_license_proof_response = await verify_document_function(driving_license_data.doc_number);
         console.log("driving_license_proof_response",driving_license_proof_response);
+        if(driving_license_proof_response.body.data == false){
+            driving_license_message = driving_license_proof_response.body.message;
+        }
+        else{
+            driving_license_message = "";
+        }
     }
 
     }
@@ -202,8 +228,8 @@ function set_user_id_to_document_store(){
 }
 const on_pan_upload =(e) =>{
     let image = e.target.files[0];
-    
-    pan_card_data.file_name = image.name;
+    if(image.size <= allowed_pdf_size){
+        pan_card_data.file_name = image.name;
     let reader = new FileReader();
     reader.readAsDataURL(image);
     reader.onload = e => {
@@ -212,11 +238,18 @@ const on_pan_upload =(e) =>{
             console.log("pan_card_copy",pan_card_data);
         };
 
+
+    }else{
+        alert("File size is greater than "+ Number(allowed_pdf_size/1048576)+"MB. Please upload a file less than "+Number(allowed_pdf_size/1048576)+"MB .");
+    }
+
+    
+    
 }
 const on_adhar_upload =(e) =>{
     let image = e.target.files[0];
-    
-    adhar_card_data.file_name = image.name;
+    if(image.size <= allowed_pdf_size){
+        adhar_card_data.file_name = image.name;
     let reader = new FileReader();
     reader.readAsDataURL(image);
     reader.onload = e => {
@@ -225,11 +258,17 @@ const on_adhar_upload =(e) =>{
             console.log("adhar_card_copy",adhar_card_data);
         };
 
+    }else{
+        alert("File size is greater than "+ Number(allowed_pdf_size/1048576)+"MB. Please upload a file less than "+Number(allowed_pdf_size/1048576)+"MB .");
+    }
+    
+    
+
 }
 const on_voter_id_upload =(e) =>{
     let image = e.target.files[0];
-    
-    voter_id_card_data.file_name = image.name;
+    if(image.size <= allowed_pdf_size){
+        voter_id_card_data.file_name = image.name;
     let reader = new FileReader();
     reader.readAsDataURL(image);
     reader.onload = e => {
@@ -238,11 +277,18 @@ const on_voter_id_upload =(e) =>{
             console.log("voter_id_card_copy",voter_id_card_data);
         };
 
+        
+    }
+    else{
+        alert("File size is greater than "+ Number(allowed_pdf_size/1048576)+"MB. Please upload a file less than "+Number(allowed_pdf_size/1048576)+"MB .");
+    }
+    
+    
 }
 const on_driving_license_upload =(e) =>{
     let image = e.target.files[0];
-    
-    driving_license_data.file_name = image.name;
+    if(image.size <= allowed_pdf_size){
+        driving_license_data.file_name = image.name;
     let reader = new FileReader();
     reader.readAsDataURL(image);
     reader.onload = e => {
@@ -250,6 +296,13 @@ const on_driving_license_upload =(e) =>{
             driving_license_data.pod = e.target.result;
             console.log("driving_license_copy",driving_license_data);
         };
+
+    }
+    else{
+        alert("File size is greater than "+ Number(allowed_pdf_size/1048576)+"MB. Please upload a file less than "+Number(allowed_pdf_size/1048576)+"MB .");
+    }
+    
+    
 
 }
 async function  get_current_user(){
@@ -271,10 +324,27 @@ async function  get_current_user(){
 
     }
 async function save_facility(){
-    $documents_store.documents.push(pan_card_data);
-    $documents_store.documents.push(adhar_card_data);
-    $documents_store.documents.push(voter_id_card_data);
-    $documents_store.documents.push(driving_license_data);
+    
+    if(pan_card_data.doc_number != null){
+        $documents_store.documents.push(pan_card_data);
+
+    }
+
+    if(adhar_card_data.doc_number != null){
+        $documents_store.documents.push(adhar_card_data);
+
+    }
+    
+    if(voter_id_card_data.doc_number != null){
+        $documents_store.documents.push(voter_id_card_data);
+
+    }
+
+    if(driving_license_data.doc_number != null){
+        $documents_store.documents.push(driving_license_data);
+
+    }
+   
     console.log("documents_store",$documents_store);
     set_user_id_to_document_store();
     let save_facility_response = await save_facility_function();
@@ -324,6 +394,8 @@ async function save_facility(){
 
             
             $msme_store.resource_id = $facility_id.facility_id_number;
+            let replaceState = false;
+             goto("bankdetails", { replaceState });
             // let msme_store_value;
             // msme_store.subscribe(value => {
             //     msme_store_value = value;
@@ -555,7 +627,7 @@ async function save_facility(){
                         <div class="formInnerGroup ">
                             <label class="cursor-pointer ">
                                 <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
-                                <input type='file' class="hidden" accept=".jpg, .jpeg, .png" on:change={(e)=>on_pan_upload(e)}  />
+                                <input type='file' class="hidden" accept=".jpg, .jpeg, .png,.pdf" on:change={(e)=>on_pan_upload(e)}  />
                                 {#if  pan_card_data.file_name}
                                 {pan_card_data.file_name}
                                     
@@ -591,9 +663,9 @@ async function save_facility(){
                         <div class="formInnerGroup ">
                             <label class="cursor-pointer ">
                                 <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
-                                <input type='file' class="hidden"  accept=".jpg, .jpeg, .png" on:change={(e)=>on_adhar_upload(e)}  />
+                                <input type='file' class="hidden"  accept=".jpg, .jpeg, .png,.pdf" on:change={(e)=>on_adhar_upload(e)}  />
                                 {#if  adhar_card_data.file_name}
-                                {adhar_card_data.file_name}
+                                {adhar_card_message}
                                     
                                 {/if}
                             </label>
@@ -638,7 +710,7 @@ async function save_facility(){
                         <div class="formInnerGroup ">
                             <label class="cursor-pointer ">
                                 <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
-                                <input type='file' class="hidden"  accept=".jpg, .jpeg, .png" on:change={(e)=>on_voter_id_upload(e)}  />
+                                <input type='file' class="hidden"  accept=".jpg, .jpeg, .png,.pdf" on:change={(e)=>on_voter_id_upload(e)}  />
                                 {#if  voter_id_card_data.file_name}
                                 {voter_id_card_data.file_name}
                                     
@@ -675,7 +747,7 @@ async function save_facility(){
                         <div class="formInnerGroup ">
                             <label class="cursor-pointer ">
                                 <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
-                                <input type='file' class="hidden"  accept=".jpg, .jpeg, .png" on:change={(e)=>on_driving_license_upload(e)}  />
+                                <input type='file' class="hidden"  accept=".jpg, .jpeg, .png,.pdf" on:change={(e)=>on_driving_license_upload(e)}  />
                                 {#if  driving_license_data.file_name}
                                 {driving_license_data.file_name}
                                     
