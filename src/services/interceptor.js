@@ -264,11 +264,11 @@ export function request(
         "Content-Type": "application/json;charset=utf-8",
         "dataType" : 'json',
         "Contains-Array" : 'true',
-        // "Accept": "application/json",
-        "accept": "application/json"
+      //   // "Accept": "application/json",
+      //   "accept": "application/json"
         
-        // "Access-Control-Allow-Origin": "https://elasticrun.in",
-        // "Access-Control-Allow-Origin":" *"
+      //   // "Access-Control-Allow-Origin": "https://elasticrun.in",
+      //   // "Access-Control-Allow-Origin":" *"
         
 
       },

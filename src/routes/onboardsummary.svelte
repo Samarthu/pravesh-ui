@@ -12,7 +12,8 @@
     import { addnew_cheque_details } from "../services/onboardsummary_services";
     import { facility_document } from "../services/onboardsummary_services";
     import { audit_trail_data } from "../services/supplier_services";
-    import { facility_data,facility_bgv_init,facility_bgv_check,all_facility_tags,show_fac_tags,submit_fac_tag_data} from "../services/onboardsummary_services";
+    import { facility_data,facility_bgv_init,facility_bgv_check,all_facility_tags,
+        show_fac_tags,submit_fac_tag_data,remove_tag,tag_audit_trail} from "../services/onboardsummary_services";
     import {get_date_format} from "../services/date_format_servives";
     import {facility_id} from "../stores/facility_id_store"
     import {facility_data_store} from "../stores/facility_store"
@@ -34,6 +35,8 @@
     let facility_document_data = [];
     let all_tags_data = [];
     let show_fac_array = [];
+    let tag_data_arr = [];
+    let show_creation_date;
     let all_tags_res;
     let bank_details_res, bank_name,type,cheque_number,amount,recrun_number,file_number,img_name,bank_new_date,
     facility_modified_date,facility_created_date,facility_doc_date;
@@ -44,7 +47,7 @@
     let select_tag_data,tag_date,tag_remark
     
     let pan_num = "-",aadhar_num = "-",pan_attach = "-",aadhar_attach = "-",
-    profile_url = "-",address_url,pan_verified,aadhar_verified,profile_verified,address_verified,
+    profile_url = "",address_url,pan_verified,aadhar_verified,profile_verified,address_verified,
     gst_url,gst_verified,can_check_url,dl_lic_attach ="-",dl_lic_url = "-",offer_url = "-";
    
     let aadhar_name = "Not Submitted",pan_name = "Not Submitted",dl_lic_name = "Not Submitted",address_name = "Not Submitted",
@@ -225,6 +228,10 @@
         $facility_data_store.station_code,
         $facility_data_store.facility_type,
     ]    
+
+    console.log("bgv_pass_dataaa",  $facility_data_store.org_id,
+        $facility_data_store.station_code,
+        $facility_data_store.facility_type);
     let bgv_init_res = await facility_bgv_init(bgv_pass_data);
     if (bgv_init_res.body.status == "green"){
             showbtn = 1;
@@ -237,7 +244,7 @@
     }
 
     all_tags_res = await all_facility_tags($facility_data_store.name);
-    console.log("all_tags_res",all_tags_res)
+    
     try {
         if(all_tags_res.body.status == "green")
         for(i=0;i < all_tags_res.body.data.length;i++){
@@ -255,11 +262,7 @@
     
   });
 
-
-
-
-        
-    /////////bank details//////;///////
+/////////bank details//////;///////
     const onFileSelected = (e) => {
         let img = e.target.files[0];
         console.log("img", img);
@@ -306,9 +309,10 @@
         goto(routeNext, { replaceState });
     }
 
-    function routeToBgv() {
+    async function routeToBgv() {
         let replaceState = false;
         goto(routeBgv, { replaceState });
+        
     }
 
     function myBtn() {
@@ -320,49 +324,130 @@
         console.log("INSIDE TAG ADD REMOVE")
         let tag_res = await show_fac_tags($facility_data_store.facility_type);
         try {
-                console.log("show fac res",tag_res.body.data)
                 show_fac_array = tag_res.body.data;
                 console.log("show_fac_array",show_fac_array)
                 for(let i=0;i < show_fac_array.length;i++){
                     
-                    console.log("INSIDE FOR LOOP",[i].modified)
-                    // let new_date =new Date([i].creation)
-                    // console.log("DATTTTTEEE",get_date_format(new_date,"dd-mm-yyyy-hh-mm"))
-                    // let show_creation_date = get_date_format(i.creation,"dd-mm-yyyy-hh-mm")
-                }
-                // console.log("show_creation_date",show_creation_date)
-            
-        } catch(err) {
-        // console.log("ERROR")
-        message.innerHTML = "Error is " + err;
-    }
+                    let new_date =new Date(show_fac_array[i].creation)
+                    show_creation_date = get_date_format(new_date,"yyyy-mm-dd")
+                    show_fac_array[i].creation=show_creation_date;
+        }
+        } 
+        catch(err) {
+        console.log("ERROR")
+        // message.innerHTML = "Error is " + err;
+         }
 
     }
-    function handleTagClick(){
+    async function handleTagClick(){
         let new_tag_id
-    // try {
+    try {
     //     if(all_tags_res.body.status == "green"){
         
         for(let i=0; i < all_tags_res.body.data.length; i++){
-            console.log("INDISDE FOR LOOP")
             // console.log("INDISDE FOR LOOPform_data from html",select_tag_data,all_tags_res.body.data[i].tag_name)
             if(select_tag_data == all_tags_res.body.data[i].tag_name){
-                console.log("INDISDE IF LOOPform_data from html",all_tags_res.body.data[i].tag_id)
+                
                 new_tag_id = all_tags_res.body.data[i].tag_id;
-                console.log("TAGGGGG IIIIDDDD",new_tag_id)
             }
             
         }
-         submit_fac_tag_data(new_tag_id,select_tag_data,tag_date,tag_remark)
+        if(!select_tag_data){
+            console.log("Please select tag name")
+            if(!tag_remark){
+            console.log("Please enter a remark")
+        }
+        }
+        else{
+            show_fac_array = [];
+        let submit_fac_res = await submit_fac_tag_data(new_tag_id,select_tag_data,tag_date,tag_remark)
+        if(submit_fac_res.body.status == "green"){
+        let temp_res = await show_fac_tags($facility_data_store.facility_type);
+        try {
+                
+                show_fac_array = temp_res.body.data;
+                console.log("show_fac_array IN remove",show_fac_array)
+                for(let i=0;i < show_fac_array.length;i++){
+                    
+                    let new_date =new Date(show_fac_array[i].creation)
+                    show_creation_date = get_date_format(new_date,"yyyy-mm-dd")
+                    show_fac_array[i].creation=show_creation_date;
+        }
+        show_fac_array = show_fac_array;
     }
-// }
-    // catch(err) {
-    //     // console.log("ERROR")
-    //     message.innerHTML = "Error is " + err;
-    // }
-        
+        catch(err) {
+        console.log("ERROR")
+        // message.innerHTML = "Error is " + err;
+         }
+
+        }
+    }
+
+}
+    catch(err) {
+        console.log("ERROR")
+        // message.innerHTML = "Error is " + err;
+    }
+      
+}
+
+    async function removeTag(tag_id,tag_name,owner,tag_status){
+        show_fac_array = [];
+        let fac_id
+        console.log("tag_id,tag_name,owner",tag_id,tag_name,owner)
        
-// }
+            if(owner == $facility_data_store.owner){
+                fac_id = $facility_data_store.name
+                console.log("fac_id",fac_id)
+        }
+        let remove_tag_res = await remove_tag(fac_id,tag_id,tag_name);
+        if(remove_tag_res.body.status == "green")
+        {
+        let temp_res = await show_fac_tags($facility_data_store.facility_type);
+        try {
+                
+                console.log("show_fac_array inside rem tag",show_fac_array)
+                show_fac_array = temp_res.body.data;
+                
+                // console.log("show_fac_array IN remove",show_fac_array)
+                for(let i=0;i < show_fac_array.length;i++){
+                    
+                    let new_date =new Date(show_fac_array[i].creation)
+                    show_creation_date = get_date_format(new_date,"yyyy-mm-dd")
+                    show_fac_array[i].creation=show_creation_date;
+        }
+       
+    }
+        catch(err) {
+        console.log("ERROR")
+        // message.innerHTML = "Error is " + err;
+         }
+
+    }
+}
+
+
+   async function tagAuditFunc(){
+        temp = "tag";
+        let tag_audit_res =await tag_audit_trail();
+        try {
+            if(tag_audit_res.body.status == "green"){
+            console.log("tag_audit_res",tag_audit_res);
+            tag_data_arr = tag_audit_res.body.data
+            for(let i=0;i < tag_data_arr.length;i++){
+                let new_date =new Date(tag_data_arr[i].creation)
+                show_creation_date = get_date_format(new_date,"yyyy-mm-dd")
+                tag_data_arr[i].creation=show_creation_date;
+            }
+            console.log("TAG DATA ARRA",tag_data_arr)
+            tag_data_arr = tag_data_arr;
+               
+        }} catch(err) {
+        console.log("ERROR")
+        // message.innerHTML = "Error is " + err;
+         }
+       
+    }
 
     function clear() {
         addRemoveModal.style.display = "none";
@@ -787,11 +872,12 @@
 
             <div class="profilepic">
                 {#if !profile_url}
-                <p>Img Not Found</p>
-                {:else}
-                <img src={profile_url} alt="Img Not Found" />
-                <!-- <img src={profile_url} alt="" /> -->
+                <img src="../src/img/backlist.png" alt="">
+                <img src="../src/img/delivery.png"alt="" /> 
                 <p class="imgName">{$facility_data_store.facility_name}</p>
+                {:else}
+                <img src={profile_url} alt="" /> 
+                 <p class="imgName">{$facility_data_store.facility_name}</p>
                 {/if}
             </div>
 
@@ -1033,7 +1119,11 @@
                     <img src="../src/img/pan.png" alt="" />
                     <div class="pl-4">
                         <p class="detailLbale">User ID</p>
+                        {#if !$facility_data_store.facility_id}
+                        <p>-</p>
+                        {:else}
                         <p class="detailData">{$facility_data_store.facility_id}</p>
+                        {/if}
                     </div>
                 </div>
             </div>
@@ -1095,6 +1185,10 @@
                         </p>
                     </div>
                     <div class="right flex">
+                        <!-- {#each tag_data_arr as arr }
+                        {arr}
+                            
+                        {/each} -->
                         <p
                             class="flex items-center smButtonText pr-3"
                             on:click={tagAddRemove}
@@ -1161,9 +1255,8 @@
                                                 </div>
                                                 <div
                                                     class="Historytab py-3 w-2/4	 bg-bglightgreye"
-                                                    on:click={() => {
-                                                        temp = "tag";
-                                                    }}
+                                                    on:click={tagAuditFunc}
+                                                
                                                 >
                                                     <p>Tag Audit Trail</p>
                                                 </div>
@@ -1190,7 +1283,7 @@
                                                                     class="pt-6"
                                                                     >Select</option
                                                                 > -->
-                                                            <option>Select</option>
+                                                            <option value="">Select</option>
                                                             {#each all_tags_data as tag_data}
                                                             <option>{tag_data}</option>
                                                                 <!-- <option
@@ -1312,6 +1405,7 @@
                                                             <tbody
                                                                 class="tbodypopover"
                                                             >{#each show_fac_array as show_fac}
+                                                            
                                                                 <tr
                                                                     class="border-b"
                                                                 >
@@ -1319,7 +1413,11 @@
                                                                         >{show_fac.tag_name}</td
                                                                     >
                                                                     <td
-                                                                        >{show_fac.remarks}</td
+                                                                        >
+                                                                        {#if !show_fac.remarks}
+                                                                        <p>-</p>
+                                                                        {:else}
+                                                                        {show_fac.remarks}{/if}</td
                                                                     >
                                                                     <td
                                                                         >{show_fac.owner}</td
@@ -1328,7 +1426,11 @@
                                                                         >{show_fac.creation}</td
                                                                     >
                                                                     <td
-                                                                        >{show_fac.deactivation_date}</td
+                                                                        >
+                                                                        {#if !show_fac.deactivation_date}
+                                                                        <p>-</p>
+                                                                        {:else}
+                                                                        {show_fac.deactivation_date}{/if}</td
                                                                     >
                                                                     <td>
                                                                         <div
@@ -1337,6 +1439,7 @@
                                                                             <img
                                                                                 src="../src/img/reject.png"
                                                                                 alt=""
+                                                                                on:click="{removeTag(show_fac.name,show_fac.tag_name,show_fac.owner)}"
                                                                             />
                                                                         </div>
                                                                     </td>
@@ -1373,6 +1476,7 @@
                                                                         </div>
                                                                     </td>
                                                                 </tr> -->
+                                                
                                                                 {/each}
                                                             </tbody>
                                                         </table>
@@ -1481,6 +1585,7 @@
                                                     <table
                                                         class="table  mt-2 w-full xs:hidden sm:hidden"
                                                     >
+                                                   
                                                         <thead
                                                             class="theadpopover"
                                                         >
@@ -1495,7 +1600,41 @@
                                                         <tbody
                                                             class="tbodypopover"
                                                         >
-                                                            <tr
+                                                        {#each tag_data_arr as new_tag_audit}   
+                                                        <tr
+                                                                class="border-b"
+                                                            >
+                                                            <!-- {#each tag_data_arr as new_tag_audit}
+                                                                <td
+                                                                    >{new_tag_audit.parenttype}</td
+                                                                >
+                                                                <td
+                                                                    >{new_tag_audit.creation}</td
+                                                                >
+                                                                <td
+                                                                    >{new_tag_audit.owner}</td
+                                                                >
+                                                                <td>{new_tag_audit.status}</td>
+                                                                {/each} -->
+                                                                
+                                                               
+                                                                <td
+                                                                    >{new_tag_audit.parenttype}</td
+                                                                >
+                                                                <td
+                                                                    >{new_tag_audit.creation}</td
+                                                                >
+                                                                <td
+                                                                    >{new_tag_audit.owner}</td
+                                                                >
+                                                                <td>{new_tag_audit.status}</td>
+                                                               
+                                    
+                                                               
+                                                                <!-- <td>demo</td> -->
+                                                            </tr>
+                                                            {/each}
+                                                            <!-- <tr
                                                                 class="border-b"
                                                             >
                                                                 <td
@@ -1509,25 +1648,11 @@
                                                                     >User name</td
                                                                 >
                                                                 <td>Active</td>
-                                                            </tr>
-                                                            <tr
-                                                                class="border-b"
-                                                            >
-                                                                <td
-                                                                    >Addhoc
-                                                                    Facility</td
-                                                                >
-                                                                <td
-                                                                    >10-09-2020</td
-                                                                >
-                                                                <td
-                                                                    >User name</td
-                                                                >
-                                                                <td>Active</td>
-                                                            </tr>
+                                                            </tr> -->
+                                                            
                                                         </tbody>
+                                                        
                                                     </table>
-                                                    ​
                                                     <div
                                                         class="associateCard  border p-p7px rounded-md hidden xs:block sm:block"
                                                     >
@@ -4429,6 +4554,7 @@
                                                 <img
                                                     src="../src/img/reject.png"
                                                     alt=""
+                                                    
                                                 />
                                             </div>
                                         </div>

@@ -81,6 +81,7 @@ const facility_data = () =>{
 }
 
 const facility_bgv_init =(data) =>{
+    // console.log("DATA ARRAY ",data[0],data[1],data[2])
     let facility_bgv_init_url = '/api/method/pravesh.facility.routes.facility_bgv_configuration.check_bgv_config?org_id='+data[0]+'&station_code='+data[1]+'&facility_type='+data[2]+'';
     return request(
         facility_bgv_init_url,{
@@ -88,8 +89,9 @@ const facility_bgv_init =(data) =>{
         },true)
 }
 const facility_bgv_check =() =>{
-  let facility_bgv_check_url = '/api/resource/Facility%20BGV?filters=[[%22facility_id%22,%22=%22,%22'+new_facility_id+'%22]]&fields=[%22*%22]';
-    return request(
+//   let facility_bgv_check_url = '/api/resource/Facility%20BGV?filters=[[%22facility_id%22,%22=%22,%22'+new_facility_id+'%22]]&fields=[%22*%22]';
+let facility_bgv_check_url = '/api/resource/Facility%20BGV?filters=[[%22facility_id%22,%22=%22,%22'+"CRUN00374"+'%22]]&fields=[%22*%22]';  //TEMPORARY as facility id is refreshed in bgv.svelte
+return request(
         facility_bgv_check_url,{
             method: "GET"
         },true)
@@ -112,7 +114,7 @@ const show_fac_tags = () => {
 }
 
 const submit_fac_tag_data = (new_tag_id,select_tag_data,tag_date,tag_remark) =>{
-    console.log("select_tag_data,tag_date,tag_remark",new_tag_id,select_tag_data,tag_date,tag_remark)
+    // console.log("select_tag_data,tag_date,tag_remark",new_tag_id,select_tag_data,tag_date,tag_remark)
     let submit_fac_tag_url = '/api/method/pravesh.facility.routes.facility.add_facility_tags';
 
     let tag_data = {"facility_id": new_facility_id,
@@ -126,14 +128,25 @@ const submit_fac_tag_data = (new_tag_id,select_tag_data,tag_date,tag_remark) =>{
     }
     return request(
         submit_fac_tag_url, 
-        {
-            body:JSON.stringify(tag_data),
-            method: "POST",
-            mode:'no-cors'              
+        {  method: "POST",
+            body:JSON.stringify(tag_data),              
         },true)
-    // .then(
-    //     console.log("data",data)
-    // )
+}
+
+const remove_tag =(fac_id,tag_id,tag_name) => {
+    let remove_tag_url = '/api/method/pravesh.facility.routes.facility.delete_facility_tag?facility_id=' + fac_id + '&tag_id=' + tag_id + '&tag_name='+tag_name;
+    return request(
+        remove_tag_url,{
+            method: "GET"
+        },true)
+}
+
+const tag_audit_trail = () => {
+    let tag_audit_trail_url = '/api/method/pravesh.facility.routes.facility_audit_trail.get_fac_tag_trail?facility_id='+new_facility_id+'&regx=Tag';
+    return request(
+        tag_audit_trail_url,{
+            method: "GET"
+        },true)
 }
 
 
@@ -148,5 +161,7 @@ export {
     facility_bgv_check,
     all_facility_tags,
     show_fac_tags,
-    submit_fac_tag_data
+    submit_fac_tag_data,
+    remove_tag,
+    tag_audit_trail
 }
