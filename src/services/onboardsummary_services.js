@@ -126,14 +126,25 @@ const submit_fac_tag_data = (new_tag_id,select_tag_data,tag_date,tag_remark) =>{
     }
     return request(
         submit_fac_tag_url, 
-        {
-            body:JSON.stringify(tag_data),
-            method: "POST",
-            mode:'no-cors'              
+        {  method: "POST",
+            body:JSON.stringify(tag_data),              
         },true)
-    // .then(
-    //     console.log("data",data)
-    // )
+}
+
+const remove_tag =(fac_id,tag_id,tag_name) => {
+    let remove_tag_url = '/api/method/pravesh.facility.routes.facility.delete_facility_tag?facility_id=' + fac_id + '&tag_id=' + tag_id + '&tag_name='+tag_name;
+    return request(
+        remove_tag_url,{
+            method: "GET"
+        },true)
+}
+
+const tag_audit_trail = () => {
+    let tag_audit_trail_url = '/api/method/pravesh.facility.routes.facility_audit_trail.get_fac_tag_trail?facility_id='+new_facility_id+'&regx=Tag';
+    return request(
+        tag_audit_trail_url,{
+            method: "GET"
+        },true)
 }
 
 
@@ -148,5 +159,7 @@ export {
     facility_bgv_check,
     all_facility_tags,
     show_fac_tags,
-    submit_fac_tag_data
+    submit_fac_tag_data,
+    remove_tag,
+    tag_audit_trail
 }

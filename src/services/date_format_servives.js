@@ -3,7 +3,7 @@ const get_date_format = (date,format) =>{
         return "please provide a valid date";
     }
     else{
-        console.log("date",date);
+        // console.log("date",date);
         let day = date.getDate();
         let month = date.getMonth()+1;
         let year = date.getFullYear();
