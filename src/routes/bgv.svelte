@@ -1,8 +1,10 @@
 <script>
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
-    import {facility_bgv_init} from "../services/onboardsummary_services"
-    import {facility_bgv_check} from "../services/bgv_services"
+    import {facility_bgv_init,facility_bgv_check} from "../services/onboardsummary_services"
+    import {facility_data_store} from "../stores/facility_store";
+    import {bgv_data_store} from  "../stores/bgv_store";
+    import {get_states,get_cities} from "../services/bgv_services";
 
     let temp = "a";
     let routePrev = "";
@@ -13,12 +15,28 @@
     let is_email_verification_mandatory;
     let is_pan_info_mandatory;
     let is_police_verification_mandatory;
+    let gend_selected,add_is_perm,curr_same ;
+    let get_state_data;
+    let city_data=[];
 
 
-    onMount(async () => {
-        let bgv_init_res = await facility_bgv_init();
+    onMount(async () => {    
+    let bgv_pass_data=[
+        // $facility_data_store.org_id,
+        // $facility_data_store.station_code,
+        // $facility_data_store.facility_type,
+        "ER",
+        "CRUN",
+        "Reseller"
+    ]    
+
+    console.log("bgv_pass_dataaa",  $facility_data_store.org_id,
+        $facility_data_store.station_code,
+        $facility_data_store.facility_type);
+        let bgv_init_res = await facility_bgv_init(bgv_pass_data);
+
     if (bgv_init_res.body.status == "green"){
-        console.log("bgv_init_res",bgv_init_res.body.data.is_address_info_mandatory)
+        
         is_address_info_mandatory = bgv_init_res.body.data.is_address_info_mandatory;
         is_basic_info_mandatory = bgv_init_res.body.data.is_basic_info_mandatory;
         is_driving_license_mandatory = bgv_init_res.body.data.is_driving_license_mandatory;
@@ -36,18 +54,55 @@
             console.log("NO Data")
         }
         else{
-            console.log("facility_bgv_check_res",facility_bgv_check_res)
-            console.log("facility_bgv_check_res",facility_bgv_check_res.body.data)
-
+            $bgv_data_store = facility_bgv_check_res.body.data[0];
+           
+            gend_selected = $bgv_data_store.gender;
+            add_is_perm = $bgv_data_store.address_type;
+            curr_same = $bgv_data_store.current_address_is_same;
+           
         }
 
         
     } catch(err) {
-        message.innerHTML = "Error is " + err;
+        console.log("Error")
+        // message.innerHTML = "Error is " + err;
     }
 
+    let get_states_res = await get_states();
+    try {
+        if(get_states_res.body.status == "green"){
+            get_state_data = get_states_res.body.data;
+            console.log("get_state_data",get_state_data)
+        }
+        
+    } catch(err) {
+        console.log("Error")
+        // message.innerHTML = "Error is " + err;
+    }
+    
 
-    })
+    });
+
+    async function state_selected(get_state){
+       
+       let city_data_res =  await get_cities(get_state);
+       console.log("city_data_res Selected",city_data_res)
+       try {
+        if(!city_data_res){
+            console.log("No Data")
+           
+        }
+        else{
+            city_data = city_data_res.body.data;
+            console.log("city_data_res",city_data)
+        }
+        
+    } catch(err) {
+        console.log("Error")
+        // message.innerHTML = "Error is " + err;
+    }
+       
+    }
     function routeToOnboardsummary() {
         let replaceState = false;
         goto(routePrev, { replaceState });
@@ -305,7 +360,7 @@
                                 <div class="xs:w-full sm:w-full">
                                     <div class="flex  items-center">
                                         <div class="formInnerGroup ">
-                                            <input type="text" class="inputboxbgv" value="827181718272">
+                                            <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.adhar_card_number}">
                                         </div>
                                         <div>
                                             <img src="../src/img/edit.png" class="editbgv" alt="">
@@ -327,7 +382,7 @@
                                 <div class="xs:w-full sm:w-full">
                                     <div class="flex  items-center">
                                         <div class="formInnerGroup ">
-                                            <input type="text" class="inputboxbgv" value="Dhiraj">
+                                            <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.first_name}">
                                         </div>
                                         <div>
                                             <img src="../src/img/edit.png" class="editbgv" alt="">
@@ -348,7 +403,7 @@
                                 <div class="xs:w-full sm:w-full">
                                     <div class="flex  items-center">
                                         <div class="formInnerGroup ">
-                                            <input type="text" class="inputboxbgv" value="Shah">
+                                            <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.last_name}">
                                         </div>
                                         <div>
                                             <img src="../src/img/edit.png" class="editbgv" alt="">
@@ -370,7 +425,7 @@
                                 <div class=" sm:w-full xs:w-full">
                                     <div class="flex  items-center">
                                         <div class="formInnerGroup ">
-                                            <input type="text" class="inputboxbgv" value="Shah">
+                                            <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.father_name}">
                                         </div>
 
                                     </div>
@@ -386,10 +441,13 @@
                                     <p class="smNotebgv formLable">(for Rabbit ID Creation) </p>
                                 </div>
                                 <div class="flex justify-between formInnerGroup">
-                                    <p class="text-greycolor text-base">dhiraj.shah@gmail.com</p>
-
+                                    <!-- <p class="text-greycolor text-base">dhiraj.shah@gmail.com</p> -->
+                                    <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.email_id}">
+                                    {#if $bgv_data_store.is_email_verified =="1"}
                                     <p class="veriTextEmail "><img src="../src/img/checked.png"
                                             class="mr-1 object-contain" alt=""> Verified</p>
+                                            {:else}<p></p>
+                                    {/if}
                                 </div>
                             </div>
                         </div>
@@ -399,7 +457,7 @@
                                 <label class="formLable">Phone Number<span
                                         class="mandatoryIcon">*</span></label>
                                 <div class="formInnerGroup ">
-                                    <input type="text" class="inputboxbgv" value="8383838388">
+                                    <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.phone_number}">
                                 </div>
                             </div>
                         </div>
@@ -411,7 +469,7 @@
                                 <div class="xs:w-full sm:w-full">
                                     <div class="flex  items-center">
                                         <div class="formInnerGroup ">
-                                            <input type="text" class="inputboxbgv" value="23-02-1991">
+                                            <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.basic_info_dob}">
                                         </div>
                                         <div>
                                             <img src="../src/img/edit.png" class="editbgv" alt="">
@@ -431,12 +489,12 @@
                                 <div class="xs:w-full sm:w-full">
                                     <div class="flex  items-center">
                                         <div class="formInnerGroup ">
-                                            <input type="text" class="inputboxbgv">
+                                            <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.spouse_name}">
                                         </div>
                                     </div>
                                     <div>
-                                        <p class="smNotebgv"> If Applicable
-                                        </p>
+                                        <!-- <p class="smNotebgv"> If Applicable
+                                        </p> -->
                                     </div>
                                 </div>
                             </div>
@@ -451,14 +509,14 @@
 
                                         <div class="flex items-center mr-4">
                                             <input id="radio1" type="radio" name="radio" class="hidden"
-                                                checked />
+                                                 bind:group="{gend_selected}" value="Male"/> 
                                             <label for="radio1" class="radioLable">
                                                 <span class="radioCirle"></span>
                                                 Male</label>
                                         </div>
 
                                         <div class="flex items-center ">
-                                            <input id="radio2" type="radio" name="radio" class="hidden" />
+                                            <input id="radio2" type="radio" name="radio" class="hidden" bind:group="{gend_selected}" value="Female"/>
                                             <label for="radio2" class="radioLable">
                                                 <span class="radioCirle"></span>
                                                 Female</label>
@@ -521,15 +579,16 @@
                                     <div class="text-center items-center flex ">
 
                                         <div class="flex items-center mr-4">
+                                           
                                             <input id="radio11" type="radio" name="radio2" class="hidden"
-                                                checked />
+                                            bind:group="{add_is_perm}" value="Permanant"/>
                                             <label for="radio11" class="radioLable">
                                                 <span class="radioCirle"></span>
                                                 Permanant</label>
                                         </div>
 
                                         <div class="flex items-center ">
-                                            <input id="radio22" type="radio" name="radio2" class="hidden" />
+                                            <input id="radio22" type="radio" name="radio2" class="hidden" bind:group="{add_is_perm}" value="Temporary"/>
                                             <label for="radio22" class="radioLable">
                                                 <span class="radioCirle"></span>
                                                 Temporary</label>
@@ -550,15 +609,22 @@
                                     <div class="text-center items-center flex ">
 
                                         <div class="flex items-center mr-4">
+                                             <!-- <input id="radio1" type="radio" name="radio" class="hidden"
+                                                 bind:group="{gend_selected}" value="Male"/> 
+                                            <label for="radio1" class="radioLable">
+                                                <span class="radioCirle"></span>
+                                                Male</label>
+                                        </div> -->
                                             <input id="radio13" type="radio" name="radio1" class="hidden"
-                                                checked />
+                                            bind:group="{curr_same}" value="Yes"/>
                                             <label for="radio13" class="radioLable">
                                                 <span class="radioCirle"></span>
                                                 Yes</label>
                                         </div>
 
                                         <div class="flex items-center ">
-                                            <input id="radio23" type="radio" name="radio1" class="hidden" />
+                                            <input id="radio23" type="radio" name="radio1" class="hidden" 
+                                            bind:group="{curr_same}" value="No"/>
                                             <label for="radio23" class="radioLable">
                                                 <span class="radioCirle"></span>
                                                 No</label>
@@ -577,7 +643,7 @@
                                     <div class="flex  items-center">
                                         <div class="formInnerGroup ">
                                             <input type="text" class="inputboxbgv"
-                                                value="r/no-9, jiwheshwar kripa chawl, penkarpada, chimaji">
+                                                bind:value="{$bgv_data_store.full_address}">
                                         </div>
                                         <div>
                                             <img src="../src/img/edit.png" class="editbgv" alt="">
@@ -594,12 +660,11 @@
                             <div class="formGroup ">
                                 <label class="formLable ">State<span class="mandatoryIcon">*</span></label>
                                 <div class="formInnerGroup ">
-
-                                    <select class="inputboxbgv">
-                                        <option class="pt-6">Select</option>
-                                        <option>Maha</option>
-                                        <option>Kerla</option>
-                                        <option>Goa</option>
+                                <select class="inputboxbgv" bind:value="{$bgv_data_store.state}" on:change="{state_selected($bgv_data_store.state)}">
+                                        {#each get_state_data as state_data}
+                                        <!-- <option class="pt-6" value="">Select</option> -->
+                                        <option>{state_data.state_name}</option>
+                                        {/each}
                                     </select>
                                     <div class="formSelectArrow ">
                                         <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
@@ -610,7 +675,7 @@
 
                         <div class="flex">
                             <div class="formGroup ">
-                                <label class="formLable ">District<span class="mandatoryIcon">*</span></label>
+                                <!-- <label class="formLable ">District<span class="mandatoryIcon">*</span></label>
                                 <div class="formInnerGroup ">
 
                                     <select class="inputboxbgv">
@@ -621,7 +686,21 @@
                                     <div class="formSelectArrow ">
                                         <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
                                     </div>
+                                </div> -->
+                                <label class="formLable ">District<span
+                                    class="mandatoryIcon">*</span></label>
+                                 <div class="xs:w-full sm:w-full">
+                                <div class="flex  items-center">
+                                    <div class="formInnerGroup ">
+                                        <input type="text" class="inputboxbgv"
+                                            bind:value="{$bgv_data_store.district}">
+                                    </div>
+                                    <div>
+                                        <img src="../src/img/edit.png" class="editbgv" alt="">
+                                    </div>
                                 </div>
+                                </div>
+
                             </div>
                         </div>
 
@@ -631,10 +710,13 @@
                                         class="mandatoryIcon">*</span></label>
                                 <div class="formInnerGroup ">
 
-                                    <select class="inputboxbgv">
-                                        <option class="pt-6">Select</option>
-                                        <option>Haveli</option>
-                                        <option>Mulshi</option>
+                                    <select class="inputboxbgv" bind:value="{$bgv_data_store.city}">
+                                        <!-- <option class="pt-6" value = "">Select</option> -->
+                                        {#each city_data as new_city}
+                                        <option>{new_city.location_name}</option> 
+                                        {/each} 
+                                        
+                                        <!-- <option>Mulshi</option> -->
                                     </select>
                                     <div class="formSelectArrow ">
                                         <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
@@ -647,7 +729,7 @@
                             <div class="formGroup ">
                                 <label class="formLable ">Pin Code<span class="mandatoryIcon">*</span></label>
                                 <div class="formInnerGroup ">
-                                    <input type="text" class="inputboxbgv">
+                                    <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.pin_code}">
                                 </div>
                             </div>
                         </div>
@@ -656,7 +738,7 @@
                             <div class="formGroup ">
                                 <label class="formLable ">Landmark<span class="mandatoryIcon">*</span></label>
                                 <div class="formInnerGroup ">
-                                    <input type="text" class="inputboxbgv">
+                                    <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.landmark}">
                                 </div>
                             </div>
                         </div>

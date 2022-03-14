@@ -228,6 +228,10 @@
         $facility_data_store.station_code,
         $facility_data_store.facility_type,
     ]    
+
+    console.log("bgv_pass_dataaa",  $facility_data_store.org_id,
+        $facility_data_store.station_code,
+        $facility_data_store.facility_type);
     let bgv_init_res = await facility_bgv_init(bgv_pass_data);
     if (bgv_init_res.body.status == "green"){
             showbtn = 1;
@@ -240,7 +244,7 @@
     }
 
     all_tags_res = await all_facility_tags($facility_data_store.name);
-    console.log("all_tags_res",all_tags_res)
+    
     try {
         if(all_tags_res.body.status == "green")
         for(i=0;i < all_tags_res.body.data.length;i++){
@@ -258,11 +262,7 @@
     
   });
 
-
-
-
-        
-    /////////bank details//////;///////
+/////////bank details//////;///////
     const onFileSelected = (e) => {
         let img = e.target.files[0];
         console.log("img", img);
@@ -309,9 +309,10 @@
         goto(routeNext, { replaceState });
     }
 
-    function routeToBgv() {
+    async function routeToBgv() {
         let replaceState = false;
         goto(routeBgv, { replaceState });
+        
     }
 
     function myBtn() {
