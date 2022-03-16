@@ -7,6 +7,7 @@ import { facility_id } from "../stores/facility_id_store";
     import {verify_ifsc_code_api_url} from '../stores/bank_details_store';
     import {current_user} from '../stores/current_user_store';
 import { facility_data_store } from "../stores/facility_store";
+import { allowed_pdf_size } from "../services/pravesh_config";
 // import {facility_id} from '../stores/facility_id_store';
 
     let ifsc_code;
@@ -194,7 +195,8 @@ import { facility_data_store } from "../stores/facility_store";
     }
     const on_blank_cheque_upload =(e) =>{
     let image = e.target.files[0];
-    
+    if(image.size <= allowed_pdf_size){
+
     blank_cheque_data.file_name = image.name;
     blank_cheque_data.doc_number = $bank_details.account_number;
     let reader = new FileReader();
@@ -205,11 +207,22 @@ import { facility_data_store } from "../stores/facility_store";
             console.log("blank cheque data",blank_cheque_data);
         };
 
+    }else{
+        alert(
+                "File size is greater than " +
+                    Number(allowed_pdf_size / 1048576) +
+                    "MB. Please upload a file less than " +
+                    Number(allowed_pdf_size / 1048576) +
+                    "MB ."
+            );
+    }
+    
+
 }
 const on_passbook_upload =(e) =>{
     let image = e.target.files[0];
-    
-    passbook_data.file_name = image.name;
+    if(image.size <= allowed_pdf_size){
+        passbook_data.file_name = image.name;
     let reader = new FileReader();
     reader.readAsDataURL(image);
     reader.onload = e => {
@@ -218,11 +231,24 @@ const on_passbook_upload =(e) =>{
             console.log("passbook data",passbook_data);
         };
 
+    }else{
+        alert(
+                "File size is greater than " +
+                    Number(allowed_pdf_size / 1048576) +
+                    "MB. Please upload a file less than " +
+                    Number(allowed_pdf_size / 1048576) +
+                    "MB ."
+            );
+
+    }
+    
+    
+
 }
 const on_cancle_cheque_upload =(e) =>{
     let image = e.target.files[0];
-    
-    Cancel_cheque_data.file_name = image.name;
+    if(image.size <= allowed_pdf_size){
+        Cancel_cheque_data.file_name = image.name;
     let reader = new FileReader();
     reader.readAsDataURL(image);
     reader.onload = e => {
@@ -231,11 +257,25 @@ const on_cancle_cheque_upload =(e) =>{
             console.log("Cancel_cheque_data",Cancel_cheque_data);
         };
 
+    }else{
+        alert(
+                "File size is greater than " +
+                    Number(allowed_pdf_size / 1048576) +
+                    "MB. Please upload a file less than " +
+                    Number(allowed_pdf_size / 1048576) +
+                    "MB ."
+            );
+
+
+    }
+    
+    
+
 }
 const on_account_statement_upload =(e) =>{
     let image = e.target.files[0];
-    
-    account_statement_data.file_name = image.name;
+    if(image.size <= allowed_pdf_size){
+        account_statement_data.file_name = image.name;
     let reader = new FileReader();
     reader.readAsDataURL(image);
     reader.onload = e => {
@@ -244,12 +284,29 @@ const on_account_statement_upload =(e) =>{
             console.log("account_statement_data",account_statement_data);
         };
 
+    }
+    else{
+        alert(
+                "File size is greater than " +
+                    Number(allowed_pdf_size / 1048576) +
+                    "MB. Please upload a file less than " +
+                    Number(allowed_pdf_size / 1048576) +
+                    "MB ."
+            );
+
+    }
+    
+    
+   
+
 }
 async function save_bank_details(){
-    $bank_details.facility_id = "MHPD01271";
-    $facility_data_store.facility_id = "tejas_testing_mhpd";
-    $current_user.username = "tejas";
-    $facility_id.facility_id_number = "MHPD01271";
+    // $facility_id.facility_id_number = "MHPD01271";
+    // $bank_details.facility_id = $facility_id.facility_id_number
+    // $facility_data_store.facility_id = "tejas_testing_mhpd";
+    // $current_user.username = "tejas";
+    // console.log("$bank_details",$bank_details);
+    
 
     
     if(blank_cheque_data.file_name != null){
@@ -257,12 +314,13 @@ async function save_bank_details(){
     blank_cheque_data.user_id = $current_user.username;
     blank_cheque_data.resource_id = $facility_id.facility_id_number;
     console.log("blank cheque data",blank_cheque_data);
+    // for(let i=0;i<$bank_details)
     $bank_details.document_details.push(blank_cheque_data);
 
     }
     
     
-    if(passbook_data.file_name != null){
+    if(passbook_data.file_name && passbook_data.pod){
         passbook_data.facility_id = $facility_data_store.facility_id;
         passbook_data.user_id = $current_user.username;
         passbook_data.resource_id = $facility_id.facility_id_number;
@@ -270,6 +328,7 @@ async function save_bank_details(){
         $bank_details.document_details.push(passbook_data);
         
     }
+
     if(Cancel_cheque_data.file_name != null){
         Cancel_cheque_data.facility_id = $facility_data_store.facility_id;
         Cancel_cheque_data.user_id = $current_user.username;
@@ -287,17 +346,17 @@ async function save_bank_details(){
         
     }
     console.log("bank details", $bank_details);
-    let save_bank_details = await save_bank_details_function();
-    console.log("save_bank_details", save_bank_details);
-    if(save_bank_details.body.status ="green"){
-        alert("Bank Details Saved Successfully");
-        let replaceState = false;
-        goto("successpopup", { replaceState });
+    // let save_bank_details = await save_bank_details_function();
+    // console.log("save_bank_details", save_bank_details);
+    // if(save_bank_details.body.status ="green"){
+    //     alert("Bank Details Saved Successfully");
+    //     let replaceState = false;
+    //     goto("successpopup", { replaceState });
         
-    }
-    else{
-        alert("Something went wrong!");
-    }
+    // }
+    // else{
+    //     alert("Something went wrong!");
+    // }
 
 
     
@@ -758,7 +817,7 @@ async function save_bank_details(){
                                 <div class="formInnerGroup ">
                                     <label class="cursor-pointer">
                                         <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
-                                        <input type='file' class="hidden"  accept=".jpg, .jpeg, .png" on:change={(e)=>on_blank_cheque_upload(e)}  />
+                                        <input type='file' class="hidden"  accept=".jpg, .jpeg, .png ,.pdf" on:change={(e)=>on_blank_cheque_upload(e)}  />
                                     </label>
                                     {#if blank_cheque_data.file_name}
                                     {blank_cheque_data.file_name}
@@ -775,7 +834,7 @@ async function save_bank_details(){
                                 <div class="formInnerGroup ">
                                     <label class="cursor-pointer">
                                         <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
-                                        <input type='file' class="hidden"  accept=".jpg, .jpeg, .png" on:change={(e)=>on_passbook_upload(e)}  />
+                                        <input type='file' class="hidden"  accept=".jpg, .jpeg, .png,.pdf" on:change={(e)=>on_passbook_upload(e)}  />
                                     </label>
                                     {#if passbook_data.file_name}
                                     {passbook_data.file_name}
@@ -792,12 +851,15 @@ async function save_bank_details(){
                                 <div class="formInnerGroup ">
                                     <label class="cursor-pointer">
                                         <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
-                                        <input type='file' class="hidden"  accept=".jpg, .jpeg, .png" on:change={(e)=>on_cancle_cheque_upload(e)}  />
+                                        <input type='file' class="hidden"  accept=".jpg, .jpeg, .png,.pdf" on:change={(e)=>on_cancle_cheque_upload(e)}  />
                                     </label>
-                                    {#if Cancel_cheque_data.file_name}
-                                    {Cancel_cheque_data.file_name}
+                                    <div class="flex">
+                                        {#if Cancel_cheque_data.file_name}
+                                    <p>{Cancel_cheque_data.file_name}</p> <img class="pl-2" src="../src/img/blackclose.svg" alt="">
                                         
                                     {/if}
+                                    </div>
+                                    
                                     
                                    
                                 </div>
@@ -809,7 +871,7 @@ async function save_bank_details(){
                                 <div class="formInnerGroup ">
                                     <label class="cursor-pointer">
                                         <div class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px">Upload</div>
-                                        <input type='file' class="hidden"  accept=".jpg, .jpeg, .png" on:change={(e)=>on_account_statement_upload(e)}  />
+                                        <input type='file' class="hidden"  accept=".jpg, .jpeg, .png,.pdf" on:change={(e)=>on_account_statement_upload(e)}  />
                                         {#if account_statement_data.file_name}
                                     {account_statement_data.file_name}
                                         
