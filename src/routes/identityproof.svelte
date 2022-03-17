@@ -15,10 +15,14 @@
     import { get_current_user_function } from "../services/dashboard_services";
     import { allowed_pdf_size } from "../services/pravesh_config";
     import { pravesh_properties } from "../stores/pravesh_properties_store";
+    import Side_content_component from './side_content_scetion.svelte';
+    import  {  page } from '$app/stores';
+    import { onMount } from "svelte";
     // import {}
 
     // let routeTo = "identityproof";
     let id_proof = true;
+    let page_name = null;
     // let valid = false;
     let pan_check = true,
         voter_id_check = true,
@@ -81,6 +85,13 @@
         status: "created",
         user_id: null,
     };
+    onMount(async () => {
+
+page_name =  $page.url["pathname"].substring(1);
+console.log("page name on identity",page_name);
+
+
+})
     // let driving_lice
     function check_facility_condition() {}
 
@@ -244,7 +255,7 @@
         $facility_data_store.facility_email = "testing@nomail.com";
         $facility_data_store.facility_id = "tejas_bhosale_mhpd";
         $facility_data_store.facility_name = "tejas bhosale";
-        $facility_data_store.facility_type = "DA";
+        $facility_data_store.facility_type = "HDA";
         $facility_data_store.msme_registered = "1";
         $facility_data_store.org_id = "AN";
         $facility_data_store.owner_name = "tejas bhosale";
@@ -601,7 +612,7 @@
     <div class="contentsection flexwrapSm">
         <div class="tablinksForm w100xs">
             <ul class="bgtablinks ">
-                <li class="tabactivelink">
+                <!-- <li class="tabactivelink">
                     <a href="#" class="tabAchorSection ">
                         <div class="iconSection">
                             <svg
@@ -635,8 +646,8 @@
                             <img src="../src/img/checked.png" alt="" />
                         </div>
                     </a>
-                </li>
-                <li class="tabactivelink">
+                </li> -->
+                <!-- <li class="tabactivelink">
                     <a href="#" class="tabAchorSection ">
                         <div class="iconSection">
                             <svg
@@ -675,8 +686,8 @@
                             <img src="../src/img/checked.png" alt="" />
                         </div>
                     </a>
-                </li>
-                <li class="tabactivelink">
+                </li> -->
+                <!-- <li class="tabactivelink">
                     <a href="#" class="tabAchorSection ">
                         <div class="iconSection">
                             <svg
@@ -705,8 +716,8 @@
                             <img src="../src/img/checked.png" alt="" />
                         </div>
                     </a>
-                </li>
-                <li class="tabactivelink">
+                </li> -->
+                <!-- <li class="tabactivelink">
                     <a href="#" class="tabAchorSection active ">
                         <div class="iconSection">
                             <svg
@@ -747,12 +758,12 @@
                                 Upload identity proof documents
                             </p>
                         </div>
-                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
+                        <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="">
-                        </div> -->
+                        </div>
                     </a>
-                </li>
-                <li class="tabactivelink">
+                </li> -->
+                <!-- <li class="tabactivelink">
                     <a href="#" class="tabAchorSection ">
                         <div class="iconSection">
                             <svg
@@ -801,11 +812,12 @@
                                 Submit bank details and documents
                             </p>
                         </div>
-                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
+                        <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="">
-                        </div> -->
+                        </div>
                     </a>
-                </li>
+                </li> -->
+                <Side_content_component facility_type={$facility_data_store.facility_type} {page_name}/>
             </ul>
         </div>
         <div class="w-widthforFormSection w100xs ">
@@ -878,7 +890,7 @@
                             </div>
                         </div> -->
                                 <div class="formInnerGroup ">
-                                    <label class="cursor-pointer ">
+                                    <label class="cursor-pointer inline-block ">
                                         <div
                                             class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px"
                                         >
@@ -947,7 +959,7 @@
                                     ></label
                                 >
                                 <div class="formInnerGroup ">
-                                    <label class="cursor-pointer ">
+                                    <label class="cursor-pointer inline-block">
                                         <div
                                             class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px"
                                         >
@@ -1030,7 +1042,7 @@
                             </div>
                         </div> -->
                                 <div class="formInnerGroup ">
-                                    <label class="cursor-pointer ">
+                                    <label class="cursor-pointer inline-block">
                                         <div
                                             class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px"
                                         >
@@ -1100,7 +1112,7 @@
                                     ></label
                                 >
                                 <div class="formInnerGroup ">
-                                    <label class="cursor-pointer ">
+                                    <label class="cursor-pointer inline-block">
                                         <div
                                             class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px"
                                         >

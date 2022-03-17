@@ -13,11 +13,14 @@
     import { get_date_format } from "../services/date_format_servives";
     import { documents_store } from "../stores/document_store";
     import { allowed_pdf_size } from "../services/pravesh_config";
+    import Side_content_component from './side_content_scetion.svelte';
+    import  {  page } from '$app/stores';
     
     // import { facility_data } from "src/services/onboardsummary_services";
 
     let date = new Date();
     let valid = true;
+    let page_name = null;
     const d = new Date("2015-03-25");
     let max_date;
     let avatar, fileinput;
@@ -95,6 +98,8 @@
     let work_address_address_message = "";
     let work_address_postal_message = "";
     onMount(async () => {
+        page_name =  $page.url["pathname"].substring(1);
+        console.log("page_name", page_name);
         function get_max_date() {
             let current_date = new Date();
             console.log("current date", current_date);
@@ -526,7 +531,7 @@
     <div class="contentsection flexwrapSm">
         <div class="tablinksForm w100xs">
             <ul class="bgtablinks ">
-                <li class="tabactivelink">
+                <!-- <li class="tabactivelink">
                     <a href="#" class="tabAchorSection ">
                         <div class="iconSection">
                             <svg
@@ -560,8 +565,8 @@
                             <img src="../src/img/checked.png" alt="" />
                         </div>
                     </a>
-                </li>
-                <li class="tabactivelink">
+                </li> -->
+                <!-- <li class="tabactivelink">
                     <a href="#" class="tabAchorSection ">
                         <div class="iconSection">
                             <svg
@@ -600,8 +605,8 @@
                             <img src="../src/img/checked.png" alt="" />
                         </div>
                     </a>
-                </li>
-                <li class="tabactivelink">
+                </li> -->
+                <!-- <li class="tabactivelink">
                     <a href="#" class="tabAchorSection active ">
                         <div class="iconSection">
                             <svg
@@ -626,12 +631,12 @@
                                 Submit basic details of the associate
                             </p>
                         </div>
-                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
+                        <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="">
-                        </div> -->
+                        </div>
                     </a>
-                </li>
-                <li class="tabactivelink">
+                </li> -->
+                <!-- <li class="tabactivelink">
                     <a href="#" class="tabAchorSection ">
                         <div class="iconSection">
                             <svg
@@ -672,12 +677,12 @@
                                 Upload identity proof documents
                             </p>
                         </div>
-                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
+                        <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="">
-                        </div> -->
+                        </div>
                     </a>
-                </li>
-                <li class="tabactivelink">
+                </li> -->
+                <!-- <li class="tabactivelink">
                     <a href="#" class="tabAchorSection ">
                         <div class="iconSection">
                             <svg
@@ -726,11 +731,12 @@
                                 Submit bank details and documents
                             </p>
                         </div>
-                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
+                        <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="">
-                        </div> -->
+                        </div>
                     </a>
-                </li>
+                </li> -->
+                <Side_content_component facility_type={$facility_data_store.facility_type} {page_name}/>
             </ul>
         </div>
         <div class="w-widthforFormSection w100xs ">

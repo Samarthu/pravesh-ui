@@ -16,12 +16,16 @@
     import { get_current_user_function } from "../services/dashboard_services";
     import {get_organistaion_method} from '../services/organisation_services';
     import {allowed_pdf_size,sorting_pravesh_properties} from '../services/pravesh_config';
+    import Side_content_component from './side_content_scetion.svelte';
+    import  {  page } from '$app/stores';
+    // let page_name;
     
     // import PdfViewer from 'svelte-pdf';
     import { each } from "svelte/internal";
     let temp_name;
     let org_array = [];
     let valid = true;
+    let page_name = null;
 
     let org_id = null;
     let msme_value = null;
@@ -215,6 +219,11 @@
 
         //   org_id = value.org_id;
         // });
+
+        
+        page_name =  $page.url["pathname"].substring(1);
+        console.log("page_name",page_name);
+        console.log("window location",window.location.href);
         let get_pravesh_properties_response = await get_pravesh_properties_method();
         console.log("get_pravesh_properties_response", get_pravesh_properties_response);
         if(get_pravesh_properties_response.body.status == "green"){
@@ -522,7 +531,7 @@
     <div class="contentsection flexwrapSm">
         <div class="tablinksForm w100xs">
             <ul class="bgtablinks ">
-                <li class="tabactivelink">
+                <!-- <li class="tabactivelink">
                     <a href="#" class="tabAchorSection active ">
                         <div class="iconSection">
                             <svg
@@ -552,12 +561,12 @@
                                 Submit associate work details
                             </p>
                         </div>
-                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
+                        <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="" />
-                        </div> -->
+                        </div>
                     </a>
-                </li>
-                <li class="tabactivelink">
+                </li> -->
+                <!-- <li class="tabactivelink">
                     <a href="#" class="tabAchorSection ">
                         <div class="iconSection">
                             <svg
@@ -592,12 +601,12 @@
                                 Verify associate by OTP
                             </p>
                         </div>
-                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
+                        <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="" />
-                        </div> -->
+                        </div>
                     </a>
-                </li>
-                <li class="tabactivelink">
+                </li> -->
+                <!-- <li class="tabactivelink">
                     <a href="#" class="tabAchorSection ">
                         <div class="iconSection">
                             <svg
@@ -622,12 +631,12 @@
                                 Submit basic details of the associate
                             </p>
                         </div>
-                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
+                        <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="" />
-                        </div> -->
+                        </div>
                     </a>
-                </li>
-                <li class="tabactivelink">
+                </li> -->
+                <!-- <li class="tabactivelink">
                     <a href="#" class="tabAchorSection ">
                         <div class="iconSection">
                             <svg
@@ -668,12 +677,12 @@
                                 Upload identity proof documents
                             </p>
                         </div>
-                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
+                        <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="" />
-                        </div> -->
+                        </div>
                     </a>
-                </li>
-                <li class="tabactivelink">
+                </li> -->
+                <!-- <li class="tabactivelink">
                     <a href="#" class="tabAchorSection ">
                         <div class="iconSection">
                             <svg
@@ -722,11 +731,13 @@
                                 Submit bank details and documents
                             </p>
                         </div>
-                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
+                        <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="" />
-                        </div> -->
+                        </div>
                     </a>
-                </li>
+                </li> -->
+                <Side_content_component facility_type={$facility_data_store.facility_type} {page_name}/> 
+
             </ul>
         </div>
         <div class="w-widthforFormSection w100xs ">

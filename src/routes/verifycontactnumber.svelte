@@ -4,6 +4,9 @@
     import { current_user } from "../stores/current_user_store";
     import { msme_store,documents_store } from "../stores/document_store";
     import {verify_mobile_number_function,send_mobile_number_otp,verify_mobile_number_otp} from '../services/contact_number_services';
+    import  {  page } from '$app/stores';
+    import { onMount } from "svelte";
+    import Side_content_component from './side_content_scetion.svelte';
 
 
 let routeTo = "associatedetails";
@@ -15,6 +18,14 @@ let send_otp_disabled = true;
 let toggele = true;
 let otp = null;
 var seconds = 60;
+let page_name = null;
+
+onMount(async () => {
+
+    page_name =  $page.url["pathname"].substring(1);
+
+
+})
 
 
 function route() {
@@ -144,7 +155,7 @@ async function verify_otp(){
     <div class="contentsection flexwrapSm">
         <div class="tablinksForm w100xs">
             <ul class="bgtablinks ">
-                <li class="tabactivelink">
+                <!-- <li class="tabactivelink">
                     <a href="#" class="tabAchorSection ">
                         <div class="iconSection">
                             <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 35 35"
@@ -168,8 +179,8 @@ async function verify_otp(){
                             <img src="../src/img/checked.png" alt="">
                         </div>
                     </a>
-                </li>
-                <li class="tabactivelink">
+                </li> -->
+                <!-- <li class="tabactivelink">
                     <a href="#" class="tabAchorSection active">
                         <div class="iconSection">
                             <svg width="35" height="35" viewBox="0 0 31 31" fill="none">
@@ -191,12 +202,12 @@ async function verify_otp(){
                             <p class="contentheadingAnchor">Verify Contact Number</p>
                             <p class="contentDescriptionText">Verify associate by OTP</p>
                         </div>
-                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
+                        <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="">
-                        </div> -->
+                        </div>
                     </a>
-                </li>
-                <li class="tabactivelink">
+                </li> -->
+                <!-- <li class="tabactivelink">
                     <a href="#" class="tabAchorSection ">
                         <div class="iconSection">
                             <svg width="35" height="35" viewBox="0 0 22 27" fill="none">
@@ -209,12 +220,12 @@ async function verify_otp(){
                             <p class="contentheadingAnchor">Associate Details </p>
                             <p class="contentDescriptionText">Submit basic details of the associate</p>
                         </div>
-                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
+                        <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="">
-                        </div> -->
+                        </div>
                     </a>
-                </li>
-                <li class="tabactivelink">
+                </li> -->
+                <!-- <li class="tabactivelink">
                     <a href="#" class="tabAchorSection ">
                         <div class="iconSection">
                             <svg width="35" height="35" viewBox="0 0 30 30" fill="none">
@@ -242,12 +253,12 @@ async function verify_otp(){
                             <p class="contentheadingAnchor">Identity Proof</p>
                             <p class="contentDescriptionText">Upload identity proof documents</p>
                         </div>
-                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
+                        <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="">
-                        </div> -->
+                        </div>
                     </a>
-                </li>
-                <li class="tabactivelink">
+                </li> -->
+                <!-- <li class="tabactivelink">
                     <a href="#" class="tabAchorSection ">
                         <div class="iconSection">
 
@@ -282,11 +293,12 @@ async function verify_otp(){
                             <p class="contentheadingAnchor">Bank Details</p>
                             <p class="contentDescriptionText">Submit bank details and documents</p>
                         </div>
-                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
+                        <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="">
-                        </div> -->
+                        </div>
                     </a>
-                </li>
+                </li> -->
+                <Side_content_component facility_type={$facility_data_store.facility_type} {page_name}/>
             </ul>
         </div>
 <div class="w-widthforFormSection w100xs ">   

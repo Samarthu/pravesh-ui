@@ -8,17 +8,23 @@ import { facility_id } from "../stores/facility_id_store";
     import {current_user} from '../stores/current_user_store';
 import { facility_data_store } from "../stores/facility_store";
 import { allowed_pdf_size } from "../services/pravesh_config";
+import  {  page } from '$app/stores';
+import Side_content_component from './side_content_scetion.svelte';
 // import {facility_id} from '../stores/facility_id_store';
 
     let ifsc_code;
+    let valid;
     let ifsc_code_message = "";
     let account_number_message = "";
     let re_account_number_message = "";
     let pincode_message = "";
     let account_holder_message = "";
+    let blank_cheque_message = "";
+    let bank_type_message = "";
     var acc_number_check = /^[0-9]*$/;
     var ifsc_code_check = /^[A-Za-z]{4}\d{7}$/;
     var account_holder_check = /^\w+$/gm;
+    let account_number_match_check = false;
 
     let blank_cheque_data = {
         doc_category: "Blank Cheque",
@@ -61,11 +67,15 @@ import { allowed_pdf_size } from "../services/pravesh_config";
         status: "created",
         user_id: null,
     }
+    let page_name =null;
     onMount(async () =>{
         // let temp_res = await fetch("https://elasticrun.in/ifscapi/KARB0000001")
         // console.log("temp_res",temp_res)
         // let result = await temp_res.json();
         // console.log("TEMP RESULT",result)
+        page_name =  $page.url["pathname"].substring(1);
+        console.log("bank pahge name",page_name);
+
 
     })
 
@@ -97,15 +107,20 @@ import { allowed_pdf_size } from "../services/pravesh_config";
         
             if(!$bank_details.re_enter_account_number.match(acc_number_check)){
                 re_account_number_message = "Please enter a valid account number";
+                account_number_match_check = false;
+
                 
             }
             else if($bank_details.account_number != $bank_details.re_enter_account_number){
                 re_account_number_message = "Account number does not match";
+                account_number_match_check = false;
                 
             }
             
             else{
                 re_account_number_message = "";
+                account_number_match_check = true;
+
                 
             }
         
@@ -196,16 +211,27 @@ import { allowed_pdf_size } from "../services/pravesh_config";
     const on_blank_cheque_upload =(e) =>{
     let image = e.target.files[0];
     if(image.size <= allowed_pdf_size){
-
-    blank_cheque_data.file_name = image.name;
-    blank_cheque_data.doc_number = $bank_details.account_number;
-    let reader = new FileReader();
-    reader.readAsDataURL(image);
-    reader.onload = e => {
+        if($bank_details.account_number && $bank_details.re_enter_account_number){
+            console.log("inside upload blank cheque");
+            blank_cheque_message = "";
+            // console.log("inside if");
+            blank_cheque_data.file_name = image.name;
+            blank_cheque_data.doc_number = $bank_details.account_number;
+            let reader = new FileReader();
+            reader.readAsDataURL(image);
+            reader.onload = e => {
             
             blank_cheque_data.pod = e.target.result;
             console.log("blank cheque data",blank_cheque_data);
         };
+
+        }
+        else{
+            blank_cheque_message = "Please enter account number and confirm account number.";
+            // alert("Please enter account number and re-enter account number");
+        }
+
+    
 
     }else{
         alert(
@@ -301,20 +327,92 @@ const on_account_statement_upload =(e) =>{
 
 }
 async function save_bank_details(){
+    valid = true;
     // $facility_id.facility_id_number = "MHPD01271";
     // $bank_details.facility_id = $facility_id.facility_id_number
     // $facility_data_store.facility_id = "tejas_testing_mhpd";
     // $current_user.username = "tejas";
     // console.log("$bank_details",$bank_details);
-    
+    if(!account_number_match_check){
+        valid = false;
+        
+    }
+
+    if(!$bank_details.account_number){
+        valid = false;
+        account_number_message = "Please enter account number";
+    }
+    else{
+        account_number_message = "";
+    }
+
+    if(!$bank_details.re_enter_account_number){
+        valid = false;
+        re_account_number_message = "Please confirm account number";
+    }
+    else{
+        re_account_number_message = "";
+    }
+
+    if(!$bank_details.account_holder){
+        valid = false;
+        account_holder_message = "Please enter account holder name";
+    }
+    else{
+        account_holder_message = "";
+    }
+
+    if(!$bank_details.bank_type){
+        valid = false;
+        bank_type_message = "Please select bank type";
+    }
+    else{
+        bank_type_message = "";
+    }
+
+    if(!$bank_details.ifsc_code){
+        valid = false;
+        ifsc_code_message = "Please enter IFSC code";
+    }
+    else{
+        ifsc_code_message = "";
+    }
+
+    if(!$bank_details.branch_pin_code){
+        valid = false;
+        pincode_message = "Please enter branch pin code";
+    }
+    else{
+        pincode_message = "";
+    }
+
+    if((!blank_cheque_data.file_name && !blank_cheque_data.pod)&&(!passbook_data.file_name && !passbook_data.pod) &&(!Cancel_cheque_data.file_name && !Cancel_cheque_data.pod)&&(!account_statement_data.file_name && !account_statement_data.pod)){
+        valid = false;
+        //console.log("Please upload atleast one document");
+        alert("Please upload atleast one document");
+    }
+    else{
+        console.log("inside else");
+    }
 
     
-    if(blank_cheque_data.file_name != null){
+
+
+
+    
+    if(blank_cheque_data.file_name && blank_cheque_data.pod){
     blank_cheque_data.facility_id = $facility_data_store.facility_id;
     blank_cheque_data.user_id = $current_user.username;
     blank_cheque_data.resource_id = $facility_id.facility_id_number;
+    blank_cheque_data.doc_number = $bank_details.account_number;
     console.log("blank cheque data",blank_cheque_data);
-    // for(let i=0;i<$bank_details)
+    for(let i=0;i<$bank_details.document_details.length;i++){
+        if($bank_details.document_details[i]["doc_category" ] == "Blank Cheque"){
+            $bank_details.document_details.splice(i,1);
+
+        
+        }
+    }
     $bank_details.document_details.push(blank_cheque_data);
 
     }
@@ -325,28 +423,51 @@ async function save_bank_details(){
         passbook_data.user_id = $current_user.username;
         passbook_data.resource_id = $facility_id.facility_id_number;
         console.log("passbook_data",passbook_data);
+        for(let i=0;i<$bank_details.document_details.length;i++){
+            if($bank_details.document_details[i]["doc_category" ] == "Passbook"){
+                $bank_details.document_details.splice(i,1);
+
+            
+            }
+        }
         $bank_details.document_details.push(passbook_data);
         
     }
 
-    if(Cancel_cheque_data.file_name != null){
+    if(Cancel_cheque_data.file_name && Cancel_cheque_data.pod){
         Cancel_cheque_data.facility_id = $facility_data_store.facility_id;
         Cancel_cheque_data.user_id = $current_user.username;
         Cancel_cheque_data.resource_id = $facility_id.facility_id_number;
         console.log("Cancel_cheque_data",Cancel_cheque_data);
+        for(let i=0;i<$bank_details.document_details.length;i++){
+            if($bank_details.document_details[i]["doc_category" ] == "Cancel Cheque"){
+                $bank_details.document_details.splice(i,1);
+
+            
+            }
+        }
         $bank_details.document_details.push(Cancel_cheque_data);
         
     }
-    if(account_statement_data.file_name != null){
+    if(account_statement_data.file_name && account_statement_data.pod){
         account_statement_data.facility_id = $facility_data_store.facility_id;
         account_statement_data.user_id = $current_user.username;
         account_statement_data.resource_id = $facility_id.facility_id_number;
         console.log("account_statement_data",account_statement_data);
+        for(let i=0;i<$bank_details.document_details.length;i++){
+            if($bank_details.document_details[i]["doc_category" ] == "Account Statement"){
+                $bank_details.document_details.splice(i,1);
+
+            
+            }
+        }
         $bank_details.document_details.push(account_statement_data);
         
     }
     console.log("bank details", $bank_details);
-    // let save_bank_details = await save_bank_details_function();
+    if(valid){
+        console.log("inside valid");
+         // let save_bank_details = await save_bank_details_function();
     // console.log("save_bank_details", save_bank_details);
     // if(save_bank_details.body.status ="green"){
     //     alert("Bank Details Saved Successfully");
@@ -357,6 +478,9 @@ async function save_bank_details(){
     // else{
     //     alert("Something went wrong!");
     // }
+
+    }
+   
 
 
     
@@ -378,7 +502,7 @@ async function save_bank_details(){
     <div class="contentsection flexwrapSm">
         <div class="tablinksForm w100xs">
             <ul class="bgtablinks ">
-                <li class="tabactivelink">
+                <!-- <li class="tabactivelink">
                     <a href="#" class="tabAchorSection ">
                         <div class="iconSection">
                             <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 35 35"
@@ -402,8 +526,8 @@ async function save_bank_details(){
                             <img src="../src/img/checked.png" alt="">
                         </div>
                     </a>
-                </li>
-                <li class="tabactivelink">
+                </li> -->
+                <!-- <li class="tabactivelink">
                     <a href="#" class="tabAchorSection ">
                         <div class="iconSection">
                             <svg width="35" height="35" viewBox="0 0 31 31" fill="none">
@@ -429,8 +553,8 @@ async function save_bank_details(){
                             <img src="../src/img/checked.png" alt="">
                         </div>
                     </a>
-                </li>
-                <li class="tabactivelink">
+                </li> -->
+                <!-- <li class="tabactivelink">
                     <a href="#" class="tabAchorSection ">
                         <div class="iconSection">
                             <svg width="35" height="35" viewBox="0 0 22 27" fill="none">
@@ -447,8 +571,8 @@ async function save_bank_details(){
                             <img src="../src/img/checked.png" alt="">
                         </div>
                     </a>
-                </li>
-                <li class="tabactivelink">
+                </li> -->
+                <!-- <li class="tabactivelink">
                     <a href="#" class="tabAchorSection ">
                         <div class="iconSection">
                             <svg width="35" height="35" viewBox="0 0 30 30" fill="none">
@@ -480,8 +604,8 @@ async function save_bank_details(){
                             <img src="../src/img/checked.png" alt="">
                         </div>
                     </a>
-                </li>
-                <li class="tabactivelink">
+                </li> -->
+                <!-- <li class="tabactivelink">
                     <a href="#" class="tabAchorSection active ">
                         <div class="iconSection">
 
@@ -520,7 +644,8 @@ async function save_bank_details(){
                             <img src="../src/img/checked.png" alt="">
                         </div>
                     </a>
-                </li>
+                </li> -->
+                <Side_content_component facility_type={$facility_data_store.facility_type} {page_name}/>
             </ul>
         </div>
 <div class="w-widthforFormSection w100xs ">
@@ -774,6 +899,18 @@ async function save_bank_details(){
                     </div>
                 </div>
                 <div class="flex">
+                    <div class="formGroup ">
+                        <label class="formLable invisible" ></label>
+                        <div class="formInnerGroup mt-1">
+                            <div class="text-red-500 text-xs">
+                                {bank_type_message}
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                </div> 
+                <div class="flex">
                     <div class="formGroupnote ">
                         <label class="formLable "
                             >Branch pincode<span class="mandatoryIcon"
@@ -828,6 +965,19 @@ async function save_bank_details(){
                                 </div>
                     </div>
                 </div>
+                <div class="flex">
+                    <div class="formGroup ">
+                        <label class="formLable invisible" ></label>
+                        <div class="formInnerGroup mt-1">
+                            <div class="text-red-500 text-xs">
+                                {blank_cheque_message}
+                            </div>
+                            
+                        </div>
+                    </div>
+                    
+                </div>
+               
                 <div class="flex">
                     <div class="formGroup ">
                         <label class="formLable ">Passbook</label>
@@ -945,8 +1095,8 @@ async function save_bank_details(){
                 <img src="../src/img/arrowleft.png" alt="">
             </div>
             <div>
-            <button class="saveandproceed">Save</button>
-                <button on:click={()=>save_bank_details()} class="saveandproceed">Submit</button>
+            <!-- <button class="saveandproceed">Save</button> -->
+            <button on:click={()=>save_bank_details()} class="saveandproceed">Save and Proceed</button>
             </div>
         </div>
     </div>
