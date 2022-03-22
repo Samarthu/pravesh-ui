@@ -19,6 +19,26 @@ let toggele = true;
 let otp = null;
 var seconds = 60;
 let page_name = null;
+let resend_flag = false;
+
+
+let countdown = 10;
+  let timer;
+  $: {
+    if (countdown === 0) {
+      if (timer) {
+        clearInterval(timer);
+        resend_flag = true;
+        timer = null;
+      }
+    }
+  }
+ function start_countdown(){
+		 timer = setInterval(() => {
+      countdown -= 1;
+    }, 1000);
+  }
+
 
 onMount(async () => {
 
@@ -77,6 +97,7 @@ async function check_mobile_number(){
 async function send_otp_function(){
     let otp_response = await send_mobile_number_otp();
     console.log("otp response",otp_response);
+    start_countdown();
     if(otp_response.body.data == true)
     {
         toggele = false;
@@ -93,6 +114,16 @@ function switch_toggele(){
         toggele = true
     }
 }
+async function resend_otp_function(){
+    resend_flag = false;
+    
+    let otp_response = await send_mobile_number_otp();
+    console.log("otp response",otp_response);
+    countdown= 10;
+    start_countdown();
+
+}
+
 function temp_function(){
     let temp;
     facility_data_store.subscribe(value =>{
@@ -382,10 +413,15 @@ async function verify_otp(){
                         <label class="formLable xs:hidden sm:hidden"></label>
                         <div class="formInnerGroup">
                             <p class="noteDescription  flex justify-between">
-                                <span class="secText">{seconds} Sec</span>
-                                <span> OTP sent on {$facility_data_store.phone_number} <span class="cursor: pointer text-blue-600 text-decoration-line: underline " on:click={()=>switch_toggele()}>Edit</span>  </span>
+                                <span class="secText">You can Resend OTP in {countdown} Sec</span>
+                                <span> OTP sent on {$facility_data_store.phone_number} <span class="cursor: pointer text-blue-600 text-decoration-line: underline cursor-pointer " on:click={()=>switch_toggele()}>Edit</span>  </span>
                             </p>
-                            <button on:click|preventDefault={()=>{verify_otp()}} class="ErBlueButton mt-3">Verify & Proceed</button>
+                            {#if resend_flag}
+                            <button on:click|preventDefault={()=>resend_otp_function()} class="ErBlueButton mt-3">Resend Otp</button>
+                            {/if}
+
+                            
+                            <button on:click|preventDefault={()=>verify_otp()} class="ErBlueButton mt-3">Verify & Proceed</button>
                         </div>
                     </div>
                 </div>
