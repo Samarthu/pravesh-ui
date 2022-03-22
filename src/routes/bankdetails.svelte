@@ -551,6 +551,10 @@
            
         }
     }
+    function delete_document(document_name){
+
+    }
+
 </script>
 
 <div class="mainContent ">
@@ -1047,9 +1051,20 @@
                                                 on_blank_cheque_upload(e)}
                                         />
                                     </label>
-                                    {#if blank_cheque_data.file_name}
-                                        {blank_cheque_data.file_name}
+                                    <div class="flex">
+                                        {#if blank_cheque_data.file_name}
+                                        <p>{blank_cheque_data.file_name}</p>
+                                        <img
+                                        class="pl-2"
+                                        on:click={() =>delete_document()}
+                                        src="../src/img/blackclose.svg"
+                                        alt=""
+                                    />
+
                                     {/if}
+
+                                    </div>
+                                    
                                 </div>
                             </div>
                         </div>
@@ -1082,9 +1097,20 @@
                                                 on_passbook_upload(e)}
                                         />
                                     </label>
-                                    {#if passbook_data.file_name}
-                                        {passbook_data.file_name}
+                                    <div class="flex">
+                                        {#if passbook_data.file_name}
+                                        <p>{passbook_data.file_name}</p>
+                                        <img
+                                        class="pl-2"
+                                        src="../src/img/blackclose.svg"
+                                        alt=""
+                                    />
+
                                     {/if}
+
+
+                                    </div>
+                                    
                                 </div>
                             </div>
                         </div>
@@ -1140,10 +1166,22 @@
                                             on:change={(e) =>
                                                 on_account_statement_upload(e)}
                                         />
-                                        {#if account_statement_data.file_name}
+                                        <!-- {#if account_statement_data.file_name}
                                             {account_statement_data.file_name}
-                                        {/if}
+                                        {/if} -->
                                     </label>
+                                    <div class="flex">
+                                        {#if account_statement_data.file_name}
+                                            <p>{account_statement_data.file_name}</p>
+                                            <img
+                                            class="pl-2"
+                                            src="../src/img/blackclose.svg"
+                                            alt=""
+                                        />
+
+                                        {/if}
+
+                                    </div>
                                 </div>
                             </div>
                         </div>

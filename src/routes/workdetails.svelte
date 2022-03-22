@@ -1069,7 +1069,7 @@
                                                 class="mandatoryIcon">*</span
                                             ></label> -->
                                         <div class="formInnerGroup ">
-                                            <label class="cursor-pointer ">
+                                            <label class="cursor-pointer inline-block">
                                                 <h1
                                                     class="contentDescriptionText pb-3"
                                                 >
@@ -1079,20 +1079,32 @@
                                                     >
                                                 </h1>
                                                 <div
-                                                    class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px inline-block"
+                                                    class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px inline-block "
                                                 >
                                                     Upload
                                                 </div>
                                                 <input
                                                     type="file"
                                                     class="hidden"
-                                                    accept=".pdf"
+                                                    accept=".pdf,.jpg,.png,.jpeg"
                                                     on:change={(e) =>
                                                         onFileSelected(e)}
                                                 />
-                                                {#if msme_data.file_name && msme_data.pod}
-                                                {msme_data.file_name}
+                                                <div class="flex">
+                                                    {#if msme_data.file_name && msme_data.pod}
+                                                <p>{msme_data.file_name}</p>
+                                                
+                                                <img
+                                                class="pl-2"
+                                                src="../src/img/blackclose.svg"
+                                                alt=""
+                                            />
+                                            
                                                 {/if}
+                                            
+
+                                                </div>
+                                                
                                             </label>
                                         </div>
                                     </div>

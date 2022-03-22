@@ -866,9 +866,14 @@
                                                     onFileSelected(e)}
                                                 bind:this={fileinput}
                                             />
-                                            {#if profile_pic_data.file_name}
+                                            
+                                                {#if profile_pic_data.file_name}
                                                 {profile_pic_data.file_name}
+                                               
                                             {/if}
+                                            
+                                            
+                                            
                                         </label>
                                     </span>
                                 </div>
@@ -985,7 +990,7 @@
                                     ></label
                                 >
                                 <div class="formInnerGroup ">
-                                    <label class="cursor-pointer ">
+                                    <label class="cursor-pointer inline-block">
                                         <div
                                             class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px"
                                         >
@@ -1212,7 +1217,7 @@
                                         />Shipping Address Proof</label
                                     >
                                     <div class="formInnerGroup ">
-                                        <label class="cursor-pointer ">
+                                        <label class="cursor-pointer inline-block">
                                             <div
                                                 class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px"
                                             >
