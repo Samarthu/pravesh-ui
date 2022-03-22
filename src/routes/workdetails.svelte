@@ -516,6 +516,29 @@
     //     encodeURI(new_url) + "'></iframe>"
     // )
     //     }
+    function delete_files(file_name){
+        // console.log("file delete function");
+        
+        // file_name = file_name;
+    //     $documents_store.documents.push(msme_data)
+    // console.log("before delete", $documents_store.documents);
+        for(let i=0;i<$documents_store.documents.length;i++){
+            if($documents_store.documents[i]["doc_category"] == file_name["doc_category"]){
+                $documents_store.documents.splice(i,1);
+                console.log("msme deleted from document store");
+            }
+        }
+        file_name["file_name"] = null;
+        file_name["pod"] = null;
+        msme_data = msme_data;
+
+        // console.log(file_name);
+        // console.log("document store", $documents_store.documents);
+
+        
+        
+    }
+    
 </script>
 
 <div class="mainContent ">
@@ -1090,22 +1113,25 @@
                                                     on:change={(e) =>
                                                         onFileSelected(e)}
                                                 />
-                                                <div class="flex">
-                                                    {#if msme_data.file_name && msme_data.pod}
-                                                <p>{msme_data.file_name}</p>
                                                 
-                                                <img
-                                                class="pl-2"
-                                                src="../src/img/blackclose.svg"
-                                                alt=""
-                                            />
-                                            
-                                                {/if}
-                                            
-
-                                                </div>
                                                 
                                             </label>
+                                            <div class="flex">
+                                                {#if msme_data.file_name && msme_data.pod}
+                                            <p>{msme_data.file_name}</p>
+                                            
+                                            <img
+                                            on:click={() => delete_files(msme_data)}
+                                            class="pl-2 cursor-pointer"
+                                            src="../src/img/blackclose.svg"
+                                            alt=""
+                                            
+                                        />
+                                        
+                                            {/if}
+                                        
+
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

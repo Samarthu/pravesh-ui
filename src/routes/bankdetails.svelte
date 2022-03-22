@@ -551,7 +551,33 @@
            
         }
     }
-    function delete_document(document_name){
+    function delete_files(file_name){
+        for(let i=0;i<$documents_store.documents.length;i++){
+            if($documents_store.documents[i]["doc_category"] == file_name["doc_category"]){
+                $documents_store.documents.splice(i,1);
+                console.log("document deleted from document store");
+            }
+        }
+        file_name["file_name"] = null;
+        file_name["pod"] = null;
+        // file_name["doc_number"] = null;
+
+        if(file_name["doc_category"] == "Blank Cheque"){
+            blank_cheque_data = blank_cheque_data;
+        }
+        else if(file_name["doc_category"] == "Passbook"){
+            passbook_data = passbook_data;
+        }
+        else if(file_name["doc_category"] == "Cancel Cheque"){
+            Cancel_cheque_data = Cancel_cheque_data;
+        }
+        else if(file_name["doc_category"] == "Account Statement"){
+            account_statement_data = account_statement_data;
+        }
+
+        
+        
+
 
     }
 
@@ -1055,8 +1081,8 @@
                                         {#if blank_cheque_data.file_name}
                                         <p>{blank_cheque_data.file_name}</p>
                                         <img
-                                        class="pl-2"
-                                        on:click={() =>delete_document()}
+                                        class="pl-2 cursor-pointer"
+                                        on:click={() =>delete_files(blank_cheque_data)}
                                         src="../src/img/blackclose.svg"
                                         alt=""
                                     />
@@ -1101,7 +1127,8 @@
                                         {#if passbook_data.file_name}
                                         <p>{passbook_data.file_name}</p>
                                         <img
-                                        class="pl-2"
+                                        class="pl-2 cursor-pointer"
+                                        on:click={() =>delete_files(passbook_data)}
                                         src="../src/img/blackclose.svg"
                                         alt=""
                                     />
@@ -1138,7 +1165,8 @@
                                                 {Cancel_cheque_data.file_name}
                                             </p>
                                             <img
-                                                class="pl-2"
+                                                class="pl-2 cursor-pointer"
+                                                on:click={() =>delete_files(Cancel_cheque_data)}
                                                 src="../src/img/blackclose.svg"
                                                 alt=""
                                             />
@@ -1174,7 +1202,8 @@
                                         {#if account_statement_data.file_name}
                                             <p>{account_statement_data.file_name}</p>
                                             <img
-                                            class="pl-2"
+                                            class="pl-2 cursor-pointer"
+                                            on:click={() =>delete_files(account_statement_data)}
                                             src="../src/img/blackclose.svg"
                                             alt=""
                                         />

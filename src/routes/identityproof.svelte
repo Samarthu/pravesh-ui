@@ -670,6 +670,37 @@
             // route_to_next_page();
         }
     }
+    function delete_files(file_name){
+        for(let i=0;i<$documents_store.documents.length;i++){
+            if($documents_store.documents[i]["doc_category"] == file_name["doc_category"]){
+                $documents_store.documents.splice(i,1);
+                console.log("document deleted from document store");
+            }
+        }
+        file_name["file_name"] = null;
+        file_name["pod"] = null;
+        file_name["doc_number"] = null;
+
+        if(file_name["doc_category"] == "Pancard"){
+            pan_card_data = pan_card_data;
+        }
+        else if(file_name["doc_category"] == "Aadhar Id proof"){
+            adhar_card_data = adhar_card_data;
+        }
+        else if(file_name["doc_category"] == "Voter Id proof"){
+            voter_id_card_data = voter_id_card_data;
+        }
+        else if(file_name["doc_category"] == "Driving License"){
+            driving_license_data = driving_license_data;
+        }
+        else if(file_name["doc_category"] == "Voter Id proof"){
+            voter_id_card_data = voter_id_card_data;1
+        }
+        
+
+
+    }
+    
 </script>
 
 <div class="mainContent ">
@@ -985,10 +1016,22 @@
                                             accept=".jpg, .jpeg, .png,.pdf"
                                             on:change={(e) => on_pan_upload(e)}
                                         />
-                                        {#if pan_card_data.file_name}
-                                            {pan_card_data.file_name}
-                                        {/if}
+                                       
                                     </label>
+                                    <div class="flex">
+                                        {#if pan_card_data.file_name}
+                                       <p> {pan_card_data.file_name}</p>
+                                       <img
+                                       on:click={() => delete_files(pan_card_data)}
+                                       class="pl-2 cursor-pointer"
+                                       src="../src/img/blackclose.svg"
+                                       alt=""
+                                       
+                                   />
+
+                                    {/if}
+
+                                    </div>
                                     <p class="noteDescription mt-2">
                                         <span class="font-medium">Note:</span>
                                         Photo must be clear and in JPG, PNG, or PDF
@@ -1055,10 +1098,24 @@
                                             on:change={(e) =>
                                                 on_adhar_upload(e)}
                                         />
-                                        {#if adhar_card_data.file_name}
-                                            {adhar_card_data.file_name}
-                                        {/if}
+                                        
                                     </label>
+                                    <div class="flex">
+                                        {#if adhar_card_data.file_name}
+                                        <p>{adhar_card_data.file_name}</p>
+                                            <img
+                                       on:click={() => delete_files(adhar_card_data)}
+                                       class="pl-2 cursor-pointer"
+                                       src="../src/img/blackclose.svg"
+                                       alt=""
+                                       
+                                   />
+                                        {/if}
+                                        
+
+
+
+                                    </div>
                                     <p class="noteDescription mt-2">
                                         <span class="font-medium">Note:</span>
                                         Photo must be clear and in JPG, PNG, or PDF
@@ -1138,10 +1195,22 @@
                                             on:change={(e) =>
                                                 on_voter_id_upload(e)}
                                         />
-                                        {#if voter_id_card_data.file_name}
-                                            {voter_id_card_data.file_name}
-                                        {/if}
+                                        
                                     </label>
+                                    <div class="flex">
+                                       {#if voter_id_card_data.file_name}
+                                       <p> {voter_id_card_data.file_name}</p>
+                                            <img
+                                        on:click={() => delete_files(voter_id_card_data)}
+                                        class="pl-2 cursor-pointer"
+                                        src="../src/img/blackclose.svg"
+                                        alt=""
+                                        
+                                    />
+                                        {/if}
+                                    
+                                        
+                                    </div>
                                     <p class="noteDescription mt-2">
                                         <span class="font-medium">Note:</span>
                                         Photo must be clear and in JPG, PNG, or PDF
@@ -1208,10 +1277,22 @@
                                             on:change={(e) =>
                                                 on_driving_license_upload(e)}
                                         />
-                                        {#if driving_license_data.file_name}
-                                            {driving_license_data.file_name}
-                                        {/if}
+                                        
                                     </label>
+                                    <div class="flex">
+                                        {#if driving_license_data.file_name}
+                                           <p> {driving_license_data.file_name}</p>
+                                           <img
+                                        on:click={() => delete_files(driving_license_data)}
+                                        class="pl-2 cursor-pointer"
+                                        src="../src/img/blackclose.svg"
+                                        alt=""
+                                        
+                                    />
+
+                                        {/if}
+
+                                    </div>
                                     <p class="noteDescription mt-2">
                                         <span class="font-medium">Note:</span>
                                         Photo must be clear and in JPG, PNG, or PDF
