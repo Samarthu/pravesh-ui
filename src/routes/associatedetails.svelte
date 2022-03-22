@@ -300,8 +300,8 @@
 
         console.log("document store", $documents_store);
 
-        // let replaceState = false;
-        // goto(routeTo, { replaceState });
+        let replaceState = false;
+        goto(routeTo, { replaceState });
     }
     function gotoverifycontactnumber() {
         let replaceState = false;

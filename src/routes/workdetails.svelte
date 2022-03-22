@@ -164,7 +164,13 @@
 
 
         if($facility_data_store.msme_registered == 1 || $facility_data_store.msme_registered == "1"){
-            if(msme_data.file_name != null && msme_data.pod != null){
+            if(msme_data.file_name  && msme_data.pod ){
+                for(let i=0;i<$documents_store.documents.length;i++){
+                    if($documents_store.documents[i]["doc_category"] == "MSME Certificate"){
+                        console.log("msme deleted");
+                        $documents_store.documents.splice(i,1);
+                    }
+                }
                 $documents_store.documents.push(msme_data);
         console.log("msme_data",$documents_store);
 
@@ -172,12 +178,17 @@
         
 
         }
+        if(valid)
+        {
+            let replaceState = false;
+
+        goto(routeTo, { replaceState });
+
+        }
         
        
 
-        let replaceState = false;
-
-        goto(routeTo, { replaceState });
+        
     }
 
     function routeToWorkforce() {
@@ -445,8 +456,8 @@
     let avatar;
 
     const onFileSelected = (e) => {
-        var cookie_data = document.cookie;
-        console.log("cookie data", cookie_data);
+        // var cookie_data = document.cookie;
+        // console.log("cookie data", cookie_data);
         let pdf = e.target.files[0];
         console.log("pdf size", pdf.size);
         if(pdf.size < allowed_pdf_size){
@@ -457,10 +468,10 @@
         // $:msme_store.set({
         //     file_name: pdf.name
         // });
-        $msme_store.file_name = pdf.name;
+        // $msme_store.file_name = pdf.name;
         msme_data.file_name = pdf.name;
 
-        temp_name = $msme_store.file_name;
+        // temp_name = $msme_store.file_name;
         // msme_store.subscribe((value) => {
         //     temp_name = value.file_name;
         // });
@@ -474,24 +485,20 @@
             // msme_store.set({
             //     pod: e.target.result
             // });
-            $msme_store.pod = fileinput;
+            // $msme_store.pod = fileinput;
             msme_data.pod = fileinput;
             if(
-                $current_user.email == null
+                !$current_user.email
             ){
                 console.log("inside if statement file upload");
                 get_current_user();
             }
-            $msme_store.user_id = $current_user.email;
+            // $msme_store.user_id = $current_user.email;
             msme_data.user_id = $current_user.email;
-            let temp;
-            msme_store.subscribe((value) => {
-                temp = value;
-            });
-            console.log("store", temp);
+            
+            
             console.log("msme store user id", msme_data);
-            let temp_current = $current_user;
-            console.log("current user", temp_current);
+            
         };
         
 
@@ -1072,7 +1079,7 @@
                                                     >
                                                 </h1>
                                                 <div
-                                                    class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px"
+                                                    class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px inline-block"
                                                 >
                                                     Upload
                                                 </div>
@@ -1083,6 +1090,9 @@
                                                     on:change={(e) =>
                                                         onFileSelected(e)}
                                                 />
+                                                {#if msme_data.file_name && msme_data.pod}
+                                                {msme_data.file_name}
+                                                {/if}
                                             </label>
                                         </div>
                                     </div>
@@ -1131,21 +1141,7 @@
                             </div>
                         {/if}
 
-                        <div class="flex">
-                            <p>
-                                <!-- {#if $msme_store.file_name != null}
-                                    {$msme_store.file_name}
-                                    {/if} -->
-                                {temp_name}
-
-                                <!-- <iframe width='100%' height='100%' src={avatar}></iframe> -->
-
-                                <!-- <embed src={fileinput[0]} width="800px" height="2100px" /> -->
-                            </p>
-
-                            <!-- {fileinput[0].name} -->
-                        </div>
-
+                        
                         <!-- <div class="flex">
                             <div class="formGroup">
                                 <label class="formLable "
@@ -1184,10 +1180,10 @@
                         <!-- <div>
                         {$get_facility_type_link}
                     </div> -->
-                        <div>
+                        <!-- <div>
                             {$msme_store}
                         </div>
-                        <div>{msme_agreement}</div>
+                        <div>{msme_agreement}</div> -->
                     </div>
                     <div class="flex">
                         <div class="formGroup ">

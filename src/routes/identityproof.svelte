@@ -1,3 +1,8 @@
+<script context = "module">
+    export let save_button_clicked = true;
+
+
+</script>
 <script>
     import { goto } from "$app/navigation";
     import {
@@ -15,12 +20,14 @@
     import { get_current_user_function } from "../services/dashboard_services";
     import { allowed_pdf_size } from "../services/pravesh_config";
     import { pravesh_properties } from "../stores/pravesh_properties_store";
-    import Side_content_component from './side_content_scetion.svelte';
-    import  {  page } from '$app/stores';
+    import Side_content_component from "./side_content_scetion.svelte";
+    import { page } from "$app/stores";
     import { onMount } from "svelte";
+    import {save_flag} from "../stores/flags_store";
     // import {}
 
     // let routeTo = "identityproof";
+    
     let id_proof = true;
     let page_name = null;
     // let valid = false;
@@ -86,12 +93,9 @@
         user_id: null,
     };
     onMount(async () => {
-
-page_name =  $page.url["pathname"].substring(1);
-console.log("page name on identity",page_name);
-
-
-})
+        page_name = $page.url["pathname"].substring(1);
+        console.log("page name on identity", page_name);
+    });
     // let driving_lice
     function check_facility_condition() {}
 
@@ -125,6 +129,40 @@ console.log("page name on identity",page_name);
             pan_card_message = "";
             pan_check = true;
         }
+    }
+    function on_proceed() {
+        check_validity();
+        if(valid){
+            if (
+            $pravesh_properties.properties["pan_required_associates"].includes(
+                $facility_data_store.facility_type
+            ) ||
+            $pravesh_properties.properties[
+                "bank_section_required_associates"
+            ].includes($facility_data_store.facility_type)
+        ) {
+            if (!$facility_id.facility_id_number) {
+                if (
+                    confirm("Are you sure you want to proceed without saving?")
+                ) {
+                    gotobankdetails();
+                } else {
+                    save_facility();
+                }
+            }else{
+                gotobankdetails();
+
+            }
+        } else {
+            save_facility();
+            if ($facility_id.facility_id_number) {
+                let replaceState = false;
+                goto("successpopup", { replaceState });
+            }
+        }
+
+        }
+        
     }
     async function verify_adhar_card() {
         if (adhar_card_data.doc_number) {
@@ -213,11 +251,11 @@ console.log("page name on identity",page_name);
             temp = value;
         });
         console.log("store value", temp);
-        let temp_document;
-        msme_store.subscribe((value) => {
-            temp_document = value;
-        });
-        console.log("document dtore value", temp_document);
+        // let temp_document;
+        // msme_store.subscribe((value) => {
+        //     temp_document = value;
+        // });
+        // console.log("document dtore value", temp_document);
         let temp_documents_store;
         documents_store.subscribe((value) => {
             temp_documents_store = value;
@@ -395,31 +433,39 @@ console.log("page name on identity",page_name);
             alert("Session user not found error!");
         }
     }
-    function route_to_next_page(){
-        if(($pravesh_properties.properties['pan_required_associates'].includes($facility_data_store.facility_type)) ||($pravesh_properties.properties['bank_section_required_associates'].includes($facility_data_store.facility_type)) ){
-            
-            let replaceState = false;
-            goto("bankdetails", { replaceState });
-
-
-        }
-        else{
-            let replaceState = false;
-            goto("successpopup", { replaceState });
+    function route_to_next_page() {
+        check_validity();
+        if (valid) {
+            if (
+                $pravesh_properties.properties[
+                    "pan_required_associates"
+                ].includes($facility_data_store.facility_type) ||
+                $pravesh_properties.properties[
+                    "bank_section_required_associates"
+                ].includes($facility_data_store.facility_type)
+            ) {
+                // let replaceState = false;
+                // goto("bankdetails", { replaceState });
+            } else {
+                let replaceState = false;
+                goto("successpopup", { replaceState });
+            }
         }
     }
-    async function save_facility() {
+    function check_validity() {
         valid = true;
 
         if (pan_check && adhar_check && voter_id_check && dl_check) {
-            
             if (
                 pan_card_data.doc_number != null &&
                 pan_card_data.file_name != null
             ) {
-                for(let i = 0;i<$documents_store.documents.length;i++){
-                    if($documents_store.documents[i]["doc_category"] == "Pancard"){
-                        $documents_store.documents.splice(i,1);
+                for (let i = 0; i < $documents_store.documents.length; i++) {
+                    if (
+                        $documents_store.documents[i]["doc_category"] ==
+                        "Pancard"
+                    ) {
+                        $documents_store.documents.splice(i, 1);
                         console.log("pan card deleted");
                     }
                 }
@@ -430,10 +476,12 @@ console.log("page name on identity",page_name);
                 adhar_card_data.doc_number != null &&
                 adhar_card_data.file_name != null
             ) {
-                for(let i=0;i<$documents_store.documents.length;i++){
-                    if($documents_store.documents[i]["doc_type" ] == "aadhar-id-proof"){
-                        
-                        $documents_store.documents.splice(i,1);
+                for (let i = 0; i < $documents_store.documents.length; i++) {
+                    if (
+                        $documents_store.documents[i]["doc_type"] ==
+                        "aadhar-id-proof"
+                    ) {
+                        $documents_store.documents.splice(i, 1);
                         console.log("adhar card deleted");
                     }
                 }
@@ -444,9 +492,12 @@ console.log("page name on identity",page_name);
                 voter_id_card_data.doc_number != null &&
                 voter_id_card_data.file_name != null
             ) {
-                for(let i=0;i<$documents_store.documents.length;i++){
-                    if($documents_store.documents[i]["doc_category"] == "Voter Id proof"){
-                        $documents_store.documents.splice(i,1);
+                for (let i = 0; i < $documents_store.documents.length; i++) {
+                    if (
+                        $documents_store.documents[i]["doc_category"] ==
+                        "Voter Id proof"
+                    ) {
+                        $documents_store.documents.splice(i, 1);
                         console.log("voter id deleted");
                     }
                 }
@@ -457,139 +508,168 @@ console.log("page name on identity",page_name);
                 driving_license_data.doc_number != null &&
                 driving_license_data.file_name != null
             ) {
-                for(let i=0;i<$documents_store.documents.length;i++){
-                    if($documents_store.documents[i]["doc_category"] == "Driving License"){
-                        $documents_store.documents.splice(i,1);
+                for (let i = 0; i < $documents_store.documents.length; i++) {
+                    if (
+                        $documents_store.documents[i]["doc_category"] ==
+                        "Driving License"
+                    ) {
+                        $documents_store.documents.splice(i, 1);
                         console.log("driving license deleted");
                     }
                 }
                 $documents_store.documents.push(driving_license_data);
             }
 
-            if((!pan_card_data.doc_number   &&
-                !pan_card_data.file_name )&&(!adhar_card_data.doc_number  &&
-                !adhar_card_data.file_name)&&(!voter_id_card_data.doc_number  &&
-                !voter_id_card_data.file_name )&&(!driving_license_data.doc_number  &&
-                !driving_license_data.file_name )){
-                    valid = false;
-                    // console.log("condition works");
-                    form_message = "Please Upload Atleast One Document";
-                    console.log("form_message", form_message);
-                }
-                else {
-                    
-                    form_message = "";
-                    console.log("pan facilities",$pravesh_properties.properties['pan_required_associates']);
-                    if($pravesh_properties.properties['pan_required_associates'].includes($facility_data_store.facility_type)){
-                        if(!pan_card_data.doc_number   && !pan_card_data.file_name){
-                            form_message= "Please upload Pan card details";
-                            valid = false;
-                        }
-                        else{
-                            form_message = "";
-                    
-                            
-
-                        }
+            if (
+                !pan_card_data.doc_number &&
+                !pan_card_data.file_name &&
+                !adhar_card_data.doc_number &&
+                !adhar_card_data.file_name &&
+                !voter_id_card_data.doc_number &&
+                !voter_id_card_data.file_name &&
+                !driving_license_data.doc_number &&
+                !driving_license_data.file_name
+            ) {
+                valid = false;
+                // console.log("condition works");
+                form_message = "Please Upload Atleast One Document";
+                console.log("form_message", form_message);
+            } else {
+                form_message = "";
+                console.log(
+                    "pan facilities",
+                    $pravesh_properties.properties["pan_required_associates"]
+                );
+                if (
+                    $pravesh_properties.properties[
+                        "pan_required_associates"
+                    ].includes($facility_data_store.facility_type)
+                ) {
+                    if (!pan_card_data.doc_number && !pan_card_data.file_name) {
+                        form_message = "Please upload Pan card details";
+                        valid = false;
+                    } else {
+                        form_message = "";
                     }
-                    else{
-
-
-                    }
+                } else {
                 }
-        }else{
+            }
+        } else {
             valid = false;
         }
-
-        if(valid){
-        console.log("documents_store", $documents_store);
-        console.log("inside valid");
-        // set_user_id_to_document_store();
-        // let save_facility_response = await save_facility_function();
-        // console.log(save_facility_response);
-        // if(save_facility_response.body.status == "green"){
-        //     try{
-        //         $facility_id.facility_id_number = save_facility_response.body.data.name;
-        //         let temp;
-        //         facility_id.subscribe(value => {
-        //             temp = value.facility_id_number;
-
-        //         });
-        //         console.log("facility id",temp);
-        //         try{
-        //             let current_user_response = await get_current_user_function();
-        //             console.log("current_user_response", current_user_response);
-        //             if (current_user_response.body.status == "green") {
-        //                 console.log("inside current_user_response if statement");
-        //                 $current_user.email =
-        //                     current_user_response.body.data.user.email;
-        //                 $current_user.name =
-        //                     current_user_response.body.data.user.name;
-        //                 $current_user.username =
-        //                     current_user_response.body.data.user.username;
-        //             }
-        //             else{
-        //                 alert("Session user not found error!")
-        //             }
-
-        //         }
-        //         catch{
-        //             alert("Session user not found error!")
-        //         console.log("current user data",$current_user);
-
-        //         }
-        //         for(let i=0;i<$documents_store.documents.length;i++){
-        //             console.log("inside for loop");
-        //             // console.log("documents store",$documents_store.documents[i]);
-        //             $documents_store.documents[i].resource_id = $facility_id.facility_id_number;
-        //             $documents_store.documents[i].user_id = $current_user.username;
-        //             console.log("documents store",$documents_store.documents[i]);
-        //             let document_upload_response = await save_or_update_documents_function_1($documents_store.documents[i]);
-        //             console.log("document_upload_response",document_upload_response);
-
-        //         }
-
-                
-
-               
-        //         // let replaceState = false;
-        //         //  goto("bankdetails", { replaceState });
-        
-
-
-
-                 
-        //         // let msme_store_value;
-        //         // msme_store.subscribe(value => {
-        //         //     msme_store_value = value;
-        //         // });
-        //         // console.log("msme store value",msme_store_value);
-        //         // let document_upload_response = await save_or_update_documents_function(msme_store);
-        //         // console.log("document_upload_response",document_upload_response);
-
-        //         // let bgv_config_check_response = await check_bgv_config_function();
-        //         // console.log("bgv_config_check_response",bgv_config_check_response);
-        //         // let BGV_response = await BGV_function();
-        //         // console.log("BGV_response",BGV_response);
-
-        //     }
-        //     catch{
-
-        //     }
-        // }
-        // else{
-        //     alert("Facility not created");
-        // }
-        // gotobankdetails();
-        route_to_next_page();
-
-        }
-
-        
-
-        
     }
+    async function save_facility() {
+        check_validity();
 
+        if (valid) {
+            console.log("documents_store", $documents_store);
+            console.log("inside valid");
+            console.log("save condition",!$pravesh_properties.properties[
+                            "pan_required_associates"
+                        ].includes($facility_data_store.facility_type) &&
+                        !$pravesh_properties.properties[
+                            "bank_section_required_associates"
+                        ].includes($facility_data_store.facility_type));
+
+
+           
+            let save_facility_response = await save_facility_function();
+            console.log(save_facility_response);
+            if (save_facility_response.body.status == "green") {
+                try {
+                    alert("Facility saved successfully");
+                    $facility_id.facility_id_number =
+                        save_facility_response.body.data.name;
+                    let temp;
+                    facility_id.subscribe((value) => {
+                        temp = value.facility_id_number;
+                    });
+                    console.log("facility id", temp);
+                    try {
+                        let current_user_response =
+                            await get_current_user_function();
+                        console.log(
+                            "current_user_response",
+                            current_user_response
+                        );
+                        if (current_user_response.body.status == "green") {
+                            console.log(
+                                "inside current_user_response if statement"
+                            );
+                            $current_user.email =
+                                current_user_response.body.data.user.email;
+                            $current_user.name =
+                                current_user_response.body.data.user.name;
+                            $current_user.username =
+                                current_user_response.body.data.user.username;
+                        } else {
+                            alert("Session user not found error!");
+                        }
+                    } catch {
+                        alert("Session user not found error!");
+                        console.log("current user data", $current_user);
+                    }
+                    
+                    for (
+                        let i = 0;
+                        i < $documents_store.documents.length;
+                        i++
+                    ) {
+                        console.log("inside for loop");
+                        // console.log("documents store",$documents_store.documents[i]);
+                        $documents_store.documents[i].resource_id =
+                            $facility_id.facility_id_number;
+                        $documents_store.documents[i].user_id =
+                            $current_user.username;
+                        console.log(
+                            "documents store",
+                            $documents_store.documents[i]
+                        );
+                        let document_upload_response =
+                            await save_or_update_documents_function_1(
+                                $documents_store.documents[i]
+                            );
+                            if(document_upload_response.body.status != "green"){
+                                alert("Document upload failed");
+                            }
+                        console.log(
+                            "document_upload_response",
+                            document_upload_response
+                        );
+                    }
+                    save_button_clicked =true;
+                    $save_flag.is_save = true;
+                    
+                    
+                    
+
+                    if (
+                        !$pravesh_properties.properties[
+                            "pan_required_associates"
+                        ].includes($facility_data_store.facility_type) &&
+                        !$pravesh_properties.properties[
+                            "bank_section_required_associates"
+                        ].includes($facility_data_store.facility_type)
+                    ) {
+                        console.log("taking you to the success page");
+                        let replaceState = false;
+                        goto("successpopup", { replaceState });
+                    }
+                } catch {
+                    alert("Error in saving facility!");
+                }
+            } else {
+                if(save_facility_response.body.status == "red"){
+                    alert("message :" +save_facility_response.body.message+"\n"
+                    +"Traceback :"+save_facility_response.body.traceback);
+                }
+                
+                // alert("Facility not created");
+            }
+            // gotobankdetails();
+            // route_to_next_page();
+        }
+    }
 </script>
 
 <div class="mainContent ">
@@ -817,7 +897,10 @@ console.log("page name on identity",page_name);
                         </div>
                     </a>
                 </li> -->
-                <Side_content_component facility_type={$facility_data_store.facility_type} {page_name}/>
+                <Side_content_component
+                    facility_type={$facility_data_store.facility_type}
+                    {page_name}
+                />
             </ul>
         </div>
         <div class="w-widthforFormSection w100xs ">
@@ -1134,9 +1217,7 @@ console.log("page name on identity",page_name);
                                         Photo must be clear and in JPG, PNG, or PDF
                                         format to process faster verification
                                     </p>
-                                   
                                 </div>
-                                
                             </div>
                             <div class="flex">
                                 <div class="formGroup ">
@@ -1144,12 +1225,10 @@ console.log("page name on identity",page_name);
                                     <div class="formInnerGroup mt-1">
                                         <div class="text-red-500 text-xs">
                                             {form_message}
-                                            
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                           
                         </div>
                         {form_message}
                         <button
@@ -1185,7 +1264,7 @@ console.log("page name on identity",page_name);
                     >
                     <button
                         on:click={() => {
-                            save_facility();
+                            on_proceed();
                         }}
                         class="saveandproceed">Proceed</button
                     >
