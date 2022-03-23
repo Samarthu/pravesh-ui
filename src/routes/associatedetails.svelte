@@ -300,8 +300,8 @@
 
         console.log("document store", $documents_store);
 
-        // let replaceState = false;
-        // goto(routeTo, { replaceState });
+        let replaceState = false;
+        goto(routeTo, { replaceState });
     }
     function gotoverifycontactnumber() {
         let replaceState = false;
@@ -508,6 +508,29 @@
     async function save_facility() {}
     function dob_clicked() {
         console.log("dob clicked");
+    }
+    function delete_files(file_name){
+        for(let i=0;i<$documents_store.documents.length;i++){
+            if($documents_store.documents[i]["doc_category"] == file_name["doc_category"]){
+                $documents_store.documents.splice(i,1);
+                console.log("document deleted from document store");
+            }
+        }
+        file_name["file_name"] = null;
+        file_name["pod"] = null;
+        if(file_name["doc_category"] == "Profile Pic"){
+            profile_pic_data = profile_pic_data;
+        }
+        else if(file_name["doc_category"] == "Address Proof"){
+            address_proof_data = address_proof_data;
+
+        }
+        else if(file_name["doc_category"] == "Present Address Proof"){
+            present_address_proof_data = present_address_proof_data;
+            
+        }
+
+
     }
 </script>
 
@@ -866,10 +889,28 @@
                                                     onFileSelected(e)}
                                                 bind:this={fileinput}
                                             />
-                                            {#if profile_pic_data.file_name}
-                                                {profile_pic_data.file_name}
-                                            {/if}
+                                            
+                                                
+                                            
+                                            
+                                            
                                         </label>
+                                        <div class="flex">
+                                            {#if profile_pic_data.file_name}
+                                                <p>{profile_pic_data.file_name}</p>
+                                                <img
+                                                on:click={() => delete_files(profile_pic_data)}
+                                                class="pl-2 cursor-pointer"
+                                                src="../src/img/blackclose.svg"
+                                                alt=""
+                                                
+                                            />
+
+                                               
+                                            {/if}
+
+
+                                        </div>
                                     </span>
                                 </div>
                             </div>
@@ -985,7 +1026,7 @@
                                     ></label
                                 >
                                 <div class="formInnerGroup ">
-                                    <label class="cursor-pointer ">
+                                    <label class="cursor-pointer inline-block">
                                         <div
                                             class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px"
                                         >
@@ -998,10 +1039,22 @@
                                             on:change={(e) => onadders_prrof(e)}
                                             bind:this={fileinput}
                                         />
-                                        {#if address_proof_data.file_name}
-                                            {address_proof_data.file_name}
-                                        {/if}
+                                        
                                     </label>
+                                    <div class="flex">
+                                        {#if address_proof_data.file_name}
+                                            <p>{address_proof_data.file_name}</p>
+                                            <img
+                                                on:click={() => delete_files(address_proof_data)}
+                                                class="pl-2 cursor-pointer"
+                                                src="../src/img/blackclose.svg"
+                                                alt=""
+                                                
+                                            />
+
+
+                                        {/if}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1212,7 +1265,7 @@
                                         />Shipping Address Proof</label
                                     >
                                     <div class="formInnerGroup ">
-                                        <label class="cursor-pointer ">
+                                        <label class="cursor-pointer inline-block">
                                             <div
                                                 class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px"
                                             >
@@ -1226,10 +1279,22 @@
                                                     onpresent_address_proof(e)}
                                                 bind:this={fileinput}
                                             />
-                                            {#if present_address_proof_data.file_name}
-                                                {present_address_proof_data.file_name}
-                                            {/if}
+                                            
                                         </label>
+                                        <div class="flex">
+                                           {#if present_address_proof_data.file_name}
+                                           <p> {present_address_proof_data.file_name}</p>
+                                                <img
+                                                on:click={() => delete_files(present_address_proof_data)}
+                                                class="pl-2 cursor-pointer"
+                                                src="../src/img/blackclose.svg"
+                                                alt=""
+                                                
+                                            />
+                                            {/if}
+                                           
+
+                                        </div>
                                     </div>
                                 </div>
                             </div>
