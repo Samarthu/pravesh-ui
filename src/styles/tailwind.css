@@ -420,7 +420,7 @@
 }
 
 .innercardSection{
-    @apply rounded-lg flex justify-between bg-bgRedLight px-4 py-4 items-end sm:flex-wrap xs:flex-wrap xs:gap-5
+    @apply rounded-lg flex justify-between bg-bgRedLight px-4 py-4 items-start sm:flex-wrap xs:flex-wrap xs:gap-5 
 }
 
 .Username{
@@ -497,15 +497,16 @@
 }
 
 .cardAction{
-    @apply flex justify-between bg-redshade p-5 rounded-br5 items-center
+    @apply flex justify-between bg-redshade p-5 rounded-br5 items-center cursor-pointer
+
 }
 
 .cardActionsaved{
-    @apply flex justify-between bg-greylightbg p-5 rounded-br5 items-center
+    @apply flex justify-between bg-greylightbg p-5 rounded-br5 items-center cursor-pointer
 }
 
 .cardActionother{
-    @apply flex justify-between bg-bglightyello p-5 rounded-br5 items-center
+    @apply flex justify-between bg-bglightyello p-5 rounded-br5 items-center cursor-pointer
 }
 
 .cards{
@@ -689,6 +690,13 @@
 
 .smLable{
     @apply text-base text-blackshade font-normal whitespace-nowrap
+}
+
+.smLableAddress{
+    @apply text-base text-blackshade font-normal whitespace-pre-wrap w-56
+}
+.itemListAddress{
+    @apply w-full flex  
 }
 
 .supplerDetails{

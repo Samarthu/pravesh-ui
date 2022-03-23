@@ -1736,13 +1736,13 @@ else
                                                             {facility_data.name}
                                                         </div>
                                                     </div>
-                                                    <div class="itemList">
+                                                    <div class="itemListAddress">
                                                         <div
                                                             class="smallText w-w115px"
                                                         >
                                                             Location
                                                         </div>
-                                                        <div class="smLable">
+                                                        <div class="smLableAddress">
                                                             {#each facility_data.addresess as curr_address}
                                                             {curr_address.address}
                                                             {/each}

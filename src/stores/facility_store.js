@@ -5,8 +5,6 @@ export var facility_data_store = writable({
         address:"",
         user_type: "FieldAuditor",
         dob:null,
-        
-        
         station_code:null,
         er_network_facility:true,
         owner_name:null,
@@ -23,13 +21,8 @@ export var facility_data_store = writable({
         vendor_name:null,
         non_msme_confirmed_by:null,
         non_msme_confirmed_on:null,
-        msme_registered:null,
-        
+        msme_registered:null,        
         facility_email:null,
-
-
-        
-
 });
 
 

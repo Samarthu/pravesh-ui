@@ -15,7 +15,6 @@ export const msme_store = writable( {
     resource_id: null,
     status: "created",
     user_id: null
-       
     });
 
 export const documents_store = writable({

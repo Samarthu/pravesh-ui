@@ -1,0 +1,31 @@
+import { writable } from 'svelte/store';
+// import {dashboard_data} from '../services/dashboard_services';
+// export const dashboard = writable([]);
+export const bgv_config_store = writable({
+    config_status: null,
+    creation: null,
+    docstatus: null,
+    facility_type: null,
+    idx: null,
+    is_address_info_mandatory: null,
+    is_auto_trigger: null,
+    is_basic_info_mandatory: null,
+    is_driving_license_mandatory: null,
+    is_email_verification_mandatory: null,
+    is_pan_info_mandatory: null,
+    is_police_verification_mandatory: null,
+    modified: null,
+    modified_by: null,
+    name: null,
+    org_id: null,
+    org_name: null,
+    owner: null,
+    parent: null,
+    parentfield: null,
+    parenttype: null,
+    station_code: null,
+    _assign: null,
+    _comments: null,
+    _liked_by: null,
+    _user_tags: null,
+})

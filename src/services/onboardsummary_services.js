@@ -1,7 +1,7 @@
 import {request} from './interceptor';
 import {bank_data_to_store} from '../stores/onboardsummary_store'
 import {facility_id} from '../stores/facility_id_store'
-
+import {bgv_config_store} from '../stores/bgv_config_store'
 
 let new_facility_id
 facility_id.subscribe(value => {
@@ -87,6 +87,7 @@ const facility_bgv_init =(data) =>{
         facility_bgv_init_url,{
             method: "GET"
         },true)
+       
 }
 const facility_bgv_check =() =>{
 //   let facility_bgv_check_url = '/api/resource/Facility%20BGV?filters=[[%22facility_id%22,%22=%22,%22'+new_facility_id+'%22]]&fields=[%22*%22]';
@@ -117,7 +118,8 @@ const submit_fac_tag_data = (new_tag_id,select_tag_data,tag_date,tag_remark) =>{
     // console.log("select_tag_data,tag_date,tag_remark",new_tag_id,select_tag_data,tag_date,tag_remark)
     let submit_fac_tag_url = '/api/method/pravesh.facility.routes.facility.add_facility_tags';
 
-    let tag_data = {"facility_id": new_facility_id,
+    let tag_data = {
+            "facility_id": new_facility_id,
             "facility_tag": [{
             "tag_name": select_tag_data,
             "tag_id": new_tag_id,
