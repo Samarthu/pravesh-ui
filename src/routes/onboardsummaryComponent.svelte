@@ -75,7 +75,7 @@
     onMount(async () => {
         ///////bank details/////////////
         facility_id.set({
-            facility_id_number: "CRUN00374"
+            facility_id_number: "MHPD00001"
         })
         // console.log("facility_id_number",$facility_id.facility_id_number)
 
@@ -107,9 +107,11 @@
         // $cheque_data_from_store
         // console.log("cheque_details_res in SVELTE UI", cheque_details_res);
         $cheque_data_to_store.cheque_details_data = cheque_details_res;
+        
         cheque_data_to_store.subscribe((value) => {
             cheque_values_from_store = value.cheque_details_data;
         });
+        console.log("cheque_values_from_store",cheque_values_from_store);
 
         // console.log(
         //     "cheque_values_from_storein SVELTE UI",
@@ -233,7 +235,7 @@
         }
     }
     catch(err) {
-        message.innerHTML = "Error is " + err;
+        // message.innerHTML = "Error is " + err;
         }
 
     let bgv_pass_data=[

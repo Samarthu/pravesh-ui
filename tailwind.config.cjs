@@ -49,6 +49,7 @@ module.exports = {
         'bgpurplelight':'#E9E9FF',
         'bgGreenLight':'#DEFABB',
         'bglightgreye':'#EEEEEE',
+        'bgtransparent':"#00000073",
        
        }),
        zIndex: {
