@@ -49,6 +49,11 @@ module.exports = {
         'bgpurplelight':'#E9E9FF',
         'bgGreenLight':'#DEFABB',
         'bglightgreye':'#EEEEEE',
+
+        'bglightPBank':'#C9E8FB',
+        'bgVMTapprove' : '#47BD1D',
+        'bglightVMTApprove':'#F2FCEE',
+        'bgGreenApprove' : "#19BD16",
        
        }),
        zIndex: {
@@ -92,6 +97,9 @@ module.exports = {
         'bglightbluecolor':'#F3FBFF',
         'bglightyellowcolor':'#FBF9E6',
         'bglightredcolor':'#FFF4F4',
+
+        // VMT
+        'TextdarkBlue': '#2584BF',
 
 
 

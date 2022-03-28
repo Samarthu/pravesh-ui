@@ -128,6 +128,7 @@ import { object_without_properties } from "svelte/internal";
         // $cheque_data_from_store
         console.log("cheque_details_res in SVELTE UI", cheque_details_res);
         $cheque_data_to_store.cheque_details_data = cheque_details_res;
+        
         cheque_data_to_store.subscribe((value) => {
             cheque_values_from_store = value.cheque_details_data;
         });
@@ -250,7 +251,7 @@ import { object_without_properties } from "svelte/internal";
         }
     }
     catch(err) {
-        message.innerHTML = "Error is " + err;
+        // message.innerHTML = "Error is " + err;
         }
 
     let bgv_pass_data=[
