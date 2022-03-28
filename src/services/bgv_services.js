@@ -3,7 +3,9 @@ import {bank_data_to_store} from '../stores/onboardsummary_store'
 import {facility_id} from '../stores/facility_id_store';
 
 
-let new_facility_id = "CRUN00374";
+// let new_facility_id = "CRUN00374";
+let new_facility_id = "CRUN00320";
+
 // facility_id.subscribe(value => {
 //    new_facility_id = value.facility_id_number;
 // });
@@ -33,26 +35,25 @@ const get_all_docs = () =>{
 ////////////////////////////////////////////////////////////////
 const submit_basic_details =(basic_sub_data) =>{
     let submit_basic_details_url = '/api/method/pravesh.facility.routes.facility_background_verification.update_details';
-
     let basic_data = {
-    action_type: "Updated",
-    adhar_card_number: basic_sub_data.aadhar_num,
-    basic_info_dob: basic_sub_data.dob,
-    basic_info_supp_file: "",
-    delivery_model: "Normal Delivery",
-    email_id: basic_sub_data.email,
-    facility_id: new_facility_id,
-    father_name: basic_sub_data.father_name,
-    field_type: "basicInfo",
-    first_name: basic_sub_data.first_name,
-    gender: basic_sub_data.gend,
-    hub_name: "ER_ODH_Gotan_FK",
-    last_name: basic_sub_data.last_name,
-    pass_photo: "",
-    phone_number: basic_sub_data.phone,
-    rejReason: "-1",
-    spouse_name: basic_sub_data.spouse,
-    station_model: "LMA",
+        action_type: "Updated",
+        first_name: basic_sub_data.fir_name,
+        adhar_card_number: basic_sub_data.aadhar_num,
+        basic_info_dob: basic_sub_data.dob,
+        basic_info_supp_file: "",
+        delivery_model: basic_sub_data.delivery_model,
+        email_id: basic_sub_data.email,
+        facility_id: new_facility_id,
+        father_name: basic_sub_data.father_name,
+        field_type: "basicInfo",
+        gender: basic_sub_data.gend,
+        hub_name: basic_sub_data.hub_name,
+        last_name: basic_sub_data.last_name,
+        pass_photo: "",
+        phone_number: basic_sub_data.phone,
+        rejReason: "-1",
+        spouse_name: basic_sub_data.spouse,
+        station_model: basic_sub_data.station_mod,
     }
     return request(
         submit_basic_details_url, 
@@ -176,6 +177,21 @@ const uploadDocs=(data)=>{
         },true)
 }
 
+const get_casper_id = () =>{
+    let casper_id_url = '/api/method/pravesh.facility.routes.organisation.get_hub_names'
+    return request(
+        casper_id_url, {
+        method: "GET",
+        }, true)
+}
+const check_doc_exist = () => {
+    let doc_exist_url = '/api/method/pravesh.facility.routes.document.validate_facility_document?doc_number=209176052554&fac_id='+new_facility_id+''
+    return request(
+        doc_exist_url, {
+        method: "GET",
+        }, true)
+}
+
   
 export {
     get_states,
@@ -186,5 +202,7 @@ export {
     submit_dl_details,
     submit_police_details,
     get_all_docs,
-    uploadDocs
+    uploadDocs,
+    get_casper_id,
+    check_doc_exist
 }

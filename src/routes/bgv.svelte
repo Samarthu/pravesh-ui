@@ -5,46 +5,44 @@
     import {facility_data_store} from "../stores/facility_store";
     import {bgv_data_store} from  "../stores/bgv_store";
     import {bgv_config_store} from '../stores/bgv_config_store';
-
     import {get_states,get_cities,submit_basic_details,submit_address_details,submit_pancard_details,
-    submit_dl_details,submit_police_details,get_all_docs,uploadDocs} from "../services/bgv_services";
+    submit_dl_details,submit_police_details,get_all_docs,uploadDocs,get_casper_id,check_doc_exist} from "../services/bgv_services";
+import { text } from "svelte/internal";
     
 
     let temp;
     let routePrev = "";
     let routeNext = "";
-    // let is_address_info_mandatory;
-    // let is_basic_info_mandatory;
-    // let is_driving_license_mandatory;
-    // let is_email_verification_mandatory;
-    // let is_pan_info_mandatory;
-    // let is_police_verification_mandatory;
-    let gend_selected,add_is_perm,curr_same,police_add_per ;
-    let aadhar_num_c,fir_name_c,last_name_c,father_name_c,email_c,phone_c,dob_c
-        ,spouse_c,gend_c;
+    let gend_selected,curr_same,police_add_per ;
+    // let fir_name_c,last_name_c,father_name_c,email_c,phone_c,dob_c,spouse_c,gend_c,aadhar_num_c;
     let get_state_data;
     let city_data=[];
     let new_selected_state;
     $:new_selected_state;
-    var pan_card_pattern = /[A-Z]{3}[ABCFGHLJPTF]{1}[A-Z]{1}[0-9]{4}[A-Z]{1}/gm;
+    var NorthEStates = ["Arunachal Pradesh", "Assam", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Sikkim", "Tripura"];
+    var pan_card_pattern = /^[A-Z]{3}[ABCFGHLJPTF]{1}[A-Z]{1}[0-9]{4}[A-Z]{1}/gm;
     var aadhar_card_pattern = /^[0-9]{12}$/gm;
+    var validName_pattern = /^[a-zA-Z][\-\w\s]*$/; 
     var voter_id_pattern = /^([a-zA-Z]){3}([0-9]){7}?$/;
     var driving_license_pattern = /^(([A-Z]{2}[0-9]{2})( )|([A-Z]{2}-[0-9]{2})|([A-Z]{2}[0-9]{2}))((19|20)[0-9][0-9])[0-9]{7}$/gm; 
     var email_pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     var phone_num_pattern = /^((\+*)((0[ -]*)*|((91 )*))((\d{12})+|(\d{10})+))|\d{5}([- ]*)\d{6}/;
+    var cand_and_guard_pattern = /^[a-zA-Z][\-\w\s]*$/; 
 
-    let first_name_message = "";
+    // let first_name_message = "";
+    let msg_name ="";
     let email_id_message = "";
     let phone_num_message = "";
     let dob_message = "";
     let spouse_message = "";
     let gender_message ="";
-    let last_name_message = "";
-    let father_name_message ="";
+    // let last_name_message = "";
+    // let father_name_message ="";
     let pan_card_message = "";
-    let adhar_card_message = "";
-    // let voter_id_message = "";
-    // let driving_license_message = "";
+    // let adhar_card_message = "";
+    let delivery_msg="";
+    let station_message="";
+    let casper_message="";
     let photo_upload="-";
     let aadhar_upload="-";
     let address_upload="-"
@@ -63,11 +61,6 @@
     $:police_img="";
     $:dl_img="";
     $:address_img="";
-    let file_data;
-    let mandatory_det_arr = [];
-    let copy_mandatory_arr = [];
-    let demoflag;
-    let new_val=0;
     // let basicInfo="basicInfo";
     $:is_basic_visible = "";
     $:is_address_visible = "";
@@ -79,19 +72,42 @@
     let is_pan_active = "";
     let is_dl_active = "";
     let is_pol_active = "";
+    let casper_id_arr = [];
+    let delivery_select,station_mod_select,casper_select;
     
 
     
-    onMount(async () => { 
-        // console.log("bgv_config_store",$bgv_config_store)
+    onMount(async () => {
+    console.log("$facility_data_store.first_name",$facility_data_store.first_name);    
+        
         let bgv_pass_data=[
         // $facility_data_store.org_id,
         // $facility_data_store.station_code,
-        // $facility_data_store.facility_type,
+        // $facility_data_store.facility_type, /////All these are commented bcoz they only show values when traversed
+        //  through button click and not on page reload.uncomment when code on this page is fully done
         "ER",
         "CRUN",
         "Reseller"
-    ]    
+    ]
+    if($facility_data_store.org_id =="FT"){
+        let casper_id_res = await get_casper_id();
+        try{
+            if(casper_id_res.body.status == "green"){
+                console.log("casper_id_res",casper_id_res)
+                for(let i=0;i<casper_id_res.body.data.length;i++){
+                    console.log("inside for casper_id_res.body.data");
+                    casper_id_arr.push(casper_id_res.body.data[i][0])
+                }
+                casper_id_arr = casper_id_arr;
+                console.log("casper_id_arr",casper_id_arr)
+               
+            }
+        }
+        catch(err){
+            console.log("CASPER ERROR")
+        }
+    }
+
 
     let bgv_init_res = await facility_bgv_init(bgv_pass_data);   
     
@@ -329,47 +345,200 @@
         }
         return await uploadDocs(pol_load); 
     }
-///////////////////////////////////////////////////////////////////
-    
+////////////////////////////////////////////////////////////////////////////////////
+    function throwError(id,msg){
+        document.getElementById(id).innerHTML = msg;
+    }
 
     async function submitBasicDets(){
-        let basic_sub_data = {
-         fir_name : $bgv_data_store.first_name,
-         last_name : $bgv_data_store.last_name,
-         father_name : $bgv_data_store.father_name,
-         email : $bgv_data_store.email_id,
-         phone : $bgv_data_store.phone_number,
-         dob : $bgv_data_store.basic_info_dob,
-         spouse : $bgv_data_store.spouse_name,
-         gend : gend_selected
+            if(!$bgv_data_store.adhar_card_number){   
+                throwError("aadharmsg","Invalid Aadhar Number")
+                return 
+            }
+            else{
+                throwError("aadharmsg","")
+            }
+            if(!$bgv_data_store.first_name){    
+                throwError("fir_name_msg","Invalid First Name")
+                return    
+            }
+            else{
+                throwError("fir_name_msg","")
+            }
+            if(!$bgv_data_store.last_name){   
+                throwError("last_name_msg","Invalid Last Name")
+                return 
+            }
+            else{
+                throwError("last_name_msg","")
+            }
+            if(!$bgv_data_store.father_name){
+                throwError("fat_name_msg","Invalid Father Name")
+                return
+            }
+            else{
+                throwError("fat_name_msg","")
+            }
+            if(!$bgv_data_store.email_id.match(email_pattern)){
+            throwError("email_msg","Invalid Email Id")
+            return
+            }
+            else{
+                throwError("email_msg","")
+            }
+            if(!$bgv_data_store.phone_number.match(phone_num_pattern)){
+                throwError("phone_msg","Invalid Phone Number")
+                return
+            }
+            else{
+                throwError("phone_msg","")
+            }
+            if(!$bgv_data_store.basic_info_dob){
+                throwError("dob_msg","Select Date Of Birth")
+                return  
+            }
+            else{
+                throwError("dob_msg","")
+            }
+            if(!$bgv_data_store.spouse_name){
+                throwError("spo_msg","Enter Spouse Name")
+                return  
+            }
+            else{
+                throwError("spo_msg","")
+            }
+            if(!gend_selected){
+                throwError("gend_msg","Select Gender")
+                return  
+            }
+            else{
+                throwError("gend_msg","")
+            }
+            if($facility_data_store.org_id =="FT"){
+                if(!$bgv_data_store.delivery_model){
+                    throwError("del_msg","Select Delivery Model")
+                    return 
+                }
+                else{
+                    throwError("del_msg","")
+                }
+                if(!$bgv_data_store.station_model){
+                throwError("stat_msg","Select Station Model")
+                return
+                }
+                else{
+                    throwError("stat_msg","")
+                }
+                if(!$bgv_data_store.hub_name){
+                    throwError("hub_msg","Select Hub Name")
+                    return 
+                }
+                else{
+                    throwError("hub_msg","")
+                }
+            }
+                
+            let basic_sub_data = {
+            fir_name : $bgv_data_store.first_name,
+            aadhar_num :$bgv_data_store.adhar_card_number,
+            last_name : $bgv_data_store.last_name,
+            father_name : $bgv_data_store.father_name,
+            email : $bgv_data_store.email_id,
+            phone : $bgv_data_store.phone_number,
+            dob : $bgv_data_store.basic_info_dob,
+            spouse : $bgv_data_store.spouse_name,
+            gend : gend_selected,
+            delivery_mod :$bgv_data_store.delivery_model,
+            station_mod : $bgv_data_store.station_model,
+            casper_id : $bgv_data_store.hub_name
+
         }
-        if(!basic_sub_data.fir_name){
-            first_name_message = "Invalid First Name";
-        }
-        if(!basic_sub_data.last_name){
-            last_name_message = "Invalid Last Name";
-        }
-        if(!basic_sub_data.father_name){
-            father_name_message = "Invalid Father Name";
-        }
-        if(!basic_sub_data.email.match(email_pattern)){
-            email_id_message = "Invalid Email Id";
-        }
-        if(!basic_sub_data.phone.match(phone_num_pattern)){
-            phone_num_message = "Invalid Phone Number";
-        }
-        if(!basic_sub_data.dob){
-            dob_message = "Invalid Date Of Birth";
-        }
-        if(!basic_sub_data.spouse){
-            spouse_message = "Invalid Spouse Name";
-        }
-        if(!basic_sub_data.gend){
-            gend_message = "Select Gender";
-        }
-        return await submit_basic_details(basic_sub_data);    
-    }   
+            return await submit_basic_details(basic_sub_data);
+        }    
+  
     async function submitAddDets(){
+            
+            
+            if(!$bgv_data_store.full_address){
+                throwError("full_add_msg","Invalid Address")
+                return
+            }
+            else{
+                throwError("full_add_msg","")
+            }
+            if(!$bgv_data_store.state){
+                throwError("state_msg","Invalid State")
+                return  
+            }
+            else{
+                throwError("state_msg","")
+            }
+
+            if(!$bgv_data_store.district){   
+                throwError("dist_msg","Invalid District Name")
+                return 
+            }
+            else{
+                throwError("dist_msg","")
+            }
+            if(!$bgv_data_store.city){   
+                throwError("citymsg","Select City")
+                return 
+            }
+            else{
+                throwError("citymsg","")
+            }
+
+            if(!$bgv_data_store.pin_code){
+                throwError("pin_msg","Invalid Pincode")
+                return  
+            }
+            else{
+                throwError("pin_msg","")
+            }
+            if(!$bgv_data_store.landmark){
+            throwError("land_msg","Invalid Landmark")
+            return
+            }
+            else{
+                throwError("land_msg","")
+            }
+            if(!$bgv_data_store.residence_type){
+                throwError("resid_msg","Select Residence Type")
+                return  
+            }
+            else{
+                throwError("resid_msg","")
+            }
+            if(!$bgv_data_store.period_of_stay){
+                throwError("stay_per_msg","Enter Period Of Stay")
+                return
+            }
+            else{
+                throwError("stay_per_msg","")
+            }
+            if(!$bgv_data_store.stay_from){
+                throwError("st_from_msg","Select Stay from Date")
+                return  
+            }
+            else{
+                throwError("st_from_msg","")
+            }
+            if(!$bgv_data_store.stay_till){
+                throwError("st_till_msg","Select Stay till Date")
+                return  
+            }
+            else{
+                throwError("st_till_msg","")
+            }
+            if(!$bgv_data_store.contact_number){    
+                throwError("contact_msg","Invalid Contact Number")
+                return    
+            }
+            else{
+                throwError("contact_msg","")
+            }
+
         let addr_data = {
         // address_type : curr_same,
         // area = 
@@ -391,6 +560,36 @@
         return await  submit_address_details(addr_data);
     }
     async function submitPanDets(){
+            if(!$bgv_data_store.pancard_number){
+                throwError("pan_num_msg","Invalid Pancard Number")
+                return
+            }
+            else{
+                throwError("pan_num_msg","")
+            }
+            if(!$bgv_data_store.pan_full_name){
+                throwError("pan_full_name","Invalid Pan Full Name")
+                return  
+            }
+            else{
+                throwError("pan_full_name","")
+            }
+
+            if(!$bgv_data_store.pan_dob){   
+                throwError("pan_dob_msg","Select Date Of Birth")
+                return 
+            }
+            else{
+                throwError("pan_dob_msg","")
+            }
+            if(!$bgv_data_store.pan_father_name){   
+                throwError("pan_fat_msg","Enter Father Name ")
+                return 
+            }
+            else{
+                throwError("pan_fat_msg","")
+            }
+
         let pan_data = {
         pan_dob: $bgv_data_store.pan_dob,
         pan_father_name: $bgv_data_store.pan_father_name,
@@ -401,6 +600,49 @@
     }
 
     async function submitDlDets(){
+            if(!$bgv_data_store.license_number){
+                throwError("lic_num_msg","Enter Valid Driving Licence Number")
+                return
+            }
+            else{
+                throwError("lic_num_msg","")
+            }
+            if(!$bgv_data_store.name_license){
+                throwError("lic_name_msg","Enter Valid Name As On Driving Licence")
+                return  
+            }
+            else{
+                throwError("lic_name_msg","")
+            }
+
+            if(!$bgv_data_store.dl_dob){   
+                throwError("lic_dob_msg","Select Date Of Birth As On Driving Licence")
+                return 
+            }
+            else{
+                throwError("lic_dob_msg","")
+            }
+            if(!$bgv_data_store.dl_issue_date){   
+                throwError("dl_issue_msg","Select Licence Issue Date")
+                return 
+            }
+            else{
+                throwError("dl_issue_msg","")
+            }
+            if(!$bgv_data_store.dl_expiry_date){   
+                throwError("dl_expiry_msg","Select Licence Expiry Date")
+                return 
+            }
+            else{
+                throwError("dl_expiry_msg","")
+            }
+            if(!$bgv_data_store.dl_issue_date){   
+                throwError("dl_issue_st_msg","Select Licence Issue State")
+                return 
+            }
+            else{
+                throwError("dl_issue_st_msg","")
+            }
         let dl_data = {
         dl_dob: $bgv_data_store.dl_dob,
         dl_expiry_date: $bgv_data_store.dl_expiry_date,
@@ -413,6 +655,37 @@
         
     }
     async function submitPolDets(){
+            if(!$bgv_data_store.police_address_type){
+                throwError("pol_add_type","Select Address Type")
+                return
+            }
+            else{
+                throwError("pol_add_type","")
+            }
+            if(!$bgv_data_store.candidate_name){
+                throwError("pol_name_msg","Enter Valid Name")
+                return  
+            }
+            else{
+                throwError("pol_name_msg","")
+            }
+
+            if(!$bgv_data_store.guardian_name){   
+                throwError("guard_msg","Select Guardian's Name")
+                return 
+            }
+            else{
+                throwError("guard_msg","")
+            }
+            if(!$bgv_data_store.police_verified_address){   
+                throwError("pol_ver_add","Enter Police Verified Address")
+                return 
+            }
+            else{
+                throwError("pol_ver_add","")
+            }
+            
+        
         let police_data = {
         candidate_name: $bgv_data_store.candidate_name,
         guardian_name: $bgv_data_store.guardian_name,
@@ -431,33 +704,39 @@
             else{let photo_res = await submit_photo();}
             if(aadhar_upload == "-"){}
             else{let aadhar_res = await submit_aadhar();}
-            if(sub_bas_res.body.status =="green"){
-            if($bgv_config_store.is_address_info_mandatory =="1"){
-            temp="b";
-            is_add_active = "active";
-            is_basic_active = "";
+            try{
+                if(sub_bas_res.body.status =="green"){
+                    if($bgv_config_store.is_address_info_mandatory =="1"){
+                    temp="b";
+                    is_add_active = "active";
+                    is_basic_active = "";
+                    }
+                    else if($bgv_config_store.is_pan_info_mandatory =="1"){
+                    temp="c";
+                    is_pan_active = "active";
+                    is_add_active = "";
+                    is_basic_active = "";
+                    }
+                    else if($bgv_config_store.is_driving_license_mandatory =="1"){
+                    temp="d"
+                    is_dl_active="active";
+                    is_pan_active = "";
+                    is_add_active = "";
+                    is_basic_active = "";
+                    }
+                    else if($bgv_config_store.is_police_verification_mandatory =="1"){
+                    temp="e"
+                    is_pol_active="active";
+                    is_pan_active = "";
+                    is_add_active = "";
+                    is_basic_active = "";
+                    is_dl_active="";
+                    } 
+                }
+            
             }
-            else if($bgv_config_store.is_pan_info_mandatory =="1"){
-            temp="c";
-            is_pan_active = "active";
-            is_add_active = "";
-            is_basic_active = "";
-            }
-            else if($bgv_config_store.is_driving_license_mandatory =="1"){
-            temp="d"
-            is_dl_active="active";
-            is_pan_active = "";
-            is_add_active = "";
-            is_basic_active = "";
-            }
-            else if($bgv_config_store.is_police_verification_mandatory =="1"){
-            temp="e"
-            is_pol_active="active";
-            is_pan_active = "";
-            is_add_active = "";
-            is_basic_active = "";
-            is_dl_active="";
-            } 
+            catch(err){
+                console.log("ERROR in sub_bas_res next")
             }
             
         }
@@ -466,181 +745,226 @@
             if(address_upload=="-"){}
             else{let address = await submit_address();}
             console.log("sub_add_res",sub_add_res)
-            // if(sub_add_res.body.status == "green"){
-            if($bgv_config_store.is_pan_info_mandatory =="1"){
-            temp="c";
-            is_pan_active = "active";
-            is_add_active = "";
-            is_basic_active = "";
+            try{
+                if(sub_add_res.body.status == "green"){
+                if($bgv_config_store.is_pan_info_mandatory =="1"){
+                temp="c";
+                is_pan_active = "active";
+                is_add_active = "";
+                is_basic_active = "";
+                }
+                else if($bgv_config_store.is_driving_license_mandatory =="1"){
+                temp="d"
+                is_dl_active="active";
+                is_pan_active = "";
+                is_add_active = "";
+                is_basic_active = "";
+                }
+                else if($bgv_config_store.is_police_verification_mandatory =="1"){
+                temp="e"
+                is_pol_active="active";
+                is_pan_active = "";
+                is_add_active = "";
+                is_basic_active = "";
+                is_dl_active="";
+                }
+                }
             }
-            else if($bgv_config_store.is_driving_license_mandatory =="1"){
-            temp="d"
-            is_dl_active="active";
-            is_pan_active = "";
-            is_add_active = "";
-            is_basic_active = "";
+            catch(err){
+                console.log("ERROR in sub_add_res next") 
             }
-            else if($bgv_config_store.is_police_verification_mandatory =="1"){
-            temp="e"
-            is_pol_active="active";
-            is_pan_active = "";
-            is_add_active = "";
-            is_basic_active = "";
-            is_dl_active="";
-            }
-        // }
-            
         }
         else if(new_type == "panInfo"){
             let sub_pan_res = await submitPanDets();
             if(pancard_upload=="-"){}
             else{let pancard = await submit_pancard();}
-            if(sub_pan_res.body.status =="green"){
-            if($bgv_config_store.is_driving_license_mandatory =="1"){
-            temp="d"
-            is_dl_active="active";
-            is_pan_active = "";
-            is_add_active = "";
-            is_basic_active = "";
+            
+            try{
+                if(sub_pan_res.body.status =="green"){
+                if($bgv_config_store.is_driving_license_mandatory =="1"){
+                temp="d"
+                is_dl_active="active";
+                is_pan_active = "";
+                is_add_active = "";
+                is_basic_active = "";
+                }
+                else if($bgv_config_store.is_police_verification_mandatory =="1"){
+                temp="e"
+                is_pol_active="active";
+                is_pan_active = "";
+                is_add_active = "";
+                is_basic_active = "";
+                is_dl_active="";
+                }
+                }
             }
-            else if($bgv_config_store.is_police_verification_mandatory =="1"){
-            temp="e"
-            is_pol_active="active";
-            is_pan_active = "";
-            is_add_active = "";
-            is_basic_active = "";
-            is_dl_active="";
-            }
-        }
+            catch(err){
+                console.log("ERROR in sub_pan_res next")  
+            } 
         }
         else if(new_type == "dlInfo"){
             let sub_dl_res = await submitDlDets();
-            if(license_upload=="-"){}
-            else{let licence = await submit_licence();}
-            if(sub_dl_res.body.status =="green"){
-            if($bgv_config_store.is_police_verification_mandatory =="1"){
-            temp="e"
-            is_pol_active="active";
-            is_pan_active = "";
-            is_add_active = "";
-            is_basic_active = "";
-            is_dl_active="";
+            try{  
+                if(license_upload=="-"){}
+                else{let licence = await submit_licence();}
+                if(sub_dl_res.body.status =="green"){
+                if($bgv_config_store.is_police_verification_mandatory =="1"){
+                temp="e"
+                is_pol_active="active";
+                is_pan_active = "";
+                is_add_active = "";
+                is_basic_active = "";
+                is_dl_active="";
+                }
+                }
             }
-        }
+            catch(err){
+                console.log("ERROR in sub_dl_res next")  
+            }    
         }
         else if(new_type == "policeInfo"){
             let sub_pol_res = await submitPolDets();
             if(police_upload=="-"){}
             else{let police = await submit_police();}
-            if(sub_pol_res.body.status =="green"){
-            temp="f";
+            try{    
+                if(sub_pol_res.body.status =="green"){
+                temp="f";
+                }
             }
+            catch(err){
+                console.log("ERROR in sub_pol_res next")   
+            }    
         }
     }
     async function back_btn_click(new_type){
         if(new_type == "policeInfo"){
             let sub_pol_res = await submitPolDets();
-            if(sub_pol_res.body.status =="green"){
-            if($bgv_config_store.is_driving_license_mandatory =="1"){
-            temp="d"
-            is_pol_active="";
-            is_dl_active="active";
+            try{
+                if(sub_pol_res.body.status =="green"){
+                if($bgv_config_store.is_driving_license_mandatory =="1"){
+                temp="d"
+                is_pol_active="";
+                is_dl_active="active";
+                }
+                else if($bgv_config_store.is_pan_info_mandatory =="1"){
+                temp="c";
+                is_pol_active="";
+                is_dl_active="";
+                is_pan_active = "active";
+                
+                }
+                else if($bgv_config_store.is_address_info_mandatory =="1"){
+                temp="b";
+                is_pol_active="";
+                is_dl_active="";
+                is_pan_active = "";
+                is_add_active = "active";
+                
+                }
+                else if($bgv_config_store.is_basic_info_mandatory =="1"){
+                temp="a";
+                is_pol_active="";
+                is_dl_active="";
+                is_pan_active = "";
+                is_add_active = "";
+                is_basic_active = "active";
+                }
+                }
             }
-            else if($bgv_config_store.is_pan_info_mandatory =="1"){
-            temp="c";
-            is_pol_active="";
-            is_dl_active="";
-            is_pan_active = "active";
-            
+            catch(err){
+                console.log("ERROR in sub_pol_res back")    
             }
-            else if($bgv_config_store.is_address_info_mandatory =="1"){
-            temp="b";
-            is_pol_active="";
-            is_dl_active="";
-            is_pan_active = "";
-            is_add_active = "active";
-            
-            }
-            else if($bgv_config_store.is_basic_info_mandatory =="1"){
-            temp="a";
-            is_pol_active="";
-            is_dl_active="";
-            is_pan_active = "";
-            is_add_active = "";
-            is_basic_active = "active";
-            }
-        }
         }
         else if(new_type == "dlInfo"){
             let sub_dl_res = await submitDlDets();
-            if(sub_dl_res.body.status =="green"){
-            if($bgv_config_store.is_pan_info_mandatory =="1"){
-            temp="c";
-            is_pol_active="";
-            is_dl_active="";
-            is_pan_active = "active";
-            
+            try{    
+                if(sub_dl_res.body.status =="green"){
+                if($bgv_config_store.is_pan_info_mandatory =="1"){
+                temp="c";
+                is_pol_active="";
+                is_dl_active="";
+                is_pan_active = "active";
+                
+                }
+                else if($bgv_config_store.is_address_info_mandatory =="1"){
+                temp="b";
+                is_pol_active="";
+                is_dl_active="";
+                is_pan_active = "";
+                is_add_active = "active";
+                
+                }
+                else if($bgv_config_store.is_basic_info_mandatory =="1"){
+                temp="a";
+                is_pol_active="";
+                is_dl_active="";
+                is_pan_active = "";
+                is_add_active = "";
+                is_basic_active = "active";
+                }
+                }
             }
-            else if($bgv_config_store.is_address_info_mandatory =="1"){
-            temp="b";
-            is_pol_active="";
-            is_dl_active="";
-            is_pan_active = "";
-            is_add_active = "active";
-            
+            catch(err){
+                console.log("ERROR in sub_dl_res back")    
             }
-            else if($bgv_config_store.is_basic_info_mandatory =="1"){
-            temp="a";
-            is_pol_active="";
-            is_dl_active="";
-            is_pan_active = "";
-            is_add_active = "";
-            is_basic_active = "active";
-            }
-        }
         }
         else if(new_type == "panInfo"){
             let sub_pan_res = await submitPanDets();
-            if(sub_pan_res.body.status =="green"){
-            if($bgv_config_store.is_address_info_mandatory =="1"){
-            temp="b";
-            is_pol_active="";
-            is_dl_active="";
-            is_pan_active = "";
-            is_add_active = "active";
             
+            try{
+                if(sub_pan_res.body.status =="green"){
+                if($bgv_config_store.is_address_info_mandatory =="1"){
+                temp="b";
+                is_pol_active="";
+                is_dl_active="";
+                is_pan_active = "";
+                is_add_active = "active";
+                
+                }
+                else if($bgv_config_store.is_basic_info_mandatory =="1"){
+                temp="a";
+                is_pol_active="";
+                is_dl_active="";
+                is_pan_active = "";
+                is_add_active = "";
+                is_basic_active = "active";
+                }
+                }
             }
-            else if($bgv_config_store.is_basic_info_mandatory =="1"){
-            temp="a";
-            is_pol_active="";
-            is_dl_active="";
-            is_pan_active = "";
-            is_add_active = "";
-            is_basic_active = "active";
+            catch(err){
+                console.log("ERROR in sub_pan_res back")  
             }
-        }
         }
         else if(new_type == "addressInfo"){
             let sub_add_res = await submitAddDets();
-            if(sub_add_res.body.status =="green"){
-            if($bgv_config_store.is_basic_info_mandatory =="1"){
-            temp="a";
-            is_pol_active="";
-            is_dl_active="";
-            is_pan_active = "";
-            is_add_active = "";
-            is_basic_active = "active";
-            } 
-        }
+            try{
+                if(sub_add_res.body.status =="green"){
+                if($bgv_config_store.is_basic_info_mandatory =="1"){
+                temp="a";
+                is_pol_active="";
+                is_dl_active="";
+                is_pan_active = "";
+                is_add_active = "";
+                is_basic_active = "active";
+                } 
+                }
+            }
+            catch(err){
+                console.log("ERROR in sub_add_res back") 
+            }    
         }
         else if(new_type == "basicInfo"){
         let sub_bas_res = await submitBasicDets();
-        if(sub_bas_res.body.status =="green"){
-        let replaceState = false;
-        goto(routePrev, { replaceState });
+            try{
+                if(sub_bas_res.body.status =="green"){
+                    let replaceState = false;
+                    goto(routePrev, { replaceState });
+                }
+            }
+            catch(err){
+                console.log("ERROR in sub_bas_res back")
+            }
         }
-        }
-
     }
 
     function routeToOnboardsummary() {
@@ -720,9 +1044,15 @@
                             <p class="contentheadingAnchor ">Basic Details</p>
                             <p class="contentDescriptionText ">Submit associate besic details</p>
                         </div>
+                        {#if $bgv_data_store.basic_information_status == "verified"}
                         <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="">
                         </div>
+                        {:else if $bgv_data_store.basic_information_status == "rejected"}
+                        <div class="markSection pl-3 xs:hidden sm:hidden">
+                            <img src="../src/img/backlist.png" alt="">
+                        </div>
+                        {/if}
                     </a>
                 </li>
                 {/if}
@@ -746,9 +1076,15 @@
                             <p class="contentheadingAnchor">Address Details</p>
                             <p class="contentDescriptionText">Submit address information</p>
                         </div>
+                        {#if $bgv_data_store.address_status == "verified"}
                         <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="">
                         </div>
+                        {:else if $bgv_data_store.address_status == "rejected"}
+                        <div class="markSection pl-3 xs:hidden sm:hidden">
+                            <img src="../src/img/backlist.png" alt="">
+                        </div>
+                        {/if}
                     </a>
                 </li>
                 {/if}
@@ -781,9 +1117,18 @@
                             <p class="contentheadingAnchor">PAN Details</p>
                             <p class="contentDescriptionText">Submit PAN details as per documents</p>
                         </div>
+                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
+                            <img src="../src/img/checked.png" alt="">
+                        </div> -->
+                        {#if $bgv_data_store.pan_status == "verified"}
                         <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="">
                         </div>
+                        {:else if $bgv_data_store.pan_status == "rejected"}
+                        <div class="markSection pl-3 xs:hidden sm:hidden">
+                            <img src="../src/img/backlist.png" alt="">
+                        </div>
+                        {/if}
                     </a>
                 </li>
                 {/if}
@@ -817,9 +1162,18 @@
                             <p class="contentheadingAnchor">Driving License Details</p>
                             <p class="contentDescriptionText">Submit DL details as per documents</p>
                         </div>
+                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
+                            <img src="../src/img/checked.png" alt="">
+                        </div> -->
+                        {#if $bgv_data_store.license_status == "verified"}
                         <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="">
                         </div>
+                        {:else if $bgv_data_store.license_status == "rejected"}
+                        <div class="markSection pl-3 xs:hidden sm:hidden">
+                            <img src="../src/img/backlist.png" alt="">
+                        </div>
+                        {/if}
                     </a>
                 </li>
                 {/if}
@@ -848,9 +1202,18 @@
                             <p class="contentheadingAnchor">Police Verification Details</p>
                             <p class="contentDescriptionText">Submit Police verification as per documents</p>
                         </div>
+                        <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
+                            <img src="../src/img/checked.png" alt="">
+                        </div> -->
+                        {#if $bgv_data_store.police_verification_status == "verified"}
                         <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/checked.png" alt="">
                         </div>
+                        {:else if $bgv_data_store.police_verification_status == "rejected"}
+                        <div class="markSection pl-3 xs:hidden sm:hidden">
+                            <img src="../src/img/backlist.png" alt="">
+                        </div>
+                        {/if}
                     </a>
                 </li>
                 {/if}
@@ -977,7 +1340,7 @@
                                                     )}
                                                     
                                             />
-                                            <div class="text-red-500">{adhar_card_message}</div>
+                                            <!-- <div class="text-red-500">{adhar_card_message}</div> -->
                                             </label>
                                             <p>{aadhar_img}</p>
                                         </div>
@@ -993,6 +1356,30 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="flex">
+                            <div class="formGroupbgv items-center ">
+                                <label class="formLable ">Aadhar Number 
+                                    <br><span
+                                        class="mandatoryIcon">*</span></label>
+                                <div class="xs:w-full sm:w-full">
+                                    <div class="flex  items-center">
+                                        <div class="formInnerGroup ">
+                                            <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.adhar_card_number}">
+                                            <!-- {#if aadhar_num_c == "1"} -->
+                                            <div class="text-red-500" id="aadharmsg"></div>
+                                            <!-- {/if} -->
+                                        </div>
+                                        <div>
+                                            <img src="../src/img/edit.png" class="editbgv" alt="">
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <p class="smNotebgv"><span class="font-medium">Note:</span>( Voter ID only for North East)
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="flex">
                             <div class="formGroupbgv items-center ">
@@ -1002,8 +1389,8 @@
                                     <div class="flex  items-center">
                                         <div class="formInnerGroup ">
                                             <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.first_name}">
-                                            {#if fir_name_c == "1"}
-                                            <div class="text-red-500">"Please enter First Name"</div>{/if}
+                                            
+                                            <div class="text-red-500" id="fir_name_msg"></div>
                                         </div>
                                         <div>
                                             <img src="../src/img/edit.png" class="editbgv" alt="">
@@ -1025,8 +1412,8 @@
                                     <div class="flex  items-center">
                                         <div class="formInnerGroup ">
                                             <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.last_name}">
-                                            {#if last_name_c == "1"}
-                                            <div class="text-red-500">"Please enter Last Name"</div>{/if}
+                                            
+                                            <div class="text-red-500" id="last_name_msg"></div>
                                         </div>
                                         <div>
                                             <img src="../src/img/edit.png" class="editbgv" alt="">
@@ -1049,8 +1436,8 @@
                                     <div class="flex  items-center">
                                         <div class="formInnerGroup ">
                                             <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.father_name}">
-                                            {#if father_name_c == "1"}
-                                            <div class="text-red-500">"Please Enter Father Name"</div>{/if}
+                                            
+                                            <div class="text-red-500" id="fat_name_msg"></div>
                                         </div>
 
                                     </div>
@@ -1068,16 +1455,15 @@
                                 <div class="flex justify-between formInnerGroup">
                                     <!-- <p class="text-greycolor text-base">dhiraj.shah@gmail.com</p> -->
                                     <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.email_id}">
-                                    
+                                    <div class="text-red-500" id="email_msg"></div>
                                     {#if $bgv_data_store.is_email_verified =="1"}
                                     <p class="veriTextEmail "><img src="../src/img/checked.png"
                                             class="mr-1 object-contain" alt=""> Verified</p>
                                             {:else}<p></p>
                                     {/if}
-                                    {#if email_c == "1"}
-                                    <div class="text-red-500">"Please Enter Email Id"</div>{/if}
                                 </div>
                             </div>
+                            
                         </div>
 
                         <div class="flex">
@@ -1086,8 +1472,8 @@
                                         class="mandatoryIcon">*</span></label>
                                 <div class="formInnerGroup ">
                                     <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.phone_number}">
-                                    {#if phone_c == "1"}
-                                            <div class="text-red-500">"Please Enter Phone Number"</div>{/if}
+                                    
+                                            <div class="text-red-500" id="phone_msg"></div>
                                 </div>
                             </div>
                         </div>
@@ -1100,8 +1486,8 @@
                                     <div class="flex  items-center">
                                         <div class="formInnerGroup ">
                                             <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.basic_info_dob}">
-                                            {#if dob_c == "1"}
-                                            <div class="text-red-500">"Please Enter Date Of Birth"</div>{/if}
+                                            
+                                            <div class="text-red-500" id="dob_msg"></div>
                                         </div>
                                         <div>
                                             <img src="../src/img/edit.png" class="editbgv" alt="">
@@ -1113,6 +1499,7 @@
                                 </div>
                             </div>
                         </div>
+                        
 
                         <div class="flex">
                             <div class="formGroupbgv items-center ">
@@ -1122,8 +1509,8 @@
                                     <div class="flex  items-center">
                                         <div class="formInnerGroup ">
                                             <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.spouse_name}">
-                                            {#if spouse_c == "1"}
-                                            <div class="text-red-500">"Please Enter Spouse Name"</div>{/if}
+                                            
+                                            <div class="text-red-500" id="spo_msg"></div>
                                         </div>
                                     </div>
                                     <div>
@@ -1155,15 +1542,69 @@
                                                 <span class="radioCirle"></span>
                                                 Female</label>
                                         </div>
-                                        {#if gend_c == "1"}
-                                            <div class="text-red-500">"Please Select Gender"</div>{/if}
-                                    </div>
+                                       
+                                            <div class="text-red-500" id="gend_msg"></div>
+                                        </div>
 
+                                    </div>
                                 </div>
                             </div>
                         </div>
-
-                    </div>
+                        {#if $facility_data_store.org_id =="FT"}
+                        <div class="flex">
+                            <div class="formGroup ">
+                                <label class="formLable ">Delivery Model<span class="mandatoryIcon">*</span></label>
+                                <div class="formInnerGroup ">
+                                <select class="inputboxbgv" bind:value="{$bgv_data_store.delivery_model}">
+                                    <option value="">Select</option> 
+                                    <option value="Normal Delivery">Normal Delivery</option> 
+                                    <option value="Duet Model Delivery">Duet Model (EV) Delivery</option>
+                                    <option value="Not Applicable" >Not Applicable</option>
+                                    </select>
+                                    <div class="formSelectArrow ">
+                                        <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                    </div>
+                                    <div class="text-red-500" id="del_msg"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex">
+                            <div class="formGroup ">
+                                <label class="formLable ">Station Model<span class="mandatoryIcon">*</span></label>
+                                <div class="formInnerGroup ">
+                                <select class="inputboxbgv" bind:value="{$bgv_data_store.station_model}">
+                                    <option value="">Select</option> 
+                                    <option value="ODH">ODH</option> 
+                                     <option value="LMA">LMA</option>
+                                     <option value="APM" >APM</option>
+                                     <option value="CBM" >CBM</option>
+                                    </select>
+                                    <div class="formSelectArrow ">
+                                        <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                    </div>
+                                    <div class="text-red-500" id="stat_msg"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex">
+                            <div class="formGroup ">
+                                <label class="formLable ">Hub Name for Casper ID<span class="mandatoryIcon">*</span></label>
+                                <div class="formInnerGroup ">
+                                <select class="inputboxbgv" bind:value="{$bgv_data_store.hub_name}">
+                                    <option class="pt-6" value="">Select</option>
+                                        {#each casper_id_arr as casper_data}
+                                        <option>{casper_data}</option>
+                                        {/each}
+                                    </select>
+                                    <div class="formSelectArrow ">
+                                        <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                    </div>
+                                    <div class="text-red-500" id="hub_msg"></div>
+                                </div>
+                            </div>
+                        </div>
+                        {/if}
+                    
 
                 </form>
             </div>
@@ -1317,6 +1758,7 @@
                                         <div class="formInnerGroup ">
                                             <input type="text" class="inputboxbgv"
                                                 bind:value="{$bgv_data_store.full_address}">
+                                                <div class="text-red-500" id="full_add_msg"></div>
                                         </div>
                                         <div>
                                             <img src="../src/img/edit.png" class="editbgv" alt="">
@@ -1334,6 +1776,7 @@
                                 <label class="formLable ">State<span class="mandatoryIcon">*</span></label>
                                 <div class="formInnerGroup ">
                                 <select class="inputboxbgv" bind:value="{$bgv_data_store.state}">
+                                        <option class="pt-6">Select</option>
                                         {#each get_state_data as state_data}
                                         <option>{state_data.state_name}</option>
                                         {/each}
@@ -1341,6 +1784,7 @@
                                     <div class="formSelectArrow ">
                                         <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
                                     </div>
+                                    <div class="text-red-500" id="state_msg"></div>
                                 </div>
                             </div>
                         </div>
@@ -1366,6 +1810,7 @@
                                     <div class="formInnerGroup ">
                                         <input type="text" class="inputboxbgv"
                                             bind:value="{$bgv_data_store.district}">
+                                            <div class="text-red-500" id="dist_msg"></div>
                                     </div>
                                     <div>
                                         <img src="../src/img/edit.png" class="editbgv" alt="">
@@ -1384,6 +1829,7 @@
 
                                     <select class="inputboxbgv" bind:value="{$bgv_data_store.city}">
                                         <!-- <option class="pt-6" value = "">Select</option> -->
+                                        <option class="pt-6">Select</option>
                                         {#each city_data as new_city}
                                         <option>{new_city.location_name}</option> 
                                         {/each} 
@@ -1393,6 +1839,7 @@
                                     <div class="formSelectArrow ">
                                         <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
                                     </div>
+                                    <div class="text-red-500" id="citymsg"></div>
                                 </div>
                             </div>
                         </div>
@@ -1402,6 +1849,7 @@
                                 <label class="formLable ">Pin Code<span class="mandatoryIcon">*</span></label>
                                 <div class="formInnerGroup ">
                                     <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.pin_code}">
+                                    <div class="text-red-500" id="pin_msg"></div>
                                 </div>
                             </div>
                         </div>
@@ -1411,6 +1859,7 @@
                                 <label class="formLable ">Landmark<span class="mandatoryIcon">*</span></label>
                                 <div class="formInnerGroup ">
                                     <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.landmark}">
+                                    <div class="text-red-500" id="land_msg"></div>
                                 </div>
                             </div>
                         </div>
@@ -1450,6 +1899,7 @@
                                                 <span class="radioCirle"></span>
                                                 Other</label>
                                         </div>
+                                        <div class="text-red-500" id="resid_msg"></div>
                                     </div>
 
                                 </div>
@@ -1462,6 +1912,7 @@
                                         class="mandatoryIcon">*</span></label>
                                 <div class="formInnerGroup ">
                                     <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.period_of_stay}">
+                                    <div class="text-red-500" id="stay_per_msg"></div>
                                 </div>
                             </div>
                         </div>
@@ -1472,7 +1923,10 @@
                                     <span class="searchicon">
                                         <img src="../src/img/calender.svg" class="placeholderIcon" alt="">
                                     </span>
-                                    <input type="text" class="inputbox"  bind:value="{$bgv_data_store.stay_from}">
+                                    <input type="date" class="inputbox"  
+                                    max={new Date().toISOString().split('T')[0]}
+                                    bind:value="{$bgv_data_store.stay_from}">
+                                    <div class="text-red-500" id="st_from_msg"></div>
                                 </div>
                             </div>
                         </div>
@@ -1483,7 +1937,10 @@
                                     <span class="searchicon">
                                         <img src="../src/img/calender.svg" class="placeholderIcon" alt="">
                                     </span>
-                                    <input type="text" class="inputbox"  bind:value="{$bgv_data_store.stay_till}">
+                                    <input type="date" class="inputbox"  
+                                    min={new Date().toISOString().split('T')[0]}
+                                    bind:value="{$bgv_data_store.stay_till}">
+                                    <div class="text-red-500" id="st_till_msg"></div>
                                 </div>
                             </div>
                         </div>
@@ -1494,15 +1951,10 @@
                                         class="mandatoryIcon">*</span></label>
                                 <div class="formInnerGroup ">
                                     <input type="text" class="inputboxbgv"   bind:value="{$bgv_data_store.contact_number}">
+                                    <div class="text-red-500" id="contact_msg"></div>
                                 </div>
                             </div>
                         </div>
-
-
-
-
-
-
                     </div>
 
                 </form>
@@ -1585,6 +2037,8 @@
                                     <div class="flex  items-center">
                                         <div class="formInnerGroup ">
                                             <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.pancard_number}">
+                                            <div class="text-red-500" id="pan_num_msg"></div>
+
                                         </div>
                                         <div>
                                             <img src="../src/img/edit.png" class="editbgv" alt="">
@@ -1607,6 +2061,7 @@
                                     <div class="flex  items-center">
                                         <div class="formInnerGroup ">
                                             <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.pan_full_name}">
+                                            <div class="text-red-500" id="pan_full_name"></div>
                                         </div>
                                         <div>
                                             <img src="../src/img/edit.png" class="editbgv" alt="">
@@ -1628,6 +2083,7 @@
                                     <div class="flex  items-center">
                                         <div class="formInnerGroup ">
                                             <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.pan_dob}">
+                                            <div class="text-red-500" id="pan_dob_msg"></div>
                                         </div>
                                         <div>
                                             <img src="../src/img/edit.png" class="editbgv" alt="">
@@ -1650,6 +2106,7 @@
                                     <div class="flex  items-center">
                                         <div class="formInnerGroup ">
                                             <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.pan_father_name}">
+                                            <div class="text-red-500" id="pan_fat_msg"></div>
                                         </div>
                                         <div>
 
@@ -1745,6 +2202,7 @@
                                     <div class="flex  items-center">
                                         <div class="formInnerGroup ">
                                             <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.license_number}">
+                                            <div class="text-red-500" id="lic_num_msg"></div>
                                         </div>
                                         <div>
                                             <img src="../src/img/edit.png" class="editbgv" alt="">
@@ -1768,6 +2226,7 @@
                                     <div class="flex  items-center">
                                         <div class="formInnerGroup ">
                                             <input type="text" class="inputboxbgv"  bind:value="{$bgv_data_store.name_license}">
+                                            <div class="text-red-500" id="lic_name_msg"></div>
                                         </div>
                                         <div>
 
@@ -1790,7 +2249,8 @@
                                 <div class="xs:w-full sm:w-full">
                                     <div class="flex  items-center">
                                         <div class="formInnerGroup ">
-                                            <input type="text" class="inputboxbgv"  bind:value="{$bgv_data_store.dl_dob}">
+                                            <input type="date" class="inputboxbgv"  bind:value="{$bgv_data_store.dl_dob}">
+                                            <div class="text-red-500" id="lic_dob_msg"></div>
                                         </div>
                                         <div>
 
@@ -1813,7 +2273,10 @@
                                     <span class="searchicon">
                                         <img src="../src/img/calender.svg" class="placeholderIcon" alt="">
                                     </span>
-                                    <input type="text" class="inputbox" bind:value="{$bgv_data_store.dl_issue_date}">
+                                    <input type="date" class="inputbox" 
+                                    max={new Date().toISOString().split('T')[0]}
+                                    bind:value="{$bgv_data_store.dl_issue_date}">
+                                    <div class="text-red-500" id="dl_issue_msg"></div>
                                 </div>
                             </div>
                         </div>
@@ -1825,7 +2288,10 @@
                                     <span class="searchicon">
                                         <img src="../src/img/calender.svg" class="placeholderIcon" alt="">
                                     </span>
-                                    <input type="text" class="inputbox" bind:value="{$bgv_data_store.dl_expiry_date}">
+                                    <input type="text" class="inputbox" 
+                                    min={new Date().toISOString().split('T')[0]}
+                                    bind:value="{$bgv_data_store.dl_expiry_date}">
+                                    <div class="text-red-500" id="dl_expiry_msg"></div>
                                 </div>
                             </div>
                         </div>
@@ -1837,9 +2303,9 @@
                                 <div class="formInnerGroup ">
 
                                     <select class="inputboxbgv" bind:value="{$bgv_data_store.dl_state}">
-                                        <!-- <option class="pt-6">Select</option>
-                                        <option>Haveli</option>
-                                        <option>Mulshi</option> -->
+                                        <option class="pt-6">Select</option>
+                                        <!-- <option>Haveli</option>
+                                        <option>Mulshi</option>  -->
                                         {#each get_state_data as states}
                                         <option>{states.state_name}</option>
                                         {/each}
@@ -1847,6 +2313,7 @@
                                     <div class="formSelectArrow ">
                                         <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
                                     </div>
+                                    <div class="text-red-500" id="dl_issue_st_msg"></div>
                                 </div>
                             </div>
                         </div>
@@ -1954,6 +2421,7 @@
                                                 <span class="radioCirle"></span>
                                                 Temporary</label>
                                         </div>
+                                        <div class="text-red-500" id="pol_add_type"></div>
                                     </div>
 
                                 </div>
@@ -1965,6 +2433,7 @@
                                 <label class="formLable ">Name<span class="mandatoryIcon">*</span></label>
                                 <div class="formInnerGroup ">
                                     <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.candidate_name}">
+                                    <div class="text-red-500" id="pol_name_msg"></div>
                                 </div>
                             </div>
                         </div>
@@ -1975,6 +2444,7 @@
                                         class="mandatoryIcon">*</span></label>
                                 <div class="formInnerGroup ">
                                     <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.guardian_name}">
+                                    <div class="text-red-500" id="guard_msg"></div>
                                 </div>
                             </div>
                         </div>
@@ -1986,6 +2456,7 @@
                                 <div class="formInnerGroup ">
                                     <input type="text" class="inputboxbgv"
                                     bind:value="{$bgv_data_store.police_verified_address}">
+                                    <div class="text-red-500" id="pol_ver_add"></div>
                                 </div>
                             </div>
                         </div>
