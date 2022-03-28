@@ -1403,3 +1403,646 @@ ul.menuList li a.active span{
         width: 100%!important;
     }
 }
+
+
+
+
+/* vmtdashboard */
+
+.cardsVMTDashbarod{
+    margin-top: 19px;
+    margin-bottom: 19px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem
+  }
+  
+  @media (min-width: 320px) and (max-width: 1024px) {
+    .cardsVMTDashbarod {
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+  }
+  
+  .contentVMT{
+    display: flex;
+    align-items: center
+  }
+  
+  .cardActionPendingBank{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 5px;
+    --tw-bg-opacity: 1;
+    background-color: rgba(243, 251, 255, var(--tw-bg-opacity));
+    padding: 1.25rem
+  }
+  
+  .bgcirclePendingBank{
+    display: flex;
+    height: 68px;
+    width: 68px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    --tw-bg-opacity: 1;
+    background-color: rgba(201, 232, 251, var(--tw-bg-opacity))
+  }
+  
+  .countcircleVMT{
+    font-size: 28px;
+    line-height: 36px;
+    font-weight: 700;
+    --tw-text-opacity: 1;
+    color: rgba(37, 132, 191, var(--tw-text-opacity))
+  }
+  
+  .bgcircleApprove{
+    display: flex;
+    height: 68px;
+    width: 68px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    --tw-bg-opacity: 1;
+    background-color: rgba(71, 189, 29, var(--tw-bg-opacity))
+  }
+  
+  .countcircleApprove{
+    font-size: 28px;
+    line-height: 36px;
+    font-weight: 700;
+    --tw-text-opacity: 1;
+    color: rgba(255, 255, 255, var(--tw-text-opacity))
+  }
+  
+  .cardActionVMT{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 5px;
+    --tw-bg-opacity: 1;
+    background-color: rgba(246, 255, 235, var(--tw-bg-opacity));
+    padding: 1.25rem
+  }
+  
+  .SectionsCountsSavedVMT{
+    display: flex;
+    justify-content: space-around;
+    gap: 26px;
+    border-radius: 10px;
+    --tw-bg-opacity: 1;
+    background-color: rgba(255, 255, 255, var(--tw-bg-opacity));
+    padding-left: 0.875rem;
+    padding-right: 0.875rem;
+    padding-top: 14px;
+    padding-bottom: 14px;
+    text-align: center
+  }
+  
+  .countHeadingVMT{
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 400;
+    --tw-text-opacity: 1;
+    color: rgba(25, 25, 29, var(--tw-text-opacity))
+  }
+  
+  .vmtVerify{
+    display: flex;
+    cursor: pointer;
+    border-radius: 0.25rem;
+    --tw-bg-opacity: 1;
+    background-color: rgba(55, 78, 162, var(--tw-bg-opacity));
+    padding-left: 1.75rem;
+    padding-right: 1.75rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    font-weight: 700;
+    --tw-text-opacity: 1;
+    color: rgba(255, 255, 255, var(--tw-text-opacity))
+  }
+  
+  .statusbarVMT{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top-width: 1px;
+    border-bottom-width: 1px;
+    --tw-border-opacity: 1;
+    border-color: rgba(190, 205, 215, var(--tw-border-opacity));
+    --tw-bg-opacity: 1;
+    background-color: rgba(246, 246, 246, var(--tw-bg-opacity));
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem
+  }
+  
+  @media (min-width: 320px) and (max-width: 639px) {
+    .statusbarVMT {
+      flex-wrap: wrap;
+    }
+  }
+  
+  @media (min-width: 640px) and (max-width: 768px) {
+    .statusbarVMT {
+      flex-wrap: wrap;
+    }
+  }
+  
+  @media (min-width: 320px) and (max-width: 1024px) {
+    .statusbarVMT {
+      flex-wrap: wrap;
+    }
+  }
+  
+  .verifyIdSection{
+    width: 100%;
+    gap: 1rem;
+    padding-right: 14px;
+    padding-left: 14px
+  }
+  
+  @media (min-width: 320px) and (max-width: 639px) {
+    .verifyIdSection {
+      padding: 10px;
+    }
+  }
+  
+  @media (min-width: 640px) and (max-width: 768px) {
+    .verifyIdSection {
+      padding: 10px;
+    }
+  }
+  
+  .inputboxVMT{
+    display: inline-block;
+    width: 100%;
+    -webkit-appearance: none;
+       -moz-appearance: none;
+            appearance: none;
+    border-radius: 0.25rem;
+    border-width: 1px;
+    --tw-bg-opacity: 1;
+    background-color: rgba(255, 255, 255, var(--tw-bg-opacity));
+    padding-top: 0.875rem;
+    padding-right: 0.75rem;
+    padding-bottom: 0.875rem;
+    padding-left: 0.75rem;
+    line-height: 1.25;
+    --tw-text-opacity: 1;
+    color: rgba(90, 91, 106, var(--tw-text-opacity));
+    outline: 2px solid transparent;
+    outline-offset: 2px
+  }
+  
+  .btnreject{
+    border-radius: 5px;
+    --tw-bg-opacity: 1;
+    background-color: rgba(255, 0, 0, var(--tw-bg-opacity));
+    padding-left: 21px;
+    padding-right: 21px;
+    padding-top: 9px;
+    padding-bottom: 9px;
+    font-weight: 500;
+    --tw-text-opacity: 1;
+    color: rgba(255, 255, 255, var(--tw-text-opacity))
+  }
+  
+  .btnApprove{
+    border-radius: 5px;
+    --tw-bg-opacity: 1;
+    background-color: rgba(25, 189, 22, var(--tw-bg-opacity));
+    padding-left: 21px;
+    padding-right: 21px;
+    padding-top: 9px;
+    padding-bottom: 9px;
+    font-weight: 500;
+    --tw-text-opacity: 1;
+    color: rgba(255, 255, 255, var(--tw-text-opacity))
+  }
+  
+  .btnsubmit{
+    border-radius: 5px;
+    --tw-bg-opacity: 1;
+    background-color: rgba(55, 78, 162, var(--tw-bg-opacity));
+    padding-left: 21px;
+    padding-right: 21px;
+    padding-top: 9px;
+    padding-bottom: 9px;
+    font-weight: 500;
+    --tw-text-opacity: 1;
+    color: rgba(255, 255, 255, var(--tw-text-opacity))
+  }
+  
+  .tablinkItem{
+    cursor: pointer;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    text-align: center
+  }
+  
+  #hubble-container {
+    width: 75%;
+    font-size: 0;
+    /* border: 1px solid #111; */
+    overflow: hidden;
+    margin: 0 auto;
+    margin-top: 2rem;
+  }
+  
+  #hubblepic {
+    width: 100%;
+  }
+  
+  #zoomer {
+    display: block;
+    width: 50%;
+    /* margin: 2rem auto; */
+    height: 1px;
+  }
+  
+  /* @media all and (max-width: 500px) {
+      #zoomer, #hubble-container {
+        width: 85%;
+      }
+    } */
+  
+  .verifyMenu .Menu:first-child{
+    border-radius: 6px 6px 0px 0px;
+  }
+  
+  .verifyMenu .Menu:last-child{
+    border-radius: 0px 0px 6px 6px;
+  }
+  
+  .MenuActive {
+    background: #FF2F12;
+    color: white;
+  }
+  
+  .namelable{
+    padding-right: 1rem;
+    text-align: left;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 300;
+    --tw-text-opacity: 1;
+    color: rgba(90, 91, 106, var(--tw-text-opacity))
+  }
+  
+  .namevalue{
+    text-align: left;
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 400;
+    --tw-text-opacity: 1;
+    color: rgba(90, 91, 106, var(--tw-text-opacity))
+  }
+  
+  .mobileMenuForVerifyID ul li {
+    padding: 14px 0px;
+    width: 100%;
+  }
+  
+  .menuActiveID li.activetab:first-child {
+    border-radius: 8px 0px 0px 8px;
+  }
+  
+  .menuActiveID li.activetab:last-child {
+    border-radius: 8px 0px 0px 8px;
+  }
+  
+  .menuActiveID li.activetab {
+    background: #FF2F12;
+    color: white;
+  }
+  
+  .menuActiveID  {
+    background: white;
+    margin-bottom: 15px;
+    border-radius: 8px;
+  }
+  
+  .cardhead{
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 500;
+    --tw-text-opacity: 1;
+    color: rgba(25, 25, 29, var(--tw-text-opacity))
+  }
+  
+  .cardDes{
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    font-weight: 300;
+    --tw-text-opacity: 1;
+    color: rgba(90, 91, 106, var(--tw-text-opacity))
+  }
+  
+  .dashHeading{
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    font-weight: 500;
+    --tw-text-opacity: 1;
+    color: rgba(25, 25, 29, var(--tw-text-opacity))
+  }
+  
+  .dashDes{
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 300;
+    --tw-text-opacity: 1;
+    color: rgba(90, 91, 106, var(--tw-text-opacity))
+  }
+  
+  .bgcircle{
+    display: flex;
+    height: 68px;
+    width: 68px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    --tw-bg-opacity: 1;
+    background-color: rgba(253, 220, 218, var(--tw-bg-opacity))
+  }
+  
+  .bgcirclesaved{
+    display: flex;
+    height: 68px;
+    width: 68px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    --tw-bg-opacity: 1;
+    background-color: rgba(255, 255, 255, var(--tw-bg-opacity))
+  }
+  
+  .bgcircleother{
+    display: flex;
+    height: 68px;
+    width: 68px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    --tw-bg-opacity: 1;
+    background-color: rgba(255, 210, 168, var(--tw-bg-opacity))
+  }
+  
+  .countcircle{
+    font-size: 28px;
+    line-height: 36px;
+    font-weight: 700;
+    --tw-text-opacity: 1;
+    color: rgba(255, 0, 0, var(--tw-text-opacity))
+  }
+  
+  .countcirclesaved{
+    font-size: 28px;
+    line-height: 36px;
+    font-weight: 700;
+    --tw-text-opacity: 1;
+    color: rgba(62, 62, 62, var(--tw-text-opacity))
+  }
+  
+  .countcircleother{
+    font-size: 28px;
+    line-height: 36px;
+    font-weight: 700;
+    --tw-text-opacity: 1;
+    color: rgba(255, 149, 52, var(--tw-text-opacity))
+  }
+  
+  .newonboard{
+    display: flex;
+    align-items: center;
+    border-radius: 5px;
+    --tw-bg-opacity: 1;
+    background-color: rgba(239, 65, 41, var(--tw-bg-opacity));
+    padding-top: 10px;
+    padding-right: 1.75rem;
+    padding-bottom: 10px;
+    padding-left: 1.75rem;
+    font-size: 18px;
+    line-height: 16px;
+    font-weight: 700;
+    --tw-text-opacity: 1;
+    color: rgba(255, 255, 255, var(--tw-text-opacity))
+  }
+  
+  .filter{
+    display: flex;
+    height: 2.5rem;
+    align-items: center;
+    border-radius: 5px;
+    --tw-bg-opacity: 1;
+    background-color: rgba(55, 78, 162, var(--tw-bg-opacity));
+    padding-top: 10px;
+    padding-right: 0.75rem;
+    padding-bottom: 10px;
+    padding-left: 0.75rem;
+    font-size: 18px;
+    line-height: 16px;
+    font-weight: 700;
+    --tw-text-opacity: 1;
+    color: rgba(255, 255, 255, var(--tw-text-opacity))
+  }
+  
+  @media (min-width: 320px) and (max-width: 639px) {
+    .filter {
+      display: none;
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+  }
+  
+  @media (min-width: 640px) and (max-width: 768px) {
+    .filter {
+      display: none;
+    }
+  }
+  
+  .filterxsl{
+    display: flex;
+    height: 2.5rem;
+    width: 2.5rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    --tw-bg-opacity: 1;
+    background-color: rgba(55, 78, 162, var(--tw-bg-opacity));
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-size: 18px;
+    line-height: 16px;
+    font-weight: 700;
+    --tw-text-opacity: 1;
+    color: rgba(255, 255, 255, var(--tw-text-opacity))
+  }
+  
+  @media (min-width: 769px) and (max-width: 1023px) {
+    .filterxsl {
+      display: none;
+    }
+  }
+  
+  @media (min-width: 1024px) and (max-width: 1279px) {
+    .filterxsl {
+      display: none;
+    }
+  }
+  
+  @media (min-width: 1280px) and (max-width: 1535px) {
+    .filterxsl {
+      display: none;
+    }
+  }
+  
+  @media (min-width: 1536px) {
+    .filterxsl {
+      display: none;
+    }
+  }
+  
+  .activeProfileWrapper{
+    border-radius: 10px;
+    --tw-bg-opacity: 1;
+    background-color: rgba(255, 255, 255, var(--tw-bg-opacity))
+  }
+  
+  .headingCount{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 1.5rem;
+    padding-bottom: 1.25rem
+  }
+  
+  .venderheadText{
+    margin-bottom: 0.75rem;
+    display: flex;
+    border-radius: 5px;
+    --tw-bg-opacity: 1;
+    background-color: rgba(248, 248, 248, var(--tw-bg-opacity));
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    font-weight: 500;
+    --tw-text-opacity: 1;
+    color: rgba(25, 25, 29, var(--tw-text-opacity))
+  }
+  
+  .plr{
+    margin-bottom: 0.25rem;
+    padding-left: 15px;
+    padding-right: 15px
+  }
+  
+  .dashboardWrapper{
+    display: flex;
+    gap: 1rem
+  }
+  
+  @media (min-width: 320px) and (max-width: 767px) {
+    .dashboardWrapper {
+      flex-wrap: wrap;
+    }
+  }
+  
+  .dashboardWrappersup{
+    margin: 15px;
+    display: flex;
+    gap: 1rem
+  }
+  
+  @media (min-width: 320px) and (max-width: 767px) {
+    .dashboardWrappersup {
+      flex-wrap: wrap;
+    }
+  }
+  
+  @media (min-width: 320px) and (max-width: 639px) {
+    .dashboardWrappersup {
+      margin-left: 0.75rem;
+      margin-right: 0.75rem;
+      margin-top: 0px;
+      flex-wrap: wrap;
+    }
+  }
+  
+  @media (min-width: 640px) and (max-width: 768px) {
+    .dashboardWrappersup {
+      margin-left: 0.75rem;
+      margin-right: 0.75rem;
+      flex-wrap: wrap;
+    }
+  }
+  
+  .listli{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom-width: 1px;
+    --tw-border-opacity: 1;
+    border-color: rgba(190, 205, 215, var(--tw-border-opacity));
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 300;
+    --tw-text-opacity: 1;
+    color: rgba(25, 25, 29, var(--tw-text-opacity))
+  }
+  
+  .listhb{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 300;
+    --tw-text-opacity: 1;
+    color: rgba(25, 25, 29, var(--tw-text-opacity))
+  }
+  
+  .selectInputbox{
+    display: inline-block;
+    height: h34px;
+    width: 100%;
+    -webkit-appearance: none;
+       -moz-appearance: none;
+            appearance: none;
+    border-radius: 9999px;
+    border-width: 1px;
+    --tw-border-opacity: 1;
+    border-color: rgba(180, 180, 187, var(--tw-border-opacity));
+    --tw-bg-opacity: 1;
+    background-color: rgba(255, 255, 255, var(--tw-bg-opacity));
+    padding-top: 0.5rem;
+    padding-right: 2rem;
+    padding-bottom: 0.5rem;
+    padding-left: 1.5rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 400;
+    line-height: 1.25;
+    --tw-text-opacity: 1;
+    color: rgba(90, 91, 106, var(--tw-text-opacity));
+    outline: 2px solid transparent;
+    outline-offset: 2px
+  }
