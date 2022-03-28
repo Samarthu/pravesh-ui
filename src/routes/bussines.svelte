@@ -5,6 +5,7 @@
     import { goto } from "$app/navigation";
     import {get_verticles_fun} from '../services/business_vertical_services';
     import {vercticle_name} from '../stores/verticle_store';
+    import Toast from './components/toast.svelte';
     
     import {get_verticles_ui_fun} from '../services/business_vertical_services';
     import Breadcrumb from "./breadcrumb.svelte";
@@ -12,6 +13,8 @@
     let org_list= [];
     let verticle_list = [];
     let combined_list = [];
+    let toast_text = "";
+    let toast_type = null;
 
 
     let routeNext = "";
@@ -33,9 +36,19 @@
     }
     onMount(async () =>{
         let response = await get_verticles_fun();
-        console.log("verticles api response",response);
+        if(response.body.status =="green"){
+            console.log("verticles api response",response);
         org_list = response.body.data;
         console.log(org_list);
+        toast_text = "Verticles Loaded";
+        toast_type = "success";
+
+        }
+        else{
+            
+            
+        }
+        
         for(let i =0;i<org_list.length;i++){
             if(!verticle_list.includes(org_list[i].domain)){
                 verticle_list.push(org_list[i].domain);
@@ -262,4 +275,6 @@
         
     </div>
 </div>
+
+<Toast type={toast_type}  text={toast_text}/>
 
