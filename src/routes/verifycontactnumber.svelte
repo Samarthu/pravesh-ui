@@ -8,6 +8,8 @@
     import { onMount } from "svelte";
     import Side_content_component from './side_content_scetion.svelte';
     import Toast from './components/toast.svelte';
+    let toast_text = "";
+    let toast_type = null;
 
 
 let routeTo = "associatedetails";
@@ -86,7 +88,8 @@ async function check_mobile_number(){
             }
         }
         catch{
-            alert("Error in verifying mobile number.")
+            toast_type = "error";
+            toast_text = "Unable to verify mobile number";
 
         }
     console.log("verify mobile number",valid_mobile_number_response);
@@ -103,6 +106,9 @@ async function send_otp_function(){
     {
         toggele = false;
 
+    }else{
+        toast_type = "error";
+        toast_text = "Unable to send OTP!";
     }
     // alert("button pressed");
 
@@ -440,7 +446,7 @@ async function verify_otp(){
     </div>
 </div>
 
-<Toast type={"success"} text={"hiiii"}/>
+<Toast type={toast_type}  text={toast_text}/>
 
 
 <!-- <div id="toast-success" class="toast-success-msg" role="alert">

@@ -17,6 +17,9 @@
     import {facility_id} from "../stores/facility_id_store"
     import {facility_data_store} from "../stores/facility_store"
     import {bgv_config_store} from '../stores/bgv_config_store'
+    import Toast from './components/toast.svelte';
+    let toast_text = "";
+    let toast_type = null;
 
     let routeNext = "";
     let routeBgv = "";
@@ -73,6 +76,8 @@
     export let url = "";
 
     onMount(async () => {
+        // toast_text = "Unable to verify Voter Id";
+        // toast_type = "error";
         ///////bank details/////////////
         facility_id.set({
             facility_id_number: "MHPD00001"
@@ -6417,3 +6422,4 @@
         </div>
     </div>
 </div>
+<Toast type={toast_type}  text={toast_text}/>

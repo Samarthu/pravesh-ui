@@ -2046,3 +2046,88 @@ ul.menuList li a.active span{
     outline: 2px solid transparent;
     outline-offset: 2px
   }
+
+/* toast msg */
+
+.toast-success-msg{
+    @apply flex items-center w-full max-w-xs p-4 mb-4 border border-green  bg-white shadow-sm rounded-lg   fixed right-4 top-20 z-zindex99
+}
+.toast-danger-msg{
+    @apply flex items-center w-full max-w-xs p-4 mb-4 border border-red-500  bg-white shadow-sm rounded-lg   fixed right-4 top-20 z-zindex99
+}
+.toast-warning-msg{
+    @apply flex items-center w-full max-w-xs p-4 mb-4 border border-yellow-500  bg-white shadow-sm rounded-lg   fixed right-4 top-20 z-zindex99
+}
+
+.toast-icons-wrapper{
+    @apply inline-flex items-center justify-center flex-shrink-0 w-8 h-8  rounded-lg 
+}
+
+.svgsuccess{
+    @apply w-5 h-5 text-green
+}
+.svgDanger{
+    @apply w-5 h-5 text-red-500
+}
+.svgWarning{
+    @apply w-5 h-5 text-yellow-500
+}
+
+.toastSuccessText{
+    @apply  ml-3 text-sm font-normal text-green
+}
+.toastWarningText{
+    @apply  ml-3 text-sm font-normal text-yellow-500
+}
+.toastDangerText{
+    @apply  ml-3 text-sm font-normal text-red-500
+}
+
+.toastCloseButton{
+    @apply  ml-auto -mx-1.5 -my-1.5 bg-white text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex h-8 w-8  
+}
+
+
+.actionDialogue{
+    @apply bg-bgtransparent  h-full overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50   md:h-full
+}
+
+.actionDialogueWrapper{
+    @apply relative p-4 w-full max-w-md h-full md:h-auto mx-auto
+}
+.actionDialogueModalContent{
+    @apply relative bg-white rounded-lg shadow 
+}
+.actionDialogueModalBody{
+    @apply  p-6 pt-4 text-center
+}
+
+.actionDialogueSvg{
+    @apply mx-auto mb-4 w-14 h-14 text-gray-400 
+}
+
+.actionDialogueText{
+    @apply mb-5 text-base font-normal text-gray-500 
+}
+
+.dialogueYesbutton{
+@apply  text-white bg-erBlue  focus:ring-4 focus:outline-none   font-medium rounded-lg text-sm inline-flex items-center px-5 py-2.5 text-center mr-2
+}
+.dialogueNobutton{
+    @apply mr-4 text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 
+    }
+
+
+
+    .actionDialogueOnboard{
+        @apply bg-bgtransparent  h-full overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50   md:h-full
+    }
+
+    .actionDialogueOnboardWrapper{
+        @apply relative p-4 w-full max-w-xl h-full md:h-auto mx-auto
+    }
+    .OnboardDialogueModalContent{
+        @apply relative bg-white rounded-lg shadow  py-10
+    }
+
+

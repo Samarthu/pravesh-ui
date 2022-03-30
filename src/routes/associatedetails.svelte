@@ -13,9 +13,14 @@
     import { get_date_format } from "../services/date_format_servives";
     import { documents_store } from "../stores/document_store";
     import { allowed_pdf_size } from "../services/pravesh_config";
-    import Side_content_component from './side_content_scetion.svelte';
-    import  {  page } from '$app/stores';
-    
+    import Side_content_component from "./side_content_scetion.svelte";
+    import { page } from "$app/stores";
+    import Toast from "./components/toast.svelte";
+    let toast_text = "";
+    let toast_type = null;
+
+    var email_pattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+
     // import { facility_data } from "src/services/onboardsummary_services";
 
     let date = new Date();
@@ -98,7 +103,7 @@
     let work_address_address_message = "";
     let work_address_postal_message = "";
     onMount(async () => {
-        page_name =  $page.url["pathname"].substring(1);
+        page_name = $page.url["pathname"].substring(1);
         console.log("page_name", page_name);
         function get_max_date() {
             let current_date = new Date();
@@ -139,19 +144,23 @@
                     }
                 }
             }
-        } catch {}
+        } catch {
+            toast_text = "Unable to fetch user scope data";
+            toast_type = "error";
+        }
         let date_formatter = get_date_format(max_date, "dd-mm-yyyy");
         console.log("date_formatter", date_formatter);
         console.log("dob ", $facility_data_store.dob);
     });
 
     function gotoidentityproof() {
+        valid = true;
         save_address_to_store();
         if ($facility_data_store.facility_name == null) {
             valid = false;
             facility_name_message = "Please enter a facility name";
         } else {
-            valid = true;
+            // valid = true;
             facility_name_message = "";
         }
 
@@ -159,7 +168,7 @@
             valid = false;
             facility_dob_message = "Please enter a date of birth";
         } else {
-            valid = true;
+            // valid = true;
             facility_dob_message = "";
         }
 
@@ -176,7 +185,7 @@
             valid = false;
             present_address_city_message = "Please select a city";
         } else {
-            valid = true;
+            // valid = true;
             present_address_city_message = "";
         }
 
@@ -184,7 +193,7 @@
             valid = false;
             present_address_address_message = "Please enter an address";
         } else {
-            valid = true;
+            // valid = true;
             present_address_address_message = "";
         }
 
@@ -192,7 +201,7 @@
             valid = false;
             present_address_postal_message = "Please enter a pin code.";
         } else {
-            valid = true;
+            // valid = true;
             present_address_postal_message = "";
         }
 
@@ -201,7 +210,7 @@
                 valid = false;
                 work_address_city_message = "Please select a city.";
             } else {
-                valid = true;
+                // valid = true;
                 work_address_city_message = "";
             }
 
@@ -209,7 +218,7 @@
                 valid = false;
                 work_address_address_message = "Please enter an address.";
             } else {
-                valid = true;
+                // valid = true;
                 work_address_address_message = "";
             }
 
@@ -217,7 +226,7 @@
                 valid = false;
                 work_address_postal_message = "Please enter a pin code.";
             } else {
-                valid = true;
+                // valid = true;
                 work_address_postal_message = "";
             }
         }
@@ -231,7 +240,7 @@
             valid = false;
             present_address_address_proof_message = "Please upload a document";
         } else {
-            valid = true;
+            // valid = true;
             present_address_address_proof_message = "";
         }
 
@@ -239,9 +248,10 @@
             valid = false;
             address_check_message = "Please select an option";
         } else {
-            valid = true;
+            // valid = true;
             address_check_message = "";
         }
+
         if (valid) {
             if (
                 profile_pic_data.pod != null ||
@@ -290,6 +300,10 @@
                 }
                 $documents_store.documents.push(address_proof_data);
             }
+            console.log("document store", $documents_store);
+
+            let replaceState = false;
+            goto(routeTo, { replaceState });
         }
 
         // $documents_store.documents.push(address_proof_data);
@@ -297,11 +311,6 @@
 
         //     $documents_store.documents.push(present_address_proof_data);
         // }
-
-        console.log("document store", $documents_store);
-
-        let replaceState = false;
-        goto(routeTo, { replaceState });
     }
     function gotoverifycontactnumber() {
         let replaceState = false;
@@ -327,7 +336,10 @@
                 } else {
                     facility_name_message = verify_name_response.body.message;
                 }
-            } catch {}
+            } catch {
+                toast_text = "Unable to verify facility name";
+                toast_type = "error";
+            }
         }
     }
     const onFileSelected = (e) => {
@@ -413,7 +425,12 @@
         }
     };
     async function verify_email() {
-        let verify_email_response = await verify_associate_email();
+        if(! $facility_data_store.facility_email.match(email_pattern)){
+            facility_email_message = "Invalid Email format";
+
+        }
+        else{
+            let verify_email_response = await verify_associate_email();
         console.log("verify_email_response", verify_email_response);
         try {
             if (verify_email_response.body.data == true) {
@@ -421,7 +438,13 @@
             } else {
                 facility_email_message = verify_email_response.body.message;
             }
-        } catch {}
+        } catch {
+            toast_text = "Unable to verify email";
+            toast_type = "error";
+        }
+
+        }
+        
     }
     $: {
         console.log("inside reactive block");
@@ -509,28 +532,25 @@
     function dob_clicked() {
         console.log("dob clicked");
     }
-    function delete_files(file_name){
-        for(let i=0;i<$documents_store.documents.length;i++){
-            if($documents_store.documents[i]["doc_category"] == file_name["doc_category"]){
-                $documents_store.documents.splice(i,1);
+    function delete_files(file_name) {
+        for (let i = 0; i < $documents_store.documents.length; i++) {
+            if (
+                $documents_store.documents[i]["doc_category"] ==
+                file_name["doc_category"]
+            ) {
+                $documents_store.documents.splice(i, 1);
                 console.log("document deleted from document store");
             }
         }
         file_name["file_name"] = null;
         file_name["pod"] = null;
-        if(file_name["doc_category"] == "Profile Pic"){
+        if (file_name["doc_category"] == "Profile Pic") {
             profile_pic_data = profile_pic_data;
-        }
-        else if(file_name["doc_category"] == "Address Proof"){
+        } else if (file_name["doc_category"] == "Address Proof") {
             address_proof_data = address_proof_data;
-
-        }
-        else if(file_name["doc_category"] == "Present Address Proof"){
+        } else if (file_name["doc_category"] == "Present Address Proof") {
             present_address_proof_data = present_address_proof_data;
-            
         }
-
-
     }
 </script>
 
@@ -759,7 +779,10 @@
                         </div>
                     </a>
                 </li> -->
-                <Side_content_component facility_type={$facility_data_store.facility_type} {page_name}/>
+                <Side_content_component
+                    facility_type={$facility_data_store.facility_type}
+                    {page_name}
+                />
             </ul>
         </div>
         <div class="w-widthforFormSection w100xs ">
@@ -813,22 +836,41 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- <div class="flex">
-                    <button on:click|preventDefault={()=>{temp_show_value()}} class="saveandproceed">temp</button>
-                    <div class="formGroup ">
-                        <label class="formLable ">Email ID </label>
-                        <div class="formInnerGroup ">
-                            <span class="searchicon">
-                                <img src="../src/img/email.png" class="w-6 h-auto text-white"
-                                    alt="">
-                            </span>
-                            <input type="Email" class="inputbox" bind:value={$facility_data_store.facility_email} on:blur={() =>verify_email()}>
-                            <div class="text-red-500">
-                                {facility_email_message}
+                        <div class="flex">
+                            <!-- <button on:click|preventDefault={()=>{temp_show_value()}} class="saveandproceed">temp</button> -->
+                            <div class="formGroup ">
+                                <label class="formLable ">Email ID </label>
+                                <div class="formInnerGroup ">
+                                    <span class="searchicon">
+                                        <img
+                                            src="../src/img/email.png"
+                                            class="w-6 h-auto text-white"
+                                            alt=""
+                                        />
+                                    </span>
+                                    <input
+                                        type="Email"
+                                        class="inputbox"
+                                        bind:value={$facility_data_store.facility_email}
+                                        on:blur={() => verify_email()}
+                                    />
+                                    <!-- <div class="text-red-500">
+                                        {facility_email_message}
+                                    </div> -->
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div> -->
+                        <div class="flex">
+                            <div class="formGroup ">
+                                <label class="formLable invisible" />
+                                <div class="formInnerGroup mt-1">
+                                    <div class="text-red-500 text-xs">
+                                        {facility_email_message}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="flex">
                             <div class="formGroup ">
                                 <label class="formLable "
@@ -889,27 +931,22 @@
                                                     onFileSelected(e)}
                                                 bind:this={fileinput}
                                             />
-                                            
-                                                
-                                            
-                                            
-                                            
                                         </label>
                                         <div class="flex">
                                             {#if profile_pic_data.file_name}
-                                                <p>{profile_pic_data.file_name}</p>
+                                                <p>
+                                                    {profile_pic_data.file_name}
+                                                </p>
                                                 <img
-                                                on:click={() => delete_files(profile_pic_data)}
-                                                class="pl-2 cursor-pointer"
-                                                src="../src/img/blackclose.svg"
-                                                alt=""
-                                                
-                                            />
-
-                                               
+                                                    on:click={() =>
+                                                        delete_files(
+                                                            profile_pic_data
+                                                        )}
+                                                    class="pl-2 cursor-pointer"
+                                                    src="../src/img/blackclose.svg"
+                                                    alt=""
+                                                />
                                             {/if}
-
-
                                         </div>
                                     </span>
                                 </div>
@@ -1039,20 +1076,21 @@
                                             on:change={(e) => onadders_prrof(e)}
                                             bind:this={fileinput}
                                         />
-                                        
                                     </label>
                                     <div class="flex">
                                         {#if address_proof_data.file_name}
-                                            <p>{address_proof_data.file_name}</p>
+                                            <p>
+                                                {address_proof_data.file_name}
+                                            </p>
                                             <img
-                                                on:click={() => delete_files(address_proof_data)}
+                                                on:click={() =>
+                                                    delete_files(
+                                                        address_proof_data
+                                                    )}
                                                 class="pl-2 cursor-pointer"
                                                 src="../src/img/blackclose.svg"
                                                 alt=""
-                                                
                                             />
-
-
                                         {/if}
                                     </div>
                                 </div>
@@ -1265,7 +1303,9 @@
                                         />Shipping Address Proof</label
                                     >
                                     <div class="formInnerGroup ">
-                                        <label class="cursor-pointer inline-block">
+                                        <label
+                                            class="cursor-pointer inline-block"
+                                        >
                                             <div
                                                 class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px"
                                             >
@@ -1279,21 +1319,22 @@
                                                     onpresent_address_proof(e)}
                                                 bind:this={fileinput}
                                             />
-                                            
                                         </label>
                                         <div class="flex">
-                                           {#if present_address_proof_data.file_name}
-                                           <p> {present_address_proof_data.file_name}</p>
+                                            {#if present_address_proof_data.file_name}
+                                                <p>
+                                                    {present_address_proof_data.file_name}
+                                                </p>
                                                 <img
-                                                on:click={() => delete_files(present_address_proof_data)}
-                                                class="pl-2 cursor-pointer"
-                                                src="../src/img/blackclose.svg"
-                                                alt=""
-                                                
-                                            />
+                                                    on:click={() =>
+                                                        delete_files(
+                                                            present_address_proof_data
+                                                        )}
+                                                    class="pl-2 cursor-pointer"
+                                                    src="../src/img/blackclose.svg"
+                                                    alt=""
+                                                />
                                             {/if}
-                                           
-
                                         </div>
                                     </div>
                                 </div>
@@ -1358,3 +1399,5 @@
         </div>
     </div>
 </div>
+
+<Toast type={toast_type} text={toast_text} />

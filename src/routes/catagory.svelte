@@ -5,6 +5,9 @@
     import {get_category_ui_properties} from '../services/category_services';
     import {category_store_name} from '../stores/category_store';
     import Breadcrumb from "../routes/breadcrumb.svelte";
+    import Toast from './components/toast.svelte';
+    let toast_text = "";
+    let toast_type = null;
 
     let routeNext = "";
     let routeNext2 = "";
@@ -44,8 +47,10 @@
     routeNext3 = "vendor";
     onMount(async () =>{
         let category_response = await get_categories_list();
-        console.log(category_response.body.data);
+
+        console.log("category_response",category_response);
         if(category_response.body.status == "green"){
+            if(category_response.body.status == "green"){
             for(let i=0;i<category_response.body.data.length;i++){
                category_list.push( category_response.body.data[i]["category"]);
             }
@@ -55,8 +60,19 @@
         }
 
         console.log("category_list",category_list);
+      
+
+        }
+        else{
+            toast_type = "error";
+            toast_text = "Category list not found";
+
+
+        }
+       
 
         let response = await get_category_ui_properties();
+
         if(response.body.status == "green"){
             response = response.body.data['category_ui_properties'];
             category_ui_properties_list = JSON.parse(response)
@@ -76,7 +92,8 @@
 
         }
         else{
-            alert("Category  UI list not found");
+            toast_type = "error";
+            toast_text = "Category  UI propeerties not found";
         }
 
     })
@@ -176,3 +193,4 @@
         </div>
     </div>
 </div>
+<Toast type={toast_type}  text={toast_text}/>
