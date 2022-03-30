@@ -18,7 +18,10 @@
     import {facility_data_store} from "../stores/facility_store"
     import {bgv_config_store} from '../stores/bgv_config_store'
 import { object_without_properties } from "svelte/internal";
+    import Toast from './components/toast.svelte';
 
+    let toast_text;
+    let toast_type;
     let routeNext = "";
     let routeBgv = "";
     let temp = "Add";
@@ -62,7 +65,9 @@ import { object_without_properties } from "svelte/internal";
     let tag_data_obj=[];
 
     //  let vendor_id,vendor_name; 
-    let pan_num,aadhar_num,checkupload,pan_attach,aadhar_attach,dl_lic_attach,dl_lic_url,offer_url = "-";
+    let pan_num="-";
+    let aadhar_num="-";
+    let checkupload,pan_attach,aadhar_attach,dl_lic_attach,dl_lic_url,offer_url = "-";
     let profile_url = "";
     let address_url,pan_verified,aadhar_verified,profile_verified,address_verified,
     gst_url,gst_verified,can_check_url;
@@ -94,10 +99,13 @@ import { object_without_properties } from "svelte/internal";
     
 
     onMount(async () => {
+        toast_text = "Toast Successfull";
+            toast_type = "success";
         ///////bank details/////////////
         facility_id.set({
-            facility_id_number: "CRUN00374"
+            // facility_id_number: "CRUN00374"
             // facility_id_number: "CRUN00320"
+            facility_id_number: "NAOD00048"
         })
         // console.log("facility_id_number",$facility_id.facility_id_number)
 
@@ -270,11 +278,11 @@ import { object_without_properties } from "svelte/internal";
         // bgv_init_res.body.data
         // )
             showbtn = 1;
-            let bgv_check_res = await facility_bgv_check();
-            // console.log("bgv_check_res",bgv_check_res)
-            if(bgv_check_res.body.data.length == "0"){
-            initiate_bgv = 1;
-    }
+    //         let bgv_check_res = await facility_bgv_check();
+    //         // console.log("bgv_check_res",bgv_check_res)
+    //         if(bgv_check_res.body.data.length == "0"){
+    //         initiate_bgv = 1;
+    // }
     }
 
     all_tags_res = await all_facility_tags($facility_data_store.name);
@@ -870,7 +878,7 @@ import { object_without_properties } from "svelte/internal";
                                     src="../src/img/checked.png"
                                     class="pr-2"
                                     alt=""
-                                /> ID Proof
+                                /> ID Verified
                             </p>
                                 {:else if $facility_data_store.is_id_prof_rejected == "1"} 
                                 <p
@@ -6463,3 +6471,5 @@ import { object_without_properties } from "svelte/internal";
         </div>
     </div>
 </div>
+<Toast type={toast_type}  text={toast_text}/>
+
