@@ -4,7 +4,7 @@ import {facility_id} from '../stores/facility_id_store';
 
 
 // let new_facility_id = "CRUN00374";
-let new_facility_id = "CRUN00320";
+let new_facility_id = "NAOD00048";
 
 // facility_id.subscribe(value => {
 //    new_facility_id = value.facility_id_number;
@@ -156,11 +156,12 @@ const submit_police_details =(police_data) =>{
         },true)
 }
 const uploadDocs=(data)=>{
+    console.log("inside service pod",data.pod)
     let submit_docs_url = '/api/method/pravesh.facility.routes.document.save_or_update_documents';
     let upload_docs_data = {
-        doc_category:"pass_photo",
+        doc_category:data.doc_category,
         doc_number:"",
-        doc_type:"pass_photo",
+        doc_type:data.doc_type,
         facility_id:new_facility_id,
         file_name: data.file_name,
         pod:data.pod,
@@ -184,14 +185,13 @@ const get_casper_id = () =>{
         method: "GET",
         }, true)
 }
-const check_doc_exist = () => {
-    let doc_exist_url = '/api/method/pravesh.facility.routes.document.validate_facility_document?doc_number=209176052554&fac_id='+new_facility_id+''
+const check_doc_exist = (doc_number) => {
+    let doc_exist_url = '/api/method/pravesh.facility.routes.document.validate_facility_document?doc_number='+doc_number+'&fac_id='+new_facility_id+''
     return request(
         doc_exist_url, {
         method: "GET",
         }, true)
 }
-
   
 export {
     get_states,

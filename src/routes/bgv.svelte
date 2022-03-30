@@ -7,13 +7,17 @@
     import {bgv_config_store} from '../stores/bgv_config_store';
     import {get_states,get_cities,submit_basic_details,submit_address_details,submit_pancard_details,
     submit_dl_details,submit_police_details,get_all_docs,uploadDocs,get_casper_id,check_doc_exist} from "../services/bgv_services";
-import { text } from "svelte/internal";
+    import {documents_store } from "../stores/document_store";
+    import { allowed_pdf_size } from "../services/pravesh_config";
+    import { each, text } from "svelte/internal";
+    import Toast from './components/toast.svelte';
     
 
     let temp;
     let routePrev = "";
     let routeNext = "";
     let gend_selected,curr_same,police_add_per ;
+    let state,fac_name,fac_type;
     // let fir_name_c,last_name_c,father_name_c,email_c,phone_c,dob_c,spouse_c,gend_c,aadhar_num_c;
     let get_state_data;
     let city_data=[];
@@ -22,13 +26,12 @@ import { text } from "svelte/internal";
     var NorthEStates = ["Arunachal Pradesh", "Assam", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Sikkim", "Tripura"];
     var pan_card_pattern = /^[A-Z]{3}[ABCFGHLJPTF]{1}[A-Z]{1}[0-9]{4}[A-Z]{1}/gm;
     var aadhar_card_pattern = /^[0-9]{12}$/gm;
-    var validName_pattern = /^[a-zA-Z][\-\w\s]*$/; 
-    var voter_id_pattern = /^([a-zA-Z]){3}([0-9]){7}?$/;
     var driving_license_pattern = /^(([A-Z]{2}[0-9]{2})( )|([A-Z]{2}-[0-9]{2})|([A-Z]{2}[0-9]{2}))((19|20)[0-9][0-9])[0-9]{7}$/gm; 
     var email_pattern = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     var phone_num_pattern = /^((\+*)((0[ -]*)*|((91 )*))((\d{12})+|(\d{10})+))|\d{5}([- ]*)\d{6}/;
     var cand_and_guard_pattern = /^[a-zA-Z][\-\w\s]*$/; 
-
+    let toast_text;
+    let toast_type;
     // let first_name_message = "";
     let msg_name ="";
     let email_id_message = "";
@@ -61,6 +64,7 @@ import { text } from "svelte/internal";
     $:police_img="";
     $:dl_img="";
     $:address_img="";
+    let file_data;
     // let basicInfo="basicInfo";
     $:is_basic_visible = "";
     $:is_address_visible = "";
@@ -78,7 +82,18 @@ import { text } from "svelte/internal";
 
     
     onMount(async () => {
-    console.log("$facility_data_store.first_name",$facility_data_store.first_name);    
+        
+        for (var j = 0;j < $facility_data_store.addresess.length;j++) 
+            {
+                if (
+                    $facility_data_store.addresess[j].default_address == "1"
+                ) {
+                   state = $facility_data_store.addresess[j].state;
+                   fac_name = $facility_data_store.facility_name;
+                   fac_type= $facility_data_store.facility_type;
+                }
+            }
+    // console.log("$facility_data_store.first_name",$facility_data_store);    
         
         let bgv_pass_data=[
         // $facility_data_store.org_id,
@@ -117,22 +132,36 @@ import { text } from "svelte/internal";
         bgv_config_store.set(
         bgv_init_res.body.data
         )
-        console.log("bgv_config_store",$bgv_config_store) 
+        // console.log("bgv_config_store",$bgv_config_store) 
 
     }
 
   
     let facility_bgv_check_res = await facility_bgv_check();
+    console.log("facility_bgv_check_res",facility_bgv_check_res)
     try {
-        if(!facility_bgv_check_res || facility_bgv_check_res.body.length == "0"){
+        if(!facility_bgv_check_res || facility_bgv_check_res.body.data.length == "0"){
+            console.log("BEFORE")
+            var eighteenYearsAgo =  new Date();
+            eighteenYearsAgo.setFullYear( eighteenYearsAgo.getFullYear() - 18);
+            console.log("eighteenYearsAgo",eighteenYearsAgo)
+            $bgv_data_store.basic_info_dob = eighteenYearsAgo;
+            console.log("DAte 18 yrs before",$bgv_data_store.basic_info_dob)
             console.log("No Data")
         }
         else{
+            console.log("$bgv_data_store in facility_bgv_check_res",$bgv_data_store)
             $bgv_data_store = facility_bgv_check_res.body.data[0];
             gend_selected = $bgv_data_store.gender;
             add_is_perm = $bgv_data_store.address_type;
             curr_same = $bgv_data_store.current_address_is_same;
             police_add_per = $bgv_data_store.police_address_type;
+            if(!$bgv_data_store.basic_info_dob){
+                $bgv_data_store.basic_info_dob = eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear()-18);
+            
+
+            }
+            console.log("DAte 18 yrs before",$bgv_data_store.basic_info_dob)
            
         }
         
@@ -247,53 +276,58 @@ import { text } from "svelte/internal";
         console.log("Error")
        
     }
-
+   
     });
 
-    const onFileSelected = (e) => {
-        console.log("photoUplaodd",photo_upload)
-        console.log("aadhar_upload",aadhar_upload)
+    const onFileSelected = (e,doctext) => {
+        // console.log("photoUplaodd",photo_upload)
+        // console.log("aadhar_upload",aadhar_upload)
+        console.log("doctext",doctext)
         let img = e.target.files[0];
+        if (img.size <= allowed_pdf_size) {
         console.log("img", img);
-        if(photo_upload != "-"){
+        if(doctext == "photo_upload"){
+          console.log("Photo log uploaded")  
             photo_img = img.name;
-            console.log("photo_img",photo_img)
+            // console.log("photo_img",photo_img)
         }
-        else if(aadhar_upload != "-"){
+        else if(doctext == "aadhar_upload"){
         aadhar_img = img.name;}
-        else if(address_upload != "-"){
+        else if(doctext == "address_upload"){
         address_img = img.name;}
-        else if(pancard_upload == "-")
+        else if(doctext == "pancard_upload")
         pan_img = img.name;
-        else if(police_upload == "-")
+        else if(doctext == "police_upload")
         police_img = img.name;
-        else if(license_upload == "-")
+        else if(doctext == "license_upload")
         dl_img = img.name;
 
         var reader = new FileReader();
         reader.readAsDataURL(img);
         reader.onload = function () {
         file_data = reader.result;
-        // console.log("reader",reader.result);
-        if(photo_upload != "-"){
+        console.log("reader",reader.result);
+        if(doctext == "photo_upload"){
             photo_data = reader.result;
             console.log("photo_data",reader.result);
+            toast_text = "Doc Uploaded Successfully";
+            toast_type = "success";
         }
-        else if(aadhar_upload != "-"){
+        else if(doctext == "aadhar_upload"){
             aadhar_data = reader.result;
             console.log("aadhar_data",reader.result);
         }
-        else if(address_upload != "-"){
+        else if(doctext == "address_upload"){
             address_data = reader.result;
             console.log("address_data",reader.result);
         }
-        else if(pancard_upload != "-"){
+        else if(doctext == "pancard_upload"){
             pan_data= reader.result;
             console.log("pan_data",reader.result);}
-        else if(police_upload != "-"){
+        else if(doctext == "police_upload"){
             police_data = reader.result;
             console.log("police_data",reader.result);}
-        else if(license_upload != "-"){
+        else if(doctext == "license_upload"){
             dl_data = reader.result;
             console.log("dl_data",reader.result);
         }
@@ -301,49 +335,149 @@ import { text } from "svelte/internal";
         reader.onerror = function (error) {
             console.log("Error: ", error);
         };
-    };
+    }
+    else {
+            alert(
+                "File size is greater than " +
+                    Number(allowed_pdf_size / 1048576) +
+                    "MB. Please upload a file less than " +
+                    Number(allowed_pdf_size / 1048576) +
+                    "MB ."
+            );
+        };
+    }
+    function delete_files(doctext){
+        
+        if(doctext == "photo_upload"){
+            photo_img = null;
+            photo_data = null;
+
+        }
+        else if(doctext == "aadhar_upload"){
+            aadhar_img=null;
+            aadhar_data=null;
+        }
+        else if(doctext == "address_upload"){
+           address_img=null;
+           address_data=null;
+        }
+        else if(doctext == "pancard_upload"){
+            pan_img = null;
+            pan_data=null;
+        }
+        else if(doctext == "license_upload"){
+           dl_img=null;
+           dl_data=null; 
+        }
+        else if(doctext == "police_upload"){
+            police_img=null;
+            police_data=null;  
+        }
+        // file_name["file_name"] = null;
+        // file_name["pod"] = null;
+        // file_name["doc_number"] = null;
+
+        // if(file_name["doc_category"] == "Pancard"){
+        //     pan_card_data = pan_card_data;
+        // }
+        // else if(file_name["doc_category"] == "Aadhar Id proof"){
+        //     adhar_card_data = adhar_card_data;
+        // }
+        // else if(file_name["doc_category"] == "Voter Id proof"){
+        //     voter_id_card_data = voter_id_card_data;
+        // }
+        // else if(file_name["doc_category"] == "Driving License"){
+        //     driving_license_data = driving_license_data;
+        // }
+        // else if(file_name["doc_category"] == "Voter Id proof"){
+        //     voter_id_card_data = voter_id_card_data;1
+        // }
+    
+    }
 
     async function submit_photo(){
-    let photo_load = {
-        file_name:photo_img,
-        pod:photo_data
+        if(!photo_img && !photo_data){
+            // throwError("photo_up_msg","Upload Profile Photo")
         }
-        return await uploadDocs(photo_load);
-    }
+        else{
+            let photo_load = {
+                file_name:photo_img,
+                pod:photo_data,
+                doc_category:"pass_photo",
+                doc_type:"pass_photo"
+                }
+                return await uploadDocs(photo_load);
+            }
+        }
     async function submit_aadhar(){
-        let aadhar_load = {
-        file_name:aadhar_img,
-        pod:aadhar_data
+        if(!aadhar_img && !aadhar_data){
+            // throwError("aadhar_up_msg","Upload Aadhar Photo")
         }
-        return await uploadDocs(aadhar_load); 
-    }
+        else{
+            let aadhar_load = {
+            file_name:aadhar_img,
+            pod:aadhar_data,
+            doc_category:"aadhar-id-proof",
+            doc_type:"aadhar-id-proof"
+            }
+            return await uploadDocs(aadhar_load); 
+            }
+        }
     async function submit_address(){
-        let address_load = {
-        file_name:address_img,
-        pod:address_data
+        if(!address_img && !address_data){
+            // throwError("aadhar_up_msg","Upload Aadhar Photo")
         }
-        return await uploadDocs(address_load); 
-    }
+        else{
+            let address_load = {
+            file_name:address_img,
+            pod:address_data,
+            doc_category:"addproof-photo",
+            doc_type:"addproof-photo"
+            }
+            return await uploadDocs(address_load); 
+        }
+        }   
     async function submit_pancard(){
-        let pan_load = {
-        file_name:pan_img,
-        pod:pan_data
+        if(!pan_img && !pan_data){
+            // throwError("aadhar_up_msg","Upload Aadhar Photo")
         }
-        return await uploadDocs(pan_load); 
+        else{
+            let pan_load = {
+            file_name:pan_img,
+            pod:pan_data,
+            doc_category:"pan-photo",
+            doc_type:"pan-photo"
+            }
+            return await uploadDocs(pan_load); 
+        }
     }
     async function submit_licence(){
-        let dl_load = {
-        file_name:dl_img,
-        pod:dl_data
+        if(!dl_img && !dl_data){
+            // throwError("aadhar_up_msg","Upload Aadhar Photo")
         }
-        return await uploadDocs(dl_load); 
+        else{
+            let dl_load = {
+            file_name:dl_img,
+            pod:dl_data,
+            doc_category:dl-photo,
+            doc_type:dl-photo
+            }
+            return await uploadDocs(dl_load); 
+        }
     }
     async function submit_police(){
-        let pol_load = {
-        file_name:police_img,
-        pod:police_data
+        if(!police_img && !police_data){
+            throwError("aadhar_up_msg","Upload Aadhar Photo")
         }
-        return await uploadDocs(pol_load); 
+        else{
+            let pol_load = {
+            file_name:police_img,
+            pod:police_data,
+            doc_category:"police_info_supp_file",
+            doc_type:"police_info_supp_file"
+            }
+            return await uploadDocs(pol_load); 
+        }
     }
 ////////////////////////////////////////////////////////////////////////////////////
     function throwError(id,msg){
@@ -351,7 +485,34 @@ import { text } from "svelte/internal";
     }
 
     async function submitBasicDets(){
-            if(!$bgv_data_store.adhar_card_number){   
+            if(!photo_img && !photo_data){
+                throwError("photo_up_msg","Upload Profile Photo")
+                if(!aadhar_img && !aadhar_data){
+                throwError("aadhar_up_msg","Upload Aadhar Photo")
+                return
+            }
+            }
+            if(!aadhar_img && !aadhar_data){
+                throwError("aadhar_up_msg","Upload Aadhar Photo")
+                return
+            }
+
+        // console.log("$bgv_data_store.adhar_card_number",$bgv_data_store.adhar_card_number)
+            if(!$bgv_data_store.adhar_card_number){
+                throwError("aadharmsg","Enter valid Aadhar Number")
+                return 
+            }
+            else if(!$bgv_data_store.adhar_card_number.match(aadhar_card_pattern)){  
+                if($bgv_data_store.pancard_number == $bgv_data_store.adhar_card_number || 
+                    $bgv_data_store.license_number == $bgv_data_store.adhar_card_number){
+                    let check_doc_res =await check_doc_exist($bgv_data_store.adhar_card_number);  
+                    // console.log("check_doc_res",check_doc_res)
+                    if(check_doc_res == "red"){
+                        check_doc_res.body.message;   
+                    }
+                    // throwError("aadharmsg","Document No is Already Linked With Other Facility")
+                 
+                } 
                 throwError("aadharmsg","Invalid Aadhar Number")
                 return 
             }
@@ -379,14 +540,22 @@ import { text } from "svelte/internal";
             else{
                 throwError("fat_name_msg","")
             }
-            if(!$bgv_data_store.email_id.match(email_pattern)){
+            if(!$bgv_data_store.email_id){
+            throwError("email_msg","Invalid Email Id")
+            return
+            }
+            else if(!$bgv_data_store.email_id.match(email_pattern)){
             throwError("email_msg","Invalid Email Id")
             return
             }
             else{
                 throwError("email_msg","")
             }
-            if(!$bgv_data_store.phone_number.match(phone_num_pattern)){
+            if(!$bgv_data_store.phone_number){
+                throwError("phone_msg","Invalid Phone Number")
+                return
+            }
+            else if(!$bgv_data_store.phone_number.match(phone_num_pattern)){
                 throwError("phone_msg","Invalid Phone Number")
                 return
             }
@@ -457,8 +626,18 @@ import { text } from "svelte/internal";
         }    
   
     async function submitAddDets(){
-            
-            
+            if(!address_img && !address_data){
+                throwError("add_up_msg","Upload Aadhar Photo")
+                return
+            }
+
+            if(!curr_same){
+                throwError("curr_msg","Select Is Current Address Same")
+                return
+            }
+            else{
+                throwError("curr_msg","")
+            }
             if(!$bgv_data_store.full_address){
                 throwError("full_add_msg","Invalid Address")
                 return
@@ -560,7 +739,19 @@ import { text } from "svelte/internal";
         return await  submit_address_details(addr_data);
     }
     async function submitPanDets(){
-            if(!$bgv_data_store.pancard_number){
+            if(!pan_img && !pan_data){
+                throwError("pan_up_msg","Upload Aadhar Photo")
+            }
+            if(!$bgv_data_store.pancard_number.length < 12){
+                if($bgv_data_store.adhar_card_number == $bgv_data_store.pancard_number || 
+                $bgv_data_store.license_number == $bgv_data_store.pancard_number){
+                    let check_doc_res =await check_doc_exist($bgv_data_store.pancard_number);  
+                    // console.log("check_doc_res",check_doc_res)
+                    if(check_doc_res == "red"){
+                        check_doc_res.body.message;   
+                    }
+                    // throwError("pan_num_msg","Document No is Already Linked With Other Facility")
+                }
                 throwError("pan_num_msg","Invalid Pancard Number")
                 return
             }
@@ -600,7 +791,23 @@ import { text } from "svelte/internal";
     }
 
     async function submitDlDets(){
+        if(!dl_img && !dl_data){
+            throwError("dl_up_msg","Upload Aadhar Photo")
+        }
             if(!$bgv_data_store.license_number){
+            throwError("lic_num_msg","Enter Valid Driving Licence Number")
+                return
+            }
+            else if(!$bgv_data_store.license_number.match(driving_license_pattern)){
+                if($bgv_data_store.adhar_card_number == $bgv_data_store.license_number || 
+                $bgv_data_store.pancard_number == $bgv_data_store.license_number){
+                    let check_doc_res =await check_doc_exist($bgv_data_store.license_number);  
+                    // console.log("check_doc_res",check_doc_res)
+                    if(check_doc_res == "red"){
+                        check_doc_res.body.message;   
+                    }
+                    throwError("lic_num_msg","Document No is Already Linked With Other Facility")
+                }
                 throwError("lic_num_msg","Enter Valid Driving Licence Number")
                 return
             }
@@ -655,6 +862,9 @@ import { text } from "svelte/internal";
         
     }
     async function submitPolDets(){
+        if(!police_img && !police_data){
+            throwError("pol_up_msg","Upload Aadhar Photo")
+        }
             if(!$bgv_data_store.police_address_type){
                 throwError("pol_add_type","Select Address Type")
                 return
@@ -664,13 +874,18 @@ import { text } from "svelte/internal";
             }
             if(!$bgv_data_store.candidate_name){
                 throwError("pol_name_msg","Enter Valid Name")
+                return }
+            else if(!$bgv_data_store.candidate_name.match(cand_and_guard_pattern)){
+                throwError("pol_name_msg","Enter Valid Name")
                 return  
             }
             else{
                 throwError("pol_name_msg","")
             }
-
-            if(!$bgv_data_store.guardian_name){   
+            if(!$bgv_data_store.guardian_name){
+                throwError("guard_msg","Select Guardian's Name")
+                return }
+            else if(!$bgv_data_store.guardian_name.match(cand_and_guard_pattern)){   
                 throwError("guard_msg","Select Guardian's Name")
                 return 
             }
@@ -700,7 +915,7 @@ import { text } from "svelte/internal";
         async function next_clicked(new_type){
         if(new_type=="basicInfo"){
             let sub_bas_res = await submitBasicDets();
-            if(photo_upload == "-"){}
+            if(photo_upload == "photo_upload"){}
             else{let photo_res = await submit_photo();}
             if(aadhar_upload == "-"){}
             else{let aadhar_res = await submit_aadhar();}
@@ -742,7 +957,7 @@ import { text } from "svelte/internal";
         }
         else if(new_type == "addressInfo"){
             let sub_add_res = await submitAddDets();
-            if(address_upload=="-"){}
+            if(address_upload=="address_upload"){}
             else{let address = await submit_address();}
             console.log("sub_add_res",sub_add_res)
             try{
@@ -776,7 +991,7 @@ import { text } from "svelte/internal";
         }
         else if(new_type == "panInfo"){
             let sub_pan_res = await submitPanDets();
-            if(pancard_upload=="-"){}
+            if(pancard_upload=="pancard_upload"){}
             else{let pancard = await submit_pancard();}
             
             try{
@@ -805,7 +1020,7 @@ import { text } from "svelte/internal";
         else if(new_type == "dlInfo"){
             let sub_dl_res = await submitDlDets();
             try{  
-                if(license_upload=="-"){}
+                if(license_upload == "license_upload"){}
                 else{let licence = await submit_licence();}
                 if(sub_dl_res.body.status =="green"){
                 if($bgv_config_store.is_police_verification_mandatory =="1"){
@@ -824,7 +1039,7 @@ import { text } from "svelte/internal";
         }
         else if(new_type == "policeInfo"){
             let sub_pol_res = await submitPolDets();
-            if(police_upload=="-"){}
+            if(police_upload == "police_upload"){}
             else{let police = await submit_police();}
             try{    
                 if(sub_pol_res.body.status =="green"){
@@ -981,6 +1196,8 @@ import { text } from "svelte/internal";
 
     routePrev = "onboardsummary";
 
+
+    
 </script>
 
 <div class="mainContent ">
@@ -990,9 +1207,9 @@ import { text } from "svelte/internal";
             <div class="breadcrumbtextbgv justify-between xs:justify-end">
                 <div class="leftinfobgv">
                     <p>
-                        <span class="text-blackshade pr-1 text-2xl">Background Verification - Dhiraj Shah</span>
+                        <span class="text-blackshade pr-1 text-2xl">Background Verification - {fac_name}</span>
                         
-                        <span class="userDesignationbgv">(Associate - NDA)</span>
+                        <span class="userDesignationbgv">(Associate - {fac_type})</span>
                     </p>
                     <p class="text-lg font-light text-greycolor xs:hidden sm:hidden">Submit required details of
                         the associate to
@@ -1024,6 +1241,7 @@ import { text } from "svelte/internal";
             <ul class="bgtablinks ">
                 
                 {#if $bgv_config_store.is_basic_info_mandatory =="1"}
+                
                 <li class="tabactivelink">
                     <a href="#" class="tabAchorSection {is_basic_active}">
                         <div class="iconSection">
@@ -1052,6 +1270,8 @@ import { text } from "svelte/internal";
                         <div class="markSection pl-3 xs:hidden sm:hidden">
                             <img src="../src/img/backlist.png" alt="">
                         </div>
+                        {:else}
+                        <p></p>
                         {/if}
                     </a>
                 </li>
@@ -1266,14 +1486,28 @@ import { text } from "svelte/internal";
                                                                         e
                                                                     ) =>
                                                                         onFileSelected(
-                                                                            e
+                                                                            e,"photo_upload"
                                                                         )}
                                                                         
                                                                 />
                                                                 <!-- <div class="text-red-500">{adhar_card_message}</div> -->
 
                                             </label>
-                                            <p>{photo_img}</p>
+                                            <div class="flex">
+                                                {#if photo_img}
+                                                <p>{photo_img}</p>
+                                               <img
+                                               on:click={() => delete_files("photo_upload")}
+                                               class="pl-2 cursor-pointer"
+                                               src="../src/img/blackclose.svg"
+                                               alt=""
+                                               
+                                           />
+                                           {/if}
+                                           </div>
+                                           <div class="text-red-500" id="photo_up_msg"></div>
+                                        
+                                           
                                         </div>
                                         <div>
                                         </div>
@@ -1336,13 +1570,27 @@ import { text } from "svelte/internal";
                                                     e
                                                 ) =>
                                                     onFileSelected(
-                                                        e
+                                                        e,"aadhar_upload"
                                                     )}
                                                     
                                             />
                                             <!-- <div class="text-red-500">{adhar_card_message}</div> -->
                                             </label>
-                                            <p>{aadhar_img}</p>
+                                            <div class="flex">
+                                                {#if aadhar_img}
+                                                <p>{aadhar_img}</p>
+                                               <img
+                                               on:click={() => delete_files("aadhar_upload")}
+                                               class="pl-2 cursor-pointer"
+                                               src="../src/img/blackclose.svg"
+                                               alt=""
+                                               
+                                           />
+                                           {/if}
+                                        </div>
+                                        <div class="text-red-500" id="aadhar_up_msg"></div>
+
+                                           
                                         </div>
                                         <div>
                                         </div>
@@ -1373,6 +1621,15 @@ import { text } from "svelte/internal";
                                             <img src="../src/img/edit.png" class="editbgv" alt="">
                                         </div>
                                     </div>
+                                    {#each NorthEStates as n_state}
+                                        {#if n_state == state}
+                                        <div>
+                                            <p class="text-red-500">Voter ID can be accepted for this facility 
+                                            </p>
+                                        </div>
+                                        {/if}
+                                       
+                                    {/each}
                                     <div>
                                         <p class="smNotebgv"><span class="font-medium">Note:</span>( Voter ID only for North East)
                                         </p>
@@ -1485,7 +1742,8 @@ import { text } from "svelte/internal";
                                 <div class="xs:w-full sm:w-full">
                                     <div class="flex  items-center">
                                         <div class="formInnerGroup ">
-                                            <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.basic_info_dob}">
+                                            <input type="date" class="inputboxbgv" bind:value="{$bgv_data_store.basic_info_dob}"
+                                            max={new Date().toISOString().split('T')[0]}>
                                             
                                             <div class="text-red-500" id="dob_msg"></div>
                                         </div>
@@ -1542,9 +1800,8 @@ import { text } from "svelte/internal";
                                                 <span class="radioCirle"></span>
                                                 Female</label>
                                         </div>
-                                       
-                                            <div class="text-red-500" id="gend_msg"></div>
                                         </div>
+                                        <div class="text-red-500" id="gend_msg"></div>
 
                                     </div>
                                 </div>
@@ -1692,13 +1949,26 @@ import { text } from "svelte/internal";
                                                                         e
                                                                     ) =>
                                                                         onFileSelected(
-                                                                            e
+                                                                            e,address_upload
                                                                         )}
                                                                         bind:value = "{address_upload}"
                                                                 />
 
                                             </label>
-                                            <p>{address_img}</p>
+                                            <div class="flex">
+                                                {#if address_img}
+                                                <p>{address_img}</p>
+                                               <img
+                                               on:click={() => delete_files("address_upload")}
+                                               class="pl-2 cursor-pointer"
+                                               src="../src/img/blackclose.svg"
+                                               alt=""
+                                               
+                                           />
+                                           {/if}
+                                        </div>
+                                        <div class="text-red-500" id="add_up_msg"></div>
+                                            
                                         </div>
                                         <div>
                                         </div>
@@ -1743,8 +2013,8 @@ import { text } from "svelte/internal";
                                                 <span class="radioCirle"></span>
                                                 No</label>
                                         </div>
-                                    </div>
-
+                                        </div>
+                                        <div class="text-red-500" id="curr_msg"></div>
                                 </div>
                             </div>
                         </div>
@@ -1899,8 +2169,9 @@ import { text } from "svelte/internal";
                                                 <span class="radioCirle"></span>
                                                 Other</label>
                                         </div>
-                                        <div class="text-red-500" id="resid_msg"></div>
+                                        
                                     </div>
+                                    <div class="text-red-500" id="resid_msg"></div>
 
                                 </div>
                             </div>
@@ -2007,13 +2278,26 @@ import { text } from "svelte/internal";
                                                                         e
                                                                     ) =>
                                                                         onFileSelected(
-                                                                            e
+                                                                            e,"pancard_upload"
                                                                         )}
                                                                         
                                                                 />
 
                                                     </label>
+                                                <div class="flex">
+                                                    {#if pan_img}
                                                     <p>{pan_img}</p>
+                                                   <img
+                                                   on:click={() => delete_files("pancard_upload")}
+                                                   class="pl-2 cursor-pointer"
+                                                   src="../src/img/blackclose.svg"
+                                                   alt=""
+                                                   
+                                               />
+                                               {/if}
+                                            </div>
+                                            <div class="text-red-500" id="pan_up_msg"></div>
+                                                    
                                                 </div>
                                                 <div>
                                                 </div>
@@ -2172,13 +2456,26 @@ import { text } from "svelte/internal";
                                                                         e
                                                                     ) =>
                                                                         onFileSelected(
-                                                                            e
+                                                                            e,license_upload
                                                                         )}
                                                                         
                                                                 />
 
                                                     </label>
-                                                    <p>{dl_img}</p>
+                                                    <div class="flex">
+                                                        {#if dl_img}
+                                                        <p>{dl_img}</p>
+                                                       <img
+                                                       on:click={() => delete_files("license_upload")}
+                                                       class="pl-2 cursor-pointer"
+                                                       src="../src/img/blackclose.svg"
+                                                       alt=""
+                                                       
+                                                   />
+                                                   {/if}
+                                                </div>
+                                                <div class="text-red-500" id="dl_up_msg"></div>
+                                                   
                                                 </div>
                                                 <div>
                                                 </div>
@@ -2288,7 +2585,7 @@ import { text } from "svelte/internal";
                                     <span class="searchicon">
                                         <img src="../src/img/calender.svg" class="placeholderIcon" alt="">
                                     </span>
-                                    <input type="text" class="inputbox" 
+                                    <input type="date" class="inputbox" 
                                     min={new Date().toISOString().split('T')[0]}
                                     bind:value="{$bgv_data_store.dl_expiry_date}">
                                     <div class="text-red-500" id="dl_expiry_msg"></div>
@@ -2371,12 +2668,24 @@ import { text } from "svelte/internal";
                                                                         e
                                                                     ) =>
                                                                         onFileSelected(
-                                                                            e
+                                                                            e,police_upload
                                                                         )}
                                                                         
                                                                 />
                                             </label>
-                                            <p>{police_img}</p>
+                                            <div class="flex">
+                                                {#if police_img}
+                                                <p>{police_img}</p>
+                                               <img
+                                               on:click={() => delete_files("police_upload")}
+                                               class="pl-2 cursor-pointer"
+                                               src="../src/img/blackclose.svg"
+                                               alt=""
+                                               
+                                           />
+                                           {/if}
+                                        </div>
+                                        <div class="text-red-500" id="pol_up_msg"></div>
                                         </div>
                                         <div>
                                         </div>
@@ -2506,5 +2815,6 @@ import { text } from "svelte/internal";
     </div>
 </div>
 {/if}
+<Toast type={toast_type}  text={toast_text}/>
 
 

@@ -5,24 +5,36 @@
     import {get_organistaion_method,get_organisation_ui_fun} from '../services/organisation_services';
     import {facility_data_store} from '../stores/facility_store';
     import {org_name} from '../stores/organisation_store';
+    import Toast from './components/toast.svelte';
+    let toast_text = "";
+    let toast_type = null;
     let verticle = null;
     let org_list = [];
     let final_list = [];
     let org_select = null;
+    
     onMount(async () =>{
         // vercticle_name.subscribe(value =>{
         //     verticle = value.verticle;
         // });
         // console.log("vectore name", verticle);
         let response = await get_organistaion_method();
-        console.log("response", response);
+        if(response.body.data){
+            console.log("response ", response);
         org_list = response.body.data;
         console.log("org_list", org_list);
         console.log("org_list_number", org_list.length);
-        let ui_response = await get_organisation_ui_fun();
+
+        }else{
+            toast_text = "Organisation list not found";
+            toast_type = "error";
+            
+        }
         
-        // ui_response = JSON.parse(ui_response.body.data["get_organisation_ui_fun"]);
-        ui_response = JSON.parse(ui_response.body.data["organisation_properties"]);
+        let ui_response = await get_organisation_ui_fun();
+        console.log("unfiltered ui response", ui_response);
+        if(ui_response.body.status == "green"){
+            ui_response = JSON.parse(ui_response.body.data["organisation_properties"]);
         console.log("ui_response", ui_response);
         let count = 0;
         for (let i = 0; i < org_list.length; i++) {
@@ -34,7 +46,7 @@
             }
            
             if(count <= ui_response.length-1){
-                console.log("inside if");
+                // console.log("inside if");
                 temp.org_id = org_list[i].org_id;
                 temp.org_name = org_list[i].org_name;
                 temp.class_name = ui_response[count].class_name;
@@ -56,6 +68,16 @@
             
             
         }
+
+        }else{
+            toast_text = "Organisation ui properties not found";
+            toast_type = "error";
+
+        }
+
+        
+        // ui_response = JSON.parse(ui_response.body.data["get_organisation_ui_fun"]);
+        
         
         
         // for(let i=0;i <= org_list.lenght ;i++){
@@ -352,3 +374,5 @@
 
     </div>
 </div>
+
+<Toast type={toast_type}  text={toast_text}/>

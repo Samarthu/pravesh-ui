@@ -58,7 +58,7 @@ const addnew_cheque_details = (data) =>{
 }
 
 const facility_document = () =>{
-    let facility_document_url = '/api/method/pravesh.facility.routes.document.get_all_facility_documents?facility_id=" '+ new_facility_id+''
+    let facility_document_url = '/api/method/pravesh.facility.routes.document.get_all_facility_documents?facility_id='+ new_facility_id+''
     return request(
         facility_document_url, {
         method: "GET",
@@ -91,7 +91,7 @@ const facility_bgv_init =(data) =>{
 }
 const facility_bgv_check =() =>{
 //   let facility_bgv_check_url = '/api/resource/Facility%20BGV?filters=[[%22facility_id%22,%22=%22,%22'+new_facility_id+'%22]]&fields=[%22*%22]';
-let facility_bgv_check_url = '/api/resource/Facility%20BGV?filters=[[%22facility_id%22,%22=%22,%22'+"CRUN00374"+'%22]]&fields=[%22*%22]';  //TEMPORARY as facility id is refreshed in bgv.svelte
+let facility_bgv_check_url = '/api/resource/Facility%20BGV?filters=[[%22facility_id%22,%22=%22,%22'+new_facility_id+'%22]]&fields=[%22*%22]';  //TEMPORARY as facility id is refreshed in bgv.svelte
 return request(
         facility_bgv_check_url,{
             method: "GET"

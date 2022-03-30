@@ -24,12 +24,19 @@
     import { page } from "$app/stores";
     import { onMount } from "svelte";
     import {save_flag} from "../stores/flags_store";
+    import Success_popup from './components/success_popup.svelte';
+    import Toast from './components/toast.svelte';
+    let toast_text = "";
+    let toast_type = null;
+    let success_text = "";
+    
     // import {}
 
     // let routeTo = "identityproof";
     
     let id_proof = true;
     let page_name = null;
+    let show_dialouge = false;
     // let valid = false;
     let pan_check = true,
         voter_id_check = true,
@@ -104,6 +111,7 @@
         goto("associatedetails", { replaceState });
     }
     function gotobankdetails() {
+        show_dialouge = false;
         let replaceState = false;
         goto("bankdetails", { replaceState });
     }
@@ -117,13 +125,23 @@
                 let pan_card_proof_response = await verify_document_function(
                     pan_card_data.doc_number
                 );
-                console.log("pan_card_proof_response", pan_card_proof_response);
+                try{
+                    console.log("pan_card_proof_response", pan_card_proof_response);
                 if (pan_card_proof_response.body.data == false) {
                     pan_card_message = pan_card_proof_response.body.message;
                 } else {
                     pan_card_message = "";
                     pan_check = true;
                 }
+                    
+
+                }
+                catch{
+                    toast_text = "Unable to verify Pan Card";
+                    toast_type = "error";
+
+                }
+                
             }
         } else {
             pan_card_message = "";
@@ -133,6 +151,7 @@
     function on_proceed() {
         check_validity();
         if(valid){
+            
             if (
             $pravesh_properties.properties["pan_required_associates"].includes(
                 $facility_data_store.facility_type
@@ -141,14 +160,16 @@
                 "bank_section_required_associates"
             ].includes($facility_data_store.facility_type)
         ) {
-            if (!$facility_id.facility_id_number) {
-                if (
-                    confirm("Are you sure you want to proceed without saving?")
-                ) {
-                    gotobankdetails();
-                } else {
-                    save_facility();
-                }
+            if (! $save_flag.is_save) {
+                console.log("inside condition");
+                // if (
+                //     confirm("Are you sure you want to proceed without saving?")
+                // ) {
+                //     gotobankdetails();
+                // } else {
+                //     save_facility();
+                // }
+                show_dialouge =true;
             }else{
                 gotobankdetails();
 
@@ -171,7 +192,8 @@
                 adhar_check = false;
             } else {
                 adhar_card_message = "";
-                let adhar_card_proof_response = await verify_document_function(
+                try{
+                    let adhar_card_proof_response = await verify_document_function(
                     adhar_card_data.doc_number
                 );
                 console.log(
@@ -185,6 +207,15 @@
                     adhar_card_message = "";
                     adhar_check = true;
                 }
+
+                }
+                catch{
+                    toast_text = "Unable to verify Aadhar Card";
+                    toast_type = "error";
+
+
+                }
+                
             }
         } else {
             adhar_card_message = "";
@@ -198,7 +229,8 @@
                 voter_id_check = false;
             } else {
                 voter_id_message = "";
-                let voter_id_proof_response = await verify_document_function(
+                try{
+                    let voter_id_proof_response = await verify_document_function(
                     voter_id_card_data.doc_number
                 );
                 console.log("voter_id_proof_response", voter_id_proof_response);
@@ -208,6 +240,13 @@
                     voter_id_message = "";
                     voter_id_check = true;
                 }
+                }
+                catch{
+                    toast_text = "Unable to verify Voter Id";
+                    toast_type = "error";
+
+                }
+                
             }
         } else {
             voter_id_message = "";
@@ -224,7 +263,8 @@
                 dl_check = false;
             } else {
                 driving_license_message = "";
-                let driving_license_proof_response =
+                try{
+                    let driving_license_proof_response =
                     await verify_document_function(
                         driving_license_data.doc_number
                     );
@@ -239,6 +279,13 @@
                     driving_license_message = "";
                     dl_check = true;
                 }
+                }
+                catch{
+                    toast_text = "Unable to verify Driving License";
+                    toast_type = "error";
+
+                }
+                
             }
         } else {
             driving_license_message = "";
@@ -293,11 +340,11 @@
         $facility_data_store.facility_email = "testing@nomail.com";
         $facility_data_store.facility_id = "tejas_bhosale_mhpd";
         $facility_data_store.facility_name = "tejas bhosale";
-        $facility_data_store.facility_type = "HDA";
+        $facility_data_store.facility_type = "DA";
         $facility_data_store.msme_registered = "1";
         $facility_data_store.org_id = "AN";
         $facility_data_store.owner_name = "tejas bhosale";
-        $facility_data_store.phone_number = "9890637091";
+        $facility_data_store.phone_number = "9890637094";
         $facility_data_store.station_code = "MHPD";
         $facility_data_store.store_id = "MHPD";
         $facility_data_store.store_name = "MHPD00012";
@@ -532,8 +579,10 @@
             ) {
                 valid = false;
                 // console.log("condition works");
-                form_message = "Please Upload Atleast One Document";
-                console.log("form_message", form_message);
+                // form_message = "Please Upload Atleast One Document";
+                // console.log("form_message", form_message);
+                toast_type = "error";
+                toast_text = "Please Upload Atleast One Document";
             } else {
                 form_message = "";
                 console.log(
@@ -574,10 +623,15 @@
 
            
             let save_facility_response = await save_facility_function();
-            console.log(save_facility_response);
+            console.log("save_facility_response",save_facility_response);
+            show_dialouge = false;
             if (save_facility_response.body.status == "green") {
                 try {
-                    alert("Facility saved successfully");
+                    console.log("inside save try");
+                    // alert("Facility saved successfully");
+                    toast_type = "success";
+                    toast_text = "Facility saved successfully";
+
                     $facility_id.facility_id_number =
                         save_facility_response.body.data.name;
                     let temp;
@@ -604,9 +658,13 @@
                                 current_user_response.body.data.user.username;
                         } else {
                             alert("Session user not found error!");
+                            toast_type = "error";
+                            toast_message = "Session user not found error!";
                         }
                     } catch {
-                        alert("Session user not found error!");
+                        // alert("Session user not found error!");
+                        toast_type = "error";
+                        toast_message = "Session user not found error!";
                         console.log("current user data", $current_user);
                     }
                     
@@ -630,7 +688,9 @@
                                 $documents_store.documents[i]
                             );
                             if(document_upload_response.body.status != "green"){
-                                alert("Document upload failed");
+                                // alert("Document upload failed");
+                                toast_text = $documents_store.documents[i]["doc_category"]+" Document upload failed";
+                                toast_type = "error";
                             }
                         console.log(
                             "document_upload_response",
@@ -652,17 +712,29 @@
                         ].includes($facility_data_store.facility_type)
                     ) {
                         console.log("taking you to the success page");
+                        // let replaceState = false;
+                        // goto("successpopup", { replaceState });
+                        success_text = "Onboarding Completed Successfully";
+                        // await delay(2000);
+                        // console.log("delay");
+                        setTimeout(() => {   }, 2000);
                         let replaceState = false;
-                        goto("successpopup", { replaceState });
+                        goto("onboardsummary", { replaceState });
+
+
                     }
                 } catch {
                     alert("Error in saving facility!");
                 }
             } else {
-                if(save_facility_response.body.status == "red"){
-                    alert("message :" +save_facility_response.body.message+"\n"
+                // if(save_facility_response.body.status == "red"){
+                //     alert("message :" +save_facility_response.body.message+"\n"
+                //     +"Traceback :"+save_facility_response.body.traceback);
+                // }
+                console.log("message :" +save_facility_response.body.message+"\n"
                     +"Traceback :"+save_facility_response.body.traceback);
-                }
+                toast_text = "Error in saving facility!";
+                toast_color = "error";
                 
                 // alert("Facility not created");
             }
@@ -683,19 +755,25 @@
 
         if(file_name["doc_category"] == "Pancard"){
             pan_card_data = pan_card_data;
+            document.getElementById('pan_card_file_upload').value = "";
         }
         else if(file_name["doc_category"] == "Aadhar Id proof"){
             adhar_card_data = adhar_card_data;
+            document.getElementById('adhar_card_file_upload').value = "";
         }
         else if(file_name["doc_category"] == "Voter Id proof"){
             voter_id_card_data = voter_id_card_data;
+            document.getElementById('voter_id_file_upload').value = "";
         }
         else if(file_name["doc_category"] == "Driving License"){
             driving_license_data = driving_license_data;
+            document.getElementById('driving_license_file_upload').value = "";
         }
         else if(file_name["doc_category"] == "Voter Id proof"){
-            voter_id_card_data = voter_id_card_data;1
+            voter_id_card_data = voter_id_card_data;
+            document.getElementById('voter_id_file_upload').value = "";
         }
+       
         
 
 
@@ -1014,6 +1092,7 @@
                                             type="file"
                                             class="hidden"
                                             accept=".jpg, .jpeg, .png,.pdf"
+                                            id="pan_card_file_upload"
                                             on:change={(e) => on_pan_upload(e)}
                                         />
                                        
@@ -1095,6 +1174,7 @@
                                             type="file"
                                             class="hidden"
                                             accept=".jpg, .jpeg, .png,.pdf"
+                                            id="adhar_card_file_upload"
                                             on:change={(e) =>
                                                 on_adhar_upload(e)}
                                         />
@@ -1192,6 +1272,7 @@
                                             type="file"
                                             class="hidden"
                                             accept=".jpg, .jpeg, .png,.pdf"
+                                            id="voter_id_file_upload"
                                             on:change={(e) =>
                                                 on_voter_id_upload(e)}
                                         />
@@ -1274,6 +1355,7 @@
                                             type="file"
                                             class="hidden"
                                             accept=".jpg, .jpeg, .png,.pdf"
+                                            id='driving_license_file_upload'
                                             on:change={(e) =>
                                                 on_driving_license_upload(e)}
                                         />
@@ -1354,3 +1436,27 @@
         </div>
     </div>
 </div>
+<Toast type={toast_type}  text={toast_text}/>
+{#if show_dialouge}
+<div id="actionModalDialogue" tabindex="-1" class="actionDialogue">
+        <div class="actionDialogueWrapper">
+            <div class="actionDialogueModalContent">
+                <div class="actionDialogueModalBody">
+                    <svg class="actionDialogueSvg" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <h3 class="actionDialogueText">Are you sure you want to proceed without saving?
+                    </h3>
+                    <div class="pt-3">
+                    <button data-modal-toggle="popup-modal" type="button" class="dialogueNobutton" on:click|preventDefault={()=>save_facility()}>
+                        No
+                    </button>
+                    <button data-modal-toggle="popup-modal" type="button" class="dialogueYesbutton" on:click|preventDefault={()=>gotobankdetails()}>
+                        Yes
+                    </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{/if}
+
+<Success_popup text={success_text}/>

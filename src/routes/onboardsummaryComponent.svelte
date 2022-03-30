@@ -17,8 +17,17 @@
     import {facility_id} from "../stores/facility_id_store"
     import {facility_data_store} from "../stores/facility_store"
     import {bgv_config_store} from '../stores/bgv_config_store'
-import { object_without_properties } from "svelte/internal";
+<<<<<<< HEAD
     import Toast from './components/toast.svelte';
+    let toast_text = "";
+    let toast_type = null;
+=======
+import { object_without_properties } from "svelte/internal";
+<<<<<<< HEAD
+    import Toast from './components/toast.svelte';
+=======
+>>>>>>> 54436c424e85f10637cc62b62184ac267060c36b
+>>>>>>> f19355a6a8e3b0e72be1cfee9a7e7d6de59a05ab
 
     let toast_text;
     let toast_type;
@@ -99,13 +108,17 @@ import { object_without_properties } from "svelte/internal";
     
 
     onMount(async () => {
+<<<<<<< HEAD
         toast_text = "Toast Successfull";
             toast_type = "success";
+=======
+        // toast_text = "Unable to verify Voter Id";
+        // toast_type = "error";
+>>>>>>> f19355a6a8e3b0e72be1cfee9a7e7d6de59a05ab
         ///////bank details/////////////
         facility_id.set({
-            // facility_id_number: "CRUN00374"
-            // facility_id_number: "CRUN00320"
-            facility_id_number: "NAOD00048"
+            facility_id_number: "CRUN00374"
+            // facility_id_number: "CRUN00320" 
         })
         // console.log("facility_id_number",$facility_id.facility_id_number)
 
@@ -6472,4 +6485,7 @@ import { object_without_properties } from "svelte/internal";
     </div>
 </div>
 <Toast type={toast_type}  text={toast_text}/>
+<<<<<<< HEAD
 
+=======
+>>>>>>> f19355a6a8e3b0e72be1cfee9a7e7d6de59a05ab

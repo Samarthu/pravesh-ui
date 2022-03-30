@@ -40,11 +40,14 @@
             console.log("verticles api response",response);
         org_list = response.body.data;
         console.log(org_list);
-        toast_text = "Verticles Loaded";
         toast_type = "success";
-
+        toast_text = "verticles fetched success"
+        
         }
         else{
+            toast_text = "Unable to fetch Verticles";
+        toast_type = "error";
+
             
             
         }
@@ -58,7 +61,10 @@
         console.log('verticle list',verticle_list);
 
         let demo_ui_response = await get_verticles_ui_fun();
-        console.log("verticles ui response",demo_ui_response);
+        if(demo_ui_response.body.status =="green"){
+            // console.log("verticles ui api response",demo_ui_response);
+     
+            console.log("verticles ui response",demo_ui_response);
         let demo_data = demo_ui_response.body.data['verticle_ui_settings'];
         // demo_data = JSON.stringify(demo_data);
         demo_data = JSON.parse(demo_data);
@@ -78,6 +84,11 @@
         }
         combined_list = combined_list;
         console.log("combined list",combined_list);
+        }else{
+            toast_text = "Unable to fetch Verticles UI properties";
+        toast_type = "error";
+        }
+        
     })
 
     routeNext = "catagory";

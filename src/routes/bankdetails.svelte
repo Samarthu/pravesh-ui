@@ -25,6 +25,9 @@
     } from "../services/identity_proof_services";
     import { get_current_user_function } from "../services/dashboard_services";
     import {save_flag} from "../stores/flags_store";
+    import Toast from './components/toast.svelte';
+    let toast_text = "";
+    let toast_type = null;
     // import {facility_id} from '../stores/facility_id_store';
 
     let ifsc_code;
@@ -41,6 +44,7 @@
     var ifsc_code_check = /^[A-Za-z]{4}\d{7}$/;
     var account_holder_check = /^\w+$/gm;
     let account_number_match_check = false;
+    
 
     let blank_cheque_data = {
         doc_category: "Blank Cheque",
@@ -564,15 +568,20 @@
 
         if(file_name["doc_category"] == "Blank Cheque"){
             blank_cheque_data = blank_cheque_data;
+            document.getElementById('blank_cheque_copy').value = "";
         }
         else if(file_name["doc_category"] == "Passbook"){
             passbook_data = passbook_data;
+            document.getElementById('passbook_copy').value = "";
         }
         else if(file_name["doc_category"] == "Cancel Cheque"){
             Cancel_cheque_data = Cancel_cheque_data;
+            document.getElementById('cancel_cheque_copy').value = "";
         }
         else if(file_name["doc_category"] == "Account Statement"){
             account_statement_data = account_statement_data;
+            document.getElementById('account_statement_copy').value = "";
+            
         }
 
         
@@ -1073,6 +1082,7 @@
                                             type="file"
                                             class="hidden"
                                             accept=".jpg, .jpeg, .png ,.pdf"
+                                            id="blank_cheque_copy"
                                             on:change={(e) =>
                                                 on_blank_cheque_upload(e)}
                                         />
@@ -1119,6 +1129,7 @@
                                             type="file"
                                             class="hidden"
                                             accept=".jpg, .jpeg, .png,.pdf"
+                                            id="passbook_copy"
                                             on:change={(e) =>
                                                 on_passbook_upload(e)}
                                         />
@@ -1155,6 +1166,7 @@
                                             type="file"
                                             class="hidden"
                                             accept=".jpg, .jpeg, .png,.pdf"
+                                            id="cancel_cheque_copy"
                                             on:change={(e) =>
                                                 on_cancle_cheque_upload(e)}
                                         />
@@ -1191,6 +1203,7 @@
                                             type="file"
                                             class="hidden"
                                             accept=".jpg, .jpeg, .png,.pdf"
+                                            id="account_statement_copy"
                                             on:change={(e) =>
                                                 on_account_statement_upload(e)}
                                         />
@@ -1291,3 +1304,4 @@
         </div>
     </div>
 </div>
+<Toast type={toast_type}  text={toast_text}/>
