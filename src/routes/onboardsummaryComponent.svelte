@@ -150,12 +150,8 @@
     onMount(async () => {
         ///////bank details/////////////
         facility_id.set({
-<<<<<<< HEAD
-            facility_id_number: "CRUN00978"
-=======
             facility_id_number: "CRUN00374"
             // facility_id_number: "CRUN00320" 
->>>>>>> a241918d401598c476e7c350ba855d24fc8508ad
         })
         // console.log("facility_id_number",$facility_id.facility_id_number)
 
