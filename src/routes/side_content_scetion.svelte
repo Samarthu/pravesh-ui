@@ -114,7 +114,7 @@
     
 
 
-<div>
+<div class="xsl:flex w-full justify-around ">
     <li class="tabactivelink">
         <a href="#" class="tabAchorSection {work_details_active_status} ">
             <div class="iconSection">
