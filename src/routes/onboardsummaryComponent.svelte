@@ -12,12 +12,25 @@
     import { facility_document } from "../services/onboardsummary_services";
     import { audit_trail_data } from "../services/supplier_services";
     import { facility_data,facility_bgv_init,facility_bgv_check,all_facility_tags,
-        show_fac_tags,submit_fac_tag_data,remove_tag,tag_audit_trail} from "../services/onboardsummary_services";
+        show_fac_tags,submit_fac_tag_data,remove_tag,tag_audit_trail,service_vendor} from "../services/onboardsummary_services";
     import {get_date_format} from "../services/date_format_servives";
     import {facility_id} from "../stores/facility_id_store"
     import {facility_data_store} from "../stores/facility_store"
     import {bgv_config_store} from '../stores/bgv_config_store'
+<<<<<<< HEAD
+    import Toast from './components/toast.svelte';
+    let toast_text = "";
+    let toast_type = null;
+=======
+import { object_without_properties } from "svelte/internal";
+<<<<<<< HEAD
+    import Toast from './components/toast.svelte';
+=======
+>>>>>>> 54436c424e85f10637cc62b62184ac267060c36b
+>>>>>>> f19355a6a8e3b0e72be1cfee9a7e7d6de59a05ab
 
+    let toast_text;
+    let toast_type;
     let routeNext = "";
     let routeBgv = "";
     let temp = "Add";
@@ -33,7 +46,8 @@
     let cheque_values_from_store = [];
     let audit_details_array = [];
     let facility_document_data = [];
-    let all_tags_data = [];
+    let all_tags_data= [];
+    let all_tags_obj= {};
     let show_fac_array = [];
     let tag_data_arr = [];
     let show_creation_date;
@@ -51,13 +65,18 @@
     // $: cheque_date = new Date();
     let file_data;
     let showbtn = 0;
-    let selectTag,addRemark;
-    let facility_address,facility_postal,facility_password,city,status_name;
+    let selectTag,addRemark,selectserCh;
+    let facility_address,facility_postal,facility_password,city,location_id,status_name;
     let new_fac_remarks = [];
-    $:select_tag_data="";
+    let select_tag_data,serv_ch_data;
+   
     let tag_date,tag_remark;
-    
-    let pan_num,aadhar_num,checkupload,pan_attach,aadhar_attach,dl_lic_attach,dl_lic_url,offer_url = "-";
+    let tag_data_obj=[];
+
+    //  let vendor_id,vendor_name; 
+    let pan_num="-";
+    let aadhar_num="-";
+    let checkupload,pan_attach,aadhar_attach,dl_lic_attach,dl_lic_url,offer_url = "-";
     let profile_url = "";
     let address_url,pan_verified,aadhar_verified,profile_verified,address_verified,
     gst_url,gst_verified,can_check_url;
@@ -65,62 +84,83 @@
     let aadhar_name = "Not Submitted",pan_name = "Not Submitted",dl_lic_name = "Not Submitted",address_name = "Not Submitted",
     can_check_name = "Not Submitted",gst_name = "Not added",offer_name="Not Submitted";
     
-    let hidden ="hidden";
+    let hidden_field ="hidden";
     // let facility_data_obj = {
     //     new_facility_id : facility_details_data[0].facility_id
     //     }
-
     export let url = "";
+    let ven_loc_id;
+
+    $:{
+        for(let key in all_tags_obj){
+            if(select_tag_data == key){
+                if(all_tags_obj[key] == "vendor_required"){
+                hidden_field = "";
+                }
+                else{
+                hidden_field = "hidden"; 
+                }
+            }
+            
+        }
+    }
+
+    
 
     onMount(async () => {
+<<<<<<< HEAD
+        toast_text = "Toast Successfull";
+            toast_type = "success";
+=======
+        // toast_text = "Unable to verify Voter Id";
+        // toast_type = "error";
+>>>>>>> f19355a6a8e3b0e72be1cfee9a7e7d6de59a05ab
         ///////bank details/////////////
         facility_id.set({
+<<<<<<< HEAD
             facility_id_number: "CRUN00978"
+=======
+            facility_id_number: "CRUN00374"
+            // facility_id_number: "CRUN00320" 
+>>>>>>> a241918d401598c476e7c350ba855d24fc8508ad
         })
         // console.log("facility_id_number",$facility_id.facility_id_number)
 
         bank_details_res = await bank_details();
-        try
-            {
+        try{
             if(!bank_details_res){
                 console.log("No Data Found")
             }
 
             else{
                 // console.log("VALUES IN BANK DETAILS")
-        $bank_data_to_store.bank_details_data = bank_details_res;
-        bank_data_to_store.subscribe((value) => {
-            bank_values_from_store = value.bank_details_data;
-        });
-        
-        let bank_date_format = new Date(bank_values_from_store.modified);
-        bank_new_date = get_date_format(bank_date_format,"dd-mm-yyyy-hh-mm");
-        
-    }
-        }
+                $bank_data_to_store.bank_details_data = bank_details_res;
+                bank_data_to_store.subscribe((value) => {
+                    bank_values_from_store = value.bank_details_data;
+                });
+                let bank_date_format = new Date(bank_values_from_store.modified);
+                bank_new_date = get_date_format(bank_date_format,"dd-mm-yyyy-hh-mm");
+                
+                }
+            }
         catch(err) {
-        message.innerHTML = "Error is " + err;
+        // message.innerHTML = "Error is " + err;
         }
         let cheque_details_res = await cheque_details();
         try{
-            if(cheque_details_res != "null"){
+
+            if(cheque_details_res.body.status == "green" && cheque_details_res != "null"){
         // $cheque_data_from_store
-        // console.log("cheque_details_res in SVELTE UI", cheque_details_res);
+        console.log("cheque_details_res in SVELTE UI", cheque_details_res);
         $cheque_data_to_store.cheque_details_data = cheque_details_res;
         
         cheque_data_to_store.subscribe((value) => {
             cheque_values_from_store = value.cheque_details_data;
         });
-        console.log("cheque_values_from_store",cheque_values_from_store);
-
-        // console.log(
-        //     "cheque_values_from_storein SVELTE UI",
-        //     cheque_values_from_store
-        // );
     }
 }
     catch(err) {
-        message.innerHTML = "Error is " + err;
+        // message.innerHTML = "Error is " + err;
         }
     
         /////////bank details/////////////
@@ -189,7 +229,7 @@
     
     }
     catch(err) {
-        message.innerHTML = "Error is " + err;
+        // message.innerHTML = "Error is " + err;
         }
 
         let facility_data_res = await facility_data();
@@ -230,6 +270,7 @@
                     facility_address =$facility_data_store.addresess[j].address;
                     facility_postal =$facility_data_store.addresess[j].postal;
                     city = $facility_data_store.addresess[j].city;
+                    location_id = $facility_data_store.addresess[j].location_id;
                 }
             }
         }
@@ -254,25 +295,35 @@
         // bgv_init_res.body.data
         // )
             showbtn = 1;
-            let bgv_check_res = await facility_bgv_check();
-            // console.log("bgv_check_res",bgv_check_res)
-            if(bgv_check_res.body.data.length == "0"){
-            initiate_bgv = 1;
-    }
+    //         let bgv_check_res = await facility_bgv_check();
+    //         // console.log("bgv_check_res",bgv_check_res)
+    //         if(bgv_check_res.body.data.length == "0"){
+    //         initiate_bgv = 1;
+    // }
     }
 
     all_tags_res = await all_facility_tags($facility_data_store.name);
     
     try {
-        if(all_tags_res.body.status == "green")
+        if(all_tags_res.body.status == "green"){
         for(i=0;i < all_tags_res.body.data.length;i++){
        
         all_tags_data.push(all_tags_res.body.data[i].tag_name);
+        // all_tags_obj[i] = all_tags_res.body.data[i].tag_name;
+        all_tags_obj[all_tags_res.body.data[i].tag_name] = all_tags_res.body.data[i].tag_description;
+        // console.log("all_tags_obj[i]",all_tags_obj)
         }
         all_tags_data = all_tags_data;
+        // console.log("all_tags_obj",all_tags_obj)
+        // for(let key in all_tags_obj){
+        //     console.log("key",key)
+        //     console.log("values",all_tags_obj[key])
+        // }
+    }
+        
     } 
     catch(err) {
-        message.innerHTML = "Error is " + err;
+        // message.innerHTML = "Error is " + err;
     }
     
 
@@ -414,9 +465,10 @@
                 for(let i=0;i < show_fac_array.length;i++){
                     
                     let new_date =new Date(show_fac_array[i].creation)
-                    // show_creation_date = get_date_format(new_date,"yyyy-mm-dd")
+                    
                     show_fac_array[i].creation=new_date;
-                    console.log("new_date",new_date);}
+                    // console.log("new_date",new_date);
+                }
                     show_fac_array.sort(function(a, b) {
                     if (a.creation > b.creation) return -1;
                     if (a.creation < b.creation) return 1;
@@ -427,43 +479,46 @@
                     let show_creation_date =get_date_format(show_fac_array[i].creation,"yyyy-mm-dd")
                     show_fac_array[i].creation=show_creation_date;
                     }
-                    
-
-
-
-        // let sorted_date_array = show_fac_array.sort((a, b) => b.creation - a.creation)
-        // sorted_date_array =sorted_date_array;
-
-        // var friends = [
-        // { name: 'Middle-aged John', dateOfBirth: new Date(1995, 5, 19)},
-        // { name: 'Young John', dateOfBirth: new Date(2000, 1, 22)},
-        // { name: 'Old John', dateOfBirth: new Date(1990, 3, 10)},
-        // ];
-
-        // friends.sort(function (a, b) {
-        // if (a.dateOfBirth > b.dateOfBirth) return -1;
-        // if (a.dateOfBirth < b.dateOfBirth) return 1;
-        // return 0;
-        // });         
-
-
-        console.log("sorted_date_array",show_fac_array)
+                    console.log("sorted_date_array",show_fac_array)
         } 
         catch(err) {
         console.log("ERROR")
         // message.innerHTML = "Error is " + err;
          }
 
+        let service_vend_res = await service_vendor();
+        console.log("service_vend_res",service_vend_res)
+        try {
+            if(service_vend_res.body.status == "green"){
+                
+                for(let i=0;i<service_vend_res.body.data.length;i++){
+                    if(service_vend_res.body.data[i].location_id == location_id){
+                        // tag_data_obj[service_vend_res.body.data[i].vendor_id] = service_vend_res.body.data[i].vendor_name;
+                        tag_data_obj.push(service_vend_res.body.data[i]);
+                    }
+                }
+                tag_data_obj = tag_data_obj;
+                console.log("tag_data_obj",tag_data_obj)
+            }
+            else{
+                console.log("No Data")
+            }
+        }
+        catch(err) {
+        console.log("ERROR")
+        // message.innerHTML = "Error is " + err;
+         }
+
+
     }
     async function handleTagClick(){
         let new_tag_id
-    try {
+    try {   
     //     if(all_tags_res.body.status == "green"){
         
         for(let i=0; i < all_tags_res.body.data.length; i++){
             // console.log("INDISDE FOR LOOPform_data from html",select_tag_data,all_tags_res.body.data[i].tag_name)
             if(select_tag_data == all_tags_res.body.data[i].tag_name){
-                
                 new_tag_id = all_tags_res.body.data[i].tag_id;
             }
             
@@ -472,40 +527,40 @@
             selectTag = 1;
             if(!tag_remark){
             addRemark = 1;
-        }
+                if(!serv_ch_data){
+                    selectserCh=1;
+                }
+            }   
+
         }
         else{
+            console.log("select_tag_data",select_tag_data)
             show_fac_array = [];
-        let submit_fac_res = await submit_fac_tag_data(new_tag_id,select_tag_data,tag_date,tag_remark)
-        try {
-        if(submit_fac_res.body.status == "green"){
-            console.log("INSIDE IF ITSELF")
-        let temp_res = await show_fac_tags($facility_data_store.facility_type);
-        
-                
-                show_fac_array = temp_res.body.data;
-               
-                for(let i=0;i < show_fac_array.length;i++){
-                    
-                    let new_date =new Date(show_fac_array[i].creation)
-                    show_creation_date = get_date_format(new_date,"yyyy-mm-dd")
-                    show_fac_array[i].creation=show_creation_date;
+            console.log("serv_ch_data",serv_ch_data)
+            let submit_fac_res = await submit_fac_tag_data(new_tag_id,select_tag_data,tag_date,tag_remark,serv_ch_data)
+            try {
+                if(submit_fac_res.body.status == "green"){
+                    let temp_res = await show_fac_tags($facility_data_store.facility_type);
+                    show_fac_array = temp_res.body.data;
+                    for(let i=0;i < show_fac_array.length;i++){
+                        let new_date =new Date(show_fac_array[i].creation)
+                        show_creation_date = get_date_format(new_date,"yyyy-mm-dd")
+                        show_fac_array[i].creation=show_creation_date;
+                    }
+                    show_fac_array = show_fac_array;
+                }
+                // console.log("submit_fac_res.body",submit_fac_res.body)
+                else if(submit_fac_res.body.message == "Tag already exist..!"){
+                        console.log("Cannot Add Tag already exist..!")
+                }
+            }
+                catch(err) {
+                console.log("ERROR")
+                // message.innerHTML = "Error is " + err;
+                }
         }
-        show_fac_array = show_fac_array;
-    }
-    // console.log("submit_fac_res.body",submit_fac_res.body)
-    else if(submit_fac_res.body.message == "Tag already exist..!"){
-        console.log("Cannot Add Tag already exist..!")
-       
-    }
-}
-        catch(err) {
-        console.log("ERROR")
-        // message.innerHTML = "Error is " + err;
-         }
-    }
 
-}
+    }
     catch(err) {
         console.log("ERROR")
         // message.innerHTML = "Error is " + err;
@@ -840,7 +895,7 @@
                                     src="../src/img/checked.png"
                                     class="pr-2"
                                     alt=""
-                                /> ID Proof
+                                /> ID Verified
                             </p>
                                 {:else if $facility_data_store.is_id_prof_rejected == "1"} 
                                 <p
@@ -1402,6 +1457,9 @@
                                                                     >Select</option
                                                                 > -->
                                                             <option value="">Select</option>
+                                                            {#if !all_tags_data}
+                                                            <p></p>
+                                                            {:else}
                                                             {#each all_tags_data as tag_data}
                                                             <option>{tag_data}</option>
                                                                 <!-- <option
@@ -1411,10 +1469,11 @@
                                                                     >SIB</option
                                                                 > -->
                                                                 {/each}
+                                                                {/if}
                                                             </select>
                                                             {#if selectTag == "1"}
                                                             <div class="text-red-500">
-                                                                "Please select tag name"
+                                                                "Select tag name"
                                                             </div>
                                                             {/if}
                                                             
@@ -1431,38 +1490,46 @@
                                                     </div>
 
                                                     <div
-                                                    class="flex px-2 pt-3 items-center xs:flex-wrap {hidden}"
+                                                    class="flex px-2 pt-3 items-center xs:flex-wrap {hidden_field}"
                                                 >
                                                     <div
                                                         class="light14grey"
                                                     >
-                                                        Dropdown
+                                                    Select Sevice Charge Vendor
                                                     </div>
                                                     <div
                                                         class="formInnerGroup "
                                                     >
                                                         <select
                                                             class="inputboxpopover"
-                                                        bind:value="{select_tag_data}">
+                                                        bind:value={serv_ch_data}>
                                                         
                                                         <!-- <option
                                                                 class="pt-6"
                                                                 >Select</option
                                                             > -->
                                                         <option value="">Select</option>
-                                                        {#each all_tags_data as tag_data}
-                                                        <option>{tag_data}</option>
+                                                        {#if !tag_data_obj}
+                                                        <p></p>
+                                                        {:else}
+                                                        <!-- {#each Object.keys(tag_data_obj),tag_data_obj[Object.keys(tag_data_obj)] as key,value} -->
+                                                        {#each tag_data_obj as obj}
+                                                        <option value={obj.vendor_id}>{obj.vendor_name} - {obj.vendor_id}</option>
                                                             <!-- <option
                                                                 >Axis</option
                                                             >
                                                             <option
                                                                 >SIB</option
                                                             > -->
-                                                            {/each}
+                                                            
+                                                        {/each}
+                                                        {/if}
+
+                                                       
                                                         </select>
-                                                        {#if selectTag == "1"}
+                                                        {#if selectserCh == "1"}
                                                         <div class="text-red-500">
-                                                            "Please select tag name"
+                                                            "Select Sevice Charge Vendor"
                                                         </div>
                                                         {/if}
                                                         
@@ -1545,7 +1612,7 @@
                                                         />
                                                         <button
                                                             class="saveandproceed"
-                                                            on:click="{handleTagClick(select_tag_data,tag_date,tag_remark)}"
+                                                            on:click="{handleTagClick(select_tag_data,tag_date,tag_remark,tag_data_obj)}"
                                                             >Add</button
                                                         >
                                                     </div>
@@ -5642,6 +5709,9 @@
                         <div class="scrollbar ">
                             <div class="mainContainerWrapper ">
                                 <div class="DocCardlist ">
+                                    {#if !cheque_values_from_store}
+                                    <p></p>
+                                    {:else}
                                     {#each cheque_values_from_store as new_cheque}
                                         <div class="cardDocWrapper ">
                                             <div
@@ -5756,6 +5826,7 @@
                                             </div>
                                         </div>
                                     {/each}
+                                    {/if}
                                 </div>
                                 <div class="addDocumentSection ">
                                     <div class="addSecform hidden">
@@ -6417,3 +6488,8 @@
         </div>
     </div>
 </div>
+<Toast type={toast_type}  text={toast_text}/>
+<<<<<<< HEAD
+
+=======
+>>>>>>> f19355a6a8e3b0e72be1cfee9a7e7d6de59a05ab

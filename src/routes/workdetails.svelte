@@ -18,6 +18,9 @@
     import {allowed_pdf_size,sorting_pravesh_properties} from '../services/pravesh_config';
     import Side_content_component from './side_content_scetion.svelte';
     import  {  page } from '$app/stores';
+    import Toast from './components/toast.svelte';
+    let toast_text = "";
+    let toast_type = null;
     // let page_name;
     
     // import PdfViewer from 'svelte-pdf';
@@ -239,10 +242,15 @@
         console.log("get_pravesh_properties_response", get_pravesh_properties_response);
         if(get_pravesh_properties_response.body.status == "green"){
             sorting_pravesh_properties(get_pravesh_properties_response.body.data);
+        }else{
+            toast_type = "error";
+            toast_text = "Error in fetching pravesh properties";
+            
         }
         
         let org_response = await get_organistaion_method();
-        console.log("org_response",org_response);
+        if(org_response.body.data){
+            console.log("org_response",org_response);
         org_array = org_response.body.data;
         console.log("org_array",org_array);
 
@@ -250,8 +258,15 @@
             org_id = value.org_id;
         });
         console.log("org_id", org_id);
+
+        }else{
+            toast_type = "error";
+            toast_text = "Error in fetching organisation List";
+        }
+        
         user_scope_response = await get_user_scope_function();
-        console.log("user_scope_response", user_scope_response);
+        if(user_scope_response.body.status == "green"){
+            console.log("user_scope_response", user_scope_response);
         for (let i = 0; i < user_scope_response.body.data.length; i++) {
             if (
                 !city_list.includes(
@@ -268,31 +283,32 @@
         }
         city_list = city_list;
         console.log("city_list", city_list);
-        // for(let i=0;i<city_list.length;i++){
-        //     scope_list[city_list[i]] = [];
-        //     for(let j=0;j<user_scope_response.body.data.length;j++){
-        //         if(city_list[i] == user_scope_response.body.data[j]['location_name']){
-        //             station_list.push(user_scope_response.body.data[j]['stations']);
-
-        //         }
-        //         // scope_list[city_list[i]] = scope_list[city_list[i]];
-
-        //     }
-
-        // }
+       
 
         scope_list = scope_list;
         console.log("scope_list", scope_list);
         let temp;
-        // get_facility_type_link.subscribe((value =>{
-        //     temp = value;
-        // }));
+        
         get_facility_type_link.subscribe((value) => {
             temp = value;
         });
         console.log("facility link", temp);
 
+        }else{
+            toast_type = "error";
+            toast_text = "Error in fetching user scope";
+
+        }
+       
+
         vendor_list_response = await get_vendor_by_config_method();
+        if(vendor_list_response.body.status == "green"){
+
+        }else{
+            toast_type = "error";
+            toast_text = "Error in fetching vendor list";
+        }
+            
         console.log("vendor list", vendor_list_response);
         
     });
@@ -315,6 +331,7 @@
                 }
 
     }
+
     async function get_session_user() {
         console.log("inside get session user");
         // console.log(msme_agreement);
@@ -427,6 +444,10 @@
             associate_type_list = facility_type_response.body.data;
             console.log("associate_type_list", associate_type_list);
         }
+        else{
+            toast_type = "error";
+            toast_text = "Error in fetching facility type";
+        }
     }
     $: {
         // let demo ;
@@ -477,7 +498,7 @@
         // });
         // console.log("store",);
 
-        console.log("pdf name", temp_name);
+        console.log("pdf name", msme_data.file_name);
         let reader = new FileReader();
         reader.readAsDataURL(pdf);
         reader.onload = (e) => {
@@ -495,7 +516,7 @@
             }
             // $msme_store.user_id = $current_user.email;
             msme_data.user_id = $current_user.email;
-            
+            msme_data = msme_data;
             
             console.log("msme store user id", msme_data);
             
@@ -531,6 +552,9 @@
         file_name["file_name"] = null;
         file_name["pod"] = null;
         msme_data = msme_data;
+        document.getElementById('msme_certificate_file_upload').value = "";
+        console.log("after delete", $documents_store.documents);
+        console.log("msme data", msme_data);
 
         // console.log(file_name);
         // console.log("document store", $documents_store.documents);
@@ -1110,6 +1134,7 @@
                                                     type="file"
                                                     class="hidden"
                                                     accept=".pdf,.jpg,.png,.jpeg"
+                                                    id="msme_certificate_file_upload"
                                                     on:change={(e) =>
                                                         onFileSelected(e)}
                                                 />
@@ -1250,3 +1275,4 @@
         </div>
     </div>
 </div>
+<Toast type={toast_type}  text={toast_text}/>

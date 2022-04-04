@@ -11,19 +11,21 @@
         
         text=text
         console.log("type",type);
-        console.log("duration",duration);
+        
         console.log("text",text);
         // countdown = 10;
-        // flag = true;
-        // if(flag){
-        //     start_countdown();
-        // }
+        flag = true;
+        if(flag){
+            start_countdown();
+            duration = 10;
+        }
         
         // start_countdown();
     }
 
     function close_click(){
         type = null;
+        text = null;
     }
     let countdown = 10;
   let timer;
@@ -34,7 +36,8 @@
         // resend_flag = true;
         type = null;
         timer = null;
-        // duration = null;
+        duration = null;
+        // console.log("inside reactive");
       }
     }
   }
@@ -43,12 +46,13 @@
 		 timer = setInterval(() => {
             duration -= 1;
     }, 1000);
+    // console.log("hiiiiiiii");
   }
   
  
 </script>
 
-<div transition:fly={{ y: 30 }}>
+<div >
 
     {#if type == "success"}
 

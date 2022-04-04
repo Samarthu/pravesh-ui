@@ -91,7 +91,7 @@ const facility_bgv_init =(data) =>{
 }
 const facility_bgv_check =() =>{
 //   let facility_bgv_check_url = '/api/resource/Facility%20BGV?filters=[[%22facility_id%22,%22=%22,%22'+new_facility_id+'%22]]&fields=[%22*%22]';
-let facility_bgv_check_url = '/api/resource/Facility%20BGV?filters=[[%22facility_id%22,%22=%22,%22'+"CRUN00374"+'%22]]&fields=[%22*%22]';  //TEMPORARY as facility id is refreshed in bgv.svelte
+let facility_bgv_check_url = '/api/resource/Facility%20BGV?filters=[[%22facility_id%22,%22=%22,%22'+new_facility_id+'%22]]&fields=[%22*%22]';  //TEMPORARY as facility id is refreshed in bgv.svelte
 return request(
         facility_bgv_check_url,{
             method: "GET"
@@ -114,7 +114,7 @@ const show_fac_tags = () => {
         },true)
 }
 
-const submit_fac_tag_data = (new_tag_id,select_tag_data,tag_date,tag_remark) =>{
+const submit_fac_tag_data = (new_tag_id,select_tag_data,tag_date,tag_remark,serv_ch_data) =>{
     // console.log("select_tag_data,tag_date,tag_remark",new_tag_id,select_tag_data,tag_date,tag_remark)
     let submit_fac_tag_url = '/api/method/pravesh.facility.routes.facility.add_facility_tags';
 
@@ -126,7 +126,8 @@ const submit_fac_tag_data = (new_tag_id,select_tag_data,tag_date,tag_remark) =>{
             "remarks": tag_remark,
             "deactivation_date": tag_date,
             "doctype": "Facility Tag"
-        }]
+            }],
+            "vendor_code": serv_ch_data
     }
     return request(
         submit_fac_tag_url, 
@@ -150,7 +151,13 @@ const tag_audit_trail = () => {
             method: "GET"
         },true)
 }
-
+const service_vendor = () => {
+    let service_vendor_url = '/api/method/pravesh.facility.routes.facility.get_vendor_facility_by_config';
+    return request(
+        service_vendor_url,{
+            method: "GET"
+        },true)
+}
 
 export {
     bank_details,
@@ -165,5 +172,6 @@ export {
     show_fac_tags,
     submit_fac_tag_data,
     remove_tag,
-    tag_audit_trail
+    tag_audit_trail,
+    service_vendor
 }
