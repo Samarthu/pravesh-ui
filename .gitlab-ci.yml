@@ -11,4 +11,6 @@ beta-deploy:
   only: 
     - beta-release
   tags:
-    - build-srv
+    - beta
+    - aws
+
