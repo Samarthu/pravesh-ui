@@ -12,14 +12,3 @@ beta-deploy:
     - beta-release
   tags:
     - build-srv
-
-prod-deploy:
-  stage: deploy
-  script:
-    # - chmod 777 build.sh
-    - docker build --pull -t yard.elasticrun.in/pravesh-ui:release -f Dockerfile.prod . --build-arg CUR_DATE=$(date +%Y-%m-%d:%H:%M:%S)
-    - docker push yard.elasticrun.in/pravesh-ui:release
-  only: 
-    - release
-  tags:
-    - build-srv 

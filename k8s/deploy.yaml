@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pravesh-ui
+  namespace: doha-ecom
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pravesh-ui
+  template:
+    metadata:
+      labels:
+        app: pravesh-ui
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: biz
+                    operator: In
+                    values:
+                      - all
+                  - key: layer
+                    operator: In
+                    values:
+                      - app
+                  - key: app
+                    operator: In
+                    values:
+                      - all
+                  - key: env
+                    operator: In
+                    values:
+                      - nonprod
+      tolerations: #[]
+        - key: "kubernetes.azure.com/scalesetpriority"
+          operator: "Equal"
+          value: "spot"
+          effect: "NoSchedule"
+      containers:
+        - name: pravesh-ui
+          image: erunallregistry.azurecr.io/pravesh-ui:beta-release
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+              name: http
+          resources:
+            limits:
+              cpu: 250m
+              memory: 512Mi
+            requests:
+              cpu: 50m
+              memory: 128Mi
+      imagePullSecrets:
+        - name: erunall-registry-secret
+      restartPolicy: Always

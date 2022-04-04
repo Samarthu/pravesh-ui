@@ -1,0 +1,24 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx-local
+  name: pravesh-ui-ingress-local
+  namespace: doha-ecom 
+spec:
+  rules:
+  - host: doha-crun.elasticrun.in
+    http:
+      paths:
+        - backend:
+            serviceName: pravesh-ui-service
+            servicePort: 80
+          path: /pravesh-ui/
+        - backend:
+            serviceName: doha-crun-er-frappe
+            servicePort: 80
+          path: /
+  tls:
+    - hosts:
+      - doha-crun.elasticrun.in
+      secretName: erun-ssl-cert
