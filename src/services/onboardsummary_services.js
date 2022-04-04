@@ -158,6 +158,21 @@ const service_vendor = () => {
             method: "GET"
         },true)
 }
+const get_loc_scope= () => {
+    let get_loc_scope_url = '/api/method/pravesh.facility.routes.scope.get_scope';
+    return request(
+        get_loc_scope_url,{
+            method: "GET"
+        },true)
+}
+const client_details=(data)=>{
+    let client_details_url = '/api/method/pravesh.facility.routes.facility.get_facilities?facility_id="'+new_facility_id+'"&loc="'+data+'"';
+    return request(
+        client_details_url,{
+            method: "GET"
+        },true)
+}
+
 
 export {
     bank_details,
@@ -173,5 +188,7 @@ export {
     submit_fac_tag_data,
     remove_tag,
     tag_audit_trail,
-    service_vendor
+    service_vendor,
+    get_loc_scope,
+    client_details
 }

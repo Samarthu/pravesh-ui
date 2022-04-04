@@ -309,27 +309,39 @@
         console.log("reader",reader.result);
         if(doctext == "photo_upload"){
             photo_data = reader.result;
-            console.log("photo_data",reader.result);
-            toast_text = "Doc Uploaded Successfully";
+            // console.log("photo_data",reader.result);
+            toast_text = "Photo Uploaded Successfully";
             toast_type = "success";
         }
         else if(doctext == "aadhar_upload"){
             aadhar_data = reader.result;
-            console.log("aadhar_data",reader.result);
+            // console.log("aadhar_data",reader.result);
+            toast_text = "Document Uploaded Successfully";
+            toast_type = "success";
         }
         else if(doctext == "address_upload"){
             address_data = reader.result;
             console.log("address_data",reader.result);
+            toast_text = "Address Document Uploaded Successfully";
+            toast_type = "success";
         }
         else if(doctext == "pancard_upload"){
             pan_data= reader.result;
-            console.log("pan_data",reader.result);}
+            console.log("pan_data",reader.result);
+            toast_text = "Pan Card Uploaded Successfully";
+            toast_type = "success";
+        }
         else if(doctext == "police_upload"){
             police_data = reader.result;
-            console.log("police_data",reader.result);}
+            console.log("police_data",reader.result);
+            toast_text = "Document Uploaded Successfully";
+            toast_type = "success";
+        }
         else if(doctext == "license_upload"){
             dl_data = reader.result;
             console.log("dl_data",reader.result);
+            toast_text = "Licence Uploaded Successfully";
+            toast_type = "success";
         }
         };
         reader.onerror = function (error) {
@@ -337,6 +349,13 @@
         };
     }
     else {
+            // toast_type = "danger";
+            // toast_text = "File size is greater than " +
+            //         Number(allowed_pdf_size / 1048576) +
+            //         "MB. Please upload a file less than " +
+            //         Number(allowed_pdf_size / 1048576) +
+            //         "MB .";
+            
             alert(
                 "File size is greater than " +
                     Number(allowed_pdf_size / 1048576) +
@@ -373,26 +392,6 @@
             police_img=null;
             police_data=null;  
         }
-        // file_name["file_name"] = null;
-        // file_name["pod"] = null;
-        // file_name["doc_number"] = null;
-
-        // if(file_name["doc_category"] == "Pancard"){
-        //     pan_card_data = pan_card_data;
-        // }
-        // else if(file_name["doc_category"] == "Aadhar Id proof"){
-        //     adhar_card_data = adhar_card_data;
-        // }
-        // else if(file_name["doc_category"] == "Voter Id proof"){
-        //     voter_id_card_data = voter_id_card_data;
-        // }
-        // else if(file_name["doc_category"] == "Driving License"){
-        //     driving_license_data = driving_license_data;
-        // }
-        // else if(file_name["doc_category"] == "Voter Id proof"){
-        //     voter_id_card_data = voter_id_card_data;1
-        // }
-    
     }
 
     async function submit_photo(){
@@ -623,6 +622,7 @@
 
         }
             return await submit_basic_details(basic_sub_data);
+
         }    
   
     async function submitAddDets(){
@@ -921,6 +921,8 @@
             else{let aadhar_res = await submit_aadhar();}
             try{
                 if(sub_bas_res.body.status =="green"){
+                    toast_text = "Basic Details Submitted Successfully";
+                    toast_type = "success";
                     if($bgv_config_store.is_address_info_mandatory =="1"){
                     temp="b";
                     is_add_active = "active";
@@ -962,6 +964,8 @@
             console.log("sub_add_res",sub_add_res)
             try{
                 if(sub_add_res.body.status == "green"){
+                toast_text = "Address Details Submitted Successfully";
+                toast_type = "success";
                 if($bgv_config_store.is_pan_info_mandatory =="1"){
                 temp="c";
                 is_pan_active = "active";
@@ -996,6 +1000,8 @@
             
             try{
                 if(sub_pan_res.body.status =="green"){
+                toast_text = "Pan Card Details Submitted Successfully";
+                toast_type = "success";
                 if($bgv_config_store.is_driving_license_mandatory =="1"){
                 temp="d"
                 is_dl_active="active";
@@ -1023,6 +1029,8 @@
                 if(license_upload == "license_upload"){}
                 else{let licence = await submit_licence();}
                 if(sub_dl_res.body.status =="green"){
+                toast_text = "Licence Details Submitted Successfully";
+                toast_type = "success";
                 if($bgv_config_store.is_police_verification_mandatory =="1"){
                 temp="e"
                 is_pol_active="active";
@@ -1043,6 +1051,8 @@
             else{let police = await submit_police();}
             try{    
                 if(sub_pol_res.body.status =="green"){
+                toast_text = "Police Verification Details Submitted Successfully";
+                toast_type = "success";
                 temp="f";
                 }
             }

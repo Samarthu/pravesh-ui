@@ -86,42 +86,16 @@
                 pages = createPagesArray(total_pages)
                 // console.log("pagesRESULT",pages)
                 for(let pagination in pages){
-                 if(pagination <= 3 && pagination>0){
-                    console.log("PAGES") 
-                    // new_pages.push(pagination)
-                    
-                    mapped_pages=new_pages.map(Number)  
-                    console.log("mappedpagesRESULT inside",mapped_pages)
-                    
+                    if(pagination <= 3 && pagination>0){
+                        console.log("PAGES") 
+                        // new_pages.push(pagination)
+                        mapped_pages=new_pages.map(Number)  
+                        console.log("mappedpagesRESULT inside",mapped_pages)
+                        
+                    }
+            
                 }
-            
-            }
-                
-            
-    // async function clearedSearchFunc(){
-    // var new_drop_limit=parseInt(drop_limit)
-    // console.log("new_associate_data from cleared search function",new_vendor_type)
-    // new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending"}
-    // json_associate_new_data=JSON.stringify(new_associate_data);
-    // let cleared_search_res=await supplier_data(json_associate_data);
-    
-        // try{
-        //     if(cleared_search_res.body.status == "green"){
-        //         supplier_data_from_service = cleared_search_res.body.data.data_list;
-        //         total_count_associates = cleared_search_res.body.data.total_records;
-                // console.log("cleaed search ascadscvdvs",mapped_pages)
-                // filter_vendortype_res = await filter_vendortype_data();
-                // console.log("filter_vendortype_res",filter_vendortype_res)
-            /////tryyyy///////
-                
-        //         for(let pagination in pages){   
-        //             if(pagination <= 3 && pagination>0){
-        //                 console.log("HERE IN AFTER SEARCH CLEARED")
-        //                 new_pages.push(pagination)
-        //                 mapped_pages=new_pages.map(Number)
-        //                 console.log(mapped_pages)    
-        //     }
-        // }
+
             }
         }
         catch(err) {
@@ -232,9 +206,9 @@
     /////////from dashboard redirect with filter on///////////////
 else
     {
-    console.log("INside if blcok of paramString",paramString)
+    // console.log("INside if blcok of paramString",paramString)
     let new_paramString = decodeURI(paramString)
-    console.log("drop_limit inside urlString",drop_limit)
+    // console.log("drop_limit inside urlString",drop_limit)
     var new_drop_limit=parseInt(drop_limit)
     new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:new_paramString}
     json_associate_data=JSON.stringify(new_associate_data);
@@ -263,6 +237,7 @@ else
         
         // var new_drop_limit=parseInt(drop_limit)
         total_count_associates = res.body.data.total_records;
+        
         total_pages = Math.ceil(total_count_associates/new_drop_limit)
         pages = createPagesArray(total_pages)
         
@@ -316,68 +291,15 @@ else
     return arr
     }
 
-//     async function next_function(){
-//     var new_drop_limit=parseInt(drop_limit)
-//     offset=offset+limit;
-    
-//     new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending"}
-//     json_associate_new_data=JSON.stringify(new_associate_data);
-//     let next_res =await supplier_data(json_associate_new_data);
-
-//     // total_count_associates = next_res.body.data.total_records;
-//     // page_count = Math.ceil(total_count_associates/new_drop_limit)
-//     // console.log("page_count_______",page_count) 
-//     try{
-//             if(next_res.body.status == "green"){   
-//                 supplier_data_from_service = next_res.body.data.data_list;
-//             }
-//         }
-//         catch(err) {
-//         message.innerHTML = "Error is  " + err;
-//         }               
-    
-// }
-    
-//     async function previous_function(){
-//     var new_drop_limit=parseInt(drop_limit)
-//     offset=offset-limit;
-//     new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending"}
-//     json_associate_new_data=JSON.stringify(new_associate_data);
-//     let prev_res =await supplier_data(json_associate_new_data);
-//         try{
-//             if(prev_res.body.status == "green"){
-//             supplier_data_from_service = prev_res.body.data.data_list;
-//             }
-//         }
-//         catch(err) {
-//         message.innerHTML = "Error is  " + err;
-//         }
-//     }
-    // async function user_data () {
-    //     logged_user_data = await logged_user();
-    //     username = logged_user_data.body.data.user.name;
-    //     userid = logged_user_data.body.data.user.username;
-    //     console.log("username and useridddd",username,userid)
-    //     return username,userid;
-    //     }
     async function onboarded_check_func(){
         onboarded_by_me_checkbox = true;
-        
-        // try{
-            // if(onboarded_check_res.body.status == "green"){
-                // if(onboarded_by_me_checkbox == true){  
-                // user_data();
-                // async function user_data () {
-           
-                logged_user_data = await logged_user();
+            logged_user_data = await logged_user();
             try{
                 username = logged_user_data.body.data.user.name;
                 userid = logged_user_data.body.data.user.username;
                 console.log("username and useridddd",username,userid)
                 var new_drop_limit=parseInt(drop_limit)  
-                // new_new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending",username:username,userid:userid}
-                // }
-                // else{
+            
                     if(onboarded_by_me_checkbox == true){ 
                         console.log("inside if block onboarded_by_me_checkbox",username,userid)
                         new_new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending",username:username,userid:userid}  }
@@ -399,13 +321,7 @@ else
                 } 
             }
           
-        // catch(err) {
-        // message.innerHTML = "Error is  " + err;
-        // }
-
-    // }
     if(onboarded_by_me_checkbox == true){    
-    // user_data();
     new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending",username:username,userid:userid}
     }
     else{
@@ -458,10 +374,6 @@ else
         let page_res =await supplier_data(json_associate_new_data);
         supplier_data_from_service = page_res.body.data.data_list;
        }
-    //    else if(pagenumber>3 && pagenumber<total_pages){
-    //         pagenumber = pagenumber+1;
-    //         console.log("else if pagenumber",pagenumber)
-    //    }
        else{
         //    console.log("pagenumberrrr",pagenumber - 1)
            let new_offset = (pagenumber-1)*drop_limit
@@ -660,32 +572,11 @@ else
             total_count_associates = searchArray.length;
             console.log("searchK-----",total_count_associates)
             }
-            
-            // else{
-            //     // console.log("Inn else block of searc")
-            //     json_associate_new_data=JSON.stringify(new_associate_data);
-            //     let search_res = await supplier_data(json_associate_new_data);
-            //     // console.log(search_res)
-            //     supplier_data_from_service = search_res.body.data.data_list;
-            // }
+        
         }
         supplier_data_from_service = searchArray;
             // console.log("supplier_data_from_service inside filterresult",supplier_data_from_service)
     }
-    
-    // async function myFunc(){
-    // var input = document.getElementById("inputboxsearch").value;
-    
-    //    // console.log("Value of inputtttttttt",input)
-    //     // if(input == '')
-    //     // {
-    //     //     let prev_res =await supplier_data(json_associate_new_data);
-    //     //     supplier_data_from_service = prev_res.body.data.data_list;
-    //     //     total_count_associates = prev_res.body.data.total_records;
-    //     //    console.log("inside if cleared");
-    //     // }
-    // }
-
     async function dropdown_function(){
     // console.log("new_lllliiimmmiitttt",drop_limit)
     var new_drop_limit=parseInt(drop_limit)

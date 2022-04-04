@@ -12,22 +12,15 @@
     import { facility_document } from "../services/onboardsummary_services";
     import { audit_trail_data } from "../services/supplier_services";
     import { facility_data,facility_bgv_init,facility_bgv_check,all_facility_tags,
-        show_fac_tags,submit_fac_tag_data,remove_tag,tag_audit_trail,service_vendor} from "../services/onboardsummary_services";
+        show_fac_tags,submit_fac_tag_data,remove_tag,tag_audit_trail,service_vendor,
+        get_loc_scope,client_details} from "../services/onboardsummary_services";
+    
     import {get_date_format} from "../services/date_format_servives";
     import {facility_id} from "../stores/facility_id_store"
     import {facility_data_store} from "../stores/facility_store"
     import {bgv_config_store} from '../stores/bgv_config_store'
-<<<<<<< HEAD
     import Toast from './components/toast.svelte';
-    let toast_text = "";
-    let toast_type = null;
-=======
-import { object_without_properties } from "svelte/internal";
-<<<<<<< HEAD
-    import Toast from './components/toast.svelte';
-=======
->>>>>>> 54436c424e85f10637cc62b62184ac267060c36b
->>>>>>> f19355a6a8e3b0e72be1cfee9a7e7d6de59a05ab
+    import { object_without_properties } from "svelte/internal";
 
     let toast_text;
     let toast_type;
@@ -54,7 +47,8 @@ import { object_without_properties } from "svelte/internal";
     let all_tags_res;
     let text_pattern = /^[a-zA-Z_ ]+$/;
     let recrun_pattern =  /^[^-\s](?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9 _-]+)$/;
-    
+    let city_select;
+    let city_select_flag=0;
     let img_name="",bank_name="",type ="",cheque_date,cheque_number="",amount="",
     recrun_number="",file_number = "";
     let bank_name_message ="",type_message="",cheque_date_message="",cheque_number_message=""
@@ -62,6 +56,8 @@ import { object_without_properties } from "svelte/internal";
 
     let bank_details_res,bank_new_date,
     facility_modified_date,facility_created_date,facility_doc_date;
+    let client_det_res;
+    let client_det_arr=[]; 
     // $: cheque_date = new Date();
     let file_data;
     let showbtn = 0;
@@ -69,10 +65,11 @@ import { object_without_properties } from "svelte/internal";
     let facility_address,facility_postal,facility_password,city,location_id,status_name;
     let new_fac_remarks = [];
     let select_tag_data,serv_ch_data;
-   
+   let total_pages;
+   let pages=[];
     let tag_date,tag_remark;
     let tag_data_obj=[];
-
+    let city_data=[];
     //  let vendor_id,vendor_name; 
     let pan_num="-";
     let aadhar_num="-";
@@ -83,7 +80,8 @@ import { object_without_properties } from "svelte/internal";
    
     let aadhar_name = "Not Submitted",pan_name = "Not Submitted",dl_lic_name = "Not Submitted",address_name = "Not Submitted",
     can_check_name = "Not Submitted",gst_name = "Not added",offer_name="Not Submitted";
-    
+    let result;
+    let mapped_pages = [];
     let hidden_field ="hidden";
     // let facility_data_obj = {
     //     new_facility_id : facility_details_data[0].facility_id
@@ -104,17 +102,52 @@ import { object_without_properties } from "svelte/internal";
             
         }
     }
+    $:{
+        if(city_select != null && $facility_id.facility_id_number != null){
+        console.log("citySelect",city_select);
+        link_child(city_select)
+        }
+    }
+    $:new_pages = [];
+   
+    
+    
+    async function link_child(data){
+        client_det_res = await client_details(data);
+        try{
+            if(client_det_res.body.status == "green"){
+                for(let i=0;i<client_det_res.body.data.length;i++){
+                    for(let j=0;j<client_det_res.body.data.length;j++){
+                    client_det_arr.push(client_det_res.body.data[j]);
+                    
+                    }
+                
+                }
+                client_det_arr=client_det_arr;
+                console.log("client_det_arr",client_det_arr)
+                let total_pages = Math.ceil(client_det_arr.length/20);
+                pages = createPagesArray(total_pages)
+                console.log("pages",pages)
+                for(let pagination in pages){
+                    console.log("pagination",pagination)
+                    if(pagination <= 3 && pagination>0){
+                        console.log("new_pages",new_pages) 
+                        new_pages.push(pagination)
+                        mapped_pages=new_pages.map(Number)  
+                        console.log("mappedpagesRESULT inside",mapped_pages)
+                    }
+                }
+            }
+        }
+        catch(err){
+            console.log("No Facilities Found")
+        }
+        
+    }
 
     
 
     onMount(async () => {
-<<<<<<< HEAD
-        toast_text = "Toast Successfull";
-            toast_type = "success";
-=======
-        // toast_text = "Unable to verify Voter Id";
-        // toast_type = "error";
->>>>>>> f19355a6a8e3b0e72be1cfee9a7e7d6de59a05ab
         ///////bank details/////////////
         facility_id.set({
             facility_id_number: "CRUN00374"
@@ -145,18 +178,18 @@ import { object_without_properties } from "svelte/internal";
         let cheque_details_res = await cheque_details();
         try{
 
-            if(cheque_details_res.body.status == "green" && cheque_details_res != "null"){
-        // $cheque_data_from_store
-        console.log("cheque_details_res in SVELTE UI", cheque_details_res);
-        $cheque_data_to_store.cheque_details_data = cheque_details_res;
-        
-        cheque_data_to_store.subscribe((value) => {
-            cheque_values_from_store = value.cheque_details_data;
-        });
-    }
-}
-    catch(err) {
-        // message.innerHTML = "Error is " + err;
+                if(cheque_details_res.body.status == "green" && cheque_details_res != "null"){
+            // $cheque_data_from_store
+            console.log("cheque_details_res in SVELTE UI", cheque_details_res);
+            $cheque_data_to_store.cheque_details_data = cheque_details_res;
+            
+            cheque_data_to_store.subscribe((value) => {
+                cheque_values_from_store = value.cheque_details_data;
+            });
+            }
+        }
+        catch(err) {
+            // message.innerHTML = "Error is " + err;
         }
     
         /////////bank details/////////////
@@ -168,9 +201,7 @@ import { object_without_properties } from "svelte/internal";
         facility_document_data = facility_document_res.body.data;
         
         for (var i = 0; i < facility_document_data.length; i++) {
-        // if(!facility_document_data[i].doc_type){
-            
-        // }
+        
             if(facility_document_data[i].doc_type == "pan-photo"){
                 pan_num = facility_document_data[i].doc_number
                 pan_attach = facility_document_data[i].file_url
@@ -220,10 +251,10 @@ import { object_without_properties } from "svelte/internal";
             //     // can_check_verified = facility_document_data[i].verified;
             // }
 
-        }
             }
-    
-    }
+                }
+        
+        }
     catch(err) {
         // message.innerHTML = "Error is " + err;
         }
@@ -321,12 +352,22 @@ import { object_without_properties } from "svelte/internal";
     catch(err) {
         // message.innerHTML = "Error is " + err;
     }
+    let temp_res = await show_fac_tags($facility_data_store.facility_type);
+        try {
+                show_fac_array = temp_res.body.data;
+            }
+        catch(err){
+            console.log("Error in mount show_fac_array")
+        }
     
 
     // console.log("all_tags_data",all_tags_data,all_tags_id)
     
   });
-
+  
+    if(city_select_flag == "1"){
+        console.log("city_select",city_select)
+    }
 /////////bank details//////;///////
     const onFileSelected = (e) => {
         let img = e.target.files[0];
@@ -601,14 +642,14 @@ import { object_without_properties } from "svelte/internal";
         let tag_audit_res =await tag_audit_trail();
         try {
             if(tag_audit_res.body.status == "green"){
-            console.log("tag_audit_res",tag_audit_res);
+            
             tag_data_arr = tag_audit_res.body.data
             for(let i=0;i < tag_data_arr.length;i++){
                 let new_date =new Date(tag_data_arr[i].creation)
                 show_creation_date = get_date_format(new_date,"yyyy-mm-dd")
                 tag_data_arr[i].creation=show_creation_date;
             }
-            console.log("TAG DATA ARRA",tag_data_arr)
+            // console.log("TAG DATA ARRA",tag_data_arr)
             tag_data_arr = tag_data_arr;
                
         }} catch(err) {
@@ -695,13 +736,72 @@ import { object_without_properties } from "svelte/internal";
         chequeModel.style.display = "none";
     }
 
-    function linkChild() {
+    async function linkChild() {
         linkChildModel.style.display = "block";
+        let loc_data_res =  await get_loc_scope();
+       try {
+        if(loc_data_res.body.status == "green"){
+             // city_data = loc_data_res.body.data;
+             console.log("loc_data_res",loc_data_res)
+             for(let i=0;i<loc_data_res.body.data.length;i++){
+                city_data.push(loc_data_res.body.data[i].location_name);
+               
+            }
+            city_data = city_data;
+            
+        }
+        else{
+            console.log("No Data")
+        }
+        
+    } catch(err) {
+        console.log("Error in loc_data_res")
+       
+    }
     }
 
     function linkChildModelclose() {
         linkChildModel.style.display = "none";
     }
+
+    ////////////Pagination in Link Child///////////////
+    function next_function(){   
+        
+        let last_num_from_pages = pages.length
+        if(mapped_pages.includes(last_num_from_pages)){
+        }
+        else{  
+            for (var i = 0; i < mapped_pages.length; i++){       
+            mapped_pages[i] = mapped_pages[i] + 1;
+            }
+        }
+        // console.log("mapped_pagessss",mapped_pages)
+        // console.log("mapped_pagessss",mapped_pages[0])
+        pageChange(mapped_pages[2])
+    }
+    
+    function previous_function(){ 
+        let first_num_from_pages = pages[0];
+        if(mapped_pages.includes(first_num_from_pages)){}
+        else{
+            for (var i = 0; i < mapped_pages.length; i++){
+                mapped_pages[i] = mapped_pages[i] - 1;
+            }
+        }
+            pageChange(mapped_pages[0])
+    }
+
+    function pageChange(pagenumber){
+        console.log("pageChange Clicked")
+    }
+    function createPagesArray(total) {
+    let arr = []
+    for(let i = 1; i <= total; i++) {
+        arr.push(i)
+    }
+    return arr
+    }
+
 </script>
 
 <div class="mainContent ">
@@ -5685,7 +5785,7 @@ import { object_without_properties } from "svelte/internal";
                             </p>
                             <p class="text-sm ">
                                 <span class="font-medium text-lg">
-                                    Dhiraj Shah</span
+                                    {$facility_data_store.facility_name}</span
                                 >
                                 <span class="userDesignation">
                                     - Associate- {$facility_data_store.facility_type}, MHPD - Mulsi
@@ -6266,7 +6366,7 @@ import { object_without_properties } from "svelte/internal";
                             </p>
                             <p class="text-sm ">
                                 <span class="font-medium text-lg">
-                                    Dhiraj Shah</span
+                                    {$facility_data_store.facility_name}</span
                                 >
                                 <span class="userDesignation">
                                     - Associate- {$facility_data_store.facility_type}, MHPD - Mulsi
@@ -6293,8 +6393,11 @@ import { object_without_properties } from "svelte/internal";
                                             <div class="detailLbale">
                                                 Tags added for this Associate
                                                 <span class="detailData ">
-                                                    3P Associate Not to be Paid
-                                                    , P 30</span
+                                                    <!-- <p>{show_fac_array}</p> -->
+                                                    {#each show_fac_array as show_fac}
+                                                       {show_fac.tag_name} ,
+                                                    {/each}
+                                                    </span
                                                 >
                                             </div>
                                         </div>
@@ -6309,10 +6412,16 @@ import { object_without_properties } from "svelte/internal";
                                                 on:click={() => {
                                                     child = "linkchild2";
                                                 }}
+                                                bind:value={city_select}
                                             >
                                                 <option class="pt-6"
                                                     >Select</option
                                                 >
+                                                {#each city_data as new_city}
+                                                <option class="pt-6"
+                                                    >{new_city}</option
+                                                >
+                                                {/each}
                                             </select>
                                             <div class="formSelectArrow ">
                                                 <img
@@ -6356,7 +6465,21 @@ import { object_without_properties } from "svelte/internal";
                                                 {/if}
 
                                                 {#if child == "linkchild2"}
+                                                {#each client_det_arr as client_detail}
                                                     <tr class="border-b">
+                                                        <td>{client_detail.facility_name}</td
+                                                        >
+                                                        <td>{client_detail.name}</td>
+                                                        <td>{client_detail.station_code}</td>
+                                                        <td>{client_detail.phone_number}</td>
+                                                        <td
+                                                            ><input
+                                                                type="checkbox"
+                                                                class=" checked:bg-blue-500 ..."
+                                                            /></td
+                                                        >
+                                                    </tr>
+                                                    <!-- <tr class="border-b">
                                                         <td>
                                                             Avinash Gopal Katari</td
                                                         >
@@ -6369,24 +6492,46 @@ import { object_without_properties } from "svelte/internal";
                                                                 class=" checked:bg-blue-500 ..."
                                                             /></td
                                                         >
-                                                    </tr>
-                                                    <tr class="border-b">
-                                                        <td>
-                                                            Avinash Gopal Katari</td
-                                                        >
-                                                        <td>EFAU00088</td>
-                                                        <td>BOMG</td>
-                                                        <td>7620350909</td>
-                                                        <td
-                                                            ><input
-                                                                type="checkbox"
-                                                                class=" checked:bg-blue-500 ..."
-                                                            /></td
-                                                        >
-                                                    </tr>
+                                                    </tr> -->
+                                                    {/each}
                                                 {/if}
                                             </tbody>
                                         </table>
+                                        <div class="paginationButton">
+                                            <nav aria-label="Page navigation">
+                                                <ul class="pagiWrapper ">
+                                                    <li>
+                                                        <button class="preNextbtn"on:click={previous_function}>
+                                                            Previous</button
+                                                        >
+                                                        <!-- <button on:click={setValuechange}>value change</button> -->
+                                                    </li>
+                                                    
+                                                        {#if result === false}
+                                                        <li >
+                                                            <button id = "curr_page" class="pagiItemsNumber">
+                                                            1
+                                                            </button>
+                                                            </li>
+                                                        {:else}
+                                                        {#each mapped_pages as page}
+                                                        
+                                                        <li >
+                                                            <button id = "curr_page" class="pagiItemsNumber" on:click="{pageChange(page)}">
+                                                            {page}
+                                                            </button>
+                                                        </li>
+                                                        {/each}
+                                                        {/if}
+                                                    <li>
+                                                        <button class="preNextbtn" on:click={next_function}>
+                                                            Next</button
+                                                        >
+                                                    </li>
+                                                </ul>
+                                            </nav>
+                                        </div>
+                                
                                         <div class="text-right mt-3">
                                             <button
                                                 class="ErBlueButton"
@@ -6485,7 +6630,3 @@ import { object_without_properties } from "svelte/internal";
     </div>
 </div>
 <Toast type={toast_type}  text={toast_text}/>
-<<<<<<< HEAD
-
-=======
->>>>>>> f19355a6a8e3b0e72be1cfee9a7e7d6de59a05ab
