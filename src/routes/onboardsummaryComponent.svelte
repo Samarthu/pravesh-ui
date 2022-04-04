@@ -75,7 +75,7 @@
     onMount(async () => {
         ///////bank details/////////////
         facility_id.set({
-            facility_id_number: "MHPD00001"
+            facility_id_number: "CRUN00978"
         })
         // console.log("facility_id_number",$facility_id.facility_id_number)
 

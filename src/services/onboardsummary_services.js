@@ -58,7 +58,7 @@ const addnew_cheque_details = (data) =>{
 }
 
 const facility_document = () =>{
-    let facility_document_url = '/api/method/pravesh.facility.routes.document.get_all_facility_documents?facility_id=" '+ new_facility_id+''
+    let facility_document_url = '/api/method/pravesh.facility.routes.document.get_all_facility_documents?facility_id='+ new_facility_id+''
     return request(
         facility_document_url, {
         method: "GET",
