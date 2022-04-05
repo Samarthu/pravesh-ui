@@ -2048,49 +2048,6 @@ ul.menuList li a.active span{
     outline-offset: 2px
   }
 
-<<<<<<< HEAD
-
-  /* Verify Background Basic Details */
-
-.tabforDoc{
-    @apply flex items-center gap-5 mb-4 xsl:gap-2
-}
-.tabforDocItem{
-    @apply border rounded-lg w-20 h-20 xsl:w-16 xsl:h-16 flex justify-center items-center cursor-pointer mx-auto
-}
-
-#hidden{
-    display: hidden;
-}
-
-
-.tabforDoc  .active{
-border: 2px solid #B5B5B5;
-}
-
-
-
-
-
-
-.vmtRejected{
-    display: flex;
-    cursor: pointer;
-    border-radius: 0.25rem;
-    --tw-bg-opacity: 1;
-    background-color: rgba(255, 0, 0, var(--tw-bg-opacity));
-    padding-left: 1.75rem;
-    padding-right: 1.75rem;
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-    font-size: 1.125rem;
-    line-height: 1.75rem;
-    font-weight: 700;
-    --tw-text-opacity: 1;
-    color: rgba(255, 255, 255, var(--tw-text-opacity))
-  }
-  
-=======
 /* toast msg */
 
 .toast-success-msg{
@@ -2175,4 +2132,3 @@ border: 2px solid #B5B5B5;
     }
 
 
->>>>>>> a241918d401598c476e7c350ba855d24fc8508ad

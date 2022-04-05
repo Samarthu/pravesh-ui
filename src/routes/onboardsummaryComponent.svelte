@@ -44,6 +44,7 @@
     let show_fac_array = [];
     let tag_data_arr = [];
     let show_creation_date;
+    
     let all_tags_res;
     let text_pattern = /^[a-zA-Z_ ]+$/;
     let recrun_pattern =  /^[^-\s](?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9 _-]+)$/;
@@ -108,6 +109,10 @@
         link_child(city_select)
         }
     }
+    let searchTerm;
+    $:if(searchTerm == ''){
+        clearedSearchFunc();
+    }
     $:new_pages = [];
    
     
@@ -121,11 +126,10 @@
                     client_det_arr.push(client_det_res.body.data[j]);
                     
                     }
-                
                 }
                 client_det_arr=client_det_arr;
                 console.log("client_det_arr",client_det_arr)
-                let total_pages = Math.ceil(client_det_arr.length/20);
+                total_pages = Math.ceil(client_det_arr.length/20);
                 pages = createPagesArray(total_pages)
                 console.log("pages",pages)
                 for(let pagination in pages){
@@ -145,8 +149,66 @@
         
     }
 
-    
 
+    function SearchClick() {
+        searchBox.style.display = "block";
+        supplierCount.style.display = "none";
+        SearchClick.style.display = "none";
+        searchBox.style.width = "100%";
+        inputboxsearch.style.width = "100%";
+    };
+
+    function closeSearch() {
+        supplierCount.style.display = "block";
+        searchBox.style.display = "none";
+        SearchClick.style.display = "block";
+    };
+
+    const enterKeyPress = e => {
+        if (e.charCode === 13) {
+            filterResults();
+        }
+    };
+
+    async function clearedSearchFunc(){
+        let client_det_res=await client_details(city_select);
+        try{
+            if(client_det_res.body.status == "green"){
+                for(let i=0;i<client_det_res.body.data.length;i++){
+                    for(let j=0;j<client_det_res.body.data.length;j++){
+                        client_det_arr.push(client_det_res.body.data[j]);
+                    }
+                }
+                client_det_arr=client_det_arr;
+                result = true;
+                total_pages = Math.ceil(client_det_arr.length/20);  
+                pages = createPagesArray(total_pages)
+                for(let pagination in pages){
+                    if(pagination <= 3 && pagination>0){
+                        console.log("PAGES")
+                        mapped_pages=new_pages.map(Number) 
+                    }
+                }
+            }
+        }
+        catch(err) {
+            message.innerHTML = "Error is " + err;
+        }
+    }
+    async function filterResults(){
+        let searchArray= [];
+        for(let searchK  of client_det_arr){
+            const search_client = searchK.facility_name
+             result=search_client.toLowerCase().includes(searchTerm.toLowerCase());
+            if(result === true){
+            console.log("pages in search array",pages)
+            mapped_pages.length=0
+            searchArray = [...searchArray,searchK]
+            }
+        }
+        client_det_arr = searchArray;
+    }
+    
     onMount(async () => {
         ///////bank details/////////////
         facility_id.set({
@@ -6402,6 +6464,8 @@
                                             </div>
                                         </div>
                                     </div>
+                                   
+                                
                                     <div class="flex  py-3 items-center ">
                                         <div class="light14grey mb-1">
                                             Select Location
@@ -6432,7 +6496,54 @@
                                             </div>
                                         </div>
                                     </div>
-
+                                    <div class="searchSupplier " id="searchBox">
+                                        <div class="formInnerGroup ">
+                                            <!-- <span class="searchicon">
+                                                <img
+                                                    src="../src/img/search.svg"
+                                                    class="placeholderIcon"
+                                                    alt=""
+                                                    on:click="{filterResults}"/>
+                                            </span> -->
+                                            <span class="searchicon">
+                                                <img
+                                                    src="../src/img/search.svg"
+                                                    class="placeholderIcon"
+                                                    alt=""
+                                                   />
+                                            </span>
+                                            <input bind:value="{searchTerm}"
+                                                class="inputboxsearch"
+                                                id="inputboxsearch"
+                                                placeholder="Search"
+                                                on:keypress="{enterKeyPress}"
+                                                
+                                            />
+                                            <!-- <input
+                                                    placeholder="Type some gibberish here"
+                                                    id="text"
+                                                    on:input={myFunc}
+                                            > -->
+                                            <div class="serchCloseIconSection " id="">
+                                                <div class="closeIconCon " on:click="{closeSearch}">
+                                                    <img
+                                                        src="../src/img/closeSearch.svg"
+                                                        class="w-4 h-auto"
+                                                        alt=""
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class=" searchClickbtn" on:click="{SearchClick}" >
+                                        <p class="searchIconPlace">
+                                            <img
+                                                src="../src/img/search.svg"
+                                                class="placeholderIcon"
+                                                alt=""
+                                            />
+                                        </p>
+                                    </div>
                                     <div class="OtherAppliedTagsTable ">
                                         <table
                                             class="table  w-full text-center mt-2 xs:hidden sm:hidden"
