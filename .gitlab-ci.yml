@@ -13,3 +13,4 @@ beta-deploy:
   tags:
     - beta
     - aws
+    - beta-release
