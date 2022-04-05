@@ -1,0 +1,17 @@
+FROM node:14-alpine3.10 as builder
+
+# install dependencies
+WORKDIR /pravesh-ui
+ENV GIT_SSL_NO_VERIFY=true
+COPY package.json ./
+RUN npm install
+
+# Copy all local files into the image.
+COPY . /pravesh-ui
+
+RUN cd /pravesh-ui && npm run build
+
+FROM nginx:alpine
+WORKDIR /usr/share/nginx/html
+COPY --from=builder /pravesh-ui/build/ ./pravesh-ui
+ENV SERVER_TARGET=https://doha-crun.elasticrun.in
