@@ -13,4 +13,5 @@ beta-deploy:
   tags:
     - beta
     - aws
+    - aks-doha-npk8s-app-common-3
 
