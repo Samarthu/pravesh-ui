@@ -2,14 +2,10 @@
   "name": "pravesh",
   "version": "0.0.1",
   "scripts": {
-    "dev:only": "svelte-kit dev",
-    "build:only": "svelte-kit build",
-    "preview": "svelte-kit preview",
-    "tailwind:watch": "cross-env TAILWIND_MODE=watch cross-env NODE_ENV=development postcss src/styles/tailwind.css -o src/styles/tailwind-output.css -w",
-    "tailwind:build": "cross-env TAILWIND_MODE=build cross-env NODE_ENV=production postcss src/styles/tailwind.css -o src/styles/tailwind-output.css",
-    "dev": "concurrently \"yarn run dev:only\" \"yarn run tailwind:watch\"",
-    "build": "postcss ./src/styles/tailwind.css -o ./src/styles/tailwind-output.css"
-  },
+		"dev": "svelte-kit dev",
+		"preview": "svelte-kit preview",
+		"build": "svelte-kit build"
+	},
   "devDependencies": {
     "@sveltejs/adapter-static": "^1.0.0-next.20",
     "@sveltejs/kit": "next",
