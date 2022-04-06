@@ -140,11 +140,12 @@
 
     let routeNew = "";
 
-    export let url = "/bussines";;
+    export let url = "/bussines";
 
     function routeToBussiness() {
         let replaceState = false;
-        goto(routeNew, { replaceState });
+        console.log(routeNew)
+        goto("/pravesh-ui/bussiness", { replaceState });
     }
 
     // routeNew = "/bussines";
@@ -193,7 +194,7 @@
             <p class="pt-5 pb-5">
                 <span class=" pr-1 text-font32 font-medium xs:text-2xl">Dashboard</span> 
             </p>
-            <p on:click={routeToBussiness}>
+            <p on:click={()=>routeToBussiness()}>
                 <a href="#" class="newonboard "> Onboard<span class="xs:hidden"> New</span> <img src="../src/img/useradd.svg" class="pl-2" alt=""></a>
             </p>
             
@@ -353,7 +354,7 @@
         <div class="activeProfile xs:w-full">
                 <div class="activeProfileWrapper w-w325 xs:w-full">
                         <div class="headingCount ">
-                            <p class="cardhead">Active Profiles</p>
+                            <p class="cxardhead">Active Profiles</p>
                             <p class="cardhead">{active}</p>
                         </div>
                         <div class="venderHead plr ">

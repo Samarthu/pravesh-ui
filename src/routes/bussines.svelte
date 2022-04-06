@@ -40,7 +40,7 @@
             console.log("verticles api response",response);
         org_list = response.body.data;
         console.log(org_list);
-        toast_type = "success";
+        toast_type = "warning";
         toast_text = "verticles fetched success"
         
         }
@@ -247,7 +247,7 @@
                         </a>
                     </div> -->
 
-                    <div class="bg-corporate cardItems">
+                    <!-- <div class="bg-corporate cardItems">
                         <a href="">
                             <div class="cardContainer">
                                 <div class="cardImage">
@@ -272,7 +272,7 @@
                                 </div>
                             </div>
                         </a>
-                    </div>
+                    </div> -->
                     
                 </div>
                 <!-- <div>
