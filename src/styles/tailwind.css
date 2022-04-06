@@ -2132,7 +2132,6 @@ ul.menuList li a.active span{
     }
 
 
-<<<<<<< HEAD
 .vmtRejected{
     display: flex;
     cursor: pointer;
@@ -2233,5 +2232,3 @@ ul.menuList li a.active span{
         @apply relative bg-white rounded-lg shadow  py-10
     }
   
-=======
->>>>>>> 0e3937aa912ff6759bb59f5ff653a7190fa28c6a
