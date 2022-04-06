@@ -100,7 +100,7 @@
         user_id: null,
     };
     onMount(async () => {
-        page_name = $page.url["pathname"].substring(1);
+        page_name = $page.url["pathname"].split("/").pop();
         console.log("page name on identity", page_name);
     });
     // let driving_lice
@@ -340,7 +340,7 @@
         $facility_data_store.facility_email = "testing@nomail.com";
         $facility_data_store.facility_id = "tejas_bhosale_mhpd";
         $facility_data_store.facility_name = "tejas bhosale";
-        $facility_data_store.facility_type = "DA";
+        $facility_data_store.facility_type = "HDA";
         $facility_data_store.msme_registered = "1";
         $facility_data_store.org_id = "AN";
         $facility_data_store.owner_name = "tejas bhosale";

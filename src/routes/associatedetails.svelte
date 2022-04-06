@@ -103,7 +103,7 @@
     let work_address_address_message = "";
     let work_address_postal_message = "";
     onMount(async () => {
-        page_name = $page.url["pathname"].substring(1);
+        page_name = $page.url["pathname"].split("/").pop();
         console.log("page_name", page_name);
         function get_max_date() {
             let current_date = new Date();

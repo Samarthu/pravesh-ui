@@ -93,7 +93,7 @@
         // console.log("temp_res",temp_res)
         // let result = await temp_res.json();
         // console.log("TEMP RESULT",result)
-        page_name = $page.url["pathname"].substring(1);
+        page_name = $page.url["pathname"].split("/").pop();
         console.log("bank pahge name", page_name);
     });
 

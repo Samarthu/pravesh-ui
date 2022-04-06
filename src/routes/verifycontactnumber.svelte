@@ -45,7 +45,7 @@ let countdown = 10;
 
 onMount(async () => {
 
-    page_name =  $page.url["pathname"].substring(1);
+    page_name =  $page.url["pathname"].split("/").pop();
 
 
 })

@@ -235,7 +235,8 @@
         // });
 
         
-        page_name =  $page.url["pathname"].substring(1);
+        page_name =  $page.url["pathname"].split("/").pop();
+        // url.split("/").pop()
         console.log("page_name",page_name);
         console.log("window location",window.location.href);
         let get_pravesh_properties_response = await get_pravesh_properties_method();
