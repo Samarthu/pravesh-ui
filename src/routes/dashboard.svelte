@@ -8,6 +8,8 @@
     import {current_user} from '../stores/current_user_store';
     // import {dashboard_details} from '../stores/dashboard_store';
     import Supplier from './supplier.svelte';
+    import {goto_wrapper} from '../services/goto_wrapper';
+    
     
     let active;
     // let background_verification_pending;
@@ -140,12 +142,13 @@
 
     let routeNew = "";
 
-    export let url = "/bussines";
+    // export let url = "/bussines";
 
     function routeToBussiness() {
         let replaceState = false;
         console.log(routeNew)
         goto("/pravesh-ui/bussiness", { replaceState });
+        // goto_wrapper("bussiness",{ replaceState });
     }
 
     // routeNew = "/bussines";

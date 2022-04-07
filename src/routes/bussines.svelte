@@ -5,6 +5,7 @@
     import { goto } from "$app/navigation";
     import {get_verticles_fun} from '../services/business_vertical_services';
     import {vercticle_name} from '../stores/verticle_store';
+    import {goto_wrapper} from '../services/goto_wrapper';
     import Toast from './components/toast.svelte';
     
     import {get_verticles_ui_fun} from '../services/business_vertical_services';
@@ -30,6 +31,7 @@
         
         
         let replaceState = false;
+        // goto_wrapper("organisation-selection",{ replaceState });
         goto("organisation-selection", { replaceState });
 
         // alert("button clicked");
@@ -40,8 +42,8 @@
             console.log("verticles api response",response);
         org_list = response.body.data;
         console.log(org_list);
-        toast_type = "warning";
-        toast_text = "verticles fetched success"
+        // toast_type = "warning";
+        // toast_text = "verticles fetched success"
         
         }
         else{
