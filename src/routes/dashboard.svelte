@@ -152,8 +152,8 @@
 
     function routeToBussiness() {
         let replaceState = false;
-        console.log(routeNew)
-        goto("/pravesh-ui/bussiness", { replaceState });
+        // console.log(routeNew)
+        goto("/bussiness", { replaceState });
         // goto_wrapper("bussiness",{ replaceState });
     }
 
