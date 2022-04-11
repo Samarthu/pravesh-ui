@@ -48,6 +48,7 @@ const verify_associate_email = () =>{
     facility_data_store.subscribe(value => {
         email = value.facility_email;
     });
+    return request(verify_associate_email_link,{mode: 'no-cors'},true,false,"GET")
     if(email != undefined || email != null || email != ""){
         return request(verify_associate_email_link,{mode: 'no-cors'},true,false,"GET")
 

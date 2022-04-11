@@ -30,6 +30,12 @@
     
     // console.log(dashboard)
     onMount(async () =>{
+        console.log("href", window.location);
+        if(window.location.pathname == "/pravesh-ui"){
+            window.location.href = window.location.href+"/dashboard";
+        }
+        // window.location.href = window.location.href+"/dashboard";
+    
 
         // let temp_res = await fetch("https://elasticrun.in/ifscapi/KARB0000001")
         // console.log("temp_res",temp_res)

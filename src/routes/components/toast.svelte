@@ -15,6 +15,7 @@
         console.log("text",text);
         // countdown = 10;
         flag = true;
+        duration = 10;
         if(flag){
             start_countdown();
             duration = 10;
@@ -35,6 +36,7 @@
         clearInterval(timer);
         // resend_flag = true;
         type = null;
+        text = null;
         timer = null;
         duration = null;
         // console.log("inside reactive");

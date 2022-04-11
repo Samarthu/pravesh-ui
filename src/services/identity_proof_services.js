@@ -15,6 +15,7 @@ let save_facility_api_url = '/api/method/pravesh.facility.routes.facility.save_f
 let save_or_update_documents_api_url = '/api/method/pravesh.facility.routes.document.save_or_update_documents';
 
 
+
 let check_bgv_config_api_url ;
 let BGV_api_url ;
 check_bgv_config_api_link.subscribe(value => {
