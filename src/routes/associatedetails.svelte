@@ -14,6 +14,7 @@
     import { documents_store } from "../stores/document_store";
     import { allowed_pdf_size } from "../services/pravesh_config";
     import Side_content_component from "./side_content_scetion.svelte";
+    import {img_url_name} from '../stores/flags_store';
     import { page } from "$app/stores";
     import Toast from "./components/toast.svelte";
     let toast_text = "";

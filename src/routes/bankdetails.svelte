@@ -25,6 +25,7 @@
     } from "../services/identity_proof_services";
     import { get_current_user_function } from "../services/dashboard_services";
     import { save_flag } from "../stores/flags_store";
+    import {img_url_name} from '../stores/flags_store';
     import Toast from "./components/toast.svelte";
     let toast_text = "";
     let toast_type = null;
