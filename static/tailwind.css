@@ -2231,4 +2231,42 @@ ul.menuList li a.active span{
     .OnboardDialogueModalContent{
         @apply relative bg-white rounded-lg shadow  py-10
     }
+
+.leaderWrapper {
+        position: fixed;
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        align-items: center;
+        height: 100%;
+        background: #000000d9;
+    }
+
+.loader {
+        border: 6px solid #dad7d7;
+        border-radius: 50%;
+        border-top: 6px solid #374ea2;
+        width: 60px;
+        height: 60px;
+        -webkit-animation: spin 1s linear infinite; /* Safari */
+        animation: spin 1s linear infinite;
+        background: white;
+      }
+.praveshlogo{
+        position: absolute;
+        z-index: 9999;
+        width: 30px;
+      }
+      
+/* Safari */
+    @-webkit-keyframes spin {
+        0% { -webkit-transform: rotate(0deg); }
+        100% { -webkit-transform: rotate(360deg); }
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
   

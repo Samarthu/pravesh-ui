@@ -11,6 +11,7 @@
     
     import {get_verticles_ui_fun} from '../services/business_vertical_services';
     import Breadcrumb from "./breadcrumb.svelte";
+    
 
     let org_list= [];
     let verticle_list = [];
