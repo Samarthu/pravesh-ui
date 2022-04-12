@@ -232,7 +232,7 @@ export const handleResponse = async (response) =>{
   if(response.status == 403){
     let domain_name = window.location.hostname;
     console.log('domain',domain_name);
-    const res = await request('/api/method/attendance.override_build_page_for_login_for_oauth?path=login&redirect-to=https://'+domain_name+'/pravesh-ui/&only_url=true',{
+    const res = await request('attendance.override_build_page_for_login_for_oauth?path=login&redirect-to=https://'+domain_name+'/pravesh-ui/&only_url=true',{
             // mode: 'no-cors'
          });
          console.log('res',res);
