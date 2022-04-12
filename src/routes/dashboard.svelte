@@ -6,6 +6,7 @@
     import {get_current_user_function} from '../services/dashboard_services';
     import {dashboard_data,get_fac_count} from '../services/dashboard_services';
     import {current_user} from '../stores/current_user_store';
+    import {img_url_name} from '../stores/flags_store';
     // import {dashboard_details} from '../stores/dashboard_store';
     import Supplier from './supplier.svelte';
     import {goto_wrapper} from '../services/goto_wrapper';
@@ -204,7 +205,7 @@
                 <span class=" pr-1 text-font32 font-medium xs:text-2xl">Dashboard</span> 
             </p>
             <p on:click={()=>routeToBussiness()}>
-                <a href="#" class="newonboard "> Onboard<span class="xs:hidden"> New</span> <img src="../src/img/useradd.svg" class="pl-2" alt=""></a>
+                <a href="#" class="newonboard "> Onboard<span class="xs:hidden"> New</span> <img src="{$img_url_name.img_name}/useradd.svg" class="pl-2" alt=""></a>
             </p>
             
         </div>
@@ -221,7 +222,7 @@
                     <div class="cardAction " on:click={id_proof_clicked}>
                         <div class="cardContentText flex">
                         <div class="cardimg mr-3">
-                            <img src="../src/img/idproofRejected.png" alt="">
+                            <img src="{$img_url_name.img_name}/idproofRejected.png" alt="">
                         </div>
                             <div class="content">
                             <h1 class="dashHeading ">ID Proof Rejected</h1>
@@ -237,7 +238,7 @@
                     <div class="cardAction" on:click={bank_details_rejected_clicked}>
                         <div class="cardContentText flex">
                         <div class="cardimg mr-3">
-                            <img src="../src/img/bankdetails.png" alt="">
+                            <img src="{$img_url_name.img_name}/bankdetails.png" alt="">
                         </div>
                             <div class="content">
                             <h1 class="dashHeading ">Bank Details Rejected</h1>
@@ -253,7 +254,7 @@
                     <div class="cardAction " on:click={bgv_pending_clicked}>
                         <div class="cardContentText flex">
                         <div class="cardimg mr-3">
-                            <img src="../src/img/bgv.png" alt="">
+                            <img src="{$img_url_name.img_name}/bgv.png" alt="">
                         </div>
                             <div class="content">
                             <h1 class="dashHeading ">BGV Pending</h1>
@@ -269,7 +270,7 @@
                     <div class="cardActionsaved">
                         <div class="cardContentText flex">
                         <div class="cardimg mr-3">
-                            <img src="../src/img/saved.png" alt="">
+                            <img src="{$img_url_name.img_name}/saved.png" alt="">
                         </div>
                             <div class="content">
                             <h1 class="dashHeading ">Saved</h1>
@@ -294,7 +295,7 @@
                     <div class="cardActionother" on:click={id_verification_pending_clicked}>
                         <div class="cardContentText flex">
                         <div class="cardimg mr-3">
-                            <img src="../src/img/pendingid.png" alt="">
+                            <img src="{$img_url_name.img_name}/pendingid.png" alt="">
                         </div>
                             <div class="content">
                             <h1 class="dashHeading ">Pending ID Proof Verification</h1>
@@ -310,7 +311,7 @@
                     <div class="cardActionother "  on:click={bank_verification_pending_clicked}>
                         <div class="cardContentText flex">
                         <div class="cardimg mr-3">
-                            <img src="../src/img/pendingbank.png" alt="">
+                            <img src="{$img_url_name.img_name}/pendingbank.png" alt="">
                         </div>
                             <div class="content">
                             <h1 class="dashHeading ">Pending Bank Verification</h1>
@@ -326,7 +327,7 @@
                     <div class="cardActionother "   on:click={pending_offer_clicked}>
                         <div class="cardContentText flex">
                         <div class="cardimg mr-3">
-                            <img src="../src/img/pendingletter.png" alt="">
+                            <img src="{$img_url_name.img_name}/pendingletter.png" alt="">
                         </div>
                             <div class="content">
                             <h1 class="dashHeading ">Pending Offer Letter</h1>
@@ -342,7 +343,7 @@
                     <div class="cardAction " on:click={bgv_rejected_clicked}>
                         <div class="cardContentText flex">
                         <div class="cardimg mr-3">
-                            <img src="../src/img/bvgreject.png" alt="">
+                            <img src="{$img_url_name.img_name}/bvgreject.png" alt="">
                         </div>
                             <div class="content">
                             <h1 class="dashHeading ">BGV Rejected</h1>
@@ -367,7 +368,7 @@
                             <p class="cardhead">{active}</p>
                         </div>
                         <div class="venderHead plr ">
-                            <p class="venderheadText "><img src="../src/img/manager.svg" class="pr-p15" alt=""> Vendors</p>
+                            <p class="venderheadText "><img src="{$img_url_name.img_name}/manager.svg" class="pr-p15" alt=""> Vendors</p>
                         </div>
                         <div class="venderHead plr ">
                         
@@ -385,7 +386,7 @@
                     
 
                         <div class="venderHead plr mt-4">
-                            <p class="venderheadText "><img src="../src/img/workforce.svg" class="pr-p15" alt=""> Workforce</p>
+                            <p class="venderheadText "><img src="{$img_url_name.img_name}/workforce.svg" class="pr-p15" alt=""> Workforce</p>
                         </div>
                         <div class="venderHead plr ">
                             <ul >

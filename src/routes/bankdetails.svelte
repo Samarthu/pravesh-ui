@@ -609,7 +609,7 @@
                 >
                 <span class="flex xs:text-base xs:items-center"
                     ><img
-                        src="../src/img/delivery.png"
+                        src="{$img_url_name.img_name}/delivery.png"
                         class="pr-2.5 pl-5 xs:pl-0"
                         alt=""
                     /> NDA/DA/HDA
@@ -641,7 +641,7 @@
                             <p class="contentDescriptionText ">Submit associate work details</p>
                         </div>
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="">
+                            <img src="{$img_url_name.img_name}/checked.png" alt="">
                         </div>
                     </a>
                 </li> -->
@@ -668,7 +668,7 @@
                             <p class="contentDescriptionText">Verify associate by OTP</p>
                         </div>
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="">
+                            <img src="{$img_url_name.img_name}/checked.png" alt="">
                         </div>
                     </a>
                 </li> -->
@@ -686,7 +686,7 @@
                             <p class="contentDescriptionText">Submit basic details of the associate</p>
                         </div>
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="">
+                            <img src="{$img_url_name.img_name}/checked.png" alt="">
                         </div>
                     </a>
                 </li> -->
@@ -719,7 +719,7 @@
                             <p class="contentDescriptionText">Upload identity proof documents</p>
                         </div>
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="">
+                            <img src="{$img_url_name.img_name}/checked.png" alt="">
                         </div>
                     </a>
                 </li> -->
@@ -759,7 +759,7 @@
                             <p class="contentDescriptionText">Submit bank details and documents</p>
                         </div>
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="">
+                            <img src="{$img_url_name.img_name}/checked.png" alt="">
                         </div>
                     </a>
                 </li> -->
@@ -793,7 +793,7 @@
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/bank.png"
+                                            src="{$img_url_name.img_name}/bank.png"
                                             class="placeholderIcon"
                                             alt=""
                                         />
@@ -860,7 +860,7 @@
                         <label class="formLable ">Bank Details<span class="mandatoryIcon">*</span></label>
                         <div class="formInnerGroup ">
                             <span class="searchicon">
-                                <img src="../src/img/bank.png" class="placeholderIcon"
+                                <img src="{$img_url_name.img_name}/bank.png" class="placeholderIcon"
                                     alt="">
                             </span>
                             <select class="inputbox">
@@ -870,7 +870,7 @@
                                 <option>SIB</option>
                             </select>
                             <div class="formSelectArrow ">
-                                <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
                             </div>
                         </div>
                     </div>
@@ -885,7 +885,7 @@
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/account.png"
+                                            src="{$img_url_name.img_name}/account.png"
                                             class="placeholderIcon"
                                             alt=""
                                         />
@@ -919,7 +919,7 @@
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/account.png"
+                                            src="{$img_url_name.img_name}/account.png"
                                             class="placeholderIcon"
                                             alt=""
                                         />
@@ -954,7 +954,7 @@
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/account.png"
+                                            src="{$img_url_name.img_name}/account.png"
                                             class="placeholderIcon"
                                             alt=""
                                         />
@@ -1001,7 +1001,7 @@
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/bank.png"
+                                            src="{$img_url_name.img_name}/bank.png"
                                             class="placeholderIcon"
                                             alt=""
                                         />
@@ -1021,7 +1021,7 @@
                                     </select>
                                     <div class="formSelectArrow ">
                                         <img
-                                            src="../src/img/selectarrow.png"
+                                            src="{$img_url_name.img_name}/selectarrow.png"
                                             class="w-5 h-auto"
                                             alt=""
                                         />
@@ -1049,7 +1049,7 @@
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/bank.png"
+                                            src="{$img_url_name.img_name}/bank.png"
                                             class="placeholderIcon"
                                             alt=""
                                         />
@@ -1104,7 +1104,7 @@
                                                     delete_files(
                                                         blank_cheque_data
                                                     )}
-                                                src="../src/img/blackclose.svg"
+                                                src="{$img_url_name.img_name}/blackclose.svg"
                                                 alt=""
                                             />
                                         {/if}
@@ -1149,7 +1149,7 @@
                                                 class="pl-2 cursor-pointer"
                                                 on:click={() =>
                                                     delete_files(passbook_data)}
-                                                src="../src/img/blackclose.svg"
+                                                src="{$img_url_name.img_name}/blackclose.svg"
                                                 alt=""
                                             />
                                         {/if}
@@ -1187,7 +1187,7 @@
                                                     delete_files(
                                                         Cancel_cheque_data
                                                     )}
-                                                src="../src/img/blackclose.svg"
+                                                src="{$img_url_name.img_name}/blackclose.svg"
                                                 alt=""
                                             />
                                         {/if}
@@ -1230,7 +1230,7 @@
                                                     delete_files(
                                                         account_statement_data
                                                     )}
-                                                src="../src/img/blackclose.svg"
+                                                src="{$img_url_name.img_name}/blackclose.svg"
                                                 alt=""
                                             />
                                         {/if}
@@ -1301,7 +1301,7 @@
             <div class="onboardFormNot ">
                 <div class="formFooterActionSubmit">
                     <div on:click={routeToBack} class="backButton">
-                        <img src="../src/img/arrowleft.png" alt="" />
+                        <img src="{$img_url_name.img_name}/arrowleft.png" alt="" />
                     </div>
                     <div>
                         <!-- <button class="saveandproceed">Save</button> -->

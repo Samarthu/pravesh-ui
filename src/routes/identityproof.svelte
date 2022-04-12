@@ -21,6 +21,7 @@
     import { pravesh_properties } from "../stores/pravesh_properties_store";
     import Side_content_component from "./side_content_scetion.svelte";
     import { page } from "$app/stores";
+    import {img_url_name} from '../stores/flags_store';
     import { onMount } from "svelte";
     import { save_flag } from "../stores/flags_store";
     import Success_popup from "./components/success_popup.svelte";
@@ -789,7 +790,7 @@
                 >
                 <span class="flex xs:text-base xs:items-center"
                     ><img
-                        src="../src/img/delivery.png"
+                        src="{$img_url_name.img_name}/delivery.png"
                         class="pr-2.5 pl-5 xs:pl-0"
                         alt=""
                     /> NDA/DA/HDA
@@ -831,7 +832,7 @@
                             </p>
                         </div>
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="" />
+                            <img src="{$img_url_name.img_name}/checked.png" alt="" />
                         </div>
                     </a>
                 </li> -->
@@ -871,7 +872,7 @@
                             </p>
                         </div>
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="" />
+                            <img src="{$img_url_name.img_name}/checked.png" alt="" />
                         </div>
                     </a>
                 </li> -->
@@ -901,7 +902,7 @@
                             </p>
                         </div>
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="" />
+                            <img src="{$img_url_name.img_name}/checked.png" alt="" />
                         </div>
                     </a>
                 </li> -->
@@ -947,7 +948,7 @@
                             </p>
                         </div>
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="">
+                            <img src="{$img_url_name.img_name}/checked.png" alt="">
                         </div>
                     </a>
                 </li> -->
@@ -1001,7 +1002,7 @@
                             </p>
                         </div>
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="">
+                            <img src="{$img_url_name.img_name}/checked.png" alt="">
                         </div>
                     </a>
                 </li> -->
@@ -1035,7 +1036,7 @@
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/pan.png"
+                                            src="{$img_url_name.img_name}/pan.png"
                                             class="placeholderIcon"
                                             alt=""
                                         />
@@ -1073,10 +1074,10 @@
 
                             <span class="profileimage">
                                 <span>dhiraj-shah.jpeg </span>
-                                <span><img src="../src/img/closeblue.png" alt=""></span>
+                                <span><img src="{$img_url_name.img_name}/closeblue.png" alt=""></span>
                             </span>
                             <div class="mt-2">
-                                <img src="../src/img/pancard.png" class="uploadedImage"
+                                <img src="{$img_url_name.img_name}/pancard.png" class="uploadedImage"
                                     alt="">
                             </div>
                         </div> -->
@@ -1102,7 +1103,7 @@
                                                 on:click={() =>
                                                     delete_files(pan_card_data)}
                                                 class="pl-2 cursor-pointer"
-                                                src="../src/img/blackclose.svg"
+                                                src="{$img_url_name.img_name}/blackclose.svg"
                                                 alt=""
                                             />
                                         {/if}
@@ -1125,7 +1126,7 @@
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/pan.png"
+                                            src="{$img_url_name.img_name}/pan.png"
                                             class="placeholderIcon"
                                             alt=""
                                         />
@@ -1184,7 +1185,7 @@
                                                         adhar_card_data
                                                     )}
                                                 class="pl-2 cursor-pointer"
-                                                src="../src/img/blackclose.svg"
+                                                src="{$img_url_name.img_name}/blackclose.svg"
                                                 alt=""
                                             />
                                         {/if}
@@ -1208,7 +1209,7 @@
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/pan.png"
+                                            src="{$img_url_name.img_name}/pan.png"
                                             class="placeholderIcon"
                                             alt=""
                                         />
@@ -1247,10 +1248,10 @@
 
                             <span class="profileimage">
                                 <span>voter-id.jpeg </span>
-                                <span><img src="../src/img/closeblue.png" alt=""></span>
+                                <span><img src="{$img_url_name.img_name}/closeblue.png" alt=""></span>
                             </span>
                             <div class="mt-2">
-                                <img src="../src/img/pancard.png" class="uploadedImage"
+                                <img src="{$img_url_name.img_name}/pancard.png" class="uploadedImage"
                                     alt="">
                             </div>
                         </div> -->
@@ -1281,7 +1282,7 @@
                                                         voter_id_card_data
                                                     )}
                                                 class="pl-2 cursor-pointer"
-                                                src="../src/img/blackclose.svg"
+                                                src="{$img_url_name.img_name}/blackclose.svg"
                                                 alt=""
                                             />
                                         {/if}
@@ -1304,7 +1305,7 @@
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/pan.png"
+                                            src="{$img_url_name.img_name}/pan.png"
                                             class="placeholderIcon"
                                             alt=""
                                         />
@@ -1365,7 +1366,7 @@
                                                         driving_license_data
                                                     )}
                                                 class="pl-2 cursor-pointer"
-                                                src="../src/img/blackclose.svg"
+                                                src="{$img_url_name.img_name}/blackclose.svg"
                                                 alt=""
                                             />
                                         {/if}
@@ -1412,7 +1413,7 @@
                         }}
                         class="backButton"
                     >
-                        <img src="../src/img/arrowleft.png" alt="" />
+                        <img src="{$img_url_name.img_name}/arrowleft.png" alt="" />
                     </div>
                     <button
                         on:click={() => {

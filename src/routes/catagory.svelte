@@ -5,6 +5,7 @@
     import {get_category_ui_properties} from '../services/category_services';
     import {category_store_name} from '../stores/category_store';
     import Breadcrumb from "../routes/breadcrumb.svelte";
+    import {img_url_name} from '../stores/flags_store';
     import Toast from './components/toast.svelte';
     let toast_text = "";
     let toast_type = null;
@@ -123,7 +124,7 @@
                         <a href="">
                             <div  class="cardContainer">
                                 <div class="cardImage ">
-                                    <img src="../src/img/{category.image_name}" alt="" />
+                                    <img src="{$img_url_name.img_name}/{category.image_name}" alt="" />
                                 </div>
                                 <div class="cardContent">
                                     <div class="cardText">
@@ -187,7 +188,7 @@
             </div>
             <div on:click={routeToPage} class="flex mt-m49">
                 <div class="backButton">
-                    <img src="../src/img/arrowleft.png" alt="" />
+                    <img src="{$img_url_name.img_name}/arrowleft.png" alt="" />
                 </div>
             </div>
         </div>
