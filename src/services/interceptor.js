@@ -229,6 +229,25 @@
 export const handleResponse = async (response) =>{
   // console.log( await response.text(),"response"  );
   console.log("response",response);
+  if(response.status == 403){
+    let domain_name = window.location.hostname;
+    console.log('domain',domain_name);
+    const res = await request('/api/method/attendance.override_build_page_for_login_for_oauth?path=login&redirect-to=https://'+domain_name+'/pravesh-ui/&only_url=true',{
+            // mode: 'no-cors'
+         });
+         console.log('res',res);
+
+        //  let a = await res.json();
+        //  console.log(window);
+        // console.log('a',a);
+        
+        console.log('body',res.body);
+        console.log('message',res.body.message);
+        // console.log('url',window.location.hostname);
+         window.location = res.body.message;
+
+  }
+  
   // let temp = await response.text();
   // console.log("temp",temp);
   
