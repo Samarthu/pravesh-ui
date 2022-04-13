@@ -172,6 +172,37 @@ const client_details=(data)=>{
             method: "GET"
         },true)
 }
+const erp_details=()=>{
+    let erp_details_url="/api/resource/ERP%20Sync?filters=[[%22facility_id%22,%22=%22,%22"+new_facility_id+"%22]]&fields=[%22*%22]";
+    return request(
+        erp_details_url,{
+            method: "GET"
+        },true)
+}
+const child_data=(child_data)=>{
+    // let child_data =[{"parent_facility_id":"CRUN00525","status":"active","child_facility_id":"CRUN00320","child_id":"hari_kripa_crun","parent_name":"KISHAN217","parent_id":"kishan217_crun"}]
+    
+    let child_data_url="/api/method/pravesh.facility.routes.super_store.create_super_store";
+    return request(
+        child_data_url, 
+        {  method: "POST",
+            body:JSON.stringify({ "childIDs": child_data }),            
+        },true)
+}
+const get_child_dets=()=>{
+    let get_child_url = '/api/method/pravesh.facility.routes.super_store.get_child_details?field_name=parent_facility_id&field_value="'+new_facility_id+'"'
+    return request(
+        get_child_url,{
+            method: "GET"
+        },true)
+}
+const rem_child=(child_id)=>{
+    let rem_child_url="/api/method/pravesh.facility.routes.super_store.remove_mapping?name="+child_id+"&_=1649691190234"
+    return request(
+        rem_child_url,{
+            method: "GET"
+        },true)
+}
 
 
 export {
@@ -190,5 +221,9 @@ export {
     tag_audit_trail,
     service_vendor,
     get_loc_scope,
-    client_details
+    client_details,
+    erp_details,
+    child_data,
+    get_child_dets,
+    rem_child
 }

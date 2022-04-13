@@ -50,8 +50,6 @@ module.exports = {
         'bgGreenLight':'#DEFABB',
         'bglightgreye':'#EEEEEE',
         'bgtransparent':"#00000073",
-        
-
         'bglightPBank':'#C9E8FB',
         'bgVMTapprove' : '#47BD1D',
         'bglightVMTApprove':'#F2FCEE',

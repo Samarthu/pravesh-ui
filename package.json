@@ -23,6 +23,7 @@
   },
   "type": "module",
   "dependencies": {
+    "svelte-paginate": "^0.0.1",
     "svelte-routing": "^1.6.0",
     "swiper": "^7.3.4"
   }

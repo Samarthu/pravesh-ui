@@ -2132,7 +2132,6 @@ ul.menuList li a.active span{
     }
 
 
-<<<<<<< HEAD
 .vmtRejected{
     display: flex;
     cursor: pointer;
@@ -2232,6 +2231,37 @@ ul.menuList li a.active span{
     .OnboardDialogueModalContent{
         @apply relative bg-white rounded-lg shadow  py-10
     }
-  
-=======
->>>>>>> 0e3937aa912ff6759bb59f5ff653a7190fa28c6a
+
+/* tabs for onboard summary */
+
+
+.detailsHeader_summary{
+    @apply flex items-center justify-end px-5 py-3  
+}
+
+
+.contentsectionDetailview_summary{
+    @apply w-full pl-pr14px pr-pr14px   xs:p-p10 sm:p-p10 mt-5     mb-5 sm:mt-3 xs:mt-3
+}
+
+.tabsforsummary{
+    @apply flex xsl:items-center xsl:overflow-x-scroll xsl:mb-2
+}
+
+.tabsforsummary div{
+    @apply  py-4 px-8 text-erBlue text-lg font-medium xsl:py-2 xsl:px-2 xsl:text-base xsl:whitespace-nowrap  cursor-pointer
+}
+.tabsforsummary div.active{
+    @apply  bg-white
+}
+
+
+.detailswrapper{
+    @apply  px-5 py-5 flex items-center gap-4
+}
+
+
+
+
+
+/* end summary */

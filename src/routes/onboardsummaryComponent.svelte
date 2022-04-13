@@ -13,7 +13,7 @@
     import { audit_trail_data } from "../services/supplier_services";
     import { facility_data,facility_bgv_init,facility_bgv_check,all_facility_tags,
         show_fac_tags,submit_fac_tag_data,remove_tag,tag_audit_trail,service_vendor,
-        get_loc_scope,client_details} from "../services/onboardsummary_services";
+        get_loc_scope,client_details,erp_details,child_data,get_child_dets,rem_child} from "../services/onboardsummary_services";
     
     import {get_date_format} from "../services/date_format_servives";
     import {facility_id} from "../stores/facility_id_store"
@@ -21,7 +21,8 @@
     import {bgv_config_store} from '../stores/bgv_config_store'
     import Toast from './components/toast.svelte';
     import { object_without_properties } from "svelte/internal";
-
+    import { paginate, LightPaginationNav } from "svelte-paginate";
+        let check_val;
     let toast_text;
     let toast_type;
     let routeNext = "";
@@ -43,22 +44,32 @@
     let all_tags_obj= {};
     let show_fac_array = [];
     let tag_data_arr = [];
+    let add_child_list=[];
+    let child_dis_list=[];
     let show_creation_date;
-    
+    let child_select;
+    let child_list=[];
+    let tags_for_ass_arr=[];
+    let check_selected;
+    let child_count;
+    let get_child_res;
+
     let all_tags_res;
     let text_pattern = /^[a-zA-Z_ ]+$/;
     let recrun_pattern =  /^[^-\s](?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9 _-]+)$/;
     let city_select;
+    $:city_select=city_select;
     let city_select_flag=0;
     let img_name="",bank_name="",type ="",cheque_date,cheque_number="",amount="",
     recrun_number="",file_number = "";
     let bank_name_message ="",type_message="",cheque_date_message="",cheque_number_message=""
     ,amount_message="",recrun_number_message="",file_number_message="",cheque_upload_message="";
-
+    let child_box;
     let bank_details_res,bank_new_date,
     facility_modified_date,facility_created_date,facility_doc_date;
     let client_det_res;
     let client_det_arr=[]; 
+    let is_child_check;
     // $: cheque_date = new Date();
     let file_data;
     let showbtn = 0;
@@ -66,11 +77,12 @@
     let facility_address,facility_postal,facility_password,city,location_id,status_name;
     let new_fac_remarks = [];
     let select_tag_data,serv_ch_data;
-   let total_pages;
-   let pages=[];
+    let total_pages;
+    let pages=[];
     let tag_date,tag_remark;
     let tag_data_obj=[];
     let city_data=[];
+    let erp_details_arr = [];
     //  let vendor_id,vendor_name; 
     let pan_num="-";
     let aadhar_num="-";
@@ -89,6 +101,12 @@
     //     }
     export let url = "";
     let ven_loc_id;
+    /////////////////////svelte plugin pagiantion//////////
+    let items;
+    let currentPage = 1;
+    let pageSize = 10;
+    let paginatedItems=[];
+  /////////////////////svelte plugin pagiantion//////////
 
     $:{
         for(let key in all_tags_obj){
@@ -103,7 +121,8 @@
             
         }
     }
-    $:{
+    $:{ 
+        
         if(city_select != null && $facility_id.facility_id_number != null){
         console.log("citySelect",city_select);
         link_child(city_select)
@@ -116,39 +135,111 @@
     $:new_pages = [];
    
     
-    
-    async function link_child(data){
-        client_det_res = await client_details(data);
-        try{
-            if(client_det_res.body.status == "green"){
-                for(let i=0;i<client_det_res.body.data.length;i++){
-                    for(let j=0;j<client_det_res.body.data.length;j++){
-                    client_det_arr.push(client_det_res.body.data[j]);
-                    
-                    }
-                }
-                client_det_arr=client_det_arr;
-                console.log("client_det_arr",client_det_arr)
-                total_pages = Math.ceil(client_det_arr.length/20);
-                pages = createPagesArray(total_pages)
-                console.log("pages",pages)
-                for(let pagination in pages){
-                    console.log("pagination",pagination)
-                    if(pagination <= 3 && pagination>0){
-                        console.log("new_pages",new_pages) 
-                        new_pages.push(pagination)
-                        mapped_pages=new_pages.map(Number)  
-                        console.log("mappedpagesRESULT inside",mapped_pages)
-                    }
-                }
-            }
-        }
-        catch(err){
-            console.log("No Facilities Found")
-        }
+    // async function child_select_fun(){  
+    //     if(city_select == "-1"){
+    //     childlink=null;
+    //     }
+    //     else{
+    //     childlink = "childlink2";
+    //     }
+    //     for(let i = 0; i < add_child_list.length; i++){
+    //         add_child_list[i]={"parent_facility_id":$facility_id.facility_id_number,"status":"active","child_facility_id":add_child_list[i].name,"child_id":add_child_list[i].facility_id,"parent_name":$facility_data_store.facility_name,"parent_id":$facility_data_store.facility_id};
+    //     }
+    //     add_child_list=add_child_list;
+    //     // let child_data =[{"parent_facility_id":"CRUN00525","status":"active","child_facility_id":"CRUN00320","child_id":"hari_kripa_crun","parent_name":"KISHAN217","parent_id":"kishan217_crun"}]
+    //     if(add_child_list.length != 0){
+    //         let child_sub_dets = await child_data(add_child_list)
+    //         console.log("ADD TOAST")
+    //     }
         
-    }
+    //     try{
+    //         console.log("get child res inside",get_child_res)
+    //         if(get_child_res.body.status == "green"){
+    //             console.log("get_child_res",get_child_res);
+    //             child_dis_list =get_child_res.body.data[0].parent_child;
+    //             console.log("child_dis_list",child_dis_list)
+    //         }
+    //     }
+    //     catch(err){
+    //         console.log("Error in get_child_res")
+    //     }
+        
 
+
+    // }
+    // async function link_child(data){
+    //     client_det_arr=[];
+    //     client_det_res = await client_details(data);
+    //     try{
+    //         if(client_det_res.body.status == "red"){
+    //             client_det_arr=[]
+    //             items = client_det_arr;
+    //             paginatedItems = paginate({ items, pageSize, currentPage })
+    //             console.log("No Data Found")
+                
+    //         }
+    //         if(client_det_res.body.status == "green"){
+                
+    //             for(let i=0;i<client_det_res.body.data.length;i++){
+    //                 client_det_arr.push(client_det_res.body.data[i]);
+    //             }
+    //             client_det_arr=client_det_arr;
+    //             console.log("client_det_arr",client_det_arr)
+    //             items = client_det_arr;
+    //             console.log("client_det_arr.len",client_det_arr.length)
+                
+    //             console.log("paginate",items,pageSize,currentPage)
+    //             paginatedItems = paginate({ items, pageSize, currentPage })
+    //         }
+    //     }
+    //     catch(err){
+    //         console.log("No Facilities Found")
+    //     }
+        
+    // }
+
+    // // async function check_sub(item){
+        
+    // // }
+    // async function remove_child_fun(child_uni_id){
+    //     console.log("child_uni_id",child_uni_id);
+    //     let rem_child_res= await rem_child(child_uni_id);
+    //     console.log("rem_child_res",rem_child_res)
+    //     try{
+    //         if(rem_child_res.body.status=="red"){
+    //             let child_dets_res = await get_child_dets();
+    //                 if(child_dets_res.body.status == "green"){
+    //                     child_dis_list = child_dets_res.body.data[0].parent_child;
+    //                 }
+    //         }
+    //     }
+    //     catch(err){
+    //         console.log("Errror in rem_child_res")
+    //     }
+    // }
+
+    function closeViewModel(data){
+        if(data == "aadhar"){
+            Aadhar_modal.style.display = "none";
+        }
+        else if(data == "pan"){
+            Pan_modal.style.display = "none";
+        }
+        else if(data == "address"){
+            Address_modal.style.display = "none";
+        }
+    }
+    function openViewModel(data){
+        if(data == "aadhar"){
+            Aadhar_modal.style.display = "block";
+        }
+        else if(data == "pan"){
+            Pan_modal.style.display = "block";
+        }
+        else if(data == "address"){
+            Address_modal.style.display = "block";
+        }
+    }
 
     function SearchClick() {
         searchBox.style.display = "block";
@@ -179,16 +270,9 @@
                         client_det_arr.push(client_det_res.body.data[j]);
                     }
                 }
-                client_det_arr=client_det_arr;
+                paginatedItems=client_det_arr;
                 result = true;
-                total_pages = Math.ceil(client_det_arr.length/20);  
-                pages = createPagesArray(total_pages)
-                for(let pagination in pages){
-                    if(pagination <= 3 && pagination>0){
-                        console.log("PAGES")
-                        mapped_pages=new_pages.map(Number) 
-                    }
-                }
+                
             }
         }
         catch(err) {
@@ -197,16 +281,14 @@
     }
     async function filterResults(){
         let searchArray= [];
-        for(let searchK  of client_det_arr){
+        for(let searchK  of paginatedItems){
             const search_client = searchK.facility_name
-             result=search_client.toLowerCase().includes(searchTerm.toLowerCase());
+            result=search_client.toLowerCase().includes(searchTerm.toLowerCase());
             if(result === true){
-            console.log("pages in search array",pages)
-            mapped_pages.length=0
-            searchArray = [...searchArray,searchK]
+                searchArray = [...searchArray,searchK]
             }
         }
-        client_det_arr = searchArray;
+        paginatedItems = searchArray;
     }
     
     onMount(async () => {
@@ -215,7 +297,6 @@
             facility_id_number: "CRUN00374"
             // facility_id_number: "CRUN00320" 
         })
-        // console.log("facility_id_number",$facility_id.facility_id_number)
 
         bank_details_res = await bank_details();
         try{
@@ -252,6 +333,7 @@
         }
         catch(err) {
             // message.innerHTML = "Error is " + err;
+            console.log("Error in cheque_details_res",err)
         }
     
         /////////bank details/////////////
@@ -269,6 +351,7 @@
                 pan_attach = facility_document_data[i].file_url
                 pan_name = facility_document_data[i].file_name;
                 pan_verified = facility_document_data[i].verified;
+                
             }
             else if(facility_document_data[i].doc_type == "aadhar-id-proof"){
                 aadhar_num = facility_document_data[i].doc_number
@@ -417,13 +500,37 @@
     let temp_res = await show_fac_tags($facility_data_store.facility_type);
         try {
                 show_fac_array = temp_res.body.data;
+                for(let i=0;i < show_fac_array.length;i++){
+                    if( i == show_fac_array.length-1){
+                        
+                        tags_for_ass_arr.push(show_fac_array[i].tag_name)
+                    }
+                    else{
+                        tags_for_ass_arr.push(show_fac_array[i].tag_name+",")
+                    }
+                }
+                tags_for_ass_arr=tags_for_ass_arr
+                
+                
+
             }
         catch(err){
             console.log("Error in mount show_fac_array")
         }
     
+        get_child_res = await get_child_dets();
+        try{
+            if(get_child_res.body.status == "green"){
+                // console.log("get_child_res",get_child_res);
+                child_count = get_child_res.body.data[0].parent_child.length;
+                // child_dis_list =get_child_res.body.data[0].parent_child;
+                // console.log("child_dis_list",child_dis_list)
 
-    // console.log("all_tags_data",all_tags_data,all_tags_id)
+            }
+        }
+        catch(err){
+            console.log("Error")
+        }
     
   });
   
@@ -687,6 +794,7 @@
                     let new_date =new Date(show_fac_array[i].creation)
                     show_creation_date = get_date_format(new_date,"yyyy-mm-dd")
                     show_fac_array[i].creation=show_creation_date;
+                   
         }
        
     }
@@ -766,8 +874,21 @@
         modalidgst.style.display = "none";
     }
 
-    function erpModel() {
+    async function erpModel() {
         erpIdModel.style.display = "block";
+        let erp_details_res = await erp_details();
+        console.log("erp_details_res",erp_details_res)
+        try{
+            if(erp_details_res.body.data != null){
+                erp_details_arr = erp_details_res.body.data[0];
+                let erp_creation_date_format = new Date(erp_details_arr.creation);
+                erp_details_res.body.data[0].creation= get_date_format(erp_creation_date_format,'dd-mm-yyyy-hh-mm');
+                console.log("erp_details_arr",erp_details_arr)
+            }
+        }
+        catch(err){
+            console.log("Error in ERP MODEL RES")
+        }
     }
 
     function closeERP() {
@@ -799,6 +920,8 @@
     }
 
     async function linkChild() {
+        let no_com = document.getElementById("comma");
+        console.log("no_com",no_com)
         linkChildModel.style.display = "block";
         let loc_data_res =  await get_loc_scope();
        try {
@@ -824,44 +947,125 @@
 
     function linkChildModelclose() {
         linkChildModel.style.display = "none";
+        city_select="-1";
+        client_det_arr=[]
+        items = client_det_arr;
+        paginatedItems = paginate({ items, pageSize, currentPage })
+        console.log("Data Cleared")
+
     }
 
     ////////////Pagination in Link Child///////////////
-    function next_function(){   
+    // function next_function(){   
         
-        let last_num_from_pages = pages.length
-        if(mapped_pages.includes(last_num_from_pages)){
-        }
-        else{  
-            for (var i = 0; i < mapped_pages.length; i++){       
-            mapped_pages[i] = mapped_pages[i] + 1;
-            }
-        }
-        // console.log("mapped_pagessss",mapped_pages)
-        // console.log("mapped_pagessss",mapped_pages[0])
-        pageChange(mapped_pages[2])
-    }
+    //     let last_num_from_pages = pages.length
+    //     if(mapped_pages.includes(last_num_from_pages)){
+    //     }
+    //     else{  
+    //         for (var i = 0; i < mapped_pages.length; i++){       
+    //         mapped_pages[i] = mapped_pages[i] + 1;
+    //         }
+    //     }
+    //     // console.log("mapped_pagessss",mapped_pages)
+    //     // console.log("mapped_pagessss",mapped_pages[0])
+    //     pageChange(mapped_pages[2])
+    // }
     
-    function previous_function(){ 
-        let first_num_from_pages = pages[0];
-        if(mapped_pages.includes(first_num_from_pages)){}
+    // function previous_function(){ 
+    //     let first_num_from_pages = pages[0];
+    //     if(mapped_pages.includes(first_num_from_pages)){}
+    //     else{
+    //         for (var i = 0; i < mapped_pages.length; i++){
+    //             mapped_pages[i] = mapped_pages[i] - 1;
+    //         }
+    //     }
+    //         pageChange(mapped_pages[0])
+    // }
+
+    // function pageChange(pagenumber){
+    //     console.log("pageChange Clicked")
+    // }
+    // function createPagesArray(total) {
+    // let arr = []
+    // for(let i = 1; i <= total; i++) {
+    //     arr.push(i)
+    // }
+    // return arr
+    // }
+
+    async function child_select_fun(){  
+        if(city_select == "-1"){
+        childlink=null;
+        }
         else{
-            for (var i = 0; i < mapped_pages.length; i++){
-                mapped_pages[i] = mapped_pages[i] - 1;
+        childlink = "childlink2";
+        }
+        for(let i = 0; i < add_child_list.length; i++){
+            add_child_list[i]={"parent_facility_id":$facility_id.facility_id_number,"status":"active","child_facility_id":add_child_list[i].name,"child_id":add_child_list[i].facility_id,"parent_name":$facility_data_store.facility_name,"parent_id":$facility_data_store.facility_id};
+        }
+        add_child_list=add_child_list;
+        // let child_data =[{"parent_facility_id":"CRUN00525","status":"active","child_facility_id":"CRUN00320","child_id":"hari_kripa_crun","parent_name":"KISHAN217","parent_id":"kishan217_crun"}]
+        if(add_child_list.length != 0){
+            let child_sub_dets = await child_data(add_child_list)
+            console.log("ADD TOAST")
+        }
+        
+        try{
+            if(get_child_res.body.status == "green"){
+                child_dis_list =get_child_res.body.data[0].parent_child;
             }
         }
-            pageChange(mapped_pages[0])
+        catch(err){
+            console.log("Error in get_child_res")
+        }
+        
+
+
+    }
+    async function link_child(data){
+        client_det_arr=[];
+        client_det_res = await client_details(data);
+        try{
+            if(client_det_res.body.status == "red"){
+                client_det_arr=[]
+                items = client_det_arr;
+                paginatedItems = paginate({ items, pageSize, currentPage })
+                console.log("No Data Found")
+                
+            }
+            if(client_det_res.body.status == "green"){
+                for(let i=0;i<client_det_res.body.data.length;i++){
+                    client_det_arr.push(client_det_res.body.data[i]);
+                }
+                client_det_arr=client_det_arr;
+                items = client_det_arr;
+                paginatedItems = paginate({ items, pageSize, currentPage })
+            }
+        }
+        catch(err){
+            console.log("No Facilities Found")
+        }
+        
     }
 
-    function pageChange(pagenumber){
-        console.log("pageChange Clicked")
-    }
-    function createPagesArray(total) {
-    let arr = []
-    for(let i = 1; i <= total; i++) {
-        arr.push(i)
-    }
-    return arr
+    // async function check_sub(item){
+        
+    // }
+    async function remove_child_fun(child_uni_id){
+        // console.log("child_uni_id",child_uni_id);
+        let rem_child_res= await rem_child(child_uni_id);
+        // console.log("rem_child_res",rem_child_res)
+        try{
+            if(rem_child_res.body.status=="red"){
+                let child_dets_res = await get_child_dets();
+                    if(child_dets_res.body.status == "green"){
+                        child_dis_list = child_dets_res.body.data[0].parent_child;
+                    }
+            }
+        }
+        catch(err){
+            console.log("Errror in rem_child_res")
+        }
     }
 
 </script>
@@ -909,7 +1113,7 @@
                                 src="../src/img/audittrail.png"
                                 class="pr-2"
                                 alt=""
-                            /> Audit Trial (12)</span
+                            /> Audit Trial</span
                         >
                     </a>
                     <span class="backlistText">
@@ -1325,14 +1529,37 @@
                         </div>
                     </div>
                   
-                <div class="userStatus ">
-                <p class="verifyText">
-                    <a href="" class="smButton">
-                        <img src="../src/img/edit.png" alt="" />
-                    </a>
-                </p>
-                </div>
+                    <div class="userStatus ">
+                        <p class="verifyText">
+                            <a href="" class="smButton">
+                                <img
+                                    src="../src/img/view.png"
+                                    alt=""
+                                    on:click="{()=>{openViewModel("address")}}"
+                                />
+                            </a>
+                        </p>
+                    </div>
                 {/if}
+                <!-- Document view Model -->
+                <div id="Address_modal" tabindex="-1" aria-hidden="true" class=" actionDialogueOnboard" hidden>
+                    <div class="pancardDialogueOnboardWrapper ">
+                        <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+                            <div class="flex justify-end p-2">
+                                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel("address")}}">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
+                                </button>
+                            </div>
+                            <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+                                <img src="{address_url}" class="mx-auto" alt="aadress proof">
+                                <div class="pt-3 flex justify-center">
+                                    <button data-modal-toggle="popup-modal" type="button" class="dialogueNobutton"  on:click="{()=>{closeViewModel("address")}}">Close</button>
+                            </form>
+                        </div>
+                    </div>
+                </div> 
+            <!-- Document view Model -->
+
                    
                 </div>
             </div>
@@ -1488,7 +1715,7 @@
                     <img src="../src/img/workforce.svg" alt="" />
                     <div class="pl-4">
                         <p class="detailLbale">Link Child Associate</p>
-                        <p class="detailData">2</p>
+                        <p class="detailData">{child_count}</p>
                     </div>
                 </div>
                 <div class="userStatus ">
@@ -2999,11 +3226,30 @@
                                             <img
                                                 src="../src/img/view.png"
                                                 alt=""
+                                                on:click="{()=>{openViewModel("pan")}}"
                                             />
                                         </a>
                                     </p>
                                 </div>
                                 {/if}
+                                 <!-- Document view Model -->
+                                 <div id="Pan_modal" tabindex="-1" aria-hidden="true" class=" actionDialogueOnboard" hidden>
+                                    <div class="pancardDialogueOnboardWrapper ">
+                                        <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+                                            <div class="flex justify-end p-2">
+                                                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel("pan")}}">
+                                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
+                                                </button>
+                                            </div>
+                                            <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+                                                <img src="{pan_attach}" class="mx-auto" alt="pan card proof">
+                                               <div class="pt-3 flex justify-center">
+                                                    <button data-modal-toggle="popup-modal" type="button" class="dialogueNobutton"  on:click="{()=>{closeViewModel("pan")}}">Close</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div> 
+                            <!-- Document view Model -->
                             </div>
                         </div>
                         <div class="userInfoSec3 ">
@@ -3033,6 +3279,7 @@
                                         src="../src/img/pan.png"
                                         class="invisible"
                                         alt=""
+                                       
                                     />
                                     <div class="pl-4 flex items-center">
                                         <p class="detailLbale">
@@ -3078,11 +3325,32 @@
                                             <img
                                                 src="../src/img/view.png"
                                                 alt=""
+                                                on:click="{()=>{openViewModel("aadhar")}}"
                                             />
                                         </a>
                                     </p>
                                 </div>
                                 {/if}
+                                <!-- Document view Model -->
+                                <div id="Aadhar_modal" tabindex="-1" aria-hidden="true" class=" actionDialogueOnboard" hidden>
+                                    <div class="pancardDialogueOnboardWrapper ">
+                                        <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+                                            <div class="flex justify-end p-2">
+                                                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel("aadhar")}}">
+                                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
+                                                </button>
+                                            </div>
+                                            <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+                                                
+                                                <img src="{aadhar_attach}" class="mx-auto" alt="aadhar proof">
+                                                
+                                                <div class="pt-3 flex justify-center">
+                                                    <button data-modal-toggle="popup-modal" type="button" class="dialogueNobutton"  on:click="{()=>{closeViewModel("aadhar")}}">Close</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div> 
+                            <!-- Document view Model -->
                             </div>
                         </div>
                     </div>
@@ -3640,7 +3908,7 @@
                             </p>
                             <p class="text-sm ">
                                 <span class="font-medium text-lg">
-                                    Dhiraj Shah</span
+                                    {$facility_data_store.facility_name}</span
                                 >
                                 <span class="userDesignation">
                                     - Associate- {$facility_data_store.facility_type}, MHPD - Mulsi
@@ -4523,7 +4791,7 @@
                                 <span
                                     ><span class="font-medium"
                                         >Created On
-                                    </span> - 27-Apr-2021 03:28 pm.</span
+                                    </span> - {erp_details_arr.creation}</span
                                 >
                             </p>
                         </div>
@@ -4536,23 +4804,23 @@
                         <div class="ERPDetails mt-4">
                             <div class="flex mb-3 xs:flex-col sm:flex-col">
                                 <p class="detailLbalesm pr-3">ERP ID</p>
-                                <p class="detailDatasm">SUPP-06943</p>
+                                <p class="detailDatasm">{erp_details_arr.erp_id}</p>
                             </div>
                             <div class="flex mb-3 xs:flex-col sm:flex-col">
                                 <p class="detailLbalesm pr-3">ERP Name</p>
-                                <p class="detailDatasm">SUPP-06943-MEX00094</p>
+                                <p class="detailDatasm">{erp_details_arr.erp_name}</p>
                             </div>
                             <div class="flex mb-3 xs:flex-col sm:flex-col">
                                 <p class="detailLbalesm pr-3">Address ID</p>
-                                <p class="detailDatasm">SUPP-06943-Delhi</p>
+                                <p class="detailDatasm">{erp_details_arr.address_id}</p>
                             </div>
                             <div class="flex mb-3 xs:flex-col sm:flex-col">
                                 <p class="detailLbalesm pr-3">Address Title</p>
-                                <p class="detailDatasm">SUPP-06943-Delhi</p>
+                                <p class="detailDatasm">{erp_details_arr.address_title}</p>
                             </div>
                             <div class="flex mb-3 xs:flex-col sm:flex-col">
                                 <p class="detailLbalesm pr-3">Contact ID</p>
-                                <p class="detailDatasm">SUPP-06943-Delhi</p>
+                                <p class="detailDatasm">{erp_details_arr.contact_id}</p>
                             </div>
                         </div>
                     </div>
@@ -6454,10 +6722,13 @@
                                         <div class="flex items-center">
                                             <div class="detailLbale">
                                                 Tags added for this Associate
-                                                <span class="detailData ">
+                                                <span class="detailData " id="rem_comma">
                                                     <!-- <p>{show_fac_array}</p> -->
-                                                    {#each show_fac_array as show_fac}
-                                                       {show_fac.tag_name} ,
+                                                    <!-- {#each show_fac_array as show_fac}
+                                                       {show_fac.tag_name}
+                                                    {/each} -->
+                                                    {#each tags_for_ass_arr as show_fac}
+                                                    {show_fac}
                                                     {/each}
                                                     </span
                                                 >
@@ -6467,8 +6738,8 @@
                                    
                                 
                                     <div class="flex  py-3 items-center ">
-                                        <div class="light14grey mb-1">
-                                            Select Location
+                                        <div class="light14grey mb-1" >
+                                            Select Location 
                                         </div>
                                         <div class="formInnerGroup ">
                                             <select
@@ -6479,7 +6750,7 @@
                                                 bind:value={city_select}
                                             >
                                                 <option class="pt-6"
-                                                    >Select</option
+                                                   value="-1" >Select</option
                                                 >
                                                 {#each city_data as new_city}
                                                 <option class="pt-6"
@@ -6547,7 +6818,7 @@
                                     <div class="OtherAppliedTagsTable ">
                                         <table
                                             class="table  w-full text-center mt-2 xs:hidden sm:hidden"
-                                        >
+                                         id ="check_sel_id">
                                             <thead class="theadpopover">
                                                 <tr>
                                                     <th>Facility Name</th>
@@ -6557,7 +6828,7 @@
                                                     <th>Select</th>
                                                 </tr>
                                             </thead>
-                                            <tbody class="tbodypopover">
+                                            <tbody class="tbodypopover" id="check_tbody">
                                                 {#if child == "linkchild"}
                                                     <tr class="hidde">
                                                         <td
@@ -6576,19 +6847,21 @@
                                                 {/if}
 
                                                 {#if child == "linkchild2"}
-                                                {#each client_det_arr as client_detail}
+                                                {#each paginatedItems as item}
                                                     <tr class="border-b">
-                                                        <td>{client_detail.facility_name}</td
+                                                        <td>{item.facility_name}</td
                                                         >
-                                                        <td>{client_detail.name}</td>
-                                                        <td>{client_detail.station_code}</td>
-                                                        <td>{client_detail.phone_number}</td>
+                                                        <td>{item.name}</td>
+                                                        <td>{item.station_code}</td>
+                                                        <td>{item.phone_number}</td>
                                                         <td
                                                             ><input
                                                                 type="checkbox"
-                                                                class=" checked:bg-blue-500 ..."
+                                                                value={item}
+                                                                bind:group={add_child_list}
+                                                               
                                                             /></td
-                                                        >
+                                                        > 
                                                     </tr>
                                                     <!-- <tr class="border-b">
                                                         <td>
@@ -6611,33 +6884,48 @@
                                         <div class="paginationButton">
                                             <nav aria-label="Page navigation">
                                                 <ul class="pagiWrapper ">
-                                                    <li>
+                                                    <!-- <li>
                                                         <button class="preNextbtn"on:click={previous_function}>
                                                             Previous</button
-                                                        >
+                                                        > -->
                                                         <!-- <button on:click={setValuechange}>value change</button> -->
-                                                    </li>
-                                                    
-                                                        {#if result === false}
+                                                    <!-- </li> -->
+                                                    <LightPaginationNav
+                                                            totalItems="{client_det_arr.length}"
+                                                            pageSize="{pageSize}"
+                                                            currentPage="{currentPage}"
+                                                            limit="{1}"
+                                                            showStepOptions="{true}"
+                                                            on:setPage="{(e) => currentPage = e.detail.page}"
+                                                            />
+                                                        <!-- {#if result === false}
                                                         <li >
                                                             <button id = "curr_page" class="pagiItemsNumber">
                                                             1
                                                             </button>
                                                             </li>
                                                         {:else}
-                                                        {#each mapped_pages as page}
+                                                        {#each paginatedItems as item}
                                                         
                                                         <li >
                                                             <button id = "curr_page" class="pagiItemsNumber" on:click="{pageChange(page)}">
-                                                            {page}
+                                                            {item}
                                                             </button>
                                                         </li>
                                                         {/each}
-                                                        {/if}
+                                                        {/if} -->
+                                                        <!-- <ul class="items">
+                                                            {#each paginatedItems as item}
+                                                              <li class="item">
+                                                                {item}
+                                                              </li>
+                                                            {/each}
+                                                          </ul> -->
+                                                          
                                                     <li>
-                                                        <button class="preNextbtn" on:click={next_function}>
+                                                        <!-- <button class="preNextbtn" on:click={next_function}>
                                                             Next</button
-                                                        >
+                                                        > -->
                                                     </li>
                                                 </ul>
                                             </nav>
@@ -6646,14 +6934,14 @@
                                         <div class="text-right mt-3">
                                             <button
                                                 class="ErBlueButton"
-                                                on:click={() => {
-                                                    childlink = "childlink2";
-                                                }}>Link Child Associate</button
+                                                on:click={() => {child_select_fun()}}>Link Child Associate</button
                                             >
                                         </div>
                                     </div>
                                 </div>
+                                
                                 <div class="addDocumentSection ">
+                                    
                                     <div class="addSecform ">
                                         <div class="my-3 py-4 px-4 ">
                                             <p class="text-lg font-medium">
@@ -6668,25 +6956,25 @@
                                             </div>
                                         {/if}
                                         {#if childlink == "childlink2"}
+                                        {#each child_dis_list as child_data}
                                             <div
                                                 class="cardforlinkedChild px-5 border-b pb-3"
                                             >
                                                 <div class="flex justify-end">
                                                     <div
                                                         class="detailData"
-                                                        on:click={() => {
-                                                            childlink =
-                                                                "childlink";
-                                                        }}
+                                                        
                                                     >
                                                         <img
                                                             src="../src/img/reject.png"
                                                             width="25px"
                                                             alt=""
+                                                            on:click="{remove_child_fun(child_data.child_facility_id)}"
                                                         />
                                                     </div>
                                                 </div>
                                                 <div class="flex ">
+                                                    
                                                     <div class="w-1/3 ">
                                                         <div
                                                             class="detailLbale"
@@ -6696,11 +6984,12 @@
                                                     </div>
                                                     <div class="w-2/3 ">
                                                         <div class="detailData">
-                                                            {city}
+                                                            {city_select}
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="flex ">
+                                                    
                                                     <div class="w-1/3 ">
                                                         <div
                                                             class="detailLbale"
@@ -6710,7 +6999,7 @@
                                                     </div>
                                                     <div class="w-2/3 ">
                                                         <div class="detailData">
-                                                            Avinash Gopal Katari
+                                                            {child_data.child_id}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -6724,14 +7013,15 @@
                                                     </div>
                                                     <div class="w-2/3 ">
                                                         <div class="detailData">
-                                                            EFAU00088
+                                                            {child_data.child_facility_id}
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
+                                            {/each}
                                         {/if}
                                     </div>
-                                </div>
+                                 </div>
                             </div>
                         </div>
                     </div>
@@ -6740,4 +7030,6 @@
         </div>
     </div>
 </div>
+
 <Toast type={toast_type}  text={toast_text}/>
+

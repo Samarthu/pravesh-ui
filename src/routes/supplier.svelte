@@ -87,10 +87,10 @@
                 // console.log("pagesRESULT",pages)
                 for(let pagination in pages){
                     if(pagination <= 3 && pagination>0){
-                        console.log("PAGES") 
+                        // console.log("PAGES") 
                         // new_pages.push(pagination)
                         mapped_pages=new_pages.map(Number)  
-                        console.log("mappedpagesRESULT inside",mapped_pages)
+                        // console.log("mappedpagesRESULT inside",mapped_pages)
                         
                     }
             
@@ -614,7 +614,9 @@ else
 
     // // supplier table collaps
 
-    function collapse() {
+    function collapse(fac_id) {
+        console.log("fac_id in collapse",fac_id);
+        document.getElementById(fac_id).classList.add("show");
         
         var shortInfo = document.querySelectorAll(".shortInfo");
         var elems = document.querySelectorAll(".detailsInfo");
@@ -623,6 +625,7 @@ else
         document.querySelector(".trow").classList.add("valgin");
 
         shortInfo.forEach.call(shortInfo, function (el) {
+            console.log("ELEMENTS",el);
             el.classList.add("hidden");
 
 
@@ -1800,9 +1803,10 @@ else
                                                         ></span>
                                                 </button>
                                                 <!-- <p class="mtextaudit">11 M</p> -->
-                                                <div class="shortInfo">
+                                                <div class="shortInfo" id={facility_data.name}>
                                                     <p
-                                                        on:click="{collapse}"
+                                                    
+                                                        on:click="{collapse(facility_data.name)}"
                                                         class="arrowCollaps"
                                                     >
                                                         <img
