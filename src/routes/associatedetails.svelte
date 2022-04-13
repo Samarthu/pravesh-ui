@@ -40,6 +40,7 @@
     let profile_pic_name;
     let address_check;
     let final_address = [];
+    
     let work_address = {
         city: null,
         address: null,

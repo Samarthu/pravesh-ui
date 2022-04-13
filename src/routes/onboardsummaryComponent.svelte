@@ -2,6 +2,7 @@
     import { Router, Link, Route } from "svelte-routing";
     import Catagory from "./catagory.svelte";
     import { goto } from "$app/navigation";
+    import  {  page } from '$app/stores';
     import Breadcrumb from "./breadcrumb.svelte";
     import { onMount } from "svelte";
     import { DateInput, DatePicker } from "date-picker-svelte";
@@ -23,6 +24,7 @@
     import { object_without_properties } from "svelte/internal";
     import { paginate, LightPaginationNav } from "svelte-paginate";
         let check_val;
+        let query;
     let toast_text;
     let toast_type;
     let routeNext = "";
@@ -292,11 +294,28 @@
     }
     
     onMount(async () => {
+        query = $page.url;
+        console.log("query",query);
+        console.log("search params has",$page.url.searchParams.has("unFacID"));
+        console.log("search params get",$page.url.searchParams.get("unFacID"));
+        // console.log("search params ",$page.url);
+        if($page.url.searchParams.has("unFacID")){
+            let temp  = $page.url.searchParams.get("unFacID");
+            if(temp != ""){
+                console.log("temp",temp);
+                $facility_id.facility_id_number = temp;
+            }
+            else{
+                console.log("facility ID is null");
+            }
+
+        }
+        
         ///////bank details/////////////
-        facility_id.set({
-            facility_id_number: "CRUN00374"
-            // facility_id_number: "CRUN00320" 
-        })
+        // facility_id.set({
+        //     facility_id_number: "CRUN00374"
+        //     // facility_id_number: "CRUN00320" 
+        // })
 
         bank_details_res = await bank_details();
         try{

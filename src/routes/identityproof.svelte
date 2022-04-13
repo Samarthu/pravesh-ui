@@ -24,11 +24,13 @@
     import {img_url_name} from '../stores/flags_store';
     import { onMount } from "svelte";
     import { save_flag } from "../stores/flags_store";
+    import Spinner from "./components/spinner.svelte";
     import Success_popup from "./components/success_popup.svelte";
     import Toast from "./components/toast.svelte";
     let toast_text = "";
     let toast_type = null;
     let success_text = "";
+    let show_spinner = false;
 
     // import {}
 
@@ -171,10 +173,10 @@
                     gotobankdetails();
                 }
             } else {
-                save_facility();
+                // save_facility(); TODO uncomment this.
                 if ($facility_id.facility_id_number) {
                     let replaceState = false;
-                    goto("successpopup", { replaceState });
+                    goto("onboardsummary?unFacID="+$facility_id.facility_id_number, { replaceState });
                 }
             }
         }
@@ -329,7 +331,7 @@
         $facility_data_store.facility_email = "testing@nomail.com";
         $facility_data_store.facility_id = "tejas_bhosale_mhpd";
         $facility_data_store.facility_name = "tejas bhosale";
-        $facility_data_store.facility_type = "HDA";
+        $facility_data_store.facility_type = "DA";
         $facility_data_store.msme_registered = "1";
         $facility_data_store.org_id = "AN";
         $facility_data_store.owner_name = "tejas bhosale";
@@ -351,7 +353,8 @@
             ],
             bank_section_required_associates: ["NDA", "Reseller", "SAG"],
         };
-        // $facility_id.facility_id_number = "MHPD01322";
+        //TODO: remove this
+        $facility_id.facility_id_number = "MHPD01325";
     }
     // function set_user_id_to_document_store() {
     //     $msme_store.user_id = $current_user.email;
@@ -470,25 +473,25 @@
             alert("Session user not found error!");
         }
     }
-    function route_to_next_page() {
-        check_validity();
-        if (valid) {
-            if (
-                $pravesh_properties.properties[
-                    "pan_required_associates"
-                ].includes($facility_data_store.facility_type) ||
-                $pravesh_properties.properties[
-                    "bank_section_required_associates"
-                ].includes($facility_data_store.facility_type)
-            ) {
-                // let replaceState = false;
-                // goto("bankdetails", { replaceState });
-            } else {
-                let replaceState = false;
-                goto("successpopup", { replaceState });
-            }
-        }
-    }
+    // function route_to_next_page() {
+    //     check_validity();
+    //     if (valid) {
+    //         if (
+    //             $pravesh_properties.properties[
+    //                 "pan_required_associates"
+    //             ].includes($facility_data_store.facility_type) ||
+    //             $pravesh_properties.properties[
+    //                 "bank_section_required_associates"
+    //             ].includes($facility_data_store.facility_type)
+    //         ) {
+    //             // let replaceState = false;
+    //             // goto("bankdetails", { replaceState });
+    //         } else {
+    //             let replaceState = false;
+    //             goto("successpopup", { replaceState });
+    //         }
+    //     }
+    // }
     function check_validity() {
         valid = true;
 
@@ -601,6 +604,7 @@
         }
     }
     async function save_facility() {
+        show_spinner = true;
         check_validity();
         if (!$facility_id.facility_id_number) {
             console.log("inside if $facility_id.facility_id_number");
@@ -692,12 +696,14 @@
                                         "doc_category"
                                     ] + " Document upload failed";
                                 toast_type = "error";
+                                show_spinner = false;
                             }
                             console.log(
                                 "document_upload_response",
                                 document_upload_response
                             );
                         }
+                        show_spinner = false;
                         save_button_clicked = true;
                         $save_flag.is_save = true;
 
@@ -720,7 +726,10 @@
                             goto("onboardsummary", { replaceState });
                         }
                     } catch {
-                        alert("Error in saving facility!");
+                        // alert("Error in saving facility!");
+                        toast_text = "Error in saving facility!";
+                        toast_type = "error";
+                        show_spinner = false;
                     }
                 } else {
                     // if(save_facility_response.body.status == "red"){
@@ -736,6 +745,7 @@
                     );
                     toast_text = "Error in saving facility!";
                     toast_type = "error";
+                    show_spinner = false;
 
                     // alert("Facility not created");
                 }
@@ -746,6 +756,7 @@
         else{
             toast_type = "error";
             toast_text = "Facility already exists";
+            show_spinner = false;
         }
     }
     function delete_files(file_name) {
@@ -780,6 +791,12 @@
         }
     }
 </script>
+{#if show_spinner}
+<Spinner />
+    
+{/if}
+
+
 
 <div class="mainContent ">
     <div class="breadcrumb ">
@@ -1477,6 +1494,7 @@
         </div>
     </div>
 {/if}
+
 
 <Success_popup text={success_text} />
 
