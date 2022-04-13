@@ -2231,7 +2231,6 @@ ul.menuList li a.active span{
     .OnboardDialogueModalContent{
         @apply relative bg-white rounded-lg shadow  py-10
     }
-<<<<<<< HEAD
 
 /* tabs for onboard summary */
 
@@ -2266,6 +2265,3 @@ ul.menuList li a.active span{
 
 
 /* end summary */
-=======
-  
->>>>>>> 5239504fcb8ed175189fd2652a99575cc8e1c314
