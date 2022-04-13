@@ -1,5 +1,6 @@
 <script>
     import { goto } from "$app/navigation";
+    import {img_url_name} from '../stores/flags_store';
 
     let routeProfile = "";
     let routeDashboard = "";
@@ -24,7 +25,7 @@
             <div on:click={routeToPageDashboard} class="homelogo" id="mobileBar">
                 <a href="#">
                     <img
-                        src="../src/img/home.png"
+                        src="{$img_url_name.img_name}/home.png"
                         class="xs:hidden sm:hidden block"
                         alt="homelogolg"
                     /></a
@@ -35,17 +36,17 @@
                     onclick="myFunction()"
                     class="hidden xs:block sm:block"
                 >
-                    <img src=" ../src/img/bar.png" alt="barsm" /></a
+                    <img src=" {$img_url_name.img_name}/bar.png" alt="barsm" /></a
                 >
             </div>
             <div class="pravesh-logo ml-3">
                 <img
-                    src="../src/img/pravesh-logo.png"
+                    src="{$img_url_name.img_name}/pravesh-logo.png"
                     class="xs:hidden sm:hidden block"
                     alt=""
                 />
                 <img
-                    src="../src/img/mobile.png"
+                    src="{$img_url_name.img_name}/mobile.png"
                     class="hidden xs:block sm:block"
                     alt=""
                 />
@@ -81,7 +82,7 @@
                 </div>
             </li>
             <li on:click={routeToProfile} class="">
-                <a href=""> <img src="../src/img/Userpic.png" alt="" /></a>
+                <a href=""> <img src="{$img_url_name.img_name}/Userpic.png" alt="" /></a>
             </li>
         </ul>
     </div>

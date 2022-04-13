@@ -16,6 +16,7 @@
     import { get_current_user_function } from "../services/dashboard_services";
     import {get_organistaion_method} from '../services/organisation_services';
     import {allowed_pdf_size,sorting_pravesh_properties} from '../services/pravesh_config';
+    import {img_url_name} from '../stores/flags_store';
     import Side_content_component from './side_content_scetion.svelte';
     import  {  page } from '$app/stores';
     import Toast from './components/toast.svelte';
@@ -235,7 +236,8 @@
         // });
 
         
-        page_name =  $page.url["pathname"].substring(1);
+        page_name =  $page.url["pathname"].split("/").pop();
+        // url.split("/").pop()
         console.log("page_name",page_name);
         console.log("window location",window.location.href);
         let get_pravesh_properties_response = await get_pravesh_properties_method();
@@ -574,7 +576,7 @@
                 >
                 <span class="flex xs:text-base xs:items-center"
                     ><img
-                        src="../src/img/delivery.png"
+                        src="{$img_url_name.img_name}/delivery.png"
                         class="pr-2.5 pl-5 xs:pl-0"
                         alt=""
                     /> NDA/DA/HDA
@@ -616,7 +618,7 @@
                             </p>
                         </div>
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="" />
+                            <img src="{$img_url_name.img_name}/checked.png" alt="" />
                         </div>
                     </a>
                 </li> -->
@@ -656,7 +658,7 @@
                             </p>
                         </div>
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="" />
+                            <img src="{$img_url_name.img_name}/checked.png" alt="" />
                         </div>
                     </a>
                 </li> -->
@@ -686,7 +688,7 @@
                             </p>
                         </div>
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="" />
+                            <img src="{$img_url_name.img_name}/checked.png" alt="" />
                         </div>
                     </a>
                 </li> -->
@@ -732,7 +734,7 @@
                             </p>
                         </div>
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="" />
+                            <img src="{$img_url_name.img_name}/checked.png" alt="" />
                         </div>
                     </a>
                 </li> -->
@@ -786,7 +788,7 @@
                             </p>
                         </div>
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="" />
+                            <img src="{$img_url_name.img_name}/checked.png" alt="" />
                         </div>
                     </a>
                 </li> -->
@@ -818,7 +820,7 @@
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/organization.png"
+                                            src="{$img_url_name.img_name}/organization.png"
                                             class="placeholderIcon"
                                             alt=""
                                         />
@@ -835,7 +837,7 @@
                                     </select>
                                     <div class="formSelectArrow ">
                                         <img
-                                            src="../src/img/selectarrow.png"
+                                            src="{$img_url_name.img_name}/selectarrow.png"
                                             class="w-5 h-auto"
                                             alt=""
                                         />
@@ -865,7 +867,7 @@
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/location.png"
+                                            src="{$img_url_name.img_name}/location.png"
                                             class="placeholderIcon"
                                             alt=""
                                         />
@@ -885,7 +887,7 @@
                                     </select>
                                     <div class="formSelectArrow ">
                                         <img
-                                            src="../src/img/selectarrow.png"
+                                            src="{$img_url_name.img_name}/selectarrow.png"
                                             class="w-5 h-auto"
                                             alt=""
                                         />
@@ -915,7 +917,7 @@
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/warehouse.png"
+                                            src="{$img_url_name.img_name}/warehouse.png"
                                             class="placeholderIcon"
                                             alt=""
                                         />
@@ -941,7 +943,7 @@
 
                                     <div class="formSelectArrow ">
                                         <img
-                                            src="../src/img/selectarrow.png"
+                                            src="{$img_url_name.img_name}/selectarrow.png"
                                             class="w-5 h-auto"
                                             alt=""
                                         />
@@ -971,7 +973,7 @@
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/Subtract.png"
+                                            src="{$img_url_name.img_name}/Subtract.png"
                                             class="placeholderIcon"
                                             alt=""
                                         />
@@ -992,7 +994,7 @@
                                     </select>
                                     <div class="formSelectArrow ">
                                         <img
-                                            src="../src/img/selectarrow.png"
+                                            src="{$img_url_name.img_name}/selectarrow.png"
                                             class="w-5 h-auto"
                                             alt=""
                                         />
@@ -1022,7 +1024,7 @@
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/managericon.png"
+                                            src="{$img_url_name.img_name}/managericon.png"
                                             class="placeholderIcon"
                                             alt=""
                                         />
@@ -1048,7 +1050,7 @@
                                     </select>
                                     <div class="formSelectArrow ">
                                         <img
-                                            src="../src/img/selectarrow.png"
+                                            src="{$img_url_name.img_name}/selectarrow.png"
                                             class="w-5 h-auto"
                                             alt=""
                                         />
@@ -1078,7 +1080,7 @@
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/organization.png"
+                                            src="{$img_url_name.img_name}/organization.png"
                                             class="placeholderIcon"
                                             alt=""
                                         />
@@ -1098,7 +1100,7 @@
                                     </select>
                                     <div class="formSelectArrow ">
                                         <img
-                                            src="../src/img/selectarrow.png"
+                                            src="{$img_url_name.img_name}/selectarrow.png"
                                             class="w-5 h-auto"
                                             alt=""
                                         />
@@ -1148,7 +1150,7 @@
                                             <img
                                             on:click={() => delete_files(msme_data)}
                                             class="pl-2 cursor-pointer"
-                                            src="../src/img/blackclose.svg"
+                                            src="{$img_url_name.img_name}/blackclose.svg"
                                             alt=""
                                             
                                         />
@@ -1265,7 +1267,7 @@
             <div class="onboardFormNot ">
                 <div class="formFooterAction">
                     <div on:click={routeToWorkforce} class="backButton">
-                        <img src="../src/img/arrowleft.png" alt="" />
+                        <img src="{$img_url_name.img_name}/arrowleft.png" alt="" />
                     </div>
                     <button on:click={route} class="saveandproceed"
                         >Proceed</button

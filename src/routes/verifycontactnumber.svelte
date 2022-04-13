@@ -7,6 +7,7 @@
     import  {  page } from '$app/stores';
     import { onMount } from "svelte";
     import Side_content_component from './side_content_scetion.svelte';
+    import {img_url_name} from '../stores/flags_store';
     import Toast from './components/toast.svelte';
     let toast_text = "";
     let toast_type = null;
@@ -45,7 +46,7 @@ let countdown = 10;
 
 onMount(async () => {
 
-    page_name =  $page.url["pathname"].substring(1);
+    page_name =  $page.url["pathname"].split("/").pop();
 
 
 })
@@ -186,7 +187,7 @@ async function verify_otp(){
         <div class="breadcrumb-section">
             <p class="breadcrumbtext"><span class="text-textgrey pr-1 text-base">Home / Onboard New /
                     Workforce</span> <span class="flex xs:text-base xs:items-center"><img
-                        src="../src/img/delivery.png" class="pr-2.5 pl-5 xs:pl-0" alt=""> NDA/DA/HDA </span>
+                        src="{$img_url_name.img_name}/delivery.png" class="pr-2.5 pl-5 xs:pl-0" alt=""> NDA/DA/HDA </span>
             </p>
         </div>
     </div>
@@ -354,7 +355,7 @@ async function verify_otp(){
                                 class="mandatoryIcon">*</span></label>
                         <div class="formInnerGroup ">
                             <span class="searchicon">
-                                <img src="../src/img/mobilephone.png" class="placeholderIcon" alt="">
+                                <img src="{$img_url_name.img_name}/mobilephone.png" class="placeholderIcon" alt="">
                             </span>
                             <input type="text" class="inputbox" bind:value={$facility_data_store.phone_number} on:blur={()=> check_mobile_number()}>
                         </div>
@@ -397,7 +398,7 @@ async function verify_otp(){
                                 class="mandatoryIcon">*</span></label>
                         <div class="formInnerGroup ">
                             <span class="searchicon">
-                                <img src="../src/img/mobilephone.png" class="placeholderIcon" alt="">
+                                <img src="{$img_url_name.img_name}/mobilephone.png" class="placeholderIcon" alt="">
                             </span>
                             <input type="text" class="inputbox" bind:value={otp}>
                         </div>

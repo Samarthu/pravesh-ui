@@ -14,6 +14,7 @@
     import { documents_store } from "../stores/document_store";
     import { allowed_pdf_size } from "../services/pravesh_config";
     import Side_content_component from "./side_content_scetion.svelte";
+    import {img_url_name} from '../stores/flags_store';
     import { page } from "$app/stores";
     import Toast from "./components/toast.svelte";
     let toast_text = "";
@@ -103,7 +104,7 @@
     let work_address_address_message = "";
     let work_address_postal_message = "";
     onMount(async () => {
-        page_name = $page.url["pathname"].substring(1);
+        page_name = $page.url["pathname"].split("/").pop();
         console.log("page_name", page_name);
         function get_max_date() {
             let current_date = new Date();
@@ -563,7 +564,7 @@
                 >
                 <span class="flex xs:text-base xs:items-center"
                     ><img
-                        src="../src/img/delivery.png"
+                        src="{$img_url_name.img_name}/delivery.png"
                         class="pr-2.5 pl-5 xs:pl-0"
                         alt=""
                     /> NDA/DA/HDA
@@ -605,7 +606,7 @@
                             </p>
                         </div>
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="" />
+                            <img src="{$img_url_name.img_name}/checked.png" alt="" />
                         </div>
                     </a>
                 </li> -->
@@ -645,7 +646,7 @@
                             </p>
                         </div>
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="" />
+                            <img src="{$img_url_name.img_name}/checked.png" alt="" />
                         </div>
                     </a>
                 </li> -->
@@ -675,7 +676,7 @@
                             </p>
                         </div>
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="">
+                            <img src="{$img_url_name.img_name}/checked.png" alt="">
                         </div>
                     </a>
                 </li> -->
@@ -721,7 +722,7 @@
                             </p>
                         </div>
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="">
+                            <img src="{$img_url_name.img_name}/checked.png" alt="">
                         </div>
                     </a>
                 </li> -->
@@ -775,7 +776,7 @@
                             </p>
                         </div>
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="">
+                            <img src="{$img_url_name.img_name}/checked.png" alt="">
                         </div>
                     </a>
                 </li> -->
@@ -809,7 +810,7 @@
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/Subtract.png"
+                                            src="{$img_url_name.img_name}/Subtract.png"
                                             class="w-6 h-auto text-white"
                                             alt=""
                                         />
@@ -843,7 +844,7 @@
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/email.png"
+                                            src="{$img_url_name.img_name}/email.png"
                                             class="w-6 h-auto text-white"
                                             alt=""
                                         />
@@ -881,7 +882,7 @@
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/date.png"
+                                            src="{$img_url_name.img_name}/date.png"
                                             class="placeholderIcon"
                                             alt=""
                                         />
@@ -913,10 +914,10 @@
                                 </label>
                                 <div class="formInnerGroup ">
                                     <span class="profileimage hidden">
-                                        <!-- <img src="../src/img/Maskprofile.jpg"
+                                        <!-- <img src="{$img_url_name.img_name}/Maskprofile.jpg"
                                     class="associateProfile" alt="">
                                 <span>dhiraj-shah.jpeg </span>
-                                <span><img src="../src/img/closeblue.png" alt=""></span> -->
+                                <span><img src="{$img_url_name.img_name}/closeblue.png" alt=""></span> -->
                                         <label class="cursor-pointer ">
                                             <div
                                                 class="bg-erBlue font-medium rounded text-yellow-50 text-sm px-4 py-2 w-w79px"
@@ -943,7 +944,7 @@
                                                             profile_pic_data
                                                         )}
                                                     class="pl-2 cursor-pointer"
-                                                    src="../src/img/blackclose.svg"
+                                                    src="{$img_url_name.img_name}/blackclose.svg"
                                                     alt=""
                                                 />
                                             {/if}
@@ -971,7 +972,7 @@
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/location1.png"
+                                            src="{$img_url_name.img_name}/location1.png"
                                             class="placeholderIcon"
                                             alt=""
                                         />
@@ -1015,7 +1016,7 @@
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/location1.png"
+                                            src="{$img_url_name.img_name}/location1.png"
                                             class="placeholderIcon"
                                             alt=""
                                         />
@@ -1048,7 +1049,7 @@
                                 class="mandatoryIcon">*</span></label>
                         <div class="formInnerGroup ">
                             <span class="searchicon">
-                                <img src="../src/img/location1.png" class="placeholderIcon"
+                                <img src="{$img_url_name.img_name}/location1.png" class="placeholderIcon"
                                     alt="">
                             </span>
                             <input type="Email" class="inputbox">
@@ -1088,7 +1089,7 @@
                                                         address_proof_data
                                                     )}
                                                 class="pl-2 cursor-pointer"
-                                                src="../src/img/blackclose.svg"
+                                                src="{$img_url_name.img_name}/blackclose.svg"
                                                 alt=""
                                             />
                                         {/if}
@@ -1115,7 +1116,7 @@
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/pincode.png"
+                                            src="{$img_url_name.img_name}/pincode.png"
                                             class="placeholderIcon"
                                             alt=""
                                         />
@@ -1148,7 +1149,7 @@
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/location1.png"
+                                            src="{$img_url_name.img_name}/location1.png"
                                             class="placeholderIcon"
                                             alt=""
                                         />
@@ -1191,7 +1192,7 @@
                                     <div class="formInnerGroup ">
                                         <span class="searchicon">
                                             <img
-                                                src="../src/img/location1.png"
+                                                src="{$img_url_name.img_name}/location1.png"
                                                 class="placeholderIcon"
                                                 alt=""
                                             />
@@ -1236,7 +1237,7 @@
                                     <div class="formInnerGroup ">
                                         <span class="searchicon">
                                             <img
-                                                src="../src/img/location1.png"
+                                                src="{$img_url_name.img_name}/location1.png"
                                                 class="placeholderIcon"
                                                 alt=""
                                             />
@@ -1273,7 +1274,7 @@
                                     <div class="formInnerGroup ">
                                         <span class="searchicon">
                                             <img
-                                                src="../src/img/pincode.png"
+                                                src="{$img_url_name.img_name}/pincode.png"
                                                 class="placeholderIcon"
                                                 alt=""
                                             />
@@ -1331,7 +1332,7 @@
                                                             present_address_proof_data
                                                         )}
                                                     class="pl-2 cursor-pointer"
-                                                    src="../src/img/blackclose.svg"
+                                                    src="{$img_url_name.img_name}/blackclose.svg"
                                                     alt=""
                                                 />
                                             {/if}
@@ -1386,7 +1387,7 @@
                         }}
                         class="backButton"
                     >
-                        <img src="../src/img/arrowleft.png" alt="" />
+                        <img src="{$img_url_name.img_name}/arrowleft.png" alt="" />
                     </div>
                     <button
                         on:click|preventDefault={() => {

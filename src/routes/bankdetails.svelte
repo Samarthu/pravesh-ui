@@ -24,10 +24,13 @@
         save_or_update_documents_function_1,
     } from "../services/identity_proof_services";
     import { get_current_user_function } from "../services/dashboard_services";
-    import {save_flag} from "../stores/flags_store";
-    import Toast from './components/toast.svelte';
+    import { save_flag } from "../stores/flags_store";
+    import {img_url_name} from '../stores/flags_store';
+    import Toast from "./components/toast.svelte";
     let toast_text = "";
     let toast_type = null;
+    import Success_popup from "./components/success_popup.svelte";
+    let success_text = "";
     // import {facility_id} from '../stores/facility_id_store';
 
     let ifsc_code;
@@ -44,7 +47,6 @@
     var ifsc_code_check = /^[A-Za-z]{4}\d{7}$/;
     var account_holder_check = /^\w+$/gm;
     let account_number_match_check = false;
-    
 
     let blank_cheque_data = {
         doc_category: "Blank Cheque",
@@ -93,7 +95,7 @@
         // console.log("temp_res",temp_res)
         // let result = await temp_res.json();
         // console.log("TEMP RESULT",result)
-        page_name = $page.url["pathname"].substring(1);
+        page_name = $page.url["pathname"].split("/").pop();
         console.log("bank pahge name", page_name);
     });
 
@@ -297,7 +299,7 @@
             console.log(save_facility_response);
             if (save_facility_response.body.status == "green") {
                 try {
-                    alert("Facility saved successfully");
+                    // alert("Facility saved successfully");
                     $facility_id.facility_id_number =
                         save_facility_response.body.data.name;
                     let temp;
@@ -305,6 +307,8 @@
                         temp = value.facility_id_number;
                     });
                     console.log("facility id", temp);
+                    toast_type = "success";
+                    toast_message = "Facility saved successfully";
                     try {
                         let current_user_response =
                             await get_current_user_function();
@@ -323,10 +327,14 @@
                             $current_user.username =
                                 current_user_response.body.data.user.username;
                         } else {
-                            alert("Session user not found error!");
+                            // alert("Session user not found error!");
+                            toast_type = "error";
+                            toast_message = "Session user not found error!";
                         }
                     } catch {
-                        alert("Session user not found error!");
+                        // alert("Session user not found error!");
+                        toast_type = "error";
+                        toast_message = "Session user not found error!";
                         console.log("current user data", $current_user);
                     }
                     for (
@@ -354,10 +362,14 @@
                         );
                     }
                 } catch {
-                    alert("Error in saving facility!");
+                    // alert("Error in saving facility!");
+                    toast_type = "error";
+                    toast_message = "Error in saving facility!";
                 }
             } else {
-                alert("Facility not created");
+                // alert("Facility not created");
+                toast_type = "error";
+                toast_message = "Facility not created";
             }
             // gotobankdetails();
             // route_to_next_page();
@@ -416,13 +428,10 @@
             pincode_message = "";
         }
     }
-    function pushing_documents(){
-        
-        
-
+    function pushing_documents() {
         if (blank_cheque_data.file_name && blank_cheque_data.pod) {
             blank_cheque_data.facility_id = $facility_data_store.facility_id;
-            blank_cheque_data.user_id = $current_user.username;
+            blank_cheque_data.user_id = $current_user.email;
             blank_cheque_data.resource_id = $facility_id.facility_id_number;
             blank_cheque_data.doc_number = $bank_details.account_number;
             console.log("blank cheque data", blank_cheque_data);
@@ -439,7 +448,7 @@
 
         if (passbook_data.file_name && passbook_data.pod) {
             passbook_data.facility_id = $facility_data_store.facility_id;
-            passbook_data.user_id = $current_user.username;
+            passbook_data.user_id = $current_user.email;
             passbook_data.resource_id = $facility_id.facility_id_number;
             console.log("passbook_data", passbook_data);
             for (let i = 0; i < $bank_details.document_details.length; i++) {
@@ -455,7 +464,7 @@
 
         if (Cancel_cheque_data.file_name && Cancel_cheque_data.pod) {
             Cancel_cheque_data.facility_id = $facility_data_store.facility_id;
-            Cancel_cheque_data.user_id = $current_user.username;
+            Cancel_cheque_data.user_id = $current_user.email;
             Cancel_cheque_data.resource_id = $facility_id.facility_id_number;
             console.log("Cancel_cheque_data", Cancel_cheque_data);
             for (let i = 0; i < $bank_details.document_details.length; i++) {
@@ -471,7 +480,7 @@
         if (account_statement_data.file_name && account_statement_data.pod) {
             account_statement_data.facility_id =
                 $facility_data_store.facility_id;
-            account_statement_data.user_id = $current_user.username;
+            account_statement_data.user_id = $current_user.email;
             account_statement_data.resource_id =
                 $facility_id.facility_id_number;
             console.log("account_statement_data", account_statement_data);
@@ -486,7 +495,6 @@
             $bank_details.document_details.push(account_statement_data);
         }
         console.log("bank details", $bank_details);
-
     }
     async function save_bank_details() {
         check_validity();
@@ -504,61 +512,72 @@
             //console.log("Please upload atleast one document");
             // alert("Please upload atleast one document");
             form_message = "Please upload atleast one document";
+            toast_type = "warning";
+            toast_text = "Please upload atleast one document";
         } else {
             form_message = "";
             console.log("inside else");
         }
 
-       
         if (valid) {
             console.log("inside valid");
-            console.log("save flag",$save_flag.is_save);
+            console.log("save flag", $save_flag.is_save);
             if (!$save_flag.is_save) {
-                save_facility().then(async() =>{
+                save_facility().then(async () => {
                     console.log("save button clicked", save_button_clicked);
                     console.log("inside .then");
                     $bank_details.facility_id = $facility_id.facility_id_number;
                     pushing_documents();
-        console.log("$bank_details", $bank_details);
-        let save_bank_details = await save_bank_details_function();
-            console.log("save_bank_details", save_bank_details);
-            if ((save_bank_details.body.status = "green")) {
-                alert("Bank Details Saved Successfully");
-                let replaceState = false;
-                goto("successpopup", { replaceState });
+                    console.log("$bank_details", $bank_details);
+                    let save_bank_details = await save_bank_details_function();
+                    console.log("save_bank_details", save_bank_details);
+                    if ((save_bank_details.body.status = "green")) {
+                        // alert("Bank Details Saved Successfully");
+                        toast_text = "Bank Details Saved Successfully";
+                        toast_type = "success";
+                        success_text = "Facility created and Bank Details Saved Successfully";
+                        // let replaceState = false
+                        setTimeout(() => {}, 2000);
+                        goto("onboardsummary", { replaceState:true });
+                    } else {
+                        // alert("Something went wrong!");
+                        toast_type = "error";
+                        toast_text = "Something went wrong!";
+                    }
+
+                    console.log("inside valid");
+                });
             } else {
-                alert("Something went wrong!");
-            }
-
-            console.log("inside valid");
-
-                })
-               
-            }
-            else{
                 console.log("outside .then");
                 console.log("save button clicked", save_button_clicked);
                 $bank_details.facility_id = $facility_id.facility_id_number;
-                    pushing_documents();
-        console.log("$bank_details", $bank_details);
-        let save_bank_details = await save_bank_details_function();
-            console.log("save_bank_details", save_bank_details);
-            if ((save_bank_details.body.status = "green")) {
-                alert("Bank Details Saved Successfully");
-                let replaceState = false;
-                goto("successpopup", { replaceState });
-            } else {
-                alert("Something went wrong!");
+                pushing_documents();
+                console.log("$bank_details", $bank_details);
+                let save_bank_details = await save_bank_details_function();
+                console.log("save_bank_details", save_bank_details);
+                if ((save_bank_details.body.status = "green")) {
+                    // alert("Bank Details Saved Successfully");
+                    toast_type = "success";
+                    toast_text = "Bank Details Saved Successfully";
+                    success_text = "Bank Details Saved Successfully";
+                    // let replaceState = false;
+                    setTimeout(() => {}, 2000);
+                    goto("onboardsummary", { replaceState:true });
+                } else {
+                    // alert("Something went wrong!");
+                    toast_type = "error";
+                    toast_text = "Bank Details not Saved";
+                }
             }
-
-            }
-           
         }
     }
-    function delete_files(file_name){
-        for(let i=0;i<$documents_store.documents.length;i++){
-            if($documents_store.documents[i]["doc_category"] == file_name["doc_category"]){
-                $documents_store.documents.splice(i,1);
+    function delete_files(file_name) {
+        for (let i = 0; i < $documents_store.documents.length; i++) {
+            if (
+                $documents_store.documents[i]["doc_category"] ==
+                file_name["doc_category"]
+            ) {
+                $documents_store.documents.splice(i, 1);
                 console.log("document deleted from document store");
             }
         }
@@ -566,30 +585,20 @@
         file_name["pod"] = null;
         // file_name["doc_number"] = null;
 
-        if(file_name["doc_category"] == "Blank Cheque"){
+        if (file_name["doc_category"] == "Blank Cheque") {
             blank_cheque_data = blank_cheque_data;
-            document.getElementById('blank_cheque_copy').value = "";
-        }
-        else if(file_name["doc_category"] == "Passbook"){
+            document.getElementById("blank_cheque_copy").value = "";
+        } else if (file_name["doc_category"] == "Passbook") {
             passbook_data = passbook_data;
-            document.getElementById('passbook_copy').value = "";
-        }
-        else if(file_name["doc_category"] == "Cancel Cheque"){
+            document.getElementById("passbook_copy").value = "";
+        } else if (file_name["doc_category"] == "Cancel Cheque") {
             Cancel_cheque_data = Cancel_cheque_data;
-            document.getElementById('cancel_cheque_copy').value = "";
-        }
-        else if(file_name["doc_category"] == "Account Statement"){
+            document.getElementById("cancel_cheque_copy").value = "";
+        } else if (file_name["doc_category"] == "Account Statement") {
             account_statement_data = account_statement_data;
-            document.getElementById('account_statement_copy').value = "";
-            
+            document.getElementById("account_statement_copy").value = "";
         }
-
-        
-        
-
-
     }
-
 </script>
 
 <div class="mainContent ">
@@ -601,7 +610,7 @@
                 >
                 <span class="flex xs:text-base xs:items-center"
                     ><img
-                        src="../src/img/delivery.png"
+                        src="{$img_url_name.img_name}/delivery.png"
                         class="pr-2.5 pl-5 xs:pl-0"
                         alt=""
                     /> NDA/DA/HDA
@@ -633,7 +642,7 @@
                             <p class="contentDescriptionText ">Submit associate work details</p>
                         </div>
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="">
+                            <img src="{$img_url_name.img_name}/checked.png" alt="">
                         </div>
                     </a>
                 </li> -->
@@ -660,7 +669,7 @@
                             <p class="contentDescriptionText">Verify associate by OTP</p>
                         </div>
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="">
+                            <img src="{$img_url_name.img_name}/checked.png" alt="">
                         </div>
                     </a>
                 </li> -->
@@ -678,7 +687,7 @@
                             <p class="contentDescriptionText">Submit basic details of the associate</p>
                         </div>
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="">
+                            <img src="{$img_url_name.img_name}/checked.png" alt="">
                         </div>
                     </a>
                 </li> -->
@@ -711,7 +720,7 @@
                             <p class="contentDescriptionText">Upload identity proof documents</p>
                         </div>
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="">
+                            <img src="{$img_url_name.img_name}/checked.png" alt="">
                         </div>
                     </a>
                 </li> -->
@@ -751,7 +760,7 @@
                             <p class="contentDescriptionText">Submit bank details and documents</p>
                         </div>
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="">
+                            <img src="{$img_url_name.img_name}/checked.png" alt="">
                         </div>
                     </a>
                 </li> -->
@@ -785,7 +794,7 @@
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/bank.png"
+                                            src="{$img_url_name.img_name}/bank.png"
                                             class="placeholderIcon"
                                             alt=""
                                         />
@@ -852,7 +861,7 @@
                         <label class="formLable ">Bank Details<span class="mandatoryIcon">*</span></label>
                         <div class="formInnerGroup ">
                             <span class="searchicon">
-                                <img src="../src/img/bank.png" class="placeholderIcon"
+                                <img src="{$img_url_name.img_name}/bank.png" class="placeholderIcon"
                                     alt="">
                             </span>
                             <select class="inputbox">
@@ -862,7 +871,7 @@
                                 <option>SIB</option>
                             </select>
                             <div class="formSelectArrow ">
-                                <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
                             </div>
                         </div>
                     </div>
@@ -877,7 +886,7 @@
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/account.png"
+                                            src="{$img_url_name.img_name}/account.png"
                                             class="placeholderIcon"
                                             alt=""
                                         />
@@ -911,7 +920,7 @@
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/account.png"
+                                            src="{$img_url_name.img_name}/account.png"
                                             class="placeholderIcon"
                                             alt=""
                                         />
@@ -946,7 +955,7 @@
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/account.png"
+                                            src="{$img_url_name.img_name}/account.png"
                                             class="placeholderIcon"
                                             alt=""
                                         />
@@ -993,7 +1002,7 @@
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/bank.png"
+                                            src="{$img_url_name.img_name}/bank.png"
                                             class="placeholderIcon"
                                             alt=""
                                         />
@@ -1013,7 +1022,7 @@
                                     </select>
                                     <div class="formSelectArrow ">
                                         <img
-                                            src="../src/img/selectarrow.png"
+                                            src="{$img_url_name.img_name}/selectarrow.png"
                                             class="w-5 h-auto"
                                             alt=""
                                         />
@@ -1041,7 +1050,7 @@
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/bank.png"
+                                            src="{$img_url_name.img_name}/bank.png"
                                             class="placeholderIcon"
                                             alt=""
                                         />
@@ -1089,18 +1098,18 @@
                                     </label>
                                     <div class="flex">
                                         {#if blank_cheque_data.file_name}
-                                        <p>{blank_cheque_data.file_name}</p>
-                                        <img
-                                        class="pl-2 cursor-pointer"
-                                        on:click={() =>delete_files(blank_cheque_data)}
-                                        src="../src/img/blackclose.svg"
-                                        alt=""
-                                    />
-
-                                    {/if}
-
+                                            <p>{blank_cheque_data.file_name}</p>
+                                            <img
+                                                class="pl-2 cursor-pointer"
+                                                on:click={() =>
+                                                    delete_files(
+                                                        blank_cheque_data
+                                                    )}
+                                                src="{$img_url_name.img_name}/blackclose.svg"
+                                                alt=""
+                                            />
+                                        {/if}
                                     </div>
-                                    
                                 </div>
                             </div>
                         </div>
@@ -1136,19 +1145,16 @@
                                     </label>
                                     <div class="flex">
                                         {#if passbook_data.file_name}
-                                        <p>{passbook_data.file_name}</p>
-                                        <img
-                                        class="pl-2 cursor-pointer"
-                                        on:click={() =>delete_files(passbook_data)}
-                                        src="../src/img/blackclose.svg"
-                                        alt=""
-                                    />
-
-                                    {/if}
-
-
+                                            <p>{passbook_data.file_name}</p>
+                                            <img
+                                                class="pl-2 cursor-pointer"
+                                                on:click={() =>
+                                                    delete_files(passbook_data)}
+                                                src="{$img_url_name.img_name}/blackclose.svg"
+                                                alt=""
+                                            />
+                                        {/if}
                                     </div>
-                                    
                                 </div>
                             </div>
                         </div>
@@ -1178,8 +1184,11 @@
                                             </p>
                                             <img
                                                 class="pl-2 cursor-pointer"
-                                                on:click={() =>delete_files(Cancel_cheque_data)}
-                                                src="../src/img/blackclose.svg"
+                                                on:click={() =>
+                                                    delete_files(
+                                                        Cancel_cheque_data
+                                                    )}
+                                                src="{$img_url_name.img_name}/blackclose.svg"
                                                 alt=""
                                             />
                                         {/if}
@@ -1213,16 +1222,19 @@
                                     </label>
                                     <div class="flex">
                                         {#if account_statement_data.file_name}
-                                            <p>{account_statement_data.file_name}</p>
+                                            <p>
+                                                {account_statement_data.file_name}
+                                            </p>
                                             <img
-                                            class="pl-2 cursor-pointer"
-                                            on:click={() =>delete_files(account_statement_data)}
-                                            src="../src/img/blackclose.svg"
-                                            alt=""
-                                        />
-
+                                                class="pl-2 cursor-pointer"
+                                                on:click={() =>
+                                                    delete_files(
+                                                        account_statement_data
+                                                    )}
+                                                src="{$img_url_name.img_name}/blackclose.svg"
+                                                alt=""
+                                            />
                                         {/if}
-
                                     </div>
                                 </div>
                             </div>
@@ -1290,7 +1302,7 @@
             <div class="onboardFormNot ">
                 <div class="formFooterActionSubmit">
                     <div on:click={routeToBack} class="backButton">
-                        <img src="../src/img/arrowleft.png" alt="" />
+                        <img src="{$img_url_name.img_name}/arrowleft.png" alt="" />
                     </div>
                     <div>
                         <!-- <button class="saveandproceed">Save</button> -->
@@ -1304,4 +1316,5 @@
         </div>
     </div>
 </div>
-<Toast type={toast_type}  text={toast_text}/>
+<Toast type={toast_type} text={toast_text} />
+<Success_popup text={success_text} />

@@ -5,10 +5,13 @@
     import { goto } from "$app/navigation";
     import {get_verticles_fun} from '../services/business_vertical_services';
     import {vercticle_name} from '../stores/verticle_store';
+    import {goto_wrapper} from '../services/goto_wrapper';
     import Toast from './components/toast.svelte';
+    import {img_url_name} from '../stores/flags_store';
     
     import {get_verticles_ui_fun} from '../services/business_vertical_services';
     import Breadcrumb from "./breadcrumb.svelte";
+    
 
     let org_list= [];
     let verticle_list = [];
@@ -30,6 +33,7 @@
         
         
         let replaceState = false;
+        // goto_wrapper("organisation-selection",{ replaceState });
         goto("organisation-selection", { replaceState });
 
         // alert("button clicked");
@@ -40,8 +44,8 @@
             console.log("verticles api response",response);
         org_list = response.body.data;
         console.log(org_list);
-        toast_type = "warning";
-        toast_text = "verticles fetched success"
+        // toast_type = "warning";
+        // toast_text = "verticles fetched success"
         
         }
         else{
@@ -116,7 +120,7 @@
                                 <div class="cardContainer">
                                     <div class="cardImage">
                                         <img
-                                            src="../src/img/{item.image_name}"
+                                            src="{$img_url_name.img_name}/{item.image_name}"
                                             alt=""
                                         />
                                     </div>
@@ -147,7 +151,7 @@
                                 <div class="cardContainer">
                                     <div class="cardImage">
                                         <img
-                                            src="../src/img/ecomm.png"
+                                            src="{$img_url_name.img_name}/ecomm.png"
                                             alt=""
                                         />
                                     </div>
@@ -176,7 +180,7 @@
                                 <a href="">
                                     <div class="cardContainer">
                                         <div class="cardImage">
-                                            <img src="../src/img/withrun.png" alt="" />
+                                            <img src="{$img_url_name.img_name}/withrun.png" alt="" />
                                         </div>
                                         <div class="cardContent">
                                             <div class="cardText">
@@ -208,7 +212,7 @@
                         <a href="">
                             <div class="cardContainer">
                                 <div class="cardImage ">
-                                    <img src="../src/img/velocity.png" alt="" />
+                                    <img src="{$img_url_name.img_name}/velocity.png" alt="" />
                                 </div>
                                 <div class="cardContent">
                                     <div class="cardText">
@@ -230,7 +234,7 @@
                         <a href="">
                             <div class="cardContainer">
                                 <div class="cardImage">
-                                    <img src="../src/img/credit.png" alt="" />
+                                    <img src="{$img_url_name.img_name}/credit.png" alt="" />
                                 </div>
                                 <div class="cardContent">
                                     <div class="cardText">
@@ -252,7 +256,7 @@
                             <div class="cardContainer">
                                 <div class="cardImage">
                                     <img
-                                        src="../src/img/corporate.png"
+                                        src="{$img_url_name.img_name}/corporate.png"
                                         alt=""
                                     />
                                 </div>

@@ -1,8 +1,7 @@
 <script context = "module">
     export let save_button_clicked = true;
-
-
 </script>
+
 <script>
     import { goto } from "$app/navigation";
     import {
@@ -22,18 +21,19 @@
     import { pravesh_properties } from "../stores/pravesh_properties_store";
     import Side_content_component from "./side_content_scetion.svelte";
     import { page } from "$app/stores";
+    import {img_url_name} from '../stores/flags_store';
     import { onMount } from "svelte";
-    import {save_flag} from "../stores/flags_store";
-    import Success_popup from './components/success_popup.svelte';
-    import Toast from './components/toast.svelte';
+    import { save_flag } from "../stores/flags_store";
+    import Success_popup from "./components/success_popup.svelte";
+    import Toast from "./components/toast.svelte";
     let toast_text = "";
     let toast_type = null;
     let success_text = "";
-    
+
     // import {}
 
     // let routeTo = "identityproof";
-    
+
     let id_proof = true;
     let page_name = null;
     let show_dialouge = false;
@@ -100,7 +100,7 @@
         user_id: null,
     };
     onMount(async () => {
-        page_name = $page.url["pathname"].substring(1);
+        page_name = $page.url["pathname"].split("/").pop();
         console.log("page name on identity", page_name);
     });
     // let driving_lice
@@ -113,7 +113,7 @@
     function gotobankdetails() {
         show_dialouge = false;
         let replaceState = false;
-        goto("bankdetails", { replaceState });
+        goto("bankdetails", replaceState);
     }
     async function verify_pancard() {
         if (pan_card_data.doc_number) {
@@ -125,23 +125,21 @@
                 let pan_card_proof_response = await verify_document_function(
                     pan_card_data.doc_number
                 );
-                try{
-                    console.log("pan_card_proof_response", pan_card_proof_response);
-                if (pan_card_proof_response.body.data == false) {
-                    pan_card_message = pan_card_proof_response.body.message;
-                } else {
-                    pan_card_message = "";
-                    pan_check = true;
-                }
-                    
-
-                }
-                catch{
+                try {
+                    console.log(
+                        "pan_card_proof_response",
+                        pan_card_proof_response
+                    );
+                    if (pan_card_proof_response.body.data == false) {
+                        pan_card_message = pan_card_proof_response.body.message;
+                    } else {
+                        pan_card_message = "";
+                        pan_check = true;
+                    }
+                } catch {
                     toast_text = "Unable to verify Pan Card";
                     toast_type = "error";
-
                 }
-                
             }
         } else {
             pan_card_message = "";
@@ -150,40 +148,36 @@
     }
     function on_proceed() {
         check_validity();
-        if(valid){
-            
+        if (valid) {
             if (
-            $pravesh_properties.properties["pan_required_associates"].includes(
-                $facility_data_store.facility_type
-            ) ||
-            $pravesh_properties.properties[
-                "bank_section_required_associates"
-            ].includes($facility_data_store.facility_type)
-        ) {
-            if (! $save_flag.is_save) {
-                console.log("inside condition");
-                // if (
-                //     confirm("Are you sure you want to proceed without saving?")
-                // ) {
-                //     gotobankdetails();
-                // } else {
-                //     save_facility();
-                // }
-                show_dialouge =true;
-            }else{
-                gotobankdetails();
-
-            }
-        } else {
-            save_facility();
-            if ($facility_id.facility_id_number) {
-                let replaceState = false;
-                goto("successpopup", { replaceState });
+                $pravesh_properties.properties[
+                    "pan_required_associates"
+                ].includes($facility_data_store.facility_type) ||
+                $pravesh_properties.properties[
+                    "bank_section_required_associates"
+                ].includes($facility_data_store.facility_type)
+            ) {
+                if (!$save_flag.is_save) {
+                    console.log("inside condition");
+                    // if (
+                    //     confirm("Are you sure you want to proceed without saving?")
+                    // ) {
+                    //     gotobankdetails();
+                    // } else {
+                    //     save_facility();
+                    // }
+                    show_dialouge = true;
+                } else {
+                    gotobankdetails();
+                }
+            } else {
+                save_facility();
+                if ($facility_id.facility_id_number) {
+                    let replaceState = false;
+                    goto("successpopup", { replaceState });
+                }
             }
         }
-
-        }
-        
     }
     async function verify_adhar_card() {
         if (adhar_card_data.doc_number) {
@@ -192,30 +186,27 @@
                 adhar_check = false;
             } else {
                 adhar_card_message = "";
-                try{
-                    let adhar_card_proof_response = await verify_document_function(
-                    adhar_card_data.doc_number
-                );
-                console.log(
-                    "adhar_card_proof_response",
-                    adhar_card_proof_response
-                );
-                if (adhar_card_proof_response.body.data == false) {
-                    console.log("inside if adhar_card_proof_response");
-                    adhar_card_message = adhar_card_proof_response.body.message;
-                } else {
-                    adhar_card_message = "";
-                    adhar_check = true;
-                }
-
-                }
-                catch{
+                try {
+                    let adhar_card_proof_response =
+                        await verify_document_function(
+                            adhar_card_data.doc_number
+                        );
+                    console.log(
+                        "adhar_card_proof_response",
+                        adhar_card_proof_response
+                    );
+                    if (adhar_card_proof_response.body.data == false) {
+                        console.log("inside if adhar_card_proof_response");
+                        adhar_card_message =
+                            adhar_card_proof_response.body.message;
+                    } else {
+                        adhar_card_message = "";
+                        adhar_check = true;
+                    }
+                } catch {
                     toast_text = "Unable to verify Aadhar Card";
                     toast_type = "error";
-
-
                 }
-                
             }
         } else {
             adhar_card_message = "";
@@ -229,24 +220,25 @@
                 voter_id_check = false;
             } else {
                 voter_id_message = "";
-                try{
-                    let voter_id_proof_response = await verify_document_function(
-                    voter_id_card_data.doc_number
-                );
-                console.log("voter_id_proof_response", voter_id_proof_response);
-                if (voter_id_proof_response.body.data == false) {
-                    voter_id_message = voter_id_proof_response.body.message;
-                } else {
-                    voter_id_message = "";
-                    voter_id_check = true;
-                }
-                }
-                catch{
+                try {
+                    let voter_id_proof_response =
+                        await verify_document_function(
+                            voter_id_card_data.doc_number
+                        );
+                    console.log(
+                        "voter_id_proof_response",
+                        voter_id_proof_response
+                    );
+                    if (voter_id_proof_response.body.data == false) {
+                        voter_id_message = voter_id_proof_response.body.message;
+                    } else {
+                        voter_id_message = "";
+                        voter_id_check = true;
+                    }
+                } catch {
                     toast_text = "Unable to verify Voter Id";
                     toast_type = "error";
-
                 }
-                
             }
         } else {
             voter_id_message = "";
@@ -263,29 +255,26 @@
                 dl_check = false;
             } else {
                 driving_license_message = "";
-                try{
+                try {
                     let driving_license_proof_response =
-                    await verify_document_function(
-                        driving_license_data.doc_number
+                        await verify_document_function(
+                            driving_license_data.doc_number
+                        );
+                    console.log(
+                        "driving_license_proof_response",
+                        driving_license_proof_response
                     );
-                console.log(
-                    "driving_license_proof_response",
-                    driving_license_proof_response
-                );
-                if (driving_license_proof_response.body.data == false) {
-                    driving_license_message =
-                        driving_license_proof_response.body.message;
-                } else {
-                    driving_license_message = "";
-                    dl_check = true;
-                }
-                }
-                catch{
+                    if (driving_license_proof_response.body.data == false) {
+                        driving_license_message =
+                            driving_license_proof_response.body.message;
+                    } else {
+                        driving_license_message = "";
+                        dl_check = true;
+                    }
+                } catch {
                     toast_text = "Unable to verify Driving License";
                     toast_type = "error";
-
                 }
-                
             }
         } else {
             driving_license_message = "";
@@ -340,11 +329,11 @@
         $facility_data_store.facility_email = "testing@nomail.com";
         $facility_data_store.facility_id = "tejas_bhosale_mhpd";
         $facility_data_store.facility_name = "tejas bhosale";
-        $facility_data_store.facility_type = "DA";
+        $facility_data_store.facility_type = "HDA";
         $facility_data_store.msme_registered = "1";
         $facility_data_store.org_id = "AN";
         $facility_data_store.owner_name = "tejas bhosale";
-        $facility_data_store.phone_number = "9890637094";
+        $facility_data_store.phone_number = "9890637095";
         $facility_data_store.station_code = "MHPD";
         $facility_data_store.store_id = "MHPD";
         $facility_data_store.store_name = "MHPD00012";
@@ -362,6 +351,7 @@
             ],
             bank_section_required_associates: ["NDA", "Reseller", "SAG"],
         };
+        // $facility_id.facility_id_number = "MHPD01322";
     }
     // function set_user_id_to_document_store() {
     //     $msme_store.user_id = $current_user.email;
@@ -581,8 +571,9 @@
                 // console.log("condition works");
                 // form_message = "Please Upload Atleast One Document";
                 // console.log("form_message", form_message);
-                toast_type = "error";
+                toast_type = "warning";
                 toast_text = "Please Upload Atleast One Document";
+                console.log("Please Upload Atleast One Document");
             } else {
                 form_message = "";
                 console.log(
@@ -596,6 +587,8 @@
                 ) {
                     if (!pan_card_data.doc_number && !pan_card_data.file_name) {
                         form_message = "Please upload Pan card details";
+                        toast_type = "warning";
+                        toast_text = "Please upload Pan card details";
                         valid = false;
                     } else {
                         form_message = "";
@@ -609,143 +602,159 @@
     }
     async function save_facility() {
         check_validity();
-
-        if (valid) {
-            console.log("documents_store", $documents_store);
-            console.log("inside valid");
-            console.log("save condition",!$pravesh_properties.properties[
-                            "pan_required_associates"
-                        ].includes($facility_data_store.facility_type) &&
-                        !$pravesh_properties.properties[
-                            "bank_section_required_associates"
-                        ].includes($facility_data_store.facility_type));
-
-
-           
-            let save_facility_response = await save_facility_function();
-            console.log("save_facility_response",save_facility_response);
-            show_dialouge = false;
-            if (save_facility_response.body.status == "green") {
-                try {
-                    console.log("inside save try");
-                    // alert("Facility saved successfully");
-                    toast_type = "success";
-                    toast_text = "Facility saved successfully";
-
-                    $facility_id.facility_id_number =
-                        save_facility_response.body.data.name;
-                    let temp;
-                    facility_id.subscribe((value) => {
-                        temp = value.facility_id_number;
-                    });
-                    console.log("facility id", temp);
-                    try {
-                        let current_user_response =
-                            await get_current_user_function();
-                        console.log(
-                            "current_user_response",
-                            current_user_response
-                        );
-                        if (current_user_response.body.status == "green") {
-                            console.log(
-                                "inside current_user_response if statement"
-                            );
-                            $current_user.email =
-                                current_user_response.body.data.user.email;
-                            $current_user.name =
-                                current_user_response.body.data.user.name;
-                            $current_user.username =
-                                current_user_response.body.data.user.username;
-                        } else {
-                            alert("Session user not found error!");
-                            toast_type = "error";
-                            toast_message = "Session user not found error!";
-                        }
-                    } catch {
-                        // alert("Session user not found error!");
-                        toast_type = "error";
-                        toast_message = "Session user not found error!";
-                        console.log("current user data", $current_user);
-                    }
-                    
-                    for (
-                        let i = 0;
-                        i < $documents_store.documents.length;
-                        i++
-                    ) {
-                        console.log("inside for loop");
-                        // console.log("documents store",$documents_store.documents[i]);
-                        $documents_store.documents[i].resource_id =
-                            $facility_id.facility_id_number;
-                        $documents_store.documents[i].user_id =
-                            $current_user.username;
-                        console.log(
-                            "documents store",
-                            $documents_store.documents[i]
-                        );
-                        let document_upload_response =
-                            await save_or_update_documents_function_1(
-                                $documents_store.documents[i]
-                            );
-                            if(document_upload_response.body.status != "green"){
-                                // alert("Document upload failed");
-                                toast_text = $documents_store.documents[i]["doc_category"]+" Document upload failed";
-                                toast_type = "error";
-                            }
-                        console.log(
-                            "document_upload_response",
-                            document_upload_response
-                        );
-                    }
-                    save_button_clicked =true;
-                    $save_flag.is_save = true;
-                    
-                    
-                    
-
-                    if (
-                        !$pravesh_properties.properties[
-                            "pan_required_associates"
-                        ].includes($facility_data_store.facility_type) &&
+        if (!$facility_id.facility_id_number) {
+            console.log("inside if $facility_id.facility_id_number");
+            if (valid) {
+                console.log("documents_store", $documents_store);
+                console.log("inside valid");
+                console.log(
+                    "save condition",
+                    !$pravesh_properties.properties[
+                        "pan_required_associates"
+                    ].includes($facility_data_store.facility_type) &&
                         !$pravesh_properties.properties[
                             "bank_section_required_associates"
                         ].includes($facility_data_store.facility_type)
-                    ) {
-                        console.log("taking you to the success page");
-                        // let replaceState = false;
-                        // goto("successpopup", { replaceState });
-                        success_text = "Onboarding Completed Successfully";
-                        // await delay(2000);
-                        // console.log("delay");
-                        setTimeout(() => {   }, 2000);
-                        let replaceState = false;
-                        goto("onboardsummary", { replaceState });
+                );
 
+                let save_facility_response = await save_facility_function();
+                console.log("save_facility_response", save_facility_response);
+                show_dialouge = false;
+                if (save_facility_response.body.status == "green") {
+                    try {
+                        console.log("inside save try");
+                        // alert("Facility saved successfully");
+                        toast_type = "success";
+                        toast_text = "Facility saved successfully";
 
+                        $facility_id.facility_id_number =
+                            save_facility_response.body.data.name;
+                        let temp;
+                        facility_id.subscribe((value) => {
+                            temp = value.facility_id_number;
+                        });
+                        console.log("facility id", temp);
+                        try {
+                            let current_user_response =
+                                await get_current_user_function();
+                            console.log(
+                                "current_user_response",
+                                current_user_response
+                            );
+                            if (current_user_response.body.status == "green") {
+                                console.log(
+                                    "inside current_user_response if statement"
+                                );
+                                $current_user.email =
+                                    current_user_response.body.data.user.email;
+                                $current_user.name =
+                                    current_user_response.body.data.user.name;
+                                $current_user.username =
+                                    current_user_response.body.data.user.username;
+                            } else {
+                                // alert("Session user not found error!");
+
+                                toast_type = "error";
+                                toast_message = "Session user not found error!";
+                            }
+                        } catch {
+                            // alert("Session user not found error!");
+                            toast_type = "error";
+                            toast_message = "Session user not found error!";
+                            console.log("current user data", $current_user);
+                        }
+
+                        for (
+                            let i = 0;
+                            i < $documents_store.documents.length;
+                            i++
+                        ) {
+                            console.log("inside for loop");
+                            // console.log("documents store",$documents_store.documents[i]);
+                            $documents_store.documents[i].resource_id =
+                                $facility_id.facility_id_number;
+                            $documents_store.documents[i].user_id =
+                                $current_user.username;
+                            console.log(
+                                "documents store",
+                                $documents_store.documents[i]
+                            );
+                            let document_upload_response =
+                                await save_or_update_documents_function_1(
+                                    $documents_store.documents[i]
+                                );
+                            if (
+                                document_upload_response.body.status != "green"
+                            ) {
+                                // alert("Document upload failed");
+                                toast_text =
+                                    $documents_store.documents[i][
+                                        "doc_category"
+                                    ] + " Document upload failed";
+                                toast_type = "error";
+                            }
+                            console.log(
+                                "document_upload_response",
+                                document_upload_response
+                            );
+                        }
+                        save_button_clicked = true;
+                        $save_flag.is_save = true;
+
+                        if (
+                            !$pravesh_properties.properties[
+                                "pan_required_associates"
+                            ].includes($facility_data_store.facility_type) &&
+                            !$pravesh_properties.properties[
+                                "bank_section_required_associates"
+                            ].includes($facility_data_store.facility_type)
+                        ) {
+                            console.log("taking you to the success page");
+                            // let replaceState = false;
+                            // goto("successpopup", { replaceState });
+                            success_text = "Onboarding Completed Successfully";
+                            // await delay(2000);
+                            // console.log("delay");
+                            setTimeout(() => {}, 2000);
+                            let replaceState = false;
+                            goto("onboardsummary", { replaceState });
+                        }
+                    } catch {
+                        alert("Error in saving facility!");
                     }
-                } catch {
-                    alert("Error in saving facility!");
+                } else {
+                    // if(save_facility_response.body.status == "red"){
+                    //     alert("message :" +save_facility_response.body.message+"\n"
+                    //     +"Traceback :"+save_facility_response.body.traceback);
+                    // }
+                    console.log(
+                        "message :" +
+                            save_facility_response.body.message +
+                            "\n" +
+                            "Traceback :" +
+                            save_facility_response.body.traceback
+                    );
+                    toast_text = "Error in saving facility!";
+                    toast_type = "error";
+
+                    // alert("Facility not created");
                 }
-            } else {
-                // if(save_facility_response.body.status == "red"){
-                //     alert("message :" +save_facility_response.body.message+"\n"
-                //     +"Traceback :"+save_facility_response.body.traceback);
-                // }
-                console.log("message :" +save_facility_response.body.message+"\n"
-                    +"Traceback :"+save_facility_response.body.traceback);
-                toast_text = "Error in saving facility!";
-                toast_color = "error";
-                
-                // alert("Facility not created");
+                // gotobankdetails();
+                // route_to_next_page();
             }
-            // gotobankdetails();
-            // route_to_next_page();
+        }
+        else{
+            toast_type = "error";
+            toast_text = "Facility already exists";
         }
     }
-    function delete_files(file_name){
-        for(let i=0;i<$documents_store.documents.length;i++){
-            if($documents_store.documents[i]["doc_category"] == file_name["doc_category"]){
-                $documents_store.documents.splice(i,1);
+    function delete_files(file_name) {
+        for (let i = 0; i < $documents_store.documents.length; i++) {
+            if (
+                $documents_store.documents[i]["doc_category"] ==
+                file_name["doc_category"]
+            ) {
+                $documents_store.documents.splice(i, 1);
                 console.log("document deleted from document store");
             }
         }
@@ -753,32 +762,23 @@
         file_name["pod"] = null;
         file_name["doc_number"] = null;
 
-        if(file_name["doc_category"] == "Pancard"){
+        if (file_name["doc_category"] == "Pancard") {
             pan_card_data = pan_card_data;
-            document.getElementById('pan_card_file_upload').value = "";
-        }
-        else if(file_name["doc_category"] == "Aadhar Id proof"){
+            document.getElementById("pan_card_file_upload").value = "";
+        } else if (file_name["doc_category"] == "Aadhar Id proof") {
             adhar_card_data = adhar_card_data;
-            document.getElementById('adhar_card_file_upload').value = "";
-        }
-        else if(file_name["doc_category"] == "Voter Id proof"){
+            document.getElementById("adhar_card_file_upload").value = "";
+        } else if (file_name["doc_category"] == "Voter Id proof") {
             voter_id_card_data = voter_id_card_data;
-            document.getElementById('voter_id_file_upload').value = "";
-        }
-        else if(file_name["doc_category"] == "Driving License"){
+            document.getElementById("voter_id_file_upload").value = "";
+        } else if (file_name["doc_category"] == "Driving License") {
             driving_license_data = driving_license_data;
-            document.getElementById('driving_license_file_upload').value = "";
-        }
-        else if(file_name["doc_category"] == "Voter Id proof"){
+            document.getElementById("driving_license_file_upload").value = "";
+        } else if (file_name["doc_category"] == "Voter Id proof") {
             voter_id_card_data = voter_id_card_data;
-            document.getElementById('voter_id_file_upload').value = "";
+            document.getElementById("voter_id_file_upload").value = "";
         }
-       
-        
-
-
     }
-    
 </script>
 
 <div class="mainContent ">
@@ -790,7 +790,7 @@
                 >
                 <span class="flex xs:text-base xs:items-center"
                     ><img
-                        src="../src/img/delivery.png"
+                        src="{$img_url_name.img_name}/delivery.png"
                         class="pr-2.5 pl-5 xs:pl-0"
                         alt=""
                     /> NDA/DA/HDA
@@ -832,7 +832,7 @@
                             </p>
                         </div>
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="" />
+                            <img src="{$img_url_name.img_name}/checked.png" alt="" />
                         </div>
                     </a>
                 </li> -->
@@ -872,7 +872,7 @@
                             </p>
                         </div>
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="" />
+                            <img src="{$img_url_name.img_name}/checked.png" alt="" />
                         </div>
                     </a>
                 </li> -->
@@ -902,7 +902,7 @@
                             </p>
                         </div>
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="" />
+                            <img src="{$img_url_name.img_name}/checked.png" alt="" />
                         </div>
                     </a>
                 </li> -->
@@ -948,7 +948,7 @@
                             </p>
                         </div>
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="">
+                            <img src="{$img_url_name.img_name}/checked.png" alt="">
                         </div>
                     </a>
                 </li> -->
@@ -1002,7 +1002,7 @@
                             </p>
                         </div>
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="">
+                            <img src="{$img_url_name.img_name}/checked.png" alt="">
                         </div>
                     </a>
                 </li> -->
@@ -1036,7 +1036,7 @@
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/pan.png"
+                                            src="{$img_url_name.img_name}/pan.png"
                                             class="placeholderIcon"
                                             alt=""
                                         />
@@ -1074,10 +1074,10 @@
 
                             <span class="profileimage">
                                 <span>dhiraj-shah.jpeg </span>
-                                <span><img src="../src/img/closeblue.png" alt=""></span>
+                                <span><img src="{$img_url_name.img_name}/closeblue.png" alt=""></span>
                             </span>
                             <div class="mt-2">
-                                <img src="../src/img/pancard.png" class="uploadedImage"
+                                <img src="{$img_url_name.img_name}/pancard.png" class="uploadedImage"
                                     alt="">
                             </div>
                         </div> -->
@@ -1095,21 +1095,18 @@
                                             id="pan_card_file_upload"
                                             on:change={(e) => on_pan_upload(e)}
                                         />
-                                       
                                     </label>
                                     <div class="flex">
                                         {#if pan_card_data.file_name}
-                                       <p> {pan_card_data.file_name}</p>
-                                       <img
-                                       on:click={() => delete_files(pan_card_data)}
-                                       class="pl-2 cursor-pointer"
-                                       src="../src/img/blackclose.svg"
-                                       alt=""
-                                       
-                                   />
-
-                                    {/if}
-
+                                            <p>{pan_card_data.file_name}</p>
+                                            <img
+                                                on:click={() =>
+                                                    delete_files(pan_card_data)}
+                                                class="pl-2 cursor-pointer"
+                                                src="{$img_url_name.img_name}/blackclose.svg"
+                                                alt=""
+                                            />
+                                        {/if}
                                     </div>
                                     <p class="noteDescription mt-2">
                                         <span class="font-medium">Note:</span>
@@ -1129,7 +1126,7 @@
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/pan.png"
+                                            src="{$img_url_name.img_name}/pan.png"
                                             class="placeholderIcon"
                                             alt=""
                                         />
@@ -1178,23 +1175,20 @@
                                             on:change={(e) =>
                                                 on_adhar_upload(e)}
                                         />
-                                        
                                     </label>
                                     <div class="flex">
                                         {#if adhar_card_data.file_name}
-                                        <p>{adhar_card_data.file_name}</p>
+                                            <p>{adhar_card_data.file_name}</p>
                                             <img
-                                       on:click={() => delete_files(adhar_card_data)}
-                                       class="pl-2 cursor-pointer"
-                                       src="../src/img/blackclose.svg"
-                                       alt=""
-                                       
-                                   />
+                                                on:click={() =>
+                                                    delete_files(
+                                                        adhar_card_data
+                                                    )}
+                                                class="pl-2 cursor-pointer"
+                                                src="{$img_url_name.img_name}/blackclose.svg"
+                                                alt=""
+                                            />
                                         {/if}
-                                        
-
-
-
                                     </div>
                                     <p class="noteDescription mt-2">
                                         <span class="font-medium">Note:</span>
@@ -1215,7 +1209,7 @@
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/pan.png"
+                                            src="{$img_url_name.img_name}/pan.png"
                                             class="placeholderIcon"
                                             alt=""
                                         />
@@ -1254,10 +1248,10 @@
 
                             <span class="profileimage">
                                 <span>voter-id.jpeg </span>
-                                <span><img src="../src/img/closeblue.png" alt=""></span>
+                                <span><img src="{$img_url_name.img_name}/closeblue.png" alt=""></span>
                             </span>
                             <div class="mt-2">
-                                <img src="../src/img/pancard.png" class="uploadedImage"
+                                <img src="{$img_url_name.img_name}/pancard.png" class="uploadedImage"
                                     alt="">
                             </div>
                         </div> -->
@@ -1276,21 +1270,22 @@
                                             on:change={(e) =>
                                                 on_voter_id_upload(e)}
                                         />
-                                        
                                     </label>
                                     <div class="flex">
-                                       {#if voter_id_card_data.file_name}
-                                       <p> {voter_id_card_data.file_name}</p>
+                                        {#if voter_id_card_data.file_name}
+                                            <p>
+                                                {voter_id_card_data.file_name}
+                                            </p>
                                             <img
-                                        on:click={() => delete_files(voter_id_card_data)}
-                                        class="pl-2 cursor-pointer"
-                                        src="../src/img/blackclose.svg"
-                                        alt=""
-                                        
-                                    />
+                                                on:click={() =>
+                                                    delete_files(
+                                                        voter_id_card_data
+                                                    )}
+                                                class="pl-2 cursor-pointer"
+                                                src="{$img_url_name.img_name}/blackclose.svg"
+                                                alt=""
+                                            />
                                         {/if}
-                                    
-                                        
                                     </div>
                                     <p class="noteDescription mt-2">
                                         <span class="font-medium">Note:</span>
@@ -1310,7 +1305,7 @@
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
-                                            src="../src/img/pan.png"
+                                            src="{$img_url_name.img_name}/pan.png"
                                             class="placeholderIcon"
                                             alt=""
                                         />
@@ -1355,25 +1350,26 @@
                                             type="file"
                                             class="hidden"
                                             accept=".jpg, .jpeg, .png,.pdf"
-                                            id='driving_license_file_upload'
+                                            id="driving_license_file_upload"
                                             on:change={(e) =>
                                                 on_driving_license_upload(e)}
                                         />
-                                        
                                     </label>
                                     <div class="flex">
                                         {#if driving_license_data.file_name}
-                                           <p> {driving_license_data.file_name}</p>
-                                           <img
-                                        on:click={() => delete_files(driving_license_data)}
-                                        class="pl-2 cursor-pointer"
-                                        src="../src/img/blackclose.svg"
-                                        alt=""
-                                        
-                                    />
-
+                                            <p>
+                                                {driving_license_data.file_name}
+                                            </p>
+                                            <img
+                                                on:click={() =>
+                                                    delete_files(
+                                                        driving_license_data
+                                                    )}
+                                                class="pl-2 cursor-pointer"
+                                                src="{$img_url_name.img_name}/blackclose.svg"
+                                                alt=""
+                                            />
                                         {/if}
-
                                     </div>
                                     <p class="noteDescription mt-2">
                                         <span class="font-medium">Note:</span>
@@ -1417,7 +1413,7 @@
                         }}
                         class="backButton"
                     >
-                        <img src="../src/img/arrowleft.png" alt="" />
+                        <img src="{$img_url_name.img_name}/arrowleft.png" alt="" />
                     </div>
                     <button
                         on:click={() => {
@@ -1436,22 +1432,45 @@
         </div>
     </div>
 </div>
-<Toast type={toast_type}  text={toast_text}/>
+<Toast type={toast_type} text={toast_text} />
 {#if show_dialouge}
-<div id="actionModalDialogue" tabindex="-1" class="actionDialogue">
+    <div id="actionModalDialogue" tabindex="-1" class="actionDialogue">
         <div class="actionDialogueWrapper">
             <div class="actionDialogueModalContent">
                 <div class="actionDialogueModalBody">
-                    <svg class="actionDialogueSvg" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <h3 class="actionDialogueText">Are you sure you want to proceed without saving?
+                    <svg
+                        class="actionDialogueSvg"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        xmlns="http://www.w3.org/2000/svg"
+                        ><path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        /></svg
+                    >
+                    <h3 class="actionDialogueText">
+                        Are you sure you want to proceed without saving?
                     </h3>
                     <div class="pt-3">
-                    <button data-modal-toggle="popup-modal" type="button" class="dialogueNobutton" on:click|preventDefault={()=>save_facility()}>
-                        No
-                    </button>
-                    <button data-modal-toggle="popup-modal" type="button" class="dialogueYesbutton" on:click|preventDefault={()=>gotobankdetails()}>
-                        Yes
-                    </button>
+                        <button
+                            data-modal-toggle="popup-modal"
+                            type="button"
+                            class="dialogueNobutton"
+                            on:click|preventDefault={() => save_facility()}
+                        >
+                            No
+                        </button>
+                        <button
+                            data-modal-toggle="popup-modal"
+                            type="button"
+                            class="dialogueYesbutton"
+                            on:click|preventDefault={() => gotobankdetails()}
+                        >
+                            Yes
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1459,4 +1478,5 @@
     </div>
 {/if}
 
-<Success_popup text={success_text}/>
+<Success_popup text={success_text} />
+

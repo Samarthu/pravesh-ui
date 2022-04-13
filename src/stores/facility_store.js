@@ -50,10 +50,10 @@ export const verify_associate_name_api_link = derived(facility_data_store,
     $facility_data_store => '/api/method/pravesh.facility.routes.facility.verify_facility_name?facility_name='+$facility_data_store.facility_name+'&station_code='+$facility_data_store.station_code+'&fac_id=');
 
 export const verify_email_name_api_link = derived(facility_data_store,
-        $facility_data_store => 'api/method/pravesh.facility.routes.facility.verify_facility_email?email_id='+$facility_data_store.facility_email);
+        $facility_data_store => '/api/method/pravesh.facility.routes.facility.verify_facility_email?email_id='+$facility_data_store.facility_email);
 
 export const check_bgv_config_api_link = derived(facility_data_store,
-        $facility_data_store => 'api/method/pravesh.facility.routes.facility_bgv_configuration.check_bgv_config?org_id='+$facility_data_store.org_id+'&station_code='+$facility_data_store.station_code+'&facility_type='+$facility_data_store.facility_type);
+        $facility_data_store => '/api/method/pravesh.facility.routes.facility_bgv_configuration.check_bgv_config?org_id='+$facility_data_store.org_id+'&station_code='+$facility_data_store.station_code+'&facility_type='+$facility_data_store.facility_type);
     
         //https://doha-crun.elasticrun.in/api/method/pravesh.facility.routes.facility_bgv_configuration.check_bgv_config?org_id=AN&station_code=MHPD&facility_type=HDA
 
