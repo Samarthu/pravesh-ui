@@ -89,7 +89,6 @@
         // })
         facility_id = "CRUN00374"
         console.log("new_facility_id",facility_id)
-        
             let facility_data_res = await get_facility_details()
             console.log("facility_data_res",facility_data_res)
             try{
@@ -104,8 +103,8 @@
             catch (err) {
                 console.log("error in facility data")
             }
-            console.log("facility_data_store",$facility_data_store)
-            // console.log("facility_data_store",$facility_data_store)
+            console.log("facility_data_store on line 107",$facility_data_store)
+            
 
             let new_date = new Date($facility_data_store.document_updated_on)
             verified_date = get_date_format(new_date,"dd-mm-yyyy-hh-mm")   
@@ -115,7 +114,7 @@
             let facility_bank_data_res = await get_bank_facility_details()
             console.log("bank_details", facility_bank_data_res)
             try{
-                if(facility_bank_data_res!="null"){
+                if(facility_bank_data_res != "null"){
                     bank_details.set(
                         facility_bank_data_res.body.data[0]
                     )
@@ -364,83 +363,67 @@
 
             if(contains_pan == 0){   
                 final_pan_approve = 1;
-                final_pan_reject = 1;
+               
             }
             else{
                 if(pan_success_flag == 1){
                     final_pan_approve = 1;
                 }
-                if(pan_reject_flag == 1){
-                    final_pan_reject = 1;
-                }
             }
             if(contains_voter == 0){
                 final_voter_approve = 1;
-                final_voter_reject = 1;
+               
             }
             else{
                 if(voter_success_flag == 1){
                     final_voter_approve = 1;
                 }
-                if(voter_reject_flag == 1){
-                    final_voter_reject = 1;
-                }
             }
             if(contains_aadhar == 0){
                 final_aadhar_approve = 1;
-                final_aadhar_reject = 1;
+               
             }
             else{
                 if(aadhar_success_flag == 1){
                     final_aadhar_approve = 1;
                 }
-                if(aadhar_reject_flag == 1){
-                    final_aadhar_reject = 1;
-                }
+               
             }
             if(contains_dl == 0){
                 final_dl_approve = 1;
-                final_dl_reject = 1;
+                
             }
             else{
                 if(dl_success_flag == 1){
                     final_dl_approve = 1;
                 }
-                if(dl_reject_flag == 1){
-                    final_dl_reject = 1;
-                }
+                
             }
             if(contains_address == 0){
                 final_address_approve = 1;
-                final_address_reject = 1;
+               
             }
             else{
                 if(address_success_flag == 1){
                     final_address_approve = 1;
                 }
-                if(address_reject_flag == 1){
-                    final_address_reject = 1;
-                }
+                
             }
             if(contains_offer == 0){
                 final_offer_approve = 1;
-                final_offer_reject = 1;
+               
             }
             else{
                 if(offer_success_flag == 1){
                     final_offer_approve = 1;
                 }
-                if(offer_reject_flag == 1){
-                    final_offer_reject = 1;
-                }
+               
             }
 
             if(final_pan_approve == 1 && final_voter_approve == 1 && final_aadhar_approve == 1 && final_address_approve == 1 && final_dl_approve == 1 && final_offer_approve == 1){
                 final_approve = 1;
             }
-            if(final_pan_reject == 1 && final_voter_reject == 1 && final_aadhar_reject == 1 && final_address_reject == 1 && final_dl_reject == 1 && final_offer_reject == 1){
-                final_reject = 1;
-            }
+            
             console.log("FLAGS",final_pan_approve,final_voter_approve,final_aadhar_approve,final_address_approve,final_dl_approve,final_offer_approve,final_approve)
             console.log("FLAGS",final_pan_reject,final_voter_reject,final_aadhar_reject,final_address_reject,final_dl_reject,final_offer_reject,final_reject)
 
@@ -578,6 +561,69 @@
                 console.log("Error in pan_sub_res",err)
             }
         }
+
+        if(contains_pan == 0){   
+                
+                final_pan_reject = 1;
+            }
+            else{
+                if(pan_reject_flag == 1){
+                    final_pan_reject = 1;
+                }
+            }
+            if(contains_voter == 0){
+                
+                final_voter_reject = 1;
+            }
+            else{
+                if(voter_reject_flag == 1){
+                    final_voter_reject = 1;
+                }
+            }
+            if(contains_aadhar == 0){
+               
+                final_aadhar_reject = 1;
+            }
+            else{
+                if(aadhar_reject_flag == 1){
+                    final_aadhar_reject = 1;
+                }
+            }
+            if(contains_dl == 0){
+                
+                final_dl_reject = 1;
+            }
+            else{
+                if(dl_reject_flag == 1){
+                    final_dl_reject = 1;
+                }
+            }
+            if(contains_address == 0){
+               
+                final_address_reject = 1;
+            }
+            else{
+                if(address_reject_flag == 1){
+                    final_address_reject = 1;
+                }
+            }
+            if(contains_offer == 0){
+                
+                final_offer_reject = 1;
+            }
+            else{
+                if(offer_reject_flag == 1){
+                    final_offer_reject = 1;
+                }
+            }
+
+            
+            if(final_pan_reject == 1 && final_voter_reject == 1 && final_aadhar_reject == 1 && final_address_reject == 1 && final_dl_reject == 1 && final_offer_reject == 1){
+                final_reject = 1;
+            }
+            console.log("FLAGS",final_pan_approve,final_voter_approve,final_aadhar_approve,final_address_approve,final_dl_approve,final_offer_approve,final_approve)
+            console.log("FLAGS",final_pan_reject,final_voter_reject,final_aadhar_reject,final_address_reject,final_dl_reject,final_offer_reject,final_reject)
+
     }
     async function bank_approve(){
         console.log("Inside bank approve")
@@ -585,14 +631,18 @@
         // ifsc_code
         // acc_hold_name
         // remark
-        if(acc_num == $bank_details.account_number){
+        if(!$bank_details){
+            return
+        }
+        else{
+            if(acc_num == $bank_details.account_number){
             console.log("acc match")
             if(ifsc_code == $bank_details.ifsc_code){
                 console.log("ifsc match")
                 if(acc_hold_name == $bank_details.account_holder){
                     console.log("acc_hold_name match")
-                    if(remark == $bank_details.remark){
-                        console.log("remark match")
+                    // if(remark == $bank_details.remark){
+                    //     console.log("remark match")
                         let document_load = {
                         "facility_id": facility_id,
                         "approved": true,
@@ -608,10 +658,11 @@
             catch(err){
                 console.log("Error in pan_sub_res",err)
             }
-                    }
+                    // }
                 }
             }
         }
+    }
     }
         async function bank_reject(){
             let document_load = {
@@ -634,6 +685,14 @@
         async function final_id_verify(){
             if(final_approve == "1"){
                 console.log("final_approved successful");
+                let final_id_data = {
+                    "name": value.name,
+                    "resource_id": facility_id,
+                    "verified": verified,
+                    "rejected": rejected,
+                    "remarks": remarks,
+                    "result": result.toString()
+    }
             }
         }
         async function final_id_reject(){

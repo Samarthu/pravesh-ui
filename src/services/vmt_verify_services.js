@@ -6,8 +6,8 @@ import {request} from './interceptor';
 //    new_facility_id = value.facility_id_number;
 // });
 // let facility_id = "AXVT00383";
-// let facility_id = "CRUN00374";
-let facility_id = "NAOD00048";
+let facility_id = "CRUN00374";
+// let facility_id = "NAOD00048";
 // let facility_id = "MHPD01226";
 
 
@@ -69,6 +69,22 @@ const bank_approve_reject = (data) =>{
     )
 }
 
+const final_id_ver_rej=(final_id_data)=>{
+    // let final_id_data = {
+    //     "name": value.name,
+    //     "resource_id": facility_id,
+    //     "verified": verified,
+    //     "rejected": rejected,
+    //     "remarks": remarks,
+    //     "result": result.toString()
+    // }
+    let final_id_ver_rej_url = "/api/method/pravesh.facility.routes.facility.update_id_prof";
+    return request(
+        final_id_ver_rej_url, {
+        method: "POST",
+        body:JSON.stringify(final_id_data)
+        }, true)
+}
 
 export {
     get_facility_details,
@@ -76,5 +92,6 @@ export {
     facility_document,
     approve_reject_status,
     facility_bgv_check,
-    bank_approve_reject
+    bank_approve_reject,
+    final_id_ver_rej
 }
