@@ -173,7 +173,7 @@
                     gotobankdetails();
                 }
             } else {
-                // save_facility(); TODO uncomment this.
+                save_facility(); 
                 if ($facility_id.facility_id_number) {
                     let replaceState = false;
                     goto("onboardsummary?unFacID="+$facility_id.facility_id_number, { replaceState });
