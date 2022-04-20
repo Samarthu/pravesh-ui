@@ -1,5 +1,982 @@
 <script>
+    import { Router, Link, Route } from "svelte-routing";
+    import Catagory from "./catagory.svelte";
+    import { goto } from "$app/navigation";
+    import Breadcrumb from "./breadcrumb.svelte";
+    import { onMount } from "svelte";
+    import { DateInput, DatePicker } from "date-picker-svelte";
+    import {bank_details,cheque_details} from "../services/onboardsummary_services";
+    import { bank_data_to_store } from "../stores/onboardsummary_store";
+    import { cheque_data_to_store } from "../stores/onboardsummary_store";
+    import { addnew_cheque_details } from "../services/onboardsummary_services";
+    import { facility_document } from "../services/onboardsummary_services";
+    import { audit_trail_data } from "../services/supplier_services";
+    import { facility_data,facility_bgv_init,facility_bgv_check,all_facility_tags,
+        show_fac_tags,submit_fac_tag_data,remove_tag,tag_audit_trail,service_vendor,
+        get_loc_scope,client_details,erp_details,child_data} from "../services/onboardsummary_services";
+    
+    import {get_date_format} from "../services/date_format_servives";
+    import {facility_id} from "../stores/facility_id_store"
+    import {facility_data_store} from "../stores/facility_store"
+    import {bgv_config_store} from '../stores/bgv_config_store'
+    import Toast from './components/toast.svelte';
+    import { object_without_properties } from "svelte/internal";
+    import { paginate, LightPaginationNav } from "svelte-paginate";
+
+    let toast_text;
+    let toast_type;
+    let routeNext = "";
+    let routeBgv = "";
+    let temp = "Add";
+    let temp1 = "change";
+    let temp2 = "gst1";
+    let temp3 = "e-contracts";
+    let temp4 = "p-contracts-1";
+    let temp5 = "newMap";
+    let temp6 = "cheque";
+    let child = "linkchild";
+    let childlink = "childlink"; 
+    let asso_active = "active";
+    let work_active = "";
+    let id_active ="";
+    let bank_active = "";
+    let bank_values_from_store = [];
+    let cheque_values_from_store = [];
+    let audit_details_array = [];
+    let facility_document_data = [];
+    let all_tags_data= [];
+    let all_tags_obj= {};
+    let show_fac_array = [];
+    let tag_data_arr = [];
+    let show_creation_date;
+    let child_select;
+    let child_list=[];
+    let tags_for_ass_arr=[];
+    let check_selected;
+
+    let all_tags_res;
+    let text_pattern = /^[a-zA-Z_ ]+$/;
+    let recrun_pattern =  /^[^-\s](?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9 _-]+)$/;
+    let city_select;
+    let city_select_flag=0;
+    let img_name="",bank_name="",type ="",cheque_date,cheque_number="",amount="",
+    recrun_number="",file_number = "";
+    let bank_name_message ="",type_message="",cheque_date_message="",cheque_number_message=""
+    ,amount_message="",recrun_number_message="",file_number_message="",cheque_upload_message="";
+    let child_box;
+    let bank_details_res,bank_new_date,
+    facility_modified_date,facility_created_date,facility_doc_date;
+    let audit_creation_date;
+    let client_det_res;
+    let client_det_arr=[]; 
+    // $: cheque_date = new Date();
+    let file_data;
+    let showbtn = 0;
+    let selectTag,addRemark,selectserCh;
+    let facility_address,facility_postal,facility_password,city,location_id,status_name;
+    let new_fac_remarks = [];
+    let select_tag_data,serv_ch_data;
+   let total_pages;
+   let pages=[];
+    let tag_date,tag_remark;
+    let tag_data_obj=[];
+    let city_data=[];
+    let erp_details_arr = [];
+    //  let vendor_id,vendor_name; 
+    let pan_num="-";
+    let aadhar_num="-";
+    let checkupload,pan_attach,aadhar_attach,dl_lic_attach,dl_lic_url,offer_url = "-";
+    let profile_url = "";
+    let address_url,pan_verified,aadhar_verified,profile_verified,address_verified,
+    gst_url,gst_verified,can_cheque_url;
+    let pan_rejected,aadhar_rejected,profile_rejected,address_rejected,offer_verified,offer_rejected,dl_verified,dl_rejected,
+    can_cheque_verified,can_cheque_rejected;
+    let aadhar_name = "Not Submitted",pan_name = "Not Submitted",dl_lic_name = "Not Submitted",address_name = "Not Submitted",
+    can_cheque_name = "Not Submitted",gst_name = "",offer_name="Not Submitted";
+    let result;
+    let mapped_pages = [];
+    let hidden_field ="hidden";
+    // let facility_data_obj = {
+    //     new_facility_id : facility_details_data[0].facility_id
+    //     }
+    export let url = "";
+    let ven_loc_id;
+    /////////////////////svelte plugin pagiantion//////////
+    let items;
+    let currentPage = 1;
+    let pageSize = 10;
+    let paginatedItems=[];
     let change_to = "Associate_details";
+
+
+
+
+
+    $:{
+        for(let key in all_tags_obj){
+            if(select_tag_data == key){
+                if(all_tags_obj[key] == "vendor_required"){
+                hidden_field = "";
+                }
+                else{
+                hidden_field = "hidden"; 
+                }
+            }
+            
+        }
+    }
+    $:{
+        if(city_select != null && $facility_id.facility_id_number != null){
+        console.log("citySelect",city_select);
+        link_child(city_select)
+        }
+    }
+    let searchTerm;
+    $:if(searchTerm == ''){
+        clearedSearchFunc();
+    }
+    $:new_pages = [];
+   
+    
+    async function child_select_fun(){
+        
+        // console.log("inside child_select_fun",child_select)
+        // console.log("Child_list",child_list);
+        // let child_data_res = await child_data();
+        // console.log("child_data_res",child_data_res)
+        // try{
+        //     if(child_data_res.body)
+        // }
+        // catch(err){
+        //     console.log("Error in child_select_fun")
+        // }
+        var rows = document.getElementById("check_tbody")[0].rows;
+        // document.getElementById("check_sel_id tbody").find("input[type='checkbox']:checked").each(function () {
+            // childIDs.push($(this).val());
+            
+            for(var i=0;i<rows.length;i++){
+                console.log("check_sel_id inside")
+            }
+
+
+    }
+    async function link_child(data){
+        client_det_res = await client_details(data);
+        try{
+            if(client_det_res.body.status == "green"){
+                for(let i=0;i<client_det_res.body.data.length;i++){
+                    for(let j=0;j<client_det_res.body.data.length;j++){
+                    client_det_arr.push(client_det_res.body.data[j]);
+                    
+                    }
+                }
+                client_det_arr=client_det_arr;
+                items = client_det_arr;
+                paginatedItems = paginate({ items, pageSize, currentPage })
+                
+            }
+        }
+        catch(err){
+            console.log("No Facilities Found")
+        }
+        
+    }
+
+    function closeViewModel(data){
+        if(data == "aadhar"){
+            Aadhar_modal.style.display = "none";
+        }
+        else if(data == "pan"){
+            Pan_modal.style.display = "none";
+        }
+        else if(data == "address"){
+            Address_modal.style.display = "none";
+        }
+        else if(data == "licence"){
+            Licence_modal.style.display = "none";
+        }
+        else if(data == "offer"){
+            Offer_modal.style.display = "none";
+        }
+        else if(data == "can_cheque"){
+            Can_cheque_modal.style.display = "none";
+        }
+    }
+    function openViewModel(data){
+        if(data == "aadhar"){
+            Aadhar_modal.style.display = "block";
+        }
+        else if(data == "pan"){
+            Pan_modal.style.display = "block";
+        }
+        else if(data == "address"){
+            Address_modal.style.display = "block";
+        }
+        else if(data == "licence"){
+            Licence_modal.style.display = "block";
+        }
+        else if(data == "offer"){
+            Offer_modal.style.display = "block";
+        }
+        else if(data == "can_cheque"){
+            Can_cheque_modal.style.display = "block";
+        }
+        
+        
+    }
+
+    function SearchClick() {
+        searchBox.style.display = "block";
+        supplierCount.style.display = "none";
+        SearchClick.style.display = "none";
+        searchBox.style.width = "100%";
+        inputboxsearch.style.width = "100%";
+    };
+
+    function closeSearch() {
+        supplierCount.style.display = "block";
+        searchBox.style.display = "none";
+        SearchClick.style.display = "block";
+    };
+
+    const enterKeyPress = e => {
+        if (e.charCode === 13) {
+            filterResults();
+        }
+    };
+
+    async function clearedSearchFunc(){
+        let client_det_res=await client_details(city_select);
+        try{
+            if(client_det_res.body.status == "green"){
+                for(let i=0;i<client_det_res.body.data.length;i++){
+                    for(let j=0;j<client_det_res.body.data.length;j++){
+                        client_det_arr.push(client_det_res.body.data[j]);
+                    }
+                }
+                paginatedItems=client_det_arr;
+                result = true;
+                
+            }
+        }
+        catch(err) {
+            message.innerHTML = "Error is " + err;
+        }
+    }
+    async function filterResults(){
+        let searchArray= [];
+        for(let searchK  of paginatedItems){
+            // console.log("inside filter Results",searchK.facility_name)
+            const search_client = searchK.facility_name
+             result=search_client.toLowerCase().includes(searchTerm.toLowerCase());
+            if(result === true){
+            // console.log("pages in search array",pages)
+            // mapped_pages.length=0
+            searchArray = [...searchArray,searchK]
+            // console.log("searchArray",searchArray)
+            }
+        }
+        paginatedItems = searchArray;
+    }
+    
+    onMount(async () => {
+        ///////bank details/////////////
+        facility_id.set({
+            facility_id_number: "CRUN00374"
+            // facility_id_number: "CRUN00320" 
+        })
+        // console.log("facility_id_number",$facility_id.facility_id_number)
+
+        bank_details_res = await bank_details();
+        try{
+            if(!bank_details_res){
+                console.log("No Data Found")
+            }
+
+            else{
+                // console.log("VALUES IN BANK DETAILS")
+                $bank_data_to_store.bank_details_data = bank_details_res;
+                bank_data_to_store.subscribe((value) => {
+                    bank_values_from_store = value.bank_details_data;
+                });
+                let bank_date_format = new Date(bank_values_from_store.modified);
+                bank_new_date = get_date_format(bank_date_format,"dd-mm-yyyy-hh-mm");
+                
+                }
+            }
+        catch(err) {
+        // message.innerHTML = "Error is " + err;
+        }
+        let cheque_details_res = await cheque_details();
+        try{
+
+                if(cheque_details_res.body.status == "green" && cheque_details_res != "null"){
+            // $cheque_data_from_store
+            console.log("cheque_details_res in SVELTE UI", cheque_details_res);
+            $cheque_data_to_store.cheque_details_data = cheque_details_res;
+            
+            cheque_data_to_store.subscribe((value) => {
+                cheque_values_from_store = value.cheque_details_data;
+            });
+            }
+        }
+        catch(err) {
+            // message.innerHTML = "Error is " + err;
+        }
+    
+        /////////bank details/////////////
+        let facility_document_res = await facility_document();
+        try{
+            if(facility_document_res != "null"){
+        // console.log("facility_document_res RES", facility_document_res);
+        // console.log( "facility_document_res.Object.body.data",facility_document_res.body.data);
+        facility_document_data = facility_document_res.body.data;
+        
+        for (var i = 0; i < facility_document_data.length; i++) {
+        
+            if(facility_document_data[i].doc_type == "pan-photo"){
+                pan_num = facility_document_data[i].doc_number
+                pan_attach = facility_document_data[i].file_url
+                pan_name = facility_document_data[i].file_name;
+                pan_verified = facility_document_data[i].verified;
+                pan_rejected = facility_document_data[i].rejected;
+            }
+            else if(facility_document_data[i].doc_type == "aadhar-id-proof"){
+                aadhar_num = facility_document_data[i].doc_number
+                aadhar_attach = facility_document_data[i].file_url
+                aadhar_name = facility_document_data[i].file_name;
+                aadhar_verified = facility_document_data[i].verified;
+                aadhar_rejected = facility_document_data[i].rejected;
+            }
+            else if(facility_document_data[i].doc_type == "fac-photo"){
+                // profile_name = facility_document_data[i].file_name;
+                profile_url = facility_document_data[i].file_url;
+                profile_verified = facility_document_data[i].verified;
+                profile_rejected = facility_document_data[i].rejected;
+            }
+            else if(facility_document_data[i].doc_type == "addproof-photo"){
+                address_name = facility_document_data[i].file_name;
+                address_url = facility_document_data[i].file_url;
+                address_verified = facility_document_data[i].verified;
+                address_rejected = facility_document_data[i].rejected;
+            }
+            else if(facility_document_data[i].doc_type == "gst-certificate-27"){
+                gst_name = facility_document_data[i].file_name;
+                gst_url = facility_document_data[i].file_url;
+                // gst_verified = facility_document_data[i].verified;
+            }
+            else if(facility_document_data[i].doc_type == "can-cheque"){
+                can_cheque_name = facility_document_data[i].file_name;
+                can_cheque_url = facility_document_data[i].file_url;
+                // can_check_verified = facility_document_data[i].verified;
+            }
+            else if(facility_document_data[i].doc_type == "dl-photo"){
+                dl_lic_name = facility_document_data[i].file_name;
+                dl_lic_url = facility_document_data[i].file_url;
+                dl_verified = facility_document_data[i].verified;
+                dl_rejected = facility_document_data[i].rejected;
+            }
+            else if(facility_document_data[i].doc_type == "newOffFile"){
+                offer_name = facility_document_data[i].file_name;
+                offer_url = facility_document_data[i].file_url;
+                offer_verified = facility_document_data[i].verified;
+                offer_rejected = facility_document_data[i].rejected;
+                // can_check_verified = facility_document_data[i].verified;
+            }
+            
+            else if(facility_document_data[i].doc_type == "can-cheque"){
+                can_cheque_name = facility_document_data[i].file_name;
+                can_cheque_url = facility_document_data[i].file_url;
+                can_cheque_verified = facility_document_data[i].verified;
+                can_cheque_rejected = facility_document_data[i].rejected;
+                // can_check_verified = facility_document_data[i].verified;
+            }
+            
+
+            }
+                }
+        
+        }
+    catch(err) {
+        // message.innerHTML = "Error is " + err;
+        }
+
+        let facility_data_res = await facility_data();
+        try{
+            if(facility_data_res != "null"){
+              
+        facility_data_store.set(
+            facility_data_res.body.data[0]
+        )
+        
+        new_fac_remarks = $facility_data_store.remarks.split("\n");
+        console.log("new_fac_remarks",new_fac_remarks)
+        
+        let new_facility_date_format = new Date($facility_data_store.creation);
+        facility_created_date = get_date_format(new_facility_date_format,"dd-mm-yyyy-hh-mm");
+        
+        let new_doc_date_format = new Date($facility_data_store.creation);
+        facility_doc_date =get_date_format(new_doc_date_format,"dd-mm-yyyy-hh-mm");
+        
+        let facility_date_format = new Date($facility_data_store.modified);
+        facility_modified_date = get_date_format(facility_date_format,"dd-mm-yyyy-hh-mm");
+        
+        
+
+            if($facility_data_store.status.includes("Rejected")){
+               
+                $facility_data_store.status = "Rejected";
+                status_name = $facility_data_store.status;
+            }
+            if ($facility_data_store.password == "") {
+                facility_password = "-";
+            }
+            for (var j = 0;j < $facility_data_store.addresess.length;j++) 
+            {
+                if (
+                    $facility_data_store.addresess[j].default_address == "1"
+                ) {
+                    facility_address =$facility_data_store.addresess[j].address;
+                    facility_postal =$facility_data_store.addresess[j].postal;
+                    city = $facility_data_store.addresess[j].city;
+                    location_id = $facility_data_store.addresess[j].location_id;
+                }
+            }
+        }
+    }
+    catch(err) {
+        // message.innerHTML = "Error is " + err;
+        }
+
+    let bgv_pass_data=[
+        $facility_data_store.org_id,
+        $facility_data_store.station_code,
+        $facility_data_store.facility_type,
+    ]    
+
+    console.log("bgv_pass_dataaa",  $facility_data_store.org_id,
+        $facility_data_store.station_code,
+        $facility_data_store.facility_type);
+    let bgv_init_res = await facility_bgv_init(bgv_pass_data);
+    console.log("bgv_inittt",bgv_init_res)
+    if (bgv_init_res.body.status == "green"){
+        // bgv_config_store.set(
+        // bgv_init_res.body.data
+        // )
+            showbtn = 1;
+    //         let bgv_check_res = await facility_bgv_check();
+    //         // console.log("bgv_check_res",bgv_check_res)
+    //         if(bgv_check_res.body.data.length == "0"){
+    //         initiate_bgv = 1;
+    // }
+    }
+
+    all_tags_res = await all_facility_tags($facility_data_store.name);
+    
+    try {
+        if(all_tags_res.body.status == "green"){
+        for(i=0;i < all_tags_res.body.data.length;i++){
+       
+        all_tags_data.push(all_tags_res.body.data[i].tag_name);
+        // all_tags_obj[i] = all_tags_res.body.data[i].tag_name;
+        all_tags_obj[all_tags_res.body.data[i].tag_name] = all_tags_res.body.data[i].tag_description;
+        // console.log("all_tags_obj[i]",all_tags_obj)
+        }
+        all_tags_data = all_tags_data;
+        // console.log("all_tags_obj",all_tags_obj)
+        // for(let key in all_tags_obj){
+        //     console.log("key",key)
+        //     console.log("values",all_tags_obj[key])
+        // }
+    }
+        
+    } 
+    catch(err) {
+        // message.innerHTML = "Error is " + err;
+    }
+    let temp_res = await show_fac_tags($facility_data_store.facility_type);
+        try {
+                show_fac_array = temp_res.body.data;
+                for(let i=0;i < show_fac_array.length;i++){
+                    if( i == show_fac_array.length-1){
+                        
+                        tags_for_ass_arr.push(show_fac_array[i].tag_name)
+                    }
+                    else{
+                        tags_for_ass_arr.push(show_fac_array[i].tag_name+",")
+                    }
+                }
+                tags_for_ass_arr=tags_for_ass_arr
+                
+                
+
+            }
+        catch(err){
+            console.log("Error in mount show_fac_array")
+        }
+    
+
+    // console.log("all_tags_data",all_tags_data,all_tags_id)
+    
+  });
+  
+    if(city_select_flag == "1"){
+        console.log("city_select",city_select)
+    }
+/////////bank details//////;///////
+    const onFileSelected = (e) => {
+        let img = e.target.files[0];
+        console.log("img", img);
+        img_name = img.name;
+        var reader = new FileReader();
+        reader.readAsDataURL(img);
+        reader.onload = function () {
+        file_data = reader.result;
+            // console.log(reader.result);
+            // console.log("img_name", img_name);
+        };
+        reader.onerror = function (error) {
+            console.log("Error: ", error);
+        };
+    };
+
+    async function cheque_button_click() {
+        // cheque_date = "2022-03-08";
+        
+        let new_cheque_date = new Date(cheque_date)
+        // cheque_date=get_date_format(new_cheque_date,"yyyy-mm-dd")
+        
+        // // console.log("cheque Date", changed_date);
+        // // console.log("bank_name",bank_name,type,cheque_date,cheque_number,amount,
+        // recrun_number,file_number);
+        let validations = 0;
+
+        if(!bank_name.match(text_pattern)){
+        bank_name_message = "Invalid Bank Name";
+        }
+        else{
+            validations = 1;
+            bank_name_message = "";
+        }
+        if(!type){
+            type_message = "Invalid type";
+        }
+        else{
+            validations = 1;
+            type_message = "";
+        }
+        if(!cheque_date){
+            cheque_date_message = "Invalid Cheque Date";
+        }
+        else{
+            validations = 1;
+            cheque_date_message = "";
+        }
+        if(!cheque_number || isNaN(cheque_number)){
+            cheque_number_message = "Invalid Cheque Number";
+        }
+        else{
+            validations = 1;
+            cheque_number_message = "";
+        }
+        if(!amount || isNaN(amount)){
+            amount_message = "Invalid Amount";
+            
+        }
+        else{
+            validations = 1;
+            amount_message = "";
+        }
+        if(!recrun_number || !recrun_number.match(recrun_pattern)){
+            recrun_number_message = "Invalid Recrun Number";
+        }
+        else{
+            validations = 1;
+            recrun_number_message = "";
+        }
+        if(!file_number || isNaN(file_number)){
+            file_number_message = "Invalid File Number";
+        }
+        else{
+            validations = 1;
+            file_number_message = "";
+        }
+        if(!checkupload){
+            cheque_upload_message = "Invalid Cheque Upload"
+        }
+        else{
+            validations = 1;
+            cheque_upload_message = "";
+        }
+        if(validations == "1"){
+            const cheque_details_form = {
+                bank_name,
+                type,
+                cheque_date:(get_date_format(new_cheque_date,"yyyy-mm-dd")),
+                cheque_number,
+                amount,
+                recrun_number,
+                file_number,
+                file_data,
+                file_name:img_name,
+                facility_id:($facility_id.facility_id_number),
+            };
+            addnew_cheque_details(cheque_details_form);
+        }
+        else{
+        console.log("Error Use Toast")
+    }
+    }
+    
+    
+
+    /////////bank details/////////////
+
+    function editWorkDetail() {
+        let replaceState = false;
+        goto(routeNext, { replaceState });
+    }
+
+    async function routeToBgv() {
+        let replaceState = false;
+        goto(routeBgv, { replaceState });
+        
+    }
+
+    function myBtn() {
+        associateModal.style.display = "block";
+    }
+
+    async function tagAddRemove() {
+        addRemoveModal.style.display = "block";
+        console.log("INSIDE TAG ADD REMOVE")
+        let tag_res = await show_fac_tags($facility_data_store.facility_type);
+        try {
+                show_fac_array = tag_res.body.data;
+                console.log("show_fac_array",show_fac_array)
+                for(let i=0;i < show_fac_array.length;i++){
+                    
+                    let new_date =new Date(show_fac_array[i].creation)
+                    
+                    show_fac_array[i].creation=new_date;
+                    // console.log("new_date",new_date);
+                }
+                    show_fac_array.sort(function(a, b) {
+                    if (a.creation > b.creation) return -1;
+                    if (a.creation < b.creation) return 1;
+                    return 0;
+                    });
+
+                    for(let i=0;i < show_fac_array.length;i++){
+                    let show_creation_date =get_date_format(show_fac_array[i].creation,"yyyy-mm-dd")
+                    show_fac_array[i].creation=show_creation_date;
+                    }
+                    console.log("sorted_date_array",show_fac_array)
+        } 
+        catch(err) {
+        console.log("ERROR")
+        // message.innerHTML = "Error is " + err;
+         }
+
+        let service_vend_res = await service_vendor();
+        console.log("service_vend_res",service_vend_res)
+        try {
+            if(service_vend_res.body.status == "green"){
+                
+                for(let i=0;i<service_vend_res.body.data.length;i++){
+                    if(service_vend_res.body.data[i].location_id == location_id){
+                        // tag_data_obj[service_vend_res.body.data[i].vendor_id] = service_vend_res.body.data[i].vendor_name;
+                        tag_data_obj.push(service_vend_res.body.data[i]);
+                    }
+                }
+                tag_data_obj = tag_data_obj;
+                console.log("tag_data_obj",tag_data_obj)
+            }
+            else{
+                console.log("No Data")
+            }
+        }
+        catch(err) {
+        console.log("ERROR")
+        // message.innerHTML = "Error is " + err;
+         }
+
+
+    }
+    async function handleTagClick(){
+        let new_tag_id
+    try {   
+    //     if(all_tags_res.body.status == "green"){
+        
+        for(let i=0; i < all_tags_res.body.data.length; i++){
+            // console.log("INDISDE FOR LOOPform_data from html",select_tag_data,all_tags_res.body.data[i].tag_name)
+            if(select_tag_data == all_tags_res.body.data[i].tag_name){
+                new_tag_id = all_tags_res.body.data[i].tag_id;
+            }
+            
+        }
+        if(!select_tag_data){
+            selectTag = 1;
+            if(!tag_remark){
+            addRemark = 1;
+                if(!serv_ch_data){
+                    selectserCh=1;
+                }
+            }   
+
+        }
+        else{
+            console.log("select_tag_data",select_tag_data)
+            show_fac_array = [];
+            console.log("serv_ch_data",serv_ch_data)
+            let submit_fac_res = await submit_fac_tag_data(new_tag_id,select_tag_data,tag_date,tag_remark,serv_ch_data)
+            try {
+                if(submit_fac_res.body.status == "green"){
+                    let temp_res = await show_fac_tags($facility_data_store.facility_type);
+                    show_fac_array = temp_res.body.data;
+                    for(let i=0;i < show_fac_array.length;i++){
+                        let new_date =new Date(show_fac_array[i].creation)
+                        show_creation_date = get_date_format(new_date,"yyyy-mm-dd")
+                        show_fac_array[i].creation=show_creation_date;
+                    }
+                    show_fac_array = show_fac_array;
+                }
+                // console.log("submit_fac_res.body",submit_fac_res.body)
+                else if(submit_fac_res.body.message == "Tag already exist..!"){
+                        console.log("Cannot Add Tag already exist..!")
+                }
+            }
+                catch(err) {
+                console.log("ERROR")
+                // message.innerHTML = "Error is " + err;
+                }
+        }
+
+    }
+    catch(err) {
+        console.log("ERROR")
+        // message.innerHTML = "Error is " + err;
+    }
+      
+}
+
+    async function removeTag(tag_id,tag_name,owner,tag_status){
+        show_fac_array = [];
+        let fac_id
+        if(owner == $facility_data_store.owner){
+                fac_id = $facility_data_store.name
+                console.log("fac_id",fac_id)
+        }
+        let remove_tag_res = await remove_tag(fac_id,tag_id,tag_name);
+        if(remove_tag_res.body.status == "green")
+        {
+        let temp_res = await show_fac_tags($facility_data_store.facility_type);
+        try {
+                show_fac_array = temp_res.body.data;
+                
+                // console.log("show_fac_array IN remove",show_fac_array)
+                for(let i=0;i < show_fac_array.length;i++){
+                    
+                    let new_date =new Date(show_fac_array[i].creation)
+                    show_creation_date = get_date_format(new_date,"yyyy-mm-dd")
+                    show_fac_array[i].creation=show_creation_date;
+                   
+        }
+       
+    }
+        catch(err) {
+        console.log("ERROR")
+        // message.innerHTML = "Error is " + err;
+         }
+
+    }
+}
+
+
+   async function tagAuditFunc(){
+        temp = "tag";
+        let tag_audit_res =await tag_audit_trail();
+        try {
+            if(tag_audit_res.body.status == "green"){
+            
+            tag_data_arr = tag_audit_res.body.data
+            for(let i=0;i < tag_data_arr.length;i++){
+                let new_date =new Date(tag_data_arr[i].creation)
+                show_creation_date = get_date_format(new_date,"yyyy-mm-dd")
+                tag_data_arr[i].creation=show_creation_date;
+            }
+            // console.log("TAG DATA ARRA",tag_data_arr)
+            tag_data_arr = tag_data_arr;
+               
+        }} catch(err) {
+        console.log("ERROR")
+        // message.innerHTML = "Error is " + err;
+         }
+       
+    }
+
+    function clear() {
+        addRemoveModal.style.display = "none";
+    }
+
+    function close() {
+        associateModal.style.display = "none";
+    }
+
+    function allDoc() {
+        modalid.style.display = "block";
+    }
+
+    function closeDoc() {
+        modalid.style.display = "none";
+    }
+
+    routeBgv = "bgv";
+
+    routeNext = "workdetails";
+
+    async function auditTrial() {
+       
+        let audit_res = await audit_trail_data($facility_id.facility_id_number);
+        try {
+            if (audit_res.body.status == "green") {
+                audit_details_array = audit_res.body.data;
+                for(let i=0;i < audit_details_array.length;i++){
+                let new_date =new Date(audit_details_array[i].creation)
+                audit_creation_date = get_date_format(new_date,"dd-mm-yyyy-hh-mm")
+                audit_details_array[i].creation=audit_creation_date;
+                }
+            }
+        } catch (err) {
+            message.innerHTML = "Error is  " + err;
+        }
+        supplierInfoModal.style.display = "block";
+    }
+
+    function closeAuditTrailModal() {
+        supplierInfoModal.style.display = "none";
+    }
+
+    function gstModel() {
+        modalidgst.style.display = "block";
+    }
+
+    function closeGST() {
+        modalidgst.style.display = "none";
+    }
+
+    async function erpModel() {
+        erpIdModel.style.display = "block";
+        let erp_details_res = await erp_details();
+        console.log("erp_details_res",erp_details_res)
+        try{
+            if(erp_details_res.body.data != null){
+                erp_details_arr = erp_details_res.body.data[0];
+                let erp_creation_date_format = new Date(erp_details_arr.creation);
+                erp_details_res.body.data[0].creation= get_date_format(erp_creation_date_format,'dd-mm-yyyy-hh-mm');
+                console.log("erp_details_arr",erp_details_arr)
+            }
+        }
+        catch(err){
+            console.log("Error in ERP MODEL RES")
+        }
+    }
+
+    function closeERP() {
+        erpIdModel.style.display = "none";
+    }
+
+    function workContract() {
+        workContractModel.style.display = "block";
+    }
+
+    function closeWorkContract() {
+        workContractModel.style.display = "none";
+    }
+
+    function workorganization() {
+        workorganizationModel.style.display = "block";
+    }
+
+    function closeWorkorganization() {
+        workorganizationModel.style.display = "none";
+    }
+
+    function chequeDetails() {
+        chequeModel.style.display = "block";
+    }
+
+    function closechequeDetails() {
+        chequeModel.style.display = "none";
+    }
+
+    async function linkChild() {
+        let no_com = document.getElementById("comma");
+        console.log("no_com",no_com)
+        linkChildModel.style.display = "block";
+        let loc_data_res =  await get_loc_scope();
+       try {
+        if(loc_data_res.body.status == "green"){
+             // city_data = loc_data_res.body.data;
+             console.log("loc_data_res",loc_data_res)
+             for(let i=0;i<loc_data_res.body.data.length;i++){
+                city_data.push(loc_data_res.body.data[i].location_name);
+               
+            }
+            city_data = city_data;
+            
+        }
+        else{
+            console.log("No Data")
+        }
+        
+    } catch(err) {
+        console.log("Error in loc_data_res")
+       
+    }
+    }
+
+    function linkChildModelclose() {
+        linkChildModel.style.display = "none";
+    }
+
+    ////////////Pagination in Link Child///////////////
+    function next_function(){   
+        
+        let last_num_from_pages = pages.length
+        if(mapped_pages.includes(last_num_from_pages)){
+        }
+        else{  
+            for (var i = 0; i < mapped_pages.length; i++){       
+            mapped_pages[i] = mapped_pages[i] + 1;
+            }
+        }
+        // console.log("mapped_pagessss",mapped_pages)
+        // console.log("mapped_pagessss",mapped_pages[0])
+        pageChange(mapped_pages[2])
+    }
+    
+    function previous_function(){ 
+        let first_num_from_pages = pages[0];
+        if(mapped_pages.includes(first_num_from_pages)){}
+        else{
+            for (var i = 0; i < mapped_pages.length; i++){
+                mapped_pages[i] = mapped_pages[i] - 1;
+            }
+        }
+            pageChange(mapped_pages[0])
+    }
+
+    function pageChange(pagenumber){
+        console.log("pageChange Clicked")
+    }
+    function createPagesArray(total) {
+    let arr = []
+    for(let i = 1; i <= total; i++) {
+        arr.push(i)
+    }
+    return arr
+    }
 </script>
 
 
@@ -11,24 +988,24 @@
                     <span class="text-textgrey pr-1 text-base xs:text-xs">Home / Workforce</span>
                     <span class="Username ">
                         <img src="../src/img/delivery.png" class="userIconMedia" alt="">
-                        <span class="xs:hidden sm:hidden"> Dhiraj Shah</span>
-                        <span class="userDesignation">(Associate - NDA) </span> 
+                        <span class="xs:hidden sm:hidden">{$facility_data_store.facility_name}</span>
+                        <span class="userDesignation">(Associate - {$facility_data_store.facility_type} / ID - {$facility_data_store.name}) </span> 
                     </span>
                 </p>
                
                 <p class="breadcrumbRight">
                     <a href=""> 
-                        <span class="breadRightIcons"> 
+                        <span class="breadRightIcons" on:click={erpModel}> 
                              ERP Details
                         </span> 
                     </a>
                     <a href=""> 
-                        <span class="breadRightIcons"> <img src="../src/img/document.png" class="pr-2"
+                        <span class="breadRightIcons" on:click={allDoc}> <img src="../src/img/document.png" class="pr-2"
                                 alt=""> Documents
                         </span> 
                     </a>
                     <a class="cursor-pointer">
-                        <span class="breadRightIcons" id="SupplerModalbuttonClick">
+                        <span class="breadRightIcons" id="SupplerModalbuttonClick" on:click={auditTrial}>
                             <img src="../src/img/audittrail.png" class="pr-2" alt=""> Audit Trial (12)
                         </span>
                     </a>
@@ -39,7 +1016,7 @@
             
             </div>
 
-            <!-- for VMT -->
+            <!-- for VMT not done-->
             <div class="onboardedBy mb-4 hidden">
                 <p class="text-sm"><span class="font-light text-grey text-sm">Onboarded By - </span>Hemant Kumar, Mulsi SP, eCommerce</p>
                 <p class="xsl:flex justify-end hidden"><a class="cursor-pointer">
@@ -55,7 +1032,8 @@
                         <div class="statusBarSec ">
                             
                             <div class="statusbarLeft">
-                                <p class="statusText">Status - </p>
+                                <!-- <p class="statusText">Status - </p>
+                                
                                 <div class="hidden">
                                     <p class="statusContent font-medium italic"><img
                                             src="../src/img/circleicon.png" class="pr-2 w-3 h-3" alt="">
@@ -100,8 +1078,202 @@
                                         </span>
                                     </span>   
                                       
-                                </div>    
+                                </div>     -->
+                                <p class="statusText">Status -</p>
+                                {#if $facility_data_store.status == "Active"}
+                                <p
+                                class="statusContentTag text-green font-normal xs:w-5/12"
+                            >
+                                <img
+                                    src="../src/img/checked.png"
+                                    class="pr-2"
+                                    alt=""
+                                /> {$facility_data_store.status}
+                            </p>
+                                {:else if $facility_data_store.status == "Deactive"}
+                                <p
+                                class="statusContentTag font-normal text-sm  "
+                            >
+                                <img
+                                    src="../src/img/redcircle.png"
+                                    alt=""
+                                    class="w-3 h-3 mr-2"
+                                />
+                                {$facility_data_store.status}
+                            </p>
+                            {:else if $facility_data_store.status == "Rejected"}
+                                <p
+                                class="statusContentTag font-normal text-sm  "
+                            >
+                                <img
+                                    src="../src/img/redcircle.png"
+                                    alt=""
+                                    class="w-3 h-3 mr-2"
+                                />
+                                {status_name}
+                            </p>
+                            {:else}
+                            
+                            <p class="statusContent font-normal xs:w-5/12">
+                                <img
+                                    src="../src/img/timer.png"
+                                    class="pr-2"
+                                    alt=""
+                                />{$facility_data_store.status}
+                            </p>
+                                {/if}
+                                <div class="hidden">
+                                    <p class="statusContent font-medium italic">
+                                        <img
+                                            src="../src/img/circleicon.png"
+                                            alt=""
+                                            class="w-3 h-3 pr-2"
+                                        />
+                                        Verification Pending
+                                    </p>
+                                </div>
+                                <div class="hidden">
+                                <p
+                                    class="statusContentTag font-normal text-sm  "
+                                >
+                                    <img
+                                        src="../src/img/redcircle.png"
+                                        alt=""
+                                        class="w-3 h-3 mr-2"
+                                    />
+                                    Documents Rejected
+                                </p>
+                            </div>
+                            </div>
+                            <div class="statusbarMiddle">
+                                <div class="hidden">
+                                    <p
+                                        class="statusContent font-normal xs:w-5/12"
+                                    >
+                                        <img
+                                            src="../src/img/timer.png"
+                                            class="pr-2"
+                                            alt=""
+                                        /> Address Proof
+                                    </p>
+                                </div>
+                                <div class="hidden">
+                                <p
+                                    class="statusContentTag text-green font-normal xs:w-5/12"
+                                >
+                                    <img
+                                        src="../src/img/checked.png"
+                                        class="pr-2"
+                                        alt=""
+                                    /> Address Proof
+                                </p>
+                                </div>
 
+                                <p class="xsl:hidden">
+                                    <img src="../src/img/Line.png" alt="" />
+                                </p>
+                                <div class="hidden">
+                                    <p
+                                        class="statusContent font-normal xs:w-5/12"
+                                    >
+                                        <img
+                                            src="../src/img/timer.png"
+                                            class="pr-2"
+                                            alt=""
+                                        />Offer Letter
+                                    </p>
+                                </div>
+
+                                <!-- <p
+                                    class="statusContentTag text-rejectcolor font-normal xs:w-5/12"
+                                >
+                                    <img
+                                        src="../src/img/reject.png"
+                                        class="pr-2"
+                                        alt=""
+                                    />ID Reject
+                                </p> -->
+
+                                <!-- <p class="xsl:hidden">
+                                    <img src="../src/img/Line.png" alt="" />
+                                </p> -->
+                                {#if offer_verified == "1"}
+                                <p
+                                class="statusContentTag text-green font-normal xs:w-5/12"
+                            >
+                                <img
+                                    src="../src/img/checked.png"
+                                    class="pr-2"
+                                    alt=""
+                                /> Offer letter Verified
+                            </p>
+                                {:else if offer_rejected == "1"} 
+                                <p
+                                class="statusContentTag text-rejectcolor font-normal xs:w-5/12"
+                            >
+                                <img
+                                    src="../src/img/reject.png"
+                                    class="pr-2"
+                                    alt=""
+                                />Offer letter Reject
+                            </p>
+                            <!-- {:else} -->
+                            {:else if offer_verified == "0" && offer_rejected == "0"}
+                            <p class="statusContent font-normal xs:w-5/12">
+                                <img
+                                    src="../src/img/timer.png"
+                                    class="pr-2"
+                                    alt=""
+                                />Offer letter Pending
+                            </p>
+                                {/if}
+                               
+                                <!-- <p>{bank_values_from_store.approved}</p> -->
+                                {#if !bank_values_from_store}
+                                   <p></p>
+                                    {:else}
+                                   
+                                   
+                                        {#if bank_values_from_store.approved == "1"}
+                                        <p class="xsl:hidden">
+                                            <img src="../src/img/Line.png" alt="" />
+                                        </p>
+                                    <p
+                                        class="statusContentTag text-green font-normal xs:w-5/12"
+                                    >
+                                        <img
+                                            src="../src/img/checked.png"
+                                            class="pr-2"
+                                            alt=""
+                                        />Bank Details Approved
+                                    </p>
+                                    {:else if bank_values_from_store.rejected == "1"}
+                                    <p class="xsl:hidden">
+                                        <img src="../src/img/Line.png" alt="" />
+                                    </p>
+                                    <p
+                                        class="statusContentTag text-rejectcolor font-normal xs:w-5/12"
+                                    >
+                                        <img
+                                            src="../src/img/reject.png"
+                                            class="pr-2"
+                                            alt=""
+                                        />Bank Details Rejected
+                                    </p>
+                                    {:else if bank_values_from_store.rejected == "0" && bank_values_from_store.approved == "0"}
+                                    <p class="xsl:hidden">
+                                        <img src="../src/img/Line.png" alt="" />
+                                    </p>
+                                    
+                                    <p class="statusContent font-normal xs:w-5/12">
+                                        <img
+                                            src="../src/img/timer.png"
+                                            class="pr-2"
+                                            alt=""
+                                        />Bank Verification Pending
+                                    </p>
+                                    {/if} 
+                                {/if}  
                                
                             </div>
                         </div>
@@ -144,10 +1316,10 @@
     <div class="contentsectionDetailview_summary ">
 
         <div class="tabsforsummary">
-            <div class="active" on:click={() => {change_to = "Associate_details"}}>Associate Details</div>
-            <div class="" on:click={() => {change_to = "Work_details"}}>Work Details</div>
-            <div class="" on:click={() => {change_to = "Identity_details"}}>Identity Proof</div>
-            <div class="" on:click={() => {change_to = "Bank_details"}}>Bank Details</div>
+            <div class="{asso_active}" on:click={() => {change_to = "Associate_details",work_active="",asso_active="active",id_active="",bank_active=""}}>Associate Details</div>
+            <div class="{work_active}" on:click={() => {change_to = "Work_details",work_active="active",asso_active="",id_active="",bank_active=""}}>Work Details</div>
+            <div class="{id_active}" on:click={() => {change_to = "Identity_details",work_active="",asso_active="",id_active="active",bank_active=""}}>Identity Proof</div>
+            <div class="{bank_active}" on:click={() => {change_to = "Bank_details",work_active="",asso_active="",id_active="",bank_active="active"}}>Bank Details</div>
         </div> 
 
         <!-- Associate Details -->
@@ -157,11 +1329,11 @@
                
                 <div class="right flex justify-end">
                     <p class="detailsUpdate mr-4">
-                        <span><span class="font-medium">Last updated -</span> 27-Apr-2021 03:28 pm. <span
-                                class="font-medium">By-</span> Admin</span>
+                        <span><span class="font-medium">Last updated - </span>{facility_created_date} <span
+                                class="font-medium"> By - </span> {$facility_data_store.owner}</span>
                     </p>
                     <p class="flex items-center smButtonText">
-                        <a href="" class="smButton bg-erBlue text-white">
+                        <a href="" class="smButton bg-erBlue text-white" on:click={editWorkDetail}>
                             Edit
                         </a>
                     </p>
@@ -171,13 +1343,15 @@
 
             <div class="grid grid-cols-3 gap-4  xsl:grid-cols-1" >
                 <div class=" grid grid-cols-3 w-full px-5 mt-5  gap-4">
+                    {#if !profile_url}
                     <div class="">
-                        <img src="../src/img/profilepic.png" class="w-28 h-28 xsl:h-auto" alt="">
+                        <img src="{profile_url}" class="w-28 h-28 xsl:h-auto" alt="">
                     </div>
                     <div class="w-auto col-span-2 mt-6 xsl:mt-3">
-                    <div class="text-2xl xsl:text-xl">Dhiraj Shah</div>
-                    <p class="imgName">Associate - NDA</p>
+                    <div class="text-2xl xsl:text-xl">{$facility_data_store.facility_name}</div>
+                    <p class="imgName">{$facility_data_store.facility_name}</p>
                     </div>
+                    {/if}
                 </div>
 
                 <div class="contact_details">
@@ -188,8 +1362,8 @@
                         <img src="../src/img/location1.png" alt="">
                         <div class="pl-4">
                             <p class="detailLbale">Address & Pincode</p>
-                            <p class="detailData ">r/no-9, jiwheshwar kripa chawl, penkarpada,
-                                chimaji Nagar, Thane - 401104</p>
+                            <p class="detailData "> {facility_address}
+                                {facility_postal}</p>
                         </div>
                     </div>
 
@@ -198,13 +1372,34 @@
                             <img src="../src/img/mobilephone.png" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">Mobile Number</p>
-                                <p class="detailData">88560 22890</p>
+                                <p class="detailData">{$facility_data_store.phone_number}</p>
                             </div>
                         </div>
-                        <div class="userStatus ">
+                        <!-- <div class="userStatus ">
                             <p class="userStatusTick"><img src="../src/img/checked.png" alt="" class="pr-1"> Verified
                             </p>
-                        </div>
+                        </div> -->
+                        {#if $facility_data_store.phone_verified == "1"}
+                        
+                            <p class="verifiedTextGreen pr-3">
+                                <img
+                                    src="../src/img/checked.png"
+                                    alt=""
+                                    class="pr-1"
+                                />
+                                Verified
+                            </p>
+                       
+                        {:else if $facility_data_store.phone_verified == "0"}
+                            <p class="verifyText pr-3">
+                                <img
+                                    src="../src/img/timer.png"
+                                    alt=""
+                                    class="pr-2"
+                                />
+                                Verification Pending
+                            </p>
+                       {/if}
                     </div>
 
                     <div class="userInfoSec3">
@@ -212,10 +1407,30 @@
                             <img src="../src/img/email.png" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">Email</p>
-                                <p class="detailData">dhiraj.shah@gmail.com</p>
+                                <p class="detailData">{$facility_data_store.facility_email}</p>
                             </div>
                         </div>
-
+                        {#if $facility_data_store.email_verified == "1"}
+                        
+                            <p class="verifiedTextGreen pr-3">
+                                <img
+                                    src="../src/img/checked.png"
+                                    alt=""
+                                    class="pr-1"
+                                />
+                                Verified
+                            </p>
+                       
+                        {:else if $facility_data_store.email_verified == "0"}
+                            <p class="verifyText pr-3">
+                                <img
+                                    src="../src/img/timer.png"
+                                    alt=""
+                                    class="pr-2"
+                                />
+                                Verification Pending
+                            </p>
+                       {/if}
                     </div>
                 </div>
 
@@ -232,10 +1447,38 @@
                                     <p class="detailLbale">Address proof</p>
                                 </div>
                             </div>
-                            <div class="userStatus ">
-                                <p class="verifyText"><img src="../src/img/timer.png" alt="" class="pr-1"> Verification
-                                    Pending</p>
-                            </div>
+                            <!-- <div class="userStatus ">
+                                
+                            </div> -->
+                        {#if address_rejected == "1"}
+                        <p class="rejectText pr-3">
+                            <img
+                                src="../src/img/reject.png"
+                                alt=""
+                                class="pr-2"
+                            /> Reject
+                        </p>
+                        {:else if address_verified == "1"}
+                        
+                            <p class="verifiedTextGreen pr-3">
+                                <img
+                                    src="../src/img/checked.png"
+                                    alt=""
+                                    class="pr-1"
+                                />
+                                Verified
+                            </p>
+                       
+                        {:else if address_verified == "0" && address_rejected == "0"}
+                            <p class="verifyText pr-3">
+                                <img
+                                    src="../src/img/timer.png"
+                                    alt=""
+                                    class="pr-2"
+                                />
+                                Verification Pending
+                            </p>
+                       {/if}
 
                         </div>
                         <div class="wrapperInfo ">
@@ -244,16 +1487,34 @@
                                 <div class="pl-4 flex items-center">
                                     <img src="../src/img/jpeg.png" class="" alt="">
 
-                                    <p class="detailLbale">ration-card-copy.jpeg</p>
+                                    <p class="detailLbale">{address_name}</p>
                                 </div>
                             </div>
                             <div class="userStatus ">
                                 <p class="verifyText">
                                     <a href="" class="smButton">
-                                        <img src="../src/img/edit.png" alt="">
+                                        <img src="../src/img/view.png" alt="" on:click="{()=>{openViewModel("address")}}">
                                     </a>
                                 </p>
                             </div>
+                            <!-- Document view Model -->
+                        <div id="Address_modal" tabindex="-1" aria-hidden="true" class=" actionDialogueOnboard" hidden>
+                            <div class="pancardDialogueOnboardWrapper ">
+                                <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+                                    <div class="flex justify-end p-2">
+                                        <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel("address")}}">
+                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
+                                        </button>
+                                    </div>
+                                    <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+                                        <img src="{address_url}" class="mx-auto" alt="aadress proof">
+                                        <div class="pt-3 flex justify-center">
+                                            <button data-modal-toggle="popup-modal" type="button" class="dialogueNobutton"  on:click="{()=>{closeViewModel("address")}}">Close</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div> 
+                    <!-- Document view Model -->
 
                         </div>
 
@@ -265,11 +1526,11 @@
                             <img src="../src/img/gst.png" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">GST Details</p>
-                                <p class="detailData">Not added</p>
+                                <p class="detailData">{gst_name}</p>
                             </div>
                         </div>
                         <div class="userStatus ">
-                            <p class="flex items-center smButtonText">
+                            <p class="flex items-center smButtonText" on:click={gstModel}>
                                 <a href="" class="smButton modal-open">
                                     Add
                                 </a>
@@ -288,7 +1549,7 @@
                 <div class="appcredentials">
                     <div class="headingWithIcon">
                         <img src="../src/img/mobileblue.png" alt="">
-                        <p class="detailsTitle">Libear App Credentials</p>
+                        <p class="detailsTitle">Libera App Credentials</p>
                     </div>
                 </div>
             </div>  
@@ -299,8 +1560,14 @@
                         <div class="flex items-start">
                             <img src="../src/img/pan.png" alt="">
                             <div class="pl-4">
+                                <!-- <p class="detailLbale">User ID</p>
+                                <p class="detailData">dhiraj.shah@elastic.run</p> -->
                                 <p class="detailLbale">User ID</p>
-                                <p class="detailData">dhiraj.shah@elastic.run</p>
+                        {#if !$facility_data_store.facility_id}
+                        <p>-</p>
+                        {:else}
+                        <p class="detailData">{$facility_data_store.facility_id}</p>
+                        {/if}
                             </div>
                         </div>
 
@@ -310,7 +1577,7 @@
                             <img src="../src/img/password.png" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">Password</p>
-                                <p class="detailData">test123</p>
+                                <p class="detailData">{facility_password}</p>
                             </div>
                         </div>
 
@@ -323,11 +1590,11 @@
                             <img src="../src/img/gst.png" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">Link Child Associate</p>
-                                <p class="detailData">2</p>
+                                <!-- <p class="detailData">2</p> -->
                             </div>
                         </div>
                         <div class="userStatus ">
-                            <p class="flex items-center smButtonText">
+                            <p class="flex items-center smButtonText" on:click={linkChild}>
                                 <a href="" class="smButton modal-open">
                                     Link/View
                                 </a>
@@ -347,8 +1614,8 @@
                
                 <div class="right flex justify-end">
                     <p class="detailsUpdate mr-4">
-                        <span><span class="font-medium">Last updated -</span> 27-Apr-2021 03:28 pm. <span
-                                class="font-medium">By-</span> Admin</span>
+                        <span><span class="font-medium">Last updated - </span> {facility_modified_date}<span
+                                class="font-medium"> By - </span> {$facility_data_store.modified_by}</span>
                     </p>
                     <p class="flex items-center smButtonText">
                         <a href="" class="smButton bg-erBlue text-white">
@@ -366,11 +1633,11 @@
                             <img src="../src/img/Subtract.png" alt="" class="w-5 h-auto">
                             <div class="pl-4">
                                 <p class="detailLbale">Associate Type</p>
-                                <p class="detailData">NDA</p>
+                                <p class="detailData">{$facility_data_store.facility_type}</p>
                             </div>
                         </div>
                         <div class="userStatus ">
-                            <p class="flex items-center smButtonText">
+                            <p class="flex items-center smButtonText" on:click={myBtn}>
                                 <a class="smButton" id="changeAssociate">
                                     Change
                                 </a>
@@ -382,7 +1649,7 @@
                             <img src="../src/img/pan.png" alt="" class="w-5 h-5">
                             <div class="pl-4">
                                 <p class="detailLbale">Associate ID</p>
-                                <p class="detailData">BOMG00538</p>
+                                <p class="detailData">{$facility_data_store.name}</p>
                             </div>
                         </div>
 
@@ -392,11 +1659,11 @@
                             <img src="../src/img/organization.png" alt="" class="w-5 h-5">
                             <div class="pl-4">
                                 <p class="detailLbale">Organization</p>
-                                <p class="detailData">Amazon Transportation</p>
+                                <p class="detailData">{$facility_data_store.org_id}</p>
                             </div>
                         </div>
                         <div class="userStatus ">
-                            <p class="flex items-center smButtonText">
+                            <p class="flex items-center smButtonText" on:click={workorganization}>
                                 <a href="" class="smButton">
                                     Add/Edit
                                 </a>
@@ -408,7 +1675,7 @@
                             <img src="../src/img/location.png" class="w-6 h-6" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">City</p>
-                                <p class="detailData">Pune</p>
+                                <p class="detailData">{city}</p>
                             </div>
                         </div>
                     </div>
@@ -417,7 +1684,7 @@
                             <img src="../src/img/warehouse.png" class="w-5 h-5" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">Station</p>
-                                <p class="detailData">MHPD - Mulsi SP</p>
+                                <p class="detailData">{$facility_data_store.station_code}</p>
                             </div>
                         </div>
 
@@ -438,10 +1705,36 @@
                                     <p class="detailLbale">Offer Letter</p>
                                 </div>
                             </div>
-                            <div class="userStatus ">
-                                <p class="verifyText"><img src="../src/img/timer.png" alt="" class="pr-1">
-                                    Verification Pending</p>
-                            </div>
+                            {#if offer_verified == "1"}
+                            <p
+                            class="statusContentTag text-green font-normal xs:w-5/12"
+                        >
+                            <img
+                                src="../src/img/checked.png"
+                                class="pr-2"
+                                alt=""
+                            />  Verified
+                        </p>
+                            {:else if offer_rejected == "1"} 
+                            <p
+                            class="statusContentTag text-rejectcolor font-normal xs:w-5/12"
+                        >
+                            <img
+                                src="../src/img/reject.png"
+                                class="pr-2"
+                                alt=""
+                            /> Rejected
+                        </p>
+                        <!-- {:else} -->
+                        {:else if offer_verified == "0" && offer_rejected == "0"}
+                        <p class="statusContent font-normal xs:w-5/12">
+                            <img
+                                src="../src/img/timer.png"
+                                class="pr-2"
+                                alt=""
+                            />Verification Pending
+                        </p>
+                            {/if}
 
                         </div>
                         <div class="wrapperInfo ">
@@ -450,17 +1743,34 @@
                                 <div class="pl-4 flex items-center">
                                     <img src="../src/img/jpeg.png" class="" alt="">
 
-                                    <p class="detailLbale">dhiraj-shah-offer-letter.pdf</p>
+                                    <p class="detailLbale">{offer_name}</p>
                                 </div>
                             </div>
                             <div class="userStatus ">
                                 <p class="verifyText">
                                     <a href="" class="smButton">
-                                        <img src="../src/img/view.png" alt="">
+                                        <img src="../src/img/view.png" alt="" on:click="{()=>{openViewModel("offer")}}">
                                     </a>
                                 </p>
                             </div>
-
+                            <!-- Document view Model -->
+                            <div id="Offer_modal" tabindex="-1" aria-hidden="true" class=" actionDialogueOnboard" hidden>
+                                <div class="pancardDialogueOnboardWrapper ">
+                                    <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+                                        <div class="flex justify-end p-2">
+                                            <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel("offer")}}">
+                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
+                                            </button>
+                                        </div>
+                                        <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+                                            <img src="{pan_attach}" class="mx-auto" alt="offer letter proof">
+                                           <div class="pt-3 flex justify-center">
+                                                <button data-modal-toggle="popup-modal" type="button" class="dialogueNobutton"  on:click="{()=>{closeViewModel("offer")}}">Close</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div> 
+                        <!-- Document view Model -->
                         </div>
                     </div>
                 </div>
@@ -475,7 +1785,7 @@
                             <img src="../src/img/managerVendor.png" class="w-5 h-5" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">Vendor</p>
-                                <p class="detailData">Vitthal Sutar - MHPD00012</p>
+                                <p class="detailData">{$facility_data_store.vendor_name} - {$facility_data_store.vendor_code}</p>
                             </div>
                         </div>
 
@@ -492,13 +1802,40 @@
             <div class="detailsHeader_summary ">
                 <div class="right flex justify-between w-full items-center py-2 xsl:flex-wrap">
                     <div>
-                        <p class="verifyText"><img src="../src/img/timer.png" alt="" class="pr-1">
-                            Verification Pending</p>
+                        {#if $facility_data_store.is_id_prof_rejected == "1"}
+                        <p class="rejectText pr-3">
+                            <img
+                                src="../src/img/reject.png"
+                                alt=""
+                                class="pr-2"
+                            /> Reject
+                        </p>
+                        {:else if $facility_data_store.is_id_prof_verified == "1"}
+                        
+                            <p class="verifiedTextGreen pr-3">
+                                <img
+                                    src="../src/img/checked.png"
+                                    alt=""
+                                    class="pr-1"
+                                />
+                                Verified
+                            </p>
+                       
+                        {:else if $facility_data_store.is_id_prof_verified == "0" && $facility_data_store.is_id_prof_rejected == "0"}
+                            <p class="verifyText pr-3">
+                                <img
+                                    src="../src/img/timer.png"
+                                    alt=""
+                                    class="pr-2"
+                                />
+                                Verification Pending
+                            </p>
+                       {/if}
                     </div>
                     <div class="flex">
                         <p class="detailsUpdate mr-4">
-                            <span><span class="font-medium">Last updated -</span> 27-Apr-2021 03:28 pm. <span
-                                    class="font-medium">By-</span> Admin</span>
+                            <span><span class="font-medium">Last updated - </span> >{bank_new_date}<span
+                                    class="font-medium"> By - </span> {$facility_data_store.details_updated_by}</span>
                         </p>
                         <p class="flex items-center smButtonText">
                             <a href="" class="smButton bg-erBlue text-white">
@@ -518,7 +1855,7 @@
                             <img src="../src/img/pan.png" alt="" class="w-5 h-5">
                             <div class="pl-4">
                                 <p class="detailLbale">PAN Number</p>
-                                <p class="detailData">BOMG00538</p>
+                                <p class="detailData">{pan_num}</p>
                             </div>
                         </div>
 
@@ -529,7 +1866,7 @@
                             <img src="../src/img/pan.png" class="w-6 h-6" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">Aadhar Number</p>
-                                <p class="detailData">9714 1358 8022</p>
+                                <p class="detailData">{aadhar_num}</p>
                             </div>
                         </div>
                     </div>
@@ -538,7 +1875,7 @@
                             <img src="../src/img/warehouse.png" class="w-5 h-5" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">Driving License</p>
-                                <p class="detailData">Not Submitted</p>
+                                <p class="detailData">{dl_lic_name}</p>
                             </div>
                         </div>
 
@@ -559,6 +1896,35 @@
                                     <p class="detailLbale">PAN Card Attachment</p>
                                 </div>
                             </div>
+                        {#if pan_rejected == "1"}
+                        <p class="rejectText pr-3">
+                            <img
+                                src="../src/img/reject.png"
+                                alt=""
+                                class="pr-2"
+                            /> Reject
+                        </p>
+                        {:else if pan_verified == "1"}
+                        
+                            <p class="verifiedTextGreen pr-3">
+                                <img
+                                    src="../src/img/checked.png"
+                                    alt=""
+                                    class="pr-1"
+                                />
+                                Verified
+                            </p>
+                       
+                        {:else if pan_verified == "0" && pan_rejected == "0"}
+                            <p class="verifyText pr-3">
+                                <img
+                                    src="../src/img/timer.png"
+                                    alt=""
+                                    class="pr-2"
+                                />
+                                Verification Pending
+                            </p>
+                       {/if}
                            
 
                         </div>
@@ -568,16 +1934,34 @@
                                 <div class="pl-4 flex items-center">
                                     <img src="../src/img/jpeg.png" class="" alt="">
 
-                                    <p class="detailLbale">Pan-card-copy.jpeg</p>
+                                    <p class="detailLbale">{pan_name}</p>
                                 </div>
                             </div>
                             <div class="userStatus ">
                                 <p class="verifyText">
                                     <a href="" class="smButton">
-                                        <img src="../src/img/view.png" alt="">
+                                        <img src="../src/img/view.png" alt="" on:click="{()=>{openViewModel("pan")}}">
                                     </a>
                                 </p>
                             </div>
+                            <!-- Document view Model -->
+                            <div id="Pan_modal" tabindex="-1" aria-hidden="true" class=" actionDialogueOnboard" hidden>
+                                <div class="pancardDialogueOnboardWrapper ">
+                                    <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+                                        <div class="flex justify-end p-2">
+                                            <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel("pan")}}">
+                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
+                                            </button>
+                                        </div>
+                                        <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+                                            <img src="{pan_attach}" class="mx-auto" alt="pan card proof">
+                                           <div class="pt-3 flex justify-center">
+                                                <button data-modal-toggle="popup-modal" type="button" class="dialogueNobutton"  on:click="{()=>{closeViewModel("pan")}}">Close</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div> 
+                        <!-- Document view Model -->
 
                         </div>
                     </div>
@@ -589,7 +1973,35 @@
                                     <p class="detailLbale">Aadhar Card Attachment</p>
                                 </div>
                             </div>
+                            {#if aadhar_rejected == "1"}
+                            <p class="rejectText pr-3">
+                                <img
+                                    src="../src/img/reject.png"
+                                    alt=""
+                                    class="pr-2"
+                                /> Reject
+                            </p>
+                            {:else if aadhar_verified == "1"}
+                            
+                                <p class="verifiedTextGreen pr-3">
+                                    <img
+                                        src="../src/img/checked.png"
+                                        alt=""
+                                        class="pr-1"
+                                    />
+                                    Verified
+                                </p>
                            
+                            {:else if aadhar_verified == "0" && aadhar_rejected == "0"}
+                                <p class="verifyText pr-3">
+                                    <img
+                                        src="../src/img/timer.png"
+                                        alt=""
+                                        class="pr-2"
+                                    />
+                                    Verification Pending
+                                </p>
+                           {/if}   
 
                         </div>
                         <div class="wrapperInfo ">
@@ -598,21 +2010,116 @@
                                 <div class="pl-4 flex items-center">
                                     <img src="../src/img/jpeg.png" class="" alt="">
 
-                                    <p class="detailLbale">aadhar-card-copy.jpeg</p>
+                                    <p class="detailLbale">{aadhar_name}</p>
                                 </div>
                             </div>
                             <div class="userStatus ">
                                 <p class="verifyText">
                                     <a href="" class="smButton">
-                                        <img src="../src/img/view.png" alt="">
+                                        <img src="../src/img/view.png" alt="" on:click="{()=>{openViewModel("aadhar")}}">
                                     </a>
                                 </p>
                             </div>
+                            <!-- Document view Model -->
+                            <div id="Aadhar_modal" tabindex="-1" aria-hidden="true" class=" actionDialogueOnboard" hidden>
+                                <div class="pancardDialogueOnboardWrapper ">
+                                    <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+                                        <div class="flex justify-end p-2">
+                                            <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel("aadhar")}}">
+                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
+                                            </button>
+                                        </div>
+                                        <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+                                            
+                                            <img src="{aadhar_attach}" class="mx-auto" alt="aadhar proof">
+                                            
+                                            <div class="pt-3 flex justify-center">
+                                                <button data-modal-toggle="popup-modal" type="button" class="dialogueNobutton"  on:click="{()=>{closeViewModel("aadhar")}}">Close</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div> 
+                        <!-- Document view Model -->
+                        </div>
+                    </div>
+                    <div class="userInfoSecPadding">
+                        <div class="wrapperInfoFirst">
+                            <div class="flex items-start">
+                                <img src="../src/img/offerlatter.png" alt="" class="w-5 h-5">
+                                <div class="pl-4">
+                                    <p class="detailLbale">Driving Licence Attachment</p>
+                                </div>
+                            </div>
+                            {#if dl_rejected == "1"}
+                            <p class="rejectText pr-3">
+                                <img
+                                    src="../src/img/reject.png"
+                                    alt=""
+                                    class="pr-2"
+                                /> Reject
+                            </p>
+                            {:else if dl_verified == "1"}
+                            
+                                <p class="verifiedTextGreen pr-3">
+                                    <img
+                                        src="../src/img/checked.png"
+                                        alt=""
+                                        class="pr-1"
+                                    />
+                                    Verified
+                                </p>
+                           
+                            {:else if dl_verified == "0" && dl_rejected == "0"}
+                                <p class="verifyText pr-3">
+                                    <img
+                                        src="../src/img/timer.png"
+                                        alt=""
+                                        class="pr-2"
+                                    />
+                                    Verification Pending
+                                </p>
+                           {/if}  
 
+                        </div>
+                        <div class="wrapperInfo ">
+                            <div class="flex items-start">
+                                <img src="../src/img/addressproof.png" class="invisible" alt="">
+                                <div class="pl-4 flex items-center">
+                                    <img src="../src/img/jpeg.png" class="" alt="">
+
+                                    <p class="detailLbale">{dl_lic_name}</p>
+                                </div>
+                            </div>
+                            <div class="userStatus ">
+                                <p class="verifyText">
+                                    <a href="" class="smButton">
+                                        <img src="../src/img/view.png" alt="" on:click="{()=>{openViewModel("licence")}}">
+                                    </a>
+                                </p>
+                            </div>
+                            <!-- Document view Model -->
+                            <div id="Licence_modal" tabindex="-1" aria-hidden="true" class=" actionDialogueOnboard" hidden>
+                                <div class="pancardDialogueOnboardWrapper ">
+                                    <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+                                        <div class="flex justify-end p-2">
+                                            <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel("licence")}}">
+                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
+                                            </button>
+                                        </div>
+                                        <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+                                            
+                                            <img src="{dl_lic_attach}" class="mx-auto" alt="licence proof">
+                                            
+                                            <div class="pt-3 flex justify-center">
+                                                <button data-modal-toggle="popup-modal" type="button" class="dialogueNobutton"  on:click="{()=>{closeViewModel("licence")}}">Close</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div> 
+                        <!-- Document view Model -->
                         </div>
                     </div>
                 </div>
-
             </div> 
          
         </div>
@@ -629,8 +2136,8 @@
                     </div>
                     <div class="flex">
                         <p class="detailsUpdate mr-4">
-                            <span><span class="font-medium">Last updated -</span> 27-Apr-2021 03:28 pm. <span
-                                    class="font-medium">By-</span> Admin</span>
+                            <span><span class="font-medium">Last updated - </span> > {bank_new_date} <span
+                                    class="font-medium"> By - </span> {bank_values_from_store.modified_by}</span>
                         </p>
                         <p class="flex items-center smButtonText">
                             <a href="" class="smButton bg-erBlue text-white">
@@ -650,7 +2157,7 @@
                             <img src="../src/img/bank.png" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">Bank Name</p>
-                                <p class="detailData">HDFC</p>
+                                <p class="detailData">{bank_values_from_store.bank_name}</p>
                             </div>
                         </div>
 
@@ -660,7 +2167,7 @@
                             <img src="../src/img/account.png" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">Account Number</p>
-                                <p class="detailData">483792018849327</p>
+                                <p class="detailData">{bank_values_from_store.account_number}</p>
                             </div>
                         </div>
 
@@ -670,7 +2177,7 @@
                             <img src="../src/img/account.png" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">IFSC Code</p>
-                                <p class="detailData">HDFC0000148</p>
+                                <p class="detailData">{bank_values_from_store.ifsc_code}</p>
                             </div>
                         </div>
 
@@ -680,7 +2187,27 @@
                             <img src="../src/img/pincode.png" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">Branch</p>
-                                <p class="detailData">Pune - East, 400190</p>
+                                <p class="detailData">{bank_values_from_store.branch_name} - {bank_values_from_store.branch_pin_code}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="userInfoSec3 ">
+                        <div class="flex items-start">
+                            <img src="../src/img/account.png" alt="">
+                            <div class="pl-4">
+                                <p class="detailLbale">Bank Type</p>
+                                <p class="detailData">{bank_values_from_store.bank_type}</p>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="userInfoSec3 ">
+                        <div class="flex items-start">
+                            <img src="../src/img/pincode.png" alt="">
+                            <div class="pl-4">
+                                <p class="detailLbale">Branch</p>
+                                <p class="detailData">{bank_values_from_store.branch_name} - {bank_values_from_store.branch_pin_code}</p>
                             </div>
                         </div>
                     </div>
@@ -702,7 +2229,7 @@
                                     </div>
                                 </div>
                                 <div class="pl-4">
-                                    <p class="flex items-center smButtonText">
+                                    <p class="flex items-center smButtonText" on:click={chequeDetails}>
                                         <a href="" class="smButton">
                                             Cheque Details
                                         </a>
@@ -721,6 +2248,35 @@
 
                                 </div>
                             </div>
+                            {#if can_cheque_rejected == "1"}
+                        <p class="rejectText pr-3">
+                            <img
+                                src="../src/img/reject.png"
+                                alt=""
+                                class="pr-2"
+                            /> Reject
+                        </p>
+                        {:else if can_cheque_verified == "1"}
+                        
+                            <p class="verifiedTextGreen pr-3">
+                                <img
+                                    src="../src/img/checked.png"
+                                    alt=""
+                                    class="pr-1"
+                                />
+                                Verified
+                            </p>
+                       
+                        {:else if can_cheque_verified == "0" && can_cheque_rejected == "0"}
+                            <p class="verifyText pr-3">
+                                <img
+                                    src="../src/img/timer.png"
+                                    alt=""
+                                    class="pr-2"
+                                />
+                                Verification Pending
+                            </p>
+                       {/if}
                         </div>
                         <div class="wrapperInfo ">
                             <div class="flex items-start">
@@ -728,17 +2284,34 @@
                                 <div class="pl-4 flex items-center">
                                     <img src="../src/img/jpeg.png" class="" alt="">
 
-                                    <p class="detailLbale">cancel-cheque-copy.jpeg</p>
+                                    <p class="detailLbale">{can_cheque_name}</p>
                                 </div>
                             </div>
                             <div class="userStatus ">
                                 <p class="verifyText">
                                     <a href="" class="smButton">
-                                        <img src="../src/img/view.png" alt="">
+                                        <img src="../src/img/view.png" alt="" on:click="{()=>{openViewModel("can_cheque")}}">
                                     </a>
                                 </p>
                             </div>
-
+                        <!-- Document view Model -->
+                        <div id="Can_cheque_modal" tabindex="-1" aria-hidden="true" class=" actionDialogueOnboard" hidden>
+                            <div class="pancardDialogueOnboardWrapper ">
+                                <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+                                    <div class="flex justify-end p-2">
+                                        <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel("can_cheque")}}">
+                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
+                                        </button>
+                                    </div>
+                                    <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+                                        <img src="{can_cheque_url}" class="mx-auto" alt="cancel cheque proof">
+                                       <div class="pt-3 flex justify-center">
+                                            <button data-modal-toggle="popup-modal" type="button" class="dialogueNobutton"  on:click="{()=>{closeViewModel("can_cheque")}}">Close</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div> 
+                    <!-- Document view Model -->
                         </div>
                     </div>
                    
@@ -759,8 +2332,8 @@
                     <div class="left">
                         <p class="detailsTitle">Work Details</p>
                         <p class="detailsUpdate">
-                            <span><span class="font-medium">Last updated -</span>> 27-Apr-2021 03:28 pm. <span
-                                    class="font-medium">By-</span> Admin</span>
+                            <span><span class="font-medium">Last updated - </span>> 27-Apr-2021 03:28 pm. <span
+                                    class="font-medium"> By - </span> Admin</span>
                         </p>
                     </div>
                     <div class="right flex">
@@ -1285,7 +2858,7 @@
                                     <div class="pl-4 flex items-center">
                                         <img src="../src/img/jpeg.png" class="" alt="">
 
-                                        <p class="detailLbale">dhiraj-shah-offer-letter.pdf</p>
+                                        <p class="detailLbale">{offer_name}</p>
                                     </div>
                                 </div>
                                 <div class="userStatus ">
@@ -1340,8 +2913,8 @@
                     <div class="left">
                         <p class="detailsTitle">Identity Proof</p>
                         <p class="detailsUpdate">
-                            <span><span class="font-medium">Last updated -</span>> 27-Apr-2021 03:28 pm. <span
-                                    class="font-medium">By-</span> Admin</span>
+                            <span><span class="font-medium">Last updated - </span>> 27-Apr-2021 03:28 pm. <span
+                                    class="font-medium"> By - </span> Admin</span>
                         </p>
                     </div>
                     <div class="right flex">
@@ -1393,7 +2966,7 @@
                                     <img src="../src/img/pan.png" alt="">
                                     <div class="pl-4">
                                         <p class="detailLbale">PAN Number</p>
-                                        <p class="detailData">CZHPS3225C</p>
+                                        <p class="detailData">{pan_num}</p>
 
                                     </div>
                                 </div>
@@ -1413,7 +2986,7 @@
                                     <div class="pl-4 flex items-center">
                                         <img src="../src/img/jpeg.png" class="" alt="">
 
-                                        <p class="detailLbale">Pan-card-copy.jpeg</p>
+                                        <p class="detailLbale">{pan_name}</p>
                                     </div>
                                 </div>
                                 <div class="userStatus ">
@@ -1494,8 +3067,8 @@
                         <p class="detailsTitle">Bank Details
                         </p>
                         <p class="detailsUpdate">
-                            <span><span class="font-medium text-greycolor">Last updated -</span>> 27-Apr-2021
-                                03:28 pm. <span class="font-medium text-greycolor">By-</span> Admin</span>
+                            <span><span class="font-medium text-greycolor"> Last updated - </span>> 27-Apr-2021
+                                03:28 pm. <span class="font-medium text-greycolor"> By - </span> Admin</span>
                         </p>
                     </div>
                     <div class="right flex">
@@ -1536,7 +3109,7 @@
                                 <img src="../src/img/bank.png" alt="">
                                 <div class="pl-4">
                                     <p class="detailLbale">Bank Name</p>
-                                    <p class="detailData">HDFC</p>
+                                    <p class="detailData">{bank_values_from_store.bank_name}</p>
                                 </div>
                             </div>
 
@@ -1546,7 +3119,7 @@
                                 <img src="../src/img/account.png" alt="">
                                 <div class="pl-4">
                                     <p class="detailLbale">Account Number</p>
-                                    <p class="detailData">483792018849327</p>
+                                    <p class="detailData">{bank_values_from_store.account_number}</p>
                                 </div>
                             </div>
 
@@ -1556,7 +3129,7 @@
                                 <img src="../src/img/account.png" alt="">
                                 <div class="pl-4">
                                     <p class="detailLbale">IFSC Code</p>
-                                    <p class="detailData">HDFC0000148</p>
+                                    <p class="detailData">{bank_values_from_store.ifsc_code}</p>
                                 </div>
                             </div>
 
@@ -1569,7 +3142,7 @@
                                 <img src="../src/img/pincode.png" alt="">
                                 <div class="pl-4">
                                     <p class="detailLbale">Branch</p>
-                                    <p class="detailData">Pune - East, 400190</p>
+                                    <p class="detailData">{bank_values_from_store.branch_name} - {bank_values_from_store.branch_pin_code}</p>
                                 </div>
                             </div>
 
@@ -1638,3 +3211,3449 @@
 
 
 </div>
+
+
+
+<div class="supplierInfoModalSection " id="supplierInfoModal">
+    <div class="mainSupInfo">
+        <div class="p-4">
+            <div class="supInfoWrapper ">
+                <div class="infoUserdetailsSection ">
+                    <div class="detailsInfoSection">
+                        <div class="tdfirstDetailsformodal">
+                            <div class="itemList ">
+                                <div class="smallText w-w115px">
+                                    Facility Name
+                                </div>
+                                <div class="smLable">{$facility_data_store.facility_name}</div>
+                            </div>
+                            <div class="itemList ">
+                                <div class="smallText w-w115px">
+                                    Facility Type
+                                </div>
+                                <div class="smLable">{$facility_data_store.facility_type}</div>
+                            </div>
+                            <div class="itemList ">
+                                <div class="smallText w-w115px">Facility ID</div>
+                                <div class="smLable">{$facility_data_store.facility_id}</div>
+                            </div>
+                            <div class="itemList">
+                                <div class="smallText w-w115px">Location</div>
+                                <div class="smLable">{city}</div>
+                            </div>
+                            <div class="itemList">
+                                <div class="smallText w-w115px">Status</div>
+                                <div class="statusinformation">
+                                    <div class="statusWrapper  ">
+                                        <!-- <div class="statusredcircle" /> -->
+                                        {$facility_data_store.status}
+                                    </div>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="updatebutton ">
+                        <button class="ErBlueupdated">Update</button>
+                    </div>
+                    <div
+                        class="closebuttonsection"
+                        on:click={closeAuditTrailModal}
+                    >
+                        <img
+                            src="../src/img/close.png"
+                            id="closeAuditTrailModal"
+                            class="closesup"
+                            alt=""
+                        />
+                    </div>
+                </div>
+                <div class="commentBox">
+                    <div class="textAndSubmitButton ">
+                        <p class="text-base text-white">Add your comment</p>
+                        <button class="btnsubmitComment " type="submit">
+                            Submit</button
+                        >
+                    </div>
+
+                    <textarea
+                        name=""
+                        class="textareaComment "
+                        id=""
+                        cols="30"
+                        rows="3"
+                    />
+                </div>
+
+                <div class="timelinescroll ">
+                    <div class="flex md:contents">
+                        <div class="timelinesection">
+                            <div class="timeline ">
+                                <div class="timelineGreyline" />
+                            </div>
+                            <div class="timelineImg ">
+                                <img
+                                    src="../src/img/chat2.svg"
+                                    class="w-5 h-5"
+                                    alt=""
+                                />
+                            </div>
+                        </div>
+                        <div class="timelineContent ">
+                            {#each audit_details_array as new_audit_data}
+                                <h3 class="timeCommenterName ">
+                                    {new_audit_data.owner}
+                                    <span class="timeCommentDate "
+                                        >{new_audit_data.creation}</span
+                                    >
+                                </h3>
+                                <div class="timeStatus  timeStatusbglightPink">
+                                    <p class="timeCircle" />
+                                    {new_audit_data.remarks}
+                                </div>
+                            {/each}
+                        </div>
+                    </div>
+                    <div class="flex md:contents">
+                        <div class="timelinesection">
+                            <div class="timeline ">
+                                <div class="timelineGreyline" />
+                            </div>
+                            <div class="timelineImg ">
+                                <img
+                                    src="../src/img/chat2.svg"
+                                    class="w-5 h-5"
+                                    alt=""
+                                />
+                            </div>
+                        </div>
+                        <!-- <div class="timelineContent ">
+                                    <h3 class="timeCommenterName "> Selvaraj Jayaraman
+                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
+                                    </h3>
+                                    <div class="timeStatus  timeStatusbglightPink">
+                                        <p class="timeCircle"></p> Pancard number mismatch
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex md:contents">
+                                <div class="timelinesection">
+                                    <div class="timeline ">
+                                        <div class="timelineGreyline"></div>
+                                    </div>
+                                    <div class="timelineImg ">
+                                        <img src="../src/img/chat2.svg" class="w-5 h-5" alt="">
+                                    </div>
+                                </div>
+                                <div class="timelineContent ">
+                                    <h3 class="timeCommenterName ">Akshay Saini
+                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
+                                    </h3>
+                                    <div class="timeStatus  timeStatusbglightPurple">
+                                        <p class="timeCircle"></p> Vendor details verified
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex md:contents">
+                                <div class="timelinesection">
+                                    <div class="timeline ">
+                                        <div class="timelineGreyline"></div>
+                                    </div>
+                                    <div class="timelineImg ">
+                                        <img src="../src/img/chat2.svg" class="w-5 h-5" alt="">
+                                    </div>
+                                </div>
+                                <div class="timelineContent ">
+                                    <h3 class="timeCommenterName "> Selvaraj Jayaraman
+                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
+                                    </h3>
+                                    <div class="timeStatus  timeStatusbglightPurple">
+                                        <p class="timeCircle"></p> Vendor Details
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex md:contents">
+                                <div class="timelinesection">
+                                    <div class="timeline ">
+                                        <div class="timelineGreyline"></div>
+                                    </div>
+                                    <div class="timelineImg ">
+                                        <img src="../src/img/chat2.svg" class="w-5 h-5" alt="">
+                                    </div>
+                                </div>
+                                <div class="timelineContent ">
+                                    <h3 class="timeCommenterName ">Vivekanand Dasar
+                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
+                                    </h3>
+                                    <div class="timeStatus  timeStatusbglightGreen">
+                                        <p class="timeCircle"></p> Voter ID not clear
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex md:contents">
+                                <div class="timelinesection">
+                                    <div class="timeline ">
+                                        <div class="timelineGreyline"></div>
+                                    </div>
+                                    <div class="timelineImg ">
+                                        <img src="../src/img/chat2.svg" class="w-5 h-5" alt="">
+                                    </div>
+                                </div>
+                                <div class="timelineContent ">
+                                    <h3 class="timeCommenterName ">Vivekanand Dasar
+                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
+                                    </h3>
+                                    <div class="timeStatus  timeStatusbglightPink">
+                                        <p class="timeCircle"></p> Voter ID not clear
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex md:contents">
+                                <div class="timelinesection">
+                                    <div class="timeline ">
+                                        <div class="timelineGreyline"></div>
+                                    </div>
+                                    <div class="timelineImg ">
+                                        <img src="../src/img/chat2.svg" class="w-5 h-5" alt="">
+                                    </div>
+                                </div>
+                                <div class="timelineContent ">
+                                    <h3 class="timeCommenterName ">Vivekanand Dasar
+                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
+                                    </h3>
+                                    <div class="timeStatus  timeStatusbglightPink">
+                                        <p class="timeCircle"></p> Voter ID not clear
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex md:contents">
+                                <div class="timelinesection">
+                                    <div class="timeline ">
+                                        <div class="timelineGreyline"></div>
+                                    </div>
+                                    <div class="timelineImg ">
+                                        <img src="../src/img/chat2.svg" class="w-5 h-5" alt="">
+                                    </div>
+                                </div>
+                                <div class="timelineContent ">
+                                    <h3 class="timeCommenterName ">Vivekanand Dasar
+                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
+                                    </h3>
+                                    <div class="timeStatus  timeStatusbglightPink">
+                                        <p class="timeCircle"></p> Voter ID not clear
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex md:contents">
+                                <div class="timelinesection">
+                                    <div class="timeline ">
+                                        <div class="timelineGreyline"></div>
+                                    </div>
+                                    <div class="timelineImg ">
+                                        <img src="../src/img/chat2.svg" class="w-5 h-5" alt="">
+                                    </div>
+                                </div>
+                                <div class="timelineContent ">
+                                    <h3 class="timeCommenterName ">Vivekanand Dasar
+                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
+                                    </h3>
+                                    <div class="timeStatus  timeStatusbglightPink">
+                                        <p class="timeCircle"></p> Voter ID not clear
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex md:contents">
+                                <div class="timelinesection">
+                                    <div class="timeline ">
+                                        <div class="timelineGreyline"></div>
+                                    </div>
+                                    <div class="timelineImg ">
+                                        <img src="../src/img/chat2.svg" class="w-5 h-5" alt="">
+                                    </div>
+                                </div>
+                                <div class="timelineContent ">
+                                    <h3 class="timeCommenterName ">Vivekanand Dasar
+                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
+                                    </h3>
+                                    <div class="timeStatus  timeStatusbglightPink">
+                                        <p class="timeCircle"></p> Voter ID not clear
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex md:contents">
+                                <div class="timelinesection">
+                                    <div class="timeline ">
+                                        <div class="timelineGreyline"></div>
+                                    </div>
+                                    <div class="timelineImg ">
+                                        <img src="../src/img/chat2.svg" class="w-5 h-5" alt="">
+                                    </div>
+                                </div>
+                                <div class="timelineContent ">
+                                    <h3 class="timeCommenterName ">Vivekanand Dasar
+                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
+                                    </h3>
+                                    <div class="timeStatus  timeStatusbglightPink">
+                                        <p class="timeCircle"></p> Voter ID not clear
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex md:contents">
+                                <div class="timelinesection">
+                                    <div class="timeline ">
+                                        <div class="timelineGreyline"></div>
+                                    </div>
+                                    <div class="timelineImg ">
+                                        <img src="../src/img/chat2.svg" class="w-5 h-5" alt="">
+                                    </div>
+                                </div>
+                                <div class="timelineContent ">
+                                    <h3 class="timeCommenterName ">Vivekanand Dasar
+                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
+                                    </h3>
+                                    <div class="timeStatus  timeStatusbglightPink">
+                                        <p class="timeCircle"></p> Voter ID not clear
+                                    </div>
+                                </div> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- All Documents modal -->
+<div class="hidden" id="modalid">
+    <div class=" viewDocmodal  ">
+        <div class="bglightcolormodal" />
+        <div class="allDocmodalsuccessbody rounded-lg">
+            <div class="">
+                <div class="viewDocPanmainbodyModal">
+                    <div class="flex justify-between mb-3">
+                        <div class="leftmodalInfo">
+                            <p class="text-lg text-erBlue font-medium  ">
+                                <span class=""> All Documents</span>
+                            </p>
+                            <p class="text-sm ">
+                                <span class="font-medium text-lg">
+                                    Dhiraj Shah</span
+                                >
+                                <span class="userDesignation">
+                                    - Associate- {$facility_data_store.facility_type}, MHPD - Mulsi
+                                    SP</span
+                                >
+                            </p>
+                        </div>
+                        <div class="rightmodalclose" on:click={closeDoc}>
+                            <img src="../src/img/blackclose.svg" alt="" />
+                        </div>
+                    </div>
+                    <div class="innermodal">
+                        <hr />
+                        <div class="scrollbar ">
+                            <div class="mainContainerWrapper ">
+                                <div class="DocCardlist ">
+                                    <div class="cardDocWrapper ">
+                                        <div class="infoDivCard ">
+                                            <div class="infofSection  ">
+                                                <div class="secFirstDoc ">
+                                                    <div class="docImageSec">
+                                                        <img
+                                                            src="../src/img/pancard.png"
+                                                            alt=""
+                                                        />
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale">
+                                                            Document Type
+                                                        </p>
+                                                        <p class="detailData">
+                                                            PAN Card
+                                                        </p>
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale">
+                                                            Uploaded By
+                                                        </p>
+                                                        <p class="detailData">
+                                                            Admin
+                                                        </p>
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale">
+                                                            Uploaded On
+                                                        </p>
+                                                        <p class="detailData">
+                                                            27-Apr-2021 23:29 pm
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div class="secSecond xs:mt-3">
+                                                    <div class="pl-4">
+                                                        <p class="verifyText">
+                                                            <a
+                                                                href=""
+                                                                class="smButton"
+                                                            >
+                                                                <img
+                                                                    src="../src/img/view.png"
+                                                                    alt=""
+                                                                />
+                                                            </a>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="statusSecForDoc">
+                                            <p class="userStatusTick ">
+                                                <img
+                                                    src="../src/img/checked.png"
+                                                    alt=""
+                                                    class="pr-1"
+                                                /> Verify
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="cardDocWrapper ">
+                                        <div class="infoDivCard ">
+                                            <div class="infofSection  ">
+                                                <div class="secFirstDoc ">
+                                                    <div class="docImageSec">
+                                                        <img
+                                                            src="../src/img/pancard.png"
+                                                            alt=""
+                                                        />
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale">
+                                                            Document Type
+                                                        </p>
+                                                        <p class="detailData">
+                                                            PAN Card
+                                                        </p>
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale">
+                                                            Uploaded By
+                                                        </p>
+                                                        <p class="detailData">
+                                                            Admin
+                                                        </p>
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale">
+                                                            Uploaded On
+                                                        </p>
+                                                        <p class="detailData">
+                                                            27-Apr-2021 23:29 pm
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div class="secSecond xs:mt-3">
+                                                    <div class="pl-4">
+                                                        <p class="verifyText">
+                                                            <a
+                                                                href=""
+                                                                class="smButton"
+                                                            >
+                                                                <img
+                                                                    src="../src/img/view.png"
+                                                                    alt=""
+                                                                />
+                                                            </a>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="statusSecForDoc">
+                                            <p class="userStatusTick ">
+                                                <img
+                                                    src="../src/img/checked.png"
+                                                    alt=""
+                                                    class="pr-1"
+                                                /> Verify
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="cardDocWrapper ">
+                                        <div class="infoDivCard ">
+                                            <div class="infofSection  ">
+                                                <div class="secFirstDoc ">
+                                                    <div class="docImageSec">
+                                                        <img
+                                                            src="../src/img/pancard.png"
+                                                            alt=""
+                                                        />
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale">
+                                                            Document Type
+                                                        </p>
+                                                        <p class="detailData">
+                                                            PAN Card
+                                                        </p>
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale">
+                                                            Uploaded By
+                                                        </p>
+                                                        <p class="detailData">
+                                                            Admin
+                                                        </p>
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale">
+                                                            Uploaded On
+                                                        </p>
+                                                        <p class="detailData">
+                                                            27-Apr-2021 23:29 pm
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div class="secSecond xs:mt-3">
+                                                    <div class="pl-4">
+                                                        <p class="verifyText">
+                                                            <a
+                                                                href=""
+                                                                class="smButton"
+                                                            >
+                                                                <img
+                                                                    src="../src/img/view.png"
+                                                                    alt=""
+                                                                />
+                                                            </a>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="statusSecForDoc">
+                                            <p class="userStatusTick ">
+                                                <img
+                                                    src="../src/img/checked.png"
+                                                    alt=""
+                                                    class="pr-1"
+                                                /> Verify
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="cardDocWrapper ">
+                                        <div class="infoDivCard ">
+                                            <div class="infofSection  ">
+                                                <div class="secFirstDoc ">
+                                                    <div class="docImageSec">
+                                                        <img
+                                                            src="../src/img/pancard.png"
+                                                            alt=""
+                                                        />
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale">
+                                                            Document Type
+                                                        </p>
+                                                        <p class="detailData">
+                                                            PAN Card
+                                                        </p>
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale">
+                                                            Uploaded By
+                                                        </p>
+                                                        <p class="detailData">
+                                                            Admin
+                                                        </p>
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale">
+                                                            Uploaded On
+                                                        </p>
+                                                        <p class="detailData">
+                                                            27-Apr-2021 23:29 pm
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div class="secSecond xs:mt-3">
+                                                    <div class="pl-4">
+                                                        <p class="verifyText">
+                                                            <a
+                                                                href=""
+                                                                class="smButton"
+                                                            >
+                                                                <img
+                                                                    src="../src/img/view.png"
+                                                                    alt=""
+                                                                />
+                                                            </a>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="statusSecForDoc">
+                                            <p class="userStatusTick ">
+                                                <img
+                                                    src="../src/img/checked.png"
+                                                    alt=""
+                                                    class="pr-1"
+                                                /> Verify
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="cardDocWrapper ">
+                                        <div class="infoDivCard ">
+                                            <div class="infofSection  ">
+                                                <div class="secFirstDoc ">
+                                                    <div class="docImageSec">
+                                                        <img
+                                                            src="../src/img/pancard.png"
+                                                            alt=""
+                                                        />
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale">
+                                                            Document Type
+                                                        </p>
+                                                        <p class="detailData">
+                                                            PAN Card
+                                                        </p>
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale">
+                                                            Uploaded By
+                                                        </p>
+                                                        <p class="detailData">
+                                                            Admin
+                                                        </p>
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale">
+                                                            Uploaded On
+                                                        </p>
+                                                        <p class="detailData">
+                                                            27-Apr-2021 23:29 pm
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div class="secSecond xs:mt-3">
+                                                    <div class="pl-4">
+                                                        <p class="verifyText">
+                                                            <a
+                                                                href=""
+                                                                class="smButton"
+                                                            >
+                                                                <img
+                                                                    src="../src/img/view.png"
+                                                                    alt=""
+                                                                />
+                                                            </a>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="statusSecForDoc">
+                                            <p class="userStatusTick ">
+                                                <img
+                                                    src="../src/img/checked.png"
+                                                    alt=""
+                                                    class="pr-1"
+                                                /> Verify
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="addDocumentSection ">
+                                    <div class="addSecform ">
+                                        <div
+                                            class="addButtonSection my-3 py-16 text-center hidden"
+                                        >
+                                            <div class="updateAction">
+                                                <button class="ErBlueButton"
+                                                    >Add New Document</button
+                                                >
+                                            </div>
+                                        </div>
+
+                                        <div class="my-3 py-4 px-4 ">
+                                            <p class="text-lg font-medium">
+                                                Add New Document
+                                            </p>
+
+                                            <div
+                                                class="flex  py-3 items-center flex-wrap"
+                                            >
+                                                <div class="light14grey mb-1">
+                                                    Document Type
+                                                </div>
+                                                <div class="formInnerGroup ">
+                                                    <select
+                                                        class="inputboxpopover"
+                                                    >
+                                                        <option class="pt-6"
+                                                            >Select</option
+                                                        >
+                                                        <option>ICICI</option>
+                                                        <option>Axis</option>
+                                                        <option>SIB</option>
+                                                    </select>
+                                                    <div
+                                                        class="formSelectArrow "
+                                                    >
+                                                        <img
+                                                            src="../src/img/selectarrow.png"
+                                                            class="w-5 h-auto"
+                                                            alt=""
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div
+                                                class="flex  py-1 items-center flex-wrap"
+                                            >
+                                                <div class="light14grey  mb-1">
+                                                    Document Detail
+                                                </div>
+                                                <div class="formInnerGroup">
+                                                    <input
+                                                        class="inputboxpopover"
+                                                        type="text"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div
+                                                class="flex  py-3 items-center flex-wrap"
+                                            >
+                                                <div class="light14grey  mb-1">
+                                                    Upload Document
+                                                </div>
+                                                <div class="formInnerGroup">
+                                                    <label
+                                                        class="cursor-pointer flex"
+                                                    >
+                                                        <div
+                                                            class="ErBlueButton"
+                                                        >
+                                                            Select File
+                                                        </div>
+                                                        <input
+                                                            type="file"
+                                                            class="hidden"
+                                                        />
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            <div
+                                                class="flex items-center justify-end mt-5"
+                                            >
+                                                <div
+                                                    class="updateAction text-erBlue"
+                                                >
+                                                    Cancel
+                                                </div>
+                                                <div class="updateAction ml-5">
+                                                    <button class="ErBlueButton"
+                                                        >Upload</button
+                                                    >
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- GST Details modal -->
+<div class="hidden" id="modalidgst">
+    <div class=" viewDocmodal  ">
+        <div class="bglightcolormodal" />
+        <div class="allDocmodalsuccessbody rounded-lg">
+            <div class="">
+                <div class="viewDocPanmainbodyModal">
+                    <div class="flex justify-between mb-3">
+                        <div class="leftmodalInfo">
+                            <p class="text-lg text-erBlue font-medium  ">
+                                <span class=""> GST Details</span>
+                            </p>
+                            <p class="text-sm ">
+                                <span class="font-medium text-lg">
+                                    {$facility_data_store.facility_name}</span
+                                >
+                                <span class="userDesignation">
+                                    - Associate- {$facility_data_store.facility_type}, {city}</span
+                                >
+                            </p>
+                        </div>
+                        <div class="rightmodalclose" on:click={closeGST}>
+                            <img src="../src/img/blackclose.svg" alt="" />
+                        </div>
+                    </div>
+                    <div class="innermodal">
+                        <hr />
+                        <div class="scrollbar ">
+                            <div class="mainContainerWrapper ">
+                                <div class="DocCardlist ">
+                                    <div class="cardDocWrapper ">
+                                        <div class="infoDivCard ">
+                                            <div class="infofSection  ">
+                                                <div class="secFirstDoc ">
+                                                    <div
+                                                        class="locationInformation"
+                                                    >
+                                                        <div class="flex">
+                                                            <p
+                                                                class="detailLbalesm pr-3"
+                                                            >
+                                                                Address
+                                                            </p>
+                                                            <p
+                                                                class="detailDatasm"
+                                                            >
+                                                                B615, Marvad,
+                                                                near aarvi
+                                                                school
+                                                            </p>
+                                                        </div>
+                                                        <div class="flex">
+                                                            <p
+                                                                class="detailLbalesm pr-3"
+                                                            >
+                                                                City
+                                                            </p>
+                                                            <p
+                                                                class="detailDatasm"
+                                                            >
+                                                                Amravati
+                                                            </p>
+                                                        </div>
+                                                        <div class="flex">
+                                                            <p
+                                                                class="detailLbalesm pr-3"
+                                                            >
+                                                                GST State
+                                                            </p>
+                                                            <p
+                                                                class="detailDatasm"
+                                                            >
+                                                                Maharastra
+                                                            </p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="pl-2">
+                                                        <p
+                                                            class="detailLbale whitespace-nowrap mb-2"
+                                                        >
+                                                            GST Number
+                                                        </p>
+                                                        <p class="detailData">
+                                                            22 GHDGS0000A 1Z5
+                                                        </p>
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p
+                                                            class="detailLbale whitespace-nowrap mb-2"
+                                                        >
+                                                            GST Certificate
+                                                        </p>
+                                                        <p class="verifyText">
+                                                            <a
+                                                                href=""
+                                                                class="smButton"
+                                                            >
+                                                                <img
+                                                                    src="../src/img/view.png"
+                                                                    alt=""
+                                                                />
+                                                            </a>
+                                                        </p>
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p
+                                                            class="detailLbale mb-2"
+                                                        >
+                                                            Edit
+                                                        </p>
+                                                        <p class="verifyText">
+                                                            <a
+                                                                href=""
+                                                                class="smButton"
+                                                            >
+                                                                <img
+                                                                    src="../src/img/view.png"
+                                                                    alt=""
+                                                                />
+                                                            </a>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="statusSecForDoc">
+                                            <p class="userStatusTick ">
+                                                <img
+                                                    src="../src/img/checked.png"
+                                                    alt=""
+                                                    class="pr-1"
+                                                /> Verified
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="addDocumentSection ">
+                                    <div class="addSecform hidden">
+                                        <div
+                                            class="addButtonSection my-3 py-16 text-center hidden"
+                                        >
+                                            <div class="updateAction">
+                                                <button class="ErBlueButton"
+                                                    >Add New GST Details</button
+                                                >
+                                            </div>
+                                        </div>
+                                        <div class="my-3 py-4 px-4 ">
+                                            <p class="text-lg font-medium">
+                                                Add new GST details
+                                            </p>
+
+                                            <div
+                                                class="flex  py-1 items-center flex-wrap"
+                                            >
+                                                <div class="light14grey  mb-1">
+                                                    Address
+                                                </div>
+                                                <div class="formInnerGroup">
+                                                    <input
+                                                        class="inputboxpopover"
+                                                        type="text"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div
+                                                class="flex  py-3 items-center flex-wrap"
+                                            >
+                                                <div class="light14grey mb-1">
+                                                    City
+                                                </div>
+                                                <div class="formInnerGroup ">
+                                                    <select
+                                                        class="inputboxpopover"
+                                                    >
+                                                        <option class="pt-6"
+                                                            >Select</option
+                                                        >
+                                                        <option>ICICI</option>
+                                                        <option>Axis</option>
+                                                        <option>SIB</option>
+                                                    </select>
+                                                    <div
+                                                        class="formSelectArrow "
+                                                    >
+                                                        <img
+                                                            src="../src/img/selectarrow.png"
+                                                            class="w-5 h-auto"
+                                                            alt=""
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div
+                                                class="flex  py-1 items-center flex-wrap"
+                                            >
+                                                <div class="light14grey  mb-1">
+                                                    GST State
+                                                </div>
+                                                <div class="formInnerGroup">
+                                                    <input
+                                                        class="inputboxpopover"
+                                                        type="text"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div
+                                                class="flex  py-3 items-center flex-wrap"
+                                            >
+                                                <div class="light14grey  mb-1">
+                                                    Upload Document
+                                                </div>
+                                                <div class="formInnerGroup">
+                                                    <label
+                                                        class="cursor-pointer flex"
+                                                    >
+                                                        <div
+                                                            class="ErBlueButton"
+                                                        >
+                                                            Select File
+                                                        </div>
+                                                        <input
+                                                            type="file"
+                                                            class="hidden"
+                                                        />
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            <div
+                                                class="flex items-center justify-end mt-5"
+                                            >
+                                                <div
+                                                    class="updateAction text-erBlue"
+                                                >
+                                                    Cancel
+                                                </div>
+                                                <div class="updateAction ml-5">
+                                                    <button class="ErBlueButton"
+                                                        >Upload</button
+                                                    >
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        class=" bg-lighterGrey rounded-lg h-full"
+                                    >
+                                        {#if temp2 == "gst1"}
+                                            <div
+                                                class="addButtonSection my-3 py-3  text-center "
+                                            >
+                                                <div class="updateAction mt-5">
+                                                    <button
+                                                        class="ErBlueButton"
+                                                        on:click={() => {
+                                                            temp2 = "gst2";
+                                                        }}
+                                                        >Add New GST Details</button
+                                                    >
+                                                </div>
+                                            </div>
+                                        {/if}
+
+                                        {#if temp2 == "gst2"}
+                                            <div class="my-0 py-4 px-4 ">
+                                                <div
+                                                    class="h-80 max-h-80 overflow-y-scroll pr-4 border-b-2"
+                                                >
+                                                    <p
+                                                        class="text-lg font-medium"
+                                                    >
+                                                        Add new GST details
+                                                    </p>
+
+                                                    <div
+                                                        class="flex  py-1 items-center flex-wrap"
+                                                    >
+                                                        <div
+                                                            class="light14grey  mb-1"
+                                                        >
+                                                            Address
+                                                        </div>
+                                                        <div
+                                                            class="formInnerGroup"
+                                                        >
+                                                            <input
+                                                                class="inputboxpopover"
+                                                                type="text"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="flex  py-3 items-center flex-wrap"
+                                                    >
+                                                        <div
+                                                            class="light14grey mb-1"
+                                                        >
+                                                            City
+                                                        </div>
+                                                        <div
+                                                            class="formInnerGroup "
+                                                        >
+                                                            <select
+                                                                class="inputboxpopover"
+                                                            >
+                                                                <option
+                                                                    class="pt-6"
+                                                                    >Select</option
+                                                                >
+                                                                <option
+                                                                    >ICICI</option
+                                                                >
+                                                                <option
+                                                                    >Axis</option
+                                                                >
+                                                                <option
+                                                                    >SIB</option
+                                                                >
+                                                            </select>
+                                                            <div
+                                                                class="formSelectArrow "
+                                                            >
+                                                                <img
+                                                                    src="../src/img/selectarrow.png"
+                                                                    class="w-5 h-auto"
+                                                                    alt=""
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="flex  py-1 items-center flex-wrap"
+                                                    >
+                                                        <div
+                                                            class="light14grey  mb-1"
+                                                        >
+                                                            GST State
+                                                        </div>
+                                                        <div
+                                                            class="formInnerGroup"
+                                                        >
+                                                            <input
+                                                                class="inputboxpopover"
+                                                                type="text"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="flex  py-1 items-center flex-wrap"
+                                                    >
+                                                        <div
+                                                            class="light14grey  mb-1"
+                                                        >
+                                                            GST Number
+                                                        </div>
+                                                        <div
+                                                            class="formInnerGroup"
+                                                        >
+                                                            <input
+                                                                class="inputboxpopover"
+                                                                type="text"
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    <div
+                                                        class="flex  py-3 items-center flex-wrap"
+                                                    >
+                                                        <div
+                                                            class="light14greylong  mb-1"
+                                                        >
+                                                            Upload GST
+                                                            Certificate
+                                                        </div>
+                                                        <div
+                                                            class="formInnerGroup"
+                                                        >
+                                                            <label
+                                                                class="cursor-pointer flex"
+                                                            >
+                                                                <div
+                                                                    class="ErBlueButton"
+                                                                >
+                                                                    Select File
+                                                                </div>
+                                                                <input
+                                                                    type="file"
+                                                                    class="hidden"
+                                                                />
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div
+                                                    class="flex items-center justify-end mt-5"
+                                                >
+                                                    <div
+                                                        class="updateAction text-erBlue cursor-pointer "
+                                                        on:click={() => {
+                                                            temp2 = "gst1";
+                                                        }}
+                                                    >
+                                                        Cancel
+                                                    </div>
+                                                    <div
+                                                        class="updateAction ml-5"
+                                                    >
+                                                        <button
+                                                            class="ErBlueButton"
+                                                            >Add</button
+                                                        >
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {/if}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ERP Details modal -->
+<div class="hidden" id="erpIdModel">
+    <div class=" viewDocmodal  ">
+        <div class="bglightcolormodal" />
+        <div class="allDocmodalsuccessbodyErp rounded-lg">
+            <div class="">
+                <div class="viewDocPanmainbodyModal">
+                    <div class="flex justify-between mb-3">
+                        <div class="leftmodalInfo">
+                            <p class="text-lg text-erBlue font-medium  ">
+                                <span class=""> ERP Details</span>
+                            </p>
+                            <p class="detailsUpdate">
+                                <span
+                                    ><span class="font-medium"
+                                        >Created On
+                                    </span> - {erp_details_arr.creation}</span
+                                >
+                            </p>
+                        </div>
+                        <div class="rightmodalclose" on:click={closeERP}>
+                            <img src="../src/img/blackclose.svg" alt="" />
+                        </div>
+                    </div>
+                    <div class="innermodal">
+                        <hr />
+                        <div class="ERPDetails mt-4">
+                            <div class="flex mb-3 xs:flex-col sm:flex-col">
+                                <p class="detailLbalesm pr-3">ERP ID</p>
+                                <p class="detailDatasm">{erp_details_arr.erp_id}</p>
+                            </div>
+                            <div class="flex mb-3 xs:flex-col sm:flex-col">
+                                <p class="detailLbalesm pr-3">ERP Name</p>
+                                <p class="detailDatasm">{erp_details_arr.erp_name}</p>
+                            </div>
+                            <div class="flex mb-3 xs:flex-col sm:flex-col">
+                                <p class="detailLbalesm pr-3">Address ID</p>
+                                <p class="detailDatasm">{erp_details_arr.address_id}</p>
+                            </div>
+                            <div class="flex mb-3 xs:flex-col sm:flex-col">
+                                <p class="detailLbalesm pr-3">Address Title</p>
+                                <p class="detailDatasm">{erp_details_arr.address_title}</p>
+                            </div>
+                            <div class="flex mb-3 xs:flex-col sm:flex-col">
+                                <p class="detailLbalesm pr-3">Contact ID</p>
+                                <p class="detailDatasm">{erp_details_arr.contact_id}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--  Work Contract Details modal -->
+<div class="hidden" id="workContractModel">
+    <div class="viewDocmodal ">
+        <div class="absolute bg-black opacity-80 inset-0 z-0" />
+        <div class="allDocmodalsuccessbody rounded-lg">
+            <div class="">
+                <div class="viewDocPanmainbodyModal">
+                    <div class="flex justify-between mb-3">
+                        <div class="leftmodalInfo">
+                            <p class="text-lg text-erBlue font-medium  ">
+                                <span class=""> Work Contract Details</span>
+                            </p>
+                            <p class="text-sm ">
+                                <span class="font-medium text-lg">
+                                    Dhiraj Shah</span
+                                >
+                                <span class="userDesignation">
+                                    - Associate- {$facility_data_store.facility_type}, MHPD - Mulsi
+                                    SP</span
+                                >
+                            </p>
+                        </div>
+                        <div
+                            class="rightmodalclose"
+                            on:click={closeWorkContract}
+                        >
+                            <img src="../src/img/blackclose.svg" alt="" />
+                        </div>
+                    </div>
+                    <div class="innermodal">
+                        <hr />
+                        <div
+                            class="tabwrapper flex justify-between text-center py-2"
+                        >
+                            <div
+                                class="changetype py-3 w-2/4	"
+                                on:click={() => {
+                                    temp3 = "e-contracts";
+                                }}
+                            >
+                                <p>E-Contracts</p>
+                            </div>
+                            <div
+                                class="Historytab py-3 w-2/4	 bg-bglightgreye"
+                                on:click={() => {
+                                    temp3 = "p-contracts";
+                                }}
+                            >
+                                <p>Physical Contracts</p>
+                            </div>
+                        </div>
+
+                        {#if temp3 == "e-contracts"}
+                            <div class="scrollbar ">
+                                <div
+                                    class="OtherAppliedTagsTable px-3 overflow-y-scroll"
+                                >
+                                    <table
+                                        class="table  w-full text-center mt-2 "
+                                    >
+                                        <thead class="theadpopover h-10">
+                                            <tr>
+                                                <th>Contract Name</th>
+                                                <th>Contract Type</th>
+                                                <th>
+                                                    <div class="flex">
+                                                        Accepted ? <img
+                                                            src="../src/img/arrowupdown.svg"
+                                                            class="ml-2"
+                                                            alt=""
+                                                        />
+                                                    </div></th
+                                                >
+                                                <th>Accepted On</th>
+                                                <th>Is Mandatory ?</th>
+                                                <th>View</th>
+                                                <th>Print/Save</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="tbodypopover">
+                                            <tr class="border-b">
+                                                <td
+                                                    >Background Verification
+                                                    Concent</td
+                                                >
+                                                <td>Concent</td>
+                                                <td
+                                                    ><span class="text-green"
+                                                        >Yes</span
+                                                    >
+                                                </td>
+                                                <td>10-06-2020</td>
+                                                <td>Yes</td>
+                                                <td>
+                                                    <p
+                                                        class="flex justify-center"
+                                                    >
+                                                        <a
+                                                            href=""
+                                                            class="smButton"
+                                                        >
+                                                            <img
+                                                                src="../src/img/view.png"
+                                                                alt=""
+                                                            />
+                                                        </a>
+                                                    </p>
+                                                </td>
+                                                <td>
+                                                    <p
+                                                        class="flex justify-center"
+                                                    >
+                                                        <a
+                                                            href=""
+                                                            class="smButton"
+                                                        >
+                                                            <img
+                                                                src="../src/img/printer.svg"
+                                                                alt=""
+                                                            />
+                                                        </a>
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td
+                                                    >Background Verification
+                                                    Concent</td
+                                                >
+                                                <td>Concent</td>
+                                                <td
+                                                    ><span class="text-red-700"
+                                                        >No</span
+                                                    >
+                                                </td>
+                                                <td>10-06-2020</td>
+                                                <td>Yes</td>
+                                                <td>
+                                                    <p
+                                                        class="flex justify-center"
+                                                    >
+                                                        <a
+                                                            href=""
+                                                            class="smButton"
+                                                        >
+                                                            <img
+                                                                src="../src/img/view.png"
+                                                                alt=""
+                                                            />
+                                                        </a>
+                                                    </p>
+                                                </td>
+                                                <td>
+                                                    <p
+                                                        class="flex justify-center"
+                                                    >
+                                                        <a
+                                                            href=""
+                                                            class="smButton"
+                                                        >
+                                                            <img
+                                                                src="../src/img/printer.svg"
+                                                                alt=""
+                                                            />
+                                                        </a>
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td
+                                                    >Background Verification
+                                                    Concent</td
+                                                >
+                                                <td>Concent</td>
+                                                <td
+                                                    ><span class="text-green"
+                                                        >Yes</span
+                                                    >
+                                                </td>
+                                                <td>10-06-2020</td>
+                                                <td>Yes</td>
+                                                <td>
+                                                    <p
+                                                        class="flex justify-center"
+                                                    >
+                                                        <a
+                                                            href=""
+                                                            class="smButton"
+                                                        >
+                                                            <img
+                                                                src="../src/img/view.png"
+                                                                alt=""
+                                                            />
+                                                        </a>
+                                                    </p>
+                                                </td>
+                                                <td>
+                                                    <p
+                                                        class="flex justify-center"
+                                                    >
+                                                        <a
+                                                            href=""
+                                                            class="smButton"
+                                                        >
+                                                            <img
+                                                                src="../src/img/printer.svg"
+                                                                alt=""
+                                                            />
+                                                        </a>
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td
+                                                    >Background Verification
+                                                    Concent</td
+                                                >
+                                                <td>Concent</td>
+                                                <td
+                                                    ><span class="text-green"
+                                                        >Yes</span
+                                                    >
+                                                </td>
+                                                <td>10-06-2020</td>
+                                                <td>Yes</td>
+                                                <td>
+                                                    <p
+                                                        class="flex justify-center"
+                                                    >
+                                                        <a
+                                                            href=""
+                                                            class="smButton"
+                                                        >
+                                                            <img
+                                                                src="../src/img/view.png"
+                                                                alt=""
+                                                            />
+                                                        </a>
+                                                    </p>
+                                                </td>
+                                                <td>
+                                                    <p
+                                                        class="flex justify-center"
+                                                    >
+                                                        <a
+                                                            href=""
+                                                            class="smButton"
+                                                        >
+                                                            <img
+                                                                src="../src/img/printer.svg"
+                                                                alt=""
+                                                            />
+                                                        </a>
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td
+                                                    >Background Verification
+                                                    Concent</td
+                                                >
+                                                <td>Concent</td>
+                                                <td
+                                                    ><span class="text-green"
+                                                        >Yes</span
+                                                    >
+                                                </td>
+                                                <td>10-06-2020</td>
+                                                <td>Yes</td>
+                                                <td>
+                                                    <p
+                                                        class="flex justify-center"
+                                                    >
+                                                        <a
+                                                            href=""
+                                                            class="smButton"
+                                                        >
+                                                            <img
+                                                                src="../src/img/view.png"
+                                                                alt=""
+                                                            />
+                                                        </a>
+                                                    </p>
+                                                </td>
+                                                <td>
+                                                    <p
+                                                        class="flex justify-center"
+                                                    >
+                                                        <a
+                                                            href=""
+                                                            class="smButton"
+                                                        >
+                                                            <img
+                                                                src="../src/img/printer.svg"
+                                                                alt=""
+                                                            />
+                                                        </a>
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td
+                                                    >Background Verification
+                                                    Concent</td
+                                                >
+                                                <td>Concent</td>
+                                                <td
+                                                    ><span class="text-green"
+                                                        >Yes</span
+                                                    >
+                                                </td>
+                                                <td>10-06-2020</td>
+                                                <td>Yes</td>
+                                                <td>
+                                                    <p
+                                                        class="flex justify-center"
+                                                    >
+                                                        <a
+                                                            href=""
+                                                            class="smButton"
+                                                        >
+                                                            <img
+                                                                src="../src/img/view.png"
+                                                                alt=""
+                                                            />
+                                                        </a>
+                                                    </p>
+                                                </td>
+                                                <td>
+                                                    <p
+                                                        class="flex justify-center"
+                                                    >
+                                                        <a
+                                                            href=""
+                                                            class="smButton"
+                                                        >
+                                                            <img
+                                                                src="../src/img/printer.svg"
+                                                                alt=""
+                                                            />
+                                                        </a>
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <div
+                                        class="associateCard  border p-p7px  rounded-md hidden xs:block sm:block"
+                                    >
+                                        <div
+                                            class="flex px-4 py-1 items-center"
+                                        >
+                                            <div class="light14grey">Tag</div>
+                                            <div class="dataValue">
+                                                Addhoc Facility
+                                            </div>
+                                        </div>
+                                        <div
+                                            class="flex px-4 py-1 items-center"
+                                        >
+                                            <div class="light14grey">
+                                                Remarks
+                                            </div>
+                                            <div class="dataValue">
+                                                No Remarks
+                                            </div>
+                                        </div>
+                                        <div
+                                            class="flex px-4 py-1 items-center"
+                                        >
+                                            <div class="light14grey">
+                                                Added by
+                                            </div>
+                                            <div class="dataValue">
+                                                User name
+                                            </div>
+                                        </div>
+                                        <div
+                                            class="flex px-4 py-1 items-center"
+                                        >
+                                            <div class="light14grey">
+                                                Added On
+                                            </div>
+                                            <div class="dataValue">
+                                                13-Apr-2021
+                                            </div>
+                                        </div>
+                                        <div
+                                            class="flex px-4 py-1 items-center"
+                                        >
+                                            <div class="light14grey">
+                                                Auto Removal On
+                                            </div>
+                                            <div class="dataValue">No date</div>
+                                        </div>
+                                        <div
+                                            class="flex px-4 py-1 items-center"
+                                        >
+                                            <div class="light14grey">
+                                                Remove
+                                            </div>
+                                            <div class="dataValue">
+                                                <img
+                                                    src="../src/img/reject.png"
+                                                    alt=""
+                                                    
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {/if}
+
+                        {#if temp3 == "p-contracts"}
+                            <div class="scrollbar ">
+                                <div class="mainContainerWrapper flex gap-6">
+                                    <div
+                                        class="DocCardlist w-7/12 pr-4 h-h442 overflow-y-scroll"
+                                    >
+                                        <table
+                                            class="table  w-full text-center mt-2 "
+                                        >
+                                            <thead class="theadpopover h-10">
+                                                <tr>
+                                                    <th>Contract Type</th>
+                                                    <th>Starts From</th>
+                                                    <th> Ends On</th>
+                                                    <th>Cost Center</th>
+                                                    <th> View</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="tbodypopover">
+                                                <tr class="border-b">
+                                                    <td
+                                                        >Procurement agreement</td
+                                                    >
+                                                    <td>16-01-2020</td>
+                                                    <td>11-06-2020</td>
+                                                    <td>Mulshi - MHPD - NTEX</td
+                                                    >
+                                                    <td>
+                                                        <p
+                                                            class="flex justify-center"
+                                                        >
+                                                            <a
+                                                                href=""
+                                                                class="smButton"
+                                                            >
+                                                                <img
+                                                                    src="../src/img/view.png"
+                                                                    alt=""
+                                                                />
+                                                            </a>
+                                                        </p>
+                                                    </td>
+                                                </tr>
+                                                <tr class="border-b">
+                                                    <td
+                                                        >Procurement agreement</td
+                                                    >
+                                                    <td>16-01-2020</td>
+                                                    <td>11-06-2020</td>
+                                                    <td>Mulshi - MHPD - NTEX</td
+                                                    >
+                                                    <td>
+                                                        <p
+                                                            class="flex justify-center"
+                                                        >
+                                                            <a
+                                                                href=""
+                                                                class="smButton"
+                                                            >
+                                                                <img
+                                                                    src="../src/img/view.png"
+                                                                    alt=""
+                                                                />
+                                                            </a>
+                                                        </p>
+                                                    </td>
+                                                </tr>
+                                                <tr class="border-b">
+                                                    <td
+                                                        >Procurement agreement</td
+                                                    >
+                                                    <td>16-01-2020</td>
+                                                    <td>11-06-2020</td>
+                                                    <td>Mulshi - MHPD - NTEX</td
+                                                    >
+                                                    <td>
+                                                        <p
+                                                            class="flex justify-center"
+                                                        >
+                                                            <a
+                                                                href=""
+                                                                class="smButton"
+                                                            >
+                                                                <img
+                                                                    src="../src/img/view.png"
+                                                                    alt=""
+                                                                />
+                                                            </a>
+                                                        </p>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                        ​
+                                    </div>
+                                    <div class="addDocumentSection w-5/12  ">
+                                        <div
+                                            class=" bg-lighterGrey rounded-lg h-full"
+                                        >
+                                            {#if temp4 == "p-contracts-1"}
+                                                <div
+                                                    class="addButtonSection my-3 py-3 text-center "
+                                                >
+                                                    <p
+                                                        class="text-lg font-medium text-blackshade mb-3"
+                                                    >
+                                                        Upload New Physical
+                                                        contract here
+                                                    </p>
+                                                    <div class="updateAction">
+                                                        <button
+                                                            class="ErBlueButton"
+                                                            on:click={() => {
+                                                                temp4 =
+                                                                    "p-contracts-2";
+                                                            }}>Upload</button
+                                                        >
+                                                    </div>
+                                                </div>
+                                            {/if}
+                                            {#if temp4 == "p-contracts-2"}
+                                                <div
+                                                    class="addButtonSection mt-3 pt-3 text-center "
+                                                >
+                                                    <p
+                                                        class="text-lg font-medium text-blackshade"
+                                                    >
+                                                        Upload New Physical
+                                                        Contract
+                                                    </p>
+                                                </div>
+                                                <div class="my-0 py-4 px-4 ">
+                                                    <div
+                                                        class="h-80 max-h-80 overflow-y-scroll pr-4 border-b-2"
+                                                    >
+                                                        <div
+                                                            class="flex  py-3 items-center flex-wrap"
+                                                        >
+                                                            <div
+                                                                class="light14grey mb-1"
+                                                            >
+                                                                Select Contract
+                                                                Type
+                                                            </div>
+                                                            <div
+                                                                class="formInnerGroup "
+                                                            >
+                                                                <select
+                                                                    class="inputboxpopover"
+                                                                >
+                                                                    <option
+                                                                        class="pt-6"
+                                                                        >Select</option
+                                                                    >
+                                                                    <option
+                                                                        >ICICI</option
+                                                                    >
+                                                                    <option
+                                                                        >Axis</option
+                                                                    >
+                                                                    <option
+                                                                        >SIB</option
+                                                                    >
+                                                                </select>
+                                                                <div
+                                                                    class="formSelectArrow "
+                                                                >
+                                                                    <img
+                                                                        src="../src/img/selectarrow.png"
+                                                                        class="w-5 h-auto"
+                                                                        alt=""
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div
+                                                            class="flex  py-3 items-center flex-wrap"
+                                                        >
+                                                            <div
+                                                                class="light14grey mb-1"
+                                                            >
+                                                                Select
+                                                                Organization
+                                                            </div>
+                                                            <div
+                                                                class="formInnerGroup "
+                                                            >
+                                                                <select
+                                                                    class="inputboxpopover"
+                                                                >
+                                                                    <option
+                                                                        class="pt-6"
+                                                                        >Select</option
+                                                                    >
+                                                                    <option
+                                                                        >ICICI</option
+                                                                    >
+                                                                    <option
+                                                                        >Axis</option
+                                                                    >
+                                                                    <option
+                                                                        >SIB</option
+                                                                    >
+                                                                </select>
+                                                                <div
+                                                                    class="formSelectArrow "
+                                                                >
+                                                                    <img
+                                                                        src="../src/img/selectarrow.png"
+                                                                        class="w-5 h-auto"
+                                                                        alt=""
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div
+                                                            class="flex  py-3 items-center flex-wrap"
+                                                        >
+                                                            <div
+                                                                class="light14grey mb-1"
+                                                            >
+                                                                Select Station
+                                                            </div>
+                                                            <div
+                                                                class="formInnerGroup "
+                                                            >
+                                                                <select
+                                                                    class="inputboxpopover"
+                                                                >
+                                                                    <option
+                                                                        class="pt-6"
+                                                                        >Select</option
+                                                                    >
+                                                                    <option
+                                                                        >ICICI</option
+                                                                    >
+                                                                    <option
+                                                                        >Axis</option
+                                                                    >
+                                                                    <option
+                                                                        >SIB</option
+                                                                    >
+                                                                </select>
+                                                                <div
+                                                                    class="formSelectArrow "
+                                                                >
+                                                                    <img
+                                                                        src="../src/img/selectarrow.png"
+                                                                        class="w-5 h-auto"
+                                                                        alt=""
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div
+                                                            class="flex py-3 items-center flex-wrap "
+                                                        >
+                                                            <div
+                                                                class="light14grey"
+                                                            >
+                                                                From Date
+                                                            </div>
+                                                            <div
+                                                                class="formInnerGroup "
+                                                            >
+                                                                <input
+                                                                    type="date"
+                                                                    class="inputboxpopoverdate"
+                                                                    placeholder=" "
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <div
+                                                            class="flex py-3 items-center flex-wrap "
+                                                        >
+                                                            <div
+                                                                class="light14grey"
+                                                            >
+                                                                End Date
+                                                            </div>
+                                                            <div
+                                                                class="formInnerGroup "
+                                                            >
+                                                                <input
+                                                                    type="date"
+                                                                    class="inputboxpopoverdate"
+                                                                    placeholder=" "
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                        <div
+                                                            class="flex  py-3 items-center flex-wrap"
+                                                        >
+                                                            <div
+                                                                class="light14grey  mb-1"
+                                                            >
+                                                                Upload Document
+                                                            </div>
+                                                            <div
+                                                                class="formInnerGroup"
+                                                            >
+                                                                <label
+                                                                    class="cursor-pointer flex"
+                                                                >
+                                                                    <div
+                                                                        class="ErBlueButton"
+                                                                    >
+                                                                        Select
+                                                                        File
+                                                                    </div>
+                                                                    <input
+                                                                        type="file"
+                                                                        class="hidden"
+                                                                    />
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div
+                                                        class="flex items-center justify-end mt-5"
+                                                    >
+                                                        <div
+                                                            class="updateAction text-erBlue cursor-pointer"
+                                                            on:click={() => {
+                                                                temp4 =
+                                                                    "p-contracts-1";
+                                                            }}
+                                                        >
+                                                            Cancel
+                                                        </div>
+                                                        <div
+                                                            class="updateAction ml-5"
+                                                        >
+                                                            <button
+                                                                class="ErBlueButton"
+                                                                >Upload</button
+                                                            >
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            {/if}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {/if}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--View/edit client name modal -->
+
+<div class="hidden" id="workorganizationModel">
+    <div class=" viewDocmodal  " id="modal-id">
+        <div class="bglightcolormodal" />
+        <div class="allDocmodalsuccessbody rounded-lg">
+            <div class="">
+                <div class="viewDocPanmainbodyModal">
+                    <div class="flex justify-between mb-3">
+                        <div class="leftmodalInfo">
+                            <p class="text-lg text-erBlue font-medium  ">
+                                <span class=""> View/Edit Client Name</span>
+                            </p>
+                            <p class="text-sm ">
+                                <span class="font-medium text-lg">
+                                    Dhiraj Shah</span
+                                >
+                                <span class="userDesignation">
+                                    - Associate- {$facility_data_store.facility_type}, MHPD - Mulsi
+                                    SP</span
+                                >
+                            </p>
+                        </div>
+                        <div
+                            class="rightmodalclose"
+                            on:click={closeWorkorganization}
+                        >
+                            <img src="../src/img/blackclose.svg" alt="" />
+                        </div>
+                    </div>
+                    <div class="innermodal">
+                        <hr />
+                        <div class="scrollbar ">
+                            <div class="mainContainerWrapper ">
+                                <div class="DocCardlist ">
+                                    <div class="cardDocWrapper ">
+                                        <div
+                                            class="grid grid-cols-2 xs:grid-cols-1 gap-4"
+                                        >
+                                            <div>
+                                                <div
+                                                    class="grid grid-cols-2 gap-4 mb-1"
+                                                >
+                                                    <div class="detailLbale">
+                                                        Organisation
+                                                    </div>
+                                                    <div class="detailData">
+                                                        Amazon
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="grid grid-cols-2 gap-4 mb-1"
+                                                >
+                                                    <div class="detailLbale">
+                                                        Station Name & code
+                                                    </div>
+                                                    <div class="detailData">
+                                                        Akola, SP
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="grid grid-cols-2 gap-4 mb-1"
+                                                >
+                                                    <div class="detailLbale">
+                                                        Org specified name
+                                                    </div>
+                                                    <div class="detailData">
+                                                        Dhiraj Shah
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="grid grid-cols-2 gap-4 mb-1"
+                                                >
+                                                    <div class="detailLbale">
+                                                        Client Employee ID
+                                                    </div>
+                                                    <div class="detailData">
+                                                        AMA00300
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div
+                                                    class="grid grid-cols-2 gap-4 mb-1"
+                                                >
+                                                    <div class="detailLbale">
+                                                        Added On
+                                                    </div>
+                                                    <div class="detailData">
+                                                        23-01-2021
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="grid grid-cols-2 gap-4 mb-1"
+                                                >
+                                                    <div class="detailLbale">
+                                                        Added by
+                                                    </div>
+                                                    <div class="detailData">
+                                                        Admin
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="grid grid-cols-2 gap-4 mb-1"
+                                                >
+                                                    <div class="detailLbale">
+                                                        Client ID status/info
+                                                    </div>
+                                                    <div class="detailData">
+                                                        ----
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="grid grid-cols-2 gap-4 mb-1"
+                                                >
+                                                    <div class="detailLbale">
+                                                        Status
+                                                    </div>
+                                                    <div>
+                                                        <p
+                                                            class="userStatusTickVerified "
+                                                        >
+                                                            <img
+                                                                src="../src/img/checked.png"
+                                                                alt=""
+                                                                class="pr-1"
+                                                            /> Verified
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="addDocumentSection ">
+                                    <div class="addSecform hidden">
+                                        {#if temp5 == "newMap"}
+                                            <div
+                                                class="addButtonSection my-3 py-16 text-center"
+                                            >
+                                                <div class="updateAction">
+                                                    <button
+                                                        class="ErBlueButton"
+                                                        on:click={() => {
+                                                            temp5 = "newMap-2";
+                                                        }}
+                                                        >Add New Mapping</button
+                                                    >
+                                                </div>
+                                            </div>
+                                        {/if}
+                                        {#if temp5 == "newMap-2"}
+                                            <div class="my-3 py-4 px-4 ">
+                                                <p class="text-lg font-medium">
+                                                    Add new Mapping
+                                                </p>
+
+                                                <div
+                                                    class="flex  py-1 items-center flex-wrap"
+                                                >
+                                                    <div
+                                                        class="light14grey  mb-1"
+                                                    >
+                                                        Address
+                                                    </div>
+                                                    <div class="formInnerGroup">
+                                                        <input
+                                                            class="inputboxpopover"
+                                                            type="text"
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="flex  py-3 items-center flex-wrap"
+                                                >
+                                                    <div
+                                                        class="light14grey mb-1"
+                                                    >
+                                                        City
+                                                    </div>
+                                                    <div
+                                                        class="formInnerGroup "
+                                                    >
+                                                        <select
+                                                            class="inputboxpopover"
+                                                        >
+                                                            <option class="pt-6"
+                                                                >Select</option
+                                                            >
+                                                            <option
+                                                                >ICICI</option
+                                                            >
+                                                            <option>Axis</option
+                                                            >
+                                                            <option>SIB</option>
+                                                        </select>
+                                                        <div
+                                                            class="formSelectArrow "
+                                                        >
+                                                            <img
+                                                                src="../src/img/selectarrow.png"
+                                                                class="w-5 h-auto"
+                                                                alt=""
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="flex  py-1 items-center flex-wrap"
+                                                >
+                                                    <div
+                                                        class="light14grey  mb-1"
+                                                    >
+                                                        GST State
+                                                    </div>
+                                                    <div class="formInnerGroup">
+                                                        <input
+                                                            class="inputboxpopover"
+                                                            type="text"
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <div
+                                                    class="flex  py-3 items-center flex-wrap"
+                                                >
+                                                    <div
+                                                        class="light14grey  mb-1"
+                                                    >
+                                                        Upload Document
+                                                    </div>
+                                                    <div class="formInnerGroup">
+                                                        <label
+                                                            class="cursor-pointer flex"
+                                                        >
+                                                            <div
+                                                                class="ErBlueButton"
+                                                            >
+                                                                Select File
+                                                            </div>
+                                                            <input
+                                                                type="file"
+                                                                class="hidden"
+                                                            />
+                                                        </label>
+                                                    </div>
+                                                </div>
+
+                                                <div
+                                                    class="flex items-center justify-end mt-5"
+                                                >
+                                                    <div
+                                                        class="updateAction text-erBlue"
+                                                        on:click={() => {
+                                                            temp3 = "newMap";
+                                                        }}
+                                                    >
+                                                        Cancel
+                                                    </div>
+                                                    <div
+                                                        class="updateAction ml-5"
+                                                    >
+                                                        <button
+                                                            class="ErBlueButton"
+                                                            >Upload</button
+                                                        >
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {/if}
+                                    </div>
+
+                                    <div
+                                        class=" bg-lighterGrey rounded-lg h-full"
+                                    >
+                                        {#if temp5 == "newMap"}
+                                            <div
+                                                class="addButtonSection my-3 py-3  text-center "
+                                            >
+                                                <div class="updateAction mt-5">
+                                                    <button
+                                                        class="ErBlueButton"
+                                                        on:click={() => {
+                                                            temp5 = "newMap-2";
+                                                        }}
+                                                        >Add New Mapping</button
+                                                    >
+                                                </div>
+                                            </div>
+                                        {/if}
+                                        {#if temp5 == "newMap-2"}
+                                            <div class="my-0 py-4 px-4 ">
+                                                <div
+                                                    class="h-80 max-h-80 overflow-y-scroll pr-4 border-b-2"
+                                                >
+                                                    <p
+                                                        class="text-lg font-medium"
+                                                    >
+                                                        Add New Mapping
+                                                    </p>
+
+                                                    <div
+                                                        class="flex  py-3 items-center flex-wrap"
+                                                    >
+                                                        <div
+                                                            class="light14grey mb-1"
+                                                        >
+                                                            Organization
+                                                        </div>
+                                                        <div
+                                                            class="formInnerGroup "
+                                                        >
+                                                            <select
+                                                                class="inputboxpopover"
+                                                            >
+                                                                <option
+                                                                    class="pt-6"
+                                                                    >Select</option
+                                                                >
+                                                            </select>
+                                                            <div
+                                                                class="formSelectArrow "
+                                                            >
+                                                                <img
+                                                                    src="../src/img/selectarrow.png"
+                                                                    class="w-5 h-auto"
+                                                                    alt=""
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="flex  py-3 items-center flex-wrap"
+                                                    >
+                                                        <div
+                                                            class="light14grey mb-1"
+                                                        >
+                                                            Station
+                                                        </div>
+                                                        <div
+                                                            class="formInnerGroup "
+                                                        >
+                                                            <select
+                                                                class="inputboxpopover"
+                                                            >
+                                                                <option
+                                                                    class="pt-6"
+                                                                    >Select</option
+                                                                >
+                                                            </select>
+                                                            <div
+                                                                class="formSelectArrow "
+                                                            >
+                                                                <img
+                                                                    src="../src/img/selectarrow.png"
+                                                                    class="w-5 h-auto"
+                                                                    alt=""
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="flex  py-3 items-center flex-wrap"
+                                                    >
+                                                        <div
+                                                            class="light14grey mb-1"
+                                                        >
+                                                            Name in COMP
+                                                        </div>
+                                                        <div
+                                                            class="formInnerGroup "
+                                                        >
+                                                            <select
+                                                                class="inputboxpopover"
+                                                            >
+                                                                <option
+                                                                    class="pt-6"
+                                                                    >Select</option
+                                                                >
+                                                            </select>
+                                                            <div
+                                                                class="formSelectArrow "
+                                                            >
+                                                                <img
+                                                                    src="../src/img/selectarrow.png"
+                                                                    class="w-5 h-auto"
+                                                                    alt=""
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="flex  py-1 items-center flex-wrap"
+                                                    >
+                                                        <div
+                                                            class="light14greylong  mb-1"
+                                                        >
+                                                            Client Empployee ID
+                                                            ( If available)
+                                                        </div>
+                                                        <div
+                                                            class="formInnerGroup"
+                                                        >
+                                                            <input
+                                                                class="inputboxpopover"
+                                                                type="text"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="flex  py-1 items-center flex-wrap mb-4"
+                                                    >
+                                                        <div
+                                                            class="light14greylong  mb-1"
+                                                        >
+                                                            Create new Rabbit
+                                                            ID/Comp ID
+                                                        </div>
+                                                        <div
+                                                            class="formInnerGroup"
+                                                        >
+                                                            <div
+                                                                class="text-center flex mb-2 ml-1"
+                                                            >
+                                                                <div
+                                                                    class="flex items-center mr-4"
+                                                                >
+                                                                    <input
+                                                                        id="radio1"
+                                                                        type="radio"
+                                                                        name="radio"
+                                                                        class="hidden"
+                                                                        checked=""
+                                                                    />
+                                                                    <label
+                                                                        for="radio1"
+                                                                        class="radioLable"
+                                                                    >
+                                                                        <span
+                                                                            class="radioCirle"
+                                                                        />
+                                                                        Rabbit ID</label
+                                                                    >
+                                                                </div>
+
+                                                                <div
+                                                                    class="flex items-center "
+                                                                >
+                                                                    <input
+                                                                        id="radio2"
+                                                                        type="radio"
+                                                                        name="radio"
+                                                                        class="hidden"
+                                                                    />
+                                                                    <label
+                                                                        for="radio2"
+                                                                        class="radioLable"
+                                                                    >
+                                                                        <span
+                                                                            class="radioCirle"
+                                                                        />
+                                                                        COMP ID</label
+                                                                    >
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div
+                                                    class="flex items-center justify-end mt-5"
+                                                >
+                                                    <div
+                                                        class="updateAction text-erBlue cursor-pointer"
+                                                        on:click={() => {
+                                                            temp5 = "newMap";
+                                                        }}
+                                                    >
+                                                        Cancel
+                                                    </div>
+                                                    <div
+                                                        class="updateAction ml-5"
+                                                    >
+                                                        <button
+                                                            class="ErBlueButton"
+                                                            >Map</button
+                                                        >
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {/if}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cheque Details modal -->
+
+<div class="hidden" id="chequeModel">
+    <div class=" viewDocmodal  " id="modal-id">
+        <div class="bglightcolormodal" />
+        <div class="allDocmodalsuccessbody rounded-lg">
+            <div class="">
+                <div class="viewDocPanmainbodyModal">
+                    <div class="flex justify-between mb-3">
+                        <div class="leftmodalInfo">
+                            <p class="text-lg text-erBlue font-medium  ">
+                                <span class=""> Cheque Details </span>
+                            </p>
+                            <p class="text-sm ">
+                                <span class="font-medium text-lg">
+                                    {$facility_data_store.facility_name}</span
+                                >
+                                <span class="userDesignation">
+                                    - Associate- {$facility_data_store.facility_type}, MHPD - Mulsi
+                                    SP</span
+                                >
+                            </p>
+                        </div>
+                        <div
+                            class="rightmodalclose"
+                            on:click={closechequeDetails}
+                        >
+                            <img src="../src/img/blackclose.svg" alt="" />
+                        </div>
+                    </div>
+                    <div class="innermodal">
+                        <hr />
+                        <div class="scrollbar ">
+                            <div class="mainContainerWrapper ">
+                                <div class="DocCardlist ">
+                                    {#if !cheque_values_from_store}
+                                    <p></p>
+                                    {:else}
+                                    {#each cheque_values_from_store as new_cheque}
+                                        <div class="cardDocWrapper ">
+                                            <div
+                                                class="grid grid-cols-2 xs:grid-cols-1 gap-4"
+                                            >
+                                                <div>
+                                                    <div
+                                                        class="grid grid-cols-2 gap-4 mb-1"
+                                                    >
+                                                        <div
+                                                            class="detailLbale"
+                                                        >
+                                                            Bank Name
+                                                        </div>
+                                                        <div class="detailData">
+                                                            {new_cheque.bank_name}
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="grid grid-cols-2 gap-4 mb-1"
+                                                    >
+                                                        <div
+                                                            class="detailLbale"
+                                                        >
+                                                            Cheque Type
+                                                        </div>
+                                                        <div class="detailData">
+                                                            {new_cheque.type}
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="grid grid-cols-2 gap-4 mb-1"
+                                                    >
+                                                        <div
+                                                            class="detailLbale"
+                                                        >
+                                                            Cheque Date
+                                                        </div>
+                                                        <div class="detailData">
+                                                            {new_cheque.cheque_date}
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="grid grid-cols-2 gap-4 mb-1"
+                                                    >
+                                                        <div
+                                                            class="detailLbale"
+                                                        >
+                                                            Cheque Number
+                                                        </div>
+                                                        <div class="detailData">
+                                                            {new_cheque.cheque_number}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <div
+                                                        class="grid grid-cols-2 gap-4 mb-1"
+                                                    >
+                                                        <div
+                                                            class="detailLbale"
+                                                        >
+                                                            Amount
+                                                        </div>
+                                                        <div class="detailData">
+                                                            Rs {new_cheque.amount}
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="grid grid-cols-2 gap-4 mb-1"
+                                                    >
+                                                        <div
+                                                            class="detailLbale"
+                                                        >
+                                                            Recrun Number
+                                                        </div>
+                                                        <div class="detailData">
+                                                            {#if new_cheque.recrun_number == "" || new_cheque.recrun_number == null}
+                                                                <p>-</p>
+                                                            {:else}
+                                                                {new_cheque.recrun_number}
+                                                            {/if}
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="grid grid-cols-2 gap-4 mb-1"
+                                                    >
+                                                        <div
+                                                            class="detailLbale"
+                                                        >
+                                                            View Cheque
+                                                        </div>
+                                                        <div
+                                                            class="userStatus "
+                                                        >
+                                                            <p
+                                                                class="verifyText"
+                                                            >
+                                                                <a
+                                                                    href=""
+                                                                    class="smButton"
+                                                                >
+                                                                    <img
+                                                                        src="../src/img/view.png"
+                                                                        alt=""
+                                                                    />
+                                                                </a>
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {/each}
+                                    {/if}
+                                </div>
+                                <div class="addDocumentSection ">
+                                    <div class="addSecform hidden">
+                                        <div
+                                            class="addButtonSection my-3 py-16 text-center hidden"
+                                        >
+                                            <div class="updateAction">
+                                                <button class="ErBlueButton"
+                                                    >Add New GST Details</button
+                                                >
+                                            </div>
+                                        </div>
+                                        <div class="my-3 py-4 px-4 ">
+                                            <p class="text-lg font-medium">
+                                                Add new GST details
+                                            </p>
+
+                                            <div
+                                                class="flex  py-1 items-center flex-wrap"
+                                            >
+                                                <div class="light14grey  mb-1">
+                                                    Address
+                                                </div>
+                                                <div class="formInnerGroup">
+                                                    <input
+                                                        class="inputboxpopover"
+                                                        type="text"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div
+                                                class="flex  py-3 items-center flex-wrap"
+                                            >
+                                                <div class="light14grey mb-1">
+                                                    City
+                                                </div>
+                                                <div class="formInnerGroup ">
+                                                    <select
+                                                        class="inputboxpopover"
+                                                    >
+                                                        <option class="pt-6"
+                                                            >Select</option
+                                                        >
+                                                        <option>ICICI</option>
+                                                        <option>Axis</option>
+                                                        <option>SIB</option>
+                                                    </select>
+                                                    <div
+                                                        class="formSelectArrow "
+                                                    >
+                                                        <img
+                                                            src="../src/img/selectarrow.png"
+                                                            class="w-5 h-auto"
+                                                            alt=""
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div
+                                                class="flex  py-1 items-center flex-wrap"
+                                            >
+                                                <div class="light14grey  mb-1">
+                                                    GST State
+                                                </div>
+                                                <div class="formInnerGroup">
+                                                    <input
+                                                        class="inputboxpopover"
+                                                        type="text"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div
+                                                class="flex  py-3 items-center flex-wrap"
+                                            >
+                                                <div class="light14grey  mb-1">
+                                                    Upload Document
+                                                </div>
+                                                <div class="formInnerGroup">
+                                                    <label
+                                                        class="cursor-pointer flex"
+                                                    >
+                                                        <div
+                                                            class="ErBlueButton"
+                                                        >
+                                                            Select File
+                                                        </div>
+                                                        <input
+                                                            type="file"
+                                                            class="hidden"
+                                                        />
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            <div
+                                                class="flex items-center justify-end mt-5"
+                                            >
+                                                <div
+                                                    class="updateAction text-erBlue"
+                                                >
+                                                    Cancel
+                                                </div>
+                                                <div class="updateAction ml-5">
+                                                    <button class="ErBlueButton"
+                                                        >Upload</button
+                                                    >
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        class=" bg-lighterGrey rounded-lg h-full"
+                                    >
+                                        {#if temp6 == "cheque"}
+                                            <div
+                                                class="addButtonSection my-3 py-3  text-center"
+                                            >
+                                                <div
+                                                    class="updateAction mt-5"
+                                                    on:click={() => {
+                                                        temp6 = "cheque-2";
+                                                    }}
+                                                >
+                                                    <button class="ErBlueButton"
+                                                        >Add New Cheque Details</button
+                                                    >
+                                                </div>
+                                            </div>
+                                        {/if}
+
+                                        {#if temp6 == "cheque-2"}
+                                            <div class="my-0 py-4 px-4 ">
+                                                <div
+                                                    class="h-80 max-h-80 overflow-y-scroll pr-4 border-b-2"
+                                                >
+                                                    <p
+                                                        class="text-lg font-medium"
+                                                    >
+                                                        Add New Cheque Details
+                                                    </p>
+
+                                                    <div
+                                                        class="flex  py-3 items-center flex-wrap"
+                                                    >
+                                                        <div
+                                                            class="light14grey mb-1"
+                                                        >
+                                                            Bank Name
+                                                        </div>
+                                                        <div
+                                                            class="formInnerGroup "
+                                                        >
+                                                            <!-- <select class="inputboxpopover">
+                                                            <option class="pt-6">Select</option>
+                                                        </select> -->
+                                                            <input
+                                                                type="text"
+                                                                class="inputboxpopover"
+                                                                bind:value={bank_name}
+                                                            />
+                                                            <div class="text-red-500">{bank_name_message}</div>
+                                                            <div
+                                                                class="formSelectArrow "
+                                                            >
+                                                                <img
+                                                                    src="../src/img/selectarrow.png"
+                                                                    class="w-5 h-auto"
+                                                                    alt=""
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="flex  py-3 items-center flex-wrap"
+                                                    >
+                                                        <div
+                                                            class="light14grey mb-1"
+                                                        >
+                                                            Cheque Type
+                                                        </div>
+                                                        <div
+                                                            class="formInnerGroup "
+                                                        >
+                                                            <!-- <select class="inputboxpopover">
+                                                            <option class="pt-6">Select</option>
+                                                        </select> -->
+                                                            <select
+                                                                class="inputboxpopover"
+                                                                bind:value={type}
+                                                            >
+                                                                <option
+                                                                    value="-1"
+                                                                    >Select</option
+                                                                >
+                                                                <option
+                                                                    value="Crossed Cheque"
+                                                                    >Crossed
+                                                                    Cheque</option
+                                                                >
+                                                                <option
+                                                                    value="Bearer Cheque"
+                                                                    >Bearer
+                                                                    Cheque</option
+                                                                >
+                                                                <option
+                                                                    value="Order Cheque"
+                                                                    >Order
+                                                                    Cheque</option
+                                                                >
+                                                                <option
+                                                                    value="Open cheque"
+                                                                    >Open cheque</option
+                                                                >
+                                                                <option
+                                                                    value="Post-Dated Cheque"
+                                                                    >Post-Dated
+                                                                    Cheque</option
+                                                                >
+                                                                <option
+                                                                    value="Stale Cheque"
+                                                                    >Stale
+                                                                    Cheque</option
+                                                                >
+                                                                <option
+                                                                    value="Self Cheque"
+                                                                    >Self Cheque</option
+                                                                >
+                                                                <option
+                                                                    value="Banker’s Cheque"
+                                                                    >Banker’s
+                                                                    Cheque</option
+                                                                >
+                                                            </select>
+                                                            <div class="text-red-500">{type_message}</div>
+                                                            <div
+                                                                class="formSelectArrow "
+                                                            >
+                                                                <img
+                                                                    src="../src/img/selectarrow.png"
+                                                                    class="w-5 h-auto"
+                                                                    alt=""
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="flex  py-3 items-center flex-wrap"
+                                                    >
+                                                        <div
+                                                            class="light14grey mb-1"
+                                                        >
+                                                            Cheque Date
+                                                        </div>
+                                                        <div
+                                                            class="formInnerGroup "
+                                                        >
+                                                            <!-- <select class="inputboxpopover">
+                                                            <option class="pt-6">Select</option>
+                                                        </select> -->
+                                                            <DateInput
+                                                                class="inputboxpopover"
+                                                                placeholder="Cheque Date"
+                                                                format="dd/MM/yyyy"
+                                                                bind:value={cheque_date}
+                                                            />
+                                                            <div class="text-red-500">{cheque_date_message}</div>
+
+                                                            <div
+                                                                class="formSelectArrow "
+                                                            >
+                                                                <img
+                                                                    src="../src/img/selectarrow.png"
+                                                                    class="w-5 h-auto"
+                                                                    alt=""
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="flex  py-1 items-center flex-wrap"
+                                                    >
+                                                        <div
+                                                            class="light14greylong  mb-1"
+                                                        >
+                                                            Cheque Number
+                                                        </div>
+                                                        <div
+                                                            class="formInnerGroup"
+                                                        >
+                                                            <input
+                                                                class="inputboxpopover"
+                                                                type="text"
+                                                                bind:value={cheque_number}
+                                                            />
+                                                            <div class="text-red-500">{cheque_number_message}</div>
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="flex  py-1 items-center flex-wrap"
+                                                    >
+                                                        <div
+                                                            class="light14greylong  mb-1"
+                                                        >
+                                                            Amount
+                                                        </div>
+                                                        <div
+                                                            class="formInnerGroup"
+                                                        >
+                                                            <input
+                                                                class="inputboxpopover"
+                                                                type="text"
+                                                                bind:value={amount}
+                                                            />
+                                                            <div class="text-red-500">{amount_message}</div>
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="flex  py-1 items-center flex-wrap"
+                                                    >
+                                                        <div
+                                                            class="light14greylong  mb-1"
+                                                        >
+                                                            Recrun Number
+                                                        </div>
+                                                        <div
+                                                            class="formInnerGroup"
+                                                        >
+                                                            <input
+                                                                class="inputboxpopover"
+                                                                type="text"
+                                                                bind:value={recrun_number}
+                                                            />
+                                                            <div class="text-red-500">{recrun_number_message}</div>
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="flex  py-1 items-center flex-wrap"
+                                                    >
+                                                        <div
+                                                            class="light14greylong  mb-1"
+                                                        >
+                                                            File Number
+                                                        </div>
+                                                        <div
+                                                            class="formInnerGroup"
+                                                        >
+                                                            <input
+                                                                class="inputboxpopover"
+                                                                type="text"
+                                                                bind:value={file_number}
+                                                            />
+                                                            <div class="text-red-500">{file_number_message}</div>
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="flex  py-3 items-center flex-wrap"
+                                                    >
+                                                        <div
+                                                            class="light14greylong  mb-1"
+                                                        >
+                                                            Upload Cheque
+                                                        </div>
+                                                        <div
+                                                            class="formInnerGroup"
+                                                        >
+                                                            <label
+                                                                class="cursor-pointer flex"
+                                                            >
+                                                                <div
+                                                                    class="ErBlueButton"
+                                                                >
+                                                                    Select File
+                                                                </div>
+                                                                <!-- <input type="file" class="hidden"  bind:value={upload_cheque}> -->
+                                                                <input
+                                                                    type="file"
+                                                                    class="hidden"
+                                                                    on:change={(
+                                                                        e
+                                                                    ) =>
+                                                                        onFileSelected(
+                                                                            e
+                                                                        )}
+                                                                        bind:value = "{checkupload}"
+                                                                />
+                                                                <div class="text-red-500">{cheque_upload_message}</div>
+                                                            </label>
+                                                            <p>{img_name}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div
+                                                    class="flex items-center justify-end mt-5"
+                                                >
+                                                    <div
+                                                        class="updateAction text-erBlue"
+                                                        on:click={() => {
+                                                            temp6 = "cheque";
+                                                        }}
+                                                    >
+                                                        Cancel
+                                                    </div>
+                                                    <div
+                                                        class="updateAction ml-5"
+                                                    >
+                                                        <button
+                                                            class="ErBlueButton"
+                                                            on:click={cheque_button_click}
+                                                            >Submit</button
+                                                        >
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {/if}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Link Child Associates modal -->
+
+<div class="hidden" id="linkChildModel">
+    <div class=" viewDocmodal  " id="modal-id">
+        <div class="bglightcolormodal" />
+        <div class="allDocmodalsuccessbody rounded-lg">
+            <div class="">
+                <div class="viewDocPanmainbodyModal">
+                    <div class="flex justify-between mb-3">
+                        <div class="leftmodalInfo">
+                            <p class="text-lg text-erBlue font-medium  ">
+                                <span class=""> View/Edit Client Name</span>
+                            </p>
+                            <p class="text-sm ">
+                                <span class="font-medium text-lg">
+                                    {$facility_data_store.facility_name}</span
+                                >
+                                <span class="userDesignation">
+                                    - Associate- {$facility_data_store.facility_type}, MHPD - Mulsi
+                                    SP</span
+                                >
+                            </p>
+                        </div>
+                        <div
+                            class="rightmodalclose"
+                            on:click={linkChildModelclose}
+                        >
+                            <img src="../src/img/blackclose.svg" alt="" />
+                        </div>
+                    </div>
+                    <div class="innermodal">
+                        <hr />
+                        <div class="scrollbar ">
+                            <div class="mainContainerWrapper ">
+                                <div class="DocCardlist ">
+                                    <div
+                                        class="bg-bglightyellow py-2 px-3 mt-2 "
+                                    >
+                                        <div class="flex items-center">
+                                            <div class="detailLbale">
+                                                Tags added for this Associate
+                                                <span class="detailData " id="rem_comma">
+                                                    <!-- <p>{show_fac_array}</p> -->
+                                                    <!-- {#each show_fac_array as show_fac}
+                                                       {show_fac.tag_name}
+                                                    {/each} -->
+                                                    {#each tags_for_ass_arr as show_fac}
+                                                    {show_fac}
+                                                    {/each}
+                                                    </span
+                                                >
+                                            </div>
+                                        </div>
+                                    </div>
+                                   
+                                
+                                    <div class="flex  py-3 items-center ">
+                                        <div class="light14grey mb-1">
+                                            Select Location
+                                        </div>
+                                        <div class="formInnerGroup ">
+                                            <select
+                                                class="inputboxpopover"
+                                                on:click={() => {
+                                                    child = "linkchild2";
+                                                }}
+                                                bind:value={city_select}
+                                            >
+                                                <option class="pt-6"
+                                                    >Select</option
+                                                >
+                                                {#each city_data as new_city}
+                                                <option class="pt-6"
+                                                    >{new_city}</option
+                                                >
+                                                {/each}
+                                            </select>
+                                            <div class="formSelectArrow ">
+                                                <img
+                                                    src="../src/img/selectarrow.png"
+                                                    class="w-5 h-auto"
+                                                    alt=""
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="searchSupplier " id="searchBox">
+                                        <div class="formInnerGroup ">
+                                            <!-- <span class="searchicon">
+                                                <img
+                                                    src="../src/img/search.svg"
+                                                    class="placeholderIcon"
+                                                    alt=""
+                                                    on:click="{filterResults}"/>
+                                            </span> -->
+                                            <span class="searchicon">
+                                                <img
+                                                    src="../src/img/search.svg"
+                                                    class="placeholderIcon"
+                                                    alt=""
+                                                   />
+                                            </span>
+                                            <input bind:value="{searchTerm}"
+                                                class="inputboxsearch"
+                                                id="inputboxsearch"
+                                                placeholder="Search"
+                                                on:keypress="{enterKeyPress}"
+                                                
+                                            />
+                                            <!-- <input
+                                                    placeholder="Type some gibberish here"
+                                                    id="text"
+                                                    on:input={myFunc}
+                                            > -->
+                                            <div class="serchCloseIconSection " id="">
+                                                <div class="closeIconCon " on:click="{closeSearch}">
+                                                    <img
+                                                        src="../src/img/closeSearch.svg"
+                                                        class="w-4 h-auto"
+                                                        alt=""
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class=" searchClickbtn" on:click="{SearchClick}" >
+                                        <p class="searchIconPlace">
+                                            <img
+                                                src="../src/img/search.svg"
+                                                class="placeholderIcon"
+                                                alt=""
+                                            />
+                                        </p>
+                                    </div>
+                                    <div class="OtherAppliedTagsTable ">
+                                        <table
+                                            class="table  w-full text-center mt-2 xs:hidden sm:hidden"
+                                         id ="check_sel_id">
+                                            <thead class="theadpopover">
+                                                <tr>
+                                                    <th>Facility Name</th>
+                                                    <th>Unique ID</th>
+                                                    <th>Station</th>
+                                                    <th>Mobile No</th>
+                                                    <th>Select</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="tbodypopover" id="check_tbody">
+                                                {#if child == "linkchild"}
+                                                    <tr class="hidde">
+                                                        <td
+                                                            colspan="5"
+                                                            class="text-center"
+                                                        >
+                                                            <div
+                                                                class="light14greylong w-full mb-1"
+                                                            >
+                                                                Select a
+                                                                location to view
+                                                                Associates
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                {/if}
+
+                                                {#if child == "linkchild2"}
+                                                {#each paginatedItems as item}
+                                                    <tr class="border-b">
+                                                        <td>{item.facility_name}</td
+                                                        >
+                                                        <td>{item.name}</td>
+                                                        <td>{item.station_code}</td>
+                                                        <td>{item.phone_number}</td>
+                                                        <td
+                                                            ><input
+                                                                type="checkbox"
+                                                                class=" checked:bg-blue-500 ..."
+                                                                bind:value={check_selected}
+                                                               
+                                                            /></td
+                                                        > 
+                                                    </tr>
+                                                    <!-- <tr class="border-b">
+                                                        <td>
+                                                            Avinash Gopal Katari</td
+                                                        >
+                                                        <td>EFAU00088</td>
+                                                        <td>BOMG</td>
+                                                        <td>7620350909</td>
+                                                        <td
+                                                            ><input
+                                                                type="checkbox"
+                                                                class=" checked:bg-blue-500 ..."
+                                                            /></td
+                                                        >
+                                                    </tr> -->
+                                                    {/each}
+                                                {/if}
+                                            </tbody>
+                                        </table>
+                                        <div class="paginationButton">
+                                            <nav aria-label="Page navigation">
+                                                <ul class="pagiWrapper ">
+                                                    <!-- <li>
+                                                        <button class="preNextbtn"on:click={previous_function}>
+                                                            Previous</button
+                                                        > -->
+                                                        <!-- <button on:click={setValuechange}>value change</button> -->
+                                                    <!-- </li> -->
+                                                    <LightPaginationNav
+                                                            totalItems="{client_det_arr.length}"
+                                                            pageSize="{pageSize}"
+                                                            currentPage="{currentPage}"
+                                                            limit="{1}"
+                                                            showStepOptions="{true}"
+                                                            on:setPage="{(e) => currentPage = e.detail.page}"
+                                                            />
+                                                        <!-- {#if result === false}
+                                                        <li >
+                                                            <button id = "curr_page" class="pagiItemsNumber">
+                                                            1
+                                                            </button>
+                                                            </li>
+                                                        {:else}
+                                                        {#each paginatedItems as item}
+                                                        
+                                                        <li >
+                                                            <button id = "curr_page" class="pagiItemsNumber" on:click="{pageChange(page)}">
+                                                            {item}
+                                                            </button>
+                                                        </li>
+                                                        {/each}
+                                                        {/if} -->
+                                                        <!-- <ul class="items">
+                                                            {#each paginatedItems as item}
+                                                              <li class="item">
+                                                                {item}
+                                                              </li>
+                                                            {/each}
+                                                          </ul> -->
+                                                          
+                                                    <li>
+                                                        <!-- <button class="preNextbtn" on:click={next_function}>
+                                                            Next</button
+                                                        > -->
+                                                    </li>
+                                                </ul>
+                                            </nav>
+                                        </div>
+                                
+                                        <div class="text-right mt-3">
+                                            <button
+                                                class="ErBlueButton"
+                                                on:click={() => {child_select_fun(),
+                                                    childlink = "childlink2";
+                                                }}>Link Child Associate</button
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="addDocumentSection ">
+                                    <div class="addSecform ">
+                                        <div class="my-3 py-4 px-4 ">
+                                            <p class="text-lg font-medium">
+                                                Linked Child Associates
+                                            </p>
+                                        </div>
+                                        {#if childlink == "childlink"}
+                                            <div
+                                                class="light14greylong w-full mb-1 text-center"
+                                            >
+                                                No child assosiates are linked
+                                            </div>
+                                        {/if}
+                                        {#if childlink == "childlink2"}
+                                            <div
+                                                class="cardforlinkedChild px-5 border-b pb-3"
+                                            >
+                                                <div class="flex justify-end">
+                                                    <div
+                                                        class="detailData"
+                                                        on:click={() => {
+                                                            childlink =
+                                                                "childlink";
+                                                        }}
+                                                    >
+                                                        <img
+                                                            src="../src/img/reject.png"
+                                                            width="25px"
+                                                            alt=""
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div class="flex ">
+                                                    <div class="w-1/3 ">
+                                                        <div
+                                                            class="detailLbale"
+                                                        >
+                                                            Location
+                                                        </div>
+                                                    </div>
+                                                    <div class="w-2/3 ">
+                                                        <div class="detailData">
+                                                            {city}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="flex ">
+                                                    <div class="w-1/3 ">
+                                                        <div
+                                                            class="detailLbale"
+                                                        >
+                                                            Facility Name
+                                                        </div>
+                                                    </div>
+                                                    <div class="w-2/3 ">
+                                                        <div class="detailData">
+                                                            Avinash Gopal Katari
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="flex ">
+                                                    <div class="w-1/3 ">
+                                                        <div
+                                                            class="detailLbale"
+                                                        >
+                                                            Unique ID
+                                                        </div>
+                                                    </div>
+                                                    <div class="w-2/3 ">
+                                                        <div class="detailData">
+                                                            EFAU00088
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {/if}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<Toast type={toast_type}  text={toast_text}/>

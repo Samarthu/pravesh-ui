@@ -2265,3 +2265,21 @@ ul.menuList li a.active span{
 
 
 /* end summary */
+
+/* vmtVerify Bank Details */
+.tabforDoc{
+    @apply flex items-center gap-5 mb-4 xsl:gap-2
+}
+.tabforDocItem{
+    @apply border rounded-lg w-20 h-20 xsl:w-16 xsl:h-16 flex justify-center items-center cursor-pointer mx-auto
+}
+
+#hidden{
+    display: hidden;
+}
+
+
+.tabforDoc  .active{
+border: 2px solid #B5B5B5;
+}
+/* end vmtVerify Bank Details */
