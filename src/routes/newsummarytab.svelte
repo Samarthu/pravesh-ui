@@ -282,8 +282,8 @@
     onMount(async () => {
         ///////bank details/////////////
         facility_id.set({
-            facility_id_number: "CRUN00374"
-            // facility_id_number: "CRUN00320" 
+            // facility_id_number: "CRUN00374"
+            facility_id_number: "CRUN00320" 
         })
         // console.log("facility_id_number",$facility_id.facility_id_number)
 
@@ -1279,7 +1279,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="statusrightlink py-3">
+                <!-- <div class="statusrightlink py-3">
                     <div >
                         <p class="initiateText">
                             <a href="" class="flex text-erBlue"> BGV Details <img
@@ -1307,6 +1307,57 @@
             <div class="mt-4 mb-3  xsl:flex">
                 <div class="vmtVerify ">
                     Verify <img src="../src/img/downarrowwhite.svg" class="pl-2" alt="arrow">
+                </div>
+            </div> -->
+            <div class="statusrightlink">
+                <div>
+                    {#if showbtn == "1"}
+                        {#if $facility_data_store.is_bgv_intiated == "0"}
+                        
+                        <p on:click={routeToBgv} class="initiateText">
+                            <a href="" class="flex">
+                                <img
+                                    src="../src/img/InitiateBGVerification.png"
+                                    class=" pr-2"
+                                    alt=""
+                                /> Initiate BGV Verification</a
+                            >
+                        </p>
+                        {:else if $facility_data_store.is_bgv_rejected == "1"}
+                        <p on:click={routeToBgv} class="initiateText">
+                            <a href="" class="flex" style="color: rgba(255, 0, 0, var(--tw-text-opacity));">
+                                <img
+                                    src="../src/img/InitiateBGVerification.png"
+                                    class=" pr-2"
+                                    alt=""
+                                />BGV Rejected</a
+                            >
+                        </p>
+                        {:else if $facility_data_store.is_bgv_verified == "1"}
+                        <p on:click={routeToBgv} class="initiateText">
+                            <a href="" class="flex" style="color:rgba(106, 194, 89, var(--tw-text-opacity));">
+                                <img
+                                    src="../src/img/InitiateBGVerification.png"
+                                    class=" pr-2"
+                                    alt=""
+                                />BGV Verified</a
+                            >
+                        </p>
+                        {:else}
+                        <p on:click={routeToBgv} class="initiateText">
+                            <a href="" class="flex" style="color: color: rgba(255, 134, 46, var(--tw-text-opacity));">
+                                <img
+                                    src="../src/img/InitiateBGVerification.png"
+                                    class=" pr-2"
+                                    alt=""
+                                />BGV Pending</a
+                            >
+                        </p>
+                        {/if}
+
+                    {:else}
+                    <p></p>
+                    {/if}
                 </div>
             </div>
             </div>
@@ -2131,8 +2182,43 @@
             <div class="detailsHeader_summary ">
                 <div class="right flex justify-between w-full items-center py-2 xsl:flex-wrap">
                     <div>
-                        <p class="verifyText"><img src="../src/img/timer.png" alt="" class="pr-1">
-                            Verification Pending</p>
+                        <!-- <p class="verifyText"><img src="../src/img/timer.png" alt="" class="pr-1">
+                            Verification Pending</p> -->
+                            {#if !bank_values_from_store}
+                                   <p></p>
+                                    {:else}
+                                    {#if bank_values_from_store.approved == "1"}
+                                    
+                                    <p
+                                        class="statusContentTag text-green font-normal xs:w-5/12"
+                                    >
+                                        <img
+                                            src="../src/img/checked.png"
+                                            class="pr-2"
+                                            alt=""
+                                        />Bank Details Approved
+                                    </p>
+                                    {:else if bank_values_from_store.rejected == "1"}
+                                    <p
+                                        class="statusContentTag text-rejectcolor font-normal xs:w-5/12"
+                                    >
+                                        <img
+                                            src="../src/img/reject.png"
+                                            class="pr-2"
+                                            alt=""
+                                        />Bank Details Rejected
+                                    </p>
+                                    {:else if bank_values_from_store.rejected == "0" && bank_values_from_store.approved == "0"}
+                                    
+                                    <p class="statusContent font-normal xs:w-5/12">
+                                        <img
+                                            src="../src/img/timer.png"
+                                            class="pr-2"
+                                            alt=""
+                                        />Bank Verification Pending
+                                    </p>
+                                    {/if} 
+                                {/if}  
                     </div>
                     <div class="flex">
                         <p class="detailsUpdate mr-4">
@@ -3072,8 +3158,9 @@
                         </p>
                     </div>
                     <div class="right flex">
-                        <p class="verifyText pr-3"><img src="../src/img/timer.png" alt="" class="pr-1">
-                            Verification Pending</p>
+                        <!-- <p class="verifyText pr-3"><img src="../src/img/timer.png" alt="" class="pr-1">
+                            Verification Pending</p> -->
+                            
                         <a href="" class="smButton">
                             <img src="../src/img/edit.png" alt="">
                         </a>
