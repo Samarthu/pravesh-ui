@@ -723,7 +723,7 @@
                             // console.log("delay");
                             setTimeout(() => {}, 2000);
                             let replaceState = false;
-                            goto("onboardsummary", { replaceState });
+                            goto("onboardsummary?unFacID="+$facility_id.facility_id_number, { replaceState });
                         }
                     } catch {
                         // alert("Error in saving facility!");

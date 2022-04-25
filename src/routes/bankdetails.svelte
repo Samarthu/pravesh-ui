@@ -538,7 +538,7 @@
                         success_text = "Facility created and Bank Details Saved Successfully";
                         // let replaceState = false
                         setTimeout(() => {}, 2000);
-                        goto("onboardsummary", { replaceState:true });
+                        goto("onboardsummary?unFacID="+$facility_id.facility_id_number, { replaceState:true });
                     } else {
                         // alert("Something went wrong!");
                         toast_type = "error";
@@ -562,7 +562,7 @@
                     success_text = "Bank Details Saved Successfully";
                     // let replaceState = false;
                     setTimeout(() => {}, 2000);
-                    goto("onboardsummary", { replaceState:true });
+                    goto("onboardsummary?unFacID="+$facility_id.facility_id_number, { replaceState:true });
                 } else {
                     // alert("Something went wrong!");
                     toast_type = "error";

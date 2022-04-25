@@ -56,4 +56,12 @@ export const check_bgv_config_api_link = derived(facility_data_store,
         $facility_data_store => '/api/method/pravesh.facility.routes.facility_bgv_configuration.check_bgv_config?org_id='+$facility_data_store.org_id+'&station_code='+$facility_data_store.station_code+'&facility_type='+$facility_data_store.facility_type);
     
         //https://doha-crun.elasticrun.in/api/method/pravesh.facility.routes.facility_bgv_configuration.check_bgv_config?org_id=AN&station_code=MHPD&facility_type=HDA
+export const get_domian_from_org_api_link = derived(facility_data_store,
+    $facility_data_store => '/api/resource/Organization?fields=["*"]&filters=[["org_id","=","'+$facility_data_store.org_id+'"]]');
+
+export const get_category_from_facility_type_api_link = derived(facility_data_store,
+    $facility_data_store => '/api/resource/Facility%20Type%20Master?fields=["*"]&filters=[["name","=","'+$facility_data_store.facility_type+'"]]');
+
+export const get_city_id_from_org_station_api_link = derived(facility_data_store,
+    $facility_data_store => '/api/resource/Org%20Station?fields=["*"]&filters=[["station_code","=","'+$facility_data_store.station_code+'"]]');
 
