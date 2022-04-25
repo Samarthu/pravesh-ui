@@ -143,11 +143,12 @@
         if(!facility_bgv_check_res || facility_bgv_check_res.body.data.length == "0"){
             console.log("BEFORE")
             var eighteenYearsAgo =  new Date();
-            eighteenYearsAgo.setFullYear( eighteenYearsAgo.getFullYear() - 18);
-            console.log("eighteenYearsAgo",eighteenYearsAgo)
-            $bgv_data_store.basic_info_dob = eighteenYearsAgo;
-            console.log("DAte 18 yrs before",$bgv_data_store.basic_info_dob)
-            console.log("No Data")
+                eighteenYearsAgo.setFullYear( eighteenYearsAgo.getFullYear() - 18);
+                console.log("eighteenYearsAgo",eighteenYearsAgo)
+                $bgv_data_store.basic_info_dob = eighteenYearsAgo;
+                console.log("DAte 18 yrs before",$bgv_data_store.basic_info_dob)
+                console.log("No BGV Data OF This User")
+
         }
         else{
             console.log("$bgv_data_store in facility_bgv_check_res",$bgv_data_store)
@@ -158,8 +159,6 @@
             police_add_per = $bgv_data_store.police_address_type;
             if(!$bgv_data_store.basic_info_dob){
                 $bgv_data_store.basic_info_dob = eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear()-18);
-            
-
             }
             console.log("DAte 18 yrs before",$bgv_data_store.basic_info_dob)
            
