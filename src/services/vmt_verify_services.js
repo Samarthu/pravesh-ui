@@ -48,7 +48,7 @@ const approve_reject_status = (data) =>{
     let approve_reject_status_url = '/api/method/pravesh.facility.routes.document.approve_reject_document'
     return request(
         approve_reject_status_url, {
-        method: "PUT",
+        method: "POST",
         body:JSON.stringify(data)
         },true
     ).then(
