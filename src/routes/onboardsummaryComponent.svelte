@@ -12,6 +12,7 @@
     import { addnew_cheque_details } from "../services/onboardsummary_services";
     import { facility_document } from "../services/onboardsummary_services";
     import { audit_trail_data } from "../services/supplier_services";
+    import {documents_store} from "../stores/document_store";
     import { facility_data,facility_bgv_init,facility_bgv_check,all_facility_tags,
         show_fac_tags,submit_fac_tag_data,remove_tag,tag_audit_trail,service_vendor,
         get_loc_scope,client_details,erp_details,child_data,get_child_dets,rem_child} from "../services/onboardsummary_services";
@@ -23,6 +24,7 @@
     import Toast from './components/toast.svelte';
     import { object_without_properties } from "svelte/internal";
     import { paginate, LightPaginationNav } from "svelte-paginate";
+    import {duplicate_documents_store} from "../stores/duplicate_document_store";
         let check_val;
         let query;
     let toast_text;
@@ -357,6 +359,16 @@
     
         /////////bank details/////////////
         let facility_document_res = await facility_document();
+        console.log("facility_document_res",facility_document_res);
+        if(facility_document_res.body.status == "green"){
+            // $documents_store.documents = facility_document_res.body.data;
+            // console.log("documents_store",$documents_store.documents);
+            $duplicate_documents_store.documents = facility_document_res.body.data;
+            console.log("duplicate document store",$duplicate_documents_store)
+            
+            
+
+        }
         try{
             if(facility_document_res != "null"){
         // console.log("facility_document_res RES", facility_document_res);
@@ -430,6 +442,8 @@
         facility_data_store.set(
             facility_data_res.body.data[0]
         )
+        console.log("facility data res",facility_data_res);
+        console.log("facility data store",$facility_data_store);
         
         new_fac_remarks = $facility_data_store.remarks.split("\n");
         console.log("new_fac_remarks",new_fac_remarks)
@@ -465,6 +479,7 @@
                 }
             }
         }
+        console.log("facility store data",$facility_data_store);
     }
     catch(err) {
         // message.innerHTML = "Error is " + err;
@@ -1086,6 +1101,7 @@
             console.log("Errror in rem_child_res")
         }
     }
+    
 
 </script>
 
@@ -1418,7 +1434,7 @@
                     </p>
                 </div>
                 <div class="right flex">
-                    <a href="" class="smButton" on:click={editWorkDetail}>
+                    <a href="" class="smButton" on:click={()=>{goto("associatedetails");}}>
                         <img src="../src/img/edit.png" alt="" />
                     </a>
                 </div>
@@ -2444,8 +2460,8 @@
                                 Work Contract
                             </a>
                         </p>
-                        <a href="" class="smButton">
-                            <img src="../src/img/edit.png" alt="" />
+                        <a href="" class="smButton" on:click={()=>{goto("workdetails");}}>
+                            <img src="../src/img/edit.png" alt=""  />
                         </a>
                     </div>
                 </div>

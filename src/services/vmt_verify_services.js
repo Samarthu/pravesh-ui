@@ -6,11 +6,9 @@ import {request} from './interceptor';
 //    new_facility_id = value.facility_id_number;
 // });
 // let facility_id = "AXVT00383";
-let facility_id = "CRUN00374";
+// let facility_id = "CRUN00374";
 // let facility_id = "NAOD00048";
-// let facility_id = "MHPD01226";
-// let facility_id = "CRUN00320";
-
+let facility_id = "MHPD01226";
 
 
 const get_facility_details = () =>{

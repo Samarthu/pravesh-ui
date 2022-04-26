@@ -10,7 +10,10 @@
     import {documents_store } from "../stores/document_store";
     import { allowed_pdf_size } from "../services/pravesh_config";
     import { each, text } from "svelte/internal";
+    import {logged_user} from '../services/supplier_services'
     import Toast from './components/toast.svelte';
+    import { img_url_name } from "../stores/flags_store";
+    import Spinner from "./components/spinner.svelte";
     
 
     let temp;
@@ -18,6 +21,7 @@
     let routeNext = "";
     let gend_selected,curr_same,police_add_per ;
     let state,fac_name,fac_type;
+    let show_spinner = false;
     // let fir_name_c,last_name_c,father_name_c,email_c,phone_c,dob_c,spouse_c,gend_c,aadhar_num_c;
     let get_state_data;
     let city_data=[];
@@ -82,7 +86,19 @@
 
     
     onMount(async () => {
+        let userdetails = await logged_user();
         
+        try{
+            if(userdetails.body.status == "green"){
+                username = userdetails.body.data.user.email;
+                userid = userdetails.body.data.user.username;
+            }
+        }
+        catch(err) {
+        message.innerHTML = "Error is " + err;
+        }
+
+        show_spinner = true;
         for (var j = 0;j < $facility_data_store.addresess.length;j++) 
             {
                 if (
@@ -275,7 +291,7 @@
         console.log("Error")
        
     }
-   
+    show_spinner = false;
     });
 
     const onFileSelected = (e,doctext) => {
@@ -912,6 +928,7 @@
     
         
         async function next_clicked(new_type){
+            show_spinner = true;
         if(new_type=="basicInfo"){
             let sub_bas_res = await submitBasicDets();
             if(photo_upload == "photo_upload"){}
@@ -920,6 +937,7 @@
             else{let aadhar_res = await submit_aadhar();}
             try{
                 if(sub_bas_res.body.status =="green"){
+                    show_spinner = false;
                     toast_text = "Basic Details Submitted Successfully";
                     toast_type = "success";
                     if($bgv_config_store.is_address_info_mandatory =="1"){
@@ -963,6 +981,7 @@
             console.log("sub_add_res",sub_add_res)
             try{
                 if(sub_add_res.body.status == "green"){
+                    show_spinner = false;
                 toast_text = "Address Details Submitted Successfully";
                 toast_type = "success";
                 if($bgv_config_store.is_pan_info_mandatory =="1"){
@@ -999,6 +1018,7 @@
             
             try{
                 if(sub_pan_res.body.status =="green"){
+                    show_spinner = false;
                 toast_text = "Pan Card Details Submitted Successfully";
                 toast_type = "success";
                 if($bgv_config_store.is_driving_license_mandatory =="1"){
@@ -1028,6 +1048,7 @@
                 if(license_upload == "license_upload"){}
                 else{let licence = await submit_licence();}
                 if(sub_dl_res.body.status =="green"){
+                    show_spinner = false;
                 toast_text = "Licence Details Submitted Successfully";
                 toast_type = "success";
                 if($bgv_config_store.is_police_verification_mandatory =="1"){
@@ -1050,6 +1071,7 @@
             else{let police = await submit_police();}
             try{    
                 if(sub_pol_res.body.status =="green"){
+                show_spinner = false;
                 toast_text = "Police Verification Details Submitted Successfully";
                 toast_type = "success";
                 temp="f";
@@ -1061,10 +1083,12 @@
         }
     }
     async function back_btn_click(new_type){
+        show_spinner = true;
         if(new_type == "policeInfo"){
             let sub_pol_res = await submitPolDets();
             try{
                 if(sub_pol_res.body.status =="green"){
+                show_spinner = false;
                 if($bgv_config_store.is_driving_license_mandatory =="1"){
                 temp="d"
                 is_pol_active="";
@@ -1103,6 +1127,7 @@
             let sub_dl_res = await submitDlDets();
             try{    
                 if(sub_dl_res.body.status =="green"){
+                    show_spinner = false;
                 if($bgv_config_store.is_pan_info_mandatory =="1"){
                 temp="c";
                 is_pol_active="";
@@ -1137,6 +1162,7 @@
             
             try{
                 if(sub_pan_res.body.status =="green"){
+                    show_spinner = false;
                 if($bgv_config_store.is_address_info_mandatory =="1"){
                 temp="b";
                 is_pol_active="";
@@ -1163,6 +1189,7 @@
             let sub_add_res = await submitAddDets();
             try{
                 if(sub_add_res.body.status =="green"){
+                    show_spinner = false;
                 if($bgv_config_store.is_basic_info_mandatory =="1"){
                 temp="a";
                 is_pol_active="";
@@ -1181,6 +1208,7 @@
         let sub_bas_res = await submitBasicDets();
             try{
                 if(sub_bas_res.body.status =="green"){
+                    show_spinner = false;
                     let replaceState = false;
                     goto(routePrev, { replaceState });
                 }
@@ -1218,7 +1246,7 @@
                     <p>
                         <span class="text-blackshade pr-1 text-2xl">Background Verification - {fac_name}</span>
                         
-                        <span class="userDesignationbgv">(Associate - {fac_type})</span>
+                        <span class="userDesignationbgv">(Associate - {fac_type} / ID - {$facility_data_store.name})</span>
                     </p>
                     <p class="text-lg font-light text-greycolor xs:hidden sm:hidden">Submit required details of
                         the associate to
@@ -1228,7 +1256,7 @@
                 <div class="rightinfobgv flex xs:mt-3 sm:mt-3">
                     <div class="hidden">
                         <div class="bgveripending ">
-                            <img src="../src/img/timer.png" class="mr-2 w-auto h-4" alt=""> Verification Pending
+                            <img src="{$img_url_name.img_name}/timer.png" class="mr-2 w-auto h-4" alt=""> Verification Pending
                         </div>
                     </div>
 
@@ -1273,11 +1301,11 @@
                         </div>
                         {#if $bgv_data_store.basic_information_status == "verified"}
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="">
+                            <img src="{$img_url_name.img_name}/checked.png" alt="">
                         </div>
                         {:else if $bgv_data_store.basic_information_status == "rejected"}
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/backlist.png" alt="">
+                            <img src="{$img_url_name.img_name}/backlist.png" alt="">
                         </div>
                         {:else}
                         <p></p>
@@ -1307,11 +1335,11 @@
                         </div>
                         {#if $bgv_data_store.address_status == "verified"}
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="">
+                            <img src="{$img_url_name.img_name}/checked.png" alt="">
                         </div>
                         {:else if $bgv_data_store.address_status == "rejected"}
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/backlist.png" alt="">
+                            <img src="{$img_url_name.img_name}/backlist.png" alt="">
                         </div>
                         {/if}
                     </a>
@@ -1347,15 +1375,15 @@
                             <p class="contentDescriptionText">Submit PAN details as per documents</p>
                         </div>
                         <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="">
+                            <img src="{$img_url_name.img_name}/checked.png" alt="">
                         </div> -->
                         {#if $bgv_data_store.pan_status == "verified"}
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="">
+                            <img src="{$img_url_name.img_name}/checked.png" alt="">
                         </div>
                         {:else if $bgv_data_store.pan_status == "rejected"}
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/backlist.png" alt="">
+                            <img src="{$img_url_name.img_name}/backlist.png" alt="">
                         </div>
                         {/if}
                     </a>
@@ -1392,15 +1420,15 @@
                             <p class="contentDescriptionText">Submit DL details as per documents</p>
                         </div>
                         <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="">
+                            <img src="{$img_url_name.img_name}/checked.png" alt="">
                         </div> -->
                         {#if $bgv_data_store.license_status == "verified"}
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="">
+                            <img src="{$img_url_name.img_name}/checked.png" alt="">
                         </div>
                         {:else if $bgv_data_store.license_status == "rejected"}
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/backlist.png" alt="">
+                            <img src="{$img_url_name.img_name}/backlist.png" alt="">
                         </div>
                         {/if}
                     </a>
@@ -1432,15 +1460,15 @@
                             <p class="contentDescriptionText">Submit Police verification as per documents</p>
                         </div>
                         <!-- <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="">
+                            <img src="{$img_url_name.img_name}/checked.png" alt="">
                         </div> -->
                         {#if $bgv_data_store.police_verification_status == "verified"}
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/checked.png" alt="">
+                            <img src="{$img_url_name.img_name}/checked.png" alt="">
                         </div>
                         {:else if $bgv_data_store.police_verification_status == "rejected"}
                         <div class="markSection pl-3 xs:hidden sm:hidden">
-                            <img src="../src/img/backlist.png" alt="">
+                            <img src="{$img_url_name.img_name}/backlist.png" alt="">
                         </div>
                         {/if}
                     </a>
@@ -1475,10 +1503,10 @@
                                 <!-- <div class="formInnerGroup ">
 
                                     <span class="profileimage">
-                                        <img src="../src/img/Maskprofile.jpg" class="associateProfilephoto"
+                                        <img src="{$img_url_name.img_name}/Maskprofile.jpg" class="associateProfilephoto"
                                             alt="">
                                         <span>dhiraj-shah.jpeg </span>
-                                        <span><img src="../src/img/closeblue.png" alt=""></span>
+                                        <span><img src="{$img_url_name.img_name}/closeblue.png" alt=""></span>
                                     </span>
                                 </div> -->
                                 <div class="xs:w-full sm:w-full">
@@ -1508,7 +1536,7 @@
                                                <img
                                                on:click={() => delete_files("photo_upload")}
                                                class="pl-2 cursor-pointer"
-                                               src="../src/img/blackclose.svg"
+                                               src="{$img_url_name.img_name}/blackclose.svg"
                                                alt=""
                                                
                                            />
@@ -1537,9 +1565,9 @@
                                 <!-- <div class="formInnerGroup ">
 
                                     <span class="profileimage">
-                                        <img src="../src/img/pancard.png" class="uploadedImage" alt="">
+                                        <img src="{$img_url_name.img_name}/pancard.png" class="uploadedImage" alt="">
                                         <span>aadhar copy.jpeg</span>
-                                        <span><img src="../src/img/closeblue.png" alt=""></span>
+                                        <span><img src="{$img_url_name.img_name}/closeblue.png" alt=""></span>
                                     </span>
                                 </div>
                             </div>
@@ -1556,7 +1584,7 @@
                                             <div class="text-red-500">{adhar_card_message}</div>
                                         </div>
                                         <div>
-                                            <img src="../src/img/edit.png" class="editbgv" alt="">
+                                            <img src="{$img_url_name.img_name}/edit.png" class="editbgv" alt="">
                                         </div>
                                     </div>
                                     <div>
@@ -1591,7 +1619,7 @@
                                                <img
                                                on:click={() => delete_files("aadhar_upload")}
                                                class="pl-2 cursor-pointer"
-                                               src="../src/img/blackclose.svg"
+                                               src="{$img_url_name.img_name}/blackclose.svg"
                                                alt=""
                                                
                                            />
@@ -1627,7 +1655,7 @@
                                             <!-- {/if} -->
                                         </div>
                                         <div>
-                                            <img src="../src/img/edit.png" class="editbgv" alt="">
+                                            <img src="{$img_url_name.img_name}/edit.png" class="editbgv" alt="">
                                         </div>
                                     </div>
                                     {#each NorthEStates as n_state}
@@ -1659,7 +1687,7 @@
                                             <div class="text-red-500" id="fir_name_msg"></div>
                                         </div>
                                         <div>
-                                            <img src="../src/img/edit.png" class="editbgv" alt="">
+                                            <img src="{$img_url_name.img_name}/edit.png" class="editbgv" alt="">
                                         </div>
                                     </div>
                                     <div>
@@ -1682,7 +1710,7 @@
                                             <div class="text-red-500" id="last_name_msg"></div>
                                         </div>
                                         <div>
-                                            <img src="../src/img/edit.png" class="editbgv" alt="">
+                                            <img src="{$img_url_name.img_name}/edit.png" class="editbgv" alt="">
                                         </div>
                                     </div>
                                     <div>
@@ -1723,7 +1751,7 @@
                                     <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.email_id}">
                                     <div class="text-red-500" id="email_msg"></div>
                                     {#if $bgv_data_store.is_email_verified =="1"}
-                                    <p class="veriTextEmail "><img src="../src/img/checked.png"
+                                    <p class="veriTextEmail "><img src="{$img_url_name.img_name}/checked.png"
                                             class="mr-1 object-contain" alt=""> Verified</p>
                                             {:else}<p></p>
                                     {/if}
@@ -1757,7 +1785,7 @@
                                             <div class="text-red-500" id="dob_msg"></div>
                                         </div>
                                         <div>
-                                            <img src="../src/img/edit.png" class="editbgv" alt="">
+                                            <img src="{$img_url_name.img_name}/edit.png" class="editbgv" alt="">
                                         </div>
                                     </div>
                                     <div>
@@ -1828,7 +1856,7 @@
                                     <option value="Not Applicable" >Not Applicable</option>
                                     </select>
                                     <div class="formSelectArrow ">
-                                        <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                        <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
                                     </div>
                                     <div class="text-red-500" id="del_msg"></div>
                                 </div>
@@ -1846,7 +1874,7 @@
                                      <option value="CBM" >CBM</option>
                                     </select>
                                     <div class="formSelectArrow ">
-                                        <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                        <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
                                     </div>
                                     <div class="text-red-500" id="stat_msg"></div>
                                 </div>
@@ -1863,7 +1891,7 @@
                                         {/each}
                                     </select>
                                     <div class="formSelectArrow ">
-                                        <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                        <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
                                     </div>
                                     <div class="text-red-500" id="hub_msg"></div>
                                 </div>
@@ -1877,7 +1905,7 @@
             <div class="onboardFormNot ">
                 <div class="formFooterAction">
                     <div on:click={routeToOnboardsummary} class="backButton">
-                        <img src="../src/img/arrowleft.png" alt="">
+                        <img src="{$img_url_name.img_name}/arrowleft.png" alt="">
                     </div>
                     <!-- <button on:click={()=>{temp="b"}} class="saveandproceed">Save &
                         Proceed</button> -->
@@ -1912,9 +1940,9 @@
                                 <!-- <div class="formInnerGroup ">
 
                                     <span class="profileimage">
-                                        <img src="../src/img/pancard.png" class="uploadedImage" alt="">
+                                        <img src="{$img_url_name.img_name}/pancard.png" class="uploadedImage" alt="">
                                         <span>aadhar copy.jpeg</span>
-                                        <span><img src="../src/img/closeblue.png" alt=""></span>
+                                        <span><img src="{$img_url_name.img_name}/closeblue.png" alt=""></span>
                                     </span>
                                 </div>
                             </div>
@@ -1970,7 +1998,7 @@
                                                <img
                                                on:click={() => delete_files("address_upload")}
                                                class="pl-2 cursor-pointer"
-                                               src="../src/img/blackclose.svg"
+                                               src="{$img_url_name.img_name}/blackclose.svg"
                                                alt=""
                                                
                                            />
@@ -2040,7 +2068,7 @@
                                                 <div class="text-red-500" id="full_add_msg"></div>
                                         </div>
                                         <div>
-                                            <img src="../src/img/edit.png" class="editbgv" alt="">
+                                            <img src="{$img_url_name.img_name}/edit.png" class="editbgv" alt="">
                                         </div>
                                     </div>
                                     <div>
@@ -2061,7 +2089,7 @@
                                         {/each}
                                     </select>
                                     <div class="formSelectArrow ">
-                                        <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                        <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
                                     </div>
                                     <div class="text-red-500" id="state_msg"></div>
                                 </div>
@@ -2079,7 +2107,7 @@
                                         <option>Mumbai</option>
                                     </select>
                                     <div class="formSelectArrow ">
-                                        <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                        <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
                                     </div>
                                 </div> -->
                                 <label class="formLable ">District<span
@@ -2092,7 +2120,7 @@
                                             <div class="text-red-500" id="dist_msg"></div>
                                     </div>
                                     <div>
-                                        <img src="../src/img/edit.png" class="editbgv" alt="">
+                                        <img src="{$img_url_name.img_name}/edit.png" class="editbgv" alt="">
                                     </div>
                                 </div>
                                 </div>
@@ -2116,7 +2144,7 @@
                                         <!-- <option>Mulshi</option> -->
                                     </select>
                                     <div class="formSelectArrow ">
-                                        <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                        <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
                                     </div>
                                     <div class="text-red-500" id="citymsg"></div>
                                 </div>
@@ -2201,7 +2229,7 @@
                                 <label class="formLable ">Stay From <span class="mandatoryIcon">*</span></label>
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
-                                        <img src="../src/img/calender.svg" class="placeholderIcon" alt="">
+                                        <img src="{$img_url_name.img_name}/calender.svg" class="placeholderIcon" alt="">
                                     </span>
                                     <input type="date" class="inputbox"  
                                     max={new Date().toISOString().split('T')[0]}
@@ -2215,7 +2243,7 @@
                                 <label class="formLable ">Stay Till <span class="mandatoryIcon">*</span></label>
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
-                                        <img src="../src/img/calender.svg" class="placeholderIcon" alt="">
+                                        <img src="{$img_url_name.img_name}/calender.svg" class="placeholderIcon" alt="">
                                     </span>
                                     <input type="date" class="inputbox"  
                                     min={new Date().toISOString().split('T')[0]}
@@ -2242,7 +2270,7 @@
             <div class="onboardFormNot ">
                 <div class="formFooterActionSubmit">
                     <div on:click={() => back_btn_click("addressInfo")} class="backButton">
-                        <img src="../src/img/arrowleft.png" alt="">
+                        <img src="{$img_url_name.img_name}/arrowleft.png" alt="">
                     </div>
                     <div>
                         <button on:click={() => next_clicked("addressInfo")} class="saveandproceed">Save and Proceed</button>
@@ -2299,7 +2327,7 @@
                                                    <img
                                                    on:click={() => delete_files("pancard_upload")}
                                                    class="pl-2 cursor-pointer"
-                                                   src="../src/img/blackclose.svg"
+                                                   src="{$img_url_name.img_name}/blackclose.svg"
                                                    alt=""
                                                    
                                                />
@@ -2334,7 +2362,7 @@
 
                                         </div>
                                         <div>
-                                            <img src="../src/img/edit.png" class="editbgv" alt="">
+                                            <img src="{$img_url_name.img_name}/edit.png" class="editbgv" alt="">
                                         </div>
                                     </div>
                                     <div>
@@ -2357,7 +2385,7 @@
                                             <div class="text-red-500" id="pan_full_name"></div>
                                         </div>
                                         <div>
-                                            <img src="../src/img/edit.png" class="editbgv" alt="">
+                                            <img src="{$img_url_name.img_name}/edit.png" class="editbgv" alt="">
                                         </div>
                                     </div>
                                     <div>
@@ -2379,7 +2407,7 @@
                                             <div class="text-red-500" id="pan_dob_msg"></div>
                                         </div>
                                         <div>
-                                            <img src="../src/img/edit.png" class="editbgv" alt="">
+                                            <img src="{$img_url_name.img_name}/edit.png" class="editbgv" alt="">
                                         </div>
                                     </div>
                                     <div>
@@ -2420,7 +2448,7 @@
             <div class="onboardFormNot ">
                 <div class="formFooterActionSubmit">
                     <div on:click={() => back_btn_click("panInfo")} class="backButton">
-                        <img src="../src/img/arrowleft.png" alt="">
+                        <img src="{$img_url_name.img_name}/arrowleft.png" alt="">
                     </div>
                     <div>
 
@@ -2477,7 +2505,7 @@
                                                        <img
                                                        on:click={() => delete_files("license_upload")}
                                                        class="pl-2 cursor-pointer"
-                                                       src="../src/img/blackclose.svg"
+                                                       src="{$img_url_name.img_name}/blackclose.svg"
                                                        alt=""
                                                        
                                                    />
@@ -2511,7 +2539,7 @@
                                             <div class="text-red-500" id="lic_num_msg"></div>
                                         </div>
                                         <div>
-                                            <img src="../src/img/edit.png" class="editbgv" alt="">
+                                            <img src="{$img_url_name.img_name}/edit.png" class="editbgv" alt="">
                                         </div>
                                     </div>
                                     <div>
@@ -2577,7 +2605,7 @@
                                         class="mandatoryIcon">*</span></label>
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
-                                        <img src="../src/img/calender.svg" class="placeholderIcon" alt="">
+                                        <img src="{$img_url_name.img_name}/calender.svg" class="placeholderIcon" alt="">
                                     </span>
                                     <input type="date" class="inputbox" 
                                     max={new Date().toISOString().split('T')[0]}
@@ -2592,7 +2620,7 @@
                                         class="mandatoryIcon">*</span></label>
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
-                                        <img src="../src/img/calender.svg" class="placeholderIcon" alt="">
+                                        <img src="{$img_url_name.img_name}/calender.svg" class="placeholderIcon" alt="">
                                     </span>
                                     <input type="date" class="inputbox" 
                                     min={new Date().toISOString().split('T')[0]}
@@ -2617,7 +2645,7 @@
                                         {/each}
                                     </select>
                                     <div class="formSelectArrow ">
-                                        <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                        <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
                                     </div>
                                     <div class="text-red-500" id="dl_issue_st_msg"></div>
                                 </div>
@@ -2631,7 +2659,7 @@
             <div class="onboardFormNot ">
                 <div class="formFooterActionSubmit">
                     <div on:click={() => back_btn_click("dlInfo")} class="backButton">
-                        <img src="../src/img/arrowleft.png" alt="">
+                        <img src="{$img_url_name.img_name}/arrowleft.png" alt="">
                     </div>
                     <div>
 
@@ -2688,7 +2716,7 @@
                                                <img
                                                on:click={() => delete_files("police_upload")}
                                                class="pl-2 cursor-pointer"
-                                               src="../src/img/blackclose.svg"
+                                               src="{$img_url_name.img_name}/blackclose.svg"
                                                alt=""
                                                
                                            />
@@ -2785,7 +2813,7 @@
             <div class="onboardFormNot ">
                 <div class="formFooterActionSubmit">
                     <div on:click={() => back_btn_click("policeInfo")} class="backButton">
-                        <img src="../src/img/arrowleft.png" alt="">
+                        <img src="{$img_url_name.img_name}/arrowleft.png" alt="">
                     </div>
                     <div>
                         <button on:click={() => next_clicked("policeInfo")} class="saveandproceed">Save</button>

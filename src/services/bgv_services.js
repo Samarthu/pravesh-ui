@@ -1,6 +1,7 @@
 import {request} from './interceptor';
 import {bank_data_to_store} from '../stores/onboardsummary_store'
 import {facility_id} from '../stores/facility_id_store';
+import {facility_data} from '../services/onboardsummary_services';
 
 
 // let new_facility_id = "CRUN00374";
@@ -9,6 +10,7 @@ let new_facility_id = "NAOD00048";
 // facility_id.subscribe(value => {
 //    new_facility_id = value.facility_id_number;
 // });
+    
 const get_states = () =>{
     let get_states_url = '/api/method/pravesh.facility.routes.organisation.get_states?_=1647243494831'
     return request(
@@ -158,23 +160,10 @@ const submit_police_details =(police_data) =>{
 const uploadDocs=(data)=>{
     console.log("inside service pod",data.pod)
     let submit_docs_url = '/api/method/pravesh.facility.routes.document.save_or_update_documents';
-    let upload_docs_data = {
-        doc_category:data.doc_category,
-        doc_number:"",
-        doc_type:data.doc_type,
-        facility_id:new_facility_id,
-        file_name: data.file_name,
-        pod:data.pod,
-        resource_id:new_facility_id,
-        status:"created",
-        user_id:"tushar",
-        
-        
-    }
     return request(
         submit_docs_url, 
         {  method: "POST",
-            body:JSON.stringify(upload_docs_data),              
+            body:JSON.stringify(data),              
         },true)
 }
 

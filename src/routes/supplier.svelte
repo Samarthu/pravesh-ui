@@ -10,7 +10,10 @@
     import {audit_trail_data} from '../services/supplier_services';
     import {logged_user} from '../services/supplier_services'
     import { page } from '$app/stores';
+    import {img_url_name} from '../stores/flags_store';
+    import Spinner from "./components/spinner.svelte";
     
+    let show_spinner = false;
     let total_count;
     let offset=0;
     let limit=20;
@@ -60,14 +63,15 @@
     $:if(onboarded_by_me_checkbox === true){
         onboarded_by_me_checkbox = true;
     }
+    new_associate_data=[];
+    //////////////////////    onboard summary data if checkbox on ////////////
+        //     if(onboarded_by_me_checkbox == true){ 
+        //     new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending",username:username,userid:userid}
 
-            if(onboarded_by_me_checkbox == true){ 
-            new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending",username:username,userid:userid}
-
-        }
-            else{
-            new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending"}  
-            }
+        // }
+        //     else{
+        //     new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending"}  
+        //     }
         
         async function clearedSearchFunc(){
         json_associate_data=JSON.stringify(new_associate_data);
@@ -87,10 +91,10 @@
                 // console.log("pagesRESULT",pages)
                 for(let pagination in pages){
                     if(pagination <= 3 && pagination>0){
-                        // console.log("PAGES") 
+                        console.log("PAGES") 
                         // new_pages.push(pagination)
                         mapped_pages=new_pages.map(Number)  
-                        // console.log("mappedpagesRESULT inside",mapped_pages)
+                        console.log("mappedpagesRESULT inside",mapped_pages)
                         
                     }
             
@@ -117,6 +121,7 @@
     let json_associate_data,json_associate_new_data;
     
     onMount(async () =>{
+        show_spinner = true;
     let dashboard_res = await dashboard_data();
 
     if(dashboard_res != null){
@@ -190,7 +195,8 @@
     
     try{
             if(filter_res_from_dash.body.status == "green"){
-                supplier_data_from_service = filter_res_from_dash.body.data.data_list;
+                supplier_data_from_service = []
+                // supplier_data_from_service = filter_res_from_dash.body.data.data_list;
                 total_count_associates = filter_res_from_dash.body.data.total_records; 
                 total_count_associates = filter_res_from_dash.body.data.total_records;
                 total_pages = Math.ceil(total_count_associates/new_drop_limit)
@@ -215,6 +221,7 @@ else
     let res=await supplier_data(json_associate_data);
         try{
             if(res.body.status == "green"){
+            // supplier_data_from_service = []
             supplier_data_from_service = res.body.data.data_list;
             total_count_associates = res.body.data.total_records;
             }
@@ -278,7 +285,7 @@ else
                 mapped_pages=new_pages.map(Number)    
             }
         }
-        
+        show_spinner = false; 
     })
     
    
@@ -614,9 +621,7 @@ else
 
     // // supplier table collaps
 
-    function collapse(fac_id) {
-        console.log("fac_id in collapse",fac_id);
-        document.getElementById(fac_id).classList.add("show");
+    function collapse() {
         
         var shortInfo = document.querySelectorAll(".shortInfo");
         var elems = document.querySelectorAll(".detailsInfo");
@@ -625,7 +630,6 @@ else
         document.querySelector(".trow").classList.add("valgin");
 
         shortInfo.forEach.call(shortInfo, function (el) {
-            console.log("ELEMENTS",el);
             el.classList.add("hidden");
 
 
@@ -749,7 +753,7 @@ else
                     </div>
                     <p>
                         <a href="#" class="filterxsl " on:click="{myBtn}">
-                            <img src="../src/img/filter.svg" alt="" /></a
+                            <img src="{$img_url_name.img_name}/filter.svg" alt="" /></a
                         >
 
                         <a
@@ -760,7 +764,7 @@ else
                         >
                             <span>Filter</span>
                             <img
-                                src="../src/img/filter.svg"
+                                src="{$img_url_name.img_name}/filter.svg"
                                 class="pl-2 xs:p-0"
                                 alt=""
                             />
@@ -779,7 +783,7 @@ else
                                         <p class="filterTextLable">Filter</p>
                                         <p>
                                             <img on:click="{close}"
-                                                src="../src/img/cross.svg"
+                                                src="{$img_url_name.img_name}/cross.svg"
                                                 class="close"
                                                 alt=""
                                             />
@@ -845,7 +849,7 @@ else
                                                                 class="formSelectArrow "
                                                             >
                                                                 <img
-                                                                    src="../src/img/downarrow.svg"
+                                                                    src="{$img_url_name.img_name}/downarrow.svg"
                                                                     class="w-5 h-auto"
                                                                     alt=""
                                                                 />
@@ -863,8 +867,7 @@ else
                                                             <select
                                                                 class="selectInputbox"
                                                             >
-                                                            <option class="pt-6" 
-                                                                >All</option>
+                                                            <!-- <option class="pt-6">All</option> -->
                                                             {#each filter_city_array as data_city}
                                                                 <option
                                                                     class="pt-6">
@@ -877,7 +880,7 @@ else
                                                                 class="formSelectArrow "
                                                             >
                                                                 <img
-                                                                    src="../src/img/downarrow.svg"
+                                                                    src="{$img_url_name.img_name}/downarrow.svg"
                                                                     class="w-5 h-auto"
                                                                     alt=""
                                                                 />
@@ -923,7 +926,7 @@ else
                                                                 class="formSelectArrow "
                                                             >
                                                                 <img
-                                                                    src="../src/img/downarrow.svg"
+                                                                    src="{$img_url_name.img_name}/downarrow.svg"
                                                                     class="w-5 h-auto"
                                                                     alt=""
                                                                 />
@@ -940,8 +943,8 @@ else
                                                         >
                                                             <select
                                                                 class="selectInputbox"
-                                                            ><option class="pt-6" 
-                                                            >All</option>
+                                                            >
+                                                            <!-- <option class="pt-6">All</option> -->
                                                             {#each filter_status_array as data_status}   
                                                                 {#if data_status.display_name != undefined}
                                                                 <option class="pt-6"> {data_status.display_name}
@@ -955,7 +958,7 @@ else
                                                                 class="formSelectArrow "
                                                             >
                                                                 <img
-                                                                    src="../src/img/downarrow.svg"
+                                                                    src="{$img_url_name.img_name}/downarrow.svg"
                                                                     class="w-5 h-auto"
                                                                     alt=""
                                                                 />
@@ -996,7 +999,7 @@ else
                                         <p class="filterTextLable">Filter</p>
                                         <p>
                                             <img on:click="{close}"
-                                                src="../src/img/cross.svg"
+                                                src="{$img_url_name.img_name}/cross.svg"
                                                 class="close"
                                                 alt=""
                                             />
@@ -1068,7 +1071,7 @@ else
                                                                 class="formSelectArrow "
                                                             >
                                                                 <img
-                                                                    src="../src/img/downarrow.svg"
+                                                                    src="{$img_url_name.img_name}/downarrow.svg"
                                                                     class="w-5 h-auto"
                                                                     alt=""
                                                                 />
@@ -1100,7 +1103,7 @@ else
                                                                 class="formSelectArrow "
                                                             >
                                                                 <img
-                                                                    src="../src/img/downarrow.svg"
+                                                                    src="{$img_url_name.img_name}/downarrow.svg"
                                                                     class="w-5 h-auto"
                                                                     alt=""
                                                                 />
@@ -1148,7 +1151,7 @@ else
                                                                 class="formSelectArrow "
                                                             >
                                                                 <img
-                                                                    src="../src/img/downarrow.svg"
+                                                                    src="{$img_url_name.img_name}/downarrow.svg"
                                                                     class="w-5 h-auto"
                                                                     alt=""
                                                                 />
@@ -1163,10 +1166,10 @@ else
                                                         <div
                                                             class="formInnerGroupSelect "
                                                         >
+                                                                    <!-- DESKTOP VIEW -->
                                                         <select
                                                         class="selectInputbox" id= "select_status"> 
-                                                    <option class="pt-6" 
-                                                        >All</option>
+                                                    <!-- <option class="pt-6">All</option> -->
                                                         {#each filter_status_array as data_status}   
                                                         {#if data_status.display_name != undefined}
                                                         <option class="pt-6"> {data_status.display_name}
@@ -1180,7 +1183,7 @@ else
                                                                 class="formSelectArrow "
                                                             >
                                                                 <img
-                                                                    src="../src/img/downarrow.svg"
+                                                                    src="{$img_url_name.img_name}/downarrow.svg"
                                                                     class="w-5 h-auto"
                                                                     alt=""
                                                                 />
@@ -1410,14 +1413,14 @@ else
                             <div class="formInnerGroup ">
                                 <!-- <span class="searchicon">
                                     <img
-                                        src="../src/img/search.svg"
+                                        src="{$img_url_name.img_name}/search.svg"
                                         class="placeholderIcon"
                                         alt=""
                                         on:click="{filterResults}"/>
                                 </span> -->
                                 <span class="searchicon">
                                     <img
-                                        src="../src/img/search.svg"
+                                        src="{$img_url_name.img_name}/search.svg"
                                         class="placeholderIcon"
                                         alt=""
                                        />
@@ -1437,7 +1440,7 @@ else
                                 <div class="serchCloseIconSection " id="">
                                     <div class="closeIconCon " on:click="{closeSearch}">
                                         <img
-                                            src="../src/img/closeSearch.svg"
+                                            src="{$img_url_name.img_name}/closeSearch.svg"
                                             class="w-4 h-auto"
                                             alt=""
                                         />
@@ -1448,7 +1451,7 @@ else
                         <div class=" searchClickbtn" on:click="{SearchClick}" >
                             <p class="searchIconPlace">
                                 <img
-                                    src="../src/img/search.svg"
+                                    src="{$img_url_name.img_name}/search.svg"
                                     class="placeholderIcon"
                                     alt=""
                                 />
@@ -1467,7 +1470,7 @@ else
                                     </select>
                                     <div class="formSelectArrow ">
                                         <img
-                                            src="../src/img/downarrow.svg"
+                                            src="{$img_url_name.img_name}/downarrow.svg"
                                             class="w-5 h-auto"
                                             alt=""
                                         />
@@ -1676,7 +1679,7 @@ else
                                                             class="vendorDetailsText"
                                                         >
                                                             <img
-                                                                src="../src/img/checked.png"
+                                                                src="{$img_url_name.img_name}/checked.png"
                                                                 class="pr-p7px"
                                                                 alt=""
                                                             />
@@ -1686,7 +1689,7 @@ else
                                                             class="idproofRejected"
                                                         >
                                                             <img
-                                                                src="../src/img/reject.png"
+                                                                src="{$img_url_name.img_name}/reject.png"
                                                                 class="pr-p7px"
                                                                 alt=""
                                                             /> ID Proof Rejected
@@ -1695,7 +1698,7 @@ else
                                                             class="pendingBankVerfi"
                                                         >
                                                             <img
-                                                                src="../src/img/timer.png"
+                                                                src="{$img_url_name.img_name}/timer.png"
                                                                 class="pr-p7px"
                                                                 alt=""
                                                             /> Pending Bank Verification
@@ -1795,7 +1798,7 @@ else
                                                     on:click="{SupplerModalbuttonClick(facility_data)}"
                                                 >
                                                     <img
-                                                        src="../src/img/chat1.svg"
+                                                        src="{$img_url_name.img_name}/chat1.svg"
                                                         class="chatIcon"
                                                         alt=""
                                                     />
@@ -1803,14 +1806,13 @@ else
                                                         ></span>
                                                 </button>
                                                 <!-- <p class="mtextaudit">11 M</p> -->
-                                                <div class="shortInfo" id={facility_data.name}>
+                                                <div class="shortInfo">
                                                     <p
-                                                    
-                                                        on:click="{collapse(facility_data.name)}"
+                                                        on:click="{collapse}"
                                                         class="arrowCollaps"
                                                     >
                                                         <img
-                                                            src="../src/img/arrowDownCollaps.svg"
+                                                            src="{$img_url_name.img_name}/arrowDownCollaps.svg"
                                                             class="downArrowIcon"
                                                             alt=""
                                                         />
@@ -1823,7 +1825,7 @@ else
                                                         class="detailsarrowCollaps "
                                                     >
                                                         <img
-                                                            src="../src/img/arrowDownCollaps.svg"
+                                                            src="{$img_url_name.img_name}/arrowDownCollaps.svg"
                                                             class=" downArrowIconDetails"
                                                             alt=""
                                                         />
@@ -1870,7 +1872,7 @@ else
                                             >
                                                 <button class="auditTrail">
                                                     <img
-                                                        src="../src/img/chat1.svg"
+                                                        src="{$img_url_name.img_name}/chat1.svg"
                                                         class="w-4 h-4 mr-2 ml-1"
                                                         alt=""
                                                     />
@@ -1887,7 +1889,7 @@ else
                                                     class="bg-erBlue rounded-full w-w30px h-h30px  ml-5  flex cursor-pointer"
                                                 >
                                                     <img
-                                                        src="../src/img/arrowDownCollaps.svg"
+                                                        src="{$img_url_name.img_name}/arrowDownCollaps.svg"
                                                         class="  w-w30px h-h30px  px-2"
                                                         alt=""
                                                     />
@@ -1931,7 +1933,7 @@ else
                                             >
                                                 <button class="auditTrail">
                                                     <img
-                                                        src="../src/img/chat1.svg"
+                                                        src="{$img_url_name.img_name}/chat1.svg"
                                                         class="w-4 h-4 mr-2 ml-1"
                                                         alt=""
                                                     />
@@ -1948,7 +1950,7 @@ else
                                                     class="bg-erBlue rounded-full w-w30px h-h30px  ml-5  flex cursor-pointer"
                                                 >
                                                     <img
-                                                        src="../src/img/arrowDownCollaps.svg"
+                                                        src="{$img_url_name.img_name}/arrowDownCollaps.svg"
                                                         class="  w-w30px h-h30px  px-2"
                                                         alt=""
                                                     />
@@ -1993,7 +1995,7 @@ else
                                             >
                                                 <button class="auditTrail">
                                                     <img
-                                                        src="../src/img/chat1.svg"
+                                                        src="{$img_url_name.img_name}/chat1.svg"
                                                         class="w-4 h-4 mr-2 ml-1"
                                                         alt=""
                                                     />
@@ -2010,7 +2012,7 @@ else
                                                     class="bg-erBlue rounded-full w-w30px h-h30px  ml-5  flex cursor-pointer"
                                                 >
                                                     <img
-                                                        src="../src/img/arrowDownCollaps.svg"
+                                                        src="{$img_url_name.img_name}/arrowDownCollaps.svg"
                                                         class="  w-w30px h-h30px  px-2"
                                                         alt=""
                                                     />
@@ -2059,7 +2061,7 @@ else
                                             >
                                                 <button class="auditTrail">
                                                     <img
-                                                        src="../src/img/chat1.svg"
+                                                        src="{$img_url_name.img_name}/chat1.svg"
                                                         class="w-4 h-4 mr-2 ml-1"
                                                         alt=""
                                                     />
@@ -2076,7 +2078,7 @@ else
                                                     class="bg-erBlue rounded-full w-w30px h-h30px  ml-5  flex cursor-pointer"
                                                 >
                                                     <img
-                                                        src="../src/img/arrowDownCollaps.svg"
+                                                        src="{$img_url_name.img_name}/arrowDownCollaps.svg"
                                                         class="  w-w30px h-h30px  px-2"
                                                         alt=""
                                                     />
@@ -2125,7 +2127,7 @@ else
                                             >
                                                 <button class="auditTrail">
                                                     <img
-                                                        src="../src/img/chat1.svg"
+                                                        src="{$img_url_name.img_name}/chat1.svg"
                                                         class="w-4 h-4 mr-2 ml-1"
                                                         alt=""
                                                     />
@@ -2142,7 +2144,7 @@ else
                                                     class="bg-erBlue rounded-full w-w30px h-h30px  ml-5  flex cursor-pointer"
                                                 >
                                                     <img
-                                                        src="../src/img/arrowDownCollaps.svg"
+                                                        src="{$img_url_name.img_name}/arrowDownCollaps.svg"
                                                         class="  w-w30px h-h30px  px-2"
                                                         alt=""
                                                     />
@@ -2187,7 +2189,7 @@ else
                                             >
                                                 <button class="auditTrail">
                                                     <img
-                                                        src="../src/img/chat1.svg"
+                                                        src="{$img_url_name.img_name}/chat1.svg"
                                                         class="w-4 h-4 mr-2 ml-1"
                                                         alt=""
                                                     />
@@ -2204,7 +2206,7 @@ else
                                                     class="bg-erBlue rounded-full w-w30px h-h30px  ml-5  flex cursor-pointer"
                                                 >
                                                     <img
-                                                        src="../src/img/arrowDownCollaps.svg"
+                                                        src="{$img_url_name.img_name}/arrowDownCollaps.svg"
                                                         class="  w-w30px h-h30px  px-2"
                                                         alt=""
                                                     />
@@ -2248,7 +2250,7 @@ else
                                             >
                                                 <button class="auditTrail">
                                                     <img
-                                                        src="../src/img/chat1.svg"
+                                                        src="{$img_url_name.img_name}/chat1.svg"
                                                         class="w-4 h-4 mr-2 ml-1"
                                                         alt=""
                                                     />
@@ -2265,7 +2267,7 @@ else
                                                     class="bg-erBlue rounded-full w-w30px h-h30px  ml-5  flex cursor-pointer"
                                                 >
                                                     <img
-                                                        src="../src/img/arrowDownCollaps.svg"
+                                                        src="{$img_url_name.img_name}/arrowDownCollaps.svg"
                                                         class="  w-w30px h-h30px  px-2"
                                                         alt=""
                                                     />
@@ -2309,7 +2311,7 @@ else
                                             >
                                                 <button class="auditTrail">
                                                     <img
-                                                        src="../src/img/chat1.svg"
+                                                        src="{$img_url_name.img_name}/chat1.svg"
                                                         class="w-4 h-4 mr-2 ml-1"
                                                         alt=""
                                                     />
@@ -2326,7 +2328,7 @@ else
                                                     class="bg-erBlue rounded-full w-w30px h-h30px  ml-5  flex cursor-pointer"
                                                 >
                                                     <img
-                                                        src="../src/img/arrowDownCollaps.svg"
+                                                        src="{$img_url_name.img_name}/arrowDownCollaps.svg"
                                                         class="  w-w30px h-h30px  px-2"
                                                         alt=""
                                                     />
@@ -2370,7 +2372,7 @@ else
                                             >
                                                 <button class="auditTrail">
                                                     <img
-                                                        src="../src/img/chat1.svg"
+                                                        src="{$img_url_name.img_name}/chat1.svg"
                                                         class="w-4 h-4 mr-2 ml-1"
                                                         alt=""
                                                     />
@@ -2387,7 +2389,7 @@ else
                                                     class="bg-erBlue rounded-full w-w30px h-h30px  ml-5  flex cursor-pointer"
                                                 >
                                                     <img
-                                                        src="../src/img/arrowDownCollaps.svg"
+                                                        src="{$img_url_name.img_name}/arrowDownCollaps.svg"
                                                         class="  w-w30px h-h30px  px-2"
                                                         alt=""
                                                     />
@@ -2433,7 +2435,7 @@ else
                                             >
                                                 <button class="auditTrail">
                                                     <img
-                                                        src="../src/img/chat1.svg"
+                                                        src="{$img_url_name.img_name}/chat1.svg"
                                                         class="w-4 h-4 mr-2 ml-1"
                                                         alt=""
                                                     />
@@ -2450,7 +2452,7 @@ else
                                                     class="bg-erBlue rounded-full w-w30px h-h30px  ml-5  flex cursor-pointer"
                                                 >
                                                     <img
-                                                        src="../src/img/arrowDownCollaps.svg"
+                                                        src="{$img_url_name.img_name}/arrowDownCollaps.svg"
                                                         class="  w-w30px h-h30px  px-2"
                                                         alt=""
                                                     />
@@ -2515,7 +2517,7 @@ else
                                             on:click="{collapseMobile}"
                                         >
                                             <img
-                                                src="../src/img/arrowDownCollaps.svg"
+                                                src="{$img_url_name.img_name}/arrowDownCollaps.svg"
                                                 class="downArrowIcon"
                                                 alt=""
                                             />
@@ -2527,7 +2529,7 @@ else
                                             class="detailsarrowCollaps "
                                         >
                                             <img
-                                                src="../src/img/arrowDownCollaps.svg"
+                                                src="{$img_url_name.img_name}/arrowDownCollaps.svg"
                                                 class=" downArrowIconDetails"
                                                 alt=""
                                             />
@@ -2568,7 +2570,7 @@ else
                                 <!-- <div class="statusDetails">
                                     <p class="vendorDetailsText">
                                         <img
-                                            src="../src/img/checked.png"
+                                            src="{$img_url_name.img_name}/checked.png"
                                             class="pr-p7px"
                                             alt=""
                                         />
@@ -2576,14 +2578,14 @@ else
                                     </p>
                                     <p class="idproofRejected">
                                         <img
-                                            src="../src/img/reject.png"
+                                            src="{$img_url_name.img_name}/reject.png"
                                             class="pr-p7px"
                                             alt=""
                                         /> ID Proof Rejected
                                     </p>
                                     <p class="pendingBankVerfi">
                                         <img
-                                            src="../src/img/timer.png"
+                                            src="{$img_url_name.img_name}/timer.png"
                                             class="pr-p7px"
                                             alt=""
                                         /> Pending Bank Verification
@@ -2661,7 +2663,7 @@ else
                                         on:click={SupplerModalbuttonClick}
                                     >
                                         <img
-                                            src="../src/img/chat1.svg"
+                                            src="{$img_url_name.img_name}/chat1.svg"
                                             class="chatIcon"
                                             alt=""
                                         />
@@ -2751,7 +2753,7 @@ else
                     </div> -->
                     <div class="closebuttonsection">
                         <img
-                            src="../src/img/close.png"
+                            src="{$img_url_name.img_name}/close.png"
                             on:click="{closeAuditTrailModal}"
                             class="closesup"
                             alt=""
@@ -2783,7 +2785,7 @@ else
                             </div>
                             <div class="timelineImg ">
                                 <img
-                                    src="../src/img/chat2.svg"
+                                    src="{$img_url_name.img_name}/chat2.svg"
                                     class="w-5 h-5"
                                     alt=""
                                 />
@@ -2811,7 +2813,7 @@ else
                             </div>
                             <div class="timelineImg ">
                                 <img
-                                    src="../src/img/chat2.svg"
+                                    src="{$img_url_name.img_name}/chat2.svg"
                                     class="w-5 h-5"
                                     alt=""
                                 />
@@ -2837,7 +2839,7 @@ else
                             </div>
                             <div class="timelineImg ">
                                 <img
-                                    src="../src/img/chat2.svg"
+                                    src="{$img_url_name.img_name}/chat2.svg"
                                     class="w-5 h-5"
                                     alt=""
                                 />
@@ -2863,7 +2865,7 @@ else
                             </div>
                             <div class="timelineImg ">
                                 <img
-                                    src="../src/img/chat2.svg"
+                                    src="{$img_url_name.img_name}/chat2.svg"
                                     class="w-5 h-5"
                                     alt=""
                                 />
@@ -2889,7 +2891,7 @@ else
                             </div>
                             <div class="timelineImg ">
                                 <img
-                                    src="../src/img/chat2.svg"
+                                    src="{$img_url_name.img_name}/chat2.svg"
                                     class="w-5 h-5"
                                     alt=""
                                 />
@@ -2915,7 +2917,7 @@ else
                             </div>
                             <div class="timelineImg ">
                                 <img
-                                    src="../src/img/chat2.svg"
+                                    src="{$img_url_name.img_name}/chat2.svg"
                                     class="w-5 h-5"
                                     alt=""
                                 />
@@ -2941,7 +2943,7 @@ else
                             </div>
                             <div class="timelineImg ">
                                 <img
-                                    src="../src/img/chat2.svg"
+                                    src="{$img_url_name.img_name}/chat2.svg"
                                     class="w-5 h-5"
                                     alt=""
                                 />
@@ -2967,7 +2969,7 @@ else
                             </div>
                             <div class="timelineImg ">
                                 <img
-                                    src="../src/img/chat2.svg"
+                                    src="{$img_url_name.img_name}/chat2.svg"
                                     class="w-5 h-5"
                                     alt=""
                                 />
@@ -2993,7 +2995,7 @@ else
                             </div>
                             <div class="timelineImg ">
                                 <img
-                                    src="../src/img/chat2.svg"
+                                    src="{$img_url_name.img_name}/chat2.svg"
                                     class="w-5 h-5"
                                     alt=""
                                 />
@@ -3019,7 +3021,7 @@ else
                             </div>
                             <div class="timelineImg ">
                                 <img
-                                    src="../src/img/chat2.svg"
+                                    src="{$img_url_name.img_name}/chat2.svg"
                                     class="w-5 h-5"
                                     alt=""
                                 />
@@ -3045,7 +3047,7 @@ else
                             </div>
                             <div class="timelineImg ">
                                 <img
-                                    src="../src/img/chat2.svg"
+                                    src="{$img_url_name.img_name}/chat2.svg"
                                     class="w-5 h-5"
                                     alt=""
                                 />
@@ -3071,7 +3073,7 @@ else
                             </div>
                             <div class="timelineImg ">
                                 <img
-                                    src="../src/img/chat2.svg"
+                                    src="{$img_url_name.img_name}/chat2.svg"
                                     class="w-5 h-5"
                                     alt=""
                                 />

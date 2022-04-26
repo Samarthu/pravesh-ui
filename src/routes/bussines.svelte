@@ -9,9 +9,9 @@
     import Toast from './components/toast.svelte';
     import {img_url_name} from '../stores/flags_store';
     
-    import {get_verticles_ui_fun} from '../services/business_vertical_services';
+  
     import Breadcrumb from "./breadcrumb.svelte";
-    
+    import {get_verticles_ui_fun} from '../services/business_vertical_services';
 
     let org_list= [];
     let verticle_list = [];

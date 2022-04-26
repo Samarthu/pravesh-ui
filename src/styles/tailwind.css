@@ -2290,3 +2290,15 @@ ul.menuList li a.active span{
 border: 2px solid #B5B5B5;
 }
 /* end vmtVerify Bank Details */
+
+
+/* pancard */
+.pancardDialogueOnboardWrapper{
+    @apply relative p-4 w-full max-w-2xl h-full md:h-auto mx-auto flex justify-center items-center
+}
+
+
+.OnboardDialogueModalContent{
+    @apply relative bg-white rounded-lg shadow  py-10
+}
+/* end pancard */

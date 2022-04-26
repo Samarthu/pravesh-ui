@@ -1613,7 +1613,6 @@
     }
             }
         }
-    }
     async function final_bgv_reject_func(){
         if(final_bgv_reject == 1){
             show_spinner=true;
