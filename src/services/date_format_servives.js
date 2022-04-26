@@ -7,6 +7,14 @@ const get_date_format = (date,format) =>{
         let day = date.getDate();
         let month = date.getMonth()+1;
         let year = date.getFullYear();
+        // console.log("type of month",typeof(month));
+        if(month < 10){
+            month = "0"+String(month);
+        }
+
+        if(day < 10){
+            day = "0"+String(day);
+        }
         
         if(format == 'dd-mm-yyyy'){
             return String(day+"-"+month+"-"+year);
