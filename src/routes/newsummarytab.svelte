@@ -5,24 +5,28 @@
     import Breadcrumb from "./breadcrumb.svelte";
     import { onMount } from "svelte";
     import { DateInput, DatePicker } from "date-picker-svelte";
-    import {bank_details,cheque_details} from "../services/onboardsummary_services";
-    import { bank_data_to_store } from "../stores/onboardsummary_store";
-    import { cheque_data_to_store } from "../stores/onboardsummary_store";
-    import { addnew_cheque_details } from "../services/onboardsummary_services";
-    import { facility_document } from "../services/onboardsummary_services";
+    import { bank_data_to_store,cheque_data_to_store } from "../stores/onboardsummary_store";
+    import { allowed_pdf_size } from "../services/pravesh_config";
+    // import { addnew_cheque_details } from "../services/onboardsummary_services";
+    // import { facility_document } from "../services/onboardsummary_services";
     import { audit_trail_data } from "../services/supplier_services";
     import { facility_data,facility_bgv_init,facility_bgv_check,all_facility_tags,
         show_fac_tags,submit_fac_tag_data,remove_tag,tag_audit_trail,service_vendor,
-        get_loc_scope,client_details,erp_details,child_data} from "../services/onboardsummary_services";
-    
+        get_loc_scope,client_details,erp_details,child_data,add_gst_dets,
+        facility_document,addnew_cheque_details,bank_details,cheque_details,gst_details} from "../services/onboardsummary_services";
+    import {uploadDocs} from "../services/bgv_services";
     import {get_date_format} from "../services/date_format_servives";
+    import {img_url_name} from '../stores/flags_store';
     import {facility_id} from "../stores/facility_id_store"
     import {facility_data_store} from "../stores/facility_store"
     import {bgv_config_store} from '../stores/bgv_config_store'
     import Toast from './components/toast.svelte';
     import { object_without_properties } from "svelte/internal";
     import { paginate, LightPaginationNav } from "svelte-paginate";
+    import Spinner from "./components/spinner.svelte";
+    import {logged_user} from '../services/supplier_services';
 
+    let show_spinner = false;
     let toast_text;
     let toast_type;
     let routeNext = "";
@@ -53,13 +57,14 @@
     let child_list=[];
     let tags_for_ass_arr=[];
     let check_selected;
-
+    let id_new_date='';
+    let username;
     let all_tags_res;
     let text_pattern = /^[a-zA-Z_ ]+$/;
     let recrun_pattern =  /^[^-\s](?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9 _-]+)$/;
     let city_select;
     let city_select_flag=0;
-    let img_name="",bank_name="",type ="",cheque_date,cheque_number="",amount="",
+    let img_name="",bank_name="-",type ="",cheque_date,cheque_number="-",amount="",
     recrun_number="",file_number = "";
     let bank_name_message ="",type_message="",cheque_date_message="",cheque_number_message=""
     ,amount_message="",recrun_number_message="",file_number_message="",cheque_upload_message="";
@@ -68,7 +73,7 @@
     facility_modified_date,facility_created_date,facility_doc_date;
     let audit_creation_date;
     let client_det_res;
-    let client_det_arr=[]; 
+    let client_det_arr=[];
     // $: cheque_date = new Date();
     let file_data;
     let showbtn = 0;
@@ -81,21 +86,27 @@
     let tag_date,tag_remark;
     let tag_data_obj=[];
     let city_data=[];
+    let scope_data=[];
+    let gst_doc_type=[];
     let erp_details_arr = [];
     //  let vendor_id,vendor_name; 
     let pan_num="-";
     let aadhar_num="-";
+    let cheque_img="";
     let checkupload,pan_attach,aadhar_attach,dl_lic_attach,dl_lic_url,offer_url = "-";
     let profile_url = "";
-    let address_url,pan_verified,aadhar_verified,profile_verified,address_verified,
-    gst_url,gst_verified,can_cheque_url;
+    let gst_doc_num="";
+    let address_url,pan_verified,aadhar_verified,profile_verified,address_verified,gst_verified,can_cheque_url;
     let pan_rejected,aadhar_rejected,profile_rejected,address_rejected,offer_verified,offer_rejected,dl_verified,dl_rejected,
     can_cheque_verified,can_cheque_rejected;
     let aadhar_name = "Not Submitted",pan_name = "Not Submitted",dl_lic_name = "Not Submitted",address_name = "Not Submitted",
-    can_cheque_name = "Not Submitted",gst_name = "",offer_name="Not Submitted";
+    can_cheque_name = "Not Submitted",offer_name="Not Submitted";
     let result;
     let mapped_pages = [];
     let hidden_field ="hidden";
+    let gst_city_link_state="";
+    let gst_state_code = "";
+    let gst_city_loc_id="";
     // let facility_data_obj = {
     //     new_facility_id : facility_details_data[0].facility_id
     //     }
@@ -107,11 +118,23 @@
     let pageSize = 10;
     let paginatedItems=[];
     let change_to = "Associate_details";
-
-
-
-
-
+    //////GST vars////////////
+    let gst_address=""
+    let gst_city_select=""
+    let gst_state=""
+    let gst_number=""
+    let gst_file=""
+    let gst_upload_message ="";
+    let gst_number_message ="";
+    let gst_city_message ="";
+    let gst_add_message = "";
+    let gst_img = "";
+    let gst_data="";
+    let gst_checkbox = false;
+    let gst_details_data=[];
+///////Document view Model/////////
+    let alt_image="";
+/////////Document view Model//////
     $:{
         for(let key in all_tags_obj){
             if(select_tag_data == key){
@@ -136,7 +159,16 @@
         clearedSearchFunc();
     }
     $:new_pages = [];
-   
+    $:for(let i=0;i<scope_data.length;i++){
+        if(scope_data[i].location_name == gst_city_select){
+            gst_city_link_state = scope_data[i].location_state;
+            gst_city_loc_id = scope_data[i].location_id;
+            gst_state_code = scope_data[i].state_code;
+        }
+    }
+    $:if(gst_checkbox === true){
+        gst_checkbox = true;
+    }
     
     async function child_select_fun(){
         
@@ -182,46 +214,44 @@
         
     }
 
-    function closeViewModel(data){
-        if(data == "aadhar"){
-            Aadhar_modal.style.display = "none";
-        }
-        else if(data == "pan"){
-            Pan_modal.style.display = "none";
-        }
-        else if(data == "address"){
-            Address_modal.style.display = "none";
-        }
-        else if(data == "licence"){
-            Licence_modal.style.display = "none";
-        }
-        else if(data == "offer"){
-            Offer_modal.style.display = "none";
-        }
-        else if(data == "can_cheque"){
-            Can_cheque_modal.style.display = "none";
-        }
+    function closeViewModel(){
+        document.getElementById("img_model").style.display = "none";
     }
-    function openViewModel(data){
+    function openViewModel(data,doc_number){
+        document.getElementById("img_model").style.display = "block";
         if(data == "aadhar"){
-            Aadhar_modal.style.display = "block";
+            document.getElementById("img_model_url").getAttribute('src',aadhar_attach);
+            alt_image = "aadhar proof";
         }
         else if(data == "pan"){
-            Pan_modal.style.display = "block";
+            document.getElementById("img_model_url").getAttribute('src',pan_attach);
+            alt_image = "pan-card proof";
         }
         else if(data == "address"){
-            Address_modal.style.display = "block";
+            document.getElementById("img_model_url").getAttribute('src',address_url);
+            alt_image = "address proof";
         }
         else if(data == "licence"){
-            Licence_modal.style.display = "block";
+            document.getElementById("img_model_url").getAttribute('src',dl_lic_attach);
+            alt_image = "driving licence proof";
         }
         else if(data == "offer"){
-            Offer_modal.style.display = "block";
+            document.getElementById("img_model_url").getAttribute('src',offer_url);
+            alt_image = "offer letter proof";
         }
         else if(data == "can_cheque"){
-            Can_cheque_modal.style.display = "block";
+            document.getElementById("img_model_url").getAttribute('src',can_cheque_url);
+            alt_image = "cancel cheque proof";
         }
-        
+        else if(data == "cheque_disp"){
+            document.getElementById("img_model_url").getAttribute('src',new_cheque.file_url);
+            alt_image = "cheque proof";
+        }
+        // else if(data == "mult_gsts"){
+        //     if(doc_number == gst_doc_num)
+        //     document.getElementById("img_model_url").getAttribute('src',gst_url);
+        //     alt_image = "gst proof";
+        // }
         
     }
 
@@ -280,10 +310,24 @@
     }
     
     onMount(async () => {
+
+        let userdetails = await logged_user();
+        
+        try{
+            if(userdetails.body.status == "green"){
+                username = userdetails.body.data.user.email;
+            }
+        }
+        catch(err) {
+            toast_type = "error";
+            toast_text = "Cannot get user details";
+        }
+
+        show_spinner = true;
         ///////bank details/////////////
         facility_id.set({
-            // facility_id_number: "CRUN00374"
-            facility_id_number: "CRUN00320" 
+            facility_id_number: "CRUN00374"
+            // facility_id_number: "CRUN00320" 
         })
         // console.log("facility_id_number",$facility_id.facility_id_number)
 
@@ -291,6 +335,14 @@
         try{
             if(!bank_details_res){
                 console.log("No Data Found")
+                bank_values_from_store.modified_by="-";
+                bank_new_date="-";
+                bank_values_from_store.bank_name="-";
+                bank_values_from_store.account_number="-";
+                bank_values_from_store.ifsc_code="-";
+                bank_values_from_store.branch_name="-";
+                bank_values_from_store.branch_pin_code="-";
+                bank_values_from_store.bank_type="-";
             }
 
             else{
@@ -305,22 +357,23 @@
                 }
             }
         catch(err) {
-        // message.innerHTML = "Error is " + err;
+            console.log("Error in bank details " + err);
         }
         let cheque_details_res = await cheque_details();
         try{
-
-                if(cheque_details_res.body.status == "green" && cheque_details_res != "null"){
-            // $cheque_data_from_store
-            console.log("cheque_details_res in SVELTE UI", cheque_details_res);
-            $cheque_data_to_store.cheque_details_data = cheque_details_res;
+            if(cheque_details_res.body.status == "green" && cheque_details_res != "null"){
+            
+            $cheque_data_to_store.cheque_details_data = cheque_details_res.body.data;
             
             cheque_data_to_store.subscribe((value) => {
                 cheque_values_from_store = value.cheque_details_data;
             });
             }
+            console.log("cheque_values_from_store",cheque_values_from_store)
+            // cheque_values_from_store=cheque_values_from_store
         }
         catch(err) {
+            console.log("Error in Cheque Details",err)
             // message.innerHTML = "Error is " + err;
         }
     
@@ -332,8 +385,10 @@
         // console.log( "facility_document_res.Object.body.data",facility_document_res.body.data);
         facility_document_data = facility_document_res.body.data;
         
-        for (var i = 0; i < facility_document_data.length; i++) {
+        console.log("gst_doc_numgst_doc_numgst_doc_num",gst_doc_type)
         
+        for (var i = 0; i < facility_document_data.length; i++) {
+            // console.log("GGGGSSSSTTTT",facility_document_data[i].doc_type.match(/^gst-certificate/));
             if(facility_document_data[i].doc_type == "pan-photo"){
                 pan_num = facility_document_data[i].doc_number
                 pan_attach = facility_document_data[i].file_url
@@ -360,11 +415,7 @@
                 address_verified = facility_document_data[i].verified;
                 address_rejected = facility_document_data[i].rejected;
             }
-            else if(facility_document_data[i].doc_type == "gst-certificate-27"){
-                gst_name = facility_document_data[i].file_name;
-                gst_url = facility_document_data[i].file_url;
-                // gst_verified = facility_document_data[i].verified;
-            }
+            
             else if(facility_document_data[i].doc_type == "can-cheque"){
                 can_cheque_name = facility_document_data[i].file_name;
                 can_cheque_url = facility_document_data[i].file_url;
@@ -391,6 +442,17 @@
                 can_cheque_rejected = facility_document_data[i].rejected;
                 // can_check_verified = facility_document_data[i].verified;
             }
+            console.log("gst_doc_type_check",gst_doc_type.length);
+
+            for(let j=0; j<gst_doc_type.length;j++){
+                if(facility_document_data[i].doc_type == gst_doc_type[j]){
+                    gst_name[j] = facility_document_data[i].file_name;
+                    gst_url[j] = facility_document_data[i].file_url;
+                    gst_doc_num[j] = facility_document_data[i].doc_number;
+                    // gst_verified = facility_document_data[i].verified;
+                    console.log("gst_doc_numgst",gst_name,gst_url,gst_doc_num)
+                }
+            }
             
 
             }
@@ -401,6 +463,56 @@
         // message.innerHTML = "Error is " + err;
         }
 
+        let temp_res = await show_fac_tags($facility_data_store.facility_type);
+        try {
+                show_fac_array = temp_res.body.data;
+                for(let i=0;i < show_fac_array.length;i++){
+                    if( i == show_fac_array.length-1){
+                        
+                        tags_for_ass_arr.push(show_fac_array[i].tag_name)
+                    }
+                    else{
+                        tags_for_ass_arr.push(show_fac_array[i].tag_name+",")
+                    }
+                }
+                tags_for_ass_arr=tags_for_ass_arr
+                
+                
+
+            }
+        catch(err){
+            console.log("Error in mount show_fac_array")
+        }
+        //////////city_data/////////////
+        let loc_data_res =  await get_loc_scope();
+        try {
+        if(loc_data_res.body.status == "green"){
+             // city_data = loc_data_res.body.data;
+             console.log("loc_data_res",loc_data_res)
+             for(let i=0;i<loc_data_res.body.data.length;i++){
+                city_data.push(loc_data_res.body.data[i].location_name);
+                scope_data.push(loc_data_res.body.data[i]);
+                
+            }
+            city_data = city_data;
+            scope_data = scope_data;
+            
+            for(let i=0;i<scope_data.length;i++){
+                gst_city_link_state = scope_data[i].location_state;
+                gst_city_loc_id = scope_data[i].location_id;
+                gst_state_code = scope_data[i].state_code;
+            }
+        }
+        else{
+            console.log("No City Data")
+        }
+        
+    } catch(err) {
+        console.log("Error in loc_data_res")
+       
+    }
+
+
         let facility_data_res = await facility_data();
         try{
             if(facility_data_res != "null"){
@@ -408,6 +520,9 @@
         facility_data_store.set(
             facility_data_res.body.data[0]
         )
+        
+        let id_date_format = new Date($facility_data_store.details_updated_on);
+        id_new_date = get_date_format(id_date_format,"dd-mm-yyyy-hh-mm");
         
         new_fac_remarks = $facility_data_store.remarks.split("\n");
         console.log("new_fac_remarks",new_fac_remarks)
@@ -431,8 +546,14 @@
             if ($facility_data_store.password == "") {
                 facility_password = "-";
             }
-            for (var j = 0;j < $facility_data_store.addresess.length;j++) 
-            {
+            for (var j = 0;j < $facility_data_store.addresess.length;j++){
+                for(let k=0;k<scope_data.length;k++){
+                    if($facility_data_store.addresess[j].state == scope_data[k].location_state){
+                        gst_doc_type[j] = "gst-certificate-" + scope_data[k].state_code;
+                    }
+                }
+                gst_doc_type=gst_doc_type
+                
                 if (
                     $facility_data_store.addresess[j].default_address == "1"
                 ) {
@@ -440,11 +561,17 @@
                     facility_postal =$facility_data_store.addresess[j].postal;
                     city = $facility_data_store.addresess[j].city;
                     location_id = $facility_data_store.addresess[j].location_id;
+
                 }
             }
+            // console.log("gst_doc_typegst_doc_typegst_doc_type",gst_doc_type)
+            
+            
         }
     }
     catch(err) {
+        toast_type = "error";
+        toast_text = facility_data_res.body.message;
         // message.innerHTML = "Error is " + err;
         }
 
@@ -454,9 +581,9 @@
         $facility_data_store.facility_type,
     ]    
 
-    console.log("bgv_pass_dataaa",  $facility_data_store.org_id,
-        $facility_data_store.station_code,
-        $facility_data_store.facility_type);
+    // console.log("bgv_pass_dataaa",  $facility_data_store.org_id,
+    //     $facility_data_store.station_code,
+    //     $facility_data_store.facility_type);
     let bgv_init_res = await facility_bgv_init(bgv_pass_data);
     console.log("bgv_inittt",bgv_init_res)
     if (bgv_init_res.body.status == "green"){
@@ -494,53 +621,63 @@
     catch(err) {
         // message.innerHTML = "Error is " + err;
     }
-    let temp_res = await show_fac_tags($facility_data_store.facility_type);
-        try {
-                show_fac_array = temp_res.body.data;
-                for(let i=0;i < show_fac_array.length;i++){
-                    if( i == show_fac_array.length-1){
-                        
-                        tags_for_ass_arr.push(show_fac_array[i].tag_name)
-                    }
-                    else{
-                        tags_for_ass_arr.push(show_fac_array[i].tag_name+",")
-                    }
-                }
-                tags_for_ass_arr=tags_for_ass_arr
-                
-                
-
-            }
-        catch(err){
-            console.log("Error in mount show_fac_array")
-        }
-    
-
-    // console.log("all_tags_data",all_tags_data,all_tags_id)
-    
+    show_spinner = false;
   });
   
     if(city_select_flag == "1"){
         console.log("city_select",city_select)
     }
 /////////bank details//////;///////
-    const onFileSelected = (e) => {
+
+    const onFileSelected = (e,doctext) => {
         let img = e.target.files[0];
-        console.log("img", img);
-        img_name = img.name;
-        var reader = new FileReader();
-        reader.readAsDataURL(img);
-        reader.onload = function () {
-        file_data = reader.result;
-            // console.log(reader.result);
-            // console.log("img_name", img_name);
-        };
-        reader.onerror = function (error) {
-            console.log("Error: ", error);
-        };
+        if (img.size <= allowed_pdf_size) {
+            console.log("img", img);
+            
+            if(doctext == "gst_upload"){
+                console.log("Photo log uploaded")  
+                gst_img = img.name;
+            }
+            else if(doctext == "cheque_upload"){
+            cheque_img = img.name;
+            }
+            var reader = new FileReader();
+            reader.readAsDataURL(img);
+            reader.onload = function () {
+            file_data = reader.result;
+            console.log("reader",reader.result);
+            
+            if(doctext == "gst_upload"){
+                gst_data = reader.result;
+                // console.log("photo_data",reader.result);
+                toast_text = "Photo Uploaded Successfully";
+                toast_type = "success";
+            }
+            else if(doctext == "cheque_upload"){
+                cheque_data = reader.result;
+                // console.log("aadhar_data",reader.result);
+                toast_text = "Document Uploaded Successfully";
+                toast_type = "success";
+            }
+            }
+                reader.onerror = function (error) {
+                console.log("Error: ", error);
+                }
+        }
+        else {
+        alert(
+            "File size is greater than " +
+                Number(allowed_pdf_size / 1048576) +
+                "MB. Please upload a file less than " +
+                Number(allowed_pdf_size / 1048576) +
+                "MB ."
+        );
     };
+        
+    }
 
     async function cheque_button_click() {
+        show_spinner = true;
         // cheque_date = "2022-03-08";
         
         let new_cheque_date = new Date(cheque_date)
@@ -549,66 +686,47 @@
         // // console.log("cheque Date", changed_date);
         // // console.log("bank_name",bank_name,type,cheque_date,cheque_number,amount,
         // recrun_number,file_number);
-        let validations = 0;
-
+        
         if(!bank_name.match(text_pattern)){
         bank_name_message = "Invalid Bank Name";
-        }
-        else{
-            validations = 1;
-            bank_name_message = "";
+        return
         }
         if(!type){
             type_message = "Invalid type";
-        }
-        else{
-            validations = 1;
-            type_message = "";
+            return;
         }
         if(!cheque_date){
             cheque_date_message = "Invalid Cheque Date";
-        }
-        else{
-            validations = 1;
-            cheque_date_message = "";
+            return;
         }
         if(!cheque_number || isNaN(cheque_number)){
             cheque_number_message = "Invalid Cheque Number";
-        }
-        else{
-            validations = 1;
-            cheque_number_message = "";
+            return;
         }
         if(!amount || isNaN(amount)){
             amount_message = "Invalid Amount";
+            return;
             
         }
-        else{
-            validations = 1;
-            amount_message = "";
-        }
-        if(!recrun_number || !recrun_number.match(recrun_pattern)){
-            recrun_number_message = "Invalid Recrun Number";
-        }
-        else{
-            validations = 1;
-            recrun_number_message = "";
-        }
-        if(!file_number || isNaN(file_number)){
-            file_number_message = "Invalid File Number";
-        }
-        else{
-            validations = 1;
-            file_number_message = "";
-        }
+        // if(!recrun_number || !recrun_number.match(recrun_pattern)){
+        //     recrun_number_message = "Invalid Recrun Number";
+        // }
+        // else{
+        //     validations = 1;
+        //     recrun_number_message = "";
+        // }
+        // if(!file_number || isNaN(file_number)){
+        //     file_number_message = "Invalid File Number";
+        // }
+        // else{
+        //     validations = 1;
+        //     file_number_message = "";
+        // }
         if(!checkupload){
             cheque_upload_message = "Invalid Cheque Upload"
+            return;
         }
-        else{
-            validations = 1;
-            cheque_upload_message = "";
-        }
-        if(validations == "1"){
+        
             const cheque_details_form = {
                 bank_name,
                 type,
@@ -621,11 +739,42 @@
                 file_name:img_name,
                 facility_id:($facility_id.facility_id_number),
             };
-            addnew_cheque_details(cheque_details_form);
-        }
-        else{
-        console.log("Error Use Toast")
-    }
+            let cheque_add_res = await addnew_cheque_details(cheque_details_form);
+            // console.log("cheque_add_res",cheque_add_res);
+            try{
+                if(cheque_add_res.body.status== "green"){
+                    show_spinner = false;
+                    toast_text = "Cheque Details Added Successfully";
+                    toast_type = "success";
+                    let cheque_details_res = await cheque_details();
+                    try{
+                        if(cheque_details_res.body.status == "green" && cheque_details_res != "null"){
+                        
+                        $cheque_data_to_store.cheque_details_data = cheque_details_res.body.data;
+                        
+                        cheque_data_to_store.subscribe((value) => {
+                            cheque_values_from_store = value.cheque_details_data;
+                        });
+                        }
+                        console.log("cheque_values_from_store",cheque_values_from_store)
+                        // cheque_values_from_store=cheque_values_from_store
+                    }
+                    catch(err) {
+                        console.log("Error in Cheque Details",err)
+                        // message.innerHTML = "Error is " + err;
+                    }
+
+                }
+                else{
+                    show_spinner = false;
+                    toast_text = "Error in Adding Cheque Details";
+                    toast_type = "danger";
+                }
+
+            }
+            catch(err){
+                console.log("Error in cheque_add_res",err)  
+            }
     }
     
     
@@ -857,8 +1006,24 @@
         supplierInfoModal.style.display = "none";
     }
 
-    function gstModel() {
+    async function gstModel() {
         modalidgst.style.display = "block";
+        let gst_details_res = await gst_details();
+        try{
+            if(gst_details_res != "null"){
+                for(let i=0;i < gst_details_res.body.data.length;i++){
+                    gst_details_data.push(gst_details_res.body.data[i]);
+                }
+                gst_details_data=gst_details_data;
+                console.log("gst_details_data",gst_details_data)
+            }
+            
+        }
+        catch(err) {
+            toast_type = "error";
+            toast_text = gst_details_res.body.message;
+            
+        }
     }
 
     function closeGST() {
@@ -870,7 +1035,15 @@
         let erp_details_res = await erp_details();
         console.log("erp_details_res",erp_details_res)
         try{
-            if(erp_details_res.body.data != null){
+            if(erp_details_res.body.data=[] || erp_details_res.body.data==null){
+                erp_details_arr.creation="-";
+                erp_details_arr.erp_id="-";
+                erp_details_arr.erp_name="-";
+                erp_details_arr.address_id="-";
+                erp_details_arr.address_title="-";
+                erp_details_arr.contact_id="-";
+            }
+            else{
                 erp_details_arr = erp_details_res.body.data[0];
                 let erp_creation_date_format = new Date(erp_details_arr.creation);
                 erp_details_res.body.data[0].creation= get_date_format(erp_creation_date_format,'dd-mm-yyyy-hh-mm');
@@ -878,7 +1051,7 @@
             }
         }
         catch(err){
-            console.log("Error in ERP MODEL RES")
+            console.log("Error in ERP MODEL",err)
         }
     }
 
@@ -914,71 +1087,154 @@
         let no_com = document.getElementById("comma");
         console.log("no_com",no_com)
         linkChildModel.style.display = "block";
-        let loc_data_res =  await get_loc_scope();
-       try {
-        if(loc_data_res.body.status == "green"){
-             // city_data = loc_data_res.body.data;
-             console.log("loc_data_res",loc_data_res)
-             for(let i=0;i<loc_data_res.body.data.length;i++){
-                city_data.push(loc_data_res.body.data[i].location_name);
+    //     let loc_data_res =  await get_loc_scope();
+    //     try {
+    //     if(loc_data_res.body.status == "green"){
+    //          // city_data = loc_data_res.body.data;
+    //          console.log("loc_data_res",loc_data_res)
+    //          for(let i=0;i<loc_data_res.body.data.length;i++){
+    //             city_data.push(loc_data_res.body.data[i].location_name);
                
-            }
-            city_data = city_data;
+    //         }
+    //         console.log("city_data",city_data)
+    //         city_data = city_data;
             
-        }
-        else{
-            console.log("No Data")
-        }
+    //     }
+    //     else{
+    //         console.log("No Data")
+    //     }
         
-    } catch(err) {
-        console.log("Error in loc_data_res")
+    // } catch(err) {
+    //     console.log("Error in loc_data_res")
        
-    }
+    // }
     }
 
     function linkChildModelclose() {
         linkChildModel.style.display = "none";
     }
 
-    ////////////Pagination in Link Child///////////////
-    function next_function(){   
-        
-        let last_num_from_pages = pages.length
-        if(mapped_pages.includes(last_num_from_pages)){
+    async function gst_submit_click(){
+        let def_add = 0;
+        // show_spinner = true;
+        if(!gst_address.match(text_pattern)){
+            gst_add_message = "Enter Valid Address";
+            return  
         }
-        else{  
-            for (var i = 0; i < mapped_pages.length; i++){       
-            mapped_pages[i] = mapped_pages[i] + 1;
-            }
+        if(!gst_city_select){
+            gst_city_message = "Select Valid City";
+            return;
         }
-        // console.log("mapped_pagessss",mapped_pages)
-        // console.log("mapped_pagessss",mapped_pages[0])
-        pageChange(mapped_pages[2])
-    }
-    
-    function previous_function(){ 
-        let first_num_from_pages = pages[0];
-        if(mapped_pages.includes(first_num_from_pages)){}
+        console.log("gst details for gst number",gst_number,gst_state_code,pan_num,gst_number.trim().length,gst_number.substring(0, 2),gst_number.substring(2, 12),gst_number.substring(13,14))
+        if (gst_number == undefined || gst_number.trim().length < 15 || gst_number.substring(0, 2) != gst_state_code || gst_number.substring(2, 12) != pan_num || gst_number.substring(13,14) != "Z") {
+            gst_number_message = "Invalid GST Number";
+        return;
+        }
+        if(!gst_file){
+            gst_upload_message = "Invalid File Upload"
+            return;
+        }
+        if(gst_checkbox == true){
+            def_add = 1;
+        }
         else{
-            for (var i = 0; i < mapped_pages.length; i++){
-                mapped_pages[i] = mapped_pages[i] - 1;
-            }
+            def_add = 0;
         }
-            pageChange(mapped_pages[0])
-    }
+            const gst_details_form = {
+                "address":gst_address,
+                "city":gst_city_select,
+                "state":gst_city_link_state,
+                "tier":"2",
+                "location_id":gst_city_loc_id,
+                "default_address":def_add,
+                "gstn":gst_number,
+                "name":"",
+                "address_type":"Facility Address",
+                "doctype":"Facility Address"
+            }
+            
+            let new_gst_payload = {
+                "facility_id":$facility_id.facility_id_number,
+                "address":[gst_details_form]
+            }
+            console.log("new_gst_payload",new_gst_payload)
+            
+            let gst_add_res = await add_gst_dets(new_gst_payload);
+            try {
+                if(gst_add_res.body.status == "green"){
+                    console.log("gst_add_res",gst_add_res)
+                    toast_type = "success";
+                    toast_text = "GST Details Added Successfully";
+                    
+                    let new_doc_type = "gst-certificate-"+gst_state_code;
+                    console.log("new_doc_type",new_doc_type)
+                    const gst_file_data = {"documents":[{"file_name":gst_img,"doc_category":"GST Certificate","status":"created","resource_id":$facility_id.facility_id_number,"user_id":username,"doc_number":"","pod":gst_data,"doc_type":new_doc_type,"facility_id":$facility_data_store.facility_id}]}
+                    let gst_doc_submit_res = await uploadDocs(gst_file_data);
+                    try {
+                        if(gst_doc_submit_res.body.status == "green"){
+                            
+                            toast_type = "success";
+                            toast_text = "GST Document Added Successfully";
+                        }
+                    } catch (err) {
+                        toast_type = "error";
+                        toast_text = "Error in Uploading GST Certificate";
+                    }
 
-    function pageChange(pagenumber){
-        console.log("pageChange Clicked")
-    }
-    function createPagesArray(total) {
-    let arr = []
-    for(let i = 1; i <= total; i++) {
-        arr.push(i)
-    }
-    return arr
-    }
+                }
+                else{
+                    toast_type = "error";
+                    toast_text = gst_add_res.body.message;
+                }
+                
+            } catch (err) {
+                toast_type = "error";
+                toast_text = "Error in Adding GST Details";
+            }
+        }  
+ 
+    ////////////Pagination in Link Child///////////////
+    // function next_function(){   
+        
+    //     let last_num_from_pages = pages.length
+    //     if(mapped_pages.includes(last_num_from_pages)){
+    //     }
+    //     else{  
+    //         for (var i = 0; i < mapped_pages.length; i++){       
+    //         mapped_pages[i] = mapped_pages[i] + 1;
+    //         }
+    //     }
+    //     // console.log("mapped_pagessss",mapped_pages)
+    //     // console.log("mapped_pagessss",mapped_pages[0])
+    //     pageChange(mapped_pages[2])
+    // }
+    
+    // function previous_function(){ 
+    //     let first_num_from_pages = pages[0];
+    //     if(mapped_pages.includes(first_num_from_pages)){}
+    //     else{
+    //         for (var i = 0; i < mapped_pages.length; i++){
+    //             mapped_pages[i] = mapped_pages[i] - 1;
+    //         }
+    //     }
+    //         pageChange(mapped_pages[0])
+    // }
+
+    // function pageChange(pagenumber){
+    //     console.log("pageChange Clicked")
+    // }
+    // function createPagesArray(total) {
+    // let arr = []
+    // for(let i = 1; i <= total; i++) {
+    //     arr.push(i)
+    // }
+    // return arr
+    // }
+    
 </script>
-
+{#if show_spinner}
+    <Spinner />
+{/if}
 
 <div class="mainContent ">
     <div class="breadcrumb ">
@@ -987,7 +1243,7 @@
                 <p class="flex items-center">
                     <span class="text-textgrey pr-1 text-base xs:text-xs">Home / Workforce</span>
                     <span class="Username ">
-                        <img src="../src/img/delivery.png" class="userIconMedia" alt="">
+                        <img src="{$img_url_name.img_name}/delivery.png" class="userIconMedia" alt="">
                         <span class="xs:hidden sm:hidden">{$facility_data_store.facility_name}</span>
                         <span class="userDesignation">(Associate - {$facility_data_store.facility_type} / ID - {$facility_data_store.name}) </span> 
                     </span>
@@ -1000,17 +1256,17 @@
                         </span> 
                     </a>
                     <a href=""> 
-                        <span class="breadRightIcons" on:click={allDoc}> <img src="../src/img/document.png" class="pr-2"
+                        <span class="breadRightIcons" on:click={allDoc}> <img src="{$img_url_name.img_name}/document.png" class="pr-2"
                                 alt=""> Documents
                         </span> 
                     </a>
                     <a class="cursor-pointer">
                         <span class="breadRightIcons" id="SupplerModalbuttonClick" on:click={auditTrial}>
-                            <img src="../src/img/audittrail.png" class="pr-2" alt=""> Audit Trial (12)
+                            <img src="{$img_url_name.img_name}/audittrail.png" class="pr-2" alt=""> Audit Trial (12)
                         </span>
                     </a>
                     <span class="backlistText">
-                        <img src="../src/img/backlist.png" class="pr-2" alt=""> Backlist Vendor
+                        <img src="{$img_url_name.img_name}/backlist.png" class="pr-2" alt=""> Backlist Vendor
                     </span>
                 </p>
             
@@ -1021,7 +1277,7 @@
                 <p class="text-sm"><span class="font-light text-grey text-sm">Onboarded By - </span>Hemant Kumar, Mulsi SP, eCommerce</p>
                 <p class="xsl:flex justify-end hidden"><a class="cursor-pointer">
                     <span class="breadRightIconsvmt" >
-                        <img src="../src/img/audittrail.png" class="pr-2" alt=""> Audit Trial (12)
+                        <img src="{$img_url_name.img_name}/img/audittrail.png" class="pr-2" alt=""> Audit Trial (12)
                     </span>
                 </a></p>
             </div>
@@ -1036,11 +1292,11 @@
                                 
                                 <div class="hidden">
                                     <p class="statusContent font-medium italic"><img
-                                            src="../src/img/circleicon.png" class="pr-2 w-3 h-3" alt="">
+                                            src="{$img_url_name.img_name}/circleicon.png" class="pr-2 w-3 h-3" alt="">
                                         Verification Pending</p>
                                 </div>
                                 <p class="statusContentTag font-normal text-sm  "><img
-                                        src="../src/img/redcircle.png" class="pr-2 w-3 h-3" alt="">
+                                        src="{$img_url_name.img_name}/redcircle.png" class="pr-2 w-3 h-3" alt="">
                                     Documents Rejected</p>
                             </div>
 
@@ -1048,33 +1304,33 @@
 
                                 <div class="statusNotes flex gap-6 xsl:gap-4">
                                     <span class="cardDescription flex items-center">
-                                     <img src="../src/img/timesvg.svg" class="pr-2" alt=""> 
+                                     <img src="{$img_url_name.img_name}/timesvg.svg" class="pr-2" alt=""> 
                                        Address Proof
                                     </span> 
 
                                     <span class="cardDescription flex items-center">
-                                        <img src="../src/img/timesvg.svg" class="pr-2" alt=""> 
+                                        <img src="{$img_url_name.img_name}/timesvg.svg" class="pr-2" alt=""> 
                                         Offer Letter
                                     </span>   
 
                                     <span class="cardDescription flex items-center">
-                                        <img src="../src/img/timesvg.svg" class="pr-2" alt=""> 
+                                        <img src="{$img_url_name.img_name}/timesvg.svg" class="pr-2" alt=""> 
                                         ID Proof
                                         <span>
-                                        <img src="../src/img/info.svg" class="pl-2" alt="">
+                                        <img src="{$img_url_name.img_name}/info.svg" class="pl-2" alt="">
                                         </span>
                                     </span>   
 
                                     <span class="cardDescription flex items-center">
-                                        <img src="../src/img/timesvg.svg" class="pr-2" alt=""> 
+                                        <img src="{$img_url_name.img_name}/timesvg.svg" class="pr-2" alt=""> 
                                         Bank Details
                                     </span>   
 
                                     <span class="cardDescription flex items-center">
-                                        <img src="../src/img/timesvg.svg" class="pr-2" alt=""> 
+                                        <img src="{$img_url_name.img_name}/timesvg.svg" class="pr-2" alt=""> 
                                        BGV
                                         <span>
-                                        <img src="../src/img/info.svg" class="pl-2" alt="">
+                                        <img src="{$img_url_name.img_name}/info.svg" class="pl-2" alt="">
                                         </span>
                                     </span>   
                                       
@@ -1084,8 +1340,7 @@
                                 <p
                                 class="statusContentTag text-green font-normal xs:w-5/12"
                             >
-                                <img
-                                    src="../src/img/checked.png"
+                                <img src="{$img_url_name.img_name}/checked.png"
                                     class="pr-2"
                                     alt=""
                                 /> {$facility_data_store.status}
@@ -1095,7 +1350,7 @@
                                 class="statusContentTag font-normal text-sm  "
                             >
                                 <img
-                                    src="../src/img/redcircle.png"
+                                img src="{$img_url_name.img_name}/redcircle.png"
                                     alt=""
                                     class="w-3 h-3 mr-2"
                                 />
@@ -1105,18 +1360,16 @@
                                 <p
                                 class="statusContentTag font-normal text-sm  "
                             >
-                                <img
-                                    src="../src/img/redcircle.png"
+                                <img src="{$img_url_name.img_name}/redcircle.png"
                                     alt=""
                                     class="w-3 h-3 mr-2"
                                 />
-                                {status_name}
+                                Id Proof Rejected
                             </p>
                             {:else}
                             
                             <p class="statusContent font-normal xs:w-5/12">
-                                <img
-                                    src="../src/img/timer.png"
+                                <img src="{$img_url_name.img_name}/timer.png"
                                     class="pr-2"
                                     alt=""
                                 />{$facility_data_store.status}
@@ -1125,7 +1378,7 @@
                                 <div class="hidden">
                                     <p class="statusContent font-medium italic">
                                         <img
-                                            src="../src/img/circleicon.png"
+                                            src="{$img_url_name.img_name}/circleicon.png"
                                             alt=""
                                             class="w-3 h-3 pr-2"
                                         />
@@ -1137,7 +1390,7 @@
                                     class="statusContentTag font-normal text-sm  "
                                 >
                                     <img
-                                        src="../src/img/redcircle.png"
+                                        src="{$img_url_name.img_name}/redcircle.png"
                                         alt=""
                                         class="w-3 h-3 mr-2"
                                     />
@@ -1151,7 +1404,7 @@
                                         class="statusContent font-normal xs:w-5/12"
                                     >
                                         <img
-                                            src="../src/img/timer.png"
+                                            src="{$img_url_name.img_name}/timer.png"
                                             class="pr-2"
                                             alt=""
                                         /> Address Proof
@@ -1162,7 +1415,7 @@
                                     class="statusContentTag text-green font-normal xs:w-5/12"
                                 >
                                     <img
-                                        src="../src/img/checked.png"
+                                        src="{$img_url_name.img_name}/checked.png"
                                         class="pr-2"
                                         alt=""
                                     /> Address Proof
@@ -1170,14 +1423,14 @@
                                 </div>
 
                                 <p class="xsl:hidden">
-                                    <img src="../src/img/Line.png" alt="" />
+                                    <img src="{$img_url_name.img_name}/Line.png" alt="" />
                                 </p>
                                 <div class="hidden">
                                     <p
                                         class="statusContent font-normal xs:w-5/12"
                                     >
                                         <img
-                                            src="../src/img/timer.png"
+                                            src="{$img_url_name.img_name}/timer.png"
                                             class="pr-2"
                                             alt=""
                                         />Offer Letter
@@ -1188,21 +1441,21 @@
                                     class="statusContentTag text-rejectcolor font-normal xs:w-5/12"
                                 >
                                     <img
-                                        src="../src/img/reject.png"
+                                        src="{$img_url_name.img_name}/reject.png"
                                         class="pr-2"
                                         alt=""
                                     />ID Reject
                                 </p> -->
 
                                 <!-- <p class="xsl:hidden">
-                                    <img src="../src/img/Line.png" alt="" />
+                                    <img src="{$img_url_name.img_name}/Line.png" alt="" />
                                 </p> -->
                                 {#if offer_verified == "1"}
                                 <p
                                 class="statusContentTag text-green font-normal xs:w-5/12"
                             >
                                 <img
-                                    src="../src/img/checked.png"
+                                    src="{$img_url_name.img_name}/checked.png"
                                     class="pr-2"
                                     alt=""
                                 /> Offer letter Verified
@@ -1212,7 +1465,7 @@
                                 class="statusContentTag text-rejectcolor font-normal xs:w-5/12"
                             >
                                 <img
-                                    src="../src/img/reject.png"
+                                    src="{$img_url_name.img_name}/reject.png"
                                     class="pr-2"
                                     alt=""
                                 />Offer letter Reject
@@ -1221,7 +1474,7 @@
                             {:else if offer_verified == "0" && offer_rejected == "0"}
                             <p class="statusContent font-normal xs:w-5/12">
                                 <img
-                                    src="../src/img/timer.png"
+                                    src="{$img_url_name.img_name}/timer.png"
                                     class="pr-2"
                                     alt=""
                                 />Offer letter Pending
@@ -1236,38 +1489,38 @@
                                    
                                         {#if bank_values_from_store.approved == "1"}
                                         <p class="xsl:hidden">
-                                            <img src="../src/img/Line.png" alt="" />
+                                            <img src="{$img_url_name.img_name}/Line.png" alt="" />
                                         </p>
                                     <p
                                         class="statusContentTag text-green font-normal xs:w-5/12"
                                     >
                                         <img
-                                            src="../src/img/checked.png"
+                                            src="{$img_url_name.img_name}/checked.png"
                                             class="pr-2"
                                             alt=""
                                         />Bank Details Approved
                                     </p>
                                     {:else if bank_values_from_store.rejected == "1"}
                                     <p class="xsl:hidden">
-                                        <img src="../src/img/Line.png" alt="" />
+                                        <img src="{$img_url_name.img_name}/Line.png" alt="" />
                                     </p>
                                     <p
                                         class="statusContentTag text-rejectcolor font-normal xs:w-5/12"
                                     >
                                         <img
-                                            src="../src/img/reject.png"
+                                            src="{$img_url_name.img_name}/reject.png"
                                             class="pr-2"
                                             alt=""
                                         />Bank Details Rejected
                                     </p>
                                     {:else if bank_values_from_store.rejected == "0" && bank_values_from_store.approved == "0"}
                                     <p class="xsl:hidden">
-                                        <img src="../src/img/Line.png" alt="" />
+                                        <img src="{$img_url_name.img_name}/Line.png" alt="" />
                                     </p>
                                     
                                     <p class="statusContent font-normal xs:w-5/12">
                                         <img
-                                            src="../src/img/timer.png"
+                                            src="{$img_url_name.img_name}/timer.png"
                                             class="pr-2"
                                             alt=""
                                         />Bank Verification Pending
@@ -1283,7 +1536,7 @@
                     <div >
                         <p class="initiateText">
                             <a href="" class="flex text-erBlue"> BGV Details <img
-                                    src="../src/img/rightarowblue.svg" class=" pl-2" alt=""></a>
+                                    src="{$img_url_name.img_name}/rightarowblue.svg" class=" pl-2" alt=""></a>
                         </p>
                     </div>
                 </div>
@@ -1306,7 +1559,7 @@
             <div class="hidden">
             <div class="mt-4 mb-3  xsl:flex">
                 <div class="vmtVerify ">
-                    Verify <img src="../src/img/downarrowwhite.svg" class="pl-2" alt="arrow">
+                    Verify <img src="{$img_url_name.img_name}/downarrowwhite.svg" class="pl-2" alt="arrow">
                 </div>
             </div> -->
             <div class="statusrightlink">
@@ -1317,7 +1570,7 @@
                         <p on:click={routeToBgv} class="initiateText">
                             <a href="" class="flex">
                                 <img
-                                    src="../src/img/InitiateBGVerification.png"
+                                    src="{$img_url_name.img_name}/InitiateBGVerification.png"
                                     class=" pr-2"
                                     alt=""
                                 /> Initiate BGV Verification</a
@@ -1327,7 +1580,7 @@
                         <p on:click={routeToBgv} class="initiateText">
                             <a href="" class="flex" style="color: rgba(255, 0, 0, var(--tw-text-opacity));">
                                 <img
-                                    src="../src/img/InitiateBGVerification.png"
+                                    src="{$img_url_name.img_name}/InitiateBGVerification.png"
                                     class=" pr-2"
                                     alt=""
                                 />BGV Rejected</a
@@ -1337,7 +1590,7 @@
                         <p on:click={routeToBgv} class="initiateText">
                             <a href="" class="flex" style="color:rgba(106, 194, 89, var(--tw-text-opacity));">
                                 <img
-                                    src="../src/img/InitiateBGVerification.png"
+                                    src="{$img_url_name.img_name}/InitiateBGVerification.png"
                                     class=" pr-2"
                                     alt=""
                                 />BGV Verified</a
@@ -1347,7 +1600,7 @@
                         <p on:click={routeToBgv} class="initiateText">
                             <a href="" class="flex" style="color: color: rgba(255, 134, 46, var(--tw-text-opacity));">
                                 <img
-                                    src="../src/img/InitiateBGVerification.png"
+                                    src="{$img_url_name.img_name}/InitiateBGVerification.png"
                                     class=" pr-2"
                                     alt=""
                                 />BGV Pending</a
@@ -1380,8 +1633,8 @@
                
                 <div class="right flex justify-end">
                     <p class="detailsUpdate mr-4">
-                        <span><span class="font-medium">Last updated - </span>{facility_created_date} <span
-                                class="font-medium"> By - </span> {$facility_data_store.owner}</span>
+                        <span><span class="font-medium">Last updated -> </span>{facility_created_date} <span
+                                class="font-medium"> By -> </span> {$facility_data_store.owner}</span>
                     </p>
                     <p class="flex items-center smButtonText">
                         <a href="" class="smButton bg-erBlue text-white" on:click={editWorkDetail}>
@@ -1410,7 +1663,7 @@
                         <label for="">Contact Details</label>
                     </div>
                     <div class="userInfoSec px-5  flex items-start ">
-                        <img src="../src/img/location1.png" alt="">
+                        <img src="{$img_url_name.img_name}/location1.png" alt="">
                         <div class="pl-4">
                             <p class="detailLbale">Address & Pincode</p>
                             <p class="detailData "> {facility_address}
@@ -1420,52 +1673,52 @@
 
                     <div class="userInfoSec3 ">
                         <div class="flex items-start">
-                            <img src="../src/img/mobilephone.png" alt="">
+                            <img src="{$img_url_name.img_name}/mobilephone.png" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">Mobile Number</p>
                                 <p class="detailData">{$facility_data_store.phone_number}</p>
                             </div>
                         </div>
                         <!-- <div class="userStatus ">
-                            <p class="userStatusTick"><img src="../src/img/checked.png" alt="" class="pr-1"> Verified
+                            <p class="userStatusTick"><img src="{$img_url_name.img_name}/checked.png" alt="" class="pr-1"> Verified
                             </p>
                         </div> -->
                         {#if $facility_data_store.phone_verified == "1"}
                         
                             <p class="verifiedTextGreen pr-3">
                                 <img
-                                    src="../src/img/checked.png"
+                                    src="{$img_url_name.img_name}/checked.png"
                                     alt=""
                                     class="pr-1"
                                 />
-                                Verified
+                                User activation pending
                             </p>
                        
                         {:else if $facility_data_store.phone_verified == "0"}
                             <p class="verifyText pr-3">
                                 <img
-                                    src="../src/img/timer.png"
+                                    src="{$img_url_name.img_name}/timer.png"
                                     alt=""
                                     class="pr-2"
                                 />
-                                Verification Pending
+                                User activation pending
                             </p>
                        {/if}
                     </div>
 
                     <div class="userInfoSec3">
                         <div class="flex items-start">
-                            <img src="../src/img/email.png" alt="">
+                            <img src="{$img_url_name.img_name}/email.png" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">Email</p>
                                 <p class="detailData">{$facility_data_store.facility_email}</p>
                             </div>
                         </div>
-                        {#if $facility_data_store.email_verified == "1"}
+                        <!-- {#if $facility_data_store.email_verified == "1"}
                         
                             <p class="verifiedTextGreen pr-3">
                                 <img
-                                    src="../src/img/checked.png"
+                                    src="{$img_url_name.img_name}/checked.png"
                                     alt=""
                                     class="pr-1"
                                 />
@@ -1475,13 +1728,13 @@
                         {:else if $facility_data_store.email_verified == "0"}
                             <p class="verifyText pr-3">
                                 <img
-                                    src="../src/img/timer.png"
+                                    src="{$img_url_name.img_name}/timer.png"
                                     alt=""
                                     class="pr-2"
                                 />
                                 Verification Pending
                             </p>
-                       {/if}
+                       {/if} -->
                     </div>
                 </div>
 
@@ -1493,7 +1746,7 @@
                     <div class="userInfoSecPadding">
                         <div class="wrapperInfoFirst">
                             <div class="flex items-start">
-                                <img src="../src/img/addressproof.png" alt="">
+                                <img src="{$img_url_name.img_name}/addressproof.png" alt="">
                                 <div class="pl-4">
                                     <p class="detailLbale">Address proof</p>
                                 </div>
@@ -1504,7 +1757,7 @@
                         {#if address_rejected == "1"}
                         <p class="rejectText pr-3">
                             <img
-                                src="../src/img/reject.png"
+                                src="{$img_url_name.img_name}/reject.png"
                                 alt=""
                                 class="pr-2"
                             /> Reject
@@ -1513,7 +1766,7 @@
                         
                             <p class="verifiedTextGreen pr-3">
                                 <img
-                                    src="../src/img/checked.png"
+                                    src="{$img_url_name.img_name}/checked.png"
                                     alt=""
                                     class="pr-1"
                                 />
@@ -1523,7 +1776,7 @@
                         {:else if address_verified == "0" && address_rejected == "0"}
                             <p class="verifyText pr-3">
                                 <img
-                                    src="../src/img/timer.png"
+                                    src="{$img_url_name.img_name}/timer.png"
                                     alt=""
                                     class="pr-2"
                                 />
@@ -1534,9 +1787,9 @@
                         </div>
                         <div class="wrapperInfo ">
                             <div class="flex items-start">
-                                <img src="../src/img/addressproof.png" class="invisible" alt="">
+                                <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
                                 <div class="pl-4 flex items-center">
-                                    <img src="../src/img/jpeg.png" class="" alt="">
+                                    <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
 
                                     <p class="detailLbale">{address_name}</p>
                                 </div>
@@ -1544,29 +1797,10 @@
                             <div class="userStatus ">
                                 <p class="verifyText">
                                     <a href="" class="smButton">
-                                        <img src="../src/img/view.png" alt="" on:click="{()=>{openViewModel("address")}}">
+                                        <img src="{$img_url_name.img_name}/view.png" alt="" on:click="{()=>{openViewModel("address")}}">
                                     </a>
                                 </p>
                             </div>
-                            <!-- Document view Model -->
-                        <div id="Address_modal" tabindex="-1" aria-hidden="true" class=" actionDialogueOnboard" hidden>
-                            <div class="pancardDialogueOnboardWrapper ">
-                                <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
-                                    <div class="flex justify-end p-2">
-                                        <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel("address")}}">
-                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
-                                        </button>
-                                    </div>
-                                    <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
-                                        <img src="{address_url}" class="mx-auto" alt="aadress proof">
-                                        <div class="pt-3 flex justify-center">
-                                            <button data-modal-toggle="popup-modal" type="button" class="dialogueNobutton"  on:click="{()=>{closeViewModel("address")}}">Close</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div> 
-                    <!-- Document view Model -->
-
                         </div>
 
 
@@ -1574,10 +1808,10 @@
 
                     <div class="userInfoSec3">
                         <div class="flex items-start">
-                            <img src="../src/img/gst.png" alt="">
+                            <img src="{$img_url_name.img_name}/gst.png" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">GST Details</p>
-                                <p class="detailData">{gst_name}</p>
+                                <!-- <p class="detailData">{gst_name}</p> -->
                             </div>
                         </div>
                         <div class="userStatus ">
@@ -1599,7 +1833,7 @@
             <div class="grid grid-cols-3 gap-4  xsl:grid-cols-1" >
                 <div class="appcredentials">
                     <div class="headingWithIcon">
-                        <img src="../src/img/mobileblue.png" alt="">
+                        <img src="{$img_url_name.img_name}/mobileblue.png" alt="">
                         <p class="detailsTitle">Libera App Credentials</p>
                     </div>
                 </div>
@@ -1609,7 +1843,7 @@
                 <div class="liberApp">
                     <div class="userInfoSec3 ">
                         <div class="flex items-start">
-                            <img src="../src/img/pan.png" alt="">
+                            <img src="{$img_url_name.img_name}/pan.png" alt="">
                             <div class="pl-4">
                                 <!-- <p class="detailLbale">User ID</p>
                                 <p class="detailData">dhiraj.shah@elastic.run</p> -->
@@ -1625,7 +1859,7 @@
                     </div>
                     <div class="userInfoSec3 ">
                         <div class="flex items-start">
-                            <img src="../src/img/password.png" alt="">
+                            <img src="{$img_url_name.img_name}/password.png" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">Password</p>
                                 <p class="detailData">{facility_password}</p>
@@ -1638,7 +1872,7 @@
                 <div class="contact_details">
                     <div class="userInfoSec3">
                         <div class="flex items-start">
-                            <img src="../src/img/gst.png" alt="">
+                            <img src="{$img_url_name.img_name}/gst.png" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">Link Child Associate</p>
                                 <!-- <p class="detailData">2</p> -->
@@ -1665,8 +1899,8 @@
                
                 <div class="right flex justify-end">
                     <p class="detailsUpdate mr-4">
-                        <span><span class="font-medium">Last updated - </span> {facility_modified_date}<span
-                                class="font-medium"> By - </span> {$facility_data_store.modified_by}</span>
+                        <span><span class="font-medium">Last updated -> </span> {facility_modified_date} <span
+                                class="font-medium"> By -> </span> {$facility_data_store.modified_by}</span>
                     </p>
                     <p class="flex items-center smButtonText">
                         <a href="" class="smButton bg-erBlue text-white">
@@ -1681,7 +1915,7 @@
                 <div class="workdetailsColFirst">
                     <div class="userInfoSec3">
                         <div class="flex items-start">
-                            <img src="../src/img/Subtract.png" alt="" class="w-5 h-auto">
+                            <img src="{$img_url_name.img_name}/Subtract.png" alt="" class="w-5 h-auto">
                             <div class="pl-4">
                                 <p class="detailLbale">Associate Type</p>
                                 <p class="detailData">{$facility_data_store.facility_type}</p>
@@ -1697,7 +1931,7 @@
                     </div>
                     <div class="userInfoSec3 ">
                         <div class="flex items-start">
-                            <img src="../src/img/pan.png" alt="" class="w-5 h-5">
+                            <img src="{$img_url_name.img_name}/pan.png" alt="" class="w-5 h-5">
                             <div class="pl-4">
                                 <p class="detailLbale">Associate ID</p>
                                 <p class="detailData">{$facility_data_store.name}</p>
@@ -1707,7 +1941,7 @@
                     </div>
                     <div class="userInfoSec3">
                         <div class="flex items-start">
-                            <img src="../src/img/organization.png" alt="" class="w-5 h-5">
+                            <img src="{$img_url_name.img_name}/organization.png" alt="" class="w-5 h-5">
                             <div class="pl-4">
                                 <p class="detailLbale">Organization</p>
                                 <p class="detailData">{$facility_data_store.org_id}</p>
@@ -1723,7 +1957,7 @@
                     </div>
                     <div class="userInfoSec3 ">
                         <div class="flex items-start">
-                            <img src="../src/img/location.png" class="w-6 h-6" alt="">
+                            <img src="{$img_url_name.img_name}/location.png" class="w-6 h-6" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">City</p>
                                 <p class="detailData">{city}</p>
@@ -1732,7 +1966,7 @@
                     </div>
                     <div class="userInfoSec3 ">
                         <div class="flex items-start">
-                            <img src="../src/img/warehouse.png" class="w-5 h-5" alt="">
+                            <img src="{$img_url_name.img_name}/warehouse.png" class="w-5 h-5" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">Station</p>
                                 <p class="detailData">{$facility_data_store.station_code}</p>
@@ -1751,7 +1985,7 @@
                     <div class="userInfoSecPadding">
                         <div class="wrapperInfoFirst">
                             <div class="flex items-start">
-                                <img src="../src/img/offerlatter.png" alt="" class="w-5 h-5">
+                                <img src="{$img_url_name.img_name}/offerlatter.png" alt="" class="w-5 h-5">
                                 <div class="pl-4">
                                     <p class="detailLbale">Offer Letter</p>
                                 </div>
@@ -1761,7 +1995,7 @@
                             class="statusContentTag text-green font-normal xs:w-5/12"
                         >
                             <img
-                                src="../src/img/checked.png"
+                                src="{$img_url_name.img_name}/checked.png"
                                 class="pr-2"
                                 alt=""
                             />  Verified
@@ -1771,7 +2005,7 @@
                             class="statusContentTag text-rejectcolor font-normal xs:w-5/12"
                         >
                             <img
-                                src="../src/img/reject.png"
+                                src="{$img_url_name.img_name}/reject.png"
                                 class="pr-2"
                                 alt=""
                             /> Rejected
@@ -1780,7 +2014,7 @@
                         {:else if offer_verified == "0" && offer_rejected == "0"}
                         <p class="statusContent font-normal xs:w-5/12">
                             <img
-                                src="../src/img/timer.png"
+                                src="{$img_url_name.img_name}/timer.png"
                                 class="pr-2"
                                 alt=""
                             />Verification Pending
@@ -1790,9 +2024,9 @@
                         </div>
                         <div class="wrapperInfo ">
                             <div class="flex items-start">
-                                <img src="../src/img/addressproof.png" class="invisible" alt="">
+                                <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
                                 <div class="pl-4 flex items-center">
-                                    <img src="../src/img/jpeg.png" class="" alt="">
+                                    <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
 
                                     <p class="detailLbale">{offer_name}</p>
                                 </div>
@@ -1800,28 +2034,10 @@
                             <div class="userStatus ">
                                 <p class="verifyText">
                                     <a href="" class="smButton">
-                                        <img src="../src/img/view.png" alt="" on:click="{()=>{openViewModel("offer")}}">
+                                        <img src="{$img_url_name.img_name}/view.png" alt="" on:click="{()=>{openViewModel("offer")}}">
                                     </a>
                                 </p>
                             </div>
-                            <!-- Document view Model -->
-                            <div id="Offer_modal" tabindex="-1" aria-hidden="true" class=" actionDialogueOnboard" hidden>
-                                <div class="pancardDialogueOnboardWrapper ">
-                                    <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
-                                        <div class="flex justify-end p-2">
-                                            <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel("offer")}}">
-                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
-                                            </button>
-                                        </div>
-                                        <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
-                                            <img src="{pan_attach}" class="mx-auto" alt="offer letter proof">
-                                           <div class="pt-3 flex justify-center">
-                                                <button data-modal-toggle="popup-modal" type="button" class="dialogueNobutton"  on:click="{()=>{closeViewModel("offer")}}">Close</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div> 
-                        <!-- Document view Model -->
                         </div>
                     </div>
                 </div>
@@ -1833,7 +2049,7 @@
                     
                     <div class="userInfoSec3 ">
                         <div class="flex items-start">
-                            <img src="../src/img/managerVendor.png" class="w-5 h-5" alt="">
+                            <img src="{$img_url_name.img_name}/managerVendor.png" class="w-5 h-5" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">Vendor</p>
                                 <p class="detailData">{$facility_data_store.vendor_name} - {$facility_data_store.vendor_code}</p>
@@ -1856,37 +2072,37 @@
                         {#if $facility_data_store.is_id_prof_rejected == "1"}
                         <p class="rejectText pr-3">
                             <img
-                                src="../src/img/reject.png"
+                                src="{$img_url_name.img_name}/reject.png"
                                 alt=""
                                 class="pr-2"
-                            /> Reject
+                            /> Id Proof Rejected
                         </p>
                         {:else if $facility_data_store.is_id_prof_verified == "1"}
                         
                             <p class="verifiedTextGreen pr-3">
                                 <img
-                                    src="../src/img/checked.png"
+                                    src="{$img_url_name.img_name}/checked.png"
                                     alt=""
                                     class="pr-1"
                                 />
-                                Verified
+                                Id Proof Verified
                             </p>
                        
                         {:else if $facility_data_store.is_id_prof_verified == "0" && $facility_data_store.is_id_prof_rejected == "0"}
                             <p class="verifyText pr-3">
                                 <img
-                                    src="../src/img/timer.png"
+                                    src="{$img_url_name.img_name}/timer.png"
                                     alt=""
                                     class="pr-2"
                                 />
-                                Verification Pending
+                                Id Verification Pending
                             </p>
                        {/if}
                     </div>
                     <div class="flex">
                         <p class="detailsUpdate mr-4">
-                            <span><span class="font-medium">Last updated - </span> >{bank_new_date}<span
-                                    class="font-medium"> By - </span> {$facility_data_store.details_updated_by}</span>
+                            <span><span class="font-medium">Last updated -> </span> {id_new_date} <span
+                                    class="font-medium"> By -> </span> {$facility_data_store.details_updated_by} </span>
                         </p>
                         <p class="flex items-center smButtonText">
                             <a href="" class="smButton bg-erBlue text-white">
@@ -1903,7 +2119,7 @@
                    
                     <div class="userInfoSec3 ">
                         <div class="flex items-start">
-                            <img src="../src/img/pan.png" alt="" class="w-5 h-5">
+                            <img src="{$img_url_name.img_name}/pan.png" alt="" class="w-5 h-5">
                             <div class="pl-4">
                                 <p class="detailLbale">PAN Number</p>
                                 <p class="detailData">{pan_num}</p>
@@ -1914,7 +2130,7 @@
                    
                     <div class="userInfoSec3 ">
                         <div class="flex items-start">
-                            <img src="../src/img/pan.png" class="w-6 h-6" alt="">
+                            <img src="{$img_url_name.img_name}/pan.png" class="w-6 h-6" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">Aadhar Number</p>
                                 <p class="detailData">{aadhar_num}</p>
@@ -1923,7 +2139,7 @@
                     </div>
                     <div class="userInfoSec3 ">
                         <div class="flex items-start">
-                            <img src="../src/img/warehouse.png" class="w-5 h-5" alt="">
+                            <img src="{$img_url_name.img_name}/warehouse.png" class="w-5 h-5" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">Driving License</p>
                                 <p class="detailData">{dl_lic_name}</p>
@@ -1942,7 +2158,7 @@
                     <div class="userInfoSecPadding">
                         <div class="wrapperInfoFirst">
                             <div class="flex items-start">
-                                <img src="../src/img/offerlatter.png" alt="" class="w-5 h-5">
+                                <img src="{$img_url_name.img_name}/offerlatter.png" alt="" class="w-5 h-5">
                                 <div class="pl-4">
                                     <p class="detailLbale">PAN Card Attachment</p>
                                 </div>
@@ -1950,7 +2166,7 @@
                         {#if pan_rejected == "1"}
                         <p class="rejectText pr-3">
                             <img
-                                src="../src/img/reject.png"
+                                src="{$img_url_name.img_name}/reject.png"
                                 alt=""
                                 class="pr-2"
                             /> Reject
@@ -1959,7 +2175,7 @@
                         
                             <p class="verifiedTextGreen pr-3">
                                 <img
-                                    src="../src/img/checked.png"
+                                    src="{$img_url_name.img_name}/checked.png"
                                     alt=""
                                     class="pr-1"
                                 />
@@ -1969,7 +2185,7 @@
                         {:else if pan_verified == "0" && pan_rejected == "0"}
                             <p class="verifyText pr-3">
                                 <img
-                                    src="../src/img/timer.png"
+                                    src="{$img_url_name.img_name}/timer.png"
                                     alt=""
                                     class="pr-2"
                                 />
@@ -1981,9 +2197,9 @@
                         </div>
                         <div class="wrapperInfo ">
                             <div class="flex items-start">
-                                <img src="../src/img/addressproof.png" class="invisible" alt="">
+                                <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
                                 <div class="pl-4 flex items-center">
-                                    <img src="../src/img/jpeg.png" class="" alt="">
+                                    <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
 
                                     <p class="detailLbale">{pan_name}</p>
                                 </div>
@@ -1991,35 +2207,16 @@
                             <div class="userStatus ">
                                 <p class="verifyText">
                                     <a href="" class="smButton">
-                                        <img src="../src/img/view.png" alt="" on:click="{()=>{openViewModel("pan")}}">
+                                        <img src="{$img_url_name.img_name}/view.png" alt="" on:click="{()=>{openViewModel("pan")}}">
                                     </a>
                                 </p>
                             </div>
-                            <!-- Document view Model -->
-                            <div id="Pan_modal" tabindex="-1" aria-hidden="true" class=" actionDialogueOnboard" hidden>
-                                <div class="pancardDialogueOnboardWrapper ">
-                                    <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
-                                        <div class="flex justify-end p-2">
-                                            <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel("pan")}}">
-                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
-                                            </button>
-                                        </div>
-                                        <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
-                                            <img src="{pan_attach}" class="mx-auto" alt="pan card proof">
-                                           <div class="pt-3 flex justify-center">
-                                                <button data-modal-toggle="popup-modal" type="button" class="dialogueNobutton"  on:click="{()=>{closeViewModel("pan")}}">Close</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div> 
-                        <!-- Document view Model -->
-
                         </div>
                     </div>
                     <div class="userInfoSecPadding">
                         <div class="wrapperInfoFirst">
                             <div class="flex items-start">
-                                <img src="../src/img/offerlatter.png" alt="" class="w-5 h-5">
+                                <img src="{$img_url_name.img_name}/offerlatter.png" alt="" class="w-5 h-5">
                                 <div class="pl-4">
                                     <p class="detailLbale">Aadhar Card Attachment</p>
                                 </div>
@@ -2027,7 +2224,7 @@
                             {#if aadhar_rejected == "1"}
                             <p class="rejectText pr-3">
                                 <img
-                                    src="../src/img/reject.png"
+                                    src="{$img_url_name.img_name}/reject.png"
                                     alt=""
                                     class="pr-2"
                                 /> Reject
@@ -2036,7 +2233,7 @@
                             
                                 <p class="verifiedTextGreen pr-3">
                                     <img
-                                        src="../src/img/checked.png"
+                                        src="{$img_url_name.img_name}/checked.png"
                                         alt=""
                                         class="pr-1"
                                     />
@@ -2046,7 +2243,7 @@
                             {:else if aadhar_verified == "0" && aadhar_rejected == "0"}
                                 <p class="verifyText pr-3">
                                     <img
-                                        src="../src/img/timer.png"
+                                        src="{$img_url_name.img_name}/timer.png"
                                         alt=""
                                         class="pr-2"
                                     />
@@ -2057,9 +2254,9 @@
                         </div>
                         <div class="wrapperInfo ">
                             <div class="flex items-start">
-                                <img src="../src/img/addressproof.png" class="invisible" alt="">
+                                <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
                                 <div class="pl-4 flex items-center">
-                                    <img src="../src/img/jpeg.png" class="" alt="">
+                                    <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
 
                                     <p class="detailLbale">{aadhar_name}</p>
                                 </div>
@@ -2067,36 +2264,17 @@
                             <div class="userStatus ">
                                 <p class="verifyText">
                                     <a href="" class="smButton">
-                                        <img src="../src/img/view.png" alt="" on:click="{()=>{openViewModel("aadhar")}}">
+                                        <img src="{$img_url_name.img_name}/view.png" alt="" on:click="{()=>{openViewModel("aadhar")}}">
                                     </a>
                                 </p>
                             </div>
-                            <!-- Document view Model -->
-                            <div id="Aadhar_modal" tabindex="-1" aria-hidden="true" class=" actionDialogueOnboard" hidden>
-                                <div class="pancardDialogueOnboardWrapper ">
-                                    <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
-                                        <div class="flex justify-end p-2">
-                                            <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel("aadhar")}}">
-                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
-                                            </button>
-                                        </div>
-                                        <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
-                                            
-                                            <img src="{aadhar_attach}" class="mx-auto" alt="aadhar proof">
-                                            
-                                            <div class="pt-3 flex justify-center">
-                                                <button data-modal-toggle="popup-modal" type="button" class="dialogueNobutton"  on:click="{()=>{closeViewModel("aadhar")}}">Close</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div> 
-                        <!-- Document view Model -->
+                            
                         </div>
                     </div>
                     <div class="userInfoSecPadding">
                         <div class="wrapperInfoFirst">
                             <div class="flex items-start">
-                                <img src="../src/img/offerlatter.png" alt="" class="w-5 h-5">
+                                <img src="{$img_url_name.img_name}/offerlatter.png" alt="" class="w-5 h-5">
                                 <div class="pl-4">
                                     <p class="detailLbale">Driving Licence Attachment</p>
                                 </div>
@@ -2104,7 +2282,7 @@
                             {#if dl_rejected == "1"}
                             <p class="rejectText pr-3">
                                 <img
-                                    src="../src/img/reject.png"
+                                    src="{$img_url_name.img_name}/reject.png"
                                     alt=""
                                     class="pr-2"
                                 /> Reject
@@ -2113,7 +2291,7 @@
                             
                                 <p class="verifiedTextGreen pr-3">
                                     <img
-                                        src="../src/img/checked.png"
+                                        src="{$img_url_name.img_name}/checked.png"
                                         alt=""
                                         class="pr-1"
                                     />
@@ -2123,7 +2301,7 @@
                             {:else if dl_verified == "0" && dl_rejected == "0"}
                                 <p class="verifyText pr-3">
                                     <img
-                                        src="../src/img/timer.png"
+                                        src="{$img_url_name.img_name}/timer.png"
                                         alt=""
                                         class="pr-2"
                                     />
@@ -2134,9 +2312,9 @@
                         </div>
                         <div class="wrapperInfo ">
                             <div class="flex items-start">
-                                <img src="../src/img/addressproof.png" class="invisible" alt="">
+                                <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
                                 <div class="pl-4 flex items-center">
-                                    <img src="../src/img/jpeg.png" class="" alt="">
+                                    <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
 
                                     <p class="detailLbale">{dl_lic_name}</p>
                                 </div>
@@ -2144,30 +2322,10 @@
                             <div class="userStatus ">
                                 <p class="verifyText">
                                     <a href="" class="smButton">
-                                        <img src="../src/img/view.png" alt="" on:click="{()=>{openViewModel("licence")}}">
+                                        <img src="{$img_url_name.img_name}/view.png" alt="" on:click="{()=>{openViewModel("licence")}}">
                                     </a>
                                 </p>
                             </div>
-                            <!-- Document view Model -->
-                            <div id="Licence_modal" tabindex="-1" aria-hidden="true" class=" actionDialogueOnboard" hidden>
-                                <div class="pancardDialogueOnboardWrapper ">
-                                    <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
-                                        <div class="flex justify-end p-2">
-                                            <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel("licence")}}">
-                                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
-                                            </button>
-                                        </div>
-                                        <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
-                                            
-                                            <img src="{dl_lic_attach}" class="mx-auto" alt="licence proof">
-                                            
-                                            <div class="pt-3 flex justify-center">
-                                                <button data-modal-toggle="popup-modal" type="button" class="dialogueNobutton"  on:click="{()=>{closeViewModel("licence")}}">Close</button>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div> 
-                        <!-- Document view Model -->
                         </div>
                     </div>
                 </div>
@@ -2182,7 +2340,7 @@
             <div class="detailsHeader_summary ">
                 <div class="right flex justify-between w-full items-center py-2 xsl:flex-wrap">
                     <div>
-                        <!-- <p class="verifyText"><img src="../src/img/timer.png" alt="" class="pr-1">
+                        <!-- <p class="verifyText"><img src="{$img_url_name.img_name}/timer.png" alt="" class="pr-1">
                             Verification Pending</p> -->
                             {#if !bank_values_from_store}
                                    <p></p>
@@ -2193,7 +2351,7 @@
                                         class="statusContentTag text-green font-normal xs:w-5/12"
                                     >
                                         <img
-                                            src="../src/img/checked.png"
+                                            src="{$img_url_name.img_name}/checked.png"
                                             class="pr-2"
                                             alt=""
                                         />Bank Details Approved
@@ -2203,7 +2361,7 @@
                                         class="statusContentTag text-rejectcolor font-normal xs:w-5/12"
                                     >
                                         <img
-                                            src="../src/img/reject.png"
+                                            src="{$img_url_name.img_name}/reject.png"
                                             class="pr-2"
                                             alt=""
                                         />Bank Details Rejected
@@ -2212,7 +2370,7 @@
                                     
                                     <p class="statusContent font-normal xs:w-5/12">
                                         <img
-                                            src="../src/img/timer.png"
+                                            src="{$img_url_name.img_name}/timer.png"
                                             class="pr-2"
                                             alt=""
                                         />Bank Verification Pending
@@ -2222,8 +2380,8 @@
                     </div>
                     <div class="flex">
                         <p class="detailsUpdate mr-4">
-                            <span><span class="font-medium">Last updated - </span> > {bank_new_date} <span
-                                    class="font-medium"> By - </span> {bank_values_from_store.modified_by}</span>
+                            <span><span class="font-medium">Last updated -> </span>  {bank_new_date} <span
+                                    class="font-medium"> By -> </span> {bank_values_from_store.modified_by}</span>
                         </p>
                         <p class="flex items-center smButtonText">
                             <a href="" class="smButton bg-erBlue text-white">
@@ -2240,7 +2398,7 @@
                    
                     <div class="userInfoSec3 ">
                         <div class="flex items-start">
-                            <img src="../src/img/bank.png" alt="">
+                            <img src="{$img_url_name.img_name}/bank.png" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">Bank Name</p>
                                 <p class="detailData">{bank_values_from_store.bank_name}</p>
@@ -2250,7 +2408,7 @@
                     </div>
                     <div class="userInfoSec3 ">
                         <div class="flex items-start">
-                            <img src="../src/img/account.png" alt="">
+                            <img src="{$img_url_name.img_name}/account.png" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">Account Number</p>
                                 <p class="detailData">{bank_values_from_store.account_number}</p>
@@ -2260,7 +2418,7 @@
                     </div>
                     <div class="userInfoSec3 ">
                         <div class="flex items-start">
-                            <img src="../src/img/account.png" alt="">
+                            <img src="{$img_url_name.img_name}/account.png" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">IFSC Code</p>
                                 <p class="detailData">{bank_values_from_store.ifsc_code}</p>
@@ -2270,7 +2428,7 @@
                     </div>
                     <div class="userInfoSec3 ">
                         <div class="flex items-start">
-                            <img src="../src/img/pincode.png" alt="">
+                            <img src="{$img_url_name.img_name}/pincode.png" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">Branch</p>
                                 <p class="detailData">{bank_values_from_store.branch_name} - {bank_values_from_store.branch_pin_code}</p>
@@ -2280,7 +2438,7 @@
 
                     <div class="userInfoSec3 ">
                         <div class="flex items-start">
-                            <img src="../src/img/account.png" alt="">
+                            <img src="{$img_url_name.img_name}/account.png" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">Bank Type</p>
                                 <p class="detailData">{bank_values_from_store.bank_type}</p>
@@ -2290,7 +2448,7 @@
                     </div>
                     <div class="userInfoSec3 ">
                         <div class="flex items-start">
-                            <img src="../src/img/pincode.png" alt="">
+                            <img src="{$img_url_name.img_name}/pincode.png" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">Branch</p>
                                 <p class="detailData">{bank_values_from_store.branch_name} - {bank_values_from_store.branch_pin_code}</p>
@@ -2309,7 +2467,7 @@
                         <div class="wrapperInfoFirst">
                             <div class="flex items-start justify-between w-full">
                                 <div class="flex">
-                                    <img src="../src/img/bankdoc.png" alt="">
+                                    <img src="{$img_url_name.img_name}/bankdoc.png" alt="">
                                     <div class="pl-4">
                                         <p class="detailLbale">Bank Document</p>
                                     </div>
@@ -2328,7 +2486,7 @@
                         </div>
                         <div class="attachment mt-5">
                             <div class="flex items-start">
-                                <img src="../src/img/addressproof.png" class="invisible" alt="">
+                                <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
                                 <div class="pl-4 flex items-center">
                                     <p class="detailLbale">Cancel Cheque Attachment</p>
 
@@ -2337,7 +2495,7 @@
                             {#if can_cheque_rejected == "1"}
                         <p class="rejectText pr-3">
                             <img
-                                src="../src/img/reject.png"
+                                src="{$img_url_name.img_name}/reject.png"
                                 alt=""
                                 class="pr-2"
                             /> Reject
@@ -2346,7 +2504,7 @@
                         
                             <p class="verifiedTextGreen pr-3">
                                 <img
-                                    src="../src/img/checked.png"
+                                    src="{$img_url_name.img_name}/checked.png"
                                     alt=""
                                     class="pr-1"
                                 />
@@ -2356,7 +2514,7 @@
                         {:else if can_cheque_verified == "0" && can_cheque_rejected == "0"}
                             <p class="verifyText pr-3">
                                 <img
-                                    src="../src/img/timer.png"
+                                    src="{$img_url_name.img_name}/timer.png"
                                     alt=""
                                     class="pr-2"
                                 />
@@ -2366,9 +2524,9 @@
                         </div>
                         <div class="wrapperInfo ">
                             <div class="flex items-start">
-                                <img src="../src/img/addressproof.png" class="invisible" alt="">
+                                <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
                                 <div class="pl-4 flex items-center">
-                                    <img src="../src/img/jpeg.png" class="" alt="">
+                                    <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
 
                                     <p class="detailLbale">{can_cheque_name}</p>
                                 </div>
@@ -2376,28 +2534,10 @@
                             <div class="userStatus ">
                                 <p class="verifyText">
                                     <a href="" class="smButton">
-                                        <img src="../src/img/view.png" alt="" on:click="{()=>{openViewModel("can_cheque")}}">
+                                        <img src="{$img_url_name.img_name}/view.png" alt="" on:click="{()=>{openViewModel("can_cheque")}}">
                                     </a>
                                 </p>
                             </div>
-                        <!-- Document view Model -->
-                        <div id="Can_cheque_modal" tabindex="-1" aria-hidden="true" class=" actionDialogueOnboard" hidden>
-                            <div class="pancardDialogueOnboardWrapper ">
-                                <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
-                                    <div class="flex justify-end p-2">
-                                        <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel("can_cheque")}}">
-                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
-                                        </button>
-                                    </div>
-                                    <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
-                                        <img src="{can_cheque_url}" class="mx-auto" alt="cancel cheque proof">
-                                       <div class="pt-3 flex justify-center">
-                                            <button data-modal-toggle="popup-modal" type="button" class="dialogueNobutton"  on:click="{()=>{closeViewModel("can_cheque")}}">Close</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div> 
-                    <!-- Document view Model -->
                         </div>
                     </div>
                    
@@ -2418,8 +2558,8 @@
                     <div class="left">
                         <p class="detailsTitle">Work Details</p>
                         <p class="detailsUpdate">
-                            <span><span class="font-medium">Last updated - </span>> 27-Apr-2021 03:28 pm. <span
-                                    class="font-medium"> By - </span> Admin</span>
+                            <span><span class="font-medium">Last updated -> </span> {facility_modified_date} <span
+                                    class="font-medium"> By -> </span> {$facility_data_store.modified_by}</span>
                         </p>
                     </div>
                     <div class="right flex">
@@ -2452,7 +2592,7 @@
                                                         <p>Add / Remove Tags</p>
                                                     </div>
                                                     <div class="rightcloseIconBlack">
-                                                        <img src="../src/img/closewhite.svg"
+                                                        <img src="{$img_url_name.img_name}/closewhite.svg"
                                                             class="cursor-pointer" id="closeAddRemove" alt="">
                                                     </div>
                                                 </div>
@@ -2479,7 +2619,7 @@
                                                                 <option>SIB</option>
                                                             </select>
                                                             <div class="formSelectArrow ">
-                                                                <img src="../src/img/selectarrow.png"
+                                                                <img src="{$img_url_name.img_name}/selectarrow.png"
                                                                     class="w-5 h-auto" alt="">
                                                             </div>
                                                         </div>
@@ -2532,7 +2672,7 @@
                                                                     <td>No date</td>
                                                                     <td>
                                                                         <div class="flex justify-center">
-                                                                            <img src="../src/img/reject.png"
+                                                                            <img src="{$img_url_name.img_name}/reject.png"
                                                                                 alt="">
                                                                         </div>
                                                                     </td>
@@ -2545,7 +2685,7 @@
                                                                     <td>No date</td>
                                                                     <td>
                                                                         <div class="flex justify-center">
-                                                                            <img src="../src/img/reject.png"
+                                                                            <img src="{$img_url_name.img_name}/reject.png"
                                                                                 alt="">
                                                                         </div>
                                                                     </td>
@@ -2581,7 +2721,7 @@
                                                             <div class="flex px-4 py-1 items-center">
                                                                 <div class="light14grey">Remove</div>
                                                                 <div class="dataValue"> <img
-                                                                        src="../src/img/reject.png" alt="">
+                                                                        src="{$img_url_name.img_name}/reject.png" alt="">
                                                                 </div>
                                                             </div>
 
@@ -2678,7 +2818,7 @@
                             </a>
                         </p>
                         <a href="" class="smButton">
-                            <img src="../src/img/edit.png" alt="">
+                            <img src="{$img_url_name.img_name}/edit.png" alt="">
                         </a>
                     </div>
 
@@ -2687,7 +2827,7 @@
                     <div class="workDetailSection w-full">
                         <div class="userInfoSec3">
                             <div class="flex items-start">
-                                <img src="../src/img/Subtract.png" alt="" class="w-5 h-auto">
+                                <img src="{$img_url_name.img_name}/Subtract.png" alt="" class="w-5 h-auto">
                                 <div class="pl-4">
                                     <p class="detailLbale">Associate Type</p>
                                     <p class="detailData">NDA</p>
@@ -2723,7 +2863,7 @@
                                                             <p>Change Associate Type</p>
                                                         </div>
                                                         <div class="rightcloseIconBlack">
-                                                            <img src="../src/img/closewhite.svg"
+                                                            <img src="{$img_url_name.img_name}/closewhite.svg"
                                                                 class="cursor-pointer" id="closeAssociate"
                                                                 alt="">
                                                         </div>
@@ -2762,7 +2902,7 @@
                                                                     <option>SIB</option>
                                                                 </select>
                                                                 <div class="formSelectArrow ">
-                                                                    <img src="../src/img/selectarrow.png"
+                                                                    <img src="{$img_url_name.img_name}/selectarrow.png"
                                                                         class="w-5 h-auto" alt="">
                                                                 </div>
                                                             </div>
@@ -2777,7 +2917,7 @@
                                                                     <option>SIB</option>
                                                                 </select>
                                                                 <div class="formSelectArrow ">
-                                                                    <img src="../src/img/selectarrow.png"
+                                                                    <img src="{$img_url_name.img_name}/selectarrow.png"
                                                                         class="w-5 h-auto" alt="">
                                                                 </div>
                                                             </div>
@@ -2900,7 +3040,7 @@
                         </div>
                         <div class="userInfoSec3 ">
                             <div class="flex items-start">
-                                <img src="../src/img/pan.png" alt="" class="w-5 h-5">
+                                <img src="{$img_url_name.img_name}/pan.png" alt="" class="w-5 h-5">
                                 <div class="pl-4">
                                     <p class="detailLbale">Associate ID</p>
                                     <p class="detailData">BOMG00538</p>
@@ -2910,7 +3050,7 @@
                         </div>
                         <div class="userInfoSec3">
                             <div class="flex items-start">
-                                <img src="../src/img/organization.png" alt="" class="w-5 h-5">
+                                <img src="{$img_url_name.img_name}/organization.png" alt="" class="w-5 h-5">
                                 <div class="pl-4">
                                     <p class="detailLbale">Organization</p>
                                     <p class="detailData">Amazon Transportation</p>
@@ -2927,22 +3067,22 @@
                         <div class="userInfoSecPadding">
                             <div class="wrapperInfoFirst">
                                 <div class="flex items-start">
-                                    <img src="../src/img/offerlatter.png" alt="" class="w-5 h-5">
+                                    <img src="{$img_url_name.img_name}/offerlatter.png" alt="" class="w-5 h-5">
                                     <div class="pl-4">
                                         <p class="detailLbale">Offer Letter</p>
                                     </div>
                                 </div>
                                 <div class="userStatus ">
-                                    <p class="verifyText"><img src="../src/img/timer.png" alt="" class="pr-1">
+                                    <p class="verifyText"><img src="{$img_url_name.img_name}/timer.png" alt="" class="pr-1">
                                         Verification Pending</p>
                                 </div>
 
                             </div>
                             <div class="wrapperInfo ">
                                 <div class="flex items-start">
-                                    <img src="../src/img/addressproof.png" class="invisible" alt="">
+                                    <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
                                     <div class="pl-4 flex items-center">
-                                        <img src="../src/img/jpeg.png" class="" alt="">
+                                        <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
 
                                         <p class="detailLbale">{offer_name}</p>
                                     </div>
@@ -2950,7 +3090,7 @@
                                 <div class="userStatus ">
                                     <p class="verifyText">
                                         <a href="" class="smButton">
-                                            <img src="../src/img/view.png" alt="">
+                                            <img src="{$img_url_name.img_name}/view.png" alt="">
                                         </a>
                                     </p>
                                 </div>
@@ -2963,7 +3103,7 @@
                     <div class="workDetailSection w-full">
                         <div class="userInfoSec3 ">
                             <div class="flex items-start">
-                                <img src="../src/img/location.png" class="w-6 h-6" alt="">
+                                <img src="{$img_url_name.img_name}/location.png" class="w-6 h-6" alt="">
                                 <div class="pl-4">
                                     <p class="detailLbale">City</p>
                                     <p class="detailData">Pune</p>
@@ -2972,7 +3112,7 @@
                         </div>
                         <div class="userInfoSec3 ">
                             <div class="flex items-start">
-                                <img src="../src/img/warehouse.png" class="w-5 h-5" alt="">
+                                <img src="{$img_url_name.img_name}/warehouse.png" class="w-5 h-5" alt="">
                                 <div class="pl-4">
                                     <p class="detailLbale">Station</p>
                                     <p class="detailData">MHPD - Mulsi SP</p>
@@ -2982,7 +3122,7 @@
                         </div>
                         <div class="userInfoSec3 ">
                             <div class="flex items-start">
-                                <img src="../src/img/managerVendor.png" class="w-5 h-5" alt="">
+                                <img src="{$img_url_name.img_name}/managerVendor.png" class="w-5 h-5" alt="">
                                 <div class="pl-4">
                                     <p class="detailLbale">Vendor</p>
                                     <p class="detailData">Vitthal Sutar - MHPD00012</p>
@@ -2999,24 +3139,24 @@
                     <div class="left">
                         <p class="detailsTitle">Identity Proof</p>
                         <p class="detailsUpdate">
-                            <span><span class="font-medium">Last updated - </span>> 27-Apr-2021 03:28 pm. <span
-                                    class="font-medium"> By - </span> Admin</span>
+                            <span><span class="font-medium">Last updated -> </span> {id_new_date} <span
+                                    class="font-medium"> By -> </span> {$facility_data_store.details_updated_by} </span>
                         </p>
                     </div>
                     <div class="right flex">
-                        <p class="rejectText pr-3"><img src="../src/img/reject.png" alt="" class="pr-2"> Reject
+                        <p class="rejectText pr-3"><img src="{$img_url_name.img_name}/reject.png" alt="" class="pr-2"> Reject
                         </p>
                         <div class="hidden">
-                            <p class="verifiedTextGreen pr-3"><img src="../src/img/checked.png" alt=""
+                            <p class="verifiedTextGreen pr-3"><img src="{$img_url_name.img_name}/checked.png" alt=""
                                     class="pr-1">
                                 Verified</p>
                         </div>
                         <div class="hidden">
-                            <p class="verifyText pr-3"><img src="../src/img/timer.png" alt="" class="pr-2">
+                            <p class="verifyText pr-3"><img src="{$img_url_name.img_name}/timer.png" alt="" class="pr-2">
                                 Verification Pending</p>
                         </div>
                         <a href="" class="smButton">
-                            <img src="../src/img/edit.png" alt="">
+                            <img src="{$img_url_name.img_name}/edit.png" alt="">
                         </a>
                     </div>
 
@@ -3049,7 +3189,7 @@
 
                             <div class="wrapperInfoFirst">
                                 <div class="flex items-start">
-                                    <img src="../src/img/pan.png" alt="">
+                                    <img src="{$img_url_name.img_name}/pan.png" alt="">
                                     <div class="pl-4">
                                         <p class="detailLbale">PAN Number</p>
                                         <p class="detailData">{pan_num}</p>
@@ -3059,7 +3199,7 @@
                             </div>
                             <div class="attachment mt-5">
                                 <div class="flex items-start">
-                                    <img src="../src/img/pan.png" class="invisible" alt="">
+                                    <img src="{$img_url_name.img_name}/pan.png" class="invisible" alt="">
                                     <div class="pl-4 flex items-center">
                                         <p class="detailLbale">PAN Card Attachment</p>
 
@@ -3068,9 +3208,9 @@
                             </div>
                             <div class="wrapperInfo ">
                                 <div class="flex items-start">
-                                    <img src="../src/img/pan.png" class="invisible" alt="">
+                                    <img src="{$img_url_name.img_name}/pan.png" class="invisible" alt="">
                                     <div class="pl-4 flex items-center">
-                                        <img src="../src/img/jpeg.png" class="" alt="">
+                                        <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
 
                                         <p class="detailLbale">{pan_name}</p>
                                     </div>
@@ -3078,7 +3218,7 @@
                                 <div class="userStatus ">
                                     <p class="verifyText">
                                         <a href="" class="smButton">
-                                            <img src="../src/img/view.png" alt="">
+                                            <img src="{$img_url_name.img_name}/view.png" alt="">
                                         </a>
                                     </p>
                                 </div>
@@ -3089,7 +3229,7 @@
                         </div>
                         <div class="userInfoSec3 ">
                             <div class="flex items-start">
-                                <img src="../src/img/pan.png" alt="">
+                                <img src="{$img_url_name.img_name}/pan.png" alt="">
                                 <div class="pl-4">
                                     <p class="detailLbale">Driving License</p>
                                     <p class="detailData">Not Submitted</p>
@@ -3104,7 +3244,7 @@
 
                             <div class="wrapperInfoFirst">
                                 <div class="flex items-start">
-                                    <img src="../src/img/pan.png" alt="">
+                                    <img src="{$img_url_name.img_name}/pan.png" alt="">
                                     <div class="pl-4">
                                         <p class="detailLbale">Aadhar Number</p>
                                         <p class="detailData">9714 1358 8022</p>
@@ -3115,7 +3255,7 @@
                             </div>
                             <div class="attachment mt-5">
                                 <div class="flex items-start">
-                                    <img src="../src/img/pan.png" class="invisible" alt="">
+                                    <img src="{$img_url_name.img_name}/pan.png" class="invisible" alt="">
                                     <div class="pl-4 flex items-center">
                                         <p class="detailLbale">Aadhar Card Attachment</p>
 
@@ -3124,9 +3264,9 @@
                             </div>
                             <div class="wrapperInfo ">
                                 <div class="flex items-start">
-                                    <img src="../src/img/addressproof.png" class="invisible" alt="">
+                                    <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
                                     <div class="pl-4 flex items-center">
-                                        <img src="../src/img/jpeg.png" class="" alt="">
+                                        <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
 
                                         <p class="detailLbale">aadhar-card-copy.jpeg</p>
                                     </div>
@@ -3134,7 +3274,7 @@
                                 <div class="userStatus ">
                                     <p class="verifyText">
                                         <a href="" class="smButton">
-                                            <img src="../src/img/view.png" alt="">
+                                            <img src="{$img_url_name.img_name}/view.png" alt="">
                                         </a>
                                     </p>
                                 </div>
@@ -3153,16 +3293,16 @@
                         <p class="detailsTitle">Bank Details
                         </p>
                         <p class="detailsUpdate">
-                            <span><span class="font-medium text-greycolor"> Last updated - </span>> 27-Apr-2021
-                                03:28 pm. <span class="font-medium text-greycolor"> By - </span> Admin</span>
+                            <span><span class="font-medium text-greycolor"> Last updated -> </span> {bank_new_date}
+                            <span class="font-medium text-greycolor"> By -> </span> {bank_values_from_store.modified_by} </span>
                         </p>
                     </div>
                     <div class="right flex">
-                        <!-- <p class="verifyText pr-3"><img src="../src/img/timer.png" alt="" class="pr-1">
+                        <!-- <p class="verifyText pr-3"><img src="{$img_url_name.img_name}/timer.png" alt="" class="pr-1">
                             Verification Pending</p> -->
                             
                         <a href="" class="smButton">
-                            <img src="../src/img/edit.png" alt="">
+                            <img src="{$img_url_name.img_name}/edit.png" alt="">
                         </a>
                     </div>
 
@@ -3193,7 +3333,7 @@
                     <div class="workDetailSection w-full">
                         <div class="userInfoSec3 ">
                             <div class="flex items-start">
-                                <img src="../src/img/bank.png" alt="">
+                                <img src="{$img_url_name.img_name}/bank.png" alt="">
                                 <div class="pl-4">
                                     <p class="detailLbale">Bank Name</p>
                                     <p class="detailData">{bank_values_from_store.bank_name}</p>
@@ -3203,7 +3343,7 @@
                         </div>
                         <div class="userInfoSec3 ">
                             <div class="flex items-start">
-                                <img src="../src/img/account.png" alt="">
+                                <img src="{$img_url_name.img_name}/account.png" alt="">
                                 <div class="pl-4">
                                     <p class="detailLbale">Account Number</p>
                                     <p class="detailData">{bank_values_from_store.account_number}</p>
@@ -3213,7 +3353,7 @@
                         </div>
                         <div class="userInfoSec3 ">
                             <div class="flex items-start">
-                                <img src="../src/img/account.png" alt="">
+                                <img src="{$img_url_name.img_name}/account.png" alt="">
                                 <div class="pl-4">
                                     <p class="detailLbale">IFSC Code</p>
                                     <p class="detailData">{bank_values_from_store.ifsc_code}</p>
@@ -3226,7 +3366,7 @@
                     <div class="workDetailSection w-full">
                         <div class="userInfoSec3 ">
                             <div class="flex items-start">
-                                <img src="../src/img/pincode.png" alt="">
+                                <img src="{$img_url_name.img_name}/pincode.png" alt="">
                                 <div class="pl-4">
                                     <p class="detailLbale">Branch</p>
                                     <p class="detailData">{bank_values_from_store.branch_name} - {bank_values_from_store.branch_pin_code}</p>
@@ -3239,7 +3379,7 @@
                             <div class="wrapperInfoFirst">
                                 <div class="flex items-start justify-between">
                                     <div class="flex">
-                                        <img src="../src/img/bankdoc.png" alt="">
+                                        <img src="{$img_url_name.img_name}/bankdoc.png" alt="">
                                         <div class="pl-4">
                                             <p class="detailLbale">Aadhar Number</p>
                                         </div>
@@ -3258,7 +3398,7 @@
                             </div>
                             <div class="attachment mt-5">
                                 <div class="flex items-start">
-                                    <img src="../src/img/addressproof.png" class="invisible" alt="">
+                                    <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
                                     <div class="pl-4 flex items-center">
                                         <p class="detailLbale">Cancel Cheque Attachment</p>
 
@@ -3267,9 +3407,9 @@
                             </div>
                             <div class="wrapperInfo ">
                                 <div class="flex items-start">
-                                    <img src="../src/img/addressproof.png" class="invisible" alt="">
+                                    <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
                                     <div class="pl-4 flex items-center">
-                                        <img src="../src/img/jpeg.png" class="" alt="">
+                                        <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
 
                                         <p class="detailLbale">cancel-cheque-copy.jpeg</p>
                                     </div>
@@ -3277,7 +3417,7 @@
                                 <div class="userStatus ">
                                     <p class="verifyText">
                                         <a href="" class="smButton">
-                                            <img src="../src/img/view.png" alt="">
+                                            <img src="{$img_url_name.img_name}/view.png" alt="">
                                         </a>
                                     </p>
                                 </div>
@@ -3348,7 +3488,7 @@
                         on:click={closeAuditTrailModal}
                     >
                         <img
-                            src="../src/img/close.png"
+                            src="{$img_url_name.img_name}/close.png"
                             id="closeAuditTrailModal"
                             class="closesup"
                             alt=""
@@ -3380,7 +3520,7 @@
                             </div>
                             <div class="timelineImg ">
                                 <img
-                                    src="../src/img/chat2.svg"
+                                    src="{$img_url_name.img_name}/chat2.svg"
                                     class="w-5 h-5"
                                     alt=""
                                 />
@@ -3398,6 +3538,7 @@
                                     <p class="timeCircle" />
                                     {new_audit_data.remarks}
                                 </div>
+                                <br>
                             {/each}
                         </div>
                     </div>
@@ -3408,7 +3549,7 @@
                             </div>
                             <div class="timelineImg ">
                                 <img
-                                    src="../src/img/chat2.svg"
+                                    src="{$img_url_name.img_name}/chat2.svg"
                                     class="w-5 h-5"
                                     alt=""
                                 />
@@ -3429,7 +3570,7 @@
                                         <div class="timelineGreyline"></div>
                                     </div>
                                     <div class="timelineImg ">
-                                        <img src="../src/img/chat2.svg" class="w-5 h-5" alt="">
+                                        <img src="{$img_url_name.img_name}/chat2.svg" class="w-5 h-5" alt="">
                                     </div>
                                 </div>
                                 <div class="timelineContent ">
@@ -3447,7 +3588,7 @@
                                         <div class="timelineGreyline"></div>
                                     </div>
                                     <div class="timelineImg ">
-                                        <img src="../src/img/chat2.svg" class="w-5 h-5" alt="">
+                                        <img src="{$img_url_name.img_name}/chat2.svg" class="w-5 h-5" alt="">
                                     </div>
                                 </div>
                                 <div class="timelineContent ">
@@ -3465,7 +3606,7 @@
                                         <div class="timelineGreyline"></div>
                                     </div>
                                     <div class="timelineImg ">
-                                        <img src="../src/img/chat2.svg" class="w-5 h-5" alt="">
+                                        <img src="{$img_url_name.img_name}/chat2.svg" class="w-5 h-5" alt="">
                                     </div>
                                 </div>
                                 <div class="timelineContent ">
@@ -3483,7 +3624,7 @@
                                         <div class="timelineGreyline"></div>
                                     </div>
                                     <div class="timelineImg ">
-                                        <img src="../src/img/chat2.svg" class="w-5 h-5" alt="">
+                                        <img src="{$img_url_name.img_name}/chat2.svg" class="w-5 h-5" alt="">
                                     </div>
                                 </div>
                                 <div class="timelineContent ">
@@ -3501,7 +3642,7 @@
                                         <div class="timelineGreyline"></div>
                                     </div>
                                     <div class="timelineImg ">
-                                        <img src="../src/img/chat2.svg" class="w-5 h-5" alt="">
+                                        <img src="{$img_url_name.img_name}/chat2.svg" class="w-5 h-5" alt="">
                                     </div>
                                 </div>
                                 <div class="timelineContent ">
@@ -3519,7 +3660,7 @@
                                         <div class="timelineGreyline"></div>
                                     </div>
                                     <div class="timelineImg ">
-                                        <img src="../src/img/chat2.svg" class="w-5 h-5" alt="">
+                                        <img src="{$img_url_name.img_name}/chat2.svg" class="w-5 h-5" alt="">
                                     </div>
                                 </div>
                                 <div class="timelineContent ">
@@ -3537,7 +3678,7 @@
                                         <div class="timelineGreyline"></div>
                                     </div>
                                     <div class="timelineImg ">
-                                        <img src="../src/img/chat2.svg" class="w-5 h-5" alt="">
+                                        <img src="{$img_url_name.img_name}/chat2.svg" class="w-5 h-5" alt="">
                                     </div>
                                 </div>
                                 <div class="timelineContent ">
@@ -3555,7 +3696,7 @@
                                         <div class="timelineGreyline"></div>
                                     </div>
                                     <div class="timelineImg ">
-                                        <img src="../src/img/chat2.svg" class="w-5 h-5" alt="">
+                                        <img src="{$img_url_name.img_name}/chat2.svg" class="w-5 h-5" alt="">
                                     </div>
                                 </div>
                                 <div class="timelineContent ">
@@ -3573,7 +3714,7 @@
                                         <div class="timelineGreyline"></div>
                                     </div>
                                     <div class="timelineImg ">
-                                        <img src="../src/img/chat2.svg" class="w-5 h-5" alt="">
+                                        <img src="{$img_url_name.img_name}/chat2.svg" class="w-5 h-5" alt="">
                                     </div>
                                 </div>
                                 <div class="timelineContent ">
@@ -3591,7 +3732,7 @@
                                         <div class="timelineGreyline"></div>
                                     </div>
                                     <div class="timelineImg ">
-                                        <img src="../src/img/chat2.svg" class="w-5 h-5" alt="">
+                                        <img src="{$img_url_name.img_name}/chat2.svg" class="w-5 h-5" alt="">
                                     </div>
                                 </div>
                                 <div class="timelineContent ">
@@ -3632,7 +3773,7 @@
                             </p>
                         </div>
                         <div class="rightmodalclose" on:click={closeDoc}>
-                            <img src="../src/img/blackclose.svg" alt="" />
+                            <img src="{$img_url_name.img_name}/blackclose.svg" alt="" />
                         </div>
                     </div>
                     <div class="innermodal">
@@ -3646,7 +3787,7 @@
                                                 <div class="secFirstDoc ">
                                                     <div class="docImageSec">
                                                         <img
-                                                            src="../src/img/pancard.png"
+                                                            src="{$img_url_name.img_name}/pancard.png"
                                                             alt=""
                                                         />
                                                     </div>
@@ -3683,7 +3824,7 @@
                                                                 class="smButton"
                                                             >
                                                                 <img
-                                                                    src="../src/img/view.png"
+                                                                    src="{$img_url_name.img_name}/view.png"
                                                                     alt=""
                                                                 />
                                                             </a>
@@ -3695,7 +3836,7 @@
                                         <div class="statusSecForDoc">
                                             <p class="userStatusTick ">
                                                 <img
-                                                    src="../src/img/checked.png"
+                                                    src="{$img_url_name.img_name}/checked.png"
                                                     alt=""
                                                     class="pr-1"
                                                 /> Verify
@@ -3708,7 +3849,7 @@
                                                 <div class="secFirstDoc ">
                                                     <div class="docImageSec">
                                                         <img
-                                                            src="../src/img/pancard.png"
+                                                            src="{$img_url_name.img_name}/pancard.png"
                                                             alt=""
                                                         />
                                                     </div>
@@ -3745,7 +3886,7 @@
                                                                 class="smButton"
                                                             >
                                                                 <img
-                                                                    src="../src/img/view.png"
+                                                                    src="{$img_url_name.img_name}/view.png"
                                                                     alt=""
                                                                 />
                                                             </a>
@@ -3757,7 +3898,7 @@
                                         <div class="statusSecForDoc">
                                             <p class="userStatusTick ">
                                                 <img
-                                                    src="../src/img/checked.png"
+                                                    src="{$img_url_name.img_name}/checked.png"
                                                     alt=""
                                                     class="pr-1"
                                                 /> Verify
@@ -3770,7 +3911,7 @@
                                                 <div class="secFirstDoc ">
                                                     <div class="docImageSec">
                                                         <img
-                                                            src="../src/img/pancard.png"
+                                                            src="{$img_url_name.img_name}/pancard.png"
                                                             alt=""
                                                         />
                                                     </div>
@@ -3807,7 +3948,7 @@
                                                                 class="smButton"
                                                             >
                                                                 <img
-                                                                    src="../src/img/view.png"
+                                                                    src="{$img_url_name.img_name}/view.png"
                                                                     alt=""
                                                                 />
                                                             </a>
@@ -3819,7 +3960,7 @@
                                         <div class="statusSecForDoc">
                                             <p class="userStatusTick ">
                                                 <img
-                                                    src="../src/img/checked.png"
+                                                    src="{$img_url_name.img_name}/checked.png"
                                                     alt=""
                                                     class="pr-1"
                                                 /> Verify
@@ -3832,7 +3973,7 @@
                                                 <div class="secFirstDoc ">
                                                     <div class="docImageSec">
                                                         <img
-                                                            src="../src/img/pancard.png"
+                                                            src="{$img_url_name.img_name}/pancard.png"
                                                             alt=""
                                                         />
                                                     </div>
@@ -3869,7 +4010,7 @@
                                                                 class="smButton"
                                                             >
                                                                 <img
-                                                                    src="../src/img/view.png"
+                                                                    src="{$img_url_name.img_name}/view.png"
                                                                     alt=""
                                                                 />
                                                             </a>
@@ -3881,7 +4022,7 @@
                                         <div class="statusSecForDoc">
                                             <p class="userStatusTick ">
                                                 <img
-                                                    src="../src/img/checked.png"
+                                                    src="{$img_url_name.img_name}/checked.png"
                                                     alt=""
                                                     class="pr-1"
                                                 /> Verify
@@ -3894,7 +4035,7 @@
                                                 <div class="secFirstDoc ">
                                                     <div class="docImageSec">
                                                         <img
-                                                            src="../src/img/pancard.png"
+                                                            src="{$img_url_name.img_name}/pancard.png"
                                                             alt=""
                                                         />
                                                     </div>
@@ -3931,7 +4072,7 @@
                                                                 class="smButton"
                                                             >
                                                                 <img
-                                                                    src="../src/img/view.png"
+                                                                    src="{$img_url_name.img_name}/view.png"
                                                                     alt=""
                                                                 />
                                                             </a>
@@ -3943,7 +4084,7 @@
                                         <div class="statusSecForDoc">
                                             <p class="userStatusTick ">
                                                 <img
-                                                    src="../src/img/checked.png"
+                                                    src="{$img_url_name.img_name}/checked.png"
                                                     alt=""
                                                     class="pr-1"
                                                 /> Verify
@@ -3989,7 +4130,7 @@
                                                         class="formSelectArrow "
                                                     >
                                                         <img
-                                                            src="../src/img/selectarrow.png"
+                                                            src="{$img_url_name.img_name}/selectarrow.png"
                                                             class="w-5 h-auto"
                                                             alt=""
                                                         />
@@ -4080,7 +4221,7 @@
                             </p>
                         </div>
                         <div class="rightmodalclose" on:click={closeGST}>
-                            <img src="../src/img/blackclose.svg" alt="" />
+                            <img src="{$img_url_name.img_name}/blackclose.svg" alt="" />
                         </div>
                     </div>
                     <div class="innermodal">
@@ -4088,6 +4229,10 @@
                         <div class="scrollbar ">
                             <div class="mainContainerWrapper ">
                                 <div class="DocCardlist ">
+                                    {#if !gst_details_data}
+                                    <p>No GST Details found</p>
+                                    {:else}
+                                    {#each gst_details_data as new_gst}
                                     <div class="cardDocWrapper ">
                                         <div class="infoDivCard ">
                                             <div class="infofSection  ">
@@ -4104,9 +4249,7 @@
                                                             <p
                                                                 class="detailDatasm"
                                                             >
-                                                                B615, Marvad,
-                                                                near aarvi
-                                                                school
+                                                                {new_gst.address}
                                                             </p>
                                                         </div>
                                                         <div class="flex">
@@ -4118,7 +4261,7 @@
                                                             <p
                                                                 class="detailDatasm"
                                                             >
-                                                                Amravati
+                                                                {new_gst.city}
                                                             </p>
                                                         </div>
                                                         <div class="flex">
@@ -4130,7 +4273,7 @@
                                                             <p
                                                                 class="detailDatasm"
                                                             >
-                                                                Maharastra
+                                                            {new_gst.state}
                                                             </p>
                                                         </div>
                                                     </div>
@@ -4142,7 +4285,7 @@
                                                             GST Number
                                                         </p>
                                                         <p class="detailData">
-                                                            22 GHDGS0000A 1Z5
+                                                            {new_gst.gstn}
                                                         </p>
                                                     </div>
                                                     <div class="pl-2">
@@ -4157,8 +4300,9 @@
                                                                 class="smButton"
                                                             >
                                                                 <img
-                                                                    src="../src/img/view.png"
+                                                                    src="{$img_url_name.img_name}/view.png"
                                                                     alt=""
+                                                                    on:click="{openViewModel("mult_gsts",new_gst.gstn)}"
                                                                 />
                                                             </a>
                                                         </p>
@@ -4175,7 +4319,7 @@
                                                                 class="smButton"
                                                             >
                                                                 <img
-                                                                    src="../src/img/view.png"
+                                                                    src="{$img_url_name.img_name}/edit.png"
                                                                     alt=""
                                                                 />
                                                             </a>
@@ -4187,13 +4331,15 @@
                                         <div class="statusSecForDoc">
                                             <p class="userStatusTick ">
                                                 <img
-                                                    src="../src/img/checked.png"
+                                                    src="{$img_url_name.img_name}/checked.png"
                                                     alt=""
                                                     class="pr-1"
                                                 /> Verified
                                             </p>
                                         </div>
                                     </div>
+                                    {/each}
+                                    {/if}
                                 </div>
                                 <div class="addDocumentSection ">
                                     <div class="addSecform hidden">
@@ -4221,6 +4367,7 @@
                                                     <input
                                                         class="inputboxpopover"
                                                         type="text"
+                                                        bind:value="{gst_address}"
                                                     />
                                                 </div>
                                             </div>
@@ -4233,19 +4380,22 @@
                                                 <div class="formInnerGroup ">
                                                     <select
                                                         class="inputboxpopover"
+                                                        bind:value={gst_city_select}
                                                     >
                                                         <option class="pt-6"
                                                             >Select</option
                                                         >
-                                                        <option>ICICI</option>
-                                                        <option>Axis</option>
-                                                        <option>SIB</option>
+                                                        {#each city_data as new_city}
+                                                        <option class="pt-6"
+                                                            >{new_city}</option
+                                                        >
+                                                        {/each}
                                                     </select>
                                                     <div
                                                         class="formSelectArrow "
                                                     >
                                                         <img
-                                                            src="../src/img/selectarrow.png"
+                                                            src="{$img_url_name.img_name}/selectarrow.png"
                                                             class="w-5 h-auto"
                                                             alt=""
                                                         />
@@ -4262,6 +4412,7 @@
                                                     <input
                                                         class="inputboxpopover"
                                                         type="text"
+                                                        bind:value="{gst_city_link_state}"
                                                     />
                                                 </div>
                                             </div>
@@ -4284,8 +4435,18 @@
                                                         <input
                                                             type="file"
                                                             class="hidden"
+                                                                    on:change={(
+                                                                        e
+                                                                    ) =>
+                                                                        onFileSelected(
+                                                                            e,"gst_upload"
+                                                                        )}
+                                                            bind:value="{gst_file}"
+
                                                         />
+                                                        <div class="text-red-500">{gst_upload_message}</div>
                                                     </label>
+                                                    <p>{gst_img}</p>
                                                 </div>
                                             </div>
 
@@ -4350,7 +4511,9 @@
                                                             <input
                                                                 class="inputboxpopover"
                                                                 type="text"
+                                                                bind:value="{gst_address}"
                                                             />
+                                                            <div class="text-red-500">{gst_add_message}</div>
                                                         </div>
                                                     </div>
                                                     <div
@@ -4364,28 +4527,25 @@
                                                         <div
                                                             class="formInnerGroup "
                                                         >
-                                                            <select
-                                                                class="inputboxpopover"
-                                                            >
-                                                                <option
-                                                                    class="pt-6"
-                                                                    >Select</option
-                                                                >
-                                                                <option
-                                                                    >ICICI</option
-                                                                >
-                                                                <option
-                                                                    >Axis</option
-                                                                >
-                                                                <option
-                                                                    >SIB</option
-                                                                >
-                                                            </select>
+                                                        <select
+                                                        class="inputboxpopover"
+                                                        bind:value={gst_city_select}
+                                                    >
+                                                        <option class="pt-6"
+                                                            >Select</option
+                                                        >
+                                                        {#each city_data as new_city}
+                                                        <option class="pt-6"
+                                                            >{new_city}</option
+                                                        >
+                                                        {/each}
+                                                    </select>
+                                                    <div class="text-red-500">{gst_city_message}</div>
                                                             <div
                                                                 class="formSelectArrow "
                                                             >
                                                                 <img
-                                                                    src="../src/img/selectarrow.png"
+                                                                    src="{$img_url_name.img_name}/selectarrow.png"
                                                                     class="w-5 h-auto"
                                                                     alt=""
                                                                 />
@@ -4406,7 +4566,9 @@
                                                             <input
                                                                 class="inputboxpopover"
                                                                 type="text"
+                                                                bind:value="{gst_city_link_state}"
                                                             />
+                                                            
                                                         </div>
                                                     </div>
                                                     <div
@@ -4423,9 +4585,26 @@
                                                             <input
                                                                 class="inputboxpopover"
                                                                 type="text"
+                                                                bind:value="{gst_number}"
                                                             />
+                                                            <div class="text-red-500">{gst_number_message}</div>
                                                         </div>
                                                     </div>
+
+                                                    <div class="checkFormgroup">
+                                                        <input
+                                                            id="remember-me"
+                                                            name="remember-me"
+                                                            type="checkbox"
+                                                            placeholder="Your password"
+                                                            class="inputChecked"
+                                                            bind:checked = "{gst_checkbox}"
+                                                        />
+                                                        <label for="remember-me" class="onboardedText ">
+                                                            Default Address
+                                                        </label>
+                                                    </div>
+
 
                                                     <div
                                                         class="flex  py-3 items-center flex-wrap"
@@ -4450,8 +4629,17 @@
                                                                 <input
                                                                     type="file"
                                                                     class="hidden"
+                                                                    on:change={(
+                                                                        e
+                                                                    ) =>
+                                                                        onFileSelected(
+                                                                            e,"gst_upload"
+                                                                        )}
+                                                                    bind:value="{gst_file}"
                                                                 />
+                                                                <div class="text-red-500">{gst_upload_message}</div>
                                                             </label>
+                                                            <p>{gst_img}</p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -4472,7 +4660,7 @@
                                                     >
                                                         <button
                                                             class="ErBlueButton"
-                                                            >Add</button
+                                                            on:click="{gst_submit_click}">Add</button
                                                         >
                                                     </div>
                                                 </div>
@@ -4510,7 +4698,7 @@
                             </p>
                         </div>
                         <div class="rightmodalclose" on:click={closeERP}>
-                            <img src="../src/img/blackclose.svg" alt="" />
+                            <img src="{$img_url_name.img_name}/blackclose.svg" alt="" />
                         </div>
                     </div>
                     <div class="innermodal">
@@ -4570,7 +4758,7 @@
                             class="rightmodalclose"
                             on:click={closeWorkContract}
                         >
-                            <img src="../src/img/blackclose.svg" alt="" />
+                            <img src="{$img_url_name.img_name}/blackclose.svg" alt="" />
                         </div>
                     </div>
                     <div class="innermodal">
@@ -4611,7 +4799,7 @@
                                                 <th>
                                                     <div class="flex">
                                                         Accepted ? <img
-                                                            src="../src/img/arrowupdown.svg"
+                                                            src="{$img_url_name.img_name}/arrowupdown.svg"
                                                             class="ml-2"
                                                             alt=""
                                                         />
@@ -4646,7 +4834,7 @@
                                                             class="smButton"
                                                         >
                                                             <img
-                                                                src="../src/img/view.png"
+                                                                src="{$img_url_name.img_name}/view.png"
                                                                 alt=""
                                                             />
                                                         </a>
@@ -4661,7 +4849,7 @@
                                                             class="smButton"
                                                         >
                                                             <img
-                                                                src="../src/img/printer.svg"
+                                                                src="{$img_url_name.img_name}/printer.svg"
                                                                 alt=""
                                                             />
                                                         </a>
@@ -4690,7 +4878,7 @@
                                                             class="smButton"
                                                         >
                                                             <img
-                                                                src="../src/img/view.png"
+                                                                src="{$img_url_name.img_name}/view.png"
                                                                 alt=""
                                                             />
                                                         </a>
@@ -4705,51 +4893,7 @@
                                                             class="smButton"
                                                         >
                                                             <img
-                                                                src="../src/img/printer.svg"
-                                                                alt=""
-                                                            />
-                                                        </a>
-                                                    </p>
-                                                </td>
-                                            </tr>
-                                            <tr class="border-b">
-                                                <td
-                                                    >Background Verification
-                                                    Concent</td
-                                                >
-                                                <td>Concent</td>
-                                                <td
-                                                    ><span class="text-green"
-                                                        >Yes</span
-                                                    >
-                                                </td>
-                                                <td>10-06-2020</td>
-                                                <td>Yes</td>
-                                                <td>
-                                                    <p
-                                                        class="flex justify-center"
-                                                    >
-                                                        <a
-                                                            href=""
-                                                            class="smButton"
-                                                        >
-                                                            <img
-                                                                src="../src/img/view.png"
-                                                                alt=""
-                                                            />
-                                                        </a>
-                                                    </p>
-                                                </td>
-                                                <td>
-                                                    <p
-                                                        class="flex justify-center"
-                                                    >
-                                                        <a
-                                                            href=""
-                                                            class="smButton"
-                                                        >
-                                                            <img
-                                                                src="../src/img/printer.svg"
+                                                                src="{$img_url_name.img_name}/printer.svg"
                                                                 alt=""
                                                             />
                                                         </a>
@@ -4778,7 +4922,7 @@
                                                             class="smButton"
                                                         >
                                                             <img
-                                                                src="../src/img/view.png"
+                                                                src="{$img_url_name.img_name}/view.png"
                                                                 alt=""
                                                             />
                                                         </a>
@@ -4793,51 +4937,7 @@
                                                             class="smButton"
                                                         >
                                                             <img
-                                                                src="../src/img/printer.svg"
-                                                                alt=""
-                                                            />
-                                                        </a>
-                                                    </p>
-                                                </td>
-                                            </tr>
-                                            <tr class="border-b">
-                                                <td
-                                                    >Background Verification
-                                                    Concent</td
-                                                >
-                                                <td>Concent</td>
-                                                <td
-                                                    ><span class="text-green"
-                                                        >Yes</span
-                                                    >
-                                                </td>
-                                                <td>10-06-2020</td>
-                                                <td>Yes</td>
-                                                <td>
-                                                    <p
-                                                        class="flex justify-center"
-                                                    >
-                                                        <a
-                                                            href=""
-                                                            class="smButton"
-                                                        >
-                                                            <img
-                                                                src="../src/img/view.png"
-                                                                alt=""
-                                                            />
-                                                        </a>
-                                                    </p>
-                                                </td>
-                                                <td>
-                                                    <p
-                                                        class="flex justify-center"
-                                                    >
-                                                        <a
-                                                            href=""
-                                                            class="smButton"
-                                                        >
-                                                            <img
-                                                                src="../src/img/printer.svg"
+                                                                src="{$img_url_name.img_name}/printer.svg"
                                                                 alt=""
                                                             />
                                                         </a>
@@ -4866,7 +4966,7 @@
                                                             class="smButton"
                                                         >
                                                             <img
-                                                                src="../src/img/view.png"
+                                                                src="{$img_url_name.img_name}/view.png"
                                                                 alt=""
                                                             />
                                                         </a>
@@ -4881,7 +4981,95 @@
                                                             class="smButton"
                                                         >
                                                             <img
-                                                                src="../src/img/printer.svg"
+                                                                src="{$img_url_name.img_name}/printer.svg"
+                                                                alt=""
+                                                            />
+                                                        </a>
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td
+                                                    >Background Verification
+                                                    Concent</td
+                                                >
+                                                <td>Concent</td>
+                                                <td
+                                                    ><span class="text-green"
+                                                        >Yes</span
+                                                    >
+                                                </td>
+                                                <td>10-06-2020</td>
+                                                <td>Yes</td>
+                                                <td>
+                                                    <p
+                                                        class="flex justify-center"
+                                                    >
+                                                        <a
+                                                            href=""
+                                                            class="smButton"
+                                                        >
+                                                            <img
+                                                                src="{$img_url_name.img_name}/view.png"
+                                                                alt=""
+                                                            />
+                                                        </a>
+                                                    </p>
+                                                </td>
+                                                <td>
+                                                    <p
+                                                        class="flex justify-center"
+                                                    >
+                                                        <a
+                                                            href=""
+                                                            class="smButton"
+                                                        >
+                                                            <img
+                                                                src="{$img_url_name.img_name}/printer.svg"
+                                                                alt=""
+                                                            />
+                                                        </a>
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td
+                                                    >Background Verification
+                                                    Concent</td
+                                                >
+                                                <td>Concent</td>
+                                                <td
+                                                    ><span class="text-green"
+                                                        >Yes</span
+                                                    >
+                                                </td>
+                                                <td>10-06-2020</td>
+                                                <td>Yes</td>
+                                                <td>
+                                                    <p
+                                                        class="flex justify-center"
+                                                    >
+                                                        <a
+                                                            href=""
+                                                            class="smButton"
+                                                        >
+                                                            <img
+                                                                src="{$img_url_name.img_name}/view.png"
+                                                                alt=""
+                                                            />
+                                                        </a>
+                                                    </p>
+                                                </td>
+                                                <td>
+                                                    <p
+                                                        class="flex justify-center"
+                                                    >
+                                                        <a
+                                                            href=""
+                                                            class="smButton"
+                                                        >
+                                                            <img
+                                                                src="{$img_url_name.img_name}/printer.svg"
                                                                 alt=""
                                                             />
                                                         </a>
@@ -4947,7 +5135,7 @@
                                             </div>
                                             <div class="dataValue">
                                                 <img
-                                                    src="../src/img/reject.png"
+                                                    src="{$img_url_name.img_name}/reject.png"
                                                     alt=""
                                                     
                                                 />
@@ -4994,7 +5182,7 @@
                                                                 class="smButton"
                                                             >
                                                                 <img
-                                                                    src="../src/img/view.png"
+                                                                    src="{$img_url_name.img_name}/view.png"
                                                                     alt=""
                                                                 />
                                                             </a>
@@ -5018,7 +5206,7 @@
                                                                 class="smButton"
                                                             >
                                                                 <img
-                                                                    src="../src/img/view.png"
+                                                                    src="{$img_url_name.img_name}/view.png"
                                                                     alt=""
                                                                 />
                                                             </a>
@@ -5042,7 +5230,7 @@
                                                                 class="smButton"
                                                             >
                                                                 <img
-                                                                    src="../src/img/view.png"
+                                                                    src="{$img_url_name.img_name}/view.png"
                                                                     alt=""
                                                                 />
                                                             </a>
@@ -5126,7 +5314,7 @@
                                                                     class="formSelectArrow "
                                                                 >
                                                                     <img
-                                                                        src="../src/img/selectarrow.png"
+                                                                        src="{$img_url_name.img_name}/selectarrow.png"
                                                                         class="w-5 h-auto"
                                                                         alt=""
                                                                     />
@@ -5166,7 +5354,7 @@
                                                                     class="formSelectArrow "
                                                                 >
                                                                     <img
-                                                                        src="../src/img/selectarrow.png"
+                                                                        src="{$img_url_name.img_name}/selectarrow.png"
                                                                         class="w-5 h-auto"
                                                                         alt=""
                                                                     />
@@ -5205,7 +5393,7 @@
                                                                     class="formSelectArrow "
                                                                 >
                                                                     <img
-                                                                        src="../src/img/selectarrow.png"
+                                                                        src="{$img_url_name.img_name}/selectarrow.png"
                                                                         class="w-5 h-auto"
                                                                         alt=""
                                                                     />
@@ -5339,7 +5527,7 @@
                             class="rightmodalclose"
                             on:click={closeWorkorganization}
                         >
-                            <img src="../src/img/blackclose.svg" alt="" />
+                            <img src="{$img_url_name.img_name}/blackclose.svg" alt="" />
                         </div>
                     </div>
                     <div class="innermodal">
@@ -5435,7 +5623,7 @@
                                                             class="userStatusTickVerified "
                                                         >
                                                             <img
-                                                                src="../src/img/checked.png"
+                                                                src="{$img_url_name.img_name}/checked.png"
                                                                 alt=""
                                                                 class="pr-1"
                                                             /> Verified
@@ -5512,7 +5700,7 @@
                                                             class="formSelectArrow "
                                                         >
                                                             <img
-                                                                src="../src/img/selectarrow.png"
+                                                                src="{$img_url_name.img_name}/selectarrow.png"
                                                                 class="w-5 h-auto"
                                                                 alt=""
                                                             />
@@ -5636,7 +5824,7 @@
                                                                 class="formSelectArrow "
                                                             >
                                                                 <img
-                                                                    src="../src/img/selectarrow.png"
+                                                                    src="{$img_url_name.img_name}/selectarrow.png"
                                                                     class="w-5 h-auto"
                                                                     alt=""
                                                                 />
@@ -5666,7 +5854,7 @@
                                                                 class="formSelectArrow "
                                                             >
                                                                 <img
-                                                                    src="../src/img/selectarrow.png"
+                                                                    src="{$img_url_name.img_name}/selectarrow.png"
                                                                     class="w-5 h-auto"
                                                                     alt=""
                                                                 />
@@ -5696,7 +5884,7 @@
                                                                 class="formSelectArrow "
                                                             >
                                                                 <img
-                                                                    src="../src/img/selectarrow.png"
+                                                                    src="{$img_url_name.img_name}/selectarrow.png"
                                                                     class="w-5 h-auto"
                                                                     alt=""
                                                                 />
@@ -5841,7 +6029,7 @@
                             class="rightmodalclose"
                             on:click={closechequeDetails}
                         >
-                            <img src="../src/img/blackclose.svg" alt="" />
+                            <img src="{$img_url_name.img_name}/blackclose.svg" alt="" />
                         </div>
                     </div>
                     <div class="innermodal">
@@ -5850,7 +6038,7 @@
                             <div class="mainContainerWrapper ">
                                 <div class="DocCardlist ">
                                     {#if !cheque_values_from_store}
-                                    <p></p>
+                                    <p>No Cheque Details found</p>
                                     {:else}
                                     {#each cheque_values_from_store as new_cheque}
                                         <div class="cardDocWrapper ">
@@ -5955,10 +6143,11 @@
                                                                     class="smButton"
                                                                 >
                                                                     <img
-                                                                        src="../src/img/view.png"
-                                                                        alt=""
+                                                                        src="{$img_url_name.img_name}/view.png"
+                                                                        alt="cheque img" on:click="{()=>{openViewModel("cheque_disp")}}"
                                                                     />
                                                                 </a>
+                                                                
                                                             </p>
                                                         </div>
                                                     </div>
@@ -6006,19 +6195,22 @@
                                                 <div class="formInnerGroup ">
                                                     <select
                                                         class="inputboxpopover"
+                                                        bind:value={gst_city_select}
                                                     >
                                                         <option class="pt-6"
                                                             >Select</option
                                                         >
-                                                        <option>ICICI</option>
-                                                        <option>Axis</option>
-                                                        <option>SIB</option>
+                                                        {#each city_data as new_city}
+                                                        <option class="pt-6"
+                                                            >{new_city}</option
+                                                        >
+                                                        {/each}
                                                     </select>
                                                     <div
                                                         class="formSelectArrow "
                                                     >
                                                         <img
-                                                            src="../src/img/selectarrow.png"
+                                                            src="{$img_url_name.img_name}/selectarrow.png"
                                                             class="w-5 h-auto"
                                                             alt=""
                                                         />
@@ -6134,7 +6326,7 @@
                                                                 class="formSelectArrow "
                                                             >
                                                                 <img
-                                                                    src="../src/img/selectarrow.png"
+                                                                    src="{$img_url_name.img_name}/selectarrow.png"
                                                                     class="w-5 h-auto"
                                                                     alt=""
                                                                 />
@@ -6207,7 +6399,7 @@
                                                                 class="formSelectArrow "
                                                             >
                                                                 <img
-                                                                    src="../src/img/selectarrow.png"
+                                                                    src="{$img_url_name.img_name}/selectarrow.png"
                                                                     class="w-5 h-auto"
                                                                     alt=""
                                                                 />
@@ -6240,7 +6432,7 @@
                                                                 class="formSelectArrow "
                                                             >
                                                                 <img
-                                                                    src="../src/img/selectarrow.png"
+                                                                    src="{$img_url_name.img_name}/selectarrow.png"
                                                                     class="w-5 h-auto"
                                                                     alt=""
                                                                 />
@@ -6350,13 +6542,13 @@
                                                                         e
                                                                     ) =>
                                                                         onFileSelected(
-                                                                            e
+                                                                            e,"cheque_upload"
                                                                         )}
                                                                         bind:value = "{checkupload}"
                                                                 />
                                                                 <div class="text-red-500">{cheque_upload_message}</div>
                                                             </label>
-                                                            <p>{img_name}</p>
+                                                            <p>{cheque_img}</p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -6422,7 +6614,7 @@
                             class="rightmodalclose"
                             on:click={linkChildModelclose}
                         >
-                            <img src="../src/img/blackclose.svg" alt="" />
+                            <img src="{$img_url_name.img_name}/blackclose.svg" alt="" />
                         </div>
                     </div>
                     <div class="innermodal">
@@ -6474,7 +6666,7 @@
                                             </select>
                                             <div class="formSelectArrow ">
                                                 <img
-                                                    src="../src/img/selectarrow.png"
+                                                    src="{$img_url_name.img_name}/selectarrow.png"
                                                     class="w-5 h-auto"
                                                     alt=""
                                                 />
@@ -6485,14 +6677,14 @@
                                         <div class="formInnerGroup ">
                                             <!-- <span class="searchicon">
                                                 <img
-                                                    src="../src/img/search.svg"
+                                                    src="{$img_url_name.img_name}/search.svg"
                                                     class="placeholderIcon"
                                                     alt=""
                                                     on:click="{filterResults}"/>
                                             </span> -->
                                             <span class="searchicon">
                                                 <img
-                                                    src="../src/img/search.svg"
+                                                    src="{$img_url_name.img_name}/search.svg"
                                                     class="placeholderIcon"
                                                     alt=""
                                                    />
@@ -6512,7 +6704,7 @@
                                             <div class="serchCloseIconSection " id="">
                                                 <div class="closeIconCon " on:click="{closeSearch}">
                                                     <img
-                                                        src="../src/img/closeSearch.svg"
+                                                        src="{$img_url_name.img_name}/closeSearch.svg"
                                                         class="w-4 h-auto"
                                                         alt=""
                                                     />
@@ -6523,7 +6715,7 @@
                                     <div class=" searchClickbtn" on:click="{SearchClick}" >
                                         <p class="searchIconPlace">
                                             <img
-                                                src="../src/img/search.svg"
+                                                src="{$img_url_name.img_name}/search.svg"
                                                 class="placeholderIcon"
                                                 alt=""
                                             />
@@ -6682,7 +6874,7 @@
                                                         }}
                                                     >
                                                         <img
-                                                            src="../src/img/reject.png"
+                                                            src="{$img_url_name.img_name}/reject.png"
                                                             width="25px"
                                                             alt=""
                                                         />
@@ -6743,4 +6935,24 @@
     </div>
 </div>
 
+<!-- Document view Model -->
+<div id="img_model" tabindex="-1" aria-hidden="true" role ="dialog" class=" actionDialogueOnboard" hidden>
+    <div class="pancardDialogueOnboardWrapper ">
+        <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+            <div class="flex justify-end p-2">
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel()}}">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
+                </button>
+            </div>
+            <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+                
+                <img src="" id="img_model_url" class="mx-auto" alt="{alt_image}">
+                
+                <div class="pt-3 flex justify-center">
+                    <button data-modal-toggle="popup-modal" type="button" class="dialogueNobutton"  on:click="{()=>{closeViewModel()}}">Close</button>
+            </form>
+        </div>
+    </div>
+</div> 
+<!-- Document view Model -->
 <Toast type={toast_type}  text={toast_text}/>

@@ -41,9 +41,7 @@ const cheque_details = () =>{
     return request(
         cheque_details_url, {
         method: "GET",
-        }, true).then((cheque_data_1) =>{
-        return cheque_data_1.body.data;
-    })
+        }, true)
 }
 const addnew_cheque_details = (data) =>{
     let new_cheque_details_url = '/api/method/pravesh.facility.routes.facility.add_cheque_details'
@@ -203,6 +201,21 @@ const rem_child=(child_id)=>{
             method: "GET"
         },true)
 }
+const add_gst_dets=(data)=>{
+    let add_gst_dets_url="/api/method/pravesh.facility.routes.facility.add_gst_details";
+    return request(
+        add_gst_dets_url, 
+        {  method: "POST",
+            body:JSON.stringify(data),            
+        },true)
+}
+const gst_details=()=>{
+    let get_details_url = '/api/resource/Facility?filters=[[%22name%22,%22=%22,%22'+new_facility_id+'%22]]&fields=[%22`tabFacility%20Address`.`name`%22,%22`tabFacility%20Address`.`address`%22,%22`tabFacility%20Address`.`city`%22,%22`tabFacility%20Address`.`state`%22,%22`tabFacility%20Address`.`country`%22,%22`tabFacility%20Address`.`postal`%22,%22`tabFacility%20Address`.`gstn`%22,%22`tabFacility%20Address`.`default_address`%22,%22`tabFacility%20Address`.`address_type`%22,%22`tabFacility%20Address`.`location_id`%22]'
+    return request(
+        get_details_url,{
+            method: "GET"
+        },true)
+}
 
 
 export {
@@ -225,5 +238,7 @@ export {
     erp_details,
     child_data,
     get_child_dets,
-    rem_child
+    rem_child,
+    add_gst_dets,
+    gst_details
 }

@@ -146,7 +146,15 @@
     let new_facility_id;
     let facility_id;
     let acc_num,ifsc_code,acc_hold_name,remark;
-    let gend_selected,add_is_perm,curr_same,police_add_per
+    let gend_selected,add_is_perm,curr_same,police_add_per;
+    var rejReasonMap = {
+    "basicInfo": ["Supporting document Missing", "Name/Father's Name/DOB is not clear on the document", "Name/Father's Name/DOB mismatch", "Name/Father's Name/DOB missing", "Passport Size Photo missing/not clear/incorrect", "Aadhaar/Voter Number/Associate name/Father Name/DOB is not clear on the document", "Aadhaar/Voter Number/Associate name/Father Name/DOB mismatch", "Aadhaar/Voter Number/Associate name/Father Name/DOB not captured. Kindly update in the system", "Email Address not verified"],
+    "addressInfo": ["Address mismatch", "Kindly update full address", "Kindly upload associates address proof", "Kindly upload owners acknowledgment & supporting address proof", "Address/City/District/State/Pincode mismatch"],
+    "dlInfo": ["Supporting document Missing", "Driving License expired", "Name/License number/Date of issue/expiry/DOB is not clear on document", "Name/Number/Date of issue/expiry/DOB mismatch", "Name/Number/Date of issue/expiry/DOB missing.", "Associate name/License number/Date of issue/expiry/DOB/Issuing State is not clear on document", "  Associate name/License number/Date of issue/expiry/DOB/Issuing State mismatch", "Associate name/License number/Date of issue/expiry/DOB/Issuing State not captured. Kindly update in system"],
+    "panInfo": ["Supporting document Missing", "Name/Father's name/Pan Number/DOB mismatch", "Name/Father's name/Pan Number/DOB missing.", "Name/Father's name/Pan Number/DOB is not clear on the document"],
+    "policeInfo": ["Supporting document Missing", "Incorrect Address", "Name/Guardian's name/Address mismatch", "Name/Guardian's name/Address missing", "Name/Guardian's name/Address is not clear on the document"]
+
+}
 
     onMount(async () => {
         // let bgv_pass_data=[
@@ -173,7 +181,9 @@
         // facility_id.subscribe(value => {
         // new_facility_id = value.facility_id_number;
         // })
-        facility_id = "CRUN00374"
+        // facility_id = "CRUN00374"
+        facility_id = "MHPD01226"
+
         console.log("new_facility_id",facility_id)
             let facility_data_res = await get_facility_details()
             console.log("facility_data_res",facility_data_res)
@@ -811,6 +821,137 @@
                         if(final_approve_id_res.body.status == "green"){
                             toast_text = final_approve_id_res.body.message;
                             toast_type = "success";
+            let facility_doc_data_res = await facility_document()
+            try{
+                if (facility_doc_data_res != "null" ){
+                    facility_document_data = facility_doc_data_res.body.data;
+                    
+                    for (var i = 0; i < facility_document_data.length; i++){
+
+                            facility_docs_arr[i] = facility_document_data[i].doc_type;
+                            
+                            if(facility_docs_arr.includes("pan-photo")){
+                                // console.log("pan___",facility_document_data[i].file_url)
+                                pan_url = facility_document_data[i].file_url;
+                                pan_verified = facility_document_data[i].verified;
+                                pan_rejected = facility_document_data[i].rejected;
+                                // console.log("successfully fetched Pan")
+                                contains_pan = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "pan-photo")
+                                //     temp_switchto = "pan_tab";
+                                // }
+
+                            }
+                            
+                            if(facility_docs_arr.includes("voter-id-proof")){
+                                // console.log("address___",facility_document_data[i].file_url)
+                                voter_url = facility_document_data[i].file_url;
+                                voter_verified = facility_document_data[i].verified;
+                                voter_rejected = facility_document_data[i].rejected;
+                                contains_voter = 1;
+                                // console.log("successfully fetched Offer letter")
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "voter-id-proof")
+                                //     temp_switchto = "voter_tab";
+                                // } 
+                            }
+                            if(facility_docs_arr.includes("aadhar-id-proof")){
+                                // console.log("aadhar___",facility_document_data[i].file_url)
+                                aadhar_url = facility_document_data[i].file_url;
+                                aadhar_verified = facility_document_data[i].verified;
+                                aadhar_rejected = facility_document_data[i].rejected;
+                                contains_aadhar = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "aadhar-id-proof")
+                                //     temp_switchto = "aadhar_tab";
+                                // } 
+                                // console.log("successfully fetched aadhar")
+                            }
+                            if(facility_docs_arr.includes("addproof-photo")){
+                                // console.log("address___",facility_document_data[i].file_url)
+                                address_url = facility_document_data[i].file_url;
+                                address_verified = facility_document_data[i].verified;
+                                address_rejected = facility_document_data[i].rejected;
+                                contains_address = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "addproof-photo")
+                                //     temp_switchto = "address_tab";
+                                // } 
+                                // console.log("successfully fetched addressproof")
+                            }
+                            if(facility_docs_arr.includes("newOffFile")){
+                                // console.log("address___",facility_document_data[i].file_url)
+                                offer_url = facility_document_data[i].file_url;
+                                offer_verified = facility_document_data[i].verified;
+                                offer_rejected = facility_document_data[i].rejected;
+                                contains_offer = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "newOffFile")
+                                //     temp_switchto = "offerletter_tab";
+                                // } 
+                                
+                                // console.log("successfully fetched Offer letter")
+                            }
+                            if(facility_docs_arr.includes("dl-photo")){
+                                // console.log("address___",facility_document_data[i].file_url)
+                                dl_url = facility_document_data[i].file_url;
+                                dl_verified = facility_document_data[i].verified;
+                                dl_rejected = facility_document_data[i].rejected;
+                                contains_dl = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "dl-photo")
+                                //     temp_switchto = "DL_tab";
+                                // } 
+                                // console.log("successfully fetched Offer letter")
+                            }
+                            if(facility_docs_arr.includes("pass_photo")){
+                                // console.log("aadhar___",facility_document_data[i].file_url)
+                                pass_photo_url = facility_document_data[i].file_url;
+                                pass_photo_verified = facility_document_data[i].verified;
+                                pass_photo_rejected = facility_document_data[i].rejected;
+                                // contains_pass_photo = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "aadhar-id-proof")
+                                //     temp_switchto = "aadhar_tab";
+                                // } 
+                                // console.log("successfully fetched aadhar")
+                            }
+                            if(facility_docs_arr.includes("police_info_supp_file")){
+                                // console.log("address___",facility_document_data[i].file_url)
+                                police_url = facility_document_data[i].file_url;
+                                police_verified = facility_document_data[i].verified;
+                                police_rejected = facility_document_data[i].rejected;
+                                // contains_police = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "addproof-photo")
+                                //     temp_switchto = "address_tab";
+                                // } 
+                                // console.log("successfully fetched addressproof")
+                            }
+                            if(facility_docs_arr.includes("can-cheque")){
+                                can_cheque_url = facility_document_data[i].file_url;
+                                
+                            }
+                            if(facility_docs_arr.includes("blcheque")){
+                                blk_cheque_url = facility_document_data[i].file_url;
+                            }
+                            if(facility_docs_arr.includes("passbook")){
+                                passbook_url = facility_document_data[i].file_url;
+                            }
+                            if(facility_docs_arr.includes("acc-stat")){
+                                acc_stmt_url = facility_document_data[i].file_url;
+                                
+                            }
+                            
+                            
+                        } 
+                        
+                        }
+                    }
+            catch (err){
+                console.log("error in finding Pan image",err)
+            }
                         }
                     }
                     catch(err){
@@ -847,6 +988,137 @@
                         if(final_reject_id_res.body.status == "green"){
                             toast_text = final_reject_id_res.body.message;
                             toast_type = "success";
+            let facility_doc_data_res = await facility_document()
+            try{
+                if (facility_doc_data_res != "null" ){
+                    facility_document_data = facility_doc_data_res.body.data;
+                    
+                    for (var i = 0; i < facility_document_data.length; i++){
+
+                            facility_docs_arr[i] = facility_document_data[i].doc_type;
+                            
+                            if(facility_docs_arr.includes("pan-photo")){
+                                // console.log("pan___",facility_document_data[i].file_url)
+                                pan_url = facility_document_data[i].file_url;
+                                pan_verified = facility_document_data[i].verified;
+                                pan_rejected = facility_document_data[i].rejected;
+                                // console.log("successfully fetched Pan")
+                                contains_pan = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "pan-photo")
+                                //     temp_switchto = "pan_tab";
+                                // }
+
+                            }
+                            
+                            if(facility_docs_arr.includes("voter-id-proof")){
+                                // console.log("address___",facility_document_data[i].file_url)
+                                voter_url = facility_document_data[i].file_url;
+                                voter_verified = facility_document_data[i].verified;
+                                voter_rejected = facility_document_data[i].rejected;
+                                contains_voter = 1;
+                                // console.log("successfully fetched Offer letter")
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "voter-id-proof")
+                                //     temp_switchto = "voter_tab";
+                                // } 
+                            }
+                            if(facility_docs_arr.includes("aadhar-id-proof")){
+                                // console.log("aadhar___",facility_document_data[i].file_url)
+                                aadhar_url = facility_document_data[i].file_url;
+                                aadhar_verified = facility_document_data[i].verified;
+                                aadhar_rejected = facility_document_data[i].rejected;
+                                contains_aadhar = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "aadhar-id-proof")
+                                //     temp_switchto = "aadhar_tab";
+                                // } 
+                                // console.log("successfully fetched aadhar")
+                            }
+                            if(facility_docs_arr.includes("addproof-photo")){
+                                // console.log("address___",facility_document_data[i].file_url)
+                                address_url = facility_document_data[i].file_url;
+                                address_verified = facility_document_data[i].verified;
+                                address_rejected = facility_document_data[i].rejected;
+                                contains_address = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "addproof-photo")
+                                //     temp_switchto = "address_tab";
+                                // } 
+                                // console.log("successfully fetched addressproof")
+                            }
+                            if(facility_docs_arr.includes("newOffFile")){
+                                // console.log("address___",facility_document_data[i].file_url)
+                                offer_url = facility_document_data[i].file_url;
+                                offer_verified = facility_document_data[i].verified;
+                                offer_rejected = facility_document_data[i].rejected;
+                                contains_offer = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "newOffFile")
+                                //     temp_switchto = "offerletter_tab";
+                                // } 
+                                
+                                // console.log("successfully fetched Offer letter")
+                            }
+                            if(facility_docs_arr.includes("dl-photo")){
+                                // console.log("address___",facility_document_data[i].file_url)
+                                dl_url = facility_document_data[i].file_url;
+                                dl_verified = facility_document_data[i].verified;
+                                dl_rejected = facility_document_data[i].rejected;
+                                contains_dl = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "dl-photo")
+                                //     temp_switchto = "DL_tab";
+                                // } 
+                                // console.log("successfully fetched Offer letter")
+                            }
+                            if(facility_docs_arr.includes("pass_photo")){
+                                // console.log("aadhar___",facility_document_data[i].file_url)
+                                pass_photo_url = facility_document_data[i].file_url;
+                                pass_photo_verified = facility_document_data[i].verified;
+                                pass_photo_rejected = facility_document_data[i].rejected;
+                                // contains_pass_photo = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "aadhar-id-proof")
+                                //     temp_switchto = "aadhar_tab";
+                                // } 
+                                // console.log("successfully fetched aadhar")
+                            }
+                            if(facility_docs_arr.includes("police_info_supp_file")){
+                                // console.log("address___",facility_document_data[i].file_url)
+                                police_url = facility_document_data[i].file_url;
+                                police_verified = facility_document_data[i].verified;
+                                police_rejected = facility_document_data[i].rejected;
+                                // contains_police = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "addproof-photo")
+                                //     temp_switchto = "address_tab";
+                                // } 
+                                // console.log("successfully fetched addressproof")
+                            }
+                            if(facility_docs_arr.includes("can-cheque")){
+                                can_cheque_url = facility_document_data[i].file_url;
+                                
+                            }
+                            if(facility_docs_arr.includes("blcheque")){
+                                blk_cheque_url = facility_document_data[i].file_url;
+                            }
+                            if(facility_docs_arr.includes("passbook")){
+                                passbook_url = facility_document_data[i].file_url;
+                            }
+                            if(facility_docs_arr.includes("acc-stat")){
+                                acc_stmt_url = facility_document_data[i].file_url;
+                                
+                            }
+                            
+                            
+                        } 
+                        
+                        }
+                    }
+            catch (err){
+                console.log("error in finding Pan image",err)
+                }
                         }
                     }
                     catch(err){
@@ -1298,10 +1570,37 @@
             let final_bgv_verify_res = await final_bgv_app_rej(final_bgv_verify_data)
             console.log("final_bgv_verify_res",final_bgv_verify_res)
             if(final_bgv_verify_res.body.status == "green"){
-                console.log("TOAST OF BGV SUCCESSFUL")
+                toast_text = final_bgv_verify_res.body.message;
+                toast_type = "success";
+                
+        let facility_bgv_check_res = await facility_bgv_check();
+        console.log("facility_bgv_check_res",facility_bgv_check_res)
+        try {
+            if(!facility_bgv_check_res || facility_bgv_check_res.body.data.length == "0"){
+                var eighteenYearsAgo =  new Date();
+                eighteenYearsAgo.setFullYear( eighteenYearsAgo.getFullYear() - 18);
+                $bgv_data_store.basic_info_dob = eighteenYearsAgo;
+        }
+        else{
+            $bgv_data_store = facility_bgv_check_res.body.data[0];
+            gend_selected = $bgv_data_store.gender;
+            add_is_perm = $bgv_data_store.address_type;
+            curr_same = $bgv_data_store.current_address_is_same;
+            police_add_per = $bgv_data_store.police_address_type;
+            if(!$bgv_data_store.basic_info_dob){
+                var eighteenYearsAgo =  new Date();
+                $bgv_data_store.basic_info_dob = eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear()-18);
+            }
+            
+        }
+        }
+        catch(err) {
+            console.log("Error",err)
+            // message.innerHTML = "Error is " + err;
+        }
+                }
             }
         }
-    }
     async function final_bgv_reject_func(){
         if(final_bgv_reject == 1){
             console.log("final_bgv_reject_func")
@@ -1313,7 +1612,33 @@
             let final_bgv_reject_res = await final_bgv_app_rej(final_bgv_reject_data)
             console.log("final_bgv_reject_res",final_bgv_reject_res)
             if(final_bgv_reject_res.body.status == "green"){
-                console.log("TOAST OF BGV REJECTED")
+                toast_text = final_bgv_reject_res.body.message;
+                toast_type = "success";
+                let facility_bgv_check_res = await facility_bgv_check();
+                console.log("facility_bgv_check_res",facility_bgv_check_res)
+            try {
+                if(!facility_bgv_check_res || facility_bgv_check_res.body.data.length == "0"){
+                    var eighteenYearsAgo =  new Date();
+                    eighteenYearsAgo.setFullYear( eighteenYearsAgo.getFullYear() - 18);
+                    $bgv_data_store.basic_info_dob = eighteenYearsAgo;
+            }
+            else{
+                $bgv_data_store = facility_bgv_check_res.body.data[0];
+                gend_selected = $bgv_data_store.gender;
+                add_is_perm = $bgv_data_store.address_type;
+                curr_same = $bgv_data_store.current_address_is_same;
+                police_add_per = $bgv_data_store.police_address_type;
+                if(!$bgv_data_store.basic_info_dob){
+                    var eighteenYearsAgo =  new Date();
+                    $bgv_data_store.basic_info_dob = eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear()-18);
+                }
+                
+            }
+    }
+    catch(err) {
+        console.log("Error",err)
+        // message.innerHTML = "Error is " + err;
+    }
             }
         }
     } 
@@ -2508,6 +2833,8 @@
                                     <input type="text" class="inputboxVMT" bind:value={vmt_pan}>
                                 </div>
                             </div>
+
+                           
                             <!-- <div class="formField">
                                 <label class="text-greycolor font-light text-sm  text-left ">Enter PAN Card Application Receipt </label>
                                 <div class="w-full ">
@@ -3016,6 +3343,8 @@
                         <p class="text-xs text-mandatorysign">Rejected</p>
                         {:else if $bgv_data_store.basic_information_status == "pending"} 
                         <p class="text-xs text-orange">Pending</p>
+                        {:else if $bgv_data_store.basic_information_status == "incomplete"} 
+                        <p class="text-xs text-orange">Incomplete</p>
                         {/if}
                         
                         
@@ -3038,6 +3367,8 @@
                         <p class="text-xs text-mandatorysign">Rejected</p>
                         {:else if $bgv_data_store.address_status == "pending"} 
                         <p class="text-xs text-orange">Pending</p>
+                        {:else if $bgv_data_store.address_status == "incomplete"} 
+                        <p class="text-xs text-orange">Incomplete</p>
                         {/if}
 
                   </div> 
@@ -3058,6 +3389,8 @@
                         <p class="text-xs text-mandatorysign">Rejected</p>
                         {:else if $bgv_data_store.license_status == "pending"} 
                         <p class="text-xs text-orange">Pending</p>
+                        {:else if $bgv_data_store.license_status == "incomplete"} 
+                        <p class="text-xs text-orange">Incomplete</p>
                         {/if}
                     
                   </div>   
@@ -3079,6 +3412,8 @@
                         <p class="text-xs text-mandatorysign">Rejected</p>
                         {:else if $bgv_data_store.police_verification_status == "pending"} 
                         <p class="text-xs text-orange">Pending</p>
+                        {:else if $bgv_data_store.police_verification_status == "incomplete"} 
+                        <p class="text-xs text-orange">Incomplete</p>
                         {/if}
                     
                   </div>
@@ -3100,6 +3435,8 @@
                         <p class="text-xs text-mandatorysign">Rejected</p>
                         {:else if $bgv_data_store.pan_status == "pending"} 
                         <p class="text-xs text-orange">Pending</p>
+                        {:else if $bgv_data_store.pan_status == "incomplete"} 
+                        <p class="text-xs text-orange">Incomplete</p>
                         {/if}
                     
                   </div>   
