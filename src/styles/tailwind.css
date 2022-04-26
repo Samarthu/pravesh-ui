@@ -2131,6 +2131,13 @@ ul.menuList li a.active span{
         @apply relative bg-white rounded-lg shadow  py-10
     }
 
+    .pancardDialogueOnboardWrapper{
+        @apply relative p-4 w-full max-w-2xl h-full md:h-auto mx-auto flex justify-center items-center
+    }
+.modalHeadConmb-0{
+    @apply flex justify-between px-5 py-5 border-b
+}
+
 
 .vmtRejected{
     display: flex;

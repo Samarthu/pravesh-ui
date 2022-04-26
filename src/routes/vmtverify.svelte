@@ -11,8 +11,9 @@
     // import {facility_id} from "../stores/facility_id_store"
     import {bgv_data_store} from "../stores/bgv_store";
     import Toast from './components/toast.svelte';
+    import Spinner from "./components/spinner.svelte";
 
-
+    let show_spinner = false;
     let facility_document_data = "";
     let bank_details_provided="yes";
     let aadhar_url ="";
@@ -135,7 +136,9 @@
         final_dl_reject,
         final_offer_reject,
         final_reject;
-    
+    let off_Name = "";
+    let off_assoc_type="";
+    let off_vend_name="";
     let is_reject_hidden = "hidden";
     let is_verify_hidden = "hidden";
     let temp_display = "display_id_proof";
@@ -146,7 +149,22 @@
     let new_facility_id;
     let facility_id;
     let acc_num,ifsc_code,acc_hold_name,remark;
-    let gend_selected,add_is_perm,curr_same,police_add_per
+    let gend_selected,add_is_perm,curr_same,police_add_per;
+    let basic_info_res = "";
+    let address_info_res;
+    let pan_info_res;
+    let pol_info_res;
+    let dl_info_res;
+    let facility_address,city,state;
+    let show_fields = 0;
+    let bgv_remarks = "";
+    let rejReasonMap = {
+    "basicInfo": ["Supporting document Missing", "Name/Father's Name/DOB is not clear on the document", "Name/Father's Name/DOB mismatch", "Name/Father's Name/DOB missing", "Passport Size Photo missing/not clear/incorrect", "Aadhaar/Voter Number/Associate name/Father Name/DOB is not clear on the document", "Aadhaar/Voter Number/Associate name/Father Name/DOB mismatch", "Aadhaar/Voter Number/Associate name/Father Name/DOB not captured. Kindly update in the system", "Email Address not verified"],
+    "addressInfo": ["Address mismatch", "Kindly update full address", "Kindly upload associates address proof", "Kindly upload owners acknowledgment & supporting address proof", "Address/City/District/State/Pincode mismatch"],
+    "dlInfo": ["Supporting document Missing", "Driving License expired", "Name/License number/Date of issue/expiry/DOB is not clear on document", "Name/Number/Date of issue/expiry/DOB mismatch", "Name/Number/Date of issue/expiry/DOB missing.", "Associate name/License number/Date of issue/expiry/DOB/Issuing State is not clear on document", "	Associate name/License number/Date of issue/expiry/DOB/Issuing State mismatch", "Associate name/License number/Date of issue/expiry/DOB/Issuing State not captured. Kindly update in system"],
+    "panInfo": ["Supporting document Missing", "Name/Father's name/Pan Number/DOB mismatch", "Name/Father's name/Pan Number/DOB missing.", "Name/Father's name/Pan Number/DOB is not clear on the document"],
+    "policeInfo": ["Supporting document Missing", "Incorrect Address", "Name/Guardian's name/Address mismatch", "Name/Guardian's name/Address missing", "Name/Guardian's name/Address is not clear on the document"]
+}
 
     onMount(async () => {
         // let bgv_pass_data=[
@@ -174,9 +192,11 @@
         // new_facility_id = value.facility_id_number;
         // })
         facility_id = "CRUN00374"
+        // console.log('habscib',rejReasonMap.basicInfo)
+        // facility_id = "MHPD01226"
         console.log("new_facility_id",facility_id)
             let facility_data_res = await get_facility_details()
-            console.log("facility_data_res",facility_data_res)
+            console.log("facility_data_res",facility_data_res.body.data[0])
             try{
                 if(facility_data_res.body.status=="green"){
                     if(facility_data_res!="null"){
@@ -185,6 +205,21 @@
                         )
                     }
                 }
+                for (var j = 0;j < $facility_data_store.addresess.length;j++) 
+            {
+                if (
+                    $facility_data_store.addresess[j].default_address == "1"
+                ) {
+                    facility_address =$facility_data_store.addresess[j].address;
+                    // facility_postal =$facility_data_store.addresess[j].postal;
+                    city = $facility_data_store.addresess[j].city;
+                    state = $facility_data_store.addresess[j].state;
+                    // location_id = $facility_data_store.addresess[j].location_id;
+                }
+            }
+            if ($facility_data_store.org_id == "FT"){
+                show_fields = 1
+            }
             }
             catch (err) {
                 console.log("error in facility data")
@@ -397,7 +432,7 @@
 
     async function doc_approve(doc_cat){
         if (doc_cat == "pan"){
-        
+            show_spinner = true;
             console.log("payload", $facility_data_store)
             
             let document_load = {
@@ -408,6 +443,7 @@
                 "doc_type":"pan-photo"
             }
             let pan_sub_res = await approve_reject_status(document_load)
+            show_spinner = false;
             try{
                 if(pan_sub_res.body.status == "green"){
                     pan_success_flag = 1
@@ -420,7 +456,7 @@
             
         }
         if (doc_cat == "voter"){
-        
+            show_spinner = true;
         console.log("payload", $facility_data_store)
         
         let document_load = {
@@ -431,6 +467,7 @@
             "doc_type":"voter-id-proof"
         }
         let voter_sub_res =await approve_reject_status(document_load)
+        show_spinner = false;
         try{
             console.log("voter_sub_res",voter_sub_res.body.status)
                 if(voter_sub_res.body.status == "green"){
@@ -442,6 +479,7 @@
             }
     }
         if (doc_cat == "aadhar"){
+            show_spinner = true;
             let document_load = {
                 "resource_id":facility_id,
                 "doc_number":vmt_aadhar,
@@ -450,6 +488,7 @@
                 "doc_type":"aadhar-id-proof"
             }
             let aadhar_sub_res =await approve_reject_status(document_load)
+            show_spinner = false;
             try{
                 if(aadhar_sub_res.body.status == "green"){
                     aadhar_success_flag = 1
@@ -460,7 +499,7 @@
             }
         }
         if (doc_cat == "dl"){
-        
+            show_spinner = true;
         let document_load = {
             "resource_id":facility_id,
             "doc_number":vmt_dl,
@@ -469,6 +508,7 @@
             "doc_type":"dl-photo"
         }
         let dl_sub_res =await approve_reject_status(document_load)
+        show_spinner = false;
         try{
                 if(dl_sub_res.body.status == "green"){
                     dl_success_flag = 1
@@ -479,6 +519,7 @@
             }
         }
         if (doc_cat == "address"){
+            show_spinner = true;
             let document_load = {
                 "resource_id":facility_id,
                 "doc_number":vmt_address,
@@ -487,6 +528,7 @@
                 "doc_type":"addproof-photo"
             }
             let address_sub_res =await approve_reject_status(document_load)
+            show_spinner = false;
             try{
                 if(address_sub_res.body.status == "green"){
                     address_success_flag = 1
@@ -498,14 +540,19 @@
         }
         
     if (doc_cat == "offer"){
+        show_spinner = true;
             let document_load = {
                 "resource_id":facility_id,
+                "facility_name":off_Name,
+                "facility_type":off_assoc_type,
+                "vendor_name":off_vend_name,
                 "doc_number":vmt_offer,
                 "status_type":"DV",
                 "status":"true",
                 "doc_type":"newOffFile"
             }
             let offer_sub_res =await approve_reject_status(document_load)
+            show_spinner = false;
             try{
                 if(offer_sub_res.body.status == "green"){
                     offer_success_flag = 1
@@ -598,7 +645,7 @@
 
     async function doc_reject(doc_cat){
         if (doc_cat == "pan"){
-        
+            show_spinner = true;
             console.log("payload", $facility_data_store)
             
             let document_load = {
@@ -609,6 +656,7 @@
                 "doc_type":"pan-photo"
             }
             let pan_sub_res = await approve_reject_status(document_load)
+            show_spinner = false;
             try{
                 if(pan_sub_res.body.status == "green"){
                     pan_reject_flag = 1
@@ -620,7 +668,7 @@
             
         }
         if (doc_cat == "voter"){
-        
+            show_spinner = true;
         console.log("payload", $facility_data_store)
         
         let document_load = {
@@ -631,6 +679,7 @@
             "doc_type":"voter-id-proof"
         }
         let voter_sub_res =await approve_reject_status(document_load)
+        show_spinner = false;
         try{
             console.log("voter_sub_res",voter_sub_res.body.status)
                 if(voter_sub_res.body.status == "green"){
@@ -642,6 +691,7 @@
             }
     }
         if (doc_cat == "aadhar"){
+            show_spinner = true;
             let document_load = {
                 "resource_id":facility_id,
                 "doc_number":vmt_aadhar,
@@ -650,6 +700,7 @@
                 "doc_type":"aadhar-id-proof"
             }
             let aadhar_sub_res =await approve_reject_status(document_load)
+            show_spinner = false;
             try{
                 if(aadhar_sub_res.body.status == "green"){
                     aadhar_reject_flag = 1
@@ -660,7 +711,7 @@
             }
         }
         if (doc_cat == "dl"){
-        
+            show_spinner = true;
         let document_load = {
             "resource_id":facility_id,
             "doc_number":vmt_dl,
@@ -669,6 +720,7 @@
             "doc_type":"dl-photo"
         }
         let dl_sub_res =await approve_reject_status(document_load)
+        show_spinner = false;
         try{
                 if(dl_sub_res.body.status == "green"){
                     dl_reject_flag = 1
@@ -679,6 +731,7 @@
             }
         }
         if (doc_cat == "address"){
+            show_spinner = true;
             let document_load = {
                 "resource_id":facility_id,
                 "doc_number":vmt_address,
@@ -687,6 +740,7 @@
                 "doc_type":"addproof-photo"
             }
             let address_sub_res =await approve_reject_status(document_load)
+            show_spinner = false;
             try{
                 if(address_sub_res.body.status == "green"){
                     address_reject_flag = 1
@@ -698,14 +752,17 @@
         }
         
     if (doc_cat == "offer"){
+        show_spinner = true;
             let document_load = {
                 "resource_id":facility_id,
                 "doc_number":vmt_offer,
                 "status_type":"RJ",
                 "status":"true",
-                "doc_type":"newOffFile"
+                "doc_type":"newOffFile",
+                "address":"address"
             }
             let offer_sub_res =await approve_reject_status(document_load)
+            show_spinner = false;
             try{
                 if(offer_sub_res.body.status == "green"){
                     offer_reject_flag = 1
@@ -782,6 +839,7 @@
 
     async function final_id_verify(){
             if(final_approve == "1"){
+                show_spinner = true;
                 console.log("final_approved successful data arr",facility_document_data);
                 for(let i=0;i<facility_document_data.length;i++){
                     if(pan_success_flag == "1" && facility_document_data[i].doc_type == "pan-photo"){
@@ -811,6 +869,138 @@
                         if(final_approve_id_res.body.status == "green"){
                             toast_text = final_approve_id_res.body.message;
                             toast_type = "success";
+                            show_spinner = false;
+                            let facility_doc_data_res = await facility_document()
+            try{
+                if (facility_doc_data_res != "null" ){
+                    facility_document_data = facility_doc_data_res.body.data;
+                    
+                    for (var i = 0; i < facility_document_data.length; i++){
+
+                            facility_docs_arr[i] = facility_document_data[i].doc_type;
+                            
+                            if(facility_docs_arr.includes("pan-photo")){
+                                // console.log("pan___",facility_document_data[i].file_url)
+                                pan_url = facility_document_data[i].file_url;
+                                pan_verified = facility_document_data[i].verified;
+                                pan_rejected = facility_document_data[i].rejected;
+                                // console.log("successfully fetched Pan")
+                                contains_pan = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "pan-photo")
+                                //     temp_switchto = "pan_tab";
+                                // }
+
+                            }
+                            
+                            if(facility_docs_arr.includes("voter-id-proof")){
+                                // console.log("address___",facility_document_data[i].file_url)
+                                voter_url = facility_document_data[i].file_url;
+                                voter_verified = facility_document_data[i].verified;
+                                voter_rejected = facility_document_data[i].rejected;
+                                contains_voter = 1;
+                                // console.log("successfully fetched Offer letter")
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "voter-id-proof")
+                                //     temp_switchto = "voter_tab";
+                                // } 
+                            }
+                            if(facility_docs_arr.includes("aadhar-id-proof")){
+                                // console.log("aadhar___",facility_document_data[i].file_url)
+                                aadhar_url = facility_document_data[i].file_url;
+                                aadhar_verified = facility_document_data[i].verified;
+                                aadhar_rejected = facility_document_data[i].rejected;
+                                contains_aadhar = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "aadhar-id-proof")
+                                //     temp_switchto = "aadhar_tab";
+                                // } 
+                                // console.log("successfully fetched aadhar")
+                            }
+                            if(facility_docs_arr.includes("addproof-photo")){
+                                // console.log("address___",facility_document_data[i].file_url)
+                                address_url = facility_document_data[i].file_url;
+                                address_verified = facility_document_data[i].verified;
+                                address_rejected = facility_document_data[i].rejected;
+                                contains_address = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "addproof-photo")
+                                //     temp_switchto = "address_tab";
+                                // } 
+                                // console.log("successfully fetched addressproof")
+                            }
+                            if(facility_docs_arr.includes("newOffFile")){
+                                // console.log("address___",facility_document_data[i].file_url)
+                                offer_url = facility_document_data[i].file_url;
+                                offer_verified = facility_document_data[i].verified;
+                                offer_rejected = facility_document_data[i].rejected;
+                                contains_offer = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "newOffFile")
+                                //     temp_switchto = "offerletter_tab";
+                                // } 
+                                
+                                // console.log("successfully fetched Offer letter")
+                            }
+                            if(facility_docs_arr.includes("dl-photo")){
+                                // console.log("address___",facility_document_data[i].file_url)
+                                dl_url = facility_document_data[i].file_url;
+                                dl_verified = facility_document_data[i].verified;
+                                dl_rejected = facility_document_data[i].rejected;
+                                contains_dl = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "dl-photo")
+                                //     temp_switchto = "DL_tab";
+                                // } 
+                                // console.log("successfully fetched Offer letter")
+                            }
+                            if(facility_docs_arr.includes("pass_photo")){
+                                // console.log("aadhar___",facility_document_data[i].file_url)
+                                pass_photo_url = facility_document_data[i].file_url;
+                                pass_photo_verified = facility_document_data[i].verified;
+                                pass_photo_rejected = facility_document_data[i].rejected;
+                                // contains_pass_photo = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "aadhar-id-proof")
+                                //     temp_switchto = "aadhar_tab";
+                                // } 
+                                // console.log("successfully fetched aadhar")
+                            }
+                            if(facility_docs_arr.includes("police_info_supp_file")){
+                                // console.log("address___",facility_document_data[i].file_url)
+                                police_url = facility_document_data[i].file_url;
+                                police_verified = facility_document_data[i].verified;
+                                police_rejected = facility_document_data[i].rejected;
+                                // contains_police = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "addproof-photo")
+                                //     temp_switchto = "address_tab";
+                                // } 
+                                // console.log("successfully fetched addressproof")
+                            }
+                            if(facility_docs_arr.includes("can-cheque")){
+                                can_cheque_url = facility_document_data[i].file_url;
+                                
+                            }
+                            if(facility_docs_arr.includes("blcheque")){
+                                blk_cheque_url = facility_document_data[i].file_url;
+                            }
+                            if(facility_docs_arr.includes("passbook")){
+                                passbook_url = facility_document_data[i].file_url;
+                            }
+                            if(facility_docs_arr.includes("acc-stat")){
+                                acc_stmt_url = facility_document_data[i].file_url;
+                                
+                            }
+                            
+                            
+                        } 
+                        
+                        }
+                    }
+            catch (err){
+                console.log("error in finding Pan image",err)
+            }
                         }
                     }
                     catch(err){
@@ -820,6 +1010,7 @@
         }
         async function final_id_reject(){
             if(final_reject == "1"){
+                show_spinner = true;
                 console.log("final_rejected successful");
                 for(let i=0;i<facility_document_data.length;i++){
                     if(pan_reject_flag == "1" && facility_document_data[i].doc_type == "pan-photo"){
@@ -847,6 +1038,138 @@
                         if(final_reject_id_res.body.status == "green"){
                             toast_text = final_reject_id_res.body.message;
                             toast_type = "success";
+                            show_spinner = false;
+                            let facility_doc_data_res = await facility_document()
+            try{
+                if (facility_doc_data_res != "null" ){
+                    facility_document_data = facility_doc_data_res.body.data;
+                    
+                    for (var i = 0; i < facility_document_data.length; i++){
+
+                            facility_docs_arr[i] = facility_document_data[i].doc_type;
+                            
+                            if(facility_docs_arr.includes("pan-photo")){
+                                // console.log("pan___",facility_document_data[i].file_url)
+                                pan_url = facility_document_data[i].file_url;
+                                pan_verified = facility_document_data[i].verified;
+                                pan_rejected = facility_document_data[i].rejected;
+                                // console.log("successfully fetched Pan")
+                                contains_pan = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "pan-photo")
+                                //     temp_switchto = "pan_tab";
+                                // }
+
+                            }
+                            
+                            if(facility_docs_arr.includes("voter-id-proof")){
+                                // console.log("address___",facility_document_data[i].file_url)
+                                voter_url = facility_document_data[i].file_url;
+                                voter_verified = facility_document_data[i].verified;
+                                voter_rejected = facility_document_data[i].rejected;
+                                contains_voter = 1;
+                                // console.log("successfully fetched Offer letter")
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "voter-id-proof")
+                                //     temp_switchto = "voter_tab";
+                                // } 
+                            }
+                            if(facility_docs_arr.includes("aadhar-id-proof")){
+                                // console.log("aadhar___",facility_document_data[i].file_url)
+                                aadhar_url = facility_document_data[i].file_url;
+                                aadhar_verified = facility_document_data[i].verified;
+                                aadhar_rejected = facility_document_data[i].rejected;
+                                contains_aadhar = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "aadhar-id-proof")
+                                //     temp_switchto = "aadhar_tab";
+                                // } 
+                                // console.log("successfully fetched aadhar")
+                            }
+                            if(facility_docs_arr.includes("addproof-photo")){
+                                // console.log("address___",facility_document_data[i].file_url)
+                                address_url = facility_document_data[i].file_url;
+                                address_verified = facility_document_data[i].verified;
+                                address_rejected = facility_document_data[i].rejected;
+                                contains_address = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "addproof-photo")
+                                //     temp_switchto = "address_tab";
+                                // } 
+                                // console.log("successfully fetched addressproof")
+                            }
+                            if(facility_docs_arr.includes("newOffFile")){
+                                // console.log("address___",facility_document_data[i].file_url)
+                                offer_url = facility_document_data[i].file_url;
+                                offer_verified = facility_document_data[i].verified;
+                                offer_rejected = facility_document_data[i].rejected;
+                                contains_offer = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "newOffFile")
+                                //     temp_switchto = "offerletter_tab";
+                                // } 
+                                
+                                // console.log("successfully fetched Offer letter")
+                            }
+                            if(facility_docs_arr.includes("dl-photo")){
+                                // console.log("address___",facility_document_data[i].file_url)
+                                dl_url = facility_document_data[i].file_url;
+                                dl_verified = facility_document_data[i].verified;
+                                dl_rejected = facility_document_data[i].rejected;
+                                contains_dl = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "dl-photo")
+                                //     temp_switchto = "DL_tab";
+                                // } 
+                                // console.log("successfully fetched Offer letter")
+                            }
+                            if(facility_docs_arr.includes("pass_photo")){
+                                // console.log("aadhar___",facility_document_data[i].file_url)
+                                pass_photo_url = facility_document_data[i].file_url;
+                                pass_photo_verified = facility_document_data[i].verified;
+                                pass_photo_rejected = facility_document_data[i].rejected;
+                                // contains_pass_photo = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "aadhar-id-proof")
+                                //     temp_switchto = "aadhar_tab";
+                                // } 
+                                // console.log("successfully fetched aadhar")
+                            }
+                            if(facility_docs_arr.includes("police_info_supp_file")){
+                                // console.log("address___",facility_document_data[i].file_url)
+                                police_url = facility_document_data[i].file_url;
+                                police_verified = facility_document_data[i].verified;
+                                police_rejected = facility_document_data[i].rejected;
+                                // contains_police = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "addproof-photo")
+                                //     temp_switchto = "address_tab";
+                                // } 
+                                // console.log("successfully fetched addressproof")
+                            }
+                            if(facility_docs_arr.includes("can-cheque")){
+                                can_cheque_url = facility_document_data[i].file_url;
+                                
+                            }
+                            if(facility_docs_arr.includes("blcheque")){
+                                blk_cheque_url = facility_document_data[i].file_url;
+                            }
+                            if(facility_docs_arr.includes("passbook")){
+                                passbook_url = facility_document_data[i].file_url;
+                            }
+                            if(facility_docs_arr.includes("acc-stat")){
+                                acc_stmt_url = facility_document_data[i].file_url;
+                                
+                            }
+                            
+                            
+                        } 
+                        
+                        }
+                    }
+            catch (err){
+                console.log("error in finding Pan image",err)
+            }
                         }
                     }
                     catch(err){
@@ -904,6 +1227,7 @@
             "remarks": remark
         }
             let bank_sub_res =await bank_approve_reject(document_load)
+            show_spinner = true;
             try{
                 if(bank_sub_res.body.status == "green"){
                     bank_reject_flag = 1
@@ -912,6 +1236,7 @@
             catch(err){
                 console.log("Error in pan_sub_res",err)
             }
+            show_spinner = false;
         }
            
         
@@ -944,122 +1269,91 @@
 
     async function bgv_click(bgv_data){
         if(bgv_data=="basic_approve"){
+            show_spinner = true;
             console.log("basic_approve")
-            let basic_dets_data = {
+            // if(show_fields ==1){
+                let basic_dets_data = {
                 action_type:"Verified",
-                adhar_card_number: $bgv_data_store.adhar_card_number,
-                basic_info_dob:$bgv_data_store.basic_info_dob,
-                basic_info_supp_file:"",
-                delivery_model:$bgv_data_store.delivery_model,
-                email_id:$bgv_data_store.email_id,
                 facility_id:facility_id,
-                father_name:$bgv_data_store.father_name,
-                field_type:$bgv_data_store.field_type,
-                first_name:$bgv_data_store.first_name,
-                gender:$bgv_data_store.gender,
-                hub_name:$bgv_data_store.hub_name,
-                last_name:$bgv_data_store.last_name,
-                pass_photo:"",
-                phone_number:$bgv_data_store.phone_number,
-                rejReason:"-1",
-                spouse_name:$bgv_data_store.spouse_name,
+                field_type:"basicInfo",
                 station_model:$bgv_data_store.station_model,
-
+                hub_name:$bgv_data_store.hub_name,
+                delivery_model:$bgv_data_store.delivery_model
             }
+            // }
+            // else{
+            //     let basic_dets_data = {
+            //     action_type:"Verified",
+            //     facility_id:facility_id,
+            //     field_type:"basicInfo"
+            // }
+            // }
+            
             let basic_app_res = await bgv_approve_rej(basic_dets_data)
             console.log("basic_app_res",basic_app_res)
+            show_spinner = false;
             if(basic_app_res.body.status == "green"){
                 basic_bgv_success_flag = 1
             }
         }
         if(bgv_data=="address_approve"){
+            show_spinner = true;
             console.log("address_approve")
             let address_dets_data = {
                 action_type:"Verified",
-                address_info_supp_file:"",
-                address_type:$bgv_data_store.address_type,
-                area:$bgv_data_store.area,
-                city:$bgv_data_store.city,
-                contact_number:$bgv_data_store.contact_number,
-                current_address_is_same:$bgv_data_store.current_address_is_same,
-                district:$bgv_data_store.district,
                 facility_id:facility_id,
-                field_type:$bgv_data_store.field_type,
-                full_address:$bgv_data_store.full_address,
-                landmark:$bgv_data_store.landmark,
-                period_of_stay:$bgv_data_store.period_of_stay,
-                pin_code:$bgv_data_store.pin_code,
-                rejReason:"-1",
-                residence_type:$bgv_data_store.residence_type,
-                state:$bgv_data_store.state,
-                stay_from:$bgv_data_store.stay_from,
-                stay_till:$bgv_data_store.stay_till,
-
+                field_type:"addressInfo"
             }
             let address_app_res = await bgv_approve_rej(address_dets_data)
             console.log("address_app_res",address_app_res)
+            show_spinner = false;
             if(address_app_res.body.status == "green"){
                 address_bgv_success_flag = 1
             }
         }
         if(bgv_data=="pan_approve"){
+            show_spinner = true;
             console.log("pan_approve")
             let pan_dets_data = {
                 action_type:"Verified",
-                pancard_number:$bgv_data_store.pancard_number,
-                pan_info_supp_file:"",
-                pan_full_name:$bgv_data_store.pan_full_name,
-                pan_dob:$bgv_data_store.pan_dob,
-                pan_father_name:$bgv_data_store.pan_father_name,
                 facility_id:facility_id,
-                field_type:$bgv_data_store.field_type,
-                rejReason:"-1",
-
+                field_type:"panInfo",
             }
             let pan_app_res = await bgv_approve_rej(pan_dets_data)
             console.log("pan_app_res",pan_app_res)
+            show_spinner = false;
             if(pan_app_res.body.status == "green"){
                 pan_bgv_success_flag = 1
             }
         }
 
         if(bgv_data=="dl_approve"){
+            show_spinner = true;
             console.log("dl_approve")
             let dl_dets_data = {
                 action_type:"Verified",
-                dl_info_supp_file:"",
-                dl_number:$bgv_data_store.dl_number,
-                dl_type:$bgv_data_store.dl_type,
                 facility_id:facility_id,
-                field_type:$bgv_data_store.field_type,
-                rejReason:"-1",
-                valid_from:$bgv_data_store.valid_from,
-                valid_till:$bgv_data_store.valid_till,
-
+                field_type:"dlInfo",
             }
             let dl_app_res = await bgv_approve_rej(dl_dets_data)
             console.log("dl_app_res",dl_app_res)
+            show_spinner = false;
             if(dl_app_res.body.status == "green"){
                 dl_bgv_success_flag = 1
             }
         }
 
         if(bgv_data=="pol_approve"){
+            show_spinner = true;
             console.log("pol_approve")
             let pol_dets_data = {
                 action_type:"Verified",
-                candidate_name:$bgv_data_store.candidate_name,
                 facility_id:facility_id,
-                field_type:$bgv_data_store.field_type,
-                guardian_name:$bgv_data_store.guardian_name,
-                police_address_type:$bgv_data_store.police_address_type,
-                police_info_supp_file:"",
-                police_verified_address:$bgv_data_store.police_verified_address,
-                rejReason:"-1",
-
+                field_type:"policeInfo",
             }
             let pol_app_res = await bgv_approve_rej(pol_dets_data)
             console.log("pol_app_res",pol_app_res)
+            show_spinner = false;
             if(pol_app_res.body.status == "green"){
                 police_bgv_success_flag = 1
             }
@@ -1127,17 +1421,16 @@
             
             if(bgv_data == "basic_reject"){
             console.log("basic_reject")
-            let basic_dets_data = {
+            if(basic_info_res == ""){
+                toast_text = "Please select remark before submit";
+                toast_type = "error";
+            }
+            else{
+                let basic_dets_data = {
                 action_type:"Rejected",
-                basic_info_supp_file:"",
-                delivery_model:$bgv_data_store.delivery_model,
-                email_id:$bgv_data_store.email_id,
                 facility_id:facility_id,
-                father_name:$bgv_data_store.father_name,
-                field_type:$bgv_data_store.field_type,
-                first_name:$bgv_data_store.first_name,
-                remarks:"demo remark"
-
+                field_type:"basicInfo",
+                remarks:basic_info_res.trim()
             }
             let basic_app_res = await bgv_approve_rej(basic_dets_data)
             console.log("basic_app_res",basic_app_res)
@@ -1145,98 +1438,87 @@
                 basic_bgv_reject_flag = 1;
             }
         }
+            }
+            
         if(bgv_data == "address_reject"){
             console.log("address_reject")
-            let address_dets_data = {
+            if (address_info_res == ""){
+                toast_text = "Please select remark before submit";
+                toast_type = "error";
+            }
+            else{
+                let address_dets_data = {
                 action_type:"Rejected",
-                address_info_supp_file:"",
-                address_type:$bgv_data_store.address_type,
-                area:$bgv_data_store.area,
-                city:$bgv_data_store.city,
-                contact_number:$bgv_data_store.contact_number,
-                current_address_is_same:$bgv_data_store.current_address_is_same,
-                district:$bgv_data_store.district,
                 facility_id:facility_id,
-                field_type:$bgv_data_store.field_type,
-                full_address:$bgv_data_store.full_address,
-                landmark:$bgv_data_store.landmark,
-                period_of_stay:$bgv_data_store.period_of_stay,
-                pin_code:$bgv_data_store.pin_code,
-                rejReason:"-1",
-                residence_type:$bgv_data_store.residence_type,
-                state:$bgv_data_store.state,
-                stay_from:$bgv_data_store.stay_from,
-                stay_till:$bgv_data_store.stay_till,
-                remarks:"demo remark"
-
+                field_type:"addressInfo",
+                remarks:address_info_res.trim()
             }
             let address_app_res = await bgv_approve_rej(address_dets_data)
             if(address_app_res.body.status == "green"){
                 address_bgv_reject_flag = 1;
             }
+            } 
         }
 
         if(bgv_data== "dl_reject"){
             console.log("dl_reject")
-            let dl_dets_data = {
+            if(dl_info_res == ""){
+                toast_text = "Please select remark before submit";
+                toast_type = "error";
+            }
+            else{
+                let dl_dets_data = {
                 action_type:"Rejected",
-                dl_info_supp_file:"",
-                dl_number:$bgv_data_store.dl_number,
-                dl_type:$bgv_data_store.dl_type,
                 facility_id:facility_id,
-                field_type:$bgv_data_store.field_type,
-                rejReason:"-1",
-                valid_from:$bgv_data_store.valid_from,
-                valid_till:$bgv_data_store.valid_till,
-                remarks:"demo remark"
-
+                field_type:"dlInfo",
+                remarks:dl_info_res.trim()
             }
             let dl_app_res = await bgv_approve_rej(dl_dets_data)
             console.log("dl_app_res",dl_app_res)
             if(dl_app_res.body.status == "green"){
                 dl_bgv_reject_flag = 1
             }
+            } 
         }
         if(bgv_data == "pol_reject"){
             console.log("po_reject")
-            let pol_dets_data = {
+            if(pol_info_res == ""){
+                toast_text = "Please select remark before submit";
+                toast_type = "error";
+            }
+            else{
+                let pol_dets_data = {
                 action_type:"Rejected",
-                candidate_name:$bgv_data_store.candidate_name,
                 facility_id:facility_id,
-                field_type:$bgv_data_store.field_type,
-                guardian_name:$bgv_data_store.guardian_name,
-                police_address_type:$bgv_data_store.police_address_type,
-                police_info_supp_file:"",
-                police_verified_address:$bgv_data_store.police_verified_address,
-                rejReason:"-1",
-                remarks:"demo remark"
-
+                field_type:"policeInfo",
+                remarks:pol_info_res.trim()
             }
             let pol_app_res = await bgv_approve_rej(pol_dets_data)
             console.log("pol_app_res",pol_app_res)
             if(pol_app_res.body.status == "green"){
                 police_bgv_reject_flag = 1
             }
+            }   
         }
         if(bgv_data == "pan_reject"){
             console.log("pan_reject")
-            let pan_dets_data = {
+            if(pan_info_res == ""){
+                toast_text = "Please select remark before submit";
+                toast_type = "error";
+            }
+            else{
+                let pan_dets_data = {
                 action_type:"Rejected",
-                pan_info_supp_file:"",
-                pancard_number:$bgv_data_store.pancard_number,
                 facility_id:facility_id,
-                pan_father_name:$bgv_data_store.pan_father_name,
-                field_type:$bgv_data_store.field_type,
-                pan_dob:$bgv_data_store.pan_dob,
-                pan_full_name:$bgv_data_store.pan_full_name,
-                rejReason:"-1",
-                remarks:"demo remark"
+                field_type:"panInfo",
+                remarks:pan_info_res.trim()
             }
             let pan_app_res = await bgv_approve_rej(pan_dets_data)
             console.log("pan_app_res",pan_app_res)
             if(pan_app_res.body.status == "green"){
                 pan_bgv_reject_flag = 1
             }
+            } 
         }
         if($bgv_config_store.is_basic_info_mandatory == 0){   
                 final_basic_bgv_reject = 1;
@@ -1290,6 +1572,7 @@
     async function final_bgv_verify_func(){
         if(final_bgv_approve == 1){
             console.log("final_bgv_verify_func")
+            show_spinner=true;
             let final_bgv_verify_data = {
                 "facility_id":facility_id,
                 "bgv_status":"verified"
@@ -1299,21 +1582,80 @@
             console.log("final_bgv_verify_res",final_bgv_verify_res)
             if(final_bgv_verify_res.body.status == "green"){
                 console.log("TOAST OF BGV SUCCESSFUL")
+                toast_text = final_bgv_verify_res.body.message;
+                toast_type = "success";
+                show_spinner=false;
+                let facility_bgv_check_res = await facility_bgv_check();
+        console.log("facility_bgv_check_res",facility_bgv_check_res)
+        try {
+            if(!facility_bgv_check_res || facility_bgv_check_res.body.data.length == "0"){
+                var eighteenYearsAgo =  new Date();
+                eighteenYearsAgo.setFullYear( eighteenYearsAgo.getFullYear() - 18);
+                $bgv_data_store.basic_info_dob = eighteenYearsAgo;
+        }
+        else{
+            $bgv_data_store = facility_bgv_check_res.body.data[0];
+            gend_selected = $bgv_data_store.gender;
+            add_is_perm = $bgv_data_store.address_type;
+            curr_same = $bgv_data_store.current_address_is_same;
+            police_add_per = $bgv_data_store.police_address_type;
+            if(!$bgv_data_store.basic_info_dob){
+                var eighteenYearsAgo =  new Date();
+                $bgv_data_store.basic_info_dob = eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear()-18);
+                // is_id_prof_verified.reload()
+            }
+            
+        }
+    }
+    catch(err) {
+        console.log("Error",err)
+        // message.innerHTML = "Error is " + err;
+    }
             }
         }
     }
     async function final_bgv_reject_func(){
         if(final_bgv_reject == 1){
+            show_spinner=true;
             console.log("final_bgv_reject_func")
             let final_bgv_reject_data = {
                 "facility_id":facility_id,
                 "bgv_status":"rejected",
-                "bgv_remarks":"Testing"
+                bgv_remarks:bgv_remarks,
             }
             let final_bgv_reject_res = await final_bgv_app_rej(final_bgv_reject_data)
             console.log("final_bgv_reject_res",final_bgv_reject_res)
             if(final_bgv_reject_res.body.status == "green"){
                 console.log("TOAST OF BGV REJECTED")
+                toast_text = final_bgv_reject_res.body.message;
+                toast_type = "success";
+                show_spinner=false;
+                let facility_bgv_check_res = await facility_bgv_check();
+        console.log("facility_bgv_check_res",facility_bgv_check_res)
+        try {
+            if(!facility_bgv_check_res || facility_bgv_check_res.body.data.length == "0"){
+                var eighteenYearsAgo =  new Date();
+                eighteenYearsAgo.setFullYear( eighteenYearsAgo.getFullYear() - 18);
+                $bgv_data_store.basic_info_dob = eighteenYearsAgo;
+        }
+        else{
+            $bgv_data_store = facility_bgv_check_res.body.data[0];
+            gend_selected = $bgv_data_store.gender;
+            add_is_perm = $bgv_data_store.address_type;
+            curr_same = $bgv_data_store.current_address_is_same;
+            police_add_per = $bgv_data_store.police_address_type;
+            if(!$bgv_data_store.basic_info_dob){
+                var eighteenYearsAgo =  new Date();
+                $bgv_data_store.basic_info_dob = eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear()-18);
+                
+            }
+            // $facility_data_store.is_id_prof_rejected.reload()
+        }
+    }
+    catch(err) {
+        console.log("Error",err)
+        // message.innerHTML = "Error is " + err;
+    }
             }
         }
     } 
@@ -1413,9 +1755,61 @@
         }
 
     }
+
+    function openRejectModel(){
+        Basic_Reject_modal.style.display = "block";
+    }
+
+    function closeRejectModel(){
+        Basic_Reject_modal.style.display = "none";
+    }
+
+    function openAddressRejectModel(){
+        Address_Reject_modal.style.display = "block";
+    }
+
+    function closeAddressRejectModel(){
+        Address_Reject_modal.style.display = "none";
+    }
+
+    function openDLRejectModel(){
+        DL_Reject_modal.style.display = "block";
+    }
+
+    function closeDLRejectModel(){
+        DL_Reject_modal.style.display = "none";
+    }
+
+    function openPVRejectModel(){
+        PV_Reject_modal.style.display = "block";
+    }
+
+    function closePVRejectModel(){
+        PV_Reject_modal.style.display = "none";
+    }
+
+    function openPanRejectModel(){
+        Pan_Reject_modal.style.display = "block";
+    }
+
+    function closePanRejectModel(){
+        Pan_Reject_modal.style.display = "none";
+    }
+
+    function openFinalRejectModel(){
+        Final_bg_Reject_modal.style.display = "block";
+    }
+
+    function closeFinalRejectModel(){
+        Final_bg_Reject_modal.style.display = "none";
+    }
     
 
 </script>
+
+{#if show_spinner}
+    <Spinner />
+{/if}
 
 <div class="mainContent ">
     <div class="breadcrumb ">
@@ -1582,8 +1976,8 @@
                     
                 </div> -->
                 {#if final_id_ver_btn == "1"}
-                <div class="statusrightlink xsl:hidden">
-                    <div class="vmtRejected mr-4" on:click="{final_id_reject}">
+                <div class="statusrightlink ">
+                    <div class="vmtRejected mr-4 " on:click="{final_id_reject}">
                         Reject 
                     </div>
                     <div class="vmtVerify "  on:click="{final_id_verify}">
@@ -1592,8 +1986,8 @@
                     </div>
                 </div>
                 {:else if final_bgv_ver_btn == "1"}
-                <div class="statusrightlink xsl:hidden">
-                    <div class="vmtRejected mr-4" on:click="{final_bgv_reject_func}">
+                <div class="statusrightlink ">
+                    <div class="vmtRejected mr-4" on:click="{openFinalRejectModel}">
                         Reject 
                     </div>
                     <div class="vmtVerify "  on:click="{final_bgv_verify_func}">
@@ -1604,12 +1998,11 @@
                 {:else if final_bank_ver_btn =="1"}<p></p>
                 {/if}
             </div>
-            <div class="mt-4 mb-3 hidden xsl:flex">
+            <!-- <div class="mt-4 mb-3 hidden xsl:flex">
                 <div class="vmtVerify ">
                     Verify 
-                    <!-- <img src="../src/img/downarrowwhite.svg" class="pl-2" alt="arrow"> -->
                 </div>
-            </div>
+            </div> -->
         </div>
     </div>
     <div class="hidden" id="userDetailsSection">
@@ -2194,9 +2587,10 @@
 <div class="verifyIdSection ">
     <div class="mobileMenuForVerifyID hidden xsl:block">
         <ul class="flex w-full  text-center menuActiveID">
-            <li class="activetab">ID Proof</li>
-            <li>Bank Details</li>
-            <li>BGV</li>
+            <!-- activetab -->
+            <li class=" {is_id_active}" on:click={() => {temp_display = "display_id_proof",menu_click("id")}}>ID Proof</li>
+            <li class="{is_bank_active}" on:click={() => {temp_display = "display_bank_details",menu_click("bank")}}>Bank Details</li>
+            <li class="{is_bgv_active}" on:click={() => {temp_display = "display_bgv_details",menu_click("bgv")}}>BGV</li>
         </ul>
     </div>
     <div class="grid grid-cols-5 gap-4 bg-lighterGrey xsl:grid-cols-1">
@@ -2229,14 +2623,14 @@
             </div> 
             <div class="mobileVerifyIDMenus hidden xsl:block">
                 <div class="w-full mt-2">
-                    <select name="" id="" class="w-full px-3 py-2 text-sm">
-                        <option value="">PAN Number</option>
-                        <option value="">Voter ID</option>
-                        <option value="">Aadhar Number</option>
-                        <option value="">Driving License</option>
-                        <option value="">Address Proof</option>
-                        <option value="">Offer Letter</option>
-                    </select>
+                    <ul name="" id="" class="w-full px-3 py-2 text-sm">
+                        <li  on:click={() => {temp_switchto = "pan_tab"}}>PAN Number</li>
+                        <li  on:click={() => {temp_switchto = "voter_tab"}}>Voter ID</li>
+                        <!-- <option value="" on:click={() => {temp_switchto = "aadhar_tab",white_bg("aadhar")}}>Aadhar Number</option>
+                        <option value="" on:click={() => {temp_switchto = "DL_tab",white_bg("dl")}}>Driving License</option>
+                        <option value="" on:click={() => {temp_switchto = "address_tab",white_bg("address")}}>Address Proof</option>
+                        <option value="" on:click={() => {temp_switchto = "offerletter_tab",white_bg("offer")}}>Offer Letter</option> -->
+                        </ul>
                 </div>
             </div>
             <div class="w-full bg-white rounded-sm mt-4 ">
@@ -2508,6 +2902,21 @@
                                     <input type="text" class="inputboxVMT" bind:value={vmt_pan}>
                                 </div>
                             </div>
+
+                            <!-- <select class="selectInputbox" bind:value="{basic_info_rej}">
+                                <option class="pt-6" >All</option>
+                                <option value="" selected disabled>Select</option>
+                                {#each rejReasonMap.basicInfo as basic_info_rej}
+                                    <option
+                                        class="pt-6">
+                                        {basic_info_rej}
+                                        </option>
+                                    {/each}
+                                    
+                                </select> -->
+
+
+
                             <!-- <div class="formField">
                                 <label class="text-greycolor font-light text-sm  text-left ">Enter PAN Card Application Receipt </label>
                                 <div class="w-full ">
@@ -2519,7 +2928,7 @@
 
 
                             <div class="ActionButtonsReject text-right mt-3">
-                                <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium" on:click={() => doc_reject("pan")}>Reject</button>
+                                <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium" on:click={()=>bgv_click("pan_reject")}>Reject</button>
                                 <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium" on:click={() => doc_approve("pan")}>Approve</button>
                                 
                             </div>    
@@ -2559,7 +2968,8 @@
                         </div>
                         
                         <div class="ActionButtonsReject text-right mt-3 ">
-                            <button type="button" class="btnreject " on:click={() => {voter_switchto = "tab2";}}>Reject</button>
+                            <button type="button" class="btnreject "  on:click={() => doc_reject("voter")}>Reject</button>
+                            <!-- on:click={() => {voter_switchto = "tab2";}} -->
                             <button type="button" class="btnApprove "  on:click={() => doc_approve("voter")}>Approve</button>
                         </div>
                         {/if}
@@ -2733,7 +3143,8 @@
                         <label class="text-greycolor font-light text-sm text-left ">Address</label>
                         <div class="w-full mt-2">
                            <!-- <p>H. No 17, Gulmohar Road, savedi, asara Housing Society, Ahmednagar 414003</p> -->
-                           <input type="text" class="inputboxVMT" bind:value="{vmt_address}">
+                           <!-- <input type="text" class="inputboxVMT" bind:value="{vmt_address}"> -->
+                           <p>{facility_address},{city},{state}</p>
                         </div>
                     </div>
 
@@ -2773,19 +3184,19 @@
                         <div class="formField mb-2">
                             <label class="text-greycolor font-light text-sm text-left ">Name On Offer letter</label>
                             <div class="w-full ">
-                                <input type="text" class="inputboxVMT">
+                                <input type="text" class="inputboxVMT" bind:value="{off_Name}">
                             </div>
                         </div>
                         <div class="formField mb-2">
                             <label class="text-greycolor font-light text-sm text-left ">Associate Type on Offer Letter </label>
                             <div class="w-full ">
-                                <input type="text" class="inputboxVMT">
+                                <input type="text" class="inputboxVMT" bind:value="{off_assoc_type}">
                             </div>
                         </div>
                         <div class="formField mb-2">
                             <label class="text-greycolor font-light text-sm text-left ">Vendor Name on Offer letter </label>
                             <div class="w-full ">
-                                <input type="text" class="inputboxVMT">
+                                <input type="text" class="inputboxVMT" bind:value="{off_vend_name}">
                             </div>
                         </div>
 
@@ -2933,11 +3344,17 @@
                  <!-- Verify Bank Details -->
                  <div class="m-4 col-span-3 " >
                         <div class="formField mb-2">
+                            <div>
+                                <span><span class="font-medium">Verified by - </span> {$bank_details.updated_by} <span class="font-medium">On-</span>{$bank_details.updated_on}</span>
+                            </div>
+                        </div>
+                        <div class="formField mb-2">
                             <label class="text-greycolor font-light text-sm text-left ">Enter Bank Account Number</label>
                             <div class="w-full ">
                                 <input type="text" class="inputboxVMT" bind:value={acc_num}>
                             </div>
                         </div>
+                        
                         <div class="formField mb-2">
                             <label class="text-greycolor font-light text-sm  text-left ">Enter IFSC Code </label>
                             <div class="w-full ">
@@ -2995,49 +3412,53 @@
             <div class="mobileVerifyMenus hidden xsl:block">
                 <div class="w-full mt-2">
                     <select name="" id="" class="w-full px-3 py-2 text-sm">
-                        <option value="">Basic Details</option>
-                        <option value="">Address Details</option>
-                        <option value="">Driving License</option>
-                        <option value="">Police Verification</option>
-                        <option value="">Pan Card Verification</option>
+                        <option value="" on:click={() => {change_to = "basic_details",white_bg("basic")}}>Basic Details</option>
+                        <option value="" on:click={() => {change_to = "address_details",white_bg("address")}}>Address Details</option>
+                        <option value="" on:click={() => {change_to = "DL_details",white_bg("dl")}}>Driving License</option>
+                        <option value="" on:click={() => {change_to = "policeverification_details",white_bg("police")}}>Police Verification</option>
+                        <option value="" on:click={() => {change_to = "pancard_details", white_bg("pan")}}>Pan Card Verification</option>
                     </select>
                 </div>
             </div>
             <div class="w-full bg-white rounded-sm mt-4 ">
               <div class="tabsVerifyID flex  bg-lightGrey xsl:hidden">
                   {#if $bgv_config_store.is_basic_info_mandatory =="1"}
-                  <div class="tablinkItem  {basic_bg_white}" on:click={() => {change_to = "basic_details",white_bg("basic")}}>
-                        <p class="text-base font-medium">Basic Details</p>
-                        {#if $bgv_config_store.is_basic_info_mandatory =="0"}
-                        <p class="text-xs">NA</p>
-                        {:else if $bgv_data_store.basic_information_status=="approved"}
-                        <p class="text-xs text-green">Approved</p>
-                        {:else if $bgv_data_store.basic_information_status == "rejected"}
-                        <p class="text-xs text-mandatorysign">Rejected</p>
-                        {:else if $bgv_data_store.basic_information_status == "pending"} 
-                        <p class="text-xs text-orange">Pending</p>
-                        {/if}
-                        
-                        
-                  </div> 
-                  {:else}
-                <div class="tablinkItem  {basic_bg_white}">
-                    <p class="text-base font-medium">Basic Details</p>
-                    <p>NA</p>
-                </div> 
-                {/if}
+                    <div class="tablinkItem  {basic_bg_white}" on:click={() => {change_to = "basic_details",white_bg("basic")}}>
+                            <p class="text-base font-medium">Basic Details</p>
+                            {#if $bgv_config_store.is_basic_info_mandatory =="0"}
+                            <p class="text-xs">NA</p>
+                            {:else if $bgv_data_store.basic_information_status=="verified"}
+                            <p class="text-xs text-green">Approved</p>
+                            {:else if $bgv_data_store.basic_information_status == "rejected"}
+                            <p class="text-xs text-mandatorysign">Rejected</p>
+                            {:else if $bgv_data_store.basic_information_status == "pending"} 
+                            <p class="text-xs text-orange">Pending</p>
+                            {:else if $bgv_data_store.basic_information_status == "incomplete"} 
+                            <p class="text-xs text-orange">Incomplete</p>
+                            {/if}
+                            
+                            
+                        </div> 
+                    {:else}
+                        <div class="tablinkItem  {basic_bg_white}">
+                            <p class="text-base font-medium">Basic Details</p>
+                            <p>NA</p>
+                        </div> 
+                  {/if}
                 
                 {#if $bgv_config_store.is_address_info_mandatory =="1"}
                   <div class="tablinkItem {address_bg_white}" on:click={() => {change_to = "address_details",white_bg("address")}}>
                     <p class="text-base font-normal">Address Details</p>
                     {#if $bgv_config_store.is_address_info_mandatory =="0"}
                         <p class="text-xs">NA</p>
-                        {:else if $bgv_data_store.address_status=="approved"}
+                        {:else if $bgv_data_store.address_status=="verified"}
                         <p class="text-xs text-green">Approved</p>
                         {:else if $bgv_data_store.address_status == "rejected"}
                         <p class="text-xs text-mandatorysign">Rejected</p>
                         {:else if $bgv_data_store.address_status == "pending"} 
                         <p class="text-xs text-orange">Pending</p>
+                        {:else if $bgv_data_store.address_status == "incomplete"} 
+                        <p class="text-xs text-orange">Incomplete</p>
                         {/if}
 
                   </div> 
@@ -3052,12 +3473,14 @@
                     <p class="text-base font-normal">Driving License</p>
                     {#if $bgv_config_store.is_driving_license_mandatory =="0"}
                         <p class="text-xs">NA</p>
-                        {:else if $bgv_data_store.license_status=="approved"}
+                        {:else if $bgv_data_store.license_status=="verified"}
                         <p class="text-xs text-green">Approved</p>
                         {:else if $bgv_data_store.license_status == "rejected"}
                         <p class="text-xs text-mandatorysign">Rejected</p>
                         {:else if $bgv_data_store.license_status == "pending"} 
                         <p class="text-xs text-orange">Pending</p>
+                        {:else if $bgv_data_store.license_status == "incomplete"} 
+                        <p class="text-xs text-orange">Incomplete</p>
                         {/if}
                     
                   </div>   
@@ -3073,12 +3496,14 @@
                     <p class="text-base font-normal">Police Verification</p>
                     {#if $bgv_config_store.is_police_verification_mandatory =="0"}
                         <p class="text-xs">NA</p>
-                        {:else if $bgv_data_store.police_verification_status=="approved"}
+                        {:else if $bgv_data_store.police_verification_status=="verified"}
                         <p class="text-xs text-green">Approved</p>
                         {:else if $bgv_data_store.police_verification_status == "rejected"}
                         <p class="text-xs text-mandatorysign">Rejected</p>
                         {:else if $bgv_data_store.police_verification_status == "pending"} 
                         <p class="text-xs text-orange">Pending</p>
+                        {:else if $bgv_data_store.police_verification_status == "incomplete"} 
+                        <p class="text-xs text-orange">Incomplete</p>
                         {/if}
                     
                   </div>
@@ -3094,12 +3519,14 @@
                     <p class="text-base font-normal">Pan Card Verification</p>
                     {#if $bgv_config_store.is_pan_info_mandatory =="0"}
                         <p class="text-xs">NA</p>
-                        {:else if $bgv_data_store.pan_status=="approved"}
+                        {:else if $bgv_data_store.pan_status=="verified"}
                         <p class="text-xs text-green">Approved</p>
                         {:else if $bgv_data_store.pan_status == "rejected"}
                         <p class="text-xs text-mandatorysign">Rejected</p>
                         {:else if $bgv_data_store.pan_status == "pending"} 
                         <p class="text-xs text-orange">Pending</p>
+                        {:else if $bgv_data_store.pan_status == "incomplete"} 
+                        <p class="text-xs text-orange">Incomplete</p>
                         {/if}
                     
                   </div>   
@@ -3194,9 +3621,17 @@
                  </div>  
                  <!-- Basic Details -->
                  <div class="m-4 col-span-3 xsl:m-1" >
-                       
 
                         <div class="grid grid-cols-1 gap-2">
+                            
+                            <div class=" grid-cols-2 grid items-center">
+                                <div class="">
+                                    
+                                </div>
+                                <div>
+                                    <span><span class="font-medium">Verified by - </span> {$bgv_data_store.basic_info_updated_by} <span class="font-medium">On-</span>{$bgv_data_store.basic_info_updated_on}</span>
+                                </div>
+                            </div>
                             <div class=" grid-cols-2 grid items-center">
                                 <div class="">
                                     <p class="namelable ">Aadhar number</p>
@@ -3261,6 +3696,7 @@
                                     <p class="namevalue  ">{$bgv_data_store.gender}</p>
                                 </div>
                             </div>
+                            {#if show_fields==1}
                             <div class=" grid-cols-2 grid items-center">
                                 <div class="">
                                     <p class="namelable ">Delivery model</p>
@@ -3285,13 +3721,31 @@
                                     <p class="namevalue  ">{$bgv_data_store.hub_name}</p>
                                 </div>
                             </div>
+                            {:else}
+                            <p>
 
+                            </p>
+                            {/if}
+                            <!-- <div class=" grid-cols-2 grid items-center">
+                                <div class="">
+                                <select class="selectInputbox" bind:value="{basic_info_res}">
+                                    <option value="" selected disabled>Select</option>
+                                    {#each rejReasonMap.basicInfo as basic_info_rej}
+                                        <option
+                                        class="pt-6" >
+                                            {basic_info_rej}
+                                            </option>
+                                        {/each}
+                                        
+                                    </select>
+                                </div>
+                            </div> -->
 
                           </div>
 
 
                         <div class="ActionButtonsReject text-right mt-5">
-                            <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium" on:click="{()=>bgv_click("basic_reject")}">Reject</button>
+                            <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium" on:click="{openRejectModel}" >Reject</button>
                             <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium" on:click="{()=>bgv_click("basic_approve")}">Approve</button>
                             
                         </div>    
@@ -3332,6 +3786,14 @@
                        
 
                         <div class="grid grid-cols-1 gap-2">
+                            <div class=" grid-cols-2 grid items-center">
+                                <div class="">
+                                    
+                                </div>
+                                <div>
+                                    <span><span class="font-medium">Verified by - </span> {$bgv_data_store.address_updated_by} <span class="font-medium">On-</span>{$bgv_data_store.address_updated_date}</span>
+                                </div>
+                            </div>
                             <div class=" grid-cols-2 grid items-center">
                                 <div class="">
                                     <p class="namelable ">Address Type</p>
@@ -3444,13 +3906,42 @@
                                     <p class="namevalue  ">{$bgv_data_store.contact_number}</p>
                                 </div>
                             </div>
+                            <!-- <div class=" grid-cols-2 grid items-center">
+                                <div class="">
+                                <select class="selectInputbox"  bind:value="{address_info_res}">
+                                    <option value="" selected disabled>Select</option>
+                                    {#each rejReasonMap.addressInfo as address_info_rej}
+                                        <option
+                                            class="pt-6">
+                                            {address_info_rej}
+                                            </option>
+                                        {/each}
+                                        
+                                    </select>
+                                </div>
+                            </div> -->
+                            <!-- <select
+                                        name=""
+                                        id=""
+                                        class="inputbox"
+                                        bind:value={basic_info_rej}
+                                    >
+                                        <option value="" selected disabled
+                                            >Select</option
+                                        >
+                                        <option value="Yes">yes</option>
+                                        <option value="No">No</option>
+                                    </select> -->
+                                                                    <!-- <option class="pt-6" >All</option> -->
+
 
 
                           </div>
 
 
                         <div class="ActionButtonsReject text-right mt-5">
-                            <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium" on:click = {()=>bgv_click("address_reject")}>Reject</button>
+                            
+                            <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium"  on:click="{openAddressRejectModel}">Reject</button>
                             <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium" on:click="{()=>bgv_click("address_approve")}">Approve</button>
                             
                         </div>    
@@ -3493,6 +3984,14 @@
                            
 
                             <div class="grid grid-cols-1 gap-2">
+                                <div class=" grid-cols-2 grid items-center">
+                                    <div class="">
+                                        
+                                    </div>
+                                    <div>
+                                        <span><span class="font-medium">Verified by - </span> {$bgv_data_store.license_updated_by} <span class="font-medium">On-</span>{$bgv_data_store.license_updated_on}</span>
+                                    </div>
+                                </div>
                                 <div class=" grid-cols-2 grid items-center">
                                     <div class="">
                                         <p class="namelable ">License Number</p>
@@ -3541,11 +4040,25 @@
                                         <p class="namevalue  ">{$bgv_data_store.dl_state}</p>
                                     </div>
                                 </div>
+                                <!-- <div class=" grid-cols-2 grid items-center">
+                                    <div class="">
+                                    <select class="selectInputbox" bind:value="{dl_info_res}">
+                                        <option value="" selected disabled>Select</option>
+                                        {#each rejReasonMap.dlInfo as dl_info_rej}
+                                            <option
+                                                class="pt-6">
+                                                {dl_info_rej}
+                                                </option>
+                                            {/each}
+                                            
+                                        </select>
+                                    </div>
+                                </div> -->
                               </div>
 
 
                             <div class="ActionButtonsReject text-right mt-5">
-                                <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium" on:click="{()=>bgv_click("dl_reject")}">Reject</button>
+                                <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium" on:click="{openDLRejectModel}">Reject</button>
                                 <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium" on:click="{()=>bgv_click("dl_approve")}">Approve</button>
                                 
                             </div>    
@@ -3587,6 +4100,14 @@
                         <div class="grid grid-cols-1 gap-2">
                             <div class=" grid-cols-2 grid items-center">
                                 <div class="">
+                                    
+                                </div>
+                                <div>
+                                    <span><span class="font-medium">Verified by - </span> {$bgv_data_store.police_verification_updated_by} <span class="font-medium">On-</span>{$bgv_data_store.police_verification_updated_on}</span>
+                                </div>
+                            </div>
+                            <div class=" grid-cols-2 grid items-center">
+                                <div class="">
                                     <p class="namelable ">Address Type</p>
                                 </div>
                                 <div>
@@ -3617,12 +4138,26 @@
                                     <p class="namevalue  ">{$bgv_data_store.police_verified_address}</p>
                                 </div>
                             </div>
+                            <!-- <div class=" grid-cols-2 grid items-center">
+                                <div class="">
+                                <select class="selectInputbox"  bind:value="{pol_info_res}">
+                                    <option value="" selected disabled>Select</option>
+                                    {#each rejReasonMap.policeInfo as pol_info_rej}
+                                        <option
+                                            class="pt-6">
+                                            {pol_info_rej}
+                                            </option>
+                                        {/each}
+                                        
+                                    </select>
+                                </div>
+                            </div> -->
                         
                         </div>
 
 
                         <div class="ActionButtonsReject text-right mt-5">
-                            <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium" on:click={()=>bgv_click("pol_reject")}>Reject</button>
+                            <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium" on:click="{openPVRejectModel}">Reject</button>
                             <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium" on:click={()=>bgv_click("pol_approve")}>Approve</button>
                             
                         </div>    
@@ -3666,6 +4201,14 @@
                     <div class="grid grid-cols-1 gap-2">
                         <div class=" grid-cols-2 grid items-center">
                             <div class="">
+                                
+                            </div>
+                            <div>
+                                <span><span class="font-medium">Verified by - </span> {$bgv_data_store.pan_updated_by} <span class="font-medium">On-</span>{$bgv_data_store.pan_updated_on}</span>
+                            </div>
+                        </div>
+                        <div class=" grid-cols-2 grid items-center">
+                            <div class="">
                                 <p class="namelable ">Pan Card Number</p>
                             </div>
                             <div>
@@ -3696,12 +4239,26 @@
                                 <p class="namevalue  ">{$bgv_data_store.pan_father_name}</p>
                             </div>
                         </div>
+                        <!-- <div class=" grid-cols-2 grid items-center">
+                            <div class="">
+                            <select class="selectInputbox"   bind:value="{pan_info_res}">
+                                <option value="" selected disabled>Select</option>
+                                {#each rejReasonMap.panInfo as pan_info_rej}
+                                    <option
+                                        class="pt-6">
+                                        {pan_info_rej}
+                                        </option>
+                                    {/each}
+                                    
+                                </select>
+                            </div>
+                        </div> -->
                     
                     </div>
 
 
                     <div class="ActionButtonsReject text-right mt-5">
-                        <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium" on:click={()=>bgv_click("pan_reject")}>Reject</button>
+                        <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium" on:click="{openPanRejectModel}">Reject</button>
                         <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium" on:click={()=>bgv_click("pan_approve")}>Approve</button>
                         
                     </div>    
@@ -3719,6 +4276,320 @@
         </div>
         {/if}
         </div>
-</div>    
+</div>  
+
 </div>
+
+<!--BG Basic Detail Reject modal -->
+<div id="Basic_Reject_modal" class="hidden">
+    <div  class="actionDialogueOnboard ">
+        <div class="pancardDialogueOnboardWrapper ">
+            <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+                <div class="modalHeadConmb-0">
+                    <div class="leftmodalInfo">
+                        <p class=""> Reject Reason</p>
+                    </div>
+                    <div class="rightmodalclose">
+                        <img src="../src/img/blackclose.svg" class="modal-close cursor-pointer" on:click="{closeRejectModel}">
+                    </div>
+                </div>
+                <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+    
+                    <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0 mt-4">
+                        <label class="block  tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-state">
+                          Select Reason
+                        </label>
+                        <div class="relative">
+                          <!-- <select class="block appearance-none w-full  border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-state" bind:value="{pan_info_res}">
+                            <option value="" selected disabled>Select</option>
+                            {#each rejReasonMap.panInfo as pan_info_rej}
+                            <option>{pan_info_rej} </option>
+                            {/each}
+                          </select> -->
+                        <select class="selectInputbox" bind:value="{basic_info_res}">
+                            <option value="" selected disabled>Select</option>
+                            {#each rejReasonMap.basicInfo as basic_info_rej}
+                                <option
+                                class="pt-6" >
+                                    {basic_info_rej}
+                                    </option>
+                                {/each}
+                                
+                        </select>
+                          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                          </div>
+                        </div>
+                      </div>
+                   
+                      <div class="pt-3 flex justify-center">
+                        <button type="button" class="dialogueNobutton   "  on:click="{()=>bgv_click("basic_reject")}" on:click="{closeRejectModel}">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div> 
+</div> 
+
+<!--BG Address Detail Reject modal -->
+<div id="Address_Reject_modal"  class="hidden" >
+    <div  class="actionDialogueOnboard ">
+        <div class="pancardDialogueOnboardWrapper ">
+            <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+                <div class="modalHeadConmb-0">
+                    <div class="leftmodalInfo">
+                        <p class=""> Reject Resson</p>
+                    </div>
+                    <div class="rightmodalclose">
+                        <img src="../src/img/blackclose.svg" class="modal-close cursor-pointer" on:click="{closeAddressRejectModel}">
+                    </div>
+                </div>
+                <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+    
+                    <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0 mt-4">
+                        <label class="block  tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-state">
+                          Select Reson
+                        </label>
+                        <div class="relative">
+                            <select class="selectInputbox" bind:value="{address_info_res}">
+                                <option value="" selected disabled>Select</option>
+                                {#each rejReasonMap.addressInfo as address_info_rej}
+                                    <option
+                                    class="pt-6" >
+                                        {address_info_rej}
+                                        </option>
+                                    {/each}
+                                    
+                            </select>
+                          <!-- <select class="selectInputbox"  bind:value="{address_info_res}">
+                            <option value="" selected disabled>Select</option>
+                            {#each rejReasonMap.addressInfo as address_info_rej}
+                                <option
+                                    class="pt-6">
+                                    {address_info_rej}
+                                    </option>
+                                {/each}
+                                
+                            </select> -->
+                          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                          </div>
+                        </div>
+                      </div>
+                   
+                      <div class="pt-3 flex justify-center">
+                        <button type="button" class="dialogueNobutton   "  on:click = {()=>bgv_click("address_reject")} on:click="{closeAddressRejectModel}">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--BG DL Detail Reject modal -->
+<div id="DL_Reject_modal" class="hidden">
+    <div  class="actionDialogueOnboard ">
+        <div class="pancardDialogueOnboardWrapper ">
+            <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+                <div class="modalHeadConmb-0">
+                    <div class="leftmodalInfo">
+                        <p class=""> Reject Reason</p>
+                    </div>
+                    <div class="rightmodalclose">
+                        <img src="../src/img/blackclose.svg" class="modal-close cursor-pointer" on:click="{closeDLRejectModel}">
+                    </div>
+                </div>
+                <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+    
+                    <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0 mt-4">
+                        <label class="block  tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-state">
+                          Select Reason
+                        </label>
+                        <div class="relative">
+                            <select class="selectInputbox" bind:value="{dl_info_res}">
+                                <option value="" selected disabled>Select</option>
+                                {#each rejReasonMap.dlInfo as dl_info_rej}
+                                    <option
+                                    class="pt-6" >
+                                        {dl_info_rej}
+                                        </option>
+                                    {/each}
+                                    
+                            </select>
+                          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                          </div>
+                        </div>
+                      </div>
+                   
+                      <div class="pt-3 flex justify-center">
+                        <button type="button" class="dialogueNobutton   "  on:click="{()=>bgv_click("dl_reject")}" on:click="{closeDLRejectModel}">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div> 
+</div> 
+
+<!--BG Police Verification Detail Reject modal -->
+<div id="PV_Reject_modal" class="hidden" >
+    <div  class="actionDialogueOnboard ">
+        <div class="pancardDialogueOnboardWrapper ">
+            <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+                <div class="modalHeadConmb-0">
+                    <div class="leftmodalInfo">
+                        <p class=""> Reject Resson</p>
+                    </div>
+                    <div class="rightmodalclose">
+                        <img src="../src/img/blackclose.svg" class="modal-close cursor-pointer" on:click="{closePVRejectModel}">
+                    </div>
+                </div>
+                <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+    
+                    <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0 mt-4">
+                        <label class="block  tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-state">
+                          Select Reson
+                        </label>
+                        <div class="relative">
+                            <select class="selectInputbox" bind:value="{pol_info_res}">
+                                <option value="" selected disabled>Select</option>
+                                {#each rejReasonMap.policeInfo as pol_info_rej}
+                                    <option
+                                    class="pt-6" >
+                                        {pol_info_rej}
+                                        </option>
+                                    {/each}
+                                    
+                            </select>
+                          <!-- <select class="selectInputbox"  bind:value="{pol_info_res}">
+                            <option value="" selected disabled>Select</option>
+                            {#each rejReasonMap.policeInfo as pol_info_rej}
+                                <option
+                                    class="pt-6">
+                                    {pol_info_rej}
+                                    </option>
+                                {/each}
+                                
+                            </select> -->
+                          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                          </div>
+                        </div>
+                      </div>
+                   
+                      <div class="pt-3 flex justify-center">
+                        <button type="button" class="dialogueNobutton   "  on:click="{()=>bgv_click("pol_reject")}" on:click="{closePVRejectModel}">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--BG Pan Detail Reject modal -->
+<div id="Pan_Reject_modal" class="hidden">
+    <div  class="actionDialogueOnboard ">
+        <div class="pancardDialogueOnboardWrapper ">
+            <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+                <div class="modalHeadConmb-0">
+                    <div class="leftmodalInfo">
+                        <p class=""> Reject Reason</p>
+                    </div>
+                    <div class="rightmodalclose">
+                        <img src="../src/img/blackclose.svg" class="modal-close cursor-pointer" on:click="{closePanRejectModel}">
+                    </div>
+                </div>
+                <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+    
+                    <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0 mt-4">
+                        <label class="block  tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-state">
+                          Select Reason
+                        </label>
+                        <div class="relative">
+                          <!-- <select class="block appearance-none w-full  border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-state" bind:value="{pan_info_res}">
+                            <option value="" selected disabled>Select</option>
+                            {#each rejReasonMap.panInfo as pan_info_rej}
+                            <option>{pan_info_rej} </option>
+                            {/each}
+                          </select> -->
+                          <select class="selectInputbox" bind:value="{pan_info_res}">
+                            <option value="" selected disabled>Select</option>
+                            {#each rejReasonMap.panInfo as pan_info_rej}
+                                <option
+                                class="pt-6" >
+                                    {pan_info_rej}
+                                    </option>
+                                {/each}
+                                
+                        </select>
+                          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                          </div>
+                        </div>
+                      </div>
+                   
+                      <div class="pt-3 flex justify-center">
+                        <button type="button" class="dialogueNobutton   "  on:click="{()=>bgv_click("pan_reject")}" on:click="{closePanRejectModel}">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div> 
+</div> 
+
+
+<!--BG Final Reject modal -->
+<div id="Final_bg_Reject_modal" class="hidden">
+    <div  class="actionDialogueOnboard ">
+        <div class="pancardDialogueOnboardWrapper ">
+            <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+                <div class="modalHeadConmb-0">
+                    <div class="leftmodalInfo">
+                        <p class=""> Reject Reason</p>
+                    </div>
+                    <div class="rightmodalclose">
+                        <img src="../src/img/blackclose.svg" class="modal-close cursor-pointer" on:click="{closeFinalRejectModel}">
+                    </div>
+                </div>
+                <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+    
+                    <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0 mt-4">
+                        <input bind:value={bgv_remarks} placeholder="enter remarks">
+                        <!-- <input type="text" bind:value="{bgv_remarks}"> -->
+                        <!-- <h1>hkbuylibhv{bgv_remarks}</h1> -->
+                        <!-- <label class="block  tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-state">
+                          Select Reason
+                        </label> -->
+                        <!-- <div class="relative"> -->
+                            
+                          <!-- <select class="block appearance-none w-full  border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-state" bind:value="{pan_info_res}">
+                            <option value="" selected disabled>Select</option>
+                            {#each rejReasonMap.panInfo as pan_info_rej}
+                            <option>{pan_info_rej} </option>
+                            {/each}
+                          </select> -->
+                          <!-- <select class="selectInputbox" bind:value="{pan_info_res}">
+                            <option value="" selected disabled>Select</option>
+                            {#each rejReasonMap.panInfo as pan_info_rej}
+                                <option
+                                class="pt-6" >
+                                    {pan_info_rej}
+                                    </option>
+                                {/each}
+                                
+                        </select> -->
+                          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                          </div>
+                        <!-- </div> -->
+                      </div>
+                   
+                      <div class="pt-3 flex justify-center">
+                        <button type="button" class="dialogueNobutton   " on:click="{final_bgv_reject_func}">Subm</button>
+                        <!-- on:click="{()=>final_bgv_reject_func("final_bgv_reject")}" -->
+                </form>
+            </div>
+        </div>
+    </div> 
+</div> 
+
+
+
+
+
 <Toast type={toast_type}  text={toast_text}/>
