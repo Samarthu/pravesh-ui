@@ -157,7 +157,7 @@
     let dl_info_res;
     let facility_address,city,state;
     let show_fields = 0;
-    let bgv_remarks = "";
+    let bgv_remarks;
     let rejReasonMap = {
     "basicInfo": ["Supporting document Missing", "Name/Father's Name/DOB is not clear on the document", "Name/Father's Name/DOB mismatch", "Name/Father's Name/DOB missing", "Passport Size Photo missing/not clear/incorrect", "Aadhaar/Voter Number/Associate name/Father Name/DOB is not clear on the document", "Aadhaar/Voter Number/Associate name/Father Name/DOB mismatch", "Aadhaar/Voter Number/Associate name/Father Name/DOB not captured. Kindly update in the system", "Email Address not verified"],
     "addressInfo": ["Address mismatch", "Kindly update full address", "Kindly upload associates address proof", "Kindly upload owners acknowledgment & supporting address proof", "Address/City/District/State/Pincode mismatch"],
@@ -191,7 +191,7 @@
         // facility_id.subscribe(value => {
         // new_facility_id = value.facility_id_number;
         // })
-        facility_id = "CRUN00374"
+        facility_id = "CRUN00320"
         // console.log('habscib',rejReasonMap.basicInfo)
         // facility_id = "MHPD01226"
         console.log("new_facility_id",facility_id)
@@ -432,7 +432,7 @@
 
     async function doc_approve(doc_cat){
         if (doc_cat == "pan"){
-            show_spinner = true;
+        
             console.log("payload", $facility_data_store)
             
             let document_load = {
@@ -443,7 +443,6 @@
                 "doc_type":"pan-photo"
             }
             let pan_sub_res = await approve_reject_status(document_load)
-            show_spinner = false;
             try{
                 if(pan_sub_res.body.status == "green"){
                     pan_success_flag = 1
@@ -456,7 +455,7 @@
             
         }
         if (doc_cat == "voter"){
-            show_spinner = true;
+        
         console.log("payload", $facility_data_store)
         
         let document_load = {
@@ -467,7 +466,6 @@
             "doc_type":"voter-id-proof"
         }
         let voter_sub_res =await approve_reject_status(document_load)
-        show_spinner = false;
         try{
             console.log("voter_sub_res",voter_sub_res.body.status)
                 if(voter_sub_res.body.status == "green"){
@@ -479,7 +477,6 @@
             }
     }
         if (doc_cat == "aadhar"){
-            show_spinner = true;
             let document_load = {
                 "resource_id":facility_id,
                 "doc_number":vmt_aadhar,
@@ -488,7 +485,6 @@
                 "doc_type":"aadhar-id-proof"
             }
             let aadhar_sub_res =await approve_reject_status(document_load)
-            show_spinner = false;
             try{
                 if(aadhar_sub_res.body.status == "green"){
                     aadhar_success_flag = 1
@@ -499,7 +495,7 @@
             }
         }
         if (doc_cat == "dl"){
-            show_spinner = true;
+        
         let document_load = {
             "resource_id":facility_id,
             "doc_number":vmt_dl,
@@ -508,7 +504,6 @@
             "doc_type":"dl-photo"
         }
         let dl_sub_res =await approve_reject_status(document_load)
-        show_spinner = false;
         try{
                 if(dl_sub_res.body.status == "green"){
                     dl_success_flag = 1
@@ -519,7 +514,6 @@
             }
         }
         if (doc_cat == "address"){
-            show_spinner = true;
             let document_load = {
                 "resource_id":facility_id,
                 "doc_number":vmt_address,
@@ -528,7 +522,6 @@
                 "doc_type":"addproof-photo"
             }
             let address_sub_res =await approve_reject_status(document_load)
-            show_spinner = false;
             try{
                 if(address_sub_res.body.status == "green"){
                     address_success_flag = 1
@@ -540,7 +533,6 @@
         }
         
     if (doc_cat == "offer"){
-        show_spinner = true;
             let document_load = {
                 "resource_id":facility_id,
                 "facility_name":off_Name,
@@ -552,7 +544,6 @@
                 "doc_type":"newOffFile"
             }
             let offer_sub_res =await approve_reject_status(document_load)
-            show_spinner = false;
             try{
                 if(offer_sub_res.body.status == "green"){
                     offer_success_flag = 1
@@ -645,7 +636,7 @@
 
     async function doc_reject(doc_cat){
         if (doc_cat == "pan"){
-            show_spinner = true;
+        
             console.log("payload", $facility_data_store)
             
             let document_load = {
@@ -656,7 +647,6 @@
                 "doc_type":"pan-photo"
             }
             let pan_sub_res = await approve_reject_status(document_load)
-            show_spinner = false;
             try{
                 if(pan_sub_res.body.status == "green"){
                     pan_reject_flag = 1
@@ -668,7 +658,7 @@
             
         }
         if (doc_cat == "voter"){
-            show_spinner = true;
+        
         console.log("payload", $facility_data_store)
         
         let document_load = {
@@ -679,7 +669,6 @@
             "doc_type":"voter-id-proof"
         }
         let voter_sub_res =await approve_reject_status(document_load)
-        show_spinner = false;
         try{
             console.log("voter_sub_res",voter_sub_res.body.status)
                 if(voter_sub_res.body.status == "green"){
@@ -691,7 +680,6 @@
             }
     }
         if (doc_cat == "aadhar"){
-            show_spinner = true;
             let document_load = {
                 "resource_id":facility_id,
                 "doc_number":vmt_aadhar,
@@ -700,7 +688,6 @@
                 "doc_type":"aadhar-id-proof"
             }
             let aadhar_sub_res =await approve_reject_status(document_load)
-            show_spinner = false;
             try{
                 if(aadhar_sub_res.body.status == "green"){
                     aadhar_reject_flag = 1
@@ -711,7 +698,7 @@
             }
         }
         if (doc_cat == "dl"){
-            show_spinner = true;
+        
         let document_load = {
             "resource_id":facility_id,
             "doc_number":vmt_dl,
@@ -720,7 +707,6 @@
             "doc_type":"dl-photo"
         }
         let dl_sub_res =await approve_reject_status(document_load)
-        show_spinner = false;
         try{
                 if(dl_sub_res.body.status == "green"){
                     dl_reject_flag = 1
@@ -731,7 +717,6 @@
             }
         }
         if (doc_cat == "address"){
-            show_spinner = true;
             let document_load = {
                 "resource_id":facility_id,
                 "doc_number":vmt_address,
@@ -740,7 +725,6 @@
                 "doc_type":"addproof-photo"
             }
             let address_sub_res =await approve_reject_status(document_load)
-            show_spinner = false;
             try{
                 if(address_sub_res.body.status == "green"){
                     address_reject_flag = 1
@@ -752,7 +736,6 @@
         }
         
     if (doc_cat == "offer"){
-        show_spinner = true;
             let document_load = {
                 "resource_id":facility_id,
                 "doc_number":vmt_offer,
@@ -762,7 +745,6 @@
                 "address":"address"
             }
             let offer_sub_res =await approve_reject_status(document_load)
-            show_spinner = false;
             try{
                 if(offer_sub_res.body.status == "green"){
                     offer_reject_flag = 1
@@ -1227,7 +1209,6 @@
             "remarks": remark
         }
             let bank_sub_res =await bank_approve_reject(document_load)
-            show_spinner = true;
             try{
                 if(bank_sub_res.body.status == "green"){
                     bank_reject_flag = 1
@@ -1236,7 +1217,6 @@
             catch(err){
                 console.log("Error in pan_sub_res",err)
             }
-            show_spinner = false;
         }
            
         
@@ -1269,7 +1249,6 @@
 
     async function bgv_click(bgv_data){
         if(bgv_data=="basic_approve"){
-            show_spinner = true;
             console.log("basic_approve")
             // if(show_fields ==1){
                 let basic_dets_data = {
@@ -1291,13 +1270,11 @@
             
             let basic_app_res = await bgv_approve_rej(basic_dets_data)
             console.log("basic_app_res",basic_app_res)
-            show_spinner = false;
             if(basic_app_res.body.status == "green"){
                 basic_bgv_success_flag = 1
             }
         }
         if(bgv_data=="address_approve"){
-            show_spinner = true;
             console.log("address_approve")
             let address_dets_data = {
                 action_type:"Verified",
@@ -1306,13 +1283,11 @@
             }
             let address_app_res = await bgv_approve_rej(address_dets_data)
             console.log("address_app_res",address_app_res)
-            show_spinner = false;
             if(address_app_res.body.status == "green"){
                 address_bgv_success_flag = 1
             }
         }
         if(bgv_data=="pan_approve"){
-            show_spinner = true;
             console.log("pan_approve")
             let pan_dets_data = {
                 action_type:"Verified",
@@ -1321,14 +1296,12 @@
             }
             let pan_app_res = await bgv_approve_rej(pan_dets_data)
             console.log("pan_app_res",pan_app_res)
-            show_spinner = false;
             if(pan_app_res.body.status == "green"){
                 pan_bgv_success_flag = 1
             }
         }
 
         if(bgv_data=="dl_approve"){
-            show_spinner = true;
             console.log("dl_approve")
             let dl_dets_data = {
                 action_type:"Verified",
@@ -1337,14 +1310,12 @@
             }
             let dl_app_res = await bgv_approve_rej(dl_dets_data)
             console.log("dl_app_res",dl_app_res)
-            show_spinner = false;
             if(dl_app_res.body.status == "green"){
                 dl_bgv_success_flag = 1
             }
         }
 
         if(bgv_data=="pol_approve"){
-            show_spinner = true;
             console.log("pol_approve")
             let pol_dets_data = {
                 action_type:"Verified",
@@ -1353,7 +1324,6 @@
             }
             let pol_app_res = await bgv_approve_rej(pol_dets_data)
             console.log("pol_app_res",pol_app_res)
-            show_spinner = false;
             if(pol_app_res.body.status == "green"){
                 police_bgv_success_flag = 1
             }
@@ -1421,104 +1391,78 @@
             
             if(bgv_data == "basic_reject"){
             console.log("basic_reject")
-            if(basic_info_res == ""){
-                toast_text = "Please select remark before submit";
-                toast_type = "error";
-            }
-            else{
+            // if(basic_info_rej != null)
+            // {
                 let basic_dets_data = {
                 action_type:"Rejected",
                 facility_id:facility_id,
                 field_type:"basicInfo",
-                remarks:basic_info_res.trim()
+                remarks:basic_info_res.trim(),
             }
+            // console.log(basic_info_rej,"mention the reason")
+            // }
+            
             let basic_app_res = await bgv_approve_rej(basic_dets_data)
             console.log("basic_app_res",basic_app_res)
             if(basic_app_res.body.status == "green"){
                 basic_bgv_reject_flag = 1;
             }
         }
-            }
-            
         if(bgv_data == "address_reject"){
             console.log("address_reject")
-            if (address_info_res == ""){
-                toast_text = "Please select remark before submit";
-                toast_type = "error";
-            }
-            else{
-                let address_dets_data = {
+            let address_dets_data = {
                 action_type:"Rejected",
                 facility_id:facility_id,
                 field_type:"addressInfo",
-                remarks:address_info_res.trim()
+                remarks:address_info_res.trim(),
             }
             let address_app_res = await bgv_approve_rej(address_dets_data)
             if(address_app_res.body.status == "green"){
                 address_bgv_reject_flag = 1;
             }
-            } 
         }
 
         if(bgv_data== "dl_reject"){
             console.log("dl_reject")
-            if(dl_info_res == ""){
-                toast_text = "Please select remark before submit";
-                toast_type = "error";
-            }
-            else{
-                let dl_dets_data = {
+            let dl_dets_data = {
                 action_type:"Rejected",
                 facility_id:facility_id,
                 field_type:"dlInfo",
-                remarks:dl_info_res.trim()
+                remarks:dl_info_res.trim(),
             }
             let dl_app_res = await bgv_approve_rej(dl_dets_data)
             console.log("dl_app_res",dl_app_res)
             if(dl_app_res.body.status == "green"){
                 dl_bgv_reject_flag = 1
             }
-            } 
         }
         if(bgv_data == "pol_reject"){
             console.log("po_reject")
-            if(pol_info_res == ""){
-                toast_text = "Please select remark before submit";
-                toast_type = "error";
-            }
-            else{
-                let pol_dets_data = {
+            let pol_dets_data = {
                 action_type:"Rejected",
                 facility_id:facility_id,
                 field_type:"policeInfo",
-                remarks:pol_info_res.trim()
+                remarks:pol_info_res.trim(),
             }
             let pol_app_res = await bgv_approve_rej(pol_dets_data)
             console.log("pol_app_res",pol_app_res)
             if(pol_app_res.body.status == "green"){
                 police_bgv_reject_flag = 1
             }
-            }   
         }
         if(bgv_data == "pan_reject"){
             console.log("pan_reject")
-            if(pan_info_res == ""){
-                toast_text = "Please select remark before submit";
-                toast_type = "error";
-            }
-            else{
-                let pan_dets_data = {
+            let pan_dets_data = {
                 action_type:"Rejected",
                 facility_id:facility_id,
                 field_type:"panInfo",
-                remarks:pan_info_res.trim()
+                remarks:pan_info_res.trim(),
             }
             let pan_app_res = await bgv_approve_rej(pan_dets_data)
             console.log("pan_app_res",pan_app_res)
             if(pan_app_res.body.status == "green"){
                 pan_bgv_reject_flag = 1
             }
-            } 
         }
         if($bgv_config_store.is_basic_info_mandatory == 0){   
                 final_basic_bgv_reject = 1;
@@ -1613,6 +1557,7 @@
     }
             }
         }
+    }
     async function final_bgv_reject_func(){
         if(final_bgv_reject == 1){
             show_spinner=true;
@@ -1620,7 +1565,7 @@
             let final_bgv_reject_data = {
                 "facility_id":facility_id,
                 "bgv_status":"rejected",
-                bgv_remarks:bgv_remarks,
+                "bgv_remarks":bgv_remarks
             }
             let final_bgv_reject_res = await final_bgv_app_rej(final_bgv_reject_data)
             console.log("final_bgv_reject_res",final_bgv_reject_res)
@@ -3343,17 +3288,11 @@
                  <!-- Verify Bank Details -->
                  <div class="m-4 col-span-3 " >
                         <div class="formField mb-2">
-                            <div>
-                                <span><span class="font-medium">Verified by - </span> {$bank_details.updated_by} <span class="font-medium">On-</span>{$bank_details.updated_on}</span>
-                            </div>
-                        </div>
-                        <div class="formField mb-2">
                             <label class="text-greycolor font-light text-sm text-left ">Enter Bank Account Number</label>
                             <div class="w-full ">
                                 <input type="text" class="inputboxVMT" bind:value={acc_num}>
                             </div>
                         </div>
-                        
                         <div class="formField mb-2">
                             <label class="text-greycolor font-light text-sm  text-left ">Enter IFSC Code </label>
                             <div class="w-full ">
@@ -4548,14 +4487,11 @@
                 <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
     
                     <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0 mt-4">
-                        <input bind:value={bgv_remarks} placeholder="enter remarks">
-                        <!-- <input type="text" bind:value="{bgv_remarks}"> -->
-                        <!-- <h1>hkbuylibhv{bgv_remarks}</h1> -->
-                        <!-- <label class="block  tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-state">
+                        <label class="block  tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-state">
                           Select Reason
-                        </label> -->
-                        <!-- <div class="relative"> -->
-                            
+                        </label>
+                        <div class="relative">
+                            <input type="text" bind:value="{bgv_remarks}">
                           <!-- <select class="block appearance-none w-full  border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-state" bind:value="{pan_info_res}">
                             <option value="" selected disabled>Select</option>
                             {#each rejReasonMap.panInfo as pan_info_rej}
@@ -4575,12 +4511,11 @@
                           <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                             <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
                           </div>
-                        <!-- </div> -->
+                        </div>
                       </div>
                    
                       <div class="pt-3 flex justify-center">
-                        <button type="button" class="dialogueNobutton   " on:click="{final_bgv_reject_func}">Subm</button>
-                        <!-- on:click="{()=>final_bgv_reject_func("final_bgv_reject")}" -->
+                        <button type="button" class="dialogueNobutton   "  on:click="{final_bgv_reject_func}" on:click="{closePanRejectModel}">Submit</button>
                 </form>
             </div>
         </div>
@@ -4591,4 +4526,4 @@
 
 
 
-<Toast type={toast_type}  text={toast_text}/>
+<Toast type={toast_type}  text={toast_text}/> 
