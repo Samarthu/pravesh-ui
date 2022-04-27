@@ -76,15 +76,16 @@ import { Router, Link, Route } from "svelte-routing";
     let audit_creation_date;
     let client_det_res;
     let client_det_arr=[];
+    let gst_doc_arr=[];
     // $: cheque_date = new Date();
     let file_data;
     let showbtn = 0;
-    let selectTag,addRemark,selectserCh;
+    let selectTag,addRemark,selectsearch;
     let facility_address,facility_postal,facility_password,city,location_id,status_name;
     let new_fac_remarks = [];
     let select_tag_data,serv_ch_data;
-   let total_pages;
-   let pages=[];
+    let total_pages;
+    let pages=[];
     let tag_date,tag_remark;
     let tag_data_obj=[];
     let city_data=[];
@@ -97,8 +98,7 @@ import { Router, Link, Route } from "svelte-routing";
     let cheque_img="";
     let checkupload,pan_attach,aadhar_attach,dl_lic_attach,dl_lic_url,offer_url = "-";
     let profile_url = "";
-    let gst_doc_num="";
-    let address_url,pan_verified,aadhar_verified,profile_verified,address_verified,gst_verified,can_cheque_url;
+    let address_url,pan_verified,aadhar_verified,profile_verified,address_verified,can_cheque_url;
     let pan_rejected,aadhar_rejected,profile_rejected,address_rejected,offer_verified,offer_rejected,dl_verified,dl_rejected,
     can_cheque_verified,can_cheque_rejected;
     let aadhar_name = "Not Submitted",pan_name = "Not Submitted",dl_lic_name = "Not Submitted",address_name = "Not Submitted",
@@ -131,9 +131,11 @@ import { Router, Link, Route } from "svelte-routing";
     let gst_city_message ="";
     let gst_add_message = "";
     let gst_img = "";
+    let gst_url="";
     let gst_data="";
     let gst_checkbox = false;
     let gst_details_data=[];
+    let gst_verified,gst_rejected;
 ///////Document view Model/////////
     let alt_image="";
 /////////Document view Model//////
@@ -180,9 +182,11 @@ import { Router, Link, Route } from "svelte-routing";
             }
     }
     async function link_child(data){
+        show_spinner = true;
         client_det_res = await client_details(data);
         try{
             if(client_det_res.body.status == "green"){
+                show_spinner = false;
                 for(let i=0;i<client_det_res.body.data.length;i++){
                     for(let j=0;j<client_det_res.body.data.length;j++){
                     client_det_arr.push(client_det_res.body.data[j]);
@@ -194,9 +198,14 @@ import { Router, Link, Route } from "svelte-routing";
                 paginatedItems = paginate({ items, pageSize, currentPage })
                 
             }
+            else{
+                show_spinner = false;
+            }
         }
         catch(err){
-            console.log("No Facilities Found")
+            show_spinner = false;
+            toast_type = "error";
+            toast_text = err;
         }
         
     }
@@ -234,12 +243,29 @@ import { Router, Link, Route } from "svelte-routing";
             document.getElementById("img_model_url").getAttribute('src',new_cheque.file_url);
             alt_image = "cheque proof";
         }
-        // else if(data == "mult_gsts"){
-        //     if(doc_number == gst_doc_num)
-        //     document.getElementById("img_model_url").getAttribute('src',gst_url);
-        //     alt_image = "gst proof";
-        // }
+        for(let i = 0;i<gst_doc_arr.length;i++){
+            if(data == "mult_gsts"){
+                if(doc_number == gst_doc_arr[i].gst_doc_num)
+                document.getElementById("img_model_url").getAttribute('src',gst_url[i]);
+                alt_image = "gst proof";
+            }
+        }
         
+    }
+    async function gst_edit_click(address,city,state,gstn,gst_url,gst_name){
+        // console.log("gst_edit_click",address,city,state,gstn,gst_url,gst_name);
+        if(temp2 != "gst2"){
+            temp2 = "gst2";
+        }
+        else{
+            temp2 = temp2;
+        }
+        gst_address = address;
+        gst_city_select = city;
+        gst_city_link_state = state;
+        gst_number = gstn;
+        gst_file = gst_url;
+        gst_img = gst_name;
     }
 
     function SearchClick() {
@@ -312,7 +338,6 @@ import { Router, Link, Route } from "svelte-routing";
             else{
                 console.log("facility ID is null");
             }
-
         }
 
 
@@ -339,7 +364,9 @@ import { Router, Link, Route } from "svelte-routing";
 
         bank_details_res = await bank_details();
         try{
+            show_spinner = true;
             if(!bank_details_res){
+                show_spinner = false;
                 console.log("No Data Found")
                 bank_values_from_store.modified_by="-";
                 bank_new_date="-";
@@ -352,6 +379,7 @@ import { Router, Link, Route } from "svelte-routing";
             }
 
             else{
+                show_spinner = false;
                 // console.log("VALUES IN BANK DETAILS")
                 $bank_data_to_store.bank_details_data = bank_details_res;
                 bank_data_to_store.subscribe((value) => {
@@ -363,12 +391,15 @@ import { Router, Link, Route } from "svelte-routing";
                 }
             }
         catch(err) {
-            console.log("Error in bank details " + err);
+            show_spinner = false;
+            toast_type = "error";
+            toast_text = err;
         }
         let cheque_details_res = await cheque_details();
         try{
+            show_spinner = true;
             if(cheque_details_res.body.status == "green" && cheque_details_res != "null"){
-            
+            show_spinner = false;
             $cheque_data_to_store.cheque_details_data = cheque_details_res.body.data;
             
             cheque_data_to_store.subscribe((value) => {
@@ -379,122 +410,112 @@ import { Router, Link, Route } from "svelte-routing";
             // cheque_values_from_store=cheque_values_from_store
         }
         catch(err) {
-            console.log("Error in Cheque Details",err)
-            // message.innerHTML = "Error is " + err;
+            show_spinner = false;
+            toast_type = "error";
+            toast_text = err;
+            
         }
     
         /////////bank details/////////////
         let facility_document_res = await facility_document();
         try{
+            show_spinner = true;
             if(facility_document_res != "null"){
-        // console.log("facility_document_res RES", facility_document_res);
-        // console.log( "facility_document_res.Object.body.data",facility_document_res.body.data);
-        facility_document_data = facility_document_res.body.data;
-        
-        console.log("gst_doc_numgst_doc_numgst_doc_num",gst_doc_type)
-        
-        for (var i = 0; i < facility_document_data.length; i++) {
-            // console.log("GGGGSSSSTTTT",facility_document_data[i].doc_type.match(/^gst-certificate/));
-            if(facility_document_data[i].doc_type == "pan-photo"){
-                pan_num = facility_document_data[i].doc_number
-                pan_attach = facility_document_data[i].file_url
-                pan_name = facility_document_data[i].file_name;
-                pan_verified = facility_document_data[i].verified;
-                pan_rejected = facility_document_data[i].rejected;
-            }
-            else if(facility_document_data[i].doc_type == "aadhar-id-proof"){
-                aadhar_num = facility_document_data[i].doc_number
-                aadhar_attach = facility_document_data[i].file_url
-                aadhar_name = facility_document_data[i].file_name;
-                aadhar_verified = facility_document_data[i].verified;
-                aadhar_rejected = facility_document_data[i].rejected;
-            }
-            else if(facility_document_data[i].doc_type == "fac-photo"){
-                // profile_name = facility_document_data[i].file_name;
-                profile_url = facility_document_data[i].file_url;
-                profile_verified = facility_document_data[i].verified;
-                profile_rejected = facility_document_data[i].rejected;
-            }
-            else if(facility_document_data[i].doc_type == "addproof-photo"){
-                address_name = facility_document_data[i].file_name;
-                address_url = facility_document_data[i].file_url;
-                address_verified = facility_document_data[i].verified;
-                address_rejected = facility_document_data[i].rejected;
-            }
-            
-            else if(facility_document_data[i].doc_type == "can-cheque"){
-                can_cheque_name = facility_document_data[i].file_name;
-                can_cheque_url = facility_document_data[i].file_url;
-                // can_check_verified = facility_document_data[i].verified;
-            }
-            else if(facility_document_data[i].doc_type == "dl-photo"){
-                dl_lic_name = facility_document_data[i].file_name;
-                dl_lic_url = facility_document_data[i].file_url;
-                dl_verified = facility_document_data[i].verified;
-                dl_rejected = facility_document_data[i].rejected;
-            }
-            else if(facility_document_data[i].doc_type == "newOffFile"){
-                offer_name = facility_document_data[i].file_name;
-                offer_url = facility_document_data[i].file_url;
-                offer_verified = facility_document_data[i].verified;
-                offer_rejected = facility_document_data[i].rejected;
-                // can_check_verified = facility_document_data[i].verified;
-            }
-            
-            else if(facility_document_data[i].doc_type == "can-cheque"){
-                can_cheque_name = facility_document_data[i].file_name;
-                can_cheque_url = facility_document_data[i].file_url;
-                can_cheque_verified = facility_document_data[i].verified;
-                can_cheque_rejected = facility_document_data[i].rejected;
-                // can_check_verified = facility_document_data[i].verified;
-            }
-            console.log("gst_doc_type_check",gst_doc_type.length);
-
-            for(let j=0; j<gst_doc_type.length;j++){
-                if(facility_document_data[i].doc_type == gst_doc_type[j]){
-                    gst_name[j] = facility_document_data[i].file_name;
-                    gst_url[j] = facility_document_data[i].file_url;
-                    gst_doc_num[j] = facility_document_data[i].doc_number;
-                    // gst_verified = facility_document_data[i].verified;
-                    console.log("gst_doc_numgst",gst_name,gst_url,gst_doc_num)
+                show_spinner = false;
+            facility_document_data = facility_document_res.body.data;
+            for (var i = 0; i < facility_document_data.length; i++) {
+                if(facility_document_data[i].doc_type == "pan-photo"){
+                    pan_num = facility_document_data[i].doc_number
+                    pan_attach = facility_document_data[i].file_url
+                    pan_name = facility_document_data[i].file_name;
+                    pan_verified = facility_document_data[i].verified;
+                    pan_rejected = facility_document_data[i].rejected;
+                }
+                else if(facility_document_data[i].doc_type == "aadhar-id-proof"){
+                    aadhar_num = facility_document_data[i].doc_number
+                    aadhar_attach = facility_document_data[i].file_url
+                    aadhar_name = facility_document_data[i].file_name;
+                    aadhar_verified = facility_document_data[i].verified;
+                    aadhar_rejected = facility_document_data[i].rejected;
+                }
+                else if(facility_document_data[i].doc_type == "fac-photo"){
+                    // profile_name = facility_document_data[i].file_name;
+                    profile_url = facility_document_data[i].file_url;
+                    profile_verified = facility_document_data[i].verified;
+                    profile_rejected = facility_document_data[i].rejected;
+                }
+                else if(facility_document_data[i].doc_type == "addproof-photo"){
+                    address_name = facility_document_data[i].file_name;
+                    address_url = facility_document_data[i].file_url;
+                    address_verified = facility_document_data[i].verified;
+                    address_rejected = facility_document_data[i].rejected;
+                }
+                
+                else if(facility_document_data[i].doc_type == "can-cheque"){
+                    can_cheque_name = facility_document_data[i].file_name;
+                    can_cheque_url = facility_document_data[i].file_url;
+                    // can_check_verified = facility_document_data[i].verified;
+                }
+                else if(facility_document_data[i].doc_type == "dl-photo"){
+                    dl_lic_name = facility_document_data[i].file_name;
+                    dl_lic_url = facility_document_data[i].file_url;
+                    dl_verified = facility_document_data[i].verified;
+                    dl_rejected = facility_document_data[i].rejected;
+                }
+                else if(facility_document_data[i].doc_type == "newOffFile"){
+                    offer_name = facility_document_data[i].file_name;
+                    offer_url = facility_document_data[i].file_url;
+                    offer_verified = facility_document_data[i].verified;
+                    offer_rejected = facility_document_data[i].rejected;
+                    // can_check_verified = facility_document_data[i].verified;
+                }
+                
+                else if(facility_document_data[i].doc_type == "can-cheque"){
+                    can_cheque_name = facility_document_data[i].file_name;
+                    can_cheque_url = facility_document_data[i].file_url;
+                    can_cheque_verified = facility_document_data[i].verified;
+                    can_cheque_rejected = facility_document_data[i].rejected;
+                    // can_check_verified = facility_document_data[i].verified;
                 }
             }
-            
-
-            }
-                }
+        }
         
         }
-    catch(err) {
-        // message.innerHTML = "Error is " + err;
+        catch(err) {
+        show_spinner = false;
+        toast_type = "error";
+        toast_text = facility_document_res.body.message;
         }
 
-        let temp_res = await show_fac_tags($facility_data_store.facility_type);
+        let fac_tag_res = await show_fac_tags($facility_data_store.facility_type);
+        
         try {
-                show_fac_array = temp_res.body.data;
-                for(let i=0;i < show_fac_array.length;i++){
-                    if( i == show_fac_array.length-1){
-                        
-                        tags_for_ass_arr.push(show_fac_array[i].tag_name)
+                show_spinner = true;
+                if(fac_tag_res.body.data.length != 0){
+                    show_fac_array = fac_tag_res.body.data;
+                    for(let i=0;i < show_fac_array.length;i++){
+                        if( i == show_fac_array.length-1){
+                            
+                            tags_for_ass_arr.push(show_fac_array[i].tag_name)
+                        }
+                        else{
+                            tags_for_ass_arr.push(show_fac_array[i].tag_name+",")
+                        }
                     }
-                    else{
-                        tags_for_ass_arr.push(show_fac_array[i].tag_name+",")
-                    }
+                    tags_for_ass_arr=tags_for_ass_arr
                 }
-                tags_for_ass_arr=tags_for_ass_arr
-                
-                
-
             }
         catch(err){
-            console.log("Error in mount show_fac_array")
+            show_spinner = false;
+            toast_type = "error";
+            toast_text = err;
         }
         //////////city_data/////////////
         let loc_data_res =  await get_loc_scope();
         try {
+            show_spinner = true;
         if(loc_data_res.body.status == "green"){
-             // city_data = loc_data_res.body.data;
-             console.log("loc_data_res",loc_data_res)
+            show_spinner = false;
              for(let i=0;i<loc_data_res.body.data.length;i++){
                 city_data.push(loc_data_res.body.data[i].location_name);
                 scope_data.push(loc_data_res.body.data[i]);
@@ -510,11 +531,15 @@ import { Router, Link, Route } from "svelte-routing";
             }
         }
         else{
-            console.log("No City Data")
+            show_spinner = false;
+            toast_type = "error";
+            toast_text = "No City Data";
         }
         
     } catch(err) {
-        console.log("Error in loc_data_res")
+        show_spinner = false;
+        toast_type = "error";
+        toast_text = loc_data_res.body.message;
        
     }
 
@@ -531,7 +556,7 @@ import { Router, Link, Route } from "svelte-routing";
         id_new_date = get_date_format(id_date_format,"dd-mm-yyyy-hh-mm");
         
         new_fac_remarks = $facility_data_store.remarks.split("\n");
-        console.log("new_fac_remarks",new_fac_remarks)
+        // console.log("new_fac_remarks",new_fac_remarks)
         
         let new_facility_date_format = new Date($facility_data_store.creation);
         facility_created_date = get_date_format(new_facility_date_format,"dd-mm-yyyy-hh-mm");
@@ -560,9 +585,7 @@ import { Router, Link, Route } from "svelte-routing";
                 }
                 gst_doc_type=gst_doc_type
                 
-                if (
-                    $facility_data_store.addresess[j].default_address == "1"
-                ) {
+                if ($facility_data_store.addresess[j].default_address == "1") {
                     facility_address =$facility_data_store.addresess[j].address;
                     facility_postal =$facility_data_store.addresess[j].postal;
                     city = $facility_data_store.addresess[j].city;
@@ -570,15 +593,27 @@ import { Router, Link, Route } from "svelte-routing";
 
                 }
             }
-            console.log("gst_doc_typegst_doc_typegst_doc_type",gst_doc_type)
             
-            
+            for (var i = 0; i < facility_document_data.length; i++) {
+                for(let j=0; j<gst_doc_type.length;j++){
+                    if(facility_document_data[i].doc_type == gst_doc_type[j]){
+                        var gst_name = facility_document_data[i].file_name;
+                        var gst_url = facility_document_data[i].file_url;
+                        var gst_doc_num = facility_document_data[i].doc_number;
+                        gst_verified = facility_document_data[i].verified;
+                        gst_rejected = facility_document_data[i].rejected;
+                        gst_doc_arr.push({"gst_name":gst_name,"gst_url":gst_url,"gst_doc_num":gst_doc_num});
+                    }
+                }
+            }
+            console.log("gst_doc_arr",gst_doc_arr)
+            gst_doc_arr=gst_doc_arr;
         }
     }
     catch(err) {
         toast_type = "error";
         toast_text = facility_data_res.body.message;
-        // message.innerHTML = "Error is " + err;
+        
         }
 
     let bgv_pass_data=[
@@ -587,52 +622,33 @@ import { Router, Link, Route } from "svelte-routing";
         $facility_data_store.facility_type,
     ]    
 
-    // console.log("bgv_pass_dataaa",  $facility_data_store.org_id,
-    //     $facility_data_store.station_code,
-    //     $facility_data_store.facility_type);
     let bgv_init_res = await facility_bgv_init(bgv_pass_data);
-    console.log("bgv_inittt",bgv_init_res)
+    // console.log("bgv_inittt",bgv_init_res)
     if (bgv_init_res.body.status == "green"){
-        // bgv_config_store.set(
-        // bgv_init_res.body.data
-        // )
-            showbtn = 1;
-    //         let bgv_check_res = await facility_bgv_check();
-    //         // console.log("bgv_check_res",bgv_check_res)
-    //         if(bgv_check_res.body.data.length == "0"){
-    //         initiate_bgv = 1;
-    // }
+        showbtn = 1;
     }
 
     all_tags_res = await all_facility_tags($facility_data_store.name);
     
     try {
         if(all_tags_res.body.status == "green"){
-        for(i=0;i < all_tags_res.body.data.length;i++){
-       
-        all_tags_data.push(all_tags_res.body.data[i].tag_name);
-        // all_tags_obj[i] = all_tags_res.body.data[i].tag_name;
-        all_tags_obj[all_tags_res.body.data[i].tag_name] = all_tags_res.body.data[i].tag_description;
-        // console.log("all_tags_obj[i]",all_tags_obj)
+            for(i=0;i < all_tags_res.body.data.length;i++){
+                all_tags_data.push(all_tags_res.body.data[i].tag_name);
+                all_tags_obj[all_tags_res.body.data[i].tag_name] = all_tags_res.body.data[i].tag_description;
+            }
+            all_tags_data = all_tags_data;
         }
-        all_tags_data = all_tags_data;
-        // console.log("all_tags_obj",all_tags_obj)
-        // for(let key in all_tags_obj){
-        //     console.log("key",key)
-        //     console.log("values",all_tags_obj[key])
-        // }
-    }
-        
     } 
     catch(err) {
-        // message.innerHTML = "Error is " + err;
+        toast_type = "error";
+        toast_text = all_tags_res.body.message;
     }
     show_spinner = false;
-  });
+});
   
-    if(city_select_flag == "1"){
-        console.log("city_select",city_select)
-    }
+    // if(city_select_flag == "1"){
+    //     console.log("city_select",city_select)
+    // }
 /////////bank details//////;///////
 
     const onFileSelected = (e,doctext) => {
@@ -748,6 +764,7 @@ import { Router, Link, Route } from "svelte-routing";
             let cheque_add_res = await addnew_cheque_details(cheque_details_form);
             // console.log("cheque_add_res",cheque_add_res);
             try{
+                show_spinner = true;
                 if(cheque_add_res.body.status== "green"){
                     show_spinner = false;
                     toast_text = "Cheque Details Added Successfully";
@@ -762,12 +779,14 @@ import { Router, Link, Route } from "svelte-routing";
                             cheque_values_from_store = value.cheque_details_data;
                         });
                         }
-                        console.log("cheque_values_from_store",cheque_values_from_store)
+                        
                         // cheque_values_from_store=cheque_values_from_store
                     }
                     catch(err) {
-                        console.log("Error in Cheque Details",err)
-                        // message.innerHTML = "Error is " + err;
+                        show_spinner = false;
+                        toast_type = "error";
+                        toast_text = err;
+                        
                     }
 
                 }
@@ -779,7 +798,9 @@ import { Router, Link, Route } from "svelte-routing";
 
             }
             catch(err){
-                console.log("Error in cheque_add_res",err)  
+                show_spinner = false;
+                toast_text = "Error in Adding Cheque Details";
+                toast_type = "danger";
             }
     }
     
@@ -804,9 +825,12 @@ import { Router, Link, Route } from "svelte-routing";
 
     async function tagAddRemove() {
         addRemoveModal.style.display = "block";
-        console.log("INSIDE TAG ADD REMOVE")
         let tag_res = await show_fac_tags($facility_data_store.facility_type);
+        console.log("tag_res",tag_res);
         try {
+            show_spinner = true;
+            if(tag_res.body.data.length != 0){
+                show_spinner = false;
                 show_fac_array = tag_res.body.data;
                 console.log("show_fac_array",show_fac_array)
                 for(let i=0;i < show_fac_array.length;i++){
@@ -816,28 +840,35 @@ import { Router, Link, Route } from "svelte-routing";
                     show_fac_array[i].creation=new_date;
                     // console.log("new_date",new_date);
                 }
-                    show_fac_array.sort(function(a, b) {
-                    if (a.creation > b.creation) return -1;
-                    if (a.creation < b.creation) return 1;
-                    return 0;
-                    });
+                show_fac_array.sort(function(a, b) {
+                if (a.creation > b.creation) return -1;
+                if (a.creation < b.creation) return 1;
+                return 0;
+                });
 
-                    for(let i=0;i < show_fac_array.length;i++){
-                    let show_creation_date =get_date_format(show_fac_array[i].creation,"yyyy-mm-dd")
-                    show_fac_array[i].creation=show_creation_date;
-                    }
-                    console.log("sorted_date_array",show_fac_array)
+                for(let i=0;i < show_fac_array.length;i++){
+                let show_creation_date =get_date_format(show_fac_array[i].creation,"yyyy-mm-dd")
+                show_fac_array[i].creation=show_creation_date;
+                }
+            }
+            else{
+                show_spinner = false;
+                toast_type = "error";
+                toast_text = "No Tags Found";
+            }
         } 
         catch(err) {
-        console.log("ERROR")
-        // message.innerHTML = "Error is " + err;
+            toast_type = "error";
+            toast_text = err;
+        
          }
 
         let service_vend_res = await service_vendor();
         console.log("service_vend_res",service_vend_res)
         try {
+            show_spinner = true;
             if(service_vend_res.body.status == "green"){
-                
+                show_spinner = false;
                 for(let i=0;i<service_vend_res.body.data.length;i++){
                     if(service_vend_res.body.data[i].location_id == location_id){
                         // tag_data_obj[service_vend_res.body.data[i].vendor_id] = service_vend_res.body.data[i].vendor_name;
@@ -848,18 +879,21 @@ import { Router, Link, Route } from "svelte-routing";
                 console.log("tag_data_obj",tag_data_obj)
             }
             else{
-                console.log("No Data")
+                show_spinner = false;
+                toast_type = "error";
+                toast_text = "No Vendor Found";
             }
         }
         catch(err) {
-        console.log("ERROR")
-        // message.innerHTML = "Error is " + err;
-         }
+            show_spinner = false;
+            toast_type = "error";
+            toast_text = err;
+        }
 
 
     }
     async function handleTagClick(){
-        let new_tag_id
+    let new_tag_id
     try {   
     //     if(all_tags_res.body.status == "green"){
         
@@ -875,7 +909,7 @@ import { Router, Link, Route } from "svelte-routing";
             if(!tag_remark){
             addRemark = 1;
                 if(!serv_ch_data){
-                    selectserCh=1;
+                    selectsearch=1;
                 }
             }   
 
@@ -886,7 +920,9 @@ import { Router, Link, Route } from "svelte-routing";
             console.log("serv_ch_data",serv_ch_data)
             let submit_fac_res = await submit_fac_tag_data(new_tag_id,select_tag_data,tag_date,tag_remark,serv_ch_data)
             try {
+                show_spinner = true;
                 if(submit_fac_res.body.status == "green"){
+                    show_spinner = false;
                     let temp_res = await show_fac_tags($facility_data_store.facility_type);
                     show_fac_array = temp_res.body.data;
                     for(let i=0;i < show_fac_array.length;i++){
@@ -898,19 +934,21 @@ import { Router, Link, Route } from "svelte-routing";
                 }
                 // console.log("submit_fac_res.body",submit_fac_res.body)
                 else if(submit_fac_res.body.message == "Tag already exist..!"){
-                        console.log("Cannot Add Tag already exist..!")
+                    show_spinner = false;
+                    console.log("Cannot Add Tag already exist..!")
                 }
             }
                 catch(err) {
-                console.log("ERROR")
-                // message.innerHTML = "Error is " + err;
+                    show_spinner = false;
+                    toast_type = "error";
+                    toast_text = err;
                 }
         }
 
     }
     catch(err) {
-        console.log("ERROR")
-        // message.innerHTML = "Error is " + err;
+        toast_type = "error";
+        toast_text = err;
     }
       
 }
@@ -941,7 +979,7 @@ import { Router, Link, Route } from "svelte-routing";
     }
         catch(err) {
         console.log("ERROR")
-        // message.innerHTML = "Error is " + err;
+        
          }
 
     }
@@ -965,7 +1003,7 @@ import { Router, Link, Route } from "svelte-routing";
                
         }} catch(err) {
         console.log("ERROR")
-        // message.innerHTML = "Error is " + err;
+        
          }
        
     }
@@ -1093,27 +1131,6 @@ import { Router, Link, Route } from "svelte-routing";
         let no_com = document.getElementById("comma");
         console.log("no_com",no_com)
         linkChildModel.style.display = "block";
-    //     let loc_data_res =  await get_loc_scope();
-    //     try {
-    //     if(loc_data_res.body.status == "green"){
-    //          // city_data = loc_data_res.body.data;
-    //          console.log("loc_data_res",loc_data_res)
-    //          for(let i=0;i<loc_data_res.body.data.length;i++){
-    //             city_data.push(loc_data_res.body.data[i].location_name);
-               
-    //         }
-    //         console.log("city_data",city_data)
-    //         city_data = city_data;
-            
-    //     }
-    //     else{
-    //         console.log("No Data")
-    //     }
-        
-    // } catch(err) {
-    //     console.log("Error in loc_data_res")
-       
-    // }
     }
 
     function linkChildModelclose() {
@@ -1476,7 +1493,7 @@ import { Router, Link, Route } from "svelte-routing";
                                     src="{$img_url_name.img_name}/reject.png"
                                     class="pr-2"
                                     alt=""
-                                />Offer letter Reject
+                                />Offer letter Rejected
                             </p>
                             <!-- {:else} -->
                             {:else if offer_verified == "0" && offer_rejected == "0"}
@@ -2454,7 +2471,7 @@ import { Router, Link, Route } from "svelte-routing";
                         </div>
 
                     </div>
-                    <div class="userInfoSec3 ">
+                    <!-- <div class="userInfoSec3 ">
                         <div class="flex items-start">
                             <img src="{$img_url_name.img_name}/pincode.png" alt="">
                             <div class="pl-4">
@@ -2462,7 +2479,7 @@ import { Router, Link, Route } from "svelte-routing";
                                 <p class="detailData">{bank_values_from_store.branch_name} - {bank_values_from_store.branch_pin_code}</p>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                    
                 </div>
 
@@ -4326,10 +4343,17 @@ import { Router, Link, Route } from "svelte-routing";
                                                                 href=""
                                                                 class="smButton"
                                                             >
+                                                            <!-- for(let i = 0;i<gst_doc_arr.length;i++){ -->
+                                                                {#each gst_doc_arr as gst_doc}
+                                                                {#if gst_doc.gst_doc_num == new_gst.gstn}
                                                                 <img
                                                                     src="{$img_url_name.img_name}/edit.png"
-                                                                    alt=""
+                                                                    on:click="{()=>{gst_edit_click(new_gst.address,new_gst.city,
+                                                                    new_gst.state,new_gst.gstn,gst_doc.gst_url,gst_doc.gst_name)}}"
+                                                                    alt="gst edit"
                                                                 />
+                                                                {/if}
+                                                                {/each}
                                                             </a>
                                                         </p>
                                                     </div>
@@ -4338,16 +4362,46 @@ import { Router, Link, Route } from "svelte-routing";
                                         </div>
                                         <div class="statusSecForDoc">
                                             <p class="userStatusTick ">
-                                                <img
+                                                <!-- <img
                                                     src="{$img_url_name.img_name}/checked.png"
                                                     alt=""
                                                     class="pr-1"
                                                 /> Verified
+                                            </p> -->
+                                            {#if gst_verified == "1"}
+                                                <p
+                                                class="statusContentTag text-green font-normal xs:w-5/12"
+                                            >
+                                                <img
+                                                    src="{$img_url_name.img_name}/checked.png"
+                                                    class="pr-2"
+                                                    alt=""
+                                                />GST Verified
                                             </p>
-                                        </div>
-                                    </div>
-                                    {/each}
-                                    {/if}
+                                                {:else if gst_rejected == "1"} 
+                                                <p
+                                                class="statusContentTag text-rejectcolor font-normal xs:w-5/12"
+                                            >
+                                                <img
+                                                    src="{$img_url_name.img_name}/reject.png"
+                                                    class="pr-2"
+                                                    alt=""
+                                                />GST Rejected
+                                            </p>
+                                            <!-- {:else} -->
+                                            {:else if gst_verified == "0" && gst_rejected == "0"}
+                                            <p class="statusContent font-normal xs:w-5/12">
+                                                <img
+                                                    src="{$img_url_name.img_name}/timer.png"
+                                                    class="pr-2"
+                                                    alt=""
+                                                />GST Verification Pending
+                                            </p>
+                                                {/if}
+                                                        </div>
+                                                    </div>
+                                                    {/each}
+                                                    {/if}
                                 </div>
                                 <div class="addDocumentSection ">
                                     <div class="addSecform hidden">
