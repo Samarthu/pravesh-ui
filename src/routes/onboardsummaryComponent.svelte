@@ -11,9 +11,9 @@ import { Router, Link, Route } from "svelte-routing";
     // import { facility_document } from "../services/onboardsummary_services";
     import { audit_trail_data } from "../services/supplier_services";
     import { facility_data,facility_bgv_init,facility_bgv_check,all_facility_tags,
-        show_fac_tags,submit_fac_tag_data,remove_tag,tag_audit_trail,service_vendor,
-        get_loc_scope,client_details,erp_details,child_data,add_gst_dets,
-        facility_document,addnew_cheque_details,bank_details,cheque_details,gst_details} from "../services/onboardsummary_services";
+            show_fac_tags,submit_fac_tag_data,remove_tag,tag_audit_trail,service_vendor,
+            get_loc_scope,client_details,erp_details,child_data,add_gst_dets,
+            facility_document,addnew_cheque_details,bank_details,cheque_details,gst_details} from "../services/onboardsummary_services";
     import {uploadDocs} from "../services/bgv_services";
     import {get_date_format} from "../services/date_format_servives";
     import {img_url_name} from '../stores/flags_store';
@@ -26,6 +26,7 @@ import { Router, Link, Route } from "svelte-routing";
     import Spinner from "./components/spinner.svelte";
     import {logged_user} from '../services/supplier_services';
     import  {  page } from '$app/stores';
+    import {documents_store} from '../stores/document_store';
 
     let show_spinner = false;
     let toast_text;
@@ -62,6 +63,57 @@ import { Router, Link, Route } from "svelte-routing";
     let id_new_date='';
     let username;
     let all_tags_res;
+    let pancard_obj = {
+        pan_num:null,
+        pan_attach:null,
+        pan_name:null,
+        pan_verified:null,
+        pan_rejected:null
+    }
+    let aadhar_obj = {
+        aadhar_num:null,
+        aadhar_attach:null,
+        aadhar_name:null,
+        aadhar_verified:null,
+        aadhar_rejected:null
+    }
+    let fac_photo_obj = {
+        profile_url:null,
+        profile_verified:null,
+        profile_rejected:null
+    }
+    let addproof_obj = {
+        address_name:null,
+        address_url:null,
+        address_verified:null,
+        address_rejected:null
+    };
+    let can_cheque_obj = {
+        can_cheque_name:null,
+        can_cheque_url:null,
+        can_cheque_verified:null,
+        can_cheque_rejected:null
+    };
+    let dl_photo_obj = {
+        dl_lic_name:null,
+        dl_lic_url:null,
+        dl_verified:null,
+        dl_rejected:null
+    };
+    let new_off_file_obj = {
+        offer_name:null,
+        offer_url:null,
+        offer_verified:null,
+        offer_rejected:null
+    };
+    let gst_doc_obj = {
+        gst_name:null,
+        gst_url:null,
+        gst_doc_num:null,
+        gst_verified:null,
+        gst_rejected:null
+    };
+
     let text_pattern = /^[a-zA-Z_ ]+$/;
     let recrun_pattern =  /^[^-\s](?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9 _-]+)$/;
     let city_select;
@@ -73,11 +125,9 @@ import { Router, Link, Route } from "svelte-routing";
     let child_box;
     let bank_details_res,bank_new_date,
     facility_modified_date,facility_created_date,facility_doc_date;
-    let audit_creation_date;
-    let client_det_res;
+    // let client_det_res;
     let client_det_arr=[];
     let gst_doc_arr=[];
-    // $: cheque_date = new Date();
     let file_data;
     let showbtn = 0;
     let selectTag,addRemark,selectsearch;
@@ -92,28 +142,15 @@ import { Router, Link, Route } from "svelte-routing";
     let scope_data=[];
     let gst_doc_type=[];
     let erp_details_arr = [];
-    //  let vendor_id,vendor_name; 
-    let pan_num="-";
-    let aadhar_num="-";
     let cheque_img="";
-    let checkupload,pan_attach,aadhar_attach,dl_lic_attach,dl_lic_url,offer_url = "-";
-    let profile_url = "";
-    let address_url,pan_verified,aadhar_verified,profile_verified,address_verified,can_cheque_url;
-    let pan_rejected,aadhar_rejected,profile_rejected,address_rejected,offer_verified,offer_rejected,dl_verified,dl_rejected,
-    can_cheque_verified,can_cheque_rejected;
-    let aadhar_name = "Not Submitted",pan_name = "Not Submitted",dl_lic_name = "Not Submitted",address_name = "Not Submitted",
-    can_cheque_name = "Not Submitted",offer_name="Not Submitted";
+    let checkupload,dl_lic_attach = "-";
     let result;
     let mapped_pages = [];
     let hidden_field ="hidden";
     let gst_city_link_state="";
     let gst_state_code = "";
     let gst_city_loc_id="";
-    // let facility_data_obj = {
-    //     new_facility_id : facility_details_data[0].facility_id
-    //     }
     export let url = "";
-    let ven_loc_id;
     /////////////////////svelte plugin pagiantion//////////
     let items;
     let currentPage = 1;
@@ -123,7 +160,6 @@ import { Router, Link, Route } from "svelte-routing";
     //////GST vars////////////
     let gst_address=""
     let gst_city_select=""
-    let gst_state=""
     let gst_number=""
     let gst_file=""
     let gst_upload_message ="";
@@ -131,11 +167,9 @@ import { Router, Link, Route } from "svelte-routing";
     let gst_city_message ="";
     let gst_add_message = "";
     let gst_img = "";
-    let gst_url="";
     let gst_data="";
     let gst_checkbox = false;
     let gst_details_data=[];
-    let gst_verified,gst_rejected;
 ///////Document view Model/////////
     let alt_image="";
 /////////Document view Model//////
@@ -174,156 +208,10 @@ import { Router, Link, Route } from "svelte-routing";
         gst_checkbox = true;
     }
     
-    async function child_select_fun(){
-        
-        var rows = document.getElementById("check_tbody")[0].rows;
-            for(var i=0;i<rows.length;i++){
-                console.log("check_sel_id inside")
-            }
-    }
-    async function link_child(data){
-        show_spinner = true;
-        client_det_res = await client_details(data);
-        try{
-            if(client_det_res.body.status == "green"){
-                show_spinner = false;
-                for(let i=0;i<client_det_res.body.data.length;i++){
-                    for(let j=0;j<client_det_res.body.data.length;j++){
-                    client_det_arr.push(client_det_res.body.data[j]);
-                    
-                    }
-                }
-                client_det_arr=client_det_arr;
-                items = client_det_arr;
-                paginatedItems = paginate({ items, pageSize, currentPage })
-                
-            }
-            else{
-                show_spinner = false;
-            }
-        }
-        catch(err){
-            show_spinner = false;
-            toast_type = "error";
-            toast_text = err;
-        }
-        
-    }
-
-    function closeViewModel(){
-        document.getElementById("img_model").style.display = "none";
-    }
-    function openViewModel(data,doc_number){
-        document.getElementById("img_model").style.display = "block";
-        if(data == "aadhar"){
-            document.getElementById("img_model_url").getAttribute('src',aadhar_attach);
-            alt_image = "aadhar proof";
-        }
-        else if(data == "pan"){
-            document.getElementById("img_model_url").getAttribute('src',pan_attach);
-            alt_image = "pan-card proof";
-        }
-        else if(data == "address"){
-            document.getElementById("img_model_url").getAttribute('src',address_url);
-            alt_image = "address proof";
-        }
-        else if(data == "licence"){
-            document.getElementById("img_model_url").getAttribute('src',dl_lic_attach);
-            alt_image = "driving licence proof";
-        }
-        else if(data == "offer"){
-            document.getElementById("img_model_url").getAttribute('src',offer_url);
-            alt_image = "offer letter proof";
-        }
-        else if(data == "can_cheque"){
-            document.getElementById("img_model_url").getAttribute('src',can_cheque_url);
-            alt_image = "cancel cheque proof";
-        }
-        else if(data == "cheque_disp"){
-            document.getElementById("img_model_url").getAttribute('src',new_cheque.file_url);
-            alt_image = "cheque proof";
-        }
-        for(let i = 0;i<gst_doc_arr.length;i++){
-            if(data == "mult_gsts"){
-                if(doc_number == gst_doc_arr[i].gst_doc_num)
-                document.getElementById("img_model_url").getAttribute('src',gst_url[i]);
-                alt_image = "gst proof";
-            }
-        }
-        
-    }
-    async function gst_edit_click(address,city,state,gstn,gst_url,gst_name){
-        // console.log("gst_edit_click",address,city,state,gstn,gst_url,gst_name);
-        if(temp2 != "gst2"){
-            temp2 = "gst2";
-        }
-        else{
-            temp2 = temp2;
-        }
-        gst_address = address;
-        gst_city_select = city;
-        gst_city_link_state = state;
-        gst_number = gstn;
-        gst_file = gst_url;
-        gst_img = gst_name;
-    }
-
-    function SearchClick() {
-        searchBox.style.display = "block";
-        supplierCount.style.display = "none";
-        SearchClick.style.display = "none";
-        searchBox.style.width = "100%";
-        inputboxsearch.style.width = "100%";
-    };
-
-    function closeSearch() {
-        supplierCount.style.display = "block";
-        searchBox.style.display = "none";
-        SearchClick.style.display = "block";
-    };
-
-    const enterKeyPress = e => {
-        if (e.charCode === 13) {
-            filterResults();
-        }
-    };
-
-    async function clearedSearchFunc(){
-        let client_det_res=await client_details(city_select);
-        try{
-            if(client_det_res.body.status == "green"){
-                for(let i=0;i<client_det_res.body.data.length;i++){
-                    for(let j=0;j<client_det_res.body.data.length;j++){
-                        client_det_arr.push(client_det_res.body.data[j]);
-                    }
-                }
-                paginatedItems=client_det_arr;
-                result = true;
-                
-            }
-        }
-        catch(err) {
-            message.innerHTML = "Error is " + err;
-        }
-    }
-    async function filterResults(){
-        let searchArray= [];
-        for(let searchK  of paginatedItems){
-            // console.log("inside filter Results",searchK.facility_name)
-            const search_client = searchK.facility_name
-             result=search_client.toLowerCase().includes(searchTerm.toLowerCase());
-            if(result === true){
-            // console.log("pages in search array",pages)
-            // mapped_pages.length=0
-            searchArray = [...searchArray,searchK]
-            // console.log("searchArray",searchArray)
-            }
-        }
-        paginatedItems = searchArray;
-    }
     
     onMount(async () => {
-
+        // console.log("facility document data",aadhar_obj,fac_photo_obj,addproof_obj
+        // ,can_cheque_obj,dl_photo_obj,new_off_file_obj);
         query = $page.url;
         console.log("query",query);
         console.log("search params has",$page.url.searchParams.has("unFacID"));
@@ -336,10 +224,11 @@ import { Router, Link, Route } from "svelte-routing";
                 $facility_id.facility_id_number = temp;
             }
             else{
-                console.log("facility ID is null");
+                toast_type = "error";
+                toast_text = "Facility ID not found";
             }
         }
-
+        console.log("$facility_id",$facility_id.facility_id_number);
 
 
         let userdetails = await logged_user();
@@ -353,14 +242,6 @@ import { Router, Link, Route } from "svelte-routing";
             toast_type = "error";
             toast_text = "Cannot get user details";
         }
-
-        show_spinner = true;
-        ///////bank details/////////////
-        facility_id.set({
-            facility_id_number: "CRUN00374"
-            // facility_id_number: "CRUN00320" 
-        })
-        // console.log("facility_id_number",$facility_id.facility_id_number)
 
         bank_details_res = await bank_details();
         try{
@@ -406,7 +287,7 @@ import { Router, Link, Route } from "svelte-routing";
                 cheque_values_from_store = value.cheque_details_data;
             });
             }
-            console.log("cheque_values_from_store",cheque_values_from_store)
+            // console.log("cheque_values_from_store",cheque_values_from_store)
             // cheque_values_from_store=cheque_values_from_store
         }
         catch(err) {
@@ -422,64 +303,64 @@ import { Router, Link, Route } from "svelte-routing";
             show_spinner = true;
             if(facility_document_res != "null"){
                 show_spinner = false;
+            
+            $documents_store = facility_document_res.body.data
+            // console.log("documents_store",$documents_store)
+            // for(let i=0;i < $documents_store.length;i++){
+            //     console.log("Document data from store",$documents_store[i].doc_type);
+            // }
+
             facility_document_data = facility_document_res.body.data;
             for (var i = 0; i < facility_document_data.length; i++) {
                 if(facility_document_data[i].doc_type == "pan-photo"){
-                    pan_num = facility_document_data[i].doc_number
-                    pan_attach = facility_document_data[i].file_url
-                    pan_name = facility_document_data[i].file_name;
-                    pan_verified = facility_document_data[i].verified;
-                    pan_rejected = facility_document_data[i].rejected;
+                    pancard_obj = {pan_num : facility_document_data[i].doc_number,
+                    pan_attach : facility_document_data[i].file_url,
+                    pan_name : facility_document_data[i].file_name,
+                    pan_verified : facility_document_data[i].verified,
+                    pan_rejected : facility_document_data[i].rejected};
+                    
                 }
                 else if(facility_document_data[i].doc_type == "aadhar-id-proof"){
-                    aadhar_num = facility_document_data[i].doc_number
-                    aadhar_attach = facility_document_data[i].file_url
-                    aadhar_name = facility_document_data[i].file_name;
-                    aadhar_verified = facility_document_data[i].verified;
-                    aadhar_rejected = facility_document_data[i].rejected;
+                    aadhar_obj = {aadhar_num : facility_document_data[i].doc_number,
+                    aadhar_attach : facility_document_data[i].file_url,
+                    aadhar_name : facility_document_data[i].file_name,
+                    aadhar_verified : facility_document_data[i].verified,
+                    aadhar_rejected : facility_document_data[i].rejected};
+                    
                 }
                 else if(facility_document_data[i].doc_type == "fac-photo"){
-                    // profile_name = facility_document_data[i].file_name;
-                    profile_url = facility_document_data[i].file_url;
-                    profile_verified = facility_document_data[i].verified;
-                    profile_rejected = facility_document_data[i].rejected;
+                    fac_photo_obj={profile_url : facility_document_data[i].file_url,
+                    profile_verified : facility_document_data[i].verified,
+                    profile_rejected : facility_document_data[i].rejected};
                 }
                 else if(facility_document_data[i].doc_type == "addproof-photo"){
-                    address_name = facility_document_data[i].file_name;
-                    address_url = facility_document_data[i].file_url;
-                    address_verified = facility_document_data[i].verified;
-                    address_rejected = facility_document_data[i].rejected;
+                    addproof_obj = {address_name : facility_document_data[i].file_name,   
+                    address_url : facility_document_data[i].file_url,
+                    address_verified : facility_document_data[i].verified,
+                    address_rejected : facility_document_data[i].rejected};
                 }
-                
                 else if(facility_document_data[i].doc_type == "can-cheque"){
-                    can_cheque_name = facility_document_data[i].file_name;
-                    can_cheque_url = facility_document_data[i].file_url;
-                    // can_check_verified = facility_document_data[i].verified;
+                    can_cheque_obj.push = {can_cheque_name : facility_document_data[i].file_name,
+                    can_cheque_url : facility_document_data[i].file_url,
+                    can_cheque_verified : facility_document_data[i].verified,
+                    can_cheque_rejected : facility_document_data[i].rejected};
                 }
                 else if(facility_document_data[i].doc_type == "dl-photo"){
-                    dl_lic_name = facility_document_data[i].file_name;
-                    dl_lic_url = facility_document_data[i].file_url;
-                    dl_verified = facility_document_data[i].verified;
-                    dl_rejected = facility_document_data[i].rejected;
+                    dl_photo_obj = {dl_lic_name : facility_document_data[i].file_name,
+                    dl_lic_url : facility_document_data[i].file_url,
+                    dl_verified : facility_document_data[i].verified,
+                    dl_rejected : facility_document_data[i].rejected};
                 }
                 else if(facility_document_data[i].doc_type == "newOffFile"){
-                    offer_name = facility_document_data[i].file_name;
-                    offer_url = facility_document_data[i].file_url;
-                    offer_verified = facility_document_data[i].verified;
-                    offer_rejected = facility_document_data[i].rejected;
-                    // can_check_verified = facility_document_data[i].verified;
-                }
-                
-                else if(facility_document_data[i].doc_type == "can-cheque"){
-                    can_cheque_name = facility_document_data[i].file_name;
-                    can_cheque_url = facility_document_data[i].file_url;
-                    can_cheque_verified = facility_document_data[i].verified;
-                    can_cheque_rejected = facility_document_data[i].rejected;
-                    // can_check_verified = facility_document_data[i].verified;
+                    new_off_file_obj = {offer_name : facility_document_data[i].file_name,
+                    offer_url : facility_document_data[i].file_url,
+                    offer_verified : facility_document_data[i].verified,
+                    offer_rejected : facility_document_data[i].rejected};
+                    
                 }
             }
         }
-        
+        console.log("pancard_obj",pancard_obj,"aadhar_obj",aadhar_obj,"fac_photo_obj",fac_photo_obj,"addproof_obj",addproof_obj,"can_cheque_obj",can_cheque_obj,"dl_photo_obj",dl_photo_obj,"new_off_file_obj",new_off_file_obj);
         }
         catch(err) {
         show_spinner = false;
@@ -597,17 +478,24 @@ import { Router, Link, Route } from "svelte-routing";
             for (var i = 0; i < facility_document_data.length; i++) {
                 for(let j=0; j<gst_doc_type.length;j++){
                     if(facility_document_data[i].doc_type == gst_doc_type[j]){
-                        var gst_name = facility_document_data[i].file_name;
-                        var gst_url = facility_document_data[i].file_url;
-                        var gst_doc_num = facility_document_data[i].doc_number;
-                        gst_verified = facility_document_data[i].verified;
-                        gst_rejected = facility_document_data[i].rejected;
-                        gst_doc_arr.push({"gst_name":gst_name,"gst_url":gst_url,"gst_doc_num":gst_doc_num});
+                        gst_doc_obj = {gst_name : facility_document_data[i].file_name,
+                            gst_url : facility_document_data[i].file_url,
+                            gst_doc_num : facility_document_data[i].doc_number,
+                            gst_verified : facility_document_data[i].verified,
+                            gst_rejected : facility_document_data[i].rejected};
+                        
+                        
+                        // var gst_name = facility_document_data[i].file_name;
+                        // var gst_url = facility_document_data[i].file_url;
+                        // var gst_doc_num = facility_document_data[i].doc_number;
+                        // gst_verified = facility_document_data[i].verified;
+                        // gst_rejected = facility_document_data[i].rejected;
+                        gst_doc_arr.push({"gst_name":gst_doc_obj.gst_name,"gst_url":gst_doc_obj.gst_url,"gst_doc_num":gst_doc_obj.gst_doc_num});
                     }
                 }
             }
-            console.log("gst_doc_arr",gst_doc_arr)
             gst_doc_arr=gst_doc_arr;
+            console.log("gst_doc_arr",gst_doc_arr)
         }
     }
     catch(err) {
@@ -644,11 +532,159 @@ import { Router, Link, Route } from "svelte-routing";
         toast_text = all_tags_res.body.message;
     }
     show_spinner = false;
-});
-  
-    // if(city_select_flag == "1"){
-    //     console.log("city_select",city_select)
-    // }
+}); 
+async function child_select_fun(){
+        
+        var rows = document.getElementById("check_tbody")[0].rows;
+            for(var i=0;i<rows.length;i++){
+                console.log("check_sel_id inside")
+            }
+    }
+    async function link_child(data){
+        show_spinner = true;
+        let client_det_res = await client_details(data);
+        try{
+            if(client_det_res.body.status == "green"){
+                show_spinner = false;
+                for(let i=0;i<client_det_res.body.data.length;i++){
+                    for(let j=0;j<client_det_res.body.data.length;j++){
+                    client_det_arr.push(client_det_res.body.data[j]);
+                    
+                    }
+                }
+                client_det_arr=client_det_arr;
+                items = client_det_arr;
+                paginatedItems = paginate({ items, pageSize, currentPage })
+                
+            }
+            else{
+                show_spinner = false;
+            }
+        }
+        catch(err){
+            show_spinner = false;
+            toast_type = "error";
+            toast_text = err;
+        }
+        
+    }
+
+    function closeViewModel(){
+        document.getElementById("img_model").style.display = "none";
+    }
+    function openViewModel(data,doc_number){
+        document.getElementById("img_model").style.display = "block";
+        if(data == "aadhar"){
+            document.getElementById("img_model_url").getAttribute('src',aadhar_obj.aadhar_attach);
+            alt_image = "aadhar proof";
+        }
+        else if(data == "pan"){
+            document.getElementById("img_model_url").getAttribute('src',pancard_obj.pan_attach);
+            alt_image = "pan-card proof";
+        }
+        else if(data == "address"){
+            document.getElementById("img_model_url").getAttribute('src',addproof_obj.address_url);
+            alt_image = "address proof";
+        }
+        else if(data == "licence"){
+            document.getElementById("img_model_url").getAttribute('src',dl_lic_attach);
+            alt_image = "driving licence proof";
+        }
+        else if(data == "offer"){
+            document.getElementById("img_model_url").getAttribute('src',new_off_file_obj.offer_url);
+            alt_image = "offer letter proof";
+        }
+        else if(data == "can_cheque"){
+            document.getElementById("img_model_url").getAttribute('src',can_cheque_obj.can_cheque_url);
+            alt_image = "cancel cheque proof";
+        }
+        else if(data == "cheque_disp"){
+            document.getElementById("img_model_url").getAttribute('src',new_cheque.file_url);
+            alt_image = "cheque proof";
+        }
+        for(let i = 0;i<gst_doc_arr.length;i++){
+            if(data == "mult_gsts"){
+                if(doc_number == gst_doc_arr[i].gst_doc_num)
+                document.getElementById("img_model_url").getAttribute('src',gst_url[i]);
+                alt_image = "gst proof";
+            }
+        }
+        
+    }
+    async function gst_edit_click(address,city,state,gstn,gst_url,gst_name){
+        // console.log("gst_edit_click",address,city,state,gstn,gst_url,gst_name);
+        if(temp2 != "gst2"){
+            temp2 = "gst2";
+        }
+        else{
+            temp2 = temp2;
+        }
+        gst_address = address;
+        gst_city_select = city;
+        gst_city_link_state = state;
+        gst_number = gstn;
+        gst_file = gst_url;
+        gst_img = gst_name;
+    }
+
+    function SearchClick() {
+        searchBox.style.display = "block";
+        supplierCount.style.display = "none";
+        SearchClick.style.display = "none";
+        searchBox.style.width = "100%";
+        inputboxsearch.style.width = "100%";
+    };
+
+    function closeSearch() {
+        supplierCount.style.display = "block";
+        searchBox.style.display = "none";
+        SearchClick.style.display = "block";
+    };
+
+    const enterKeyPress = e => {
+        if (e.charCode === 13) {
+            filterResults();
+        }
+    };
+
+    async function clearedSearchFunc(){
+        let client_det_res=await client_details(city_select);
+        try{
+            show_spinner = true;
+            if(client_det_res.body.status == "green"){
+                show_spinner = false;
+                for(let i=0;i<client_det_res.body.data.length;i++){
+                    for(let j=0;j<client_det_res.body.data.length;j++){
+                        client_det_arr.push(client_det_res.body.data[j]);
+                    }
+                }
+                paginatedItems=client_det_arr;
+                result = true;
+                
+            }
+            else{
+                show_spinner = false;
+            }
+        }
+        catch(err) {
+            show_spinner = false;
+            toast_type = "error";
+            toast_text = err;
+        }
+    }
+    async function filterResults(){
+        let searchArray= [];
+        for(let searchK  of paginatedItems){
+            // console.log("inside filter Results",searchK.facility_name)
+            const search_client = searchK.facility_name
+             result=search_client.toLowerCase().includes(searchTerm.toLowerCase());
+            if(result === true){
+            searchArray = [...searchArray,searchK]
+            }
+        }
+        paginatedItems = searchArray;
+    }
+    
 /////////bank details//////;///////
 
     const onFileSelected = (e,doctext) => {
@@ -677,7 +713,6 @@ import { Router, Link, Route } from "svelte-routing";
             }
             else if(doctext == "cheque_upload"){
                 cheque_data = reader.result;
-                // console.log("aadhar_data",reader.result);
                 toast_text = "Document Uploaded Successfully";
                 toast_type = "success";
             }
@@ -700,15 +735,7 @@ import { Router, Link, Route } from "svelte-routing";
 
     async function cheque_button_click() {
         show_spinner = true;
-        // cheque_date = "2022-03-08";
-        
         let new_cheque_date = new Date(cheque_date)
-        // cheque_date=get_date_format(new_cheque_date,"yyyy-mm-dd")
-        
-        // // console.log("cheque Date", changed_date);
-        // // console.log("bank_name",bank_name,type,cheque_date,cheque_number,amount,
-        // recrun_number,file_number);
-        
         if(!bank_name.match(text_pattern)){
         bank_name_message = "Invalid Bank Name";
         return
@@ -730,20 +757,7 @@ import { Router, Link, Route } from "svelte-routing";
             return;
             
         }
-        // if(!recrun_number || !recrun_number.match(recrun_pattern)){
-        //     recrun_number_message = "Invalid Recrun Number";
-        // }
-        // else{
-        //     validations = 1;
-        //     recrun_number_message = "";
-        // }
-        // if(!file_number || isNaN(file_number)){
-        //     file_number_message = "Invalid File Number";
-        // }
-        // else{
-        //     validations = 1;
-        //     file_number_message = "";
-        // }
+        
         if(!checkupload){
             cheque_upload_message = "Invalid Cheque Upload"
             return;
@@ -1036,7 +1050,7 @@ import { Router, Link, Route } from "svelte-routing";
                 audit_details_array = audit_res.body.data;
                 for(let i=0;i < audit_details_array.length;i++){
                 let new_date =new Date(audit_details_array[i].creation)
-                audit_creation_date = get_date_format(new_date,"dd-mm-yyyy-hh-mm")
+                let audit_creation_date = get_date_format(new_date,"dd-mm-yyyy-hh-mm")
                 audit_details_array[i].creation=audit_creation_date;
                 }
             }
@@ -1148,8 +1162,8 @@ import { Router, Link, Route } from "svelte-routing";
             gst_city_message = "Select Valid City";
             return;
         }
-        console.log("gst details for gst number",gst_number,gst_state_code,pan_num,gst_number.trim().length,gst_number.substring(0, 2),gst_number.substring(2, 12),gst_number.substring(13,14))
-        if (gst_number == undefined || gst_number.trim().length < 15 || gst_number.substring(0, 2) != gst_state_code || gst_number.substring(2, 12) != pan_num || gst_number.substring(13,14) != "Z") {
+        // console.log("gst details for gst number",gst_number,gst_state_code,pan_num,gst_number.trim().length,gst_number.substring(0, 2),gst_number.substring(2, 12),gst_number.substring(13,14))
+        if (gst_number == undefined || gst_number.trim().length < 15 || gst_number.substring(0, 2) != gst_state_code || gst_number.substring(2, 12) != pancard_obj.pan_num || gst_number.substring(13,14) != "Z") {
             gst_number_message = "Invalid GST Number";
         return;
         }
@@ -1313,53 +1327,7 @@ import { Router, Link, Route } from "svelte-routing";
                         <div class="statusBarSec ">
                             
                             <div class="statusbarLeft">
-                                <!-- <p class="statusText">Status - </p>
                                 
-                                <div class="hidden">
-                                    <p class="statusContent font-medium italic"><img
-                                            src="{$img_url_name.img_name}/circleicon.png" class="pr-2 w-3 h-3" alt="">
-                                        Verification Pending</p>
-                                </div>
-                                <p class="statusContentTag font-normal text-sm  "><img
-                                        src="{$img_url_name.img_name}/redcircle.png" class="pr-2 w-3 h-3" alt="">
-                                    Documents Rejected</p>
-                            </div>
-
-                            <div class="statusbarMiddle">
-
-                                <div class="statusNotes flex gap-6 xsl:gap-4">
-                                    <span class="cardDescription flex items-center">
-                                     <img src="{$img_url_name.img_name}/timesvg.svg" class="pr-2" alt=""> 
-                                       Address Proof
-                                    </span> 
-
-                                    <span class="cardDescription flex items-center">
-                                        <img src="{$img_url_name.img_name}/timesvg.svg" class="pr-2" alt=""> 
-                                        Offer Letter
-                                    </span>   
-
-                                    <span class="cardDescription flex items-center">
-                                        <img src="{$img_url_name.img_name}/timesvg.svg" class="pr-2" alt=""> 
-                                        ID Proof
-                                        <span>
-                                        <img src="{$img_url_name.img_name}/info.svg" class="pl-2" alt="">
-                                        </span>
-                                    </span>   
-
-                                    <span class="cardDescription flex items-center">
-                                        <img src="{$img_url_name.img_name}/timesvg.svg" class="pr-2" alt=""> 
-                                        Bank Details
-                                    </span>   
-
-                                    <span class="cardDescription flex items-center">
-                                        <img src="{$img_url_name.img_name}/timesvg.svg" class="pr-2" alt=""> 
-                                       BGV
-                                        <span>
-                                        <img src="{$img_url_name.img_name}/info.svg" class="pl-2" alt="">
-                                        </span>
-                                    </span>   
-                                      
-                                </div>     -->
                                 <p class="statusText">Status -</p>
                                 {#if $facility_data_store.status == "Active"}
                                 <p
@@ -1475,7 +1443,7 @@ import { Router, Link, Route } from "svelte-routing";
                                 <!-- <p class="xsl:hidden">
                                     <img src="{$img_url_name.img_name}/Line.png" alt="" />
                                 </p> -->
-                                {#if offer_verified == "1"}
+                                {#if new_off_file_obj.offer_verified == "1"}
                                 <p
                                 class="statusContentTag text-green font-normal xs:w-5/12"
                             >
@@ -1485,7 +1453,7 @@ import { Router, Link, Route } from "svelte-routing";
                                     alt=""
                                 /> Offer letter Verified
                             </p>
-                                {:else if offer_rejected == "1"} 
+                                {:else if new_off_file_obj.offer_rejected == "1"} 
                                 <p
                                 class="statusContentTag text-rejectcolor font-normal xs:w-5/12"
                             >
@@ -1496,7 +1464,7 @@ import { Router, Link, Route } from "svelte-routing";
                                 />Offer letter Rejected
                             </p>
                             <!-- {:else} -->
-                            {:else if offer_verified == "0" && offer_rejected == "0"}
+                            {:else if new_off_file_obj.offer_verified == "0" && new_off_file_obj.offer_rejected == "0"}
                             <p class="statusContent font-normal xs:w-5/12">
                                 <img
                                     src="{$img_url_name.img_name}/timer.png"
@@ -1672,9 +1640,9 @@ import { Router, Link, Route } from "svelte-routing";
 
             <div class="grid grid-cols-3 gap-4  xsl:grid-cols-1" >
                 <div class=" grid grid-cols-3 w-full px-5 mt-5  gap-4">
-                    {#if !profile_url}
+                    {#if !fac_photo_obj.profile_url}
                     <div class="">
-                        <img src="{profile_url}" class="w-28 h-28 xsl:h-auto" alt="">
+                        <img src="{fac_photo_obj.profile_url}" class="w-28 h-28 xsl:h-auto" alt="">
                     </div>
                     <div class="w-auto col-span-2 mt-6 xsl:mt-3">
                     <div class="text-2xl xsl:text-xl">{$facility_data_store.facility_name}</div>
@@ -1779,7 +1747,7 @@ import { Router, Link, Route } from "svelte-routing";
                             <!-- <div class="userStatus ">
                                 
                             </div> -->
-                        {#if address_rejected == "1"}
+                        {#if addproof_obj.address_rejected == "1"}
                         <p class="rejectText pr-3">
                             <img
                                 src="{$img_url_name.img_name}/reject.png"
@@ -1787,7 +1755,7 @@ import { Router, Link, Route } from "svelte-routing";
                                 class="pr-2"
                             /> Reject
                         </p>
-                        {:else if address_verified == "1"}
+                        {:else if addproof_obj.address_verified == "1"}
                         
                             <p class="verifiedTextGreen pr-3">
                                 <img
@@ -1798,7 +1766,7 @@ import { Router, Link, Route } from "svelte-routing";
                                 Verified
                             </p>
                        
-                        {:else if address_verified == "0" && address_rejected == "0"}
+                        {:else if addproof_obj.address_verified == "0" && addproof_obj.address_rejected == "0"}
                             <p class="verifyText pr-3">
                                 <img
                                     src="{$img_url_name.img_name}/timer.png"
@@ -1816,7 +1784,7 @@ import { Router, Link, Route } from "svelte-routing";
                                 <div class="pl-4 flex items-center">
                                     <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
 
-                                    <p class="detailLbale">{address_name}</p>
+                                    <p class="detailLbale">{addproof_obj.address_name}</p>
                                 </div>
                             </div>
                             <div class="userStatus ">
@@ -2015,7 +1983,7 @@ import { Router, Link, Route } from "svelte-routing";
                                     <p class="detailLbale">Offer Letter</p>
                                 </div>
                             </div>
-                            {#if offer_verified == "1"}
+                            {#if new_off_file_obj.offer_verified == "1"}
                             <p
                             class="statusContentTag text-green font-normal xs:w-5/12"
                         >
@@ -2025,7 +1993,7 @@ import { Router, Link, Route } from "svelte-routing";
                                 alt=""
                             />  Verified
                         </p>
-                            {:else if offer_rejected == "1"} 
+                            {:else if new_off_file_obj.offer_rejected == "1"} 
                             <p
                             class="statusContentTag text-rejectcolor font-normal xs:w-5/12"
                         >
@@ -2036,7 +2004,7 @@ import { Router, Link, Route } from "svelte-routing";
                             /> Rejected
                         </p>
                         <!-- {:else} -->
-                        {:else if offer_verified == "0" && offer_rejected == "0"}
+                        {:else if new_off_file_obj.offer_verified == "0" && new_off_file_obj.offer_rejected == "0"}
                         <p class="statusContent font-normal xs:w-5/12">
                             <img
                                 src="{$img_url_name.img_name}/timer.png"
@@ -2053,7 +2021,7 @@ import { Router, Link, Route } from "svelte-routing";
                                 <div class="pl-4 flex items-center">
                                     <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
 
-                                    <p class="detailLbale">{offer_name}</p>
+                                    <p class="detailLbale">{new_off_file_obj.offer_name}</p>
                                 </div>
                             </div>
                             <div class="userStatus ">
@@ -2147,7 +2115,7 @@ import { Router, Link, Route } from "svelte-routing";
                             <img src="{$img_url_name.img_name}/pan.png" alt="" class="w-5 h-5">
                             <div class="pl-4">
                                 <p class="detailLbale">PAN Number</p>
-                                <p class="detailData">{pan_num}</p>
+                                <p class="detailData">{pancard_obj.pan_num}</p>
                             </div>
                         </div>
 
@@ -2158,7 +2126,7 @@ import { Router, Link, Route } from "svelte-routing";
                             <img src="{$img_url_name.img_name}/pan.png" class="w-6 h-6" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">Aadhar Number</p>
-                                <p class="detailData">{aadhar_num}</p>
+                                <p class="detailData">{aadhar_obj.aadhar_num}</p>
                             </div>
                         </div>
                     </div>
@@ -2167,7 +2135,7 @@ import { Router, Link, Route } from "svelte-routing";
                             <img src="{$img_url_name.img_name}/warehouse.png" class="w-5 h-5" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">Driving License</p>
-                                <p class="detailData">{dl_lic_name}</p>
+                                <p class="detailData">{dl_photo_obj.dl_lic_name}</p>
                             </div>
                         </div>
 
@@ -2188,7 +2156,7 @@ import { Router, Link, Route } from "svelte-routing";
                                     <p class="detailLbale">PAN Card Attachment</p>
                                 </div>
                             </div>
-                        {#if pan_rejected == "1"}
+                        {#if pancard_obj.pan_rejected == "1"}
                         <p class="rejectText pr-3">
                             <img
                                 src="{$img_url_name.img_name}/reject.png"
@@ -2196,7 +2164,7 @@ import { Router, Link, Route } from "svelte-routing";
                                 class="pr-2"
                             /> Reject
                         </p>
-                        {:else if pan_verified == "1"}
+                        {:else if pancard_obj.pan_verified == "1"}
                         
                             <p class="verifiedTextGreen pr-3">
                                 <img
@@ -2207,7 +2175,7 @@ import { Router, Link, Route } from "svelte-routing";
                                 Verified
                             </p>
                        
-                        {:else if pan_verified == "0" && pan_rejected == "0"}
+                        {:else if pancard_obj.pan_verified == "0" && pancard_obj.pan_rejected == "0"}
                             <p class="verifyText pr-3">
                                 <img
                                     src="{$img_url_name.img_name}/timer.png"
@@ -2226,7 +2194,7 @@ import { Router, Link, Route } from "svelte-routing";
                                 <div class="pl-4 flex items-center">
                                     <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
 
-                                    <p class="detailLbale">{pan_name}</p>
+                                    <p class="detailLbale">{pancard_obj.pan_name}</p>
                                 </div>
                             </div>
                             <div class="userStatus ">
@@ -2246,7 +2214,7 @@ import { Router, Link, Route } from "svelte-routing";
                                     <p class="detailLbale">Aadhar Card Attachment</p>
                                 </div>
                             </div>
-                            {#if aadhar_rejected == "1"}
+                            {#if aadhar_obj.aadhar_rejected == "1"}
                             <p class="rejectText pr-3">
                                 <img
                                     src="{$img_url_name.img_name}/reject.png"
@@ -2254,7 +2222,7 @@ import { Router, Link, Route } from "svelte-routing";
                                     class="pr-2"
                                 /> Reject
                             </p>
-                            {:else if aadhar_verified == "1"}
+                            {:else if aadhar_obj.aadhar_verified == "1"}
                             
                                 <p class="verifiedTextGreen pr-3">
                                     <img
@@ -2265,7 +2233,7 @@ import { Router, Link, Route } from "svelte-routing";
                                     Verified
                                 </p>
                            
-                            {:else if aadhar_verified == "0" && aadhar_rejected == "0"}
+                            {:else if aadhar_obj.aadhar_verified == "0" && aadhar_obj.aadhar_rejected == "0"}
                                 <p class="verifyText pr-3">
                                     <img
                                         src="{$img_url_name.img_name}/timer.png"
@@ -2283,7 +2251,7 @@ import { Router, Link, Route } from "svelte-routing";
                                 <div class="pl-4 flex items-center">
                                     <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
 
-                                    <p class="detailLbale">{aadhar_name}</p>
+                                    <p class="detailLbale">{aadhar_obj.aadhar_name}</p>
                                 </div>
                             </div>
                             <div class="userStatus ">
@@ -2304,7 +2272,7 @@ import { Router, Link, Route } from "svelte-routing";
                                     <p class="detailLbale">Driving Licence Attachment</p>
                                 </div>
                             </div>
-                            {#if dl_rejected == "1"}
+                            {#if dl_photo_obj.dl_rejected == "1"}
                             <p class="rejectText pr-3">
                                 <img
                                     src="{$img_url_name.img_name}/reject.png"
@@ -2312,7 +2280,7 @@ import { Router, Link, Route } from "svelte-routing";
                                     class="pr-2"
                                 /> Reject
                             </p>
-                            {:else if dl_verified == "1"}
+                            {:else if dl_photo_obj.dl_verified == "1"}
                             
                                 <p class="verifiedTextGreen pr-3">
                                     <img
@@ -2323,7 +2291,7 @@ import { Router, Link, Route } from "svelte-routing";
                                     Verified
                                 </p>
                            
-                            {:else if dl_verified == "0" && dl_rejected == "0"}
+                            {:else if dl_photo_obj.dl_verified == "0" && dl_photo_obj.dl_rejected == "0"}
                                 <p class="verifyText pr-3">
                                     <img
                                         src="{$img_url_name.img_name}/timer.png"
@@ -2341,7 +2309,7 @@ import { Router, Link, Route } from "svelte-routing";
                                 <div class="pl-4 flex items-center">
                                     <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
 
-                                    <p class="detailLbale">{dl_lic_name}</p>
+                                    <p class="detailLbale">{dl_photo_obj.dl_lic_name}</p>
                                 </div>
                             </div>
                             <div class="userStatus ">
@@ -2517,7 +2485,7 @@ import { Router, Link, Route } from "svelte-routing";
 
                                 </div>
                             </div>
-                            {#if can_cheque_rejected == "1"}
+                            {#if can_cheque_obj.can_cheque_rejected == "1"}
                         <p class="rejectText pr-3">
                             <img
                                 src="{$img_url_name.img_name}/reject.png"
@@ -2525,7 +2493,7 @@ import { Router, Link, Route } from "svelte-routing";
                                 class="pr-2"
                             /> Reject
                         </p>
-                        {:else if can_cheque_verified == "1"}
+                        {:else if can_cheque_obj.can_cheque_verified == "1"}
                         
                             <p class="verifiedTextGreen pr-3">
                                 <img
@@ -2536,7 +2504,7 @@ import { Router, Link, Route } from "svelte-routing";
                                 Verified
                             </p>
                        
-                        {:else if can_cheque_verified == "0" && can_cheque_rejected == "0"}
+                        {:else if can_cheque_obj.can_cheque_verified == "0" && can_cheque_obj.can_cheque_rejected == "0"}
                             <p class="verifyText pr-3">
                                 <img
                                     src="{$img_url_name.img_name}/timer.png"
@@ -2553,7 +2521,7 @@ import { Router, Link, Route } from "svelte-routing";
                                 <div class="pl-4 flex items-center">
                                     <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
 
-                                    <p class="detailLbale">{can_cheque_name}</p>
+                                    <p class="detailLbale">{can_cheque_obj.can_cheque_name}</p>
                                 </div>
                             </div>
                             <div class="userStatus ">
@@ -3109,7 +3077,7 @@ import { Router, Link, Route } from "svelte-routing";
                                     <div class="pl-4 flex items-center">
                                         <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
 
-                                        <p class="detailLbale">{offer_name}</p>
+                                        <p class="detailLbale">{new_off_file_obj.offer_name}</p>
                                     </div>
                                 </div>
                                 <div class="userStatus ">
@@ -3217,7 +3185,7 @@ import { Router, Link, Route } from "svelte-routing";
                                     <img src="{$img_url_name.img_name}/pan.png" alt="">
                                     <div class="pl-4">
                                         <p class="detailLbale">PAN Number</p>
-                                        <p class="detailData">{pan_num}</p>
+                                        <p class="detailData">{pancard_obj.pan_num}</p>
 
                                     </div>
                                 </div>
@@ -3237,7 +3205,7 @@ import { Router, Link, Route } from "svelte-routing";
                                     <div class="pl-4 flex items-center">
                                         <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
 
-                                        <p class="detailLbale">{pan_name}</p>
+                                        <p class="detailLbale">{pancard_obj.pan_name}</p>
                                     </div>
                                 </div>
                                 <div class="userStatus ">
@@ -3580,194 +3548,6 @@ import { Router, Link, Route } from "svelte-routing";
                                 />
                             </div>
                         </div>
-                        <!-- <div class="timelineContent ">
-                                    <h3 class="timeCommenterName "> Selvaraj Jayaraman
-                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
-                                    </h3>
-                                    <div class="timeStatus  timeStatusbglightPink">
-                                        <p class="timeCircle"></p> Pancard number mismatch
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex md:contents">
-                                <div class="timelinesection">
-                                    <div class="timeline ">
-                                        <div class="timelineGreyline"></div>
-                                    </div>
-                                    <div class="timelineImg ">
-                                        <img src="{$img_url_name.img_name}/chat2.svg" class="w-5 h-5" alt="">
-                                    </div>
-                                </div>
-                                <div class="timelineContent ">
-                                    <h3 class="timeCommenterName ">Akshay Saini
-                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
-                                    </h3>
-                                    <div class="timeStatus  timeStatusbglightPurple">
-                                        <p class="timeCircle"></p> Vendor details verified
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex md:contents">
-                                <div class="timelinesection">
-                                    <div class="timeline ">
-                                        <div class="timelineGreyline"></div>
-                                    </div>
-                                    <div class="timelineImg ">
-                                        <img src="{$img_url_name.img_name}/chat2.svg" class="w-5 h-5" alt="">
-                                    </div>
-                                </div>
-                                <div class="timelineContent ">
-                                    <h3 class="timeCommenterName "> Selvaraj Jayaraman
-                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
-                                    </h3>
-                                    <div class="timeStatus  timeStatusbglightPurple">
-                                        <p class="timeCircle"></p> Vendor Details
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex md:contents">
-                                <div class="timelinesection">
-                                    <div class="timeline ">
-                                        <div class="timelineGreyline"></div>
-                                    </div>
-                                    <div class="timelineImg ">
-                                        <img src="{$img_url_name.img_name}/chat2.svg" class="w-5 h-5" alt="">
-                                    </div>
-                                </div>
-                                <div class="timelineContent ">
-                                    <h3 class="timeCommenterName ">Vivekanand Dasar
-                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
-                                    </h3>
-                                    <div class="timeStatus  timeStatusbglightGreen">
-                                        <p class="timeCircle"></p> Voter ID not clear
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex md:contents">
-                                <div class="timelinesection">
-                                    <div class="timeline ">
-                                        <div class="timelineGreyline"></div>
-                                    </div>
-                                    <div class="timelineImg ">
-                                        <img src="{$img_url_name.img_name}/chat2.svg" class="w-5 h-5" alt="">
-                                    </div>
-                                </div>
-                                <div class="timelineContent ">
-                                    <h3 class="timeCommenterName ">Vivekanand Dasar
-                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
-                                    </h3>
-                                    <div class="timeStatus  timeStatusbglightPink">
-                                        <p class="timeCircle"></p> Voter ID not clear
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex md:contents">
-                                <div class="timelinesection">
-                                    <div class="timeline ">
-                                        <div class="timelineGreyline"></div>
-                                    </div>
-                                    <div class="timelineImg ">
-                                        <img src="{$img_url_name.img_name}/chat2.svg" class="w-5 h-5" alt="">
-                                    </div>
-                                </div>
-                                <div class="timelineContent ">
-                                    <h3 class="timeCommenterName ">Vivekanand Dasar
-                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
-                                    </h3>
-                                    <div class="timeStatus  timeStatusbglightPink">
-                                        <p class="timeCircle"></p> Voter ID not clear
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex md:contents">
-                                <div class="timelinesection">
-                                    <div class="timeline ">
-                                        <div class="timelineGreyline"></div>
-                                    </div>
-                                    <div class="timelineImg ">
-                                        <img src="{$img_url_name.img_name}/chat2.svg" class="w-5 h-5" alt="">
-                                    </div>
-                                </div>
-                                <div class="timelineContent ">
-                                    <h3 class="timeCommenterName ">Vivekanand Dasar
-                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
-                                    </h3>
-                                    <div class="timeStatus  timeStatusbglightPink">
-                                        <p class="timeCircle"></p> Voter ID not clear
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex md:contents">
-                                <div class="timelinesection">
-                                    <div class="timeline ">
-                                        <div class="timelineGreyline"></div>
-                                    </div>
-                                    <div class="timelineImg ">
-                                        <img src="{$img_url_name.img_name}/chat2.svg" class="w-5 h-5" alt="">
-                                    </div>
-                                </div>
-                                <div class="timelineContent ">
-                                    <h3 class="timeCommenterName ">Vivekanand Dasar
-                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
-                                    </h3>
-                                    <div class="timeStatus  timeStatusbglightPink">
-                                        <p class="timeCircle"></p> Voter ID not clear
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex md:contents">
-                                <div class="timelinesection">
-                                    <div class="timeline ">
-                                        <div class="timelineGreyline"></div>
-                                    </div>
-                                    <div class="timelineImg ">
-                                        <img src="{$img_url_name.img_name}/chat2.svg" class="w-5 h-5" alt="">
-                                    </div>
-                                </div>
-                                <div class="timelineContent ">
-                                    <h3 class="timeCommenterName ">Vivekanand Dasar
-                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
-                                    </h3>
-                                    <div class="timeStatus  timeStatusbglightPink">
-                                        <p class="timeCircle"></p> Voter ID not clear
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex md:contents">
-                                <div class="timelinesection">
-                                    <div class="timeline ">
-                                        <div class="timelineGreyline"></div>
-                                    </div>
-                                    <div class="timelineImg ">
-                                        <img src="{$img_url_name.img_name}/chat2.svg" class="w-5 h-5" alt="">
-                                    </div>
-                                </div>
-                                <div class="timelineContent ">
-                                    <h3 class="timeCommenterName ">Vivekanand Dasar
-                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
-                                    </h3>
-                                    <div class="timeStatus  timeStatusbglightPink">
-                                        <p class="timeCircle"></p> Voter ID not clear
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="flex md:contents">
-                                <div class="timelinesection">
-                                    <div class="timeline ">
-                                        <div class="timelineGreyline"></div>
-                                    </div>
-                                    <div class="timelineImg ">
-                                        <img src="{$img_url_name.img_name}/chat2.svg" class="w-5 h-5" alt="">
-                                    </div>
-                                </div>
-                                <div class="timelineContent ">
-                                    <h3 class="timeCommenterName ">Vivekanand Dasar
-                                        <span class="timeCommentDate ">Thurs, 07 Sept 21, 12:24 PM</span>
-                                    </h3>
-                                    <div class="timeStatus  timeStatusbglightPink">
-                                        <p class="timeCircle"></p> Voter ID not clear
-                                    </div>
-                                </div> -->
                     </div>
                 </div>
             </div>
