@@ -29,7 +29,11 @@
         goto(routeNext, { replaceState });
     }
     function org_page_routing(verticle_value){
+        console.log("inside the routing function");
         vercticle_name.set({    verticle: verticle_value})
+        console.log("verticle store",$vercticle_name);
+        
+
         
         
         let replaceState = false;
