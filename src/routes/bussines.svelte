@@ -39,7 +39,8 @@
         let replaceState = false;
         // goto_wrapper("organisation-selection",{ replaceState });
         // goto("organisation-selection", { replaceState });
-        goto("/pravesh-ui/organisation-selection")
+        goto("identityproof",{ replaceState })
+        console.log("routing success");
 
         // alert("button clicked");
     }
