@@ -21,6 +21,10 @@ import { Router, Link, Route } from "svelte-routing";
     import {facility_data_store} from "../stores/facility_store"
     import {bgv_config_store} from '../stores/bgv_config_store'
     import Toast from './components/toast.svelte';
+    import AssociateDetails from './components/associateDetailsComponent.svelte';
+    import BankDetails from './components/bankDetailsComponent.svelte';
+    import IdentityProof from './components/identityProofComponent.svelte';
+    import WorkDetails from './components/workDetailsComponent.svelte';
     import { object_without_properties } from "svelte/internal";
     import { paginate, LightPaginationNav } from "svelte-paginate";
     import Spinner from "./components/spinner.svelte";
@@ -128,6 +132,7 @@ import { Router, Link, Route } from "svelte-routing";
     // let client_det_res;
     let client_det_arr=[];
     let gst_doc_arr=[];
+    // $: cheque_date = new Date();
     let file_data;
     let showbtn = 0;
     let selectTag,addRemark,selectsearch;
@@ -210,6 +215,7 @@ import { Router, Link, Route } from "svelte-routing";
     
     
     onMount(async () => {
+        show_spinner = true;
         // console.log("facility document data",aadhar_obj,fac_photo_obj,addproof_obj
         // ,can_cheque_obj,dl_photo_obj,new_off_file_obj);
         query = $page.url;
@@ -245,9 +251,9 @@ import { Router, Link, Route } from "svelte-routing";
 
         bank_details_res = await bank_details();
         try{
-            show_spinner = true;
+            
             if(!bank_details_res){
-                show_spinner = false;
+                
                 console.log("No Data Found")
                 bank_values_from_store.modified_by="-";
                 bank_new_date="-";
@@ -260,7 +266,7 @@ import { Router, Link, Route } from "svelte-routing";
             }
 
             else{
-                show_spinner = false;
+                
                 // console.log("VALUES IN BANK DETAILS")
                 $bank_data_to_store.bank_details_data = bank_details_res;
                 bank_data_to_store.subscribe((value) => {
@@ -272,15 +278,15 @@ import { Router, Link, Route } from "svelte-routing";
                 }
             }
         catch(err) {
-            show_spinner = false;
+            
             toast_type = "error";
             toast_text = err;
         }
         let cheque_details_res = await cheque_details();
         try{
-            show_spinner = true;
+            
             if(cheque_details_res.body.status == "green" && cheque_details_res != "null"){
-            show_spinner = false;
+            
             $cheque_data_to_store.cheque_details_data = cheque_details_res.body.data;
             
             cheque_data_to_store.subscribe((value) => {
@@ -291,7 +297,7 @@ import { Router, Link, Route } from "svelte-routing";
             // cheque_values_from_store=cheque_values_from_store
         }
         catch(err) {
-            show_spinner = false;
+           
             toast_type = "error";
             toast_text = err;
             
@@ -300,9 +306,9 @@ import { Router, Link, Route } from "svelte-routing";
         /////////bank details/////////////
         let facility_document_res = await facility_document();
         try{
-            show_spinner = true;
+            
             if(facility_document_res != "null"){
-                show_spinner = false;
+                
             
             $documents_store = facility_document_res.body.data
             // console.log("documents_store",$documents_store)
@@ -363,7 +369,7 @@ import { Router, Link, Route } from "svelte-routing";
         console.log("pancard_obj",pancard_obj,"aadhar_obj",aadhar_obj,"fac_photo_obj",fac_photo_obj,"addproof_obj",addproof_obj,"can_cheque_obj",can_cheque_obj,"dl_photo_obj",dl_photo_obj,"new_off_file_obj",new_off_file_obj);
         }
         catch(err) {
-        show_spinner = false;
+       
         toast_type = "error";
         toast_text = facility_document_res.body.message;
         }
@@ -371,7 +377,6 @@ import { Router, Link, Route } from "svelte-routing";
         let fac_tag_res = await show_fac_tags($facility_data_store.facility_type);
         
         try {
-                show_spinner = true;
                 if(fac_tag_res.body.data.length != 0){
                     show_fac_array = fac_tag_res.body.data;
                     for(let i=0;i < show_fac_array.length;i++){
@@ -387,16 +392,13 @@ import { Router, Link, Route } from "svelte-routing";
                 }
             }
         catch(err){
-            show_spinner = false;
             toast_type = "error";
             toast_text = err;
         }
         //////////city_data/////////////
         let loc_data_res =  await get_loc_scope();
         try {
-            show_spinner = true;
         if(loc_data_res.body.status == "green"){
-            show_spinner = false;
              for(let i=0;i<loc_data_res.body.data.length;i++){
                 city_data.push(loc_data_res.body.data[i].location_name);
                 scope_data.push(loc_data_res.body.data[i]);
@@ -412,13 +414,11 @@ import { Router, Link, Route } from "svelte-routing";
             }
         }
         else{
-            show_spinner = false;
             toast_type = "error";
             toast_text = "No City Data";
         }
         
     } catch(err) {
-        show_spinner = false;
         toast_type = "error";
         toast_text = loc_data_res.body.message;
        
@@ -734,7 +734,7 @@ async function child_select_fun(){
     }
 
     async function cheque_button_click() {
-        show_spinner = true;
+        // show_spinner = true;
         let new_cheque_date = new Date(cheque_date)
         if(!bank_name.match(text_pattern)){
         bank_name_message = "Invalid Bank Name";
@@ -1618,934 +1618,21 @@ async function child_select_fun(){
             <div class="{id_active}" on:click={() => {change_to = "Identity_details",work_active="",asso_active="",id_active="active",bank_active=""}}>Identity Proof</div>
             <div class="{bank_active}" on:click={() => {change_to = "Bank_details",work_active="",asso_active="",id_active="",bank_active="active"}}>Bank Details</div>
         </div> 
-
-        <!-- Associate Details -->
-        {#if change_to == "Associate_details"}
-        <div class="bg-white w-full associate_Details_Section ">
-            <div class="detailsHeader_summary ">
-               
-                <div class="right flex justify-end">
-                    <p class="detailsUpdate mr-4">
-                        <span><span class="font-medium">Last updated -> </span>{facility_created_date} <span
-                                class="font-medium"> By -> </span> {$facility_data_store.owner}</span>
-                    </p>
-                    <p class="flex items-center smButtonText">
-                        <a href="" class="smButton bg-erBlue text-white" on:click={editWorkDetail}>
-                            Edit
-                        </a>
-                    </p>
-                </div>
-
-            </div>
-
-            <div class="grid grid-cols-3 gap-4  xsl:grid-cols-1" >
-                <div class=" grid grid-cols-3 w-full px-5 mt-5  gap-4">
-                    {#if !fac_photo_obj.profile_url}
-                    <div class="">
-                        <img src="{fac_photo_obj.profile_url}" class="w-28 h-28 xsl:h-auto" alt="">
-                    </div>
-                    <div class="w-auto col-span-2 mt-6 xsl:mt-3">
-                    <div class="text-2xl xsl:text-xl">{$facility_data_store.facility_name}</div>
-                    <p class="imgName">{$facility_data_store.facility_name}</p>
-                    </div>
-                    {/if}
-                </div>
-
-                <div class="contact_details">
-                    <div class="px-5 py-4 text-erBlue font-medium">
-                        <label for="">Contact Details</label>
-                    </div>
-                    <div class="userInfoSec px-5  flex items-start ">
-                        <img src="{$img_url_name.img_name}/location1.png" alt="">
-                        <div class="pl-4">
-                            <p class="detailLbale">Address & Pincode</p>
-                            <p class="detailData "> {facility_address}
-                                {facility_postal}</p>
-                        </div>
-                    </div>
-
-                    <div class="userInfoSec3 ">
-                        <div class="flex items-start">
-                            <img src="{$img_url_name.img_name}/mobilephone.png" alt="">
-                            <div class="pl-4">
-                                <p class="detailLbale">Mobile Number</p>
-                                <p class="detailData">{$facility_data_store.phone_number}</p>
-                            </div>
-                        </div>
-                        <!-- <div class="userStatus ">
-                            <p class="userStatusTick"><img src="{$img_url_name.img_name}/checked.png" alt="" class="pr-1"> Verified
-                            </p>
-                        </div> -->
-                        {#if $facility_data_store.phone_verified == "1"}
-                        
-                            <p class="verifiedTextGreen pr-3">
-                                <img
-                                    src="{$img_url_name.img_name}/checked.png"
-                                    alt=""
-                                    class="pr-1"
-                                />
-                                User activation pending
-                            </p>
-                       
-                        {:else if $facility_data_store.phone_verified == "0"}
-                            <p class="verifyText pr-3">
-                                <img
-                                    src="{$img_url_name.img_name}/timer.png"
-                                    alt=""
-                                    class="pr-2"
-                                />
-                                User activation pending
-                            </p>
-                       {/if}
-                    </div>
-
-                    <div class="userInfoSec3">
-                        <div class="flex items-start">
-                            <img src="{$img_url_name.img_name}/email.png" alt="">
-                            <div class="pl-4">
-                                <p class="detailLbale">Email</p>
-                                <p class="detailData">{$facility_data_store.facility_email}</p>
-                            </div>
-                        </div>
-                        <!-- {#if $facility_data_store.email_verified == "1"}
-                        
-                            <p class="verifiedTextGreen pr-3">
-                                <img
-                                    src="{$img_url_name.img_name}/checked.png"
-                                    alt=""
-                                    class="pr-1"
-                                />
-                                Verified
-                            </p>
-                       
-                        {:else if $facility_data_store.email_verified == "0"}
-                            <p class="verifyText pr-3">
-                                <img
-                                    src="{$img_url_name.img_name}/timer.png"
-                                    alt=""
-                                    class="pr-2"
-                                />
-                                Verification Pending
-                            </p>
-                       {/if} -->
-                    </div>
-                </div>
-
-                <div class="Documents">
-                    <div class="px-5 py-4 text-erBlue font-medium">
-                        <label for="">Documents</label>
-                    </div>
-                    
-                    <div class="userInfoSecPadding">
-                        <div class="wrapperInfoFirst">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/addressproof.png" alt="">
-                                <div class="pl-4">
-                                    <p class="detailLbale">Address proof</p>
-                                </div>
-                            </div>
-                            <!-- <div class="userStatus ">
-                                
-                            </div> -->
-                        {#if addproof_obj.address_rejected == "1"}
-                        <p class="rejectText pr-3">
-                            <img
-                                src="{$img_url_name.img_name}/reject.png"
-                                alt=""
-                                class="pr-2"
-                            /> Reject
-                        </p>
-                        {:else if addproof_obj.address_verified == "1"}
-                        
-                            <p class="verifiedTextGreen pr-3">
-                                <img
-                                    src="{$img_url_name.img_name}/checked.png"
-                                    alt=""
-                                    class="pr-1"
-                                />
-                                Verified
-                            </p>
-                       
-                        {:else if addproof_obj.address_verified == "0" && addproof_obj.address_rejected == "0"}
-                            <p class="verifyText pr-3">
-                                <img
-                                    src="{$img_url_name.img_name}/timer.png"
-                                    alt=""
-                                    class="pr-2"
-                                />
-                                Verification Pending
-                            </p>
-                       {/if}
-
-                        </div>
-                        <div class="wrapperInfo ">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
-                                <div class="pl-4 flex items-center">
-                                    <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
-
-                                    <p class="detailLbale">{addproof_obj.address_name}</p>
-                                </div>
-                            </div>
-                            <div class="userStatus ">
-                                <p class="verifyText">
-                                    <a href="" class="smButton">
-                                        <img src="{$img_url_name.img_name}/view.png" alt="" on:click="{()=>{openViewModel("address")}}">
-                                    </a>
-                                </p>
-                            </div>
-                        </div>
-
-
-                    </div>
-
-                    <div class="userInfoSec3">
-                        <div class="flex items-start">
-                            <img src="{$img_url_name.img_name}/gst.png" alt="">
-                            <div class="pl-4">
-                                <p class="detailLbale">GST Details</p>
-                                <!-- <p class="detailData">{gst_name}</p> -->
-                            </div>
-                        </div>
-                        <div class="userStatus ">
-                            <p class="flex items-center smButtonText" on:click={gstModel}>
-                                <a href="" class="smButton modal-open">
-                                    Add
-                                </a>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-            </div> 
-
-            <div class="border-gray-200 px-5 py-5">
-                <hr>
-            </div>
-
-            <div class="grid grid-cols-3 gap-4  xsl:grid-cols-1" >
-                <div class="appcredentials">
-                    <div class="headingWithIcon">
-                        <img src="{$img_url_name.img_name}/mobileblue.png" alt="">
-                        <p class="detailsTitle">Libera App Credentials</p>
-                    </div>
-                </div>
-            </div>  
-
-            <div class="grid grid-cols-3 gap-4  xsl:grid-cols-1 pb-5" >
-                <div class="liberApp">
-                    <div class="userInfoSec3 ">
-                        <div class="flex items-start">
-                            <img src="{$img_url_name.img_name}/pan.png" alt="">
-                            <div class="pl-4">
-                                <!-- <p class="detailLbale">User ID</p>
-                                <p class="detailData">dhiraj.shah@elastic.run</p> -->
-                                <p class="detailLbale">User ID</p>
-                        {#if !$facility_data_store.facility_id}
-                        <p>-</p>
-                        {:else}
-                        <p class="detailData">{$facility_data_store.facility_id}</p>
-                        {/if}
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="userInfoSec3 ">
-                        <div class="flex items-start">
-                            <img src="{$img_url_name.img_name}/password.png" alt="">
-                            <div class="pl-4">
-                                <p class="detailLbale">Password</p>
-                                <p class="detailData">{facility_password}</p>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-
-                <div class="contact_details">
-                    <div class="userInfoSec3">
-                        <div class="flex items-start">
-                            <img src="{$img_url_name.img_name}/gst.png" alt="">
-                            <div class="pl-4">
-                                <p class="detailLbale">Link Child Associate</p>
-                                <!-- <p class="detailData">2</p> -->
-                            </div>
-                        </div>
-                        <div class="userStatus ">
-                            <p class="flex items-center smButtonText" on:click={linkChild}>
-                                <a href="" class="smButton modal-open">
-                                    Link/View
-                                </a>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-            </div> 
-        </div>
-        {/if}
-
-        <!-- Work Details -->
-        {#if change_to == "Work_details"}
-        <div class="bg-white w-full Work_Details_Section ">
-            <div class="detailsHeader_summary ">
-               
-                <div class="right flex justify-end">
-                    <p class="detailsUpdate mr-4">
-                        <span><span class="font-medium">Last updated -> </span> {facility_modified_date} <span
-                                class="font-medium"> By -> </span> {$facility_data_store.modified_by}</span>
-                    </p>
-                    <p class="flex items-center smButtonText">
-                        <a href="" class="smButton bg-erBlue text-white">
-                            Edit
-                        </a>
-                    </p>
-                </div>
-
-            </div>
-
-            <div class="grid grid-cols-3 gap-4 pb-5 xsl:grid-cols-1" >
-                <div class="workdetailsColFirst">
-                    <div class="userInfoSec3">
-                        <div class="flex items-start">
-                            <img src="{$img_url_name.img_name}/Subtract.png" alt="" class="w-5 h-auto">
-                            <div class="pl-4">
-                                <p class="detailLbale">Associate Type</p>
-                                <p class="detailData">{$facility_data_store.facility_type}</p>
-                            </div>
-                        </div>
-                        <div class="userStatus ">
-                            <p class="flex items-center smButtonText" on:click={myBtn}>
-                                <a class="smButton" id="changeAssociate">
-                                    Change
-                                </a>
-                            </p>
-                        </div>
-                    </div>
-                    <div class="userInfoSec3 ">
-                        <div class="flex items-start">
-                            <img src="{$img_url_name.img_name}/pan.png" alt="" class="w-5 h-5">
-                            <div class="pl-4">
-                                <p class="detailLbale">Associate ID</p>
-                                <p class="detailData">{$facility_data_store.name}</p>
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="userInfoSec3">
-                        <div class="flex items-start">
-                            <img src="{$img_url_name.img_name}/organization.png" alt="" class="w-5 h-5">
-                            <div class="pl-4">
-                                <p class="detailLbale">Organization</p>
-                                <p class="detailData">{$facility_data_store.org_id}</p>
-                            </div>
-                        </div>
-                        <div class="userStatus ">
-                            <p class="flex items-center smButtonText" on:click={workorganization}>
-                                <a href="" class="smButton">
-                                    Add/Edit
-                                </a>
-                            </p>
-                        </div>
-                    </div>
-                    <div class="userInfoSec3 ">
-                        <div class="flex items-start">
-                            <img src="{$img_url_name.img_name}/location.png" class="w-6 h-6" alt="">
-                            <div class="pl-4">
-                                <p class="detailLbale">City</p>
-                                <p class="detailData">{city}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="userInfoSec3 ">
-                        <div class="flex items-start">
-                            <img src="{$img_url_name.img_name}/warehouse.png" class="w-5 h-5" alt="">
-                            <div class="pl-4">
-                                <p class="detailLbale">Station</p>
-                                <p class="detailData">{$facility_data_store.station_code}</p>
-                            </div>
-                        </div>
-
-                    </div>
-                   
-                </div>
-
-                <div class="workdetailsColSec">
-                    <div class="px-5 py-4 text-erBlue font-medium">
-                        <label for="">Documents</label>
-                    </div>
-
-                    <div class="userInfoSecPadding">
-                        <div class="wrapperInfoFirst">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/offerlatter.png" alt="" class="w-5 h-5">
-                                <div class="pl-4">
-                                    <p class="detailLbale">Offer Letter</p>
-                                </div>
-                            </div>
-                            {#if new_off_file_obj.offer_verified == "1"}
-                            <p
-                            class="statusContentTag text-green font-normal xs:w-5/12"
-                        >
-                            <img
-                                src="{$img_url_name.img_name}/checked.png"
-                                class="pr-2"
-                                alt=""
-                            />  Verified
-                        </p>
-                            {:else if new_off_file_obj.offer_rejected == "1"} 
-                            <p
-                            class="statusContentTag text-rejectcolor font-normal xs:w-5/12"
-                        >
-                            <img
-                                src="{$img_url_name.img_name}/reject.png"
-                                class="pr-2"
-                                alt=""
-                            /> Rejected
-                        </p>
-                        <!-- {:else} -->
-                        {:else if new_off_file_obj.offer_verified == "0" && new_off_file_obj.offer_rejected == "0"}
-                        <p class="statusContent font-normal xs:w-5/12">
-                            <img
-                                src="{$img_url_name.img_name}/timer.png"
-                                class="pr-2"
-                                alt=""
-                            />Verification Pending
-                        </p>
-                            {/if}
-
-                        </div>
-                        <div class="wrapperInfo ">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
-                                <div class="pl-4 flex items-center">
-                                    <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
-
-                                    <p class="detailLbale">{new_off_file_obj.offer_name}</p>
-                                </div>
-                            </div>
-                            <div class="userStatus ">
-                                <p class="verifyText">
-                                    <a href="" class="smButton">
-                                        <img src="{$img_url_name.img_name}/view.png" alt="" on:click="{()=>{openViewModel("offer")}}">
-                                    </a>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="workdetailsColThird">
-                    <div class="px-5 py-4 text-erBlue font-medium">
-                        <label for="">Vendor Details</label>
-                    </div>
-                    
-                    <div class="userInfoSec3 ">
-                        <div class="flex items-start">
-                            <img src="{$img_url_name.img_name}/managerVendor.png" class="w-5 h-5" alt="">
-                            <div class="pl-4">
-                                <p class="detailLbale">Vendor</p>
-                                <p class="detailData">{$facility_data_store.vendor_name} - {$facility_data_store.vendor_code}</p>
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-            </div> 
-         
-        </div>
-        {/if}
-
-        <!-- Identity Proof -->
-        {#if change_to == "Identity_details"}
-        <div class="bg-white w-full Identity_proof_Section ">
-            <div class="detailsHeader_summary ">
-                <div class="right flex justify-between w-full items-center py-2 xsl:flex-wrap">
-                    <div>
-                        {#if $facility_data_store.is_id_prof_rejected == "1"}
-                        <p class="rejectText pr-3">
-                            <img
-                                src="{$img_url_name.img_name}/reject.png"
-                                alt=""
-                                class="pr-2"
-                            /> Id Proof Rejected
-                        </p>
-                        {:else if $facility_data_store.is_id_prof_verified == "1"}
-                        
-                            <p class="verifiedTextGreen pr-3">
-                                <img
-                                    src="{$img_url_name.img_name}/checked.png"
-                                    alt=""
-                                    class="pr-1"
-                                />
-                                Id Proof Verified
-                            </p>
-                       
-                        {:else if $facility_data_store.is_id_prof_verified == "0" && $facility_data_store.is_id_prof_rejected == "0"}
-                            <p class="verifyText pr-3">
-                                <img
-                                    src="{$img_url_name.img_name}/timer.png"
-                                    alt=""
-                                    class="pr-2"
-                                />
-                                Id Verification Pending
-                            </p>
-                       {/if}
-                    </div>
-                    <div class="flex">
-                        <p class="detailsUpdate mr-4">
-                            <span><span class="font-medium">Last updated -> </span> {id_new_date} <span
-                                    class="font-medium"> By -> </span> {$facility_data_store.details_updated_by} </span>
-                        </p>
-                        <p class="flex items-center smButtonText">
-                            <a href="" class="smButton bg-erBlue text-white">
-                                Edit
-                            </a>
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-3 gap-4 pb-5 xsl:grid-cols-1" >
-
-                <div class="IdentityProofColFirst">
-                   
-                    <div class="userInfoSec3 ">
-                        <div class="flex items-start">
-                            <img src="{$img_url_name.img_name}/pan.png" alt="" class="w-5 h-5">
-                            <div class="pl-4">
-                                <p class="detailLbale">PAN Number</p>
-                                <p class="detailData">{pancard_obj.pan_num}</p>
-                            </div>
-                        </div>
-
-                    </div>
-                   
-                    <div class="userInfoSec3 ">
-                        <div class="flex items-start">
-                            <img src="{$img_url_name.img_name}/pan.png" class="w-6 h-6" alt="">
-                            <div class="pl-4">
-                                <p class="detailLbale">Aadhar Number</p>
-                                <p class="detailData">{aadhar_obj.aadhar_num}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="userInfoSec3 ">
-                        <div class="flex items-start">
-                            <img src="{$img_url_name.img_name}/warehouse.png" class="w-5 h-5" alt="">
-                            <div class="pl-4">
-                                <p class="detailLbale">Driving License</p>
-                                <p class="detailData">{dl_photo_obj.dl_lic_name}</p>
-                            </div>
-                        </div>
-
-                    </div>
-                   
-                </div>
-
-                <div class="IdentityProofColSec">
-                    <div class="px-5 py-4 text-erBlue font-medium">
-                        <label for="">Documents</label>
-                    </div>
-
-                    <div class="userInfoSecPadding">
-                        <div class="wrapperInfoFirst">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/offerlatter.png" alt="" class="w-5 h-5">
-                                <div class="pl-4">
-                                    <p class="detailLbale">PAN Card Attachment</p>
-                                </div>
-                            </div>
-                        {#if pancard_obj.pan_rejected == "1"}
-                        <p class="rejectText pr-3">
-                            <img
-                                src="{$img_url_name.img_name}/reject.png"
-                                alt=""
-                                class="pr-2"
-                            /> Reject
-                        </p>
-                        {:else if pancard_obj.pan_verified == "1"}
-                        
-                            <p class="verifiedTextGreen pr-3">
-                                <img
-                                    src="{$img_url_name.img_name}/checked.png"
-                                    alt=""
-                                    class="pr-1"
-                                />
-                                Verified
-                            </p>
-                       
-                        {:else if pancard_obj.pan_verified == "0" && pancard_obj.pan_rejected == "0"}
-                            <p class="verifyText pr-3">
-                                <img
-                                    src="{$img_url_name.img_name}/timer.png"
-                                    alt=""
-                                    class="pr-2"
-                                />
-                                Verification Pending
-                            </p>
-                       {/if}
-                           
-
-                        </div>
-                        <div class="wrapperInfo ">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
-                                <div class="pl-4 flex items-center">
-                                    <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
-
-                                    <p class="detailLbale">{pancard_obj.pan_name}</p>
-                                </div>
-                            </div>
-                            <div class="userStatus ">
-                                <p class="verifyText">
-                                    <a href="" class="smButton">
-                                        <img src="{$img_url_name.img_name}/view.png" alt="" on:click="{()=>{openViewModel("pan")}}">
-                                    </a>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="userInfoSecPadding">
-                        <div class="wrapperInfoFirst">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/offerlatter.png" alt="" class="w-5 h-5">
-                                <div class="pl-4">
-                                    <p class="detailLbale">Aadhar Card Attachment</p>
-                                </div>
-                            </div>
-                            {#if aadhar_obj.aadhar_rejected == "1"}
-                            <p class="rejectText pr-3">
-                                <img
-                                    src="{$img_url_name.img_name}/reject.png"
-                                    alt=""
-                                    class="pr-2"
-                                /> Reject
-                            </p>
-                            {:else if aadhar_obj.aadhar_verified == "1"}
-                            
-                                <p class="verifiedTextGreen pr-3">
-                                    <img
-                                        src="{$img_url_name.img_name}/checked.png"
-                                        alt=""
-                                        class="pr-1"
-                                    />
-                                    Verified
-                                </p>
-                           
-                            {:else if aadhar_obj.aadhar_verified == "0" && aadhar_obj.aadhar_rejected == "0"}
-                                <p class="verifyText pr-3">
-                                    <img
-                                        src="{$img_url_name.img_name}/timer.png"
-                                        alt=""
-                                        class="pr-2"
-                                    />
-                                    Verification Pending
-                                </p>
-                           {/if}   
-
-                        </div>
-                        <div class="wrapperInfo ">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
-                                <div class="pl-4 flex items-center">
-                                    <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
-
-                                    <p class="detailLbale">{aadhar_obj.aadhar_name}</p>
-                                </div>
-                            </div>
-                            <div class="userStatus ">
-                                <p class="verifyText">
-                                    <a href="" class="smButton">
-                                        <img src="{$img_url_name.img_name}/view.png" alt="" on:click="{()=>{openViewModel("aadhar")}}">
-                                    </a>
-                                </p>
-                            </div>
-                            
-                        </div>
-                    </div>
-                    <div class="userInfoSecPadding">
-                        <div class="wrapperInfoFirst">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/offerlatter.png" alt="" class="w-5 h-5">
-                                <div class="pl-4">
-                                    <p class="detailLbale">Driving Licence Attachment</p>
-                                </div>
-                            </div>
-                            {#if dl_photo_obj.dl_rejected == "1"}
-                            <p class="rejectText pr-3">
-                                <img
-                                    src="{$img_url_name.img_name}/reject.png"
-                                    alt=""
-                                    class="pr-2"
-                                /> Reject
-                            </p>
-                            {:else if dl_photo_obj.dl_verified == "1"}
-                            
-                                <p class="verifiedTextGreen pr-3">
-                                    <img
-                                        src="{$img_url_name.img_name}/checked.png"
-                                        alt=""
-                                        class="pr-1"
-                                    />
-                                    Verified
-                                </p>
-                           
-                            {:else if dl_photo_obj.dl_verified == "0" && dl_photo_obj.dl_rejected == "0"}
-                                <p class="verifyText pr-3">
-                                    <img
-                                        src="{$img_url_name.img_name}/timer.png"
-                                        alt=""
-                                        class="pr-2"
-                                    />
-                                    Verification Pending
-                                </p>
-                           {/if}  
-
-                        </div>
-                        <div class="wrapperInfo ">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
-                                <div class="pl-4 flex items-center">
-                                    <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
-
-                                    <p class="detailLbale">{dl_photo_obj.dl_lic_name}</p>
-                                </div>
-                            </div>
-                            <div class="userStatus ">
-                                <p class="verifyText">
-                                    <a href="" class="smButton">
-                                        <img src="{$img_url_name.img_name}/view.png" alt="" on:click="{()=>{openViewModel("licence")}}">
-                                    </a>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div> 
-         
-        </div>
-        {/if}
-
-        <!-- Bank Details -->
-        {#if change_to == "Bank_details"}
-        <div class="bg-white w-full Bank_Details_Section ">
-            <div class="detailsHeader_summary ">
-                <div class="right flex justify-between w-full items-center py-2 xsl:flex-wrap">
-                    <div>
-                        <!-- <p class="verifyText"><img src="{$img_url_name.img_name}/timer.png" alt="" class="pr-1">
-                            Verification Pending</p> -->
-                            {#if !bank_values_from_store}
-                                   <p></p>
-                                    {:else}
-                                    {#if bank_values_from_store.approved == "1"}
-                                    
-                                    <p
-                                        class="statusContentTag text-green font-normal xs:w-5/12"
-                                    >
-                                        <img
-                                            src="{$img_url_name.img_name}/checked.png"
-                                            class="pr-2"
-                                            alt=""
-                                        />Bank Details Approved
-                                    </p>
-                                    {:else if bank_values_from_store.rejected == "1"}
-                                    <p
-                                        class="statusContentTag text-rejectcolor font-normal xs:w-5/12"
-                                    >
-                                        <img
-                                            src="{$img_url_name.img_name}/reject.png"
-                                            class="pr-2"
-                                            alt=""
-                                        />Bank Details Rejected
-                                    </p>
-                                    {:else if bank_values_from_store.rejected == "0" && bank_values_from_store.approved == "0"}
-                                    
-                                    <p class="statusContent font-normal xs:w-5/12">
-                                        <img
-                                            src="{$img_url_name.img_name}/timer.png"
-                                            class="pr-2"
-                                            alt=""
-                                        />Bank Verification Pending
-                                    </p>
-                                    {/if} 
-                                {/if}  
-                    </div>
-                    <div class="flex">
-                        <p class="detailsUpdate mr-4">
-                            <span><span class="font-medium">Last updated -> </span>  {bank_new_date} <span
-                                    class="font-medium"> By -> </span> {bank_values_from_store.modified_by}</span>
-                        </p>
-                        <p class="flex items-center smButtonText">
-                            <a href="" class="smButton bg-erBlue text-white">
-                                Edit
-                            </a>
-                        </p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-3 gap-4 pb-5 xsl:grid-cols-1" >
-
-                <div class="Bank_DetailsColFirst">
-                   
-                    <div class="userInfoSec3 ">
-                        <div class="flex items-start">
-                            <img src="{$img_url_name.img_name}/bank.png" alt="">
-                            <div class="pl-4">
-                                <p class="detailLbale">Bank Name</p>
-                                <p class="detailData">{bank_values_from_store.bank_name}</p>
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="userInfoSec3 ">
-                        <div class="flex items-start">
-                            <img src="{$img_url_name.img_name}/account.png" alt="">
-                            <div class="pl-4">
-                                <p class="detailLbale">Account Number</p>
-                                <p class="detailData">{bank_values_from_store.account_number}</p>
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="userInfoSec3 ">
-                        <div class="flex items-start">
-                            <img src="{$img_url_name.img_name}/account.png" alt="">
-                            <div class="pl-4">
-                                <p class="detailLbale">IFSC Code</p>
-                                <p class="detailData">{bank_values_from_store.ifsc_code}</p>
-                            </div>
-                        </div>
-
-                    </div>
-                    <div class="userInfoSec3 ">
-                        <div class="flex items-start">
-                            <img src="{$img_url_name.img_name}/pincode.png" alt="">
-                            <div class="pl-4">
-                                <p class="detailLbale">Branch</p>
-                                <p class="detailData">{bank_values_from_store.branch_name} - {bank_values_from_store.branch_pin_code}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="userInfoSec3 ">
-                        <div class="flex items-start">
-                            <img src="{$img_url_name.img_name}/account.png" alt="">
-                            <div class="pl-4">
-                                <p class="detailLbale">Bank Type</p>
-                                <p class="detailData">{bank_values_from_store.bank_type}</p>
-                            </div>
-                        </div>
-
-                    </div>
-                    <!-- <div class="userInfoSec3 ">
-                        <div class="flex items-start">
-                            <img src="{$img_url_name.img_name}/pincode.png" alt="">
-                            <div class="pl-4">
-                                <p class="detailLbale">Branch</p>
-                                <p class="detailData">{bank_values_from_store.branch_name} - {bank_values_from_store.branch_pin_code}</p>
-                            </div>
-                        </div>
-                    </div> -->
-                   
-                </div>
-
-                <div class="Bank_DetailsColSec">
-                    <div class="px-5 py-4 text-erBlue font-medium">
-                        <label for="">Documents</label>
-                    </div>
-
-                    <div class="userInfoSecPadding">
-                        <div class="wrapperInfoFirst">
-                            <div class="flex items-start justify-between w-full">
-                                <div class="flex">
-                                    <img src="{$img_url_name.img_name}/bankdoc.png" alt="">
-                                    <div class="pl-4">
-                                        <p class="detailLbale">Bank Document</p>
-                                    </div>
-                                </div>
-                                <div class="pl-4">
-                                    <p class="flex items-center smButtonText" on:click={chequeDetails}>
-                                        <a href="" class="smButton">
-                                            Cheque Details
-                                        </a>
-                                    </p>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-                        <div class="attachment mt-5">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
-                                <div class="pl-4 flex items-center">
-                                    <p class="detailLbale">Cancel Cheque Attachment</p>
-
-                                </div>
-                            </div>
-                            {#if can_cheque_obj.can_cheque_rejected == "1"}
-                        <p class="rejectText pr-3">
-                            <img
-                                src="{$img_url_name.img_name}/reject.png"
-                                alt=""
-                                class="pr-2"
-                            /> Reject
-                        </p>
-                        {:else if can_cheque_obj.can_cheque_verified == "1"}
-                        
-                            <p class="verifiedTextGreen pr-3">
-                                <img
-                                    src="{$img_url_name.img_name}/checked.png"
-                                    alt=""
-                                    class="pr-1"
-                                />
-                                Verified
-                            </p>
-                       
-                        {:else if can_cheque_obj.can_cheque_verified == "0" && can_cheque_obj.can_cheque_rejected == "0"}
-                            <p class="verifyText pr-3">
-                                <img
-                                    src="{$img_url_name.img_name}/timer.png"
-                                    alt=""
-                                    class="pr-2"
-                                />
-                                Verification Pending
-                            </p>
-                       {/if}
-                        </div>
-                        <div class="wrapperInfo ">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
-                                <div class="pl-4 flex items-center">
-                                    <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
-
-                                    <p class="detailLbale">{can_cheque_obj.can_cheque_name}</p>
-                                </div>
-                            </div>
-                            <div class="userStatus ">
-                                <p class="verifyText">
-                                    <a href="" class="smButton">
-                                        <img src="{$img_url_name.img_name}/view.png" alt="" on:click="{()=>{openViewModel("can_cheque")}}">
-                                    </a>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                   
-                </div>
-
-            </div> 
-         
-        </div>
-        {/if}
-
-
-
-
-
-        <div class="fullsection w-widthforWorkDetailSection hidden">
+    {#if change_to == "Associate_details"}
+    <AssociateDetails />
+    {:else if change_to == "Work_details"}
+    <WorkDetails />
+    {:else if change_to == "Identity_details"}
+    <IdentityProof />
+    {:else if change_to == "Bank_details"}
+    <BankDetails />
+    {/if}
+
+    BankDetails
+    IdentityProof
+    
+
+    <div class="fullsection w-widthforWorkDetailSection hidden">
             <div class="WorkDetailSection bg-white rounded-lg mb-5">
                 <div class="detailsHeader xsl:flex-wrap ">
                     <div class="left">
