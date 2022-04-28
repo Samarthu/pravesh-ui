@@ -34,6 +34,7 @@
             import {logged_user} from '../../services/supplier_services';
             import  {  page } from '$app/stores';
             import {documents_store} from '../../stores/document_store';
+import { goto } from "$app/navigation";
         
             let show_spinner = false;
             let toast_text;
@@ -240,7 +241,7 @@
                                 class="font-medium"> By -> </span> {$facility_data_store.modified_by}</span>
                     </p>
                     <p class="flex items-center smButtonText">
-                        <a href="" class="smButton bg-erBlue text-white">
+                        <a href="" class="smButton bg-erBlue text-white" on:click={()=>goto("workdetails")}>
                             Edit
                         </a>
                     </p>

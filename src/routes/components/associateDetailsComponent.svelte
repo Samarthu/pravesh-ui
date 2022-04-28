@@ -35,6 +35,7 @@
             // import  {  page } from '$app/stores';
             import { page } from '$app/stores';
             import {documents_store} from '../../stores/document_store';
+import { goto } from "$app/navigation";
         
             let show_spinner = false;
             let toast_text;
@@ -270,7 +271,8 @@
                              class="font-medium"> By -> </span> {$facility_data_store.owner}</span>
                  </p>
                  <p class="flex items-center smButtonText">
-                     <a href="" class="smButton bg-erBlue text-white" on:click={editWorkDetail}>
+                     <!-- TODO -->
+                     <a href="" class="smButton bg-erBlue text-white" on:click={()=>{goto("associatedetails")}}>
                          Edit
                      </a>
                  </p>

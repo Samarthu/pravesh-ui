@@ -32,6 +32,7 @@ import { Router, Link, Route } from "svelte-routing";
     import  {  page } from '$app/stores';
     import {documents_store} from '../stores/document_store';
     import {duplicate_documents_store} from '../stores/duplicate_document_store';
+    import {duplicate_facility_data_store} from '../stores/duplicate_facility_data_store';
 
     let show_spinner = false;
     let toast_text;
@@ -434,7 +435,12 @@ import { Router, Link, Route } from "svelte-routing";
             if(facility_data_res != "null"){
               
         facility_data_store.set(
-            facility_data_res.body.data[0]
+            JSON.parse(JSON.stringify(facility_data_res.body.data[0]))
+        
+        )
+
+        duplicate_facility_data_store.set(
+            JSON.parse(JSON.stringify(facility_data_res.body.data[0]))
         )
         
         let id_date_format = new Date($facility_data_store.details_updated_on);
@@ -1632,8 +1638,7 @@ async function child_select_fun(){
     <BankDetails />
     {/if}
 
-    BankDetails
-    IdentityProof
+    
     
 
     <div class="fullsection w-widthforWorkDetailSection hidden">
