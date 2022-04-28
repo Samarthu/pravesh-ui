@@ -17,6 +17,10 @@
     import {img_url_name} from '../stores/flags_store';
     import { page } from "$app/stores";
     import Toast from "./components/toast.svelte";
+import { facility_id } from "../stores/facility_id_store";
+import {duplicate_documents_store} from "../stores/duplicate_document_store";
+import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_store";
+ 
     
     let toast_text = "";
     let toast_type = null;
@@ -129,7 +133,7 @@
                 )
             );
             console.log("max date", max_date);
-            date = max_date;
+            date = get_date_format(max_date,'yyyy-mm-dd');
             temp_max_date = get_date_format(max_date,'yyyy-mm-dd');
             console.log("temp_max_date", temp_max_date);
                 
@@ -164,6 +168,13 @@
         let date_formatter = get_date_format(max_date, "dd-mm-yyyy");
         console.log("date_formatter", date_formatter);
         console.log("dob ", $facility_data_store.dob);
+
+        if($facility_id.facility_id_number){
+            console.log("facility store",$facility_data_store);
+            console.log("duplicate facility data store",$duplicate_facility_data_store);
+            console.log("duplicate document store",$duplicate_documents_store);
+
+        }
     });
     function get_state_and_tier(data){
         present_address.tier = data.tier;

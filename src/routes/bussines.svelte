@@ -39,7 +39,7 @@
         let replaceState = false;
         // goto_wrapper("organisation-selection",{ replaceState });
         // goto("organisation-selection", { replaceState });
-        goto("organisation-selection")
+        goto("/pravesh-ui/organisation-selection")
 
         // alert("button clicked");
     }
