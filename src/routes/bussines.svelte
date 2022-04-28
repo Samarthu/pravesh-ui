@@ -31,7 +31,7 @@
     function org_page_routing(verticle_value){
         console.log("inside the routing function");
         vercticle_name.set({    verticle: verticle_value})
-        console.log("verticle store",$vercticle_name);
+        console.log("verticle name",$vercticle_name);
 
 
         
@@ -39,8 +39,8 @@
         let replaceState = false;
         // goto_wrapper("organisation-selection",{ replaceState });
         // goto("organisation-selection", { replaceState });
-        goto("identityproof",{ replaceState })
-        console.log("routing success");
+        goto("organisation-selection",{ replaceState })
+        console.log("organisation-selection");
 
         // alert("button clicked");
     }
