@@ -119,10 +119,10 @@
                     {#each combined_list as item }
                     <nav>
                         <div
-                            on:click={org_page_routing(item.verticle_name)}
+                            on:click={()=>org_page_routing(item.verticle_name)}
                             class= {item.carditem_class}
                         >
-                            <a href="">
+                            
                                 <div class="cardContainer">
                                     <div class="cardImage">
                                         <img
@@ -143,7 +143,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </a>
+                           
                         </div>
                     </nav>
                         
