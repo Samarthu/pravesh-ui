@@ -32,13 +32,14 @@
         console.log("inside the routing function");
         vercticle_name.set({    verticle: verticle_value})
         console.log("verticle store",$vercticle_name);
-        
+
 
         
         
         let replaceState = false;
         // goto_wrapper("organisation-selection",{ replaceState });
-        goto("organisation-selection", { replaceState });
+        // goto("organisation-selection", { replaceState });
+        goto("organisation-selection")
 
         // alert("button clicked");
     }
