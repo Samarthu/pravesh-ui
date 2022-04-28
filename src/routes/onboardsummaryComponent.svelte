@@ -31,6 +31,7 @@ import { Router, Link, Route } from "svelte-routing";
     import {logged_user} from '../services/supplier_services';
     import  {  page } from '$app/stores';
     import {documents_store} from '../stores/document_store';
+    import {duplicate_documents_store} from '../stores/duplicate_document_store';
 
     let show_spinner = false;
     let toast_text;
@@ -311,6 +312,9 @@ import { Router, Link, Route } from "svelte-routing";
                 
             
             $documents_store = facility_document_res.body.data
+            $duplicate_documents_store.documents = facility_document_res.body.data;
+            console.log("duplicate document store",$duplicate_documents_store)
+
             // console.log("documents_store",$documents_store)
             // for(let i=0;i < $documents_store.length;i++){
             //     console.log("Document data from store",$documents_store[i].doc_type);
