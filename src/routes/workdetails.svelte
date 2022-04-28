@@ -49,7 +49,9 @@ import { facility_id } from "../stores/facility_id_store";
     let valid = true;
     let page_name = null;
     let show_edit_options = true;
-    let show_onboard_option = true;
+    let show_onboard_option = false;
+    let category_disabled = true;
+    let facility_type_disabled = false;
 
     let org_id = null;
     let msme_value = null;
@@ -279,6 +281,7 @@ import { facility_id } from "../stores/facility_id_store";
         if($facility_id.facility_id_number){
             show_edit_options = false;
             show_onboard_option = true;
+            facility_type_disabled = true;
             let get_domain_response = await get_domian_from_org_api_method();
             console.log("get_domain_response", get_domain_response);
             if(get_domain_response.body.data.length >0){
@@ -858,7 +861,7 @@ import { facility_id } from "../stores/facility_id_store";
                                     <select
                                         class="inputbox"
                                         bind:value={$category_store_name.category_name}
-                                        disabled = {show_onboard_option}
+                                        disabled = {true}
                                     >
                                         <!-- <option class="pt-6">Amazon</option>
                                         <option>Flipkart</option>
@@ -1000,7 +1003,7 @@ import { facility_id } from "../stores/facility_id_store";
                                     <select
                                         class="inputbox"
                                         bind:value={$facility_data_store.facility_type}
-                                        disabled ={show_onboard_option}
+                                        disabled ={facility_type_disabled}
                                     >
                                         {#each associate_type_list as associate_type}
                                             <option value={associate_type.name}

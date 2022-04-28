@@ -2,7 +2,7 @@ import { writable, derived } from 'svelte/store';
 
 //This store is used to compare the values of facility data in Edit mode.
 
-export var facility_data_store = writable({
+export var duplicate_facility_data_store = writable({
         address:"",
         user_type: "FieldAuditor",
         dob:null,
