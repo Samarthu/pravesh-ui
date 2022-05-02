@@ -564,7 +564,7 @@
 
                 }
             }
-            // console.log("gst_doc_typegst_doc_typegst_doc_type",gst_doc_type)
+            console.log("gst_doc_typegst_doc_typegst_doc_type",gst_doc_type)
             
             
         }

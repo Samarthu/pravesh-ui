@@ -121,7 +121,7 @@
                 <div class="cardWrapper">
                     {#each combined_category_properties as category }
                     <div class={category.class_name} on:click={() =>clickhandle(category.type)}>
-                        <a href="">
+                        
                             <div  class="cardContainer">
                                 <div class="cardImage ">
                                     <img src="{$img_url_name.img_name}/{category.image_name}" alt="" />
@@ -137,7 +137,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </a>
+                        
                     </div>
                         
                     {/each}

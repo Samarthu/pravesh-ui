@@ -29,12 +29,18 @@
         goto(routeNext, { replaceState });
     }
     function org_page_routing(verticle_value){
+        console.log("inside the routing function");
         vercticle_name.set({    verticle: verticle_value})
+        console.log("verticle name",$vercticle_name);
+
+
         
         
         let replaceState = false;
         // goto_wrapper("organisation-selection",{ replaceState });
-        goto("organisation-selection", { replaceState });
+        // goto("organisation-selection", { replaceState });
+        goto("organisation-selection",{ replaceState })
+        console.log("organisation-selection");
 
         // alert("button clicked");
     }
@@ -113,10 +119,10 @@
                     {#each combined_list as item }
                     <nav>
                         <div
-                            on:click={org_page_routing(item.verticle_name)}
+                            on:click={()=>org_page_routing(item.verticle_name)}
                             class= {item.carditem_class}
                         >
-                            <a href="">
+                            
                                 <div class="cardContainer">
                                     <div class="cardImage">
                                         <img
@@ -137,7 +143,7 @@
                                         </div>
                                     </div>
                                 </div>
-                            </a>
+                           
                         </div>
                     </nav>
                         

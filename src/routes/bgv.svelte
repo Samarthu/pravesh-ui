@@ -95,7 +95,8 @@
             }
         }
         catch(err) {
-        message.innerHTML = "Error is " + err;
+            toast_type = "error";
+            toast_text = "User Not Found";
         }
 
         show_spinner = true;

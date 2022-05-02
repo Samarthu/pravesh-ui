@@ -8,7 +8,9 @@
     import { onMount } from "svelte";
     import Side_content_component from './side_content_scetion.svelte';
     import {img_url_name} from '../stores/flags_store';
+    import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_store";
     import Toast from './components/toast.svelte';
+import { facility_id } from "../stores/facility_id_store";
     let toast_text = "";
     let toast_type = null;
 
@@ -24,6 +26,8 @@ let otp = null;
 var seconds = 60;
 let page_name = null;
 let resend_flag = false;
+let show_send_otp_button = true;
+let show_proceed = false;
 
 
 let countdown = 10;
@@ -47,9 +51,24 @@ let countdown = 10;
 onMount(async () => {
 
     page_name =  $page.url["pathname"].split("/").pop();
+    if($facility_id.facility_id_number){
+        if($duplicate_facility_data_store.phone_number == $facility_data_store.phone_number ){
+        show_send_otp_button = false;
+        show_proceed = true;
+
+    }
+
+    }
+    
+    
 
 
 })
+function proceed_function(){
+    let replaceState = false;
+    goto(routeTo, { replaceState });
+
+}
 
 
 function route() {
@@ -76,11 +95,23 @@ async function check_mobile_number(){
     
     if(valid){
         send_otp_disabled = true;
-        let valid_mobile_number_response = await verify_mobile_number_function();
+        console.log("$duplicate_facility_data_store.phone_number",$duplicate_facility_data_store.phone_number);
+        console.log("$facility_data_store.phone_number",$facility_data_store.phone_number);
+        if($duplicate_facility_data_store.phone_number == $facility_data_store.phone_number ){
+            console.log("outside the check phone number.");
+            show_send_otp_button = false;
+            show_proceed = true;
+        }
+        else{
+            show_send_otp_button = true;
+            show_proceed = false;
+
+            let valid_mobile_number_response = await verify_mobile_number_function();
         try{
             if(valid_mobile_number_response.body.data == true){
                 // console.log("mobile no available");
                 send_otp_disabled = false;
+                
 
 
             }
@@ -93,7 +124,10 @@ async function check_mobile_number(){
             toast_text = "Unable to verify mobile number";
 
         }
-    console.log("verify mobile number",valid_mobile_number_response);
+        console.log("verify mobile number",valid_mobile_number_response);
+        }
+        
+    
 
     }
     
@@ -374,7 +408,9 @@ async function verify_otp(){
                             <div class="text-red-500">
                                 {mobile_number_message}
                             </div>
+                            {#if show_send_otp_button}
                             <button class="ErBlueButton mt-3" disabled={send_otp_disabled} on:click|preventDefault={() => send_otp_function()}>Send OTP</button>
+                            {/if}
                         </div>
                     </div>
                 </div>
@@ -382,6 +418,11 @@ async function verify_otp(){
             <div>
                 <button on:click|preventDefault={()=>{temp_function()}} class="ErBlueButton mt-3">temp</button>
             </div>
+            {#if show_proceed}
+            <div>
+                <button on:click|preventDefault={()=>{proceed_function()}} class="ErBlueButton mt-3">Proceed</button>
+            </div>
+            {/if}
         </form>
     </div>
     {:else}
@@ -440,6 +481,15 @@ async function verify_otp(){
 
         
     {/if}
+    <div
+                        on:click|preventDefault={() => {
+                            goto("workdetails")
+                        }}
+                        class="backButton"
+                    >
+                        <img src="{$img_url_name.img_name}/arrowleft.png" alt="" />
+                    </div>
+    
     
     <!-- OTP Verification -->
     

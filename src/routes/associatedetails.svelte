@@ -17,9 +17,14 @@
     import {img_url_name} from '../stores/flags_store';
     import { page } from "$app/stores";
     import Toast from "./components/toast.svelte";
+import { facility_id } from "../stores/facility_id_store";
+import {duplicate_documents_store} from "../stores/duplicate_document_store";
+import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_store";
+ 
     
     let toast_text = "";
     let toast_type = null;
+    let test_date;
 
     var email_pattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
 
@@ -61,7 +66,7 @@
         address_type: "Present Address",
         parentfield: "address",
         parenttype: "Facility",
-        tier: null,
+        tier: "3",
     };
     let profile_pic_data = {
         doc_category: "Profile Pic",
@@ -128,7 +133,7 @@
                 )
             );
             console.log("max date", max_date);
-            date = max_date;
+            date = get_date_format(max_date,'yyyy-mm-dd');
             temp_max_date = get_date_format(max_date,'yyyy-mm-dd');
             console.log("temp_max_date", temp_max_date);
                 
@@ -163,35 +168,42 @@
         let date_formatter = get_date_format(max_date, "dd-mm-yyyy");
         console.log("date_formatter", date_formatter);
         console.log("dob ", $facility_data_store.dob);
+
+        if($facility_id.facility_id_number){
+            console.log("facility store",$facility_data_store);
+            console.log("duplicate facility data store",$duplicate_facility_data_store);
+            console.log("duplicate document store",$duplicate_documents_store);
+
+        }
     });
     function get_state_and_tier(data){
         present_address.tier = data.tier;
         console.log("present_address.tier", present_address.tier);
 
     }
-    $:{
-        present_address.location_id = present_address.location_id;
-        console.log("inside reactive block", present_address.location_id);
-        if(!present_address.address){
-            for(let i=0;i<city_data.length;i++){
-            if(city_data[i]['city_id'] == present_address.location_id){
-                present_address.tier = city_data[i]['tier'];
-                break;
-                // get_state_and_tier(city_data[i]);
-            }
+    // $:{
+    //     present_address.location_id = present_address.location_id;
+    //     console.log("inside reactive block", present_address.location_id);
+    //     if(!present_address.address){
+    //         for(let i=0;i<city_data.length;i++){
+    //         if(city_data[i]['city_id'] == present_address.location_id){
+    //             present_address.tier = city_data[i]['tier'];
+    //             break;
+    //             // get_state_and_tier(city_data[i]);
+    //         }
 
-        }
-        console.log("present_address.tier", present_address.tier);
+    //     }
+    //     console.log("present_address.tier", present_address.tier);
         
-        }
+    //     }
         
-        // console.log("present_address.tier", present_address);
+    //     // console.log("present_address.tier", present_address);
 
-    }
-    $:{
-        work_address.city = work_address.city;
-        console.log("inside work address reactive block", work_address.city);
-    }
+    // }
+    // $:{
+    //     work_address.city = work_address.city;
+    //     console.log("inside work address reactive block", work_address.city);
+    // }
 
     function gotoidentityproof() {
         valid = true;
@@ -221,53 +233,60 @@
         //     present_address_proof_data_message = "";
         // }
 
-        if (present_address.location_id == null) {
+        if (work_address.city == null) {
             valid = false;
-            present_address_city_message = "Please select a city";
+            // present_address_city_message = "Please select a city";
+            work_address_city_message = "Please select a city";
         } else {
             // valid = true;
-            present_address_city_message = "";
+            work_address_city_message = "";
         }
 
-        if (present_address.address == null) {
+        if (work_address.address == null) {
             valid = false;
-            present_address_address_message = "Please enter an address";
+            // present_address_address_message = "Please enter an address";
+            work_address_address_message = "Please enter an address";
         } else {
             // valid = true;
-            present_address_address_message = "";
+            work_address_address_message  = "";
         }
 
-        if (present_address.postal == null) {
+        if (work_address.postal == null) {
             valid = false;
-            present_address_postal_message = "Please enter a pin code.";
+            work_address_postal_message = "Please enter a pin code.";
+            // present_address_postal_message = "Please enter a pin code.";
         } else {
             // valid = true;
-            present_address_postal_message = "";
+            work_address_postal_message  = "";
         }
 
         if (address_check == "No") {
-            if (work_address.city == null) {
+            if (present_address.location_id == null) {
                 valid = false;
-                work_address_city_message = "Please select a city.";
+                // console.log("present_address.location_id",present_address.location_id)
+                // work_address_city_message = "Please select a city.";
+                present_address_city_message = "Please select a city.";
             } else {
                 // valid = true;
-                work_address_city_message = "";
+                present_address_city_message= "";
             }
 
-            if (work_address.address == null) {
+            if (present_address.address == null) {
                 valid = false;
-                work_address_address_message = "Please enter an address.";
+                // work_address_address_message = "Please enter an address.";
+                present_address_address_message = "Please enter an address."
             } else {
                 // valid = true;
-                work_address_address_message = "";
+                present_address_address_message = "";
             }
 
-            if (work_address.postal == null) {
+            if (present_address.postal == null) {
                 valid = false;
-                work_address_postal_message = "Please enter a pin code.";
+                // work_address_postal_message = "Please enter a pin code.";
+                present_address_postal_message = "Please enter a pin code.";
             } else {
                 // valid = true;
-                work_address_postal_message = "";
+                present_address_postal_message = "";
             }
         }
 
@@ -342,8 +361,8 @@
             }
             console.log("document store", $documents_store);
 
-            let replaceState = false;
-            goto(routeTo, { replaceState });
+            // let replaceState = false;
+            // goto(routeTo, { replaceState });
         }
 
         // $documents_store.documents.push(address_proof_data);
@@ -358,8 +377,11 @@
     }
     async function verify_facility_name() {
         /////////////
+        $facility_data_store.org_id = "AN"; //delete this 
+            $facility_data_store.station_code = "MHAE";
 
         if ($facility_data_store.facility_name != null) {
+
             let res = set_facility_id();
             console.log("set_facility_id", res);
             $facility_data_store.facility_id = res;
@@ -368,6 +390,7 @@
         facility_name_message = "";
 
         if ($facility_data_store.facility_name != null) {
+           
             let verify_name_response = await verify_associate_name();
             console.log("verify_name_response", verify_name_response);
             try {
@@ -509,6 +532,7 @@
         console.log("date", date);
         // console.log("reactive blocks");
         let dob_date = date.getDate();
+        console.log("dob_date",dob_date);
         // console.log("_____",moment(date, 'YYYY-MM-DD').format("DD/MM/YYYY"))
         // console.log("_____",date.getDate())
         console.log(typeof dob_date);
@@ -541,20 +565,19 @@
         final_address = [];
 
         if (
-            present_address.location_id != null &&
-            present_address.address != null &&
-            present_address.postal != null
+            work_address.city != null &&
+            work_address.address != null &&
+            work_address.postal != null
         ) {
-            final_address.push(present_address);
+            final_address.push(work_address);
         }
         if (address_check == "No") {
             if (
-                work_address.city != null &&
-                work_address.address != null &&
-                work_address.postal != null &&
-                work_address.state
+                present_address.location_id != null &&
+                present_address.address != null &&
+                present_address.postal != null 
             ) {
-                final_address.push(work_address);
+                final_address.push(present_address);
             }
         }
         // facility_data_store.set({address: final_address});
@@ -592,6 +615,9 @@
         } else if (file_name["doc_category"] == "Present Address Proof") {
             present_address_proof_data = present_address_proof_data;
         }
+    }
+    $:{
+        console.log("test_date",test_date);
     }
 </script>
 
@@ -818,7 +844,7 @@
                                         name=""
                                         id=""
                                         class="inputbox"
-                                        bind:value={present_address.location_id}
+                                        bind:value={work_address.city}
                                         on:change={(e)=>{console.log("on_change",e)}}
                                         
                                         
@@ -829,7 +855,7 @@
                                             >Select City</option
                                         >
                                         {#each city_data as city}
-                                            <option value={city.city_id}  
+                                            <option value={city.city_name}  
                                                 >{city.city_name} ({city.state_name})</option
                                             >
                                         {/each}
@@ -842,7 +868,7 @@
                                 <label class="formLable invisible" />
                                 <div class="formInnerGroup mt-1">
                                     <div class="text-red-500 text-xs">
-                                        {present_address_city_message}
+                                        {work_address_city_message}
                                     </div>
                                 </div>
                             </div>
@@ -869,7 +895,7 @@
                                         rows="4"
                                         cols="50"
                                         class="inputbox"
-                                        bind:value={present_address.address}
+                                        bind:value={work_address.address}
                                     />
                                 </div>
                             </div>
@@ -879,7 +905,7 @@
                                 <label class="formLable invisible" />
                                 <div class="formInnerGroup mt-1">
                                     <div class="text-red-500 text-xs">
-                                        {present_address_address_message}
+                                        {work_address_address_message}
                                     </div>
                                 </div>
                             </div>
@@ -965,7 +991,7 @@
                                     <input
                                         type="Email"
                                         class="inputbox"
-                                        bind:value={present_address.postal}
+                                        bind:value={work_address.postal}
                                     />
                                 </div>
                             </div>
@@ -975,7 +1001,7 @@
                                 <label class="formLable invisible" />
                                 <div class="formInnerGroup mt-1">
                                     <div class="text-red-500 text-xs">
-                                        {present_address_postal_message}
+                                        {work_address_postal_message}
                                     </div>
                                 </div>
                             </div>
@@ -1043,13 +1069,13 @@
                                             name=""
                                             id="select_working_city"
                                             class="inputbox"
-                                            bind:value={work_address.city}
+                                            bind:value={present_address.location_id}
                                         >
                                             <option value="" selected disabled
                                                 >Select City</option
                                             >
                                             {#each city_data as city}
-                                                <option value={city.city_name} on:click={() =>{alert(city)}}
+                                                <option value={city.city_id} on:click={() =>{alert(city)}}
                                                     >{city.city_name}({city.state_name})</option
                                                 >
                                             {/each}
@@ -1062,7 +1088,7 @@
                                     <label class="formLable invisible" />
                                     <div class="formInnerGroup mt-1">
                                         <div class="text-red-500 text-xs">
-                                            {work_address_city_message}
+                                            {present_address_city_message}
                                         </div>
                                     </div>
                                 </div>
@@ -1090,7 +1116,7 @@
                                             rows="4"
                                             cols="50"
                                             class="inputbox"
-                                            bind:value={work_address.address}
+                                            bind:value={present_address.address}
                                         />
                                     </div>
                                 </div>
@@ -1100,7 +1126,7 @@
                                     <label class="formLable invisible" />
                                     <div class="formInnerGroup mt-1">
                                         <div class="text-red-500 text-xs">
-                                            {work_address_address_message}
+                                            {present_address_address_message}
                                         </div>
                                     </div>
                                 </div>
@@ -1123,7 +1149,7 @@
                                         <input
                                             type="Email"
                                             class="inputbox"
-                                            bind:value={work_address.postal}
+                                            bind:value={present_address.postal}
                                         />
                                     </div>
                                 </div>
@@ -1133,7 +1159,7 @@
                                     <label class="formLable invisible" />
                                     <div class="formInnerGroup mt-1">
                                         <div class="text-red-500 text-xs">
-                                            {work_address_postal_message}
+                                            {present_address_postal_message}
                                         </div>
                                     </div>
                                 </div>
@@ -1197,7 +1223,7 @@
                                             />
                                         </span>
                                         <!-- <input type="Email" class="inputbox"> -->
-                                        <input type="date" max={temp_max_date}>
+                                        <input type="date" max={temp_max_date} bind:value={test_date}>
                                     </div>
                                 </div>
                             </div>

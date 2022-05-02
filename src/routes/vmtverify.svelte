@@ -12,6 +12,7 @@
     import {bgv_data_store} from "../stores/bgv_store";
     import Toast from './components/toast.svelte';
     import Spinner from "./components/spinner.svelte";
+    import { img_url_name } from "../stores/flags_store";
 
     let show_spinner = false;
     let facility_document_data = "";
@@ -191,7 +192,7 @@
         // facility_id.subscribe(value => {
         // new_facility_id = value.facility_id_number;
         // })
-        facility_id = "CRUN00320"
+        facility_id = "CRUN00374"
         // console.log('habscib',rejReasonMap.basicInfo)
         // facility_id = "MHPD01226"
         console.log("new_facility_id",facility_id)
@@ -432,33 +433,40 @@
 
     async function doc_approve(doc_cat){
         if (doc_cat == "pan"){
-        
             console.log("payload", $facility_data_store)
-            
-            let document_load = {
+            if(vmt_pan != 0){
+                show_spinner = true;
+                let document_load = {
                 "resource_id":facility_id,
                 "doc_number":vmt_pan,
                 "status_type":"DV",
                 "status":"true",
                 "doc_type":"pan-photo"
             }
-            let pan_sub_res = await approve_reject_status(document_load)
-            try{
-                if(pan_sub_res.body.status == "green"){
-                    pan_success_flag = 1
-                    console.log("pan_success_flag",pan_success_flag)
+                let pan_sub_res = await approve_reject_status(document_load)
+                show_spinner = false;
+                try{
+                    if(pan_sub_res.body.status == "green"){
+                        pan_success_flag = 1
+                        console.log("pan_success_flag",pan_success_flag)
+                    }
+                }
+                catch(err){
+                    console.log("Error in pan_sub_res",err)
                 }
             }
-            catch(err){
-                console.log("Error in pan_sub_res",err)
+            else{
+                toast_text = "Please enter the Pan Number";
+                toast_type = "error";
             }
             
         }
         if (doc_cat == "voter"){
         
         console.log("payload", $facility_data_store)
-        
-        let document_load = {
+        if(vmt_voter!=0){
+            show_spinner = true;
+            let document_load = {
             "resource_id":facility_id,
             "doc_number":vmt_voter,
             "status_type":"DV",
@@ -466,6 +474,7 @@
             "doc_type":"voter-id-proof"
         }
         let voter_sub_res =await approve_reject_status(document_load)
+        show_spinner = false;
         try{
             console.log("voter_sub_res",voter_sub_res.body.status)
                 if(voter_sub_res.body.status == "green"){
@@ -475,9 +484,18 @@
             catch(err){
                 console.log("Error in pan_sub_res",err)
             }
+        }
+        else{
+                toast_text = "Please enter the Voter Number";
+                toast_type = "error";
+            }
+        
+        
     }
         if (doc_cat == "aadhar"){
-            let document_load = {
+            if (vmt_aadhar != 0){
+                show_spinner = true;
+                let document_load = {
                 "resource_id":facility_id,
                 "doc_number":vmt_aadhar,
                 "status_type":"DV",
@@ -485,6 +503,7 @@
                 "doc_type":"aadhar-id-proof"
             }
             let aadhar_sub_res =await approve_reject_status(document_load)
+            show_spinner = false;
             try{
                 if(aadhar_sub_res.body.status == "green"){
                     aadhar_success_flag = 1
@@ -493,10 +512,17 @@
             catch(err){
                 console.log("Error in pan_sub_res",err)
             }
+            }
+            else{
+                toast_text = "Please enter the Aadhar Number";
+                toast_type = "error";
+            }
+            
         }
         if (doc_cat == "dl"){
-        
-        let document_load = {
+        if (vmt_dl != 0){
+            show_spinner = true;
+            let document_load = {
             "resource_id":facility_id,
             "doc_number":vmt_dl,
             "status_type":"DV",
@@ -504,6 +530,7 @@
             "doc_type":"dl-photo"
         }
         let dl_sub_res =await approve_reject_status(document_load)
+        show_spinner = false;
         try{
                 if(dl_sub_res.body.status == "green"){
                     dl_success_flag = 1
@@ -513,8 +540,15 @@
                 console.log("Error in pan_sub_res",err)
             }
         }
+        else{
+                toast_text = "Please enter the dl Number";
+                toast_type = "error";
+            }
+        
+        }
         if (doc_cat == "address"){
-            let document_load = {
+            show_spinner = true;
+                let document_load = {
                 "resource_id":facility_id,
                 "doc_number":vmt_address,
                 "status_type":"DV",
@@ -522,6 +556,7 @@
                 "doc_type":"addproof-photo"
             }
             let address_sub_res =await approve_reject_status(document_load)
+            show_spinner = false;
             try{
                 if(address_sub_res.body.status == "green"){
                     address_success_flag = 1
@@ -533,6 +568,8 @@
         }
         
     if (doc_cat == "offer"){
+        if(off_Name != 0 && off_assoc_type != 0 && off_vend_name != 0 && vmt_offer != 0){
+            show_spinner = true;
             let document_load = {
                 "resource_id":facility_id,
                 "facility_name":off_Name,
@@ -544,6 +581,7 @@
                 "doc_type":"newOffFile"
             }
             let offer_sub_res =await approve_reject_status(document_load)
+            show_spinner = false;
             try{
                 if(offer_sub_res.body.status == "green"){
                     offer_success_flag = 1
@@ -553,6 +591,12 @@
                 console.log("Error in pan_sub_res",err)
             }
         }
+        else{
+                toast_text = "Please enter all the fields";
+                toast_type = "error";
+            }
+        }
+            
 
             if(contains_pan == 0){   
                 final_pan_approve = 1;
@@ -636,7 +680,7 @@
 
     async function doc_reject(doc_cat){
         if (doc_cat == "pan"){
-        
+            show_spinner = true;
             console.log("payload", $facility_data_store)
             
             let document_load = {
@@ -647,6 +691,7 @@
                 "doc_type":"pan-photo"
             }
             let pan_sub_res = await approve_reject_status(document_load)
+            show_spinner = false;
             try{
                 if(pan_sub_res.body.status == "green"){
                     pan_reject_flag = 1
@@ -660,7 +705,7 @@
         if (doc_cat == "voter"){
         
         console.log("payload", $facility_data_store)
-        
+        show_spinner = true;
         let document_load = {
             "resource_id":facility_id,
             "doc_number":vmt_voter,
@@ -669,6 +714,7 @@
             "doc_type":"voter-id-proof"
         }
         let voter_sub_res =await approve_reject_status(document_load)
+        show_spinner = false;
         try{
             console.log("voter_sub_res",voter_sub_res.body.status)
                 if(voter_sub_res.body.status == "green"){
@@ -680,6 +726,7 @@
             }
     }
         if (doc_cat == "aadhar"){
+            show_spinner = true;
             let document_load = {
                 "resource_id":facility_id,
                 "doc_number":vmt_aadhar,
@@ -688,6 +735,7 @@
                 "doc_type":"aadhar-id-proof"
             }
             let aadhar_sub_res =await approve_reject_status(document_load)
+            show_spinner = false;
             try{
                 if(aadhar_sub_res.body.status == "green"){
                     aadhar_reject_flag = 1
@@ -698,7 +746,7 @@
             }
         }
         if (doc_cat == "dl"){
-        
+            show_spinner = true;
         let document_load = {
             "resource_id":facility_id,
             "doc_number":vmt_dl,
@@ -707,6 +755,7 @@
             "doc_type":"dl-photo"
         }
         let dl_sub_res =await approve_reject_status(document_load)
+        show_spinner = false;
         try{
                 if(dl_sub_res.body.status == "green"){
                     dl_reject_flag = 1
@@ -717,6 +766,7 @@
             }
         }
         if (doc_cat == "address"){
+            show_spinner = true;
             let document_load = {
                 "resource_id":facility_id,
                 "doc_number":vmt_address,
@@ -725,6 +775,7 @@
                 "doc_type":"addproof-photo"
             }
             let address_sub_res =await approve_reject_status(document_load)
+            show_spinner = false;
             try{
                 if(address_sub_res.body.status == "green"){
                     address_reject_flag = 1
@@ -736,6 +787,7 @@
         }
         
     if (doc_cat == "offer"){
+        show_spinner = true;
             let document_load = {
                 "resource_id":facility_id,
                 "doc_number":vmt_offer,
@@ -745,6 +797,7 @@
                 "address":"address"
             }
             let offer_sub_res =await approve_reject_status(document_load)
+            show_spinner = false;
             try{
                 if(offer_sub_res.body.status == "green"){
                     offer_reject_flag = 1
@@ -1167,7 +1220,7 @@
         
     async function bank_approve(){
         console.log("Inside bank approve")
-        
+        show_spinner = true;
         if(!$bank_details){
             return
         }
@@ -1187,6 +1240,7 @@
                         "remarks": remark
         }
             let bank_sub_res =await bank_approve_reject(document_load)
+            show_spinner = false;
             try{
                 if(bank_sub_res.body.status == "green"){
                     bank_success_flag = 1
@@ -1202,6 +1256,7 @@
     }
     }
         async function bank_reject(){
+            show_spinner = true;
             let document_load = {
             "facility_id": facility_id,
             "approved": false,
@@ -1209,6 +1264,7 @@
             "remarks": remark
         }
             let bank_sub_res =await bank_approve_reject(document_load)
+            show_spinner = false;
             try{
                 if(bank_sub_res.body.status == "green"){
                     bank_reject_flag = 1
@@ -1249,6 +1305,7 @@
 
     async function bgv_click(bgv_data){
         if(bgv_data=="basic_approve"){
+            show_spinner = true;
             console.log("basic_approve")
             // if(show_fields ==1){
                 let basic_dets_data = {
@@ -1269,12 +1326,14 @@
             // }
             
             let basic_app_res = await bgv_approve_rej(basic_dets_data)
+            show_spinner = false;
             console.log("basic_app_res",basic_app_res)
             if(basic_app_res.body.status == "green"){
                 basic_bgv_success_flag = 1
             }
         }
         if(bgv_data=="address_approve"){
+            show_spinner = true;
             console.log("address_approve")
             let address_dets_data = {
                 action_type:"Verified",
@@ -1282,12 +1341,14 @@
                 field_type:"addressInfo"
             }
             let address_app_res = await bgv_approve_rej(address_dets_data)
+            show_spinner = false;
             console.log("address_app_res",address_app_res)
             if(address_app_res.body.status == "green"){
                 address_bgv_success_flag = 1
             }
         }
         if(bgv_data=="pan_approve"){
+            show_spinner = false;
             console.log("pan_approve")
             let pan_dets_data = {
                 action_type:"Verified",
@@ -1295,6 +1356,7 @@
                 field_type:"panInfo",
             }
             let pan_app_res = await bgv_approve_rej(pan_dets_data)
+            show_spinner = false;
             console.log("pan_app_res",pan_app_res)
             if(pan_app_res.body.status == "green"){
                 pan_bgv_success_flag = 1
@@ -1302,6 +1364,7 @@
         }
 
         if(bgv_data=="dl_approve"){
+            show_spinner = true;
             console.log("dl_approve")
             let dl_dets_data = {
                 action_type:"Verified",
@@ -1309,6 +1372,7 @@
                 field_type:"dlInfo",
             }
             let dl_app_res = await bgv_approve_rej(dl_dets_data)
+            show_spinner = false;
             console.log("dl_app_res",dl_app_res)
             if(dl_app_res.body.status == "green"){
                 dl_bgv_success_flag = 1
@@ -1316,6 +1380,7 @@
         }
 
         if(bgv_data=="pol_approve"){
+            show_spinner = true;
             console.log("pol_approve")
             let pol_dets_data = {
                 action_type:"Verified",
@@ -1323,6 +1388,7 @@
                 field_type:"policeInfo",
             }
             let pol_app_res = await bgv_approve_rej(pol_dets_data)
+            show_spinner = false;
             console.log("pol_app_res",pol_app_res)
             if(pol_app_res.body.status == "green"){
                 police_bgv_success_flag = 1
@@ -1390,6 +1456,7 @@
             // console.log("FLAGS in bgv final_bgv_approve",final_bgv_approve)
             
             if(bgv_data == "basic_reject"){
+                show_spinner = true;
             console.log("basic_reject")
             // if(basic_info_rej != null)
             // {
@@ -1403,12 +1470,14 @@
             // }
             
             let basic_app_res = await bgv_approve_rej(basic_dets_data)
+            show_spinner = false;
             console.log("basic_app_res",basic_app_res)
             if(basic_app_res.body.status == "green"){
                 basic_bgv_reject_flag = 1;
             }
         }
         if(bgv_data == "address_reject"){
+            show_spinner = true;
             console.log("address_reject")
             let address_dets_data = {
                 action_type:"Rejected",
@@ -1417,12 +1486,14 @@
                 remarks:address_info_res.trim(),
             }
             let address_app_res = await bgv_approve_rej(address_dets_data)
+            show_spinner = false;
             if(address_app_res.body.status == "green"){
                 address_bgv_reject_flag = 1;
             }
         }
 
         if(bgv_data== "dl_reject"){
+            show_spinner = true;
             console.log("dl_reject")
             let dl_dets_data = {
                 action_type:"Rejected",
@@ -1431,12 +1502,14 @@
                 remarks:dl_info_res.trim(),
             }
             let dl_app_res = await bgv_approve_rej(dl_dets_data)
+            show_spinner = false;
             console.log("dl_app_res",dl_app_res)
             if(dl_app_res.body.status == "green"){
                 dl_bgv_reject_flag = 1
             }
         }
         if(bgv_data == "pol_reject"){
+            show_spinner = true;
             console.log("po_reject")
             let pol_dets_data = {
                 action_type:"Rejected",
@@ -1445,12 +1518,14 @@
                 remarks:pol_info_res.trim(),
             }
             let pol_app_res = await bgv_approve_rej(pol_dets_data)
+            show_spinner = false;
             console.log("pol_app_res",pol_app_res)
             if(pol_app_res.body.status == "green"){
                 police_bgv_reject_flag = 1
             }
         }
         if(bgv_data == "pan_reject"){
+            show_spinner = true;
             console.log("pan_reject")
             let pan_dets_data = {
                 action_type:"Rejected",
@@ -1459,6 +1534,7 @@
                 remarks:pan_info_res.trim(),
             }
             let pan_app_res = await bgv_approve_rej(pan_dets_data)
+            show_spinner = true;
             console.log("pan_app_res",pan_app_res)
             if(pan_app_res.body.status == "green"){
                 pan_bgv_reject_flag = 1
@@ -1560,8 +1636,8 @@
     }
     async function final_bgv_reject_func(){
         if(final_bgv_reject == 1){
-            show_spinner=true;
-            console.log("final_bgv_reject_func")
+            // show_spinner=true;
+            console.log("final_bgv_reject_func, qwerty 1")
             let final_bgv_reject_data = {
                 "facility_id":facility_id,
                 "bgv_status":"rejected",
@@ -1575,7 +1651,8 @@
                 toast_type = "success";
                 show_spinner=false;
                 let facility_bgv_check_res = await facility_bgv_check();
-        console.log("facility_bgv_check_res",facility_bgv_check_res)
+        console.log("facility_bgv_check_res qwerty 2",facility_bgv_check_res)
+        show_spinner=false;
         try {
             if(!facility_bgv_check_res || facility_bgv_check_res.body.data.length == "0"){
                 var eighteenYearsAgo =  new Date();
@@ -1597,7 +1674,7 @@
         }
     }
     catch(err) {
-        console.log("Error",err)
+        console.log("Error qwerty 3",err)
         // message.innerHTML = "Error is " + err;
     }
             }
@@ -1763,8 +1840,8 @@
                     <span class="text-textgrey pr-1 text-base xsl:hidden">Home / Workforce</span>
 
                     <span class="Username">
-                        <img src="../src/img/delivery.png" class="userIconMedia" alt=""><span
-                            >{$facility_data_store.facility_name}</span>
+                        <img src="{$img_url_name.img_name}/delivery.png" class="userIconMedia" alt="">
+                        <span>{$facility_data_store.facility_name}</span>
                         <span class="userDesignation">(Associate
                             - {$facility_data_store.facility_type} / ID - {$facility_data_store.name})</span> </span>
 
@@ -1772,7 +1849,7 @@
                 <!-- <p class="breadcrumbRight">
                     <a class="cursor-pointer">
                         <span class="breadRightIcons" id="SupplerModalbuttonClick">
-                            <img src="../src/img/audittrail.png" class="pr-2" alt=""> Audit Trial (12)
+                            <img src="{$img_url_name.img_name}/audittrail.png" class="pr-2" alt=""> Audit Trial (12)
                         </span>
                     </a>
                   
@@ -1793,10 +1870,10 @@
                             </div>
                             <div class="statusbarMiddle">
                               <!-- {#if $facility_data_store.is_id_prof_verified=="1"} -->
-                                <!-- <p class="statusContent font-normal xs:w-5/12"><img src="../src/img/timer.png"
+                                <!-- <p class="statusContent font-normal xs:w-5/12"><img src="{$img_url_name.img_name}/timer.png"
                                         class="pr-2" alt="">
                                         ID Proof
-                                        <img src="../src/img/info.svg"
+                                        <img src="{$img_url_name.img_name}/info.svg"
                                         class="pl-2" alt="">
                                     </p> -->
                                     
@@ -1805,7 +1882,7 @@
                                 class="statusContentTag text-green font-normal xs:w-5/12"
                                 >
                                 <img
-                                    src="../src/img/checked.png"
+                                    src="{$img_url_name.img_name}/checked.png"
                                     class="pr-2"
                                     alt=""
                                 /> ID Verified
@@ -1815,7 +1892,7 @@
                                 class="statusContentTag text-rejectcolor font-normal xs:w-5/12"
                                 >
                                 <img
-                                    src="../src/img/reject.png"
+                                    src="{$img_url_name.img_name}/reject.png"
                                     class="pr-2"
                                     alt=""
                                 />ID Rejected
@@ -1824,7 +1901,7 @@
                                 {:else if $facility_data_store.is_id_prof_rejected == "0" && $facility_data_store.is_id_prof_verified == "0"}
                                 <p class="statusContent font-normal xs:w-5/12">
                                 <img
-                                    src="../src/img/timer.png"
+                                    src="{$img_url_name.img_name}/timer.png"
                                     class="pr-2"
                                     alt=""
                                 />ID Pending
@@ -1832,11 +1909,11 @@
                                 {/if}
 
 
-                                <p class="xsl:hidden"> <img src="../src/img/Line.png" alt=""></p>
+                                <p class="xsl:hidden"> <img src="{$img_url_name.img_name}/Line.png" alt=""></p>
 
-                                <!-- <p class="statusContent font-normal xs:w-5/12"><img src="../src/img/timer.png"
+                                <!-- <p class="statusContent font-normal xs:w-5/12"><img src="{$img_url_name.img_name}/timer.png"
                                         class="pr-2" alt="">Bank Details
-                                        <img src="../src/img/info.svg"
+                                        <img src="{$img_url_name.img_name}/info.svg"
                                         class="pl-2" alt="">
                                 </p> -->
                                 {#if !$bank_details}
@@ -1847,7 +1924,7 @@
                                 class="statusContentTag text-green font-normal xs:w-5/12"
                                 >
                                 <img
-                                    src="../src/img/checked.png"
+                                    src="{$img_url_name.img_name}/checked.png"
                                     class="pr-2"
                                     alt=""
                                 /> Bank Verified
@@ -1857,7 +1934,7 @@
                                 class="statusContentTag text-rejectcolor font-normal xs:w-5/12"
                                 >
                                 <img
-                                    src="../src/img/reject.png"
+                                    src="{$img_url_name.img_name}/reject.png"
                                     class="pr-2"
                                     alt=""
                                 />Bank Rejected
@@ -1866,18 +1943,18 @@
                                     
                                     <p class="statusContent font-normal xs:w-5/12">
                                         <img
-                                            src="../src/img/timer.png"
+                                            src="{$img_url_name.img_name}/timer.png"
                                             class="pr-2"
                                             alt=""
                                         />Bank Verification Pending
                                     </p>
                                 {/if}
 
-                                <p class="xsl:hidden"> <img src="../src/img/Line.png" alt=""></p>
+                                <p class="xsl:hidden"> <img src="{$img_url_name.img_name}/Line.png" alt=""></p>
 
-                                    <!-- <p class="statusContent font-normal xs:w-5/12"><img src="../src/img/timer.png"
+                                    <!-- <p class="statusContent font-normal xs:w-5/12"><img src="{$img_url_name.img_name}/timer.png"
                                             class="pr-2" alt="">BGV
-                                            <img src="../src/img/info.svg"
+                                            <img src="{$img_url_name.img_name}/info.svg"
                                             class="pl-2" alt="">
                                     </p> -->
 
@@ -1886,7 +1963,7 @@
                                 class="statusContentTag text-green font-normal xs:w-5/12"
                                 >
                                 <img
-                                    src="../src/img/checked.png"
+                                    src="{$img_url_name.img_name}/checked.png"
                                     class="pr-2"
                                     alt=""
                                 /> BGV Verified
@@ -1896,7 +1973,7 @@
                                 class="statusContentTag text-rejectcolor font-normal xs:w-5/12"
                                 >
                                 <img
-                                    src="../src/img/reject.png"
+                                    src="{$img_url_name.img_name}/reject.png"
                                     class="pr-2"
                                     alt=""
                                 />BGV Rejected
@@ -1905,7 +1982,7 @@
                                 {:else if $facility_data_store.is_bgv_intiated == "0" && $facility_data_store.is_id_prof_verified == "0"}
                                 <p class="statusContent font-normal xs:w-5/12">
                                 <img
-                                    src="../src/img/timer.png"
+                                    src="{$img_url_name.img_name}/timer.png"
                                     class="pr-2"
                                     alt=""
                                 />BGV Pending
@@ -1926,17 +2003,18 @@
                     </div>
                     <div class="vmtVerify "  on:click="{final_id_verify}">
                         Verify 
-                        <!-- <img src="../src/img/downarrowwhite.svg" class="pl-2" alt="arrow"> -->
+                        <!-- <img src="{$img_url_name.img_name}/downarrowwhite.svg" class="pl-2" alt="arrow"> -->
                     </div>
                 </div>
                 {:else if final_bgv_ver_btn == "1"}
                 <div class="statusrightlink ">
-                    <div class="vmtRejected mr-4" on:click="{openFinalRejectModel}">
+                    <div class="vmtRejected mr-4" on:click="{final_bgv_reject_func}">
+                        <!-- openFinalRejectModel -->
                         Reject 
                     </div>
                     <div class="vmtVerify "  on:click="{final_bgv_verify_func}">
                         Verify 
-                        <!-- <img src="../src/img/downarrowwhite.svg" class="pl-2" alt="arrow"> -->
+                        <!-- <img src="{$img_url_name.img_name}/downarrowwhite.svg" class="pl-2" alt="arrow"> -->
                     </div>
                 </div>
                 {:else if final_bank_ver_btn =="1"}<p></p>
@@ -1962,19 +2040,19 @@
                 </div>
                 <div class="right flex">
                     <a href="" class="smButton">
-                        <img src="../src/img/edit.png" alt="">
+                        <img src="{$img_url_name.img_name}/edit.png" alt="">
                     </a>
                 </div>
 
             </div>
 
             <div class="profilepic">
-                <img src="../src/img/profilepic.png" alt="">
+                <img src="{$img_url_name.img_name}/profilepic.png" alt="">
                 <p class="imgName">dhiraj-shah.jpeg</p>
             </div>
 
             <div class="userInfoSec px-5  flex items-start ">
-                <img src="../src/img/location1.png" alt="">
+                <img src="{$img_url_name.img_name}/location1.png" alt="">
                 <div class="pl-4">
                     <p class="detailLbale">Address & Pincode</p>
                     <p class="detailData ">r/no-9, jiwheshwar kripa chawl, penkarpada,
@@ -1984,21 +2062,21 @@
 
             <div class="userInfoSec3 ">
                 <div class="flex items-start">
-                    <img src="../src/img/mobilephone.png" alt="">
+                    <img src="{$img_url_name.img_name}/mobilephone.png" alt="">
                     <div class="pl-4">
                         <p class="detailLbale">Mobile Number</p>
                         <p class="detailData">88560 22890</p>
                     </div>
                 </div>
                 <div class="userStatus ">
-                    <p class="userStatusTick"><img src="../src/img/checked.png" alt="" class="pr-1"> Verified
+                    <p class="userStatusTick"><img src="{$img_url_name.img_name}/checked.png" alt="" class="pr-1"> Verified
                     </p>
                 </div>
             </div>
 
             <div class="userInfoSec3">
                 <div class="flex items-start">
-                    <img src="../src/img/email.png" alt="">
+                    <img src="{$img_url_name.img_name}/email.png" alt="">
                     <div class="pl-4">
                         <p class="detailLbale">Email</p>
                         <p class="detailData">dhiraj.shah@gmail.com</p>
@@ -2011,22 +2089,22 @@
 
                 <div class="wrapperInfoFirst">
                     <div class="flex items-start">
-                        <img src="../src/img/addressproof.png" alt="">
+                        <img src="{$img_url_name.img_name}/addressproof.png" alt="">
                         <div class="pl-4">
                             <p class="detailLbale">Address proof</p>
                         </div>
                     </div>
                     <div class="userStatus ">
-                        <p class="verifyText"><img src="../src/img/timer.png" alt="" class="pr-1"> Verification
+                        <p class="verifyText"><img src="{$img_url_name.img_name}/timer.png" alt="" class="pr-1"> Verification
                             Pending</p>
                     </div>
 
                 </div>
                 <div class="wrapperInfo ">
                     <div class="flex items-start">
-                        <img src="../src/img/addressproof.png" class="invisible" alt="">
+                        <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
                         <div class="pl-4 flex items-center">
-                            <img src="../src/img/jpeg.png" class="" alt="">
+                            <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
 
                             <p class="detailLbale">ration-card-copy.jpeg</p>
                         </div>
@@ -2034,7 +2112,7 @@
                     <div class="userStatus ">
                         <p class="verifyText">
                             <a href="" class="smButton">
-                                <img src="../src/img/view.png" alt="">
+                                <img src="{$img_url_name.img_name}/view.png" alt="">
                             </a>
                         </p>
                     </div>
@@ -2046,7 +2124,7 @@
 
             <div class="userInfoSec3">
                 <div class="flex items-start">
-                    <img src="../src/img/gst.png" alt="">
+                    <img src="{$img_url_name.img_name}/gst.png" alt="">
                     <div class="pl-4">
                         <p class="detailLbale">GST Details</p>
                         <p class="detailData">Not added</p>
@@ -2063,14 +2141,14 @@
 
             <div class="appcredentials">
                 <div class="headingWithIcon">
-                    <img src="../src/img/mobileblue.png" alt="">
+                    <img src="{$img_url_name.img_name}/mobileblue.png" alt="">
                     <p class="detailsTitle">Libear App Credentials</p>
                 </div>
             </div>
 
             <div class="userInfoSec3 ">
                 <div class="flex items-start">
-                    <img src="../src/img/pan.png" alt="">
+                    <img src="{$img_url_name.img_name}/pan.png" alt="">
                     <div class="pl-4">
                         <p class="detailLbale">User ID</p>
                         <p class="detailData">dhiraj.shah@elastic.run</p>
@@ -2080,7 +2158,7 @@
             </div>
             <div class="userInfoSec3 ">
                 <div class="flex items-start">
-                    <img src="../src/img/password.png" alt="">
+                    <img src="{$img_url_name.img_name}/password.png" alt="">
                     <div class="pl-4">
                         <p class="detailLbale">Password</p>
                         <p class="detailData">test123</p>
@@ -2127,7 +2205,7 @@
                     <div class="workDetailSection w-full">
                         <div class="userInfoSec3">
                             <div class="flex items-start">
-                                <img src="../src/img/Subtract.png" alt="" class="w-5 h-auto">
+                                <img src="{$img_url_name.img_name}/Subtract.png" alt="" class="w-5 h-auto">
                                 <div class="pl-4">
                                     <p class="detailLbale">Associate Type</p>
                                     <p class="detailData">NDA</p>
@@ -2139,7 +2217,7 @@
                         </div>
                         <div class="userInfoSec3 ">
                             <div class="flex items-start">
-                                <img src="../src/img/pan.png" alt="" class="w-5 h-5">
+                                <img src="{$img_url_name.img_name}/pan.png" alt="" class="w-5 h-5">
                                 <div class="pl-4">
                                     <p class="detailLbale">Associate ID</p>
                                     <p class="detailData">BOMG00538</p>
@@ -2149,7 +2227,7 @@
                         </div>
                         <div class="userInfoSec3">
                             <div class="flex items-start">
-                                <img src="../src/img/organization.png" alt="" class="w-5 h-5">
+                                <img src="{$img_url_name.img_name}/organization.png" alt="" class="w-5 h-5">
                                 <div class="pl-4">
                                     <p class="detailLbale">Organization</p>
                                     <p class="detailData">Amazon Transportation</p>
@@ -2160,22 +2238,22 @@
                         <div class="userInfoSecPadding">
                             <div class="wrapperInfoFirst">
                                 <div class="flex items-start">
-                                    <img src="../src/img/offerlatter.png" alt="" class="w-5 h-5">
+                                    <img src="{$img_url_name.img_name}/offerlatter.png" alt="" class="w-5 h-5">
                                     <div class="pl-4">
                                         <p class="detailLbale">Offer Letter</p>
                                     </div>
                                 </div>
                                 <div class="userStatus ">
-                                    <p class="verifyText"><img src="../src/img/timer.png" alt="" class="pr-1">
+                                    <p class="verifyText"><img src="{$img_url_name.img_name}/timer.png" alt="" class="pr-1">
                                         Verification Pending</p>
                                 </div>
 
                             </div>
                             <div class="wrapperInfo ">
                                 <div class="flex items-start">
-                                    <img src="../src/img/addressproof.png" class="invisible" alt="">
+                                    <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
                                     <div class="pl-4 flex items-center">
-                                        <img src="../src/img/jpeg.png" class="" alt="">
+                                        <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
 
                                         <p class="detailLbale">dhiraj-shah-offer-letter.pdf</p>
                                     </div>
@@ -2183,7 +2261,7 @@
                                 <div class="userStatus ">
                                     <p class="verifyText">
                                         <a href="" class="smButton">
-                                            <img src="../src/img/view.png" alt="">
+                                            <img src="{$img_url_name.img_name}/view.png" alt="">
                                         </a>
                                     </p>
                                 </div>
@@ -2196,7 +2274,7 @@
                     <div class="workDetailSection w-full">
                         <div class="userInfoSec3 ">
                             <div class="flex items-start">
-                                <img src="../src/img/location.png" class="w-6 h-6" alt="">
+                                <img src="{$img_url_name.img_name}/location.png" class="w-6 h-6" alt="">
                                 <div class="pl-4">
                                     <p class="detailLbale">City</p>
                                     <p class="detailData">Pune</p>
@@ -2205,7 +2283,7 @@
                         </div>
                         <div class="userInfoSec3 ">
                             <div class="flex items-start">
-                                <img src="../src/img/warehouse.png" class="w-5 h-5" alt="">
+                                <img src="{$img_url_name.img_name}/warehouse.png" class="w-5 h-5" alt="">
                                 <div class="pl-4">
                                     <p class="detailLbale">Station</p>
                                     <p class="detailData">MHPD - Mulsi SP</p>
@@ -2216,7 +2294,7 @@
 
                         <div class="userInfoSec3 ">
                             <div class="flex items-start">
-                                <img src="../src/img/managerVendor.png" class="w-5 h-5" alt="">
+                                <img src="{$img_url_name.img_name}/managerVendor.png" class="w-5 h-5" alt="">
                                 <div class="pl-4">
                                     <p class="detailLbale">Vendor</p>
                                     <p class="detailData">Vitthal Sutar - MHPD00012</p>
@@ -2238,19 +2316,19 @@
                         </p>
                     </div>
                     <div class="right flex">
-                        <p class="rejectText pr-3"><img src="../src/img/reject.png" alt="" class="pr-2"> Reject
+                        <p class="rejectText pr-3"><img src="{$img_url_name.img_name}/reject.png" alt="" class="pr-2"> Reject
                         </p>
                         <div class="hidden">
-                            <p class="verifiedTextGreen pr-3"><img src="../src/img/checked.png" alt=""
+                            <p class="verifiedTextGreen pr-3"><img src="{$img_url_name.img_name}/checked.png" alt=""
                                     class="pr-1">
                                 Verified</p>
                         </div>
                         <div class="hidden">
-                            <p class="verifyText pr-3"><img src="../src/img/timer.png" alt="" class="pr-2">
+                            <p class="verifyText pr-3"><img src="{$img_url_name.img_name}/timer.png" alt="" class="pr-2">
                                 Verification Pending</p>
                         </div>
                         <a href="" class="smButton">
-                            <img src="../src/img/edit.png" alt="">
+                            <img src="{$img_url_name.img_name}/edit.png" alt="">
                         </a>
                     </div>
 
@@ -2283,7 +2361,7 @@
 
                             <div class="wrapperInfoFirst">
                                 <div class="flex items-start">
-                                    <img src="../src/img/pan.png" alt="">
+                                    <img src="{$img_url_name.img_name}/pan.png" alt="">
                                     <div class="pl-4">
                                         <p class="detailLbale">PAN Number</p>
                                         <p class="detailData">CZHPS3225C</p>
@@ -2293,7 +2371,7 @@
                             </div>
                             <div class="attachment mt-5">
                                 <div class="flex items-start">
-                                    <img src="../src/img/pan.png" class="invisible" alt="">
+                                    <img src="{$img_url_name.img_name}/pan.png" class="invisible" alt="">
                                     <div class="pl-4 flex items-center">
                                         <p class="detailLbale">PAN Card Attachment</p>
                                     </div>
@@ -2301,9 +2379,9 @@
                             </div>
                             <div class="wrapperInfo ">
                                 <div class="flex items-start">
-                                    <img src="../src/img/pan.png" class="invisible" alt="">
+                                    <img src="{$img_url_name.img_name}/pan.png" class="invisible" alt="">
                                     <div class="pl-4 flex items-center">
-                                        <img src="../src/img/jpeg.png" class="" alt="">
+                                        <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
 
                                         <p class="detailLbale">Pan-card-copy.jpeg</p>
                                         <!-- <p class="detailLbale">{pan_attach}</p> -->
@@ -2313,7 +2391,7 @@
                                 <div class="userStatus ">
                                     <p class="verifyText">
                                         <a href="" class="smButton">
-                                            <img src="../src/img/view.png" alt="">
+                                            <img src="{$img_url_name.img_name}/view.png" alt="">
                                         </a>
                                     </p>
                                 </div>
@@ -2324,7 +2402,7 @@
                         </div>
                         <div class="userInfoSec3 ">
                             <div class="flex items-start">
-                                <img src="../src/img/pan.png" alt="">
+                                <img src="{$img_url_name.img_name}/pan.png" alt="">
                                 <div class="pl-4">
                                     <p class="detailLbale">Driving License</p>
                                     <p class="detailData">Not Submitted</p>
@@ -2339,7 +2417,7 @@
 
                             <div class="wrapperInfoFirst">
                                 <div class="flex items-start">
-                                    <img src="../src/img/pan.png" alt="">
+                                    <img src="{$img_url_name.img_name}/pan.png" alt="">
                                     <div class="pl-4">
                                         <p class="detailLbale">Aadhar Number</p>
                                         <p class="detailData">9714 1358 8022</p>
@@ -2350,7 +2428,7 @@
                             </div>
                             <div class="attachment mt-5">
                                 <div class="flex items-start">
-                                    <img src="../src/img/pan.png" class="invisible" alt="">
+                                    <img src="{$img_url_name.img_name}/pan.png" class="invisible" alt="">
                                     <div class="pl-4 flex items-center">
                                         <p class="detailLbale">Aadhar Card Attachment</p>
 
@@ -2359,9 +2437,9 @@
                             </div>
                             <div class="wrapperInfo ">
                                 <div class="flex items-start">
-                                    <img src="../src/img/addressproof.png" class="invisible" alt="">
+                                    <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
                                     <div class="pl-4 flex items-center">
-                                        <img src="../src/img/jpeg.png" class="" alt="">
+                                        <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
 
                                         <p class="detailLbale">aadhar-card-copy.jpeg</p>
                                     </div>
@@ -2369,7 +2447,7 @@
                                 <div class="userStatus ">
                                     <p class="verifyText">
                                         <a href="" class="smButton">
-                                            <img src="../src/img/view.png" alt="">
+                                            <img src="{$img_url_name.img_name}/view.png" alt="">
                                         </a>
                                     </p>
                                 </div>
@@ -2393,10 +2471,10 @@
                         </p>
                     </div>
                     <div class="right flex">
-                        <p class="verifyText pr-3"><img src="../src/img/timer.png" alt="" class="pr-1">
+                        <p class="verifyText pr-3"><img src="{$img_url_name.img_name}/timer.png" alt="" class="pr-1">
                             Verification Pending</p>
                         <a href="" class="smButton">
-                            <img src="../src/img/edit.png" alt="">
+                            <img src="{$img_url_name.img_name}/edit.png" alt="">
                         </a>
                     </div>
 
@@ -2427,7 +2505,7 @@
                     <div class="workDetailSection w-full">
                         <div class="userInfoSec3 ">
                             <div class="flex items-start">
-                                <img src="../src/img/bank.png" alt="">
+                                <img src="{$img_url_name.img_name}/bank.png" alt="">
                                 <div class="pl-4">
                                     <p class="detailLbale">Bank Name</p>
                                     <p class="detailData">HDFC</p>
@@ -2437,7 +2515,7 @@
                         </div>
                         <div class="userInfoSec3 ">
                             <div class="flex items-start">
-                                <img src="../src/img/account.png" alt="">
+                                <img src="{$img_url_name.img_name}/account.png" alt="">
                                 <div class="pl-4">
                                     <p class="detailLbale">Account Number</p>
                                     <p class="detailData">483792018849327</p>
@@ -2447,7 +2525,7 @@
                         </div>
                         <div class="userInfoSec3 ">
                             <div class="flex items-start">
-                                <img src="../src/img/account.png" alt="">
+                                <img src="{$img_url_name.img_name}/account.png" alt="">
                                 <div class="pl-4">
                                     <p class="detailLbale">IFSC Code</p>
                                     <p class="detailData">HDFC0000148</p>
@@ -2460,7 +2538,7 @@
                     <div class="workDetailSection w-full">
                         <div class="userInfoSec3 ">
                             <div class="flex items-start">
-                                <img src="../src/img/pincode.png" alt="">
+                                <img src="{$img_url_name.img_name}/pincode.png" alt="">
                                 <div class="pl-4">
                                     <p class="detailLbale">Branch</p>
                                     <p class="detailData">Pune - East, 400190</p>
@@ -2473,7 +2551,7 @@
                             <div class="wrapperInfoFirst">
                                 <div class="flex items-start justify-between">
                                     <div class="flex">
-                                        <img src="../src/img/bankdoc.png" alt="">
+                                        <img src="{$img_url_name.img_name}/bankdoc.png" alt="">
                                         <div class="pl-4">
                                             <p class="detailLbale">Aadhar Number</p>
                                         </div>
@@ -2492,7 +2570,7 @@
                             </div>
                             <div class="attachment mt-5">
                                 <div class="flex items-start">
-                                    <img src="../src/img/addressproof.png" class="invisible" alt="">
+                                    <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
                                     <div class="pl-4 flex items-center">
                                         <p class="detailLbale">Cancel Cheque Attachment</p>
 
@@ -2501,9 +2579,9 @@
                             </div>
                             <div class="wrapperInfo ">
                                 <div class="flex items-start">
-                                    <img src="../src/img/addressproof.png" class="invisible" alt="">
+                                    <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
                                     <div class="pl-4 flex items-center">
-                                        <img src="../src/img/jpeg.png" class="" alt="">
+                                        <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
 
                                         <p class="detailLbale">cancel-cheque-copy.jpeg</p>
                                     </div>
@@ -2511,7 +2589,7 @@
                                 <div class="userStatus ">
                                     <p class="verifyText">
                                         <a href="" class="smButton">
-                                            <img src="../src/img/view.png" alt="">
+                                            <img src="{$img_url_name.img_name}/view.png" alt="">
                                         </a>
                                     </p>
                                 </div>
@@ -2543,15 +2621,16 @@
 
                 <div class="flex  justify-between items-center py-3 px-4 Menu {is_id_active}" on:click={() => {temp_display = "display_id_proof",menu_click("id")}}>
                     <p>ID Proof<p>
-                        <img src="../src/img/downarrowwhite.svg">
+                        <!-- <img src="{$img_url_name.img_name}/downarrowwhite.svg"> -->
+                        <img src="{$img_url_name.img_name}/downarrowwhite.svg" alt="">
                 </div>
                 <div class="flex  justify-between items-center py-3 px-4 Menu {is_bank_active}" on:click={() => {temp_display = "display_bank_details",menu_click("bank")}}>
                     <p>Bank Details<p>
-                        <img src="../src/img/downarrowwhite.svg">
+                        <img src="{$img_url_name.img_name}/downarrowwhite.svg">
                 </div>
                 <div class="flex  justify-between items-center py-3 px-4 Menu {is_bgv_active}" on:click={() => {temp_display = "display_bgv_details",menu_click("bgv")}}>
                     <p>BGV<p>
-                        <img src="../src/img/downarrowwhite.svg">
+                        <img src="{$img_url_name.img_name}/downarrowwhite.svg">
                 </div>
             </div>
         </div>
@@ -2786,10 +2865,10 @@
                             </div>
 
                             <div class="flex items-center justify-center gap-4 py-4">
-                                <img src="../src/img/puls.svg" >
+                                <img src="{$img_url_name.img_name}/puls.svg" >
                             
                             <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                            <img src="../src/img/minus.svg" >
+                            <img src="{$img_url_name.img_name}/minus.svg" >
                         
                             </div>
                         </div>
@@ -2830,10 +2909,10 @@
                             </div>
 
                             <div class="flex items-center justify-center gap-4 py-4">
-                                <img src="../src/img/puls.svg" >
+                                <img src="{$img_url_name.img_name}/puls.svg" >
                             
                             <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                            <img src="../src/img/minus.svg" >
+                            <img src="{$img_url_name.img_name}/minus.svg" >
                            
                         </div>
                          </div>
@@ -2872,7 +2951,7 @@
 
 
                             <div class="ActionButtonsReject text-right mt-3">
-                                <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium" on:click={()=>bgv_click("pan_reject")}>Reject</button>
+                                <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium" on:click={()=>doc_reject("pan")}>Reject</button>
                                 <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium" on:click={() => doc_approve("pan")}>Approve</button>
                                 
                             </div>    
@@ -2894,10 +2973,10 @@
                             </div>
 
                             <div class="flex items-center justify-center gap-4 py-4">
-                                <img src="../src/img/puls.svg" >
+                                <img src="{$img_url_name.img_name}/puls.svg" >
                             
                             <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                            <img src="../src/img/minus.svg" >
+                            <img src="{$img_url_name.img_name}/minus.svg" >
                            
                         </div>
                          </div>
@@ -2922,7 +3001,7 @@
                         <div class="">   
                             <div class="formField mb-2">
                                 <div class="flex justify-end" on:click={() => {voter_switchto = "tab1";}}>
-                                    <img src="../src/img/close.png" class="closesup" alt="">
+                                    <img src="{$img_url_name.img_name}/close.png" class="closesup" alt="">
                                     </div>  
                                 <label class="text-greycolor font-light text-sm text-left ">Select issue to reject</label>
                                 <div class="w-full ">
@@ -2996,10 +3075,10 @@
                                 </div>
 
                                 <div class="flex items-center justify-center gap-4 py-4">
-                                    <img src="../src/img/puls.svg"> 
+                                    <img src="{$img_url_name.img_name}/puls.svg"> 
                                 
                                 <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                                <img src="../src/img/minus.svg" >
+                                <img src="{$img_url_name.img_name}/minus.svg" >
                                
                             </div>
                              </div>
@@ -3034,10 +3113,10 @@
                             </div>
 
                             <div class="flex items-center justify-center gap-4 py-4">
-                                <img src="../src/img/puls.svg" >
+                                <img src="{$img_url_name.img_name}/puls.svg" >
                             
                             <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                            <img src="../src/img/minus.svg" >
+                            <img src="{$img_url_name.img_name}/minus.svg" >
                            
                         </div>
                          </div>
@@ -3074,10 +3153,10 @@
                             </div>
 
                             <div class="flex items-center justify-center gap-4 py-4">
-                                <img src="../src/img/puls.svg" >
+                                <img src="{$img_url_name.img_name}/puls.svg" >
                             
                             <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                            <img src="../src/img/minus.svg" >
+                            <img src="{$img_url_name.img_name}/minus.svg" >
                            
                         </div>
                          </div>
@@ -3116,10 +3195,10 @@
                             </div>
 
                             <div class="flex items-center justify-center gap-4 py-4">
-                                <img src="../src/img/puls.svg" >
+                                <img src="{$img_url_name.img_name}/puls.svg" >
                             
                                 <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                                <img src="../src/img/minus.svg" >
+                                <img src="{$img_url_name.img_name}/minus.svg" >
                            
                             </div>
                          </div>
@@ -3180,28 +3259,28 @@
                         <div class="text-center font-light">
                             <p class="text-sm mb-2 xsl:text-xs">Blank cheque</p>
                              <div class="tabforDocItem {blk_cheque_act}">
-                                  <img src="../src/img/voterid.png" alt="" class="w-16 xsl:w-14 p-1" on:click="{()=>img_change("blk_cheque")}">
+                                  <img src="{$img_url_name.img_name}/voterid.png" alt="" class="w-16 xsl:w-14 p-1" on:click="{()=>img_change("blk_cheque")}">
                             </div>  
                         </div>
                 {:else if can_cheque_url != ""}
                         <div class="text-center font-light">
                             <p class="text-sm mb-2 xsl:text-xs">Cancel Cheque</p>
                             <div class="tabforDocItem {can_cheque_act}" >
-                                <img src="../src/img/voterid.png" alt="" class="w-16 xsl:w-14 p-1" on:click="{()=>img_change("can_cheque")}">
+                                <img src="{$img_url_name.img_name}/voterid.png" alt="" class="w-16 xsl:w-14 p-1" on:click="{()=>img_change("can_cheque")}">
                             </div>  
                        </div>  
                 {:else if passbook_url != ""}
                         <div class="text-center font-light">
                             <p class="text-sm mb-2 xsl:text-xs" >Passbook</p>
                             <div class="tabforDocItem {pass_act}">
-                                <img src="../src/img/voterid.png" alt="" class="w-16 xsl:w-14 p-1" on:click="{()=>img_change("passbook")}">
+                                <img src="{$img_url_name.img_name}/voterid.png" alt="" class="w-16 xsl:w-14 p-1" on:click="{()=>img_change("passbook")}">
                             </div>    
                         </div>  
                 {:else if acc_stmt_url != ""}
                         <div class="text-center font-light">
                             <p class="text-sm mb-2 xsl:text-xs">Account Statement</p>
                             <div class="tabforDocItem {act_stmt_act}">
-                                <img src="../src/img/voterid.png" alt="" class="w-16 xsl:w-14 p-1" on:click="{()=>img_change("account_stmt")}">
+                                <img src="{$img_url_name.img_name}/voterid.png" alt="" class="w-16 xsl:w-14 p-1" on:click="{()=>img_change("account_stmt")}">
                             </div>  
                        </div>
                 {:else}<p>No Bank Documents submitted</p>
@@ -3214,14 +3293,14 @@
 
                      <!-- <div class="imageZoom border rounded mt-2">
                         <div id="hubble-container">
-                          <img src="../src/img/pancard.svg"  id="hubblepic">
+                          <img src="{$img_url_name.img_name}/pancard.svg"  id="hubblepic">
                         </div>
 
                         <div class="flex items-center justify-center gap-4 py-4">
-                            <img src="../src/img/puls.svg" >
+                            <img src="{$img_url_name.img_name}/puls.svg" >
                         
                         <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                        <img src="../src/img/minus.svg" >
+                        <img src="{$img_url_name.img_name}/minus.svg" >
                        
                     </div>
                      </div> -->
@@ -3232,10 +3311,10 @@
                         </div>
 
                         <div class="flex items-center justify-center gap-4 py-4">
-                            <img src="../src/img/puls.svg" >
+                            <img src="{$img_url_name.img_name}/puls.svg" >
                         
                         <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                        <img src="../src/img/minus.svg" >
+                        <img src="{$img_url_name.img_name}/minus.svg" >
                        
                     </div>
                      </div>
@@ -3246,10 +3325,10 @@
                         </div>
 
                         <div class="flex items-center justify-center gap-4 py-4">
-                            <img src="../src/img/puls.svg" >
+                            <img src="{$img_url_name.img_name}/puls.svg" >
                         
                         <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                        <img src="../src/img/minus.svg" >
+                        <img src="{$img_url_name.img_name}/minus.svg" >
                        
                     </div>
                      </div>
@@ -3260,10 +3339,10 @@
                         </div>
 
                         <div class="flex items-center justify-center gap-4 py-4">
-                            <img src="../src/img/puls.svg" >
+                            <img src="{$img_url_name.img_name}/puls.svg" >
                         
                         <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                        <img src="../src/img/minus.svg" >
+                        <img src="{$img_url_name.img_name}/minus.svg" >
                        
                     </div>
                      </div>
@@ -3274,10 +3353,10 @@
                         </div>
 
                         <div class="flex items-center justify-center gap-4 py-4">
-                            <img src="../src/img/puls.svg" >
+                            <img src="{$img_url_name.img_name}/puls.svg" >
                         
                         <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                        <img src="../src/img/minus.svg" >
+                        <img src="{$img_url_name.img_name}/minus.svg" >
                        
                     </div>
                      </div>
@@ -3287,6 +3366,15 @@
 
                  <!-- Verify Bank Details -->
                  <div class="m-4 col-span-3 " >
+                        <div class="formField mb-2">
+                            <!-- <label class="Stext-greycolor font-light text-sm text-left ">Enter Bank Account Number</label> -->
+                            <div>
+                                <!-- <span><span class="font-medium">Verified by - </span> {$bank_details.validated_by} <span class="font-medium">On-</span>{$bank_details.validated_on}</span> -->
+                                <p class="detailsUpdate">
+                                    <span><span class="font-medium">Verified by - </span> {$bank_details.updated_by} <span class="font-medium">On-</span>{$bank_details.updated_on}</span>
+                                </p>
+                            </div>
+                        </div>
                         <div class="formField mb-2">
                             <label class="text-greycolor font-light text-sm text-left ">Enter Bank Account Number</label>
                             <div class="w-full ">
@@ -3490,7 +3578,7 @@
                             <div class="text-center font-light">
                                 <p class="text-sm mb-2 xsl:text-xs">Aadhar Card</p>
                                  <div class="tabforDocItem {aadhar_act}">
-                                      <img src="../src/img/aadharicon.png" alt="" class="w-16 xsl:w-14 p-1" on:click="{()=>img_change("aadhar")}">
+                                      <img src="{$img_url_name.img_name}/aadharicon.png" alt="" class="w-16 xsl:w-14 p-1" on:click="{()=>img_change("aadhar")}">
                                 </div>  
                             </div>
                         {/if}
@@ -3499,7 +3587,7 @@
                             <div class="text-center font-light">
                                 <p class="text-sm mb-2 xsl:text-xs">Voter ID</p>
                                 <div class="tabforDocItem {voter_act}">
-                                    <img src="../src/img/voterid.png" alt="" class="w-16 xsl:w-14 p-1" on:click="{()=>img_change("voter")}">
+                                    <img src="{$img_url_name.img_name}/voterid.png" alt="" class="w-16 xsl:w-14 p-1" on:click="{()=>img_change("voter")}">
                                 </div>  
                            </div>  
                         {/if}
@@ -3508,7 +3596,7 @@
                             <div class="text-center font-light">
                                 <p class="text-sm mb-2 xsl:text-xs">Passport Photo</p>
                                 <div class="tabforDocItem {pass_photo_act}">
-                                    <img src="../src/img/passportpic.png" alt="" class="w-16 xsl:w-14 p-1" on:click="{()=>img_change("pass_photo")}">
+                                    <img src="{$img_url_name.img_name}/passportpic.png" alt="" class="w-16 xsl:w-14 p-1" on:click="{()=>img_change("pass_photo")}">
                                 </div>    
                         </div>    
                         {/if}
@@ -3520,10 +3608,10 @@
                         </div>
 
                         <div class="flex items-center justify-center gap-4 py-4">
-                            <img src="../src/img/puls.svg" >
+                            <img src="{$img_url_name.img_name}/puls.svg" >
                         
                         <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                        <img src="../src/img/minus.svg" >
+                        <img src="{$img_url_name.img_name}/minus.svg" >
                        
                     </div>
                      </div>
@@ -3534,10 +3622,10 @@
                         </div>
 
                         <div class="flex items-center justify-center gap-4 py-4">
-                            <img src="../src/img/puls.svg" >
+                            <img src="{$img_url_name.img_name}/puls.svg" >
                         
                         <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                        <img src="../src/img/minus.svg" >
+                        <img src="{$img_url_name.img_name}/minus.svg" >
                        
                     </div>
                      </div>
@@ -3548,10 +3636,10 @@
                         </div>
 
                         <div class="flex items-center justify-center gap-4 py-4">
-                            <img src="../src/img/puls.svg" >
+                            <img src="{$img_url_name.img_name}/puls.svg" >
                         
                         <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                        <img src="../src/img/minus.svg" >
+                        <img src="{$img_url_name.img_name}/minus.svg" >
                        
                     </div>
                      </div>
@@ -3566,9 +3654,12 @@
                                 <div class="">
                                     
                                 </div>
-                                <div>
+                                <!-- <div>
                                     <span><span class="font-medium">Verified by - </span> {$bgv_data_store.basic_info_updated_by} <span class="font-medium">On-</span>{$bgv_data_store.basic_info_updated_on}</span>
-                                </div>
+                                </div> -->
+                                <p class="detailsUpdate">
+                                    <span><span class="font-medium">Verified by - </span> {$bgv_data_store.basic_info_updated_by}<span class="font-medium">On-</span>{$bgv_data_store.basic_info_updated_on}</span>
+                                </p>
                             </div>
                             <div class=" grid-cols-2 grid items-center">
                                 <div class="">
@@ -3709,10 +3800,10 @@
                         </div>
 
                         <div class="flex items-center justify-center gap-4 py-4">
-                            <img src="../src/img/puls.svg" >
+                            <img src="{$img_url_name.img_name}/puls.svg" >
                         
                         <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                        <img src="../src/img/minus.svg" >
+                        <img src="{$img_url_name.img_name}/minus.svg" >
                        
                     </div>
                      </div>
@@ -3907,10 +3998,10 @@
                             </div>
 
                             <div class="flex items-center justify-center gap-4 py-4">
-                                <img src="../src/img/puls.svg" >
+                                <img src="{$img_url_name.img_name}/puls.svg" >
                             
                             <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                            <img src="../src/img/minus.svg" >
+                            <img src="{$img_url_name.img_name}/minus.svg" >
                            
                         </div>
                          </div>
@@ -4022,10 +4113,10 @@
                             </div>
 
                             <div class="flex items-center justify-center gap-4 py-4">
-                                <img src="../src/img/puls.svg" >
+                                <img src="{$img_url_name.img_name}/puls.svg" >
                             
                                 <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                                <img src="../src/img/minus.svg" >
+                                <img src="{$img_url_name.img_name}/minus.svg" >
                             
                             </div>
                         </div>
@@ -4123,10 +4214,10 @@
                                 </div>
     
                                 <div class="flex items-center justify-center gap-4 py-4">
-                                    <img src="../src/img/puls.svg" >
+                                    <img src="{$img_url_name.img_name}/puls.svg" >
                                 
                                     <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                                    <img src="../src/img/minus.svg" >
+                                    <img src="{$img_url_name.img_name}/minus.svg" >
                                 
                                 </div>
                             </div>
@@ -4228,7 +4319,7 @@
                         <p class=""> Reject Reason</p>
                     </div>
                     <div class="rightmodalclose">
-                        <img src="../src/img/blackclose.svg" class="modal-close cursor-pointer" on:click="{closeRejectModel}">
+                        <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" on:click="{closeRejectModel}">
                     </div>
                 </div>
                 <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
@@ -4278,7 +4369,7 @@
                         <p class=""> Reject Resson</p>
                     </div>
                     <div class="rightmodalclose">
-                        <img src="../src/img/blackclose.svg" class="modal-close cursor-pointer" on:click="{closeAddressRejectModel}">
+                        <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" on:click="{closeAddressRejectModel}">
                     </div>
                 </div>
                 <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
@@ -4332,7 +4423,7 @@
                         <p class=""> Reject Reason</p>
                     </div>
                     <div class="rightmodalclose">
-                        <img src="../src/img/blackclose.svg" class="modal-close cursor-pointer" on:click="{closeDLRejectModel}">
+                        <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" on:click="{closeDLRejectModel}">
                     </div>
                 </div>
                 <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
@@ -4376,7 +4467,7 @@
                         <p class=""> Reject Resson</p>
                     </div>
                     <div class="rightmodalclose">
-                        <img src="../src/img/blackclose.svg" class="modal-close cursor-pointer" on:click="{closePVRejectModel}">
+                        <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" on:click="{closePVRejectModel}">
                     </div>
                 </div>
                 <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
@@ -4430,7 +4521,7 @@
                         <p class=""> Reject Reason</p>
                     </div>
                     <div class="rightmodalclose">
-                        <img src="../src/img/blackclose.svg" class="modal-close cursor-pointer" on:click="{closePanRejectModel}">
+                        <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" on:click="{closePanRejectModel}">
                     </div>
                 </div>
                 <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
@@ -4481,7 +4572,7 @@
                         <p class=""> Reject Reason</p>
                     </div>
                     <div class="rightmodalclose">
-                        <img src="../src/img/blackclose.svg" class="modal-close cursor-pointer" on:click="{closeFinalRejectModel}">
+                        <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" on:click="{closeFinalRejectModel}">
                     </div>
                 </div>
                 <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
@@ -4515,7 +4606,7 @@
                       </div>
                    
                       <div class="pt-3 flex justify-center">
-                        <button type="button" class="dialogueNobutton   "  on:click="{final_bgv_reject_func}" on:click="{closePanRejectModel}">Submit</button>
+                        <button type="button" class="dialogueNobutton   " >Submit</button>
                 </form>
             </div>
         </div>
