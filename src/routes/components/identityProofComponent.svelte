@@ -45,7 +45,7 @@
             import  {  page } from '$app/stores';
             import {documents_store} from '../../stores/document_store';
             import { goto } from "$app/navigation";
-            import {onFileSelected} from '../onboardsummaryComponent.svelte'
+            // import {onFileSelected} from '../onboardsummaryComponent.svelte'
     
         let show_spinner = false;
         let toast_text;
