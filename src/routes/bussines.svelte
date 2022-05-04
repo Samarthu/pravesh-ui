@@ -123,7 +123,7 @@
                             class= {item.carditem_class}
                         >
                             
-                                <div class="cardContainer">
+                                <div class="cardContainer ">
                                     <div class="cardImage">
                                         <img
                                             src="{$img_url_name.img_name}/{item.image_name}"

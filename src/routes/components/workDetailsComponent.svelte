@@ -284,9 +284,13 @@
                                 class="font-medium"> By -> </span> {$facility_data_store.modified_by}</span>
                     </p>
                     <p class="flex items-center smButtonText">
-                        <a href="" class="smButton bg-erBlue text-white" on:click={()=>goto("workdetails")}>
+                        <!-- <a href="" class="smButton bg-erBlue text-white" on:click={()=>goto("workdetails")}>
                             Edit
-                        </a>
+                        </a> -->
+                        <button class="smButton bg-erBlue text-white" on:click={()=>goto("workdetails")}>
+                            Edit
+
+                        </button>
                     </p>
                 </div>
 

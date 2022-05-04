@@ -318,9 +318,12 @@
                             class="font-medium"> By -> </span> {$facility_data_store.details_updated_by} </span>
                 </p>
                 <p class="flex items-center smButtonText">
-                    <a href="" class="smButton bg-erBlue text-white" on:click={()=>{goto("identityproof")}}>
+                    <!-- <a href="" class="smButton bg-erBlue text-white" on:click={()=>{goto("identityproof")}}>
                         Edit
-                    </a>
+                    </a> -->
+                    <button class="smButton bg-erBlue text-white" on:click={()=>{goto("identityproof")}}>
+                        Edit
+                    </button>
                 </p>
             </div>
         </div>
