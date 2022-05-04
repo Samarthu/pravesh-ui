@@ -442,9 +442,12 @@
                              class="font-medium"> By -> </span> {bank_values_from_store.modified_by}</span>
                  </p>
                  <p class="flex items-center smButtonText">
-                     <a href="" class="smButton bg-erBlue text-white" on:click={()=>{goto("bankdetails")}}>
+                     <!-- <a href="" class="smButton bg-erBlue text-white" on:click={()=>{goto("bankdetails")}}>
                          Edit
-                     </a>
+                     </a> -->
+                     <button class="smButton bg-erBlue text-white" on:click={()=>{goto("bankdetails")}}>
+                        Edit
+                     </button>
                  </p>
              </div>
          </div>

@@ -652,9 +652,13 @@
                  </p>
                  <p class="flex items-center smButtonText">
                      <!-- TODO -->
-                     <a href="" class="smButton bg-erBlue text-white" on:click={()=>{goto("associatedetails")}}>
+                     <!-- <a href="" class="smButton bg-erBlue text-white" on:click={()=>{goto("associatedetails")}}>
                          Edit
-                     </a>
+                     </a> -->
+                     <button class="smButton bg-erBlue text-white" on:click={()=>{goto("associatedetails")}}>
+                        Edit
+
+                     </button>
                  </p>
              </div>
 
