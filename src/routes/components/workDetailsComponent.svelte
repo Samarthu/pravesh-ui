@@ -4,7 +4,7 @@
         //     import Catagory from "../catagory.svelte";
         //     import { goto } from "$app/navigation";
         //     import Breadcrumb from "./breadcrumb.svelte";
-            import { onMount } from "svelte";
+            // import { onMount } from "svelte";
         //     import { DateInput, DatePicker } from "date-picker-svelte";
             import { bank_data_to_store,cheque_data_to_store } from "../../stores/onboardsummary_store";
         //     import { allowed_pdf_size } from "../services/pravesh_config";
@@ -34,7 +34,8 @@
             import {logged_user} from '../../services/supplier_services';
             import  {  page } from '$app/stores';
             import {documents_store} from '../../stores/document_store';
-import { goto } from "$app/navigation";
+            import { goto } from "$app/navigation";
+            import {onFileSelected} from '../onboardsummaryComponent.svelte'
         
             let show_spinner = false;
             let toast_text;
@@ -226,7 +227,49 @@ import { goto } from "$app/navigation";
             function closeWorkorganization() {
                 workorganizationModel.style.display = "none";
             }
-            
+            function closeViewModel(){
+        document.getElementById("img_model").style.display = "none";
+    }
+    function openViewModel(data,doc_number){
+        document.getElementById("img_model").style.display = "block";
+        if(data == "aadhar"){
+            document.getElementById("img_model_url").getAttribute('src',aadhar_obj.aadhar_attach);
+            alt_image = "aadhar proof";
+        }
+        else if(data == "pan"){
+            document.getElementById("img_model_url").getAttribute('src',pancard_obj.pan_attach);
+            alt_image = "pan-card proof";
+        }
+        else if(data == "address"){
+            document.getElementById("img_model_url").getAttribute('src',addproof_obj.address_url);
+            alt_image = "address proof";
+        }
+        else if(data == "licence"){
+            document.getElementById("img_model_url").getAttribute('src',dl_lic_attach);
+            alt_image = "driving licence proof";
+        }
+        else if(data == "offer"){
+            document.getElementById("img_model_url").getAttribute('src',new_off_file_obj.offer_url);
+            alt_image = "offer letter proof";
+        }
+        else if(data == "can_cheque"){
+            document.getElementById("img_model_url").getAttribute('src',can_cheque_obj.can_cheque_url);
+            alt_image = "cancel cheque proof";
+        }
+        else if(data == "cheque_disp"){
+            document.getElementById("img_model_url").getAttribute('src',new_cheque.file_url);
+            alt_image = "cheque proof";
+        }
+        for(let i = 0;i<gst_doc_arr.length;i++){
+            if(data == "mult_gsts"){
+                if(doc_number == gst_doc_arr[i].gst_doc_num)
+                document.getElementById("img_model_url").getAttribute('src',gst_url[i]);
+                alt_image = "gst proof";
+            }
+        }
+        
+    }
+    
         </script>
         {#if show_spinner}
             <Spinner />
@@ -399,3 +442,4 @@ import { goto } from "$app/navigation";
             </div> 
          
         </div>
+        

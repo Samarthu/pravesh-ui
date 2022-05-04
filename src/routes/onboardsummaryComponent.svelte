@@ -636,7 +636,7 @@ async function child_select_fun(){
         gst_file = gst_url;
         gst_img = gst_name;
     }
-
+    ////////not used////////////
     function SearchClick() {
         searchBox.style.display = "block";
         supplierCount.style.display = "none";
@@ -694,6 +694,7 @@ async function child_select_fun(){
         }
         paginatedItems = searchArray;
     }
+    //////not used/////////////
     
 /////////bank details//////;///////
 
@@ -1278,7 +1279,6 @@ async function child_select_fun(){
     // return arr
     // }
     
-    
 
 </script>
 {#if show_spinner}
@@ -1783,7 +1783,7 @@ async function child_select_fun(){
 
                                                             </tbody>
                                                         </table>
-                                                        ​
+                                                        
                                                         <div
                                                             class="associateCard  border p-p7px  rounded-md hidden xs:block sm:block">
 
@@ -3099,7 +3099,7 @@ async function child_select_fun(){
         </div>
     </div>
 </div>
-
+        <!-- Comment this code -->
 <!-- GST Details modal -->
 <div class="hidden" id="modalidgst">
     <div class=" viewDocmodal  ">
@@ -3614,7 +3614,7 @@ async function child_select_fun(){
         </div>
     </div>
 </div>
-
+ <!-- Comment above code -->
 <!-- ERP Details modal -->
 <div class="hidden" id="erpIdModel">
     <div class=" viewDocmodal  ">
