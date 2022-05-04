@@ -1,36 +1,6 @@
 <script>
-    // import { Router, Link, Route } from "svelte-routing";
-    //     import Catagory from "../catagory.svelte";
-    //     import { goto } from "$app/navigation";
-    //     import Breadcrumb from "./breadcrumb.svelte";
-    //     import { onMount } from "svelte";
+
         import { DateInput, DatePicker } from "date-picker-svelte";
-    //     import { bank_data_to_store,cheque_data_to_store } from "../stores/onboardsummary_store";
-    //     import { allowed_pdf_size } from "../services/pravesh_config";
-    //     // import { addnew_cheque_details } from "../services/onboardsummary_services";
-    //     // import { facility_document } from "../services/onboardsummary_services";
-    //     import { audit_trail_data } from "../services/supplier_services";
-    //     import { facility_data,facility_bgv_init,facility_bgv_check,all_facility_tags,
-    //             show_fac_tags,submit_fac_tag_data,remove_tag,tag_audit_trail,service_vendor,
-    //             get_loc_scope,client_details,erp_details,child_data,add_gst_dets,
-    //             facility_document,addnew_cheque_details,bank_details,cheque_details,gst_details} from "../services/onboardsummary_services";
-    //     import {uploadDocs} from "../services/bgv_services";
-    //     import {get_date_format} from "../services/date_format_servives";
-    //     import {img_url_name} from '../stores/flags_store';
-    //     import {facility_id} from "../stores/facility_id_store"
-    //     import {facility_data_store} from "../stores/facility_store"
-    //     import {bgv_config_store} from '../stores/bgv_config_store'
-    //     import Toast from './components/toast.svelte';
-    //     import AssociateDetails from './components/associateDetailsComponent.svelte';
-    //     import BankDetails from './components/bankDetailsComponent.svelte';
-    //     import IdentityProof from './components/identityProofComponent.svelte';
-    //     import WorkDetails from './components/workDetailsComponent.svelte';
-    //     import { object_without_properties } from "svelte/internal";
-    //     import { paginate, LightPaginationNav } from "svelte-paginate";
-    //     import Spinner from "./components/spinner.svelte";
-    //     import {logged_user} from '../services/supplier_services';
-    //     import  {  page } from '$app/stores';
-    //     import {documents_store} from '../stores/document_store';
             import { onMount } from "svelte";
             import { bank_data_to_store,cheque_data_to_store } from "../../stores/onboardsummary_store";
             import { facility_data,facility_bgv_init,facility_bgv_check,all_facility_tags,
@@ -45,8 +15,9 @@
             import  {  page } from '$app/stores';
             import {documents_store} from '../../stores/document_store';
             import { goto } from "$app/navigation";
-            // import {onFileSelected} from '../onboardsummaryComponent.svelte'
-    
+            import { allowed_pdf_size } from "../../services/pravesh_config";    
+            import {get_date_format} from "../../services/date_format_servives";
+
         let show_spinner = false;
         let toast_text;
         let toast_type;
@@ -65,7 +36,7 @@
         let work_active = "";
         let id_active ="";
         let bank_active = "";
-        let bank_values_from_store = [];
+        export let bank_values_from_store;
         let cheque_values_from_store = [];
         let audit_details_array = [];
         let facility_document_data = [];
@@ -82,56 +53,38 @@
         let id_new_date='';
         let username;
         let all_tags_res;
-        let pancard_obj = {
-            pan_num:null,
-            pan_attach:null,
-            pan_name:null,
-            pan_verified:null,
-            pan_rejected:null
-        }
-        let aadhar_obj = {
-            aadhar_num:null,
-            aadhar_attach:null,
-            aadhar_name:null,
-            aadhar_verified:null,
-            aadhar_rejected:null
-        }
-        let fac_photo_obj = {
-            profile_url:null,
-            profile_verified:null,
-            profile_rejected:null
-        }
-        let addproof_obj = {
-            address_name:null,
-            address_url:null,
-            address_verified:null,
-            address_rejected:null
-        };
-        let can_cheque_obj = {
+        // let pancard_obj = {
+        //     pan_num:null,
+        //     pan_attach:null,
+        //     pan_name:null,
+        //     pan_verified:null,
+        //     pan_rejected:null
+        // }
+        // let aadhar_obj = {
+        //     aadhar_num:null,
+        //     aadhar_attach:null,
+        //     aadhar_name:null,
+        //     aadhar_verified:null,
+        //     aadhar_rejected:null
+        // }
+        // let fac_photo_obj = {
+        //     profile_url:null,
+        //     profile_verified:null,
+        //     profile_rejected:null
+        // }
+        // let addproof_obj = {
+        //     address_name:null,
+        //     address_url:null,
+        //     address_verified:null,
+        //     address_rejected:null
+        // };
+        export let can_cheque_obj = {
             can_cheque_name:null,
             can_cheque_url:null,
             can_cheque_verified:null,
             can_cheque_rejected:null
         };
-        let dl_photo_obj = {
-            dl_lic_name:null,
-            dl_lic_url:null,
-            dl_verified:null,
-            dl_rejected:null
-        };
-        let new_off_file_obj = {
-            offer_name:null,
-            offer_url:null,
-            offer_verified:null,
-            offer_rejected:null
-        };
-        let gst_doc_obj = {
-            gst_name:null,
-            gst_url:null,
-            gst_doc_num:null,
-            gst_verified:null,
-            gst_rejected:null
-        };
+    
     
         let text_pattern = /^[a-zA-Z_ ]+$/;
         let recrun_pattern =  /^[^-\s](?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9 _-]+)$/;
@@ -142,14 +95,16 @@
         let bank_name_message ="",type_message="",cheque_date_message="",cheque_number_message=""
         ,amount_message="",recrun_number_message="",file_number_message="",cheque_upload_message="";
         let child_box;
-        let bank_details_res,bank_new_date,
+        let bank_details_res,
         facility_modified_date,facility_created_date,facility_doc_date;
         // let client_det_res;
+        export let bank_new_date;
         let client_det_arr=[];
         let gst_doc_arr=[];
         // $: cheque_date = new Date();
         let file_data;
         let showbtn = 0;
+        let cheque_data;
         let selectTag,addRemark,selectsearch;
         let facility_address,facility_postal,facility_password,city,location_id,status_name;
         let new_fac_remarks = [];
@@ -227,6 +182,29 @@
         // $:if(gst_checkbox === true){
         //     gst_checkbox = true;
         // }
+
+        onMount(async () => {
+        let cheque_details_res = await cheque_details();
+        try{
+            
+            if(cheque_details_res.body.status == "green" && cheque_details_res != "null"){
+            
+            $cheque_data_to_store.cheque_details_data = cheque_details_res.body.data;
+            
+            cheque_data_to_store.subscribe((value) => {
+                cheque_values_from_store = value.cheque_details_data;
+            });
+            }
+            // console.log("cheque_values_from_store",cheque_values_from_store)
+            // cheque_values_from_store=cheque_values_from_store
+        }
+        catch(err) {
+           
+            toast_type = "error";
+            toast_text = err;
+            
+        }
+        });
         function chequeDetails() {
         chequeModel.style.display = "block";
         }
@@ -276,6 +254,137 @@
             }
         }
         
+    }
+    
+    const onFileSelected = (e,doctext) => {
+        let img = e.target.files[0];
+        if (img.size <= allowed_pdf_size) {
+            console.log("img", img);
+            
+            if(doctext == "gst_upload"){
+                console.log("Photo log uploaded")  
+                gst_img = img.name;
+            }
+            else if(doctext == "cheque_upload"){
+            cheque_img = img.name;
+            }
+            var reader = new FileReader();
+            reader.readAsDataURL(img);
+            reader.onload = function () {
+            file_data = reader.result;
+            console.log("reader",reader.result);
+            
+            if(doctext == "gst_upload"){
+                gst_data = reader.result;
+                // console.log("photo_data",reader.result);
+                toast_text = "Photo Uploaded Successfully";
+                toast_type = "success";
+            }
+            else if(doctext == "cheque_upload"){
+                cheque_data = reader.result;
+                toast_text = "Document Uploaded Successfully";
+                toast_type = "success";
+            }
+            }
+                reader.onerror = function (error) {
+                console.log("Error: ", error);
+                }
+        }
+        else {
+        alert(
+            "File size is greater than " +
+                Number(allowed_pdf_size / 1048576) +
+                "MB. Please upload a file less than " +
+                Number(allowed_pdf_size / 1048576) +
+                "MB ."
+        );
+    };
+        
+    }
+    
+    async function cheque_button_click() {
+        // show_spinner = true;
+        let new_cheque_date = new Date(cheque_date)
+        if(!bank_name.match(text_pattern)){
+        bank_name_message = "Invalid Bank Name";
+        return
+        }
+        if(!type){
+            type_message = "Invalid type";
+            return;
+        }
+        if(!cheque_date){
+            cheque_date_message = "Invalid Cheque Date";
+            return;
+        }
+        if(!cheque_number || isNaN(cheque_number)){
+            cheque_number_message = "Invalid Cheque Number";
+            return;
+        }
+        if(!amount || isNaN(amount)){
+            amount_message = "Invalid Amount";
+            return;
+            
+        }
+        
+        if(!checkupload){
+            cheque_upload_message = "Invalid Cheque Upload"
+            return;
+        }
+        
+            const cheque_details_form = {
+                bank_name,
+                type,
+                cheque_date:(get_date_format(new_cheque_date,"yyyy-mm-dd")),
+                cheque_number,
+                amount,
+                recrun_number,
+                file_number,
+                file_data,
+                file_name:img_name,
+                facility_id:($facility_id.facility_id_number),
+            };
+            let cheque_add_res = await addnew_cheque_details(cheque_details_form);
+            // console.log("cheque_add_res",cheque_add_res);
+            try{
+                show_spinner = true;
+                if(cheque_add_res.body.status== "green"){
+                    show_spinner = false;
+                    toast_text = "Cheque Details Added Successfully";
+                    toast_type = "success";
+                    let cheque_details_res = await cheque_details();
+                    try{
+                        if(cheque_details_res.body.status == "green" && cheque_details_res != "null"){
+                        
+                        $cheque_data_to_store.cheque_details_data = cheque_details_res.body.data;
+                        
+                        cheque_data_to_store.subscribe((value) => {
+                            cheque_values_from_store = value.cheque_details_data;
+                        });
+                        }
+                        
+                        // cheque_values_from_store=cheque_values_from_store
+                    }
+                    catch(err) {
+                        show_spinner = false;
+                        toast_type = "error";
+                        toast_text = err;
+                        
+                    }
+
+                }
+                else{
+                    show_spinner = false;
+                    toast_text = "Error in Adding Cheque Details";
+                    toast_type = "danger";
+                }
+
+            }
+            catch(err){
+                show_spinner = false;
+                toast_text = "Error in Adding Cheque Details";
+                toast_type = "danger";
+            }
     }
     
     </script>
@@ -476,8 +585,11 @@
                          <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
                          <div class="pl-4 flex items-center">
                              <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
-
+                            {#if can_cheque_obj.can_cheque_name == null}
+                            <p>-</p>
+                            {:else}
                              <p class="detailLbale">{can_cheque_obj.can_cheque_name}</p>
+                             {/if}
                          </div>
                      </div>
                      <div class="userStatus ">
@@ -495,4 +607,607 @@
      </div> 
   
  </div>
+<!-- Cheque Details modal -->
 
+<div class="hidden" id="chequeModel">
+    <div class=" viewDocmodal  " id="modal-id">
+        <div class="bglightcolormodal" />
+        <div class="allDocmodalsuccessbody rounded-lg">
+            <div class="">
+                <div class="viewDocPanmainbodyModal">
+                    <div class="flex justify-between mb-3">
+                        <div class="leftmodalInfo">
+                            <p class="text-lg text-erBlue font-medium  ">
+                                <span class=""> Cheque Details </span>
+                            </p>
+                            <p class="text-sm ">
+                                <span class="font-medium text-lg">
+                                    {$facility_data_store.facility_name}</span
+                                >
+                                <span class="userDesignation">
+                                    - Associate- {$facility_data_store.facility_type}, MHPD - Mulsi
+                                    SP</span
+                                >
+                            </p>
+                        </div>
+                        <div
+                            class="rightmodalclose"
+                            on:click={closechequeDetails}
+                        >
+                            <img src="{$img_url_name.img_name}/blackclose.svg" alt="" />
+                        </div>
+                    </div>
+                    <div class="innermodal">
+                        <hr />
+                        <div class="scrollbar ">
+                            <div class="mainContainerWrapper ">
+                                <div class="DocCardlist ">
+                                    {#if !cheque_values_from_store}
+                                    <p>No Cheque Details found</p>
+                                    {:else}
+                                    {#each cheque_values_from_store as new_cheque}
+                                        <div class="cardDocWrapper ">
+                                            <div
+                                                class="grid grid-cols-2 xs:grid-cols-1 gap-4"
+                                            >
+                                                <div>
+                                                    <div
+                                                        class="grid grid-cols-2 gap-4 mb-1"
+                                                    >
+                                                        <div
+                                                            class="detailLbale"
+                                                        >
+                                                            Bank Name
+                                                        </div>
+                                                        <div class="detailData">
+                                                            {new_cheque.bank_name}
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="grid grid-cols-2 gap-4 mb-1"
+                                                    >
+                                                        <div
+                                                            class="detailLbale"
+                                                        >
+                                                            Cheque Type
+                                                        </div>
+                                                        <div class="detailData">
+                                                            {new_cheque.type}
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="grid grid-cols-2 gap-4 mb-1"
+                                                    >
+                                                        <div
+                                                            class="detailLbale"
+                                                        >
+                                                            Cheque Date
+                                                        </div>
+                                                        <div class="detailData">
+                                                            {new_cheque.cheque_date}
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="grid grid-cols-2 gap-4 mb-1"
+                                                    >
+                                                        <div
+                                                            class="detailLbale"
+                                                        >
+                                                            Cheque Number
+                                                        </div>
+                                                        <div class="detailData">
+                                                            {new_cheque.cheque_number}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <div
+                                                        class="grid grid-cols-2 gap-4 mb-1"
+                                                    >
+                                                        <div
+                                                            class="detailLbale"
+                                                        >
+                                                            Amount
+                                                        </div>
+                                                        <div class="detailData">
+                                                            Rs {new_cheque.amount}
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="grid grid-cols-2 gap-4 mb-1"
+                                                    >
+                                                        <div
+                                                            class="detailLbale"
+                                                        >
+                                                            Recrun Number
+                                                        </div>
+                                                        <div class="detailData">
+                                                            {#if new_cheque.recrun_number == "" || new_cheque.recrun_number == null}
+                                                                <p>-</p>
+                                                            {:else}
+                                                                {new_cheque.recrun_number}
+                                                            {/if}
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="grid grid-cols-2 gap-4 mb-1"
+                                                    >
+                                                        <div
+                                                            class="detailLbale"
+                                                        >
+                                                            View Cheque
+                                                        </div>
+                                                        <div
+                                                            class="userStatus "
+                                                        >
+                                                            <p
+                                                                class="verifyText"
+                                                            >
+                                                                <a
+                                                                    href=""
+                                                                    class="smButton"
+                                                                >
+                                                                    <img
+                                                                        src="{$img_url_name.img_name}/view.png"
+                                                                        alt="cheque img" on:click="{()=>{openViewModel("cheque_disp")}}"
+                                                                    />
+                                                                </a>
+                                                                
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {/each}
+                                    {/if}
+                                </div>
+                                <div class="addDocumentSection ">
+                                    <div class="addSecform hidden">
+                                        <div
+                                            class="addButtonSection my-3 py-16 text-center hidden"
+                                        >
+                                            <div class="updateAction">
+                                                <button class="ErBlueButton"
+                                                    >Add New GST Details</button
+                                                >
+                                            </div>
+                                        </div>
+                                        <div class="my-3 py-4 px-4 ">
+                                            <p class="text-lg font-medium">
+                                                Add new GST details
+                                            </p>
+
+                                            <div
+                                                class="flex  py-1 items-center flex-wrap"
+                                            >
+                                                <div class="light14grey  mb-1">
+                                                    Address
+                                                </div>
+                                                <div class="formInnerGroup">
+                                                    <input
+                                                        class="inputboxpopover"
+                                                        type="text"
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div
+                                                class="flex  py-3 items-center flex-wrap"
+                                            >
+                                                <div class="light14grey mb-1">
+                                                    City
+                                                </div>
+                                                <div class="formInnerGroup ">
+                                                    <select
+                                                        class="inputboxpopover"
+                                                        bind:value={gst_city_select}
+                                                    >
+                                                        <option class="pt-6"
+                                                            >Select</option
+                                                        >
+                                                        {#each city_data as new_city}
+                                                        <option class="pt-6"
+                                                            >{new_city}</option
+                                                        >
+                                                        {/each}
+                                                    </select>
+                                                    <div
+                                                        class="formSelectArrow "
+                                                    >
+                                                        <img
+                                                            src="{$img_url_name.img_name}/selectarrow.png"
+                                                            class="w-5 h-auto"
+                                                            alt=""
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div
+                                                class="flex  py-1 items-center flex-wrap"
+                                            >
+                                                <div class="light14grey  mb-1">
+                                                    GST State
+                                                </div>
+                                                <div class="formInnerGroup">
+                                                    <input
+                                                        class="inputboxpopover"
+                                                        type="text"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div
+                                                class="flex  py-3 items-center flex-wrap"
+                                            >
+                                                <div class="light14grey  mb-1">
+                                                    Upload Document
+                                                </div>
+                                                <div class="formInnerGroup">
+                                                    <label
+                                                        class="cursor-pointer flex"
+                                                    >
+                                                        <div
+                                                            class="ErBlueButton"
+                                                        >
+                                                            Select File
+                                                        </div>
+                                                        <input
+                                                            type="file"
+                                                            class="hidden"
+                                                        />
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            <div
+                                                class="flex items-center justify-end mt-5"
+                                            >
+                                                <div
+                                                    class="updateAction text-erBlue"
+                                                >
+                                                    Cancel
+                                                </div>
+                                                <div class="updateAction ml-5">
+                                                    <button class="ErBlueButton"
+                                                        >Upload</button
+                                                    >
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        class=" bg-lighterGrey rounded-lg h-full"
+                                    >
+                                        {#if temp6 == "cheque"}
+                                            <div
+                                                class="addButtonSection my-3 py-3  text-center"
+                                            >
+                                                <div
+                                                    class="updateAction mt-5"
+                                                    on:click={() => {
+                                                        temp6 = "cheque-2";
+                                                    }}
+                                                >
+                                                    <button class="ErBlueButton"
+                                                        >Add New Cheque Details</button
+                                                    >
+                                                </div>
+                                            </div>
+                                        {/if}
+
+                                        {#if temp6 == "cheque-2"}
+                                            <div class="my-0 py-4 px-4 ">
+                                                <div
+                                                    class="h-80 max-h-80 overflow-y-scroll pr-4 border-b-2"
+                                                >
+                                                    <p
+                                                        class="text-lg font-medium"
+                                                    >
+                                                        Add New Cheque Details
+                                                    </p>
+
+                                                    <div
+                                                        class="flex  py-3 items-center flex-wrap"
+                                                    >
+                                                        <div
+                                                            class="light14grey mb-1"
+                                                        >
+                                                            Bank Name
+                                                        </div>
+                                                        <div
+                                                            class="formInnerGroup "
+                                                        >
+                                                            <!-- <select class="inputboxpopover">
+                                                            <option class="pt-6">Select</option>
+                                                        </select> -->
+                                                            <input
+                                                                type="text"
+                                                                class="inputboxpopover"
+                                                                bind:value={bank_name}
+                                                            />
+                                                            <div class="text-red-500">{bank_name_message}</div>
+                                                            <div
+                                                                class="formSelectArrow "
+                                                            >
+                                                                <img
+                                                                    src="{$img_url_name.img_name}/selectarrow.png"
+                                                                    class="w-5 h-auto"
+                                                                    alt=""
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="flex  py-3 items-center flex-wrap"
+                                                    >
+                                                        <div
+                                                            class="light14grey mb-1"
+                                                        >
+                                                            Cheque Type
+                                                        </div>
+                                                        <div
+                                                            class="formInnerGroup "
+                                                        >
+                                                            <!-- <select class="inputboxpopover">
+                                                            <option class="pt-6">Select</option>
+                                                        </select> -->
+                                                            <select
+                                                                class="inputboxpopover"
+                                                                bind:value={type}
+                                                            >
+                                                                <option
+                                                                    value="-1"
+                                                                    >Select</option
+                                                                >
+                                                                <option
+                                                                    value="Crossed Cheque"
+                                                                    >Crossed
+                                                                    Cheque</option
+                                                                >
+                                                                <option
+                                                                    value="Bearer Cheque"
+                                                                    >Bearer
+                                                                    Cheque</option
+                                                                >
+                                                                <option
+                                                                    value="Order Cheque"
+                                                                    >Order
+                                                                    Cheque</option
+                                                                >
+                                                                <option
+                                                                    value="Open cheque"
+                                                                    >Open cheque</option
+                                                                >
+                                                                <option
+                                                                    value="Post-Dated Cheque"
+                                                                    >Post-Dated
+                                                                    Cheque</option
+                                                                >
+                                                                <option
+                                                                    value="Stale Cheque"
+                                                                    >Stale
+                                                                    Cheque</option
+                                                                >
+                                                                <option
+                                                                    value="Self Cheque"
+                                                                    >Self Cheque</option
+                                                                >
+                                                                <option
+                                                                    value="Banker’s Cheque"
+                                                                    >Banker’s
+                                                                    Cheque</option
+                                                                >
+                                                            </select>
+                                                            <div class="text-red-500">{type_message}</div>
+                                                            <div
+                                                                class="formSelectArrow "
+                                                            >
+                                                                <img
+                                                                    src="{$img_url_name.img_name}/selectarrow.png"
+                                                                    class="w-5 h-auto"
+                                                                    alt=""
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="flex  py-3 items-center flex-wrap"
+                                                    >
+                                                        <div
+                                                            class="light14grey mb-1"
+                                                        >
+                                                            Cheque Date
+                                                        </div>
+                                                        <div
+                                                            class="formInnerGroup "
+                                                        >
+                                                            <!-- <select class="inputboxpopover">
+                                                            <option class="pt-6">Select</option>
+                                                        </select> -->
+                                                            <DateInput
+                                                                class="inputboxpopover"
+                                                                placeholder="Cheque Date"
+                                                                format="dd/MM/yyyy"
+                                                                bind:value={cheque_date}
+                                                            />
+                                                            <div class="text-red-500">{cheque_date_message}</div>
+
+                                                            <div
+                                                                class="formSelectArrow "
+                                                            >
+                                                                <img
+                                                                    src="{$img_url_name.img_name}/selectarrow.png"
+                                                                    class="w-5 h-auto"
+                                                                    alt=""
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="flex  py-1 items-center flex-wrap"
+                                                    >
+                                                        <div
+                                                            class="light14greylong  mb-1"
+                                                        >
+                                                            Cheque Number
+                                                        </div>
+                                                        <div
+                                                            class="formInnerGroup"
+                                                        >
+                                                            <input
+                                                                class="inputboxpopover"
+                                                                type="text"
+                                                                bind:value={cheque_number}
+                                                            />
+                                                            <div class="text-red-500">{cheque_number_message}</div>
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="flex  py-1 items-center flex-wrap"
+                                                    >
+                                                        <div
+                                                            class="light14greylong  mb-1"
+                                                        >
+                                                            Amount
+                                                        </div>
+                                                        <div
+                                                            class="formInnerGroup"
+                                                        >
+                                                            <input
+                                                                class="inputboxpopover"
+                                                                type="text"
+                                                                bind:value={amount}
+                                                            />
+                                                            <div class="text-red-500">{amount_message}</div>
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="flex  py-1 items-center flex-wrap"
+                                                    >
+                                                        <div
+                                                            class="light14greylong  mb-1"
+                                                        >
+                                                            Recrun Number
+                                                        </div>
+                                                        <div
+                                                            class="formInnerGroup"
+                                                        >
+                                                            <input
+                                                                class="inputboxpopover"
+                                                                type="text"
+                                                                bind:value={recrun_number}
+                                                            />
+                                                            <div class="text-red-500">{recrun_number_message}</div>
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="flex  py-1 items-center flex-wrap"
+                                                    >
+                                                        <div
+                                                            class="light14greylong  mb-1"
+                                                        >
+                                                            File Number
+                                                        </div>
+                                                        <div
+                                                            class="formInnerGroup"
+                                                        >
+                                                            <input
+                                                                class="inputboxpopover"
+                                                                type="text"
+                                                                bind:value={file_number}
+                                                            />
+                                                            <div class="text-red-500">{file_number_message}</div>
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="flex  py-3 items-center flex-wrap"
+                                                    >
+                                                        <div
+                                                            class="light14greylong  mb-1"
+                                                        >
+                                                            Upload Cheque
+                                                        </div>
+                                                        <div
+                                                            class="formInnerGroup"
+                                                        >
+                                                            <label
+                                                                class="cursor-pointer flex"
+                                                            >
+                                                                <div
+                                                                    class="ErBlueButton"
+                                                                >
+                                                                    Select File
+                                                                </div>
+                                                                <!-- <input type="file" class="hidden"  bind:value={upload_cheque}> -->
+                                                                <input
+                                                                    type="file"
+                                                                    class="hidden"
+                                                                    on:change={(
+                                                                        e
+                                                                    ) =>
+                                                                        onFileSelected(
+                                                                            e,"cheque_upload"
+                                                                        )}
+                                                                        bind:value = "{checkupload}"
+                                                                />
+                                                                <div class="text-red-500">{cheque_upload_message}</div>
+                                                            </label>
+                                                            <p>{cheque_img}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div
+                                                    class="flex items-center justify-end mt-5"
+                                                >
+                                                    <div
+                                                        class="updateAction text-erBlue"
+                                                        on:click={() => {
+                                                            temp6 = "cheque";
+                                                        }}
+                                                    >
+                                                        Cancel
+                                                    </div>
+                                                    <div
+                                                        class="updateAction ml-5"
+                                                    >
+                                                        <button
+                                                            class="ErBlueButton"
+                                                            on:click={cheque_button_click}
+                                                            >Submit</button
+                                                        >
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {/if}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Document view Model -->
+<div id="img_model" tabindex="-1" aria-hidden="true" role ="dialog" class=" actionDialogueOnboard" hidden>
+    <div class="pancardDialogueOnboardWrapper ">
+        <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+            <div class="flex justify-end p-2">
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel()}}">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
+                </button>
+            </div>
+            <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+                
+                <img src="" id="img_model_url" class="mx-auto" alt="{alt_image}">
+                
+                <div class="pt-3 flex justify-center">
+                    <button data-modal-toggle="popup-modal" type="button" class="dialogueNobutton"  on:click="{()=>{closeViewModel()}}">Close</button>
+            </form>
+        </div>
+    </div>
+</div> 
+<!-- Document view Model -->

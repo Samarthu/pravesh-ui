@@ -1,153 +1,94 @@
 
      <script>
-        // import { Router, Link, Route } from "svelte-routing";
-        //     import Catagory from "../catagory.svelte";
-        //     import { goto } from "$app/navigation";
-        //     import Breadcrumb from "./breadcrumb.svelte";
+        
             import { onMount } from "svelte";
-        //     import { DateInput, DatePicker } from "date-picker-svelte";
             import { bank_data_to_store,cheque_data_to_store } from "../../stores/onboardsummary_store";
-        //     import { allowed_pdf_size } from "../services/pravesh_config";
-        //     // import { addnew_cheque_details } from "../services/onboardsummary_services";
-        //     // import { facility_document } from "../services/onboardsummary_services";
-        //     import { audit_trail_data } from "../services/supplier_services";
-            // import { facility_data,facility_bgv_init,facility_bgv_check,all_facility_tags,
-            //         show_fac_tags,submit_fac_tag_data,remove_tag,tag_audit_trail,service_vendor,
-            //         get_loc_scope,client_details,erp_details,child_data,add_gst_dets,
-            //         facility_document,addnew_cheque_details,bank_details,cheque_details,gst_details} from "../../services/onboardsummary_services";
-        //     import {uploadDocs} from "../services/bgv_services";
-        //     import {get_date_format} from "../services/date_format_servives";
+        
+            import {get_date_format} from "../../services/date_format_servives";
             import {bank_details,cheque_details,facility_document,show_fac_tags,get_loc_scope,
-                facility_data,facility_bgv_init,all_facility_tags,gst_details} from "../../services/onboardsummary_services";
+                facility_data,facility_bgv_init,all_facility_tags,gst_details,client_details,add_gst_dets} from "../../services/onboardsummary_services";
             import {img_url_name} from '../../stores/flags_store';
             import {facility_id} from "../../stores/facility_id_store"
             import {facility_data_store} from "../../stores/facility_store";
-        //     import {bgv_config_store} from '../stores/bgv_config_store'
-        //     import Toast from './components/toast.svelte';
-        //     import AssociateDetails from './components/associateDetailsComponent.svelte';
-        //     import BankDetails from './components/bankDetailsComponent.svelte';
-        //     import IdentityProof from './components/identityProofComponent.svelte';
-        //     import WorkDetails from './components/workDetailsComponent.svelte';
-        //     import { object_without_properties } from "svelte/internal";
-        //     import { paginate, LightPaginationNav } from "svelte-paginate";
+            import { paginate, LightPaginationNav } from "svelte-paginate";
             import Spinner from "./spinner.svelte";
             import {logged_user} from '../../services/supplier_services';
             // import  {  page } from '$app/stores';
             import { page } from '$app/stores';
             import {documents_store} from '../../stores/document_store';
             import { goto } from "$app/navigation";
-            // import {onFileSelected} from '../onboardsummaryComponent.svelte'
-        
+            import { allowed_pdf_size } from "../../services/pravesh_config";
+            import {uploadDocs} from "../../services/bgv_services";
+
             let show_spinner = false;
             let toast_text;
             let toast_type;
             let routeNext = "";
             let routeBgv = "";
-        //     let temp = "Add";
-        //     let temp1 = "change";
             let temp2 = "gst1";
-        //     let temp3 = "e-contracts";
-        //     let temp4 = "p-contracts-1";
-        //     let temp5 = "newMap";
-        //     let temp6 = "cheque";
-        //     let child = "linkchild";
-        //     let childlink = "childlink"; 
-        //     let asso_active = "active";
-        //     let work_active = "";
-        //     let id_active ="";
-        //     let bank_active = "";
-        //     let bank_values_from_store = [];
-        //     let cheque_values_from_store = [];
-        //     let audit_details_array = [];
-        //     let facility_document_data = [];
-        //     let all_tags_data= [];
+            let child = "linkchild";
+            let childlink = "childlink"; 
             let all_tags_obj= {};
-        //     let show_fac_array = [];
-        //     let tag_data_arr = [];
-        //     let show_creation_date;
-        //     let child_select;
-        //     let child_list=[];
-        //     let check_val,query;
         let query;
-        //     let tags_for_ass_arr=[];
-        //     let check_selected;
-        //     let id_new_date='';
-        //     let username;
+            let tags_for_ass_arr=[];
+            let check_selected;
+            let id_new_date='';
             let all_tags_res;
-        //     let pancard_obj = {
-        //         pan_num:null,
-        //         pan_attach:null,
-        //         pan_name:null,
-        //         pan_verified:null,
-        //         pan_rejected:null
-        //     }
-        //     let aadhar_obj = {
-        //         aadhar_num:null,
-        //         aadhar_attach:null,
-        //         aadhar_name:null,
-        //         aadhar_verified:null,
-        //         aadhar_rejected:null
-        //     }
-            let fac_photo_obj = {
+            export let fac_photo_obj = {
                 profile_url:null,
                 profile_verified:null,
                 profile_rejected:null
             }
-            let addproof_obj = {
+            export let addproof_obj = {
                 address_name:null,
                 address_url:null,
                 address_verified:null,
                 address_rejected:null
             };
-        //     let can_cheque_obj = {
-        //         can_cheque_name:null,
-        //         can_cheque_url:null,
-        //         can_cheque_verified:null,
-        //         can_cheque_rejected:null
-        //     };
-        //     let dl_photo_obj = {
-        //         dl_lic_name:null,
-        //         dl_lic_url:null,
-        //         dl_verified:null,
-        //         dl_rejected:null
-        //     };
-        //     let new_off_file_obj = {
-        //         offer_name:null,
-        //         offer_url:null,
-        //         offer_verified:null,
-        //         offer_rejected:null
-        //     };
-            let gst_doc_obj = {
+        export let gst_doc_obj = {
                 gst_name:null,
                 gst_url:null,
                 gst_doc_num:null,
                 gst_verified:null,
                 gst_rejected:null
             };
+        export let pancard_obj = {
+                pan_num:null,
+                pan_attach:null,
+                pan_name:null,
+                pan_verified:null,
+                pan_rejected:null
+    }
         
-        //     let text_pattern = /^[a-zA-Z_ ]+$/;
+        
+            let text_pattern = /^[a-zA-Z_ ]+$/;
         //     let recrun_pattern =  /^[^-\s](?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9 _-]+)$/;
             let city_select;
             let city_select_flag=0;
+            let cheque_data;
         //     let img_name="",bank_name="-",type ="",cheque_date,cheque_number="-",amount="",
         //     recrun_number="",file_number = "";
         //     let bank_name_message ="",type_message="",cheque_date_message="",cheque_number_message=""
         //     ,amount_message="",recrun_number_message="",file_number_message="",cheque_upload_message="";
         //     let child_box;
-        let facility_created_date,bank_details_res;
+        export let facility_created_date;
+        let bank_details_res;
         //     let bank_details_res,bank_new_date,
         //     facility_modified_date,facility_created_date,facility_doc_date;
         //     // let client_det_res;
-        //     let client_det_arr=[];
-            let gst_doc_arr=[];
+        let facility_doc_date,facility_modified_date;
+            let client_det_arr=[];
+            export let gst_doc_arr;
         //     // $: cheque_date = new Date();
-        //     let file_data;
+            let file_data;
             let showbtn = 0;
         //     let selectTag,addRemark,selectsearch;
-        let facility_address,facility_postal,facility_password;
-        let city;
+        export let facility_address;
+        export let facility_password;
+        export let city;
+        export let facility_postal;
         //     let facility_address,facility_postal,facility_password,city,location_id,status_name;
-        //     let new_fac_remarks = [];
+            let new_fac_remarks = [];
         //     let select_tag_data,serv_ch_data;
         //     let total_pages;
         //     let pages=[];
@@ -163,16 +104,18 @@
         //     let mapped_pages = [];
         //     let hidden_field ="hidden";
             let gst_city_link_state="";
-        //     let gst_state_code = "";
-        //     let gst_city_loc_id="";
+            let gst_state_code = "";
+            let gst_city_loc_id="";
         //     export let url = "";
         //     /////////////////////svelte plugin pagiantion//////////
-        //     let items;
-        //     let currentPage = 1;
-        //     let pageSize = 10;
-        //     let paginatedItems=[];
+            let items;
+            let currentPage = 1;
+            let pageSize = 10;
+            let paginatedItems=[];
         //     let change_to = "Associate_details";
         //     //////GST vars////////////
+            let username;
+            
             let gst_address=""
             let gst_city_select=""
             let gst_number=""
@@ -182,7 +125,7 @@
             let gst_city_message ="";
             let gst_add_message = "";
             let gst_img = "";
-        //     let gst_data="";
+            let gst_data="";
             let gst_checkbox = false;
             let gst_details_data=[];
         // ///////Document view Model/////////
@@ -205,6 +148,7 @@
                 if(city_select != null && $facility_id.facility_id_number != null){
                 console.log("citySelect",city_select);
                 link_child(city_select)
+
                 }
             }
             let searchTerm;
@@ -224,89 +168,140 @@
             }
 
     onMount(async () => {
-        let facility_data_res = await facility_data();
-        try{
-            if(facility_data_res != "null"){
-              
-        facility_data_store.set(
-            JSON.parse(JSON.stringify(facility_data_res.body.data[0]))
         
-        )
 
-        duplicate_facility_data_store.set(
-            JSON.parse(JSON.stringify(facility_data_res.body.data[0]))
-        )
+    //     let facility_data_res = await facility_data();
+    //     try{
+    //         if(facility_data_res != "null"){
+    //     let id_date_format = new Date($facility_data_store.details_updated_on);
+    //     id_new_date = get_date_format(id_date_format,"dd-mm-yyyy-hh-mm");
         
-        let id_date_format = new Date($facility_data_store.details_updated_on);
-        id_new_date = get_date_format(id_date_format,"dd-mm-yyyy-hh-mm");
+    //     // new_fac_remarks = $facility_data_store.remarks.split("\n");
+       
         
-        new_fac_remarks = $facility_data_store.remarks.split("\n");
-        // console.log("new_fac_remarks",new_fac_remarks)
+    //     let new_facility_date_format = new Date($facility_data_store.creation);
+    //     facility_created_date = get_date_format(new_facility_date_format,"dd-mm-yyyy-hh-mm");
         
-        let new_facility_date_format = new Date($facility_data_store.creation);
-        facility_created_date = get_date_format(new_facility_date_format,"dd-mm-yyyy-hh-mm");
+    //     console.log("facility_created_date",facility_created_date)
+    //     let new_doc_date_format = new Date($facility_data_store.creation);
+    //     facility_doc_date =get_date_format(new_doc_date_format,"dd-mm-yyyy-hh-mm");
         
-        let new_doc_date_format = new Date($facility_data_store.creation);
-        facility_doc_date =get_date_format(new_doc_date_format,"dd-mm-yyyy-hh-mm");
-        
-        let facility_date_format = new Date($facility_data_store.modified);
-        facility_modified_date = get_date_format(facility_date_format,"dd-mm-yyyy-hh-mm");
+    //     let facility_date_format = new Date($facility_data_store.modified);
+    //     facility_modified_date = get_date_format(facility_date_format,"dd-mm-yyyy-hh-mm");
         
         
 
-            if($facility_data_store.status.includes("Rejected")){
+    //         if($facility_data_store.status.includes("Rejected")){
                
-                $facility_data_store.status = "Rejected";
-                status_name = $facility_data_store.status;
-            }
-            if ($facility_data_store.password == "") {
-                facility_password = "-";
-            }
-            for (var j = 0;j < $facility_data_store.addresess.length;j++){
-                for(let k=0;k<scope_data.length;k++){
-                    if($facility_data_store.addresess[j].state == scope_data[k].location_state){
-                        gst_doc_type[j] = "gst-certificate-" + scope_data[k].state_code;
-                    }
-                }
-                gst_doc_type=gst_doc_type
+    //             $facility_data_store.status = "Rejected";
+    //             status_name = $facility_data_store.status;
+    //         }
+    //         if ($facility_data_store.password == "") {
+    //             facility_password = "-";
+    //         }
+    //         for (var j = 0;j < $facility_data_store.addresess.length;j++){
+    //             for(let k=0;k<scope_data.length;k++){
+    //                 if($facility_data_store.addresess[j].state == scope_data[k].location_state){
+    //                     gst_doc_type[j] = "gst-certificate-" + scope_data[k].state_code;
+    //                 }
+    //             }
+    //             gst_doc_type=gst_doc_type
                 
-                if ($facility_data_store.addresess[j].default_address == "1") {
-                    facility_address =$facility_data_store.addresess[j].address;
-                    facility_postal =$facility_data_store.addresess[j].postal;
-                    city = $facility_data_store.addresess[j].city;
-                    location_id = $facility_data_store.addresess[j].location_id;
+    //             if ($facility_data_store.addresess[j].default_address == "1") {
+    //                 facility_address =$facility_data_store.addresess[j].address;
+    //                 facility_postal =$facility_data_store.addresess[j].postal;
+    //                 city = $facility_data_store.addresess[j].city;
+    //                 location_id = $facility_data_store.addresess[j].location_id;
 
-                }
-            }
-            
-            for (var i = 0; i < facility_document_data.length; i++) {
-                for(let j=0; j<gst_doc_type.length;j++){
-                    if(facility_document_data[i].doc_type == gst_doc_type[j]){
-                        gst_doc_obj = {gst_name : facility_document_data[i].file_name,
-                            gst_url : facility_document_data[i].file_url,
-                            gst_doc_num : facility_document_data[i].doc_number,
-                            gst_verified : facility_document_data[i].verified,
-                            gst_rejected : facility_document_data[i].rejected};
-                        
-                        
-                        // var gst_name = facility_document_data[i].file_name;
-                        // var gst_url = facility_document_data[i].file_url;
-                        // var gst_doc_num = facility_document_data[i].doc_number;
-                        // gst_verified = facility_document_data[i].verified;
-                        // gst_rejected = facility_document_data[i].rejected;
-                        gst_doc_arr.push({"gst_name":gst_doc_obj.gst_name,"gst_url":gst_doc_obj.gst_url,"gst_doc_num":gst_doc_obj.gst_doc_num});
-                    }
-                }
-            }
-            gst_doc_arr=gst_doc_arr;
-            console.log("gst_doc_arr",gst_doc_arr)
-        }
-    }
-    catch(err) {
-        toast_type = "error";
-        toast_text = facility_data_res.body.message;
+    //             }
+    //         }
+    //     }
+    // }
+    // catch(err){
+    //     console.log("error",err)
+    // }
+
+    //     let facility_data_res = await facility_data();
+    //     try{
+    //         if(facility_data_res != "null"){
+              
+    //     facility_data_store.set(
+    //         JSON.parse(JSON.stringify(facility_data_res.body.data[0]))
         
+    //     )
+    //         for (var j = 0;j < $facility_data_store.addresess.length;j++){
+    //             for(let k=0;k<scope_data.length;k++){
+    //                 if($facility_data_store.addresess[j].state == scope_data[k].location_state){
+    //                     gst_doc_type[j] = "gst-certificate-" + scope_data[k].state_code;
+    //                 }
+    //             }
+    //             gst_doc_type=gst_doc_type
+                
+    //             if ($facility_data_store.addresess[j].default_address == "1") {
+    //                 facility_address =$facility_data_store.addresess[j].address;
+    //                 facility_postal =$facility_data_store.addresess[j].postal;
+    //                 city = $facility_data_store.addresess[j].city;
+    //                 location_id = $facility_data_store.addresess[j].location_id;
+
+    //             }
+    //         }
+            
+    //         for (var i = 0; i < facility_document_data.length; i++) {
+    //             for(let j=0; j<gst_doc_type.length;j++){
+    //                 if(facility_document_data[i].doc_type == gst_doc_type[j]){
+    //                     gst_doc_obj = {gst_name : facility_document_data[i].file_name,
+    //                         gst_url : facility_document_data[i].file_url,
+    //                         gst_doc_num : facility_document_data[i].doc_number,
+    //                         gst_verified : facility_document_data[i].verified,
+    //                         gst_rejected : facility_document_data[i].rejected};
+                        
+                        
+    //                     // var gst_name = facility_document_data[i].file_name;
+    //                     // var gst_url = facility_document_data[i].file_url;
+    //                     // var gst_doc_num = facility_document_data[i].doc_number;
+    //                     // gst_verified = facility_document_data[i].verified;
+    //                     // gst_rejected = facility_document_data[i].rejected;
+    //                     gst_doc_arr.push({"gst_name":gst_doc_obj.gst_name,"gst_url":gst_doc_obj.gst_url,"gst_doc_num":gst_doc_obj.gst_doc_num});
+    //                 }
+    //             }
+    //         }
+    //         gst_doc_arr=gst_doc_arr;
+    //         console.log("gst_doc_arr",gst_doc_arr)
+    //         console.log("gst_doc_arr",gst_doc_arr.gst_doc_num)
+    //     }
+    // }
+    // catch(err) {
+    //     toast_type = "error";
+    //     toast_text = facility_data_res.body.message;
+        
+    //     }
+        let loc_data_res =  await get_loc_scope();
+        try {
+        if(loc_data_res.body.status == "green"){
+             for(let i=0;i<loc_data_res.body.data.length;i++){
+                city_data.push(loc_data_res.body.data[i].location_name);
+                scope_data.push(loc_data_res.body.data[i]);
+                
+            }
+            city_data = city_data;
+            scope_data = scope_data;
+            
+            for(let i=0;i<scope_data.length;i++){
+                gst_city_link_state = scope_data[i].location_state;
+                gst_city_loc_id = scope_data[i].location_id;
+                gst_state_code = scope_data[i].state_code;
+            }
         }
+        else{
+            toast_type = "error";
+            toast_text = "No City Data";
+        }
+        
+    } catch(err) {
+        toast_type = "error";
+        toast_text = loc_data_res.body.message;
+       
+    }
     });
             
         function editWorkDetail() {
@@ -318,6 +313,7 @@
         let gst_details_res = await gst_details();
         try{
             if(gst_details_res != "null"){
+                gst_details_data=[];
                 for(let i=0;i < gst_details_res.body.data.length;i++){
                     gst_details_data.push(gst_details_res.body.data[i]);
                 }
@@ -336,7 +332,7 @@
         modalidgst.style.display = "none";
     }
     async function gst_edit_click(address,city,state,gstn,gst_url,gst_name){
-        // console.log("gst_edit_click",address,city,state,gstn,gst_url,gst_name);
+        console.log("gst_edit_click",address,city,state,gstn,gst_url,gst_name);
         if(temp2 != "gst2"){
             temp2 = "gst2";
         }
@@ -352,6 +348,8 @@
     }
 
     async function gst_submit_click(){
+        let gst_doc_submit_res;
+        let gst_add_res;
         let def_add = 0;
         // show_spinner = true;
         if(!gst_address.match(text_pattern)){
@@ -396,28 +394,13 @@
             }
             console.log("new_gst_payload",new_gst_payload)
             
-            let gst_add_res = await add_gst_dets(new_gst_payload);
+            gst_add_res = await add_gst_dets(new_gst_payload);
             try {
                 if(gst_add_res.body.status == "green"){
                     console.log("gst_add_res",gst_add_res)
                     toast_type = "success";
                     toast_text = "GST Details Added Successfully";
                     
-                    let new_doc_type = "gst-certificate-"+gst_state_code;
-                    console.log("new_doc_type",new_doc_type)
-                    const gst_file_data = {"documents":[{"file_name":gst_img,"doc_category":"GST Certificate","status":"created","resource_id":$facility_id.facility_id_number,"user_id":username,"doc_number":"","pod":gst_data,"doc_type":new_doc_type,"facility_id":$facility_data_store.facility_id}]}
-                    let gst_doc_submit_res = await uploadDocs(gst_file_data);
-                    try {
-                        if(gst_doc_submit_res.body.status == "green"){
-                            
-                            toast_type = "success";
-                            toast_text = "GST Document Added Successfully";
-                        }
-                    } catch (err) {
-                        toast_type = "error";
-                        toast_text = "Error in Uploading GST Certificate";
-                    }
-
                 }
                 else{
                     toast_type = "error";
@@ -428,11 +411,79 @@
                 toast_type = "error";
                 toast_text = "Error in Adding GST Details";
             }
-        }  
+            let new_doc_type = "gst-certificate-"+gst_state_code;
+                    console.log("new_doc_type",new_doc_type)
+                    const gst_file_data = {"documents":[{"file_name":gst_img,"doc_category":"GST Certificate","status":"created","resource_id":$facility_id.facility_id_number,"user_id":username,"doc_number":"","pod":gst_data,"doc_type":new_doc_type,"facility_id":$facility_data_store.facility_id}]}
+                    gst_doc_submit_res = await uploadDocs(gst_file_data);
+                    try {
+                        if(gst_doc_submit_res.body.status == "green"){
+                                    
+                                    toast_type = "success";
+                                    toast_text = "GST Document Added Successfully";
+                        }
+                    } catch (err) {
+                        toast_type = "error";
+                        toast_text = "Error in Uploading GST Certificate";
+                    }
+            if(gst_doc_submit_res.body.status == "green" && gst_add_res.body.status=="green"){
+                let gst_details_res = await gst_details();
+                try{
+                    if(gst_details_res != "null"){
+                        gst_details_data=[];
+                        for(let i=0;i < gst_details_res.body.data.length;i++){
+                            gst_details_data.push(gst_details_res.body.data[i]);
+                        }
+                        gst_details_data=gst_details_data;
+                        console.log("gst_details_data",gst_details_data)
+                    }
+                    
+                }
+                catch(err) {
+                    toast_type = "error";
+                    toast_text = gst_details_res.body.message;
+                    
+                }
+            }  
+            17}
+            
     async function linkChild() {
         let no_com = document.getElementById("comma");
-        console.log("no_com",no_com)
         linkChildModel.style.display = "block";
+    }
+    async function child_select_fun(){
+        
+        var rows = document.getElementById("check_tbody")[0].rows;
+            for(var i=0;i<rows.length;i++){
+                console.log("check_sel_id inside")
+            }
+    }
+    async function link_child(data){
+        
+        show_spinner = true;
+        let client_det_res = await client_details(data);
+        try{
+            if(client_det_res.body.status == "green"){
+                show_spinner = false;
+                for(let i=0;i<client_det_res.body.data.length;i++){
+                    for(let j=0;j<client_det_res.body.data.length;j++){
+                    client_det_arr.push(client_det_res.body.data[j]);
+                    }
+                }
+                client_det_arr=client_det_arr;
+                items = client_det_arr;
+                
+                paginatedItems = paginate({ items, pageSize, currentPage })
+            }
+            else{
+                show_spinner = false;
+            }
+        }
+        catch(err){
+            show_spinner = false;
+            toast_type = "error";
+            toast_text = err;
+        }
+        
     }
 
     function linkChildModelclose() {
@@ -478,6 +529,7 @@
                 alt_image = "gst proof";
             }
         }
+        
         
     }
 
@@ -538,7 +590,51 @@
         }
         paginatedItems = searchArray;
     }
-
+    const onFileSelected = (e,doctext) => {
+        let img = e.target.files[0];
+        if (img.size <= allowed_pdf_size) {
+            console.log("img", img);
+            
+            if(doctext == "gst_upload"){
+                console.log("Photo log uploaded")  
+                gst_img = img.name;
+            }
+            else if(doctext == "cheque_upload"){
+            cheque_img = img.name;
+            }
+            var reader = new FileReader();
+            reader.readAsDataURL(img);
+            reader.onload = function () {
+            file_data = reader.result;
+            console.log("reader",reader.result);
+            
+            if(doctext == "gst_upload"){
+                gst_data = reader.result;
+                // console.log("photo_data",reader.result);
+                toast_text = "Photo Uploaded Successfully";
+                toast_type = "success";
+            }
+            else if(doctext == "cheque_upload"){
+                cheque_data = reader.result;
+                toast_text = "Document Uploaded Successfully";
+                toast_type = "success";
+            }
+            }
+                reader.onerror = function (error) {
+                console.log("Error: ", error);
+                }
+        }
+        else {
+        alert(
+            "File size is greater than " +
+                Number(allowed_pdf_size / 1048576) +
+                "MB. Please upload a file less than " +
+                Number(allowed_pdf_size / 1048576) +
+                "MB ."
+        );
+    };
+        
+    }
     
     </script>
         {#if show_spinner}
@@ -791,7 +887,7 @@
              <div class="contact_details">
                  <div class="userInfoSec3">
                      <div class="flex items-start">
-                         <img src="{$img_url_name.img_name}/gst.png" alt="">
+                         <img src="{$img_url_name.img_name}/organization.png" alt="">
                          <div class="pl-4">
                              <p class="detailLbale">Link Child Associate</p>
                              <!-- <p class="detailData">2</p> -->
@@ -917,6 +1013,7 @@
                                                             </a>
                                                         </p>
                                                     </div>
+                                                    <!-- <p>{gst_doc_arr}</p> -->
                                                     <div class="pl-2">
                                                         <p
                                                             class="detailLbale mb-2"
@@ -1323,3 +1420,324 @@
         </div>
     </div>
 </div>
+<!-- Link Child Associates modal -->
+
+<div class="hidden" id="linkChildModel">
+    <div class=" viewDocmodal  " id="modal-id">
+        <div class="bglightcolormodal" />
+        <div class="allDocmodalsuccessbody rounded-lg">
+            <div class="">
+                <div class="viewDocPanmainbodyModal">
+                    <div class="flex justify-between mb-3">
+                        <div class="leftmodalInfo">
+                            <p class="text-lg text-erBlue font-medium  ">
+                                <span class=""> View/Edit Client Name</span>
+                            </p>
+                            <p class="text-sm ">
+                                <span class="font-medium text-lg">
+                                    {$facility_data_store.facility_name}</span
+                                >
+                                <span class="userDesignation">
+                                    - Associate- {$facility_data_store.facility_type}, MHPD - Mulsi
+                                    SP</span
+                                >
+                            </p>
+                        </div>
+                        <div
+                            class="rightmodalclose"
+                            on:click={linkChildModelclose}
+                        >
+                            <img src="{$img_url_name.img_name}/blackclose.svg" alt="" />
+                        </div>
+                    </div>
+                    <div class="innermodal">
+                        <hr />
+                        <div class="scrollbar ">
+                            <div class="mainContainerWrapper ">
+                                <div class="DocCardlist ">
+                                    <div
+                                        class="bg-bglightyellow py-2 px-3 mt-2 "
+                                    >
+                                        <div class="flex items-center">
+                                            <div class="detailLbale">
+                                                Tags added for this Associate
+                                                <span class="detailData " id="rem_comma">
+                                                    <!-- <p>{show_fac_array}</p> -->
+                                                    <!-- {#each show_fac_array as show_fac}
+                                                       {show_fac.tag_name}
+                                                    {/each} -->
+                                                    {#each tags_for_ass_arr as show_fac}
+                                                    {show_fac}
+                                                    {/each}
+                                                    </span
+                                                >
+                                            </div>
+                                        </div>
+                                    </div>
+                                   
+                                
+                                    <div class="flex  py-3 items-center ">
+                                        <div class="light14grey mb-1">
+                                            Select Location
+                                        </div>
+                                        <div class="formInnerGroup ">
+                                            <select
+                                                class="inputboxpopover"
+                                                on:click={() => {
+                                                    child = "linkchild2";
+                                                }}
+                                                bind:value={city_select}
+                                            >
+                                                <option class="pt-6"
+                                                    >Select</option
+                                                >
+                                                {#each city_data as new_city}
+                                                <option class="pt-6"
+                                                    >{new_city}</option
+                                                >
+                                                {/each}
+                                            </select>
+                                            <div class="formSelectArrow ">
+                                                <img
+                                                    src="{$img_url_name.img_name}/selectarrow.png"
+                                                    class="w-5 h-auto"
+                                                    alt=""
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="searchSupplier " id="searchBox">
+                                        <div class="formInnerGroup ">
+                                            <!-- <span class="searchicon">
+                                                <img
+                                                    src="{$img_url_name.img_name}/search.svg"
+                                                    class="placeholderIcon"
+                                                    alt=""
+                                                    on:click="{filterResults}"/>
+                                            </span> -->
+                                            <span class="searchicon">
+                                                <img
+                                                    src="{$img_url_name.img_name}/search.svg"
+                                                    class="placeholderIcon"
+                                                    alt=""
+                                                   />
+                                            </span>
+                                            <input bind:value="{searchTerm}"
+                                                class="inputboxsearch"
+                                                id="inputboxsearch"
+                                                placeholder="Search"
+                                                on:keypress="{enterKeyPress}"
+                                                
+                                            />
+                                            <!-- <input
+                                                    placeholder="Type some gibberish here"
+                                                    id="text"
+                                                    on:input={myFunc}
+                                            > -->
+                                            <div class="serchCloseIconSection " id="">
+                                                <div class="closeIconCon " on:click="{closeSearch}">
+                                                    <img
+                                                        src="{$img_url_name.img_name}/closeSearch.svg"
+                                                        class="w-4 h-auto"
+                                                        alt=""
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class=" searchClickbtn" on:click="{SearchClick}" >
+                                        <p class="searchIconPlace">
+                                            <img
+                                                src="{$img_url_name.img_name}/search.svg"
+                                                class="placeholderIcon"
+                                                alt=""
+                                            />
+                                        </p>
+                                    </div>
+                                    <div class="OtherAppliedTagsTable ">
+                                        <table
+                                            class="table  w-full text-center mt-2 xs:hidden sm:hidden"
+                                         id ="check_sel_id">
+                                            <thead class="theadpopover">
+                                                <tr>
+                                                    <th>Facility Name</th>
+                                                    <th>Unique ID</th>
+                                                    <th>Station</th>
+                                                    <th>Mobile No</th>
+                                                    <th>Select</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="tbodypopover" id="check_tbody">
+                                                {#if child == "linkchild"}
+                                                    <tr class="hidde">
+                                                        <td
+                                                            colspan="5"
+                                                            class="text-center"
+                                                        >
+                                                            <div
+                                                                class="light14greylong w-full mb-1"
+                                                            >
+                                                                Select a
+                                                                location to view
+                                                                Associates
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                {/if}
+
+                                                {#if child == "linkchild2"}
+                                                {#each paginatedItems as item}
+                                                    <tr class="border-b">
+                                                        <td>{item.facility_name}</td
+                                                        >
+                                                        <td>{item.name}</td>
+                                                        <td>{item.station_code}</td>
+                                                        <td>{item.phone_number}</td>
+                                                        <td
+                                                            ><input
+                                                                type="checkbox"
+                                                                class=" checked:bg-blue-500 ..."
+                                                                bind:value={check_selected}
+                                                               
+                                                            /></td
+                                                        > 
+                                                    </tr>
+                                                    {/each}
+                                                {/if}
+                                            </tbody>
+                                        </table>
+                                        <div class="paginationButton">
+                                            <nav aria-label="Page navigation">
+                                                <ul class="pagiWrapper ">
+                                                   
+                                                    <LightPaginationNav
+                                                            totalItems="{client_det_arr.length}"
+                                                            pageSize="{pageSize}"
+                                                            currentPage="{currentPage}"
+                                                            limit="{1}"
+                                                            showStepOptions="{true}"
+                                                            on:setPage="{(e) => currentPage = e.detail.page}"
+                                                            />
+                                                    
+                                                </ul>
+                                            </nav>
+                                        </div>
+                                
+                                        <div class="text-right mt-3">
+                                            <button
+                                                class="ErBlueButton"
+                                                on:click={() => {child_select_fun(),
+                                                    childlink = "childlink2";
+                                                }}>Link Child Associate</button
+                                            >
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="addDocumentSection ">
+                                    <div class="addSecform ">
+                                        <div class="my-3 py-4 px-4 ">
+                                            <p class="text-lg font-medium">
+                                                Linked Child Associates
+                                            </p>
+                                        </div>
+                                        {#if childlink == "childlink"}
+                                            <div
+                                                class="light14greylong w-full mb-1 text-center"
+                                            >
+                                                No child assosiates are linked
+                                            </div>
+                                        {/if}
+                                        {#if childlink == "childlink2"}
+                                            <div
+                                                class="cardforlinkedChild px-5 border-b pb-3"
+                                            >
+                                                <div class="flex justify-end">
+                                                    <div
+                                                        class="detailData"
+                                                        on:click={() => {
+                                                            childlink =
+                                                                "childlink";
+                                                        }}
+                                                    >
+                                                        <img
+                                                            src="{$img_url_name.img_name}/reject.png"
+                                                            width="25px"
+                                                            alt=""
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div class="flex ">
+                                                    <div class="w-1/3 ">
+                                                        <div
+                                                            class="detailLbale"
+                                                        >
+                                                            Location
+                                                        </div>
+                                                    </div>
+                                                    <div class="w-2/3 ">
+                                                        <div class="detailData">
+                                                            {city}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="flex ">
+                                                    <div class="w-1/3 ">
+                                                        <div
+                                                            class="detailLbale"
+                                                        >
+                                                            Facility Name
+                                                        </div>
+                                                    </div>
+                                                    <div class="w-2/3 ">
+                                                        <div class="detailData">
+                                                            Avinash Gopal Katari
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="flex ">
+                                                    <div class="w-1/3 ">
+                                                        <div
+                                                            class="detailLbale"
+                                                        >
+                                                            Unique ID
+                                                        </div>
+                                                    </div>
+                                                    <div class="w-2/3 ">
+                                                        <div class="detailData">
+                                                            EFAU00088
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {/if}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Document view Model -->
+<div id="img_model" tabindex="-1" aria-hidden="true" role ="dialog" class=" actionDialogueOnboard" hidden>
+    <div class="pancardDialogueOnboardWrapper ">
+        <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+            <div class="flex justify-end p-2">
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel()}}">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
+                </button>
+            </div>
+            <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+                
+                <img src="" id="img_model_url" class="mx-auto" alt="{alt_image}">
+                
+                <div class="pt-3 flex justify-center">
+                    <button data-modal-toggle="popup-modal" type="button" class="dialogueNobutton"  on:click="{()=>{closeViewModel()}}">Close</button>
+            </form>
+        </div>
+    </div>
+</div> 
+<!-- Document view Model -->
+

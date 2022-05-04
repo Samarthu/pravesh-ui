@@ -79,58 +79,29 @@
         let check_val,query;
         let tags_for_ass_arr=[];
         let check_selected;
-        let id_new_date='';
+        export let id_new_date;
         let username;
         let all_tags_res;
-        let pancard_obj = {
+        export let pancard_obj = {
             pan_num:null,
             pan_attach:null,
             pan_name:null,
             pan_verified:null,
             pan_rejected:null
         }
-        let aadhar_obj = {
+        export let aadhar_obj = {
             aadhar_num:null,
             aadhar_attach:null,
             aadhar_name:null,
             aadhar_verified:null,
             aadhar_rejected:null
         }
-        let fac_photo_obj = {
-            profile_url:null,
-            profile_verified:null,
-            profile_rejected:null
-        }
-        let addproof_obj = {
-            address_name:null,
-            address_url:null,
-            address_verified:null,
-            address_rejected:null
-        };
-        let can_cheque_obj = {
-            can_cheque_name:null,
-            can_cheque_url:null,
-            can_cheque_verified:null,
-            can_cheque_rejected:null
-        };
-        let dl_photo_obj = {
+        
+        export let dl_photo_obj = {
             dl_lic_name:null,
             dl_lic_url:null,
             dl_verified:null,
             dl_rejected:null
-        };
-        let new_off_file_obj = {
-            offer_name:null,
-            offer_url:null,
-            offer_verified:null,
-            offer_rejected:null
-        };
-        let gst_doc_obj = {
-            gst_name:null,
-            gst_url:null,
-            gst_doc_num:null,
-            gst_verified:null,
-            gst_rejected:null
         };
     
         let text_pattern = /^[a-zA-Z_ ]+$/;
@@ -269,7 +240,51 @@
         }
         
     }
-    
+    const onFileSelected = (e,doctext) => {
+        let img = e.target.files[0];
+        if (img.size <= allowed_pdf_size) {
+            console.log("img", img);
+            
+            if(doctext == "gst_upload"){
+                console.log("Photo log uploaded")  
+                gst_img = img.name;
+            }
+            else if(doctext == "cheque_upload"){
+            cheque_img = img.name;
+            }
+            var reader = new FileReader();
+            reader.readAsDataURL(img);
+            reader.onload = function () {
+            file_data = reader.result;
+            console.log("reader",reader.result);
+            
+            if(doctext == "gst_upload"){
+                gst_data = reader.result;
+                // console.log("photo_data",reader.result);
+                toast_text = "Photo Uploaded Successfully";
+                toast_type = "success";
+            }
+            else if(doctext == "cheque_upload"){
+                cheque_data = reader.result;
+                toast_text = "Document Uploaded Successfully";
+                toast_type = "success";
+            }
+            }
+                reader.onerror = function (error) {
+                console.log("Error: ", error);
+                }
+        }
+        else {
+        alert(
+            "File size is greater than " +
+                Number(allowed_pdf_size / 1048576) +
+                "MB. Please upload a file less than " +
+                Number(allowed_pdf_size / 1048576) +
+                "MB ."
+        );
+    };
+        
+    }
     
        
     </script>
@@ -546,3 +561,23 @@
  
 </div>
 
+<!-- Document view Model -->
+<div id="img_model" tabindex="-1" aria-hidden="true" role ="dialog" class=" actionDialogueOnboard" hidden>
+    <div class="pancardDialogueOnboardWrapper ">
+        <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+            <div class="flex justify-end p-2">
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel()}}">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
+                </button>
+            </div>
+            <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+                
+                <img src="" id="img_model_url" class="mx-auto" alt="{alt_image}">
+                
+                <div class="pt-3 flex justify-center">
+                    <button data-modal-toggle="popup-modal" type="button" class="dialogueNobutton"  on:click="{()=>{closeViewModel()}}">Close</button>
+            </form>
+        </div>
+    </div>
+</div> 
+<!-- Document view Model -->
