@@ -6,7 +6,8 @@
         
             import {get_date_format} from "../../services/date_format_servives";
             import {bank_details,cheque_details,facility_document,show_fac_tags,get_loc_scope,
-                facility_data,facility_bgv_init,all_facility_tags,gst_details,client_details,add_gst_dets} from "../../services/onboardsummary_services";
+                facility_data,facility_bgv_init,all_facility_tags,gst_details,client_details,add_gst_dets,
+                list_child_data,remove_child} from "../../services/onboardsummary_services";
             import {img_url_name} from '../../stores/flags_store';
             import {facility_id} from "../../stores/facility_id_store"
             import {facility_data_store} from "../../stores/facility_store";
@@ -19,6 +20,7 @@
             import { goto } from "$app/navigation";
             import { allowed_pdf_size } from "../../services/pravesh_config";
             import {uploadDocs} from "../../services/bgv_services";
+            import Toast from './toast.svelte';
 
             let show_spinner = false;
             let toast_text;
@@ -31,7 +33,7 @@
             let all_tags_obj= {};
         let query;
             let tags_for_ass_arr=[];
-            let check_selected;
+            let check_selected = false;
             let id_new_date='';
             let all_tags_res;
             export let fac_photo_obj = {
@@ -58,7 +60,8 @@
                 pan_name:null,
                 pan_verified:null,
                 pan_rejected:null
-    }
+        }
+        let child_selected_arr=[];
         
         
             let text_pattern = /^[a-zA-Z_ ]+$/;
@@ -79,6 +82,7 @@
         let facility_doc_date,facility_modified_date;
             let client_det_arr=[];
             export let gst_doc_arr;
+            console.log("gst_doc_arr",gst_doc_arr)
         //     // $: cheque_date = new Date();
             let file_data;
             let showbtn = 0;
@@ -148,7 +152,6 @@
                 if(city_select != null && $facility_id.facility_id_number != null){
                 console.log("citySelect",city_select);
                 link_child(city_select)
-
                 }
             }
             let searchTerm;
@@ -165,6 +168,9 @@
             }
             $:if(gst_checkbox === true){
                 gst_checkbox = true;
+            }
+            $:if(check_selected === true){
+                check_selected =true;
             }
 
     onMount(async () => {
@@ -313,9 +319,15 @@
         let gst_details_res = await gst_details();
         try{
             if(gst_details_res != "null"){
+                
                 gst_details_data=[];
                 for(let i=0;i < gst_details_res.body.data.length;i++){
-                    gst_details_data.push(gst_details_res.body.data[i]);
+                            for(let j = 0;j<gst_doc_arr.length;j++){ 
+                                if(gst_details_res.body.data[i].gstn == gst_doc_arr[j].gst_doc_num){
+                                    console.log("matched");
+                                    gst_details_data.push(gst_details_res.body.data[i]);
+                                }
+                            }
                 }
                 gst_details_data=gst_details_data;
                 console.log("gst_details_data",gst_details_data)
@@ -421,6 +433,10 @@
                                     toast_type = "success";
                                     toast_text = "GST Document Added Successfully";
                         }
+                        else if(gst_doc_submit_res.body.status == "red"){
+                            toast_type = "error";
+                            toast_text = gst_doc_submit_res.body.message;
+                        }
                     } catch (err) {
                         toast_type = "error";
                         toast_text = "Error in Uploading GST Certificate";
@@ -431,9 +447,14 @@
                     if(gst_details_res != "null"){
                         gst_details_data=[];
                         for(let i=0;i < gst_details_res.body.data.length;i++){
-                            gst_details_data.push(gst_details_res.body.data[i]);
+                            for(let i = 0;i<gst_doc_arr.length;i++){
+                                console.log("gst_doc_arr[i].gst_doc_num comp",gst_doc_arr[i].gst_doc_num,"gst_details_res.body.data[i].gstn",gst_details_res.body.data[i].gstn)
+                                if(gst_details_res.body.data[i].gstn == gst_doc_arr[i].gst_doc_num){
+                                    gst_details_data.push(gst_details_res.body.data[i]);
+                                }  
+                            }
                         }
-                        gst_details_data=gst_details_data;
+                        // gst_details_data=gst_details_data;
                         console.log("gst_details_data",gst_details_data)
                     }
                     
@@ -449,16 +470,34 @@
     async function linkChild() {
         let no_com = document.getElementById("comma");
         linkChildModel.style.display = "block";
-    }
-    async function child_select_fun(){
-        
-        var rows = document.getElementById("check_tbody")[0].rows;
-            for(var i=0;i<rows.length;i++){
-                console.log("check_sel_id inside")
+
+        let list_child_data_res = await list_child_data();
+        // console.log("list_child_data_res",list_child_data_res)
+        try {
+            if (list_child_data_res.body.status == "green") {
+                childlink = "childlink2";
+                for (let i = 0; i < list_child_data_res.body.data[0].parent_child.length; i++) {
+                    // console.log("list_child_data_temp", list_child_data_res.body.data[0].parent_child)
+                    // console.log("list_child_data_res", list_child_data_res.body.data[0].parent_child[i]["child_facility_id"])
+                    child_selected_arr.push({"facility_name":list_child_data_res.body.data[0].parent_child[i]["child_id"],"name":list_child_data_res.body.data[0].parent_child[i]["child_facility_id"],"unique_name":list_child_data_res.body.data[0].parent_child[i]["name"]});
+                }
+                console.log("child_selected_arr in link child", child_selected_arr)
             }
+        } catch (err) {
+            toast_type = "error";
+            toast_text = list_child_data_res.body.message;
+        }
+
+    }
+    async function child_select_fun(facility_name,name,station_code,phone_number,check_selected){
+        childlink = "childlink2";
+        
+    }
+    async function checkbox_clicked(facility_name,name){
+        child_selected_arr.push({"location":city_select,"facility_name":facility_name,"name":name});
+        
     }
     async function link_child(data){
-        
         show_spinner = true;
         let client_det_res = await client_details(data);
         try{
@@ -466,6 +505,7 @@
                 show_spinner = false;
                 for(let i=0;i<client_det_res.body.data.length;i++){
                     for(let j=0;j<client_det_res.body.data.length;j++){
+                    client_det_arr = [];
                     client_det_arr.push(client_det_res.body.data[j]);
                     }
                 }
@@ -485,8 +525,50 @@
         }
         
     }
+    async function delete_child(child_id){
+        console.log("child_id",child_id)
+        let delete_child_res =await remove_child(child_id);
+        console.log("delete_child_res",delete_child_res)
+        try {
+            if(delete_child_res.body.status == "green"){
+                toast_type = "success";
+                toast_text = delete_child_res.body.message;
+                let client_det_res = await client_details(data);
+        try{
+            if(client_det_res.body.status == "green"){
+                show_spinner = false;
+                for(let i=0;i<client_det_res.body.data.length;i++){
+                    for(let j=0;j<client_det_res.body.data.length;j++){
+                    client_det_arr = [];
+                    client_det_arr.push(client_det_res.body.data[j]);
+                    }
+                }
+                client_det_arr=client_det_arr;
+                items = client_det_arr;
+                
+                paginatedItems = paginate({ items, pageSize, currentPage })
+            }
+            else{
+                show_spinner = false;
+            }
+        }
+        catch(err){
+            show_spinner = false;
+            toast_type = "error";
+            toast_text = err;
+        }
+            }
+        } catch (error) {
+            toast_type = "error";
+            toast_text = delete_child_res.body.message;
+        }
+
+    
+    }
 
     function linkChildModelclose() {
+        city_select = "-1";
+        paginatedItems =  [];
         linkChildModel.style.display = "none";
     }
     function closeViewModel(){
@@ -1089,6 +1171,7 @@
                                                     {/each}
                                                     {/if}
                                 </div>
+                                
                                 <div class="addDocumentSection ">
                                     <div class="addSecform hidden">
                                         <div
@@ -1138,6 +1221,7 @@
                                                             >{new_city}</option
                                                         >
                                                         {/each}
+                                                        
                                                     </select>
                                                     <div
                                                         class="formSelectArrow "
@@ -1493,7 +1577,7 @@
                                                 bind:value={city_select}
                                             >
                                                 <option class="pt-6"
-                                                    >Select</option
+                                                    value="-1">Select</option
                                                 >
                                                 {#each city_data as new_city}
                                                 <option class="pt-6"
@@ -1558,6 +1642,7 @@
                                             />
                                         </p>
                                     </div>
+                                    {#each paginatedItems as item}
                                     <div class="OtherAppliedTagsTable ">
                                         <table
                                             class="table  w-full text-center mt-2 xs:hidden sm:hidden"
@@ -1590,7 +1675,7 @@
                                                 {/if}
 
                                                 {#if child == "linkchild2"}
-                                                {#each paginatedItems as item}
+                                                
                                                     <tr class="border-b">
                                                         <td>{item.facility_name}</td
                                                         >
@@ -1601,12 +1686,12 @@
                                                             ><input
                                                                 type="checkbox"
                                                                 class=" checked:bg-blue-500 ..."
-                                                                bind:value={check_selected}
-                                                               
+                                                                bind:checked={check_selected}
+                                                               on:click="{checkbox_clicked(item.facility_name,item.name,item.station_code,item.phone_number)}"
                                                             /></td
                                                         > 
                                                     </tr>
-                                                    {/each}
+                                                    
                                                 {/if}
                                             </tbody>
                                         </table>
@@ -1630,12 +1715,12 @@
                                         <div class="text-right mt-3">
                                             <button
                                                 class="ErBlueButton"
-                                                on:click={() => {child_select_fun(),
-                                                    childlink = "childlink2";
+                                                on:click={() => {child_select_fun(item.facility_name,item.name,item.station_code,item.phone_number,check_selected)
                                                 }}>Link Child Associate</button
                                             >
                                         </div>
                                     </div>
+                                    {/each}
                                 </div>
                                 <div class="addDocumentSection ">
                                     <div class="addSecform ">
@@ -1651,6 +1736,7 @@
                                                 No child assosiates are linked
                                             </div>
                                         {/if}
+                                        {#each child_selected_arr as new_child}
                                         {#if childlink == "childlink2"}
                                             <div
                                                 class="cardforlinkedChild px-5 border-b pb-3"
@@ -1659,17 +1745,18 @@
                                                     <div
                                                         class="detailData"
                                                         on:click={() => {
-                                                            childlink =
-                                                                "childlink";
+                                                            delete_child(new_child.unique_name)
                                                         }}
                                                     >
                                                         <img
                                                             src="{$img_url_name.img_name}/reject.png"
                                                             width="25px"
                                                             alt=""
+                                                            
                                                         />
                                                     </div>
                                                 </div>
+                                                
                                                 <div class="flex ">
                                                     <div class="w-1/3 ">
                                                         <div
@@ -1680,10 +1767,11 @@
                                                     </div>
                                                     <div class="w-2/3 ">
                                                         <div class="detailData">
-                                                            {city}
+                                                            {facility_address}
                                                         </div>
                                                     </div>
                                                 </div>
+                                                
                                                 <div class="flex ">
                                                     <div class="w-1/3 ">
                                                         <div
@@ -1694,7 +1782,7 @@
                                                     </div>
                                                     <div class="w-2/3 ">
                                                         <div class="detailData">
-                                                            Avinash Gopal Katari
+                                                           {new_child.facility_name}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1708,12 +1796,14 @@
                                                     </div>
                                                     <div class="w-2/3 ">
                                                         <div class="detailData">
-                                                            EFAU00088
+                                                            {new_child.name}
                                                         </div>
                                                     </div>
                                                 </div>
+                                                
                                             </div>
                                         {/if}
+                                        {/each}
                                     </div>
                                 </div>
                             </div>
@@ -1744,4 +1834,4 @@
     </div>
 </div> 
 <!-- Document view Model -->
-
+<Toast type={toast_type}  text={toast_text}/>

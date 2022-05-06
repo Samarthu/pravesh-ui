@@ -17,6 +17,7 @@
             import { goto } from "$app/navigation";
             import { allowed_pdf_size } from "../../services/pravesh_config";    
             import {get_date_format} from "../../services/date_format_servives";
+            import Toast from './toast.svelte';
 
         let show_spinner = false;
         let toast_text;
@@ -1214,3 +1215,4 @@
     </div>
 </div> 
 <!-- Document view Model -->
+<Toast type={toast_type}  text={toast_text}/>

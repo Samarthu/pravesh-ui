@@ -14,7 +14,8 @@
             import { facility_data,facility_bgv_init,facility_bgv_check,all_facility_tags,
                     show_fac_tags,submit_fac_tag_data,remove_tag,tag_audit_trail,service_vendor,
                     get_loc_scope,client_details,erp_details,child_data,add_gst_dets,
-                    facility_document,addnew_cheque_details,bank_details,cheque_details,gst_details} from "../../services/onboardsummary_services";
+                    facility_document,addnew_cheque_details,bank_details,cheque_details,gst_details,
+                    work_details_data} from "../../services/onboardsummary_services";
         //     import {uploadDocs} from "../services/bgv_services";
         //     import {get_date_format} from "../services/date_format_servives";
             // import {bank_details,cheque_details,facility_document,show_fac_tags,get_loc_scope,
@@ -23,7 +24,7 @@
             import {facility_id} from "../../stores/facility_id_store"
             import {facility_data_store} from "../../stores/facility_store"
         //     import {bgv_config_store} from '../stores/bgv_config_store'
-        //     import Toast from './components/toast.svelte';
+            import Toast from './toast.svelte';
         //     import AssociateDetails from './components/associateDetailsComponent.svelte';
         //     import BankDetails from './components/bankDetailsComponent.svelte';
         //     import IdentityProof from './components/identityProofComponent.svelte';
@@ -72,6 +73,7 @@
             let id_new_date='';
             let username;
             let all_tags_res;
+            let work_details_arr = [];
             // let pancard_obj = {
             //     pan_num:null,
             //     pan_attach:null,
@@ -222,8 +224,23 @@
             function myBtn() {
             associateModal.style.display = "block";
             }
-            function workorganization() {
+           async function workorganization() {
                 workorganizationModel.style.display = "block";
+                let work_details_res = await work_details_data();
+                try {
+                    if(work_details_data.body.status == "green"){
+                        console.log("work_details_res",work_details_res);
+                        work_details_arr.push(work_details_res.body.data);
+                    }
+                    work_details_arr = work_details_arr;
+                    console.log("work_details_arr",work_details_arr);
+                } catch (error) {
+                    toast_type = "error";
+                    toast_text = work_details_res.body.message;   
+                }
+                console.log("work_details_res",work_details_res);
+            
+
             }
 
             function closeWorkorganization() {
@@ -338,6 +355,13 @@
 
                         </button>
                     </p>
+                    <div class="userStatus ml-4">
+                        <p class="flex items-center smButtonText" on:click={workorganization}>
+                            <a href="" class="smButton modal-open">
+                                Work Contract
+                            </a>
+                        </p>
+                    </div>
                 </div>
 
             </div>
@@ -512,3 +536,4 @@
     </div>
 </div> 
 <!-- Document view Model -->
+<Toast type={toast_type}  text={toast_text}/>

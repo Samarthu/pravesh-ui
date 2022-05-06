@@ -197,7 +197,7 @@ import { Router, Link, Route } from "svelte-routing";
     }
     $:{
         if(city_select != null && $facility_id.facility_id_number != null){
-        console.log("citySelect",city_select);
+        
         link_child(city_select)
         }
     }
@@ -477,6 +477,7 @@ import { Router, Link, Route } from "svelte-routing";
                     }
                 }
                 gst_doc_type=gst_doc_type
+                console.log("gst_doc_type",gst_doc_type);
                 
                 if ($facility_data_store.addresess[j].default_address == "1") {
                     facility_address =$facility_data_store.addresess[j].address;

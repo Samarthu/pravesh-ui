@@ -45,6 +45,7 @@
             import  {  page } from '$app/stores';
             import {documents_store} from '../../stores/document_store';
             import { goto } from "$app/navigation";
+            import Toast from './toast.svelte';
             // import {onFileSelected} from '../onboardsummaryComponent.svelte'
     
         let show_spinner = false;
@@ -584,3 +585,4 @@
     </div>
 </div> 
 <!-- Document view Model -->
+<Toast type={toast_type}  text={toast_text}/>
