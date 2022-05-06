@@ -1119,7 +1119,7 @@
     @apply absolute bg-black opacity-80 inset-0 z-0
 }
 .DocCardlist{
-    @apply xs:w-full sm:w-full w-7/12 pr-8 h-h442 overflow-y-scroll
+    @apply xs:w-full sm:w-full w-7/12 pr-8 h-h442 overflow-y-scroll 
 }
 
 .cardDocWrapper{

@@ -2302,3 +2302,93 @@ border: 2px solid #B5B5B5;
     @apply relative bg-white rounded-lg shadow  py-10
 }
 /* end pancard */
+
+
+
+
+
+
+
+
+/* <!-- ID card CSS add this in tailwind.css --> */
+
+
+.dialogueSingleButton{
+    @apply  text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 
+    }
+
+.idCardWrapper {
+    max-width: 324px;
+    height: 204px;
+    max-height: 204px;
+    border: 1px solid #0000004D;
+    display: flex;
+    box-sizing: border-box;
+    margin: auto;
+}
+.ErAndEmp {
+    background: #374EA2;
+    min-width: 120px;
+}
+
+.profilePhoto img{
+    width:86px;
+    margin:auto;
+}
+
+.erlogo p {
+    font-size: 8px;
+    color: white;
+    padding: 10px;
+    text-align: center;
+}
+
+.bloodgroup {
+    font-size: 12px;
+    color: white;
+    font-weight: 500;
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.infoGroupName label {
+    font-size: 11px;
+    font-weight: 300;
+    margin-bottom: 0px;
+}
+.infoGroupName p {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 12px;
+}
+
+
+.empInfoSection {
+    flex: auto;
+    padding: 2px 8px;
+}
+
+p.tempText {
+    font-size: 11px;
+    font-weight: 600;
+    text-align: right;
+    line-height: 0px;
+    margin-top: 5px;
+}
+.UserName p {
+    line-height: 17px;
+}
+.partner p {
+    font-size: 10px;
+    line-height: 12px;
+    font-weight: 500;
+}
+
+.leftborder {
+    width: 3px;
+    background: #EF4129;
+}
+
+
+

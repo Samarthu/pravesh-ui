@@ -3,7 +3,7 @@
     import {facility_data_store} from "../stores/facility_store";
     import { bank_details } from "../stores/bank_details_store";
     import {get_facility_details,facility_bgv_check,get_bank_facility_details,facility_document,
-         approve_reject_status,bank_approve_reject,bgv_approve_rej,final_id_ver_rej,final_bgv_app_rej} from "../services/vmt_verify_services";
+         approve_reject_status,bank_approve_reject,bgv_approve_rej,final_id_ver_rej,final_bgv_app_rej,get_client_details,get_client_org_mapping,get_specific_name} from "../services/vmt_verify_services";
     import {facility_bgv_init} from "../services/onboardsummary_services";
     import {bgv_config_store} from '../stores/bgv_config_store';
     import { goto } from "$app/navigation";
@@ -13,7 +13,14 @@
     import Toast from './components/toast.svelte';
     import Spinner from "./components/spinner.svelte";
     import { img_url_name } from "../stores/flags_store";
+    import { each } from "svelte/internal";
+    import { get_user_scope_function } from "../services/workdetails_services";
+    import { get_loc_scope} from "../services/onboardsummary_services";
 
+    let station_data_array=[];
+    let org_name_array=[];
+
+    let temp5 = "newMap";
     let show_spinner = false;
     let facility_document_data = "";
     let bank_details_provided="yes";
@@ -166,8 +173,37 @@
     "panInfo": ["Supporting document Missing", "Name/Father's name/Pan Number/DOB mismatch", "Name/Father's name/Pan Number/DOB missing.", "Name/Father's name/Pan Number/DOB is not clear on the document"],
     "policeInfo": ["Supporting document Missing", "Incorrect Address", "Name/Guardian's name/Address mismatch", "Name/Guardian's name/Address missing", "Name/Guardian's name/Address is not clear on the document"]
 }
+    let get_client_details_data = [];
+    let get_client_data_mapping_data = [];
+    let get_loc_scope_data = [];
+    let org_name = [];
+    let station_code = [];
+    let org_id = [];
+    let stat_select;
+    let get_specific_name_data = [];
+    // let stat_code = "";
+    
+    $:if(stat_select != null){
+        console.log("station_select",stat_select)
+        station_code_select(stat_select);
+    }
+    // async function get_resourceid(){
+    //     let response = await station_code_select(stat_select);
+    //     console.log("response station code select",response);
+
+    // }
+    // $:{
+    //     let dummy = stat_select;
+    // // //     // get_resourceid();
+
+    //     console.log("state select",stat_select);
+    //     get_resourceid();
+
+    // }
 
     onMount(async () => {
+
+
         // let bgv_pass_data=[
         // // $facility_data_store.org_id,
         // // $facility_data_store.station_code,
@@ -192,7 +228,7 @@
         // facility_id.subscribe(value => {
         // new_facility_id = value.facility_id_number;
         // })
-        facility_id = "CRUN00374"
+        facility_id = "MHAE00037"
         // console.log('habscib',rejReasonMap.basicInfo)
         // facility_id = "MHPD01226"
         console.log("new_facility_id",facility_id)
@@ -430,6 +466,12 @@
     console.log("$bgv_data_store",$bgv_data_store)
     })
 
+    async function station_code_select(station_code){
+        console.log("station_code",station_code.toLowerCase())
+        let get_specific_name_res = await get_specific_name(station_code.toLowerCase())
+        console.log("get_specific_name_res",get_specific_name_res)
+
+    }
 
     async function doc_approve(doc_cat){
         if (doc_cat == "pan"){
@@ -1824,6 +1866,154 @@
     function closeFinalRejectModel(){
         Final_bg_Reject_modal.style.display = "none";
     }
+
+    function openIDcard(){
+        showIDCard.style.display = "block";
+    }
+
+    function closeIDcard(){
+        showIDCard.style.display = "none";
+    }
+
+
+    // function workContract() {
+    //     workContractModel.style.display = "block";
+    // }
+
+    // function closeWorkContract() {
+    //     workContractModel.style.display = "none";
+    // }
+
+    async function workorganization() {
+        workorganizationModel.style.display = "block";
+        let get_client_details_res = await get_client_details(facility_id)
+        try {
+            if (get_client_details_res != "null"){
+                for(let i=0; i< get_client_details_res.body.data.length;i++){
+                    get_client_details_data.push(get_client_details_res.body.data[i]);
+                }
+                get_client_details_data = get_client_details_data;
+                console.log("get_client_details_data",get_client_details_data)
+            }
+        } catch (err) {
+            toast_type = "error";
+            toast_text = get_client_details_res.body.message;
+        }
+
+        let get_loc_scope_res = await get_loc_scope()
+        try {
+            if (get_loc_scope_res != "null"){
+                // for(let i=0; i< get_loc_scope_res.body.data[0].stations.length;i++){
+                //     get_loc_scope_data.push(get_loc_scope_res.body.data[i]);
+                //     station_code.push(get_loc_scope_res.body.data[0].stations[i].station_code);
+                //     // console.log("get_loc_scope_res",get_loc_scope_res.body.data[0].stations[i].station_code)
+                // }
+                // station_code = station_code;
+                // get_loc_scope_data = get_loc_scope_data;
+                // console.log("get_loc_scope_data",get_loc_scope_data)
+                for(let i=0;i<get_loc_scope_res.body.data.length;i++){
+                    // console.log(get_loc_scope_res.body.data[i]);
+                    for(let j =0 ;j<get_loc_scope_res.body.data[i].stations.length;j++){
+                        // console.log(get_loc_scope_res.body.data[i].stations[j].station_name);
+                        station_data_array.push({"station_code":get_loc_scope_res.body.data[i].stations[j].station_code,"station_name":get_loc_scope_res.body.data[i].stations[j].station_name})
+
+                    }
+
+                }
+                station_data_array = station_data_array;
+                console.log("station_data_array",station_data_array);
+            }
+
+
+        } catch (error) {
+            toast_type = "error";
+            toast_text = get_loc_scope_res.body.message;
+        }
+
+
+        // let get_client_data_mapping_res = await get_client_org_mapping()
+        // if (get_client_data_mapping_res != "null"){
+        //     for(let i=0;i<get_client_data_mapping_res.body.state.data.length;i++){
+        //         get_client_data_mapping_data.push(get_client_data_mapping_res.body.data[i]);
+        //         org_id.push(loc_data_res.body.data[i].org_id);
+        //     }
+        //     org_id = org_id;
+        //     get_client_data_mapping_data = get_client_data_mapping_data;
+        //     console.log("get_client_data_mapping_data",get_client_data_mapping_data)
+        // }
+
+
+
+
+        let get_client_data_mapping_res =  await get_client_org_mapping();
+        try {
+        if(get_client_data_mapping_res.body.status == "green"){
+             for(let i=0;i<get_client_data_mapping_res.body.data.length;i++){
+                // station_code.push(get_client_data_mapping_res.body.data[i].station_code);
+                // org_name_array.push(get_client_data_mapping_res.body.data[i].org_name)
+                // get_client_data_mapping_data.push(get_client_data_mapping_res.body.data[i]);
+                get_client_data_mapping_data.push({"org_id":get_client_data_mapping_res.body.data[i].org_id,"org_name":get_client_data_mapping_res.body.data[i].org_name})
+
+                
+            }
+            // station_code = station_code;
+            // org_name_array=org_name_array;
+            get_client_data_mapping_data = get_client_data_mapping_data;
+            console.log("get_client_data_mapping_data",get_client_data_mapping_data)
+            
+            // for(let i=0;i<get_client_data_mapping_data.length;i++){
+               
+            //     org_name = get_client_data_mapping_data[i].org_name;
+            //     // gst_city_loc_id = get_client_data_mapping_data[i].location_id;
+            //     // gst_state_code = get_client_data_mapping_data[i].state_code;
+            //     console.log("org_name",org_name)
+            // }
+        }
+        else{
+            toast_type = "error";
+            toast_text = "No client Data";
+        }
+        
+    } catch(err) {
+        toast_type = "error";
+        toast_text = get_client_data_mapping_res.body.message;
+       
+    }
+//     async function station_code_select(stat_select){
+//         console.log("stat_select inside station_code_select",stat_select)
+//     let get_specific_name_res = await get_specific_name(stat_code)
+//     console.log("get_specific_name_res",get_specific_name_res)
+//     try {
+//         if(get_specific_name_res.stat_code != "null"){
+//             // for(i=0;i<get_specific_name_res.body.data.length;i++)
+//             // console.log("get_specific_name_res",get_specific_name_data)
+//             // get_specific_name_data.push({"resouce_id":get_specific_name_res.body.data[i].resource_id})
+//             // console.log("get_specific_name_res",get_specific_name_data)
+//             for(let i=0; i< get_specific_name_res.body.data.length;i++){
+//                 get_specific_name_data.push(get_specific_name_res.body.data[i]);
+//                 }
+//                 get_specific_name_data = get_specific_name_data;
+//                 // console.log("get_client_details_data",get_specific_name_data)
+//         }
+//     } catch (error) {
+//         toast_type = "error";
+//         toast_text = get_specific_name_res.body.message;
+//     }
+    
+// }
+
+
+
+
+
+
+
+
+    }
+
+    function closeWorkorganization() {
+        workorganizationModel.style.display = "none";
+    }
     
 
 </script>
@@ -1854,6 +2044,18 @@
                     </a>
                   
                 </p> -->
+                <button on:click="{openIDcard}" type="button" class="px-p15 text-sm text-white font-medium py-p10 rounded bg-erBlue ml-3">
+                    ID Card
+                </button>
+
+                <div class="userStatus ">
+                    <p class="flex items-center smButtonText" on:click={workorganization}>
+                        <a href="" class="smButton modal-open">
+                            View/Client edit
+                        </a>
+                    </p>
+                </div>
+
                 <button on:click={routeToOnboardsummary} type="button"
                         class="px-p15 text-sm text-white font-medium py-p10 rounded bg-erBlue ml-3">Back</button>
             </div>
@@ -4614,6 +4816,882 @@
 </div> 
 
 
+<!-- Document view Model -->
+<!-- <div id="showIDCard" tabindex="-1" aria-hidden="true" role ="dialog" class=" actionDialogueOnboard" >
+    <div class="pancardDialogueOnboardWrapper ">
+        <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+            <div class="flex justify-end p-2">
+                <button type="button" on:click="{closeIDcard}" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
+                </button>
+            </div>
+            <div style="display: flex;justify-content: space-between;">
+                <div style="margin-left:5px">
+                    <p>
+                        valid till 02 - Jan - 2022
+                    </p>
+                    <img src="{$img_url_name.img_name}/profilepic.png" alt="">
+                    <h1>
+                        Blood Group
+                    </h1>
+                    <input type="text">
+                </div>
+                <div>
+                <div>
+                    <h1>Name : Gagan Gowda HR</h1>
+                </div>
+                <div>
+                    <h1>
+                        ID : 123456789
+                    </h1>
+                </div>
+                <div>
+                    <h1>contact number : 1234567890</h1>
+                </div>
+                <div>
+                    <h1>Vendor : ElasticRun</h1>
+                </div>
+            </div>
+            <div style="margin-right:15px;">
+                <img src="{$img_url_name.img_name}/profilepic.png" alt="">
+            </div>
+            </div>
+        </div>
+    </div>
+</div>  -->
+<!-- Document view Model -->
+
+
+    <!-- ID Card View modal HTML-->
+    
+    <div  class="actionDialogueOnboard " id="showIDCard" hidden>
+        <div class="pancardDialogueOnboardWrapper ">
+            <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+                <div class="modalHeadConmb-0">
+                    <div class="leftmodalInfo">
+                        <p class=""> Id Card</p>
+                    </div>
+                    <div class="rightmodalclose" on:click="{closeIDcard}">
+                        <img src="../src/img/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal">
+                    </div>
+                </div>
+                <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 mt-5" action="#">
+
+                    <div class="idCardWrapper my-4">
+                        <div class="ErAndEmp flex">
+                            <div class="leftborder"></div>
+                            <div class="rightLogoSection flex-auto">
+                            <div class="erlogo">
+                               <p>Valid Till :02-Jun-2022</p>
+                            </div>
+                            <div class="profilePhoto">
+                                <img src="{$img_url_name.img_name}/profilepic.png" alt="profilePic" class="profilePic">
+                            </div>
+                            <div class="bloodgroup">
+                                Blood Group
+                            </div>   
+                            <input class=" w-12 mx-auto ml-9 rounded-md text-center font-mono text-base" type="text">
+                                <!-- border -->
+                            <!-- </div>  -->
+                            </div>
+
+                        </div>
+                        <div class="empInfoSection">
+                            <div>
+                                <p class="tempText">TEMP</p>
+                            </div>
+                            <div class="UserName">
+                                <div class="infoGroupName">
+                                    <label>Name</label>
+                                    <p>Dhiraj Shah </p>
+                                </div>
+                            </div>
+                            <div class="otherInfo flex mt-2">
+                                <div class="">
+                                    <div class="infoGroupName">
+                                        <label>ID</label>
+                                        <p>ID88D88DD7</p>
+                                    </div>
+                                    <div class="infoGroupName">
+                                        <label>Contact Number</label>
+                                        <p>9876543212</p>
+                                    </div>
+                                    <div class="infoGroupName">
+                                        <label>Vendor</label>
+                                        <p>ElasticRun</p>
+                                    </div>
+                                </div>  
+                                <div class="flex-auto">
+                                    <div class="text-right">
+                                    <div class="barcode flex justify-end mb-2 ml-3">
+                                    <img src="{$img_url_name.img_name}/qrcode.png">
+                                    </div>
+                                    <div class="partner">
+                                            <p>Partner with ElasticRun</p>
+                                        </div>
+                                        </div>
+
+                                </div>    
+                                
+                            </div>
+                           
+                        </div>
+
+                    </div>    
+
+                    
+                  
+                   
+                      <div class="pt-3 flex justify-center" on:click="{closeIDcard}">
+                        <button type="button" class="dialogueSingleButton">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+<!--View/edit client name modal -->
+
+<div class="hidden" id="workorganizationModel">
+    <div class=" viewDocmodal  " id="modal-id">
+        <div class="bglightcolormodal" />
+        <div class="allDocmodalsuccessbody rounded-lg">
+            <div class="">
+                
+                <div class="viewDocPanmainbodyModal">
+                    <div class="flex justify-between mb-3">
+                        <div class="leftmodalInfo">
+                            <p class="text-lg text-erBlue font-medium  ">
+                                <span class=""> View/Edit Client Name</span>
+                            </p>
+                            <p class="text-sm ">
+                                <span class="font-medium text-lg">
+                                    Dhiraj Shah</span
+                                >
+                                <span class="userDesignation">
+                                    - Associate- {$facility_data_store.facility_type}, MHPD - Mulsi
+                                    SP</span
+                                >
+                            </p>
+                        </div>
+                        <div
+                            class="rightmodalclose"
+                            on:click={closeWorkorganization}
+                        >
+                            <img src="{$img_url_name.img_name}/blackclose.svg" alt="" />
+                        </div>
+                    </div>
+                    <div class="innermodal">
+                        <hr />
+                        <div class="scrollbar ">
+                            <div class="mainContainerWrapper">
+                                {#if !get_client_details_data}
+                                <p>No client Details found</p>
+                                {:else}
+                                {#each get_client_details_data as new_client}
+                                <div class="DocCardlist ">
+                                    <div class="cardDocWrapper">
+                                        <div class="grid grid-flow-col xs:grid-cols-1 gap-4">
+                                            <div>
+                                                <div
+                                                    class="grid grid-cols-2 gap-4 mb-1"
+                                                >
+                                                    <div class="detailLbale">
+                                                        Organisation
+                                                    </div>
+                                                    <div class="detailData">
+                                                        {new_client.org_name}
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="grid grid-cols-2 gap-4 mb-1"
+                                                >
+                                                    <div class="detailLbale">
+                                                        Station Name & code
+                                                    </div>
+                                                    <div class="detailData">
+                                                        {get_loc_scope_data.station_code}
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="grid grid-cols-2 gap-4 mb-1"
+                                                >
+                                                    <div class="detailLbale">
+                                                        Org specified name
+                                                    </div>
+                                                    <div class="detailData break-normal" style="overflow-wrap: anywhere;">
+                                                        
+                                                        {new_client.org_specific_name}
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="grid grid-cols-2 gap-4 mb-1"
+                                                >
+                                                    <div class="detailLbale">
+                                                        Client Employee ID
+                                                    </div>
+                                                    <div class="detailData">
+                                                        {new_client.client_id}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <div class="grid grid-cols-2 gap-4 mb-1">
+                                                    <div class="detailLbale">
+                                                        Added On
+                                                    </div>
+                                                    <div class="detailData">
+                                                        {new_client.creation}
+                                                    </div>
+                                                </div>
+                                                <div class="grid grid-cols-2 gap-4 mb-1">
+                                                    <div class="detailLbale">
+                                                        Added by
+                                                    </div>
+                                                    <div class="detailData">
+                                                        {new_client.modified_by}
+                                                    </div>
+                                                </div>
+                                                <div class="grid grid-cols-2 gap-4 mb-1">
+                                                    <div class="detailLbale">
+                                                        Client ID status/info
+                                                    </div>
+                                                    <div class="detailData">
+                                                        ----
+                                                    </div>
+                                                </div>
+                                                <div class="grid grid-cols-2 gap-4 mb-1">
+                                                    <div class="detailLbale">
+                                                        Status
+                                                    </div>
+                                                    <div>
+                                                        {#if new_client.status == "deactive"}
+                                                        <p
+                                                            class="userStatusTickVerified "
+                                                        >
+                                                            <img
+                                                                src="{$img_url_name.img_name}/reject.png"
+                                                                alt=""
+                                                                class="pr-1"
+                                                            /> {new_client.status}
+                                                        </p>
+                                                        {:else}
+                                                        <p
+                                                            class="userStatusTickVerified "
+                                                        >
+                                                            <img
+                                                                src="{$img_url_name.img_name}/checked.png"
+                                                                alt=""
+                                                                class="pr-1"
+                                                            /> {new_client.status}
+                                                        </p>
+                                                        {/if}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {/each}
+                                {/if}
+                                <div class="addDocumentSection ">
+                                    <div class="addSecform hidden">
+                                        {#if temp5 == "newMap"}
+                                            <div
+                                                class="addButtonSection my-3 py-16 text-center"
+                                            >
+                                                <div class="updateAction">
+                                                    <button
+                                                        class="ErBlueButton"
+                                                        on:click={() => {
+                                                            temp5 = "newMap-2";
+                                                        }}
+                                                        >Add New Mapping</button
+                                                    >
+                                                </div>
+                                            </div>
+                                        {/if}
+                                        {#if temp5 == "newMap-2"}
+                                            <div class="my-3 py-4 px-4 ">
+                                                <p class="text-lg font-medium">
+                                                    Add new Mapping
+                                                </p>
+
+                                                <div
+                                                    class="flex  py-1 items-center flex-wrap"
+                                                >
+                                                    <div
+                                                        class="light14grey  mb-1"
+                                                    >
+                                                        Address
+                                                    </div>
+                                                    <div class="formInnerGroup">
+                                                        <input
+                                                            class="inputboxpopover"
+                                                            type="text"
+                                                        />
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="flex  py-3 items-center flex-wrap"
+                                                >
+                                                    <div
+                                                        class="light14grey mb-1"
+                                                    >
+                                                        City
+                                                    </div>
+                                                    <div
+                                                        class="formInnerGroup "
+                                                    >
+                                                        <select
+                                                            class="inputboxpopover"
+                                                        >
+                                                            <option class="pt-6"
+                                                                >Select</option
+                                                            >
+                                                            <option
+                                                                >ICICI</option
+                                                            >
+                                                            <option>Axis</option
+                                                            >
+                                                            <option>SIB</option>
+                                                        </select>
+                                                        <div
+                                                            class="formSelectArrow "
+                                                        >
+                                                            <img
+                                                                src="{$img_url_name.img_name}/selectarrow.png"
+                                                                class="w-5 h-auto"
+                                                                alt=""
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    class="flex  py-1 items-center flex-wrap"
+                                                >
+                                                    <div
+                                                        class="light14grey  mb-1"
+                                                    >
+                                                        GST State
+                                                    </div>
+                                                    <div class="formInnerGroup">
+                                                        <input
+                                                            class="inputboxpopover"
+                                                            type="text"
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                <div
+                                                    class="flex  py-3 items-center flex-wrap"
+                                                >
+                                                    <div
+                                                        class="light14grey  mb-1"
+                                                    >
+                                                        Upload Document
+                                                    </div>
+                                                    <div class="formInnerGroup">
+                                                        <label
+                                                            class="cursor-pointer flex"
+                                                        >
+                                                            <div
+                                                                class="ErBlueButton"
+                                                            >
+                                                                Select File
+                                                            </div>
+                                                            <input
+                                                                type="file"
+                                                                class="hidden"
+                                                            />
+                                                        </label>
+                                                    </div>
+                                                </div>
+
+                                                <div
+                                                    class="flex items-center justify-end mt-5"
+                                                >
+                                                    <div
+                                                        class="updateAction text-erBlue"
+                                                        on:click={() => {
+                                                            temp3 = "newMap";
+                                                        }}
+                                                    >
+                                                        Cancel
+                                                    </div>
+                                                    <div
+                                                        class="updateAction ml-5"
+                                                    >
+                                                        <button
+                                                            class="ErBlueButton"
+                                                            >Upload</button
+                                                        >
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {/if}
+                                    </div>
+                                    <div
+                                        class=" bg-lighterGrey rounded-lg h-full"
+                                     >
+                                        {#if temp5 == "newMap"}
+                                            <div
+                                                class="addButtonSection my-3 py-3  text-center "
+                                            >
+                                                <div class="updateAction mt-5">
+                                                    <button
+                                                        class="ErBlueButton"
+                                                        on:click={() => {
+                                                            temp5 = "newMap-2";
+                                                        }}
+                                                        >Add New Mapping</button
+                                                    >
+                                                </div>
+                                            </div>
+                                        {/if}
+                                        {#if temp5 == "newMap-2"}
+                                        {#if !get_client_data_mapping_data}
+                                        <p>No client Details found</p>
+                                        {:else}
+
+                                            <div class="my-0 py-4 px-4 ">
+                                                <div
+                                                    class="h-80 max-h-80 overflow-y-scroll pr-4 border-b-2"
+                                                >
+                                                    <p
+                                                        class="text-lg font-medium"
+                                                    >
+                                                        Add New Mapping
+                                                    </p>
+
+                                                    <div
+                                                        class="flex  py-3 items-center flex-wrap"
+                                                    >
+                                                        <div
+                                                            class="light14grey mb-1"
+                                                        >
+                                                            Organization
+                                                        </div>
+                                                        <div
+                                                            class="formInnerGroup "
+                                                        >
+                                                            <select
+                                                                class="inputboxpopover"
+                                                            >
+                                                            <option value="" disabled selected>Select</option>
+                                                            {#each get_client_data_mapping_data as org_detail}
+                                                                <option
+                                                                    class="pt-6"
+                                                                    value="{org_detail.org_id}"
+                                                                    >{org_detail.org_name}</option
+                                                                >
+                                                            {/each}
+                                                            </select>
+                                                            <div
+                                                                class="formSelectArrow "
+                                                            >
+                                                                <img
+                                                                    src="{$img_url_name.img_name}/selectarrow.png"
+                                                                    class="w-5 h-auto"
+                                                                    alt=""
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="flex  py-3 items-center flex-wrap"
+                                                    >
+                                                        <div
+                                                            class="light14grey mb-1"
+                                                        >
+                                                            Station
+                                                        </div>
+                                                        <div
+                                                            class="formInnerGroup "
+                                                        >
+                                                            <select
+                                                                class="inputboxpopover"
+                                                                bind:value={stat_select}
+                                                            >
+                                                            <option value="" disabled selected>Select</option>
+                                                            {#each station_data_array as station}
+                                                                <option
+                                                                    class="pt-6" 
+                                                                    value={station.station_code}
+                                                                    >{station.station_code} - {station.station_name}</option
+                                                                >
+                                                                {/each}
+                                                            </select>
+                                                            <div
+                                                                class="formSelectArrow "
+                                                            >
+                                                                <img
+                                                                    src="{$img_url_name.img_name}/selectarrow.png"
+                                                                    class="w-5 h-auto"
+                                                                    alt=""
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="flex  py-3 items-center flex-wrap"
+                                                    >
+                                                        <div
+                                                            class="light14grey mb-1"
+                                                        >
+                                                            Name in COMP
+                                                        </div>
+                                                        <div
+                                                            class="formInnerGroup "
+                                                        >
+                                                            <select
+                                                                class="inputboxpopover"
+                                                            >
+                                                                <option
+                                                                    class="pt-6"
+                                                                    >Select</option
+                                                                >
+                                                            </select>
+                                                            <div
+                                                                class="formSelectArrow "
+                                                            >
+                                                                <img
+                                                                    src="{$img_url_name.img_name}/selectarrow.png"
+                                                                    class="w-5 h-auto"
+                                                                    alt=""
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="flex  py-1 items-center flex-wrap"
+                                                    >
+                                                        <div
+                                                            class="light14greylong  mb-1"
+                                                        >
+                                                            Client Empployee ID
+                                                            ( If available)
+                                                        </div>
+                                                        <div
+                                                            class="formInnerGroup"
+                                                        >
+                                                            <input
+                                                                class="inputboxpopover"
+                                                                type="text"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <div
+                                                        class="flex  py-1 items-center flex-wrap mb-4"
+                                                    >
+                                                        <div
+                                                            class="light14greylong  mb-1"
+                                                        >
+                                                            Create new Rabbit
+                                                            ID/Comp ID
+                                                        </div>
+                                                        <div
+                                                            class="formInnerGroup"
+                                                        >
+                                                            <div
+                                                                class="text-center flex mb-2 ml-1"
+                                                            >
+                                                                <div
+                                                                    class="flex items-center mr-4"
+                                                                >
+                                                                    <input
+                                                                        id="radio1"
+                                                                        type="radio"
+                                                                        name="radio"
+                                                                        class="hidden"
+                                                                        checked=""
+                                                                    />
+                                                                    <label
+                                                                        for="radio1"
+                                                                        class="radioLable"
+                                                                    >
+                                                                        <span
+                                                                            class="radioCirle"
+                                                                        />
+                                                                        Rabbit ID</label
+                                                                    >
+                                                                </div>
+
+                                                                <div
+                                                                    class="flex items-center "
+                                                                >
+                                                                    <input
+                                                                        id="radio2"
+                                                                        type="radio"
+                                                                        name="radio"
+                                                                        class="hidden"
+                                                                    />
+                                                                    <label
+                                                                        for="radio2"
+                                                                        class="radioLable"
+                                                                    >
+                                                                        <span
+                                                                            class="radioCirle"
+                                                                        />
+                                                                        COMP ID</label
+                                                                    >
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div
+                                                    class="flex items-center justify-end mt-5"
+                                                >
+                                                    <div
+                                                        class="updateAction text-erBlue cursor-pointer"
+                                                        on:click={() => {
+                                                            temp5 = "newMap";
+                                                        }}
+                                                    >
+                                                        Cancel
+                                                    </div>
+                                                    <div
+                                                        class="updateAction ml-5"
+                                                    >
+                                                        <button
+                                                            class="ErBlueButton"
+                                                            >Map</button
+                                                        >
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        
+                                        {/if}
+                                        {/if}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+                                        <!-- {#each get_client_data_mapping_data as new_map} -->
+                                        <!-- {/each} -->
+
+
+
+    <!-- Full screen modal  View/Edit Client Name -->
+
+    <!-- <div class="hidden" id="workorganizationModel">
+        <div class="modalMain">
+            <div class="modalOverlay"></div>
+
+            <div class="modalContainer">
+                <div class="modalHeadConmb-0">
+                    <div class="leftmodalInfo">
+                        <p class="modalTitleText"> View/Edit Client Name </p>
+                        <p class="text-sm ">
+                            <span class="font-medium text-lg"> Dhiraj Shah</span>
+                            <span class="userDesignation"> - Associate- NDA, MHPD - Mulsi SP</span>
+                        </p>
+                    </div>
+                    <div class="rightmodalclose">
+                        <img src="../src/img/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal">
+                    </div>
+                </div>
+                <div class="modalContent">
+
+                    <div class="ConModalContent">
+
+                        <div class="gridCon ">
+                            <div class="heightCardContainer">
+                            {#if !get_client_details_data}
+                                <p>No client Details found</p>
+                                {:else}
+                                {#each get_client_details_data as new_client}
+                                <div class="cardDocWrapper ">
+                                    <div class="grid grid-cols-2 xs:grid-cols-1 gap-4">
+                                        <div>
+                                            <div class="grid grid-cols-2 gap-4 mb-1">
+                                                <div class="detailLbale"> Organisation</div>
+                                                <div class="detailData"> {new_client.org_name}</div>
+                                            </div>
+                                            <div class="grid grid-cols-2 gap-4 mb-1">
+                                                <div class="detailLbale"> Station Name & code </div>
+                                                <div class="detailData"> {get_loc_scope_data.station_code}</div>
+                                            </div>
+                                            <div class="grid grid-cols-2 gap-4 mb-1">
+                                                <div class="detailLbale"> Org specified name </div>
+                                                <div class="detailData">  {new_client.org_specific_name}</div>
+                                            </div>
+                                            <div class="grid grid-cols-2 gap-4 mb-1">
+                                                <div class="detailLbale"> Client Employee ID</div>
+                                                <div class="detailData"> {new_client.client_id}</div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="grid grid-cols-2 gap-4 mb-1">
+                                                <div class="detailLbale"> Added On</div>
+                                                <div class="detailData">{new_client.creation}</div>
+                                            </div>
+                                            <div class="grid grid-cols-2 gap-4 mb-1">
+                                                <div class="detailLbale"> Added by </div>
+                                                <div class="detailData"> {new_client.modified_by}</div>
+                                            </div>
+                                            <div class="grid grid-cols-2 gap-4 mb-1">
+                                                <div class="detailLbale"> Client ID status/info </div>
+                                                <div class="detailData"> ----</div>
+                                            </div>
+                                            <div class="grid grid-cols-2 gap-4 mb-1">
+                                                <div class="detailLbale"> Status</div>
+                                                <div>
+                                                        {#if new_client.status == "deactive"}
+                                                        <p
+                                                            class="userStatusTickVerified "
+                                                        >
+                                                            <img
+                                                                src="{$img_url_name.img_name}/reject.png"
+                                                                alt=""
+                                                                class="pr-1"
+                                                            /> {new_client.status}
+                                                        </p>
+                                                        {:else}
+                                                        <p
+                                                            class="userStatusTickVerified "
+                                                        >
+                                                            <img
+                                                                src="{$img_url_name.img_name}/checked.png"
+                                                                alt=""
+                                                                class="pr-1"
+                                                            /> {new_client.status}
+                                                        </p>
+                                                        {/if}
+                                                    </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {/each}
+                                {/if}
+                            </div>
+
+                            <div>
+                                <div class="bgAddSection mt-2">
+                                    <div class="addbuttongst hidden ">
+                                        <div class="updateAction">
+                                            <button class="ErBlueButton">Add New Mapping</button>
+                                        </div>
+                                    </div>
+                                    <div class="addGstForm ">
+                                        <div class="gstaddtitle px-4 py-4">
+                                            <p class="text-lg font-medium">Add New Mapping</p>
+                                        </div>
+
+
+
+                                        <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
+                                            <div class="w-full">
+                                                <div class="light14grey mb-1">Organization</div>
+                                                <div class="formInnerwidthfull ">
+                                                    <select class="inputboxpopover">
+                                                        <option class="pt-6">Select</option>
+                                                    </select>
+                                                    <div class="formSelectArrow ">
+                                                        <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="w-full">
+                                                <div class="light14grey mb-1">Station</div>
+                                                <div class="formInnerwidthfull ">
+                                                    <select class="inputboxpopover">
+                                                        <option class="pt-6">Select</option>
+                                                    </select>
+                                                    <div class="formSelectArrow ">
+                                                        <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
+                                            <div class="w-full">
+                                                <div class="light14grey mb-1">Name in COMP</div>
+                                                <div class="formInnerwidthfull ">
+                                                    <select class="inputboxpopover">
+                                                        <option class="pt-6">Select</option>
+                                                    </select>
+                                                    <div class="formSelectArrow ">
+                                                        <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="w-full">
+                                                <div class="light14greylong mb-1">Client Empployee ID ( If available)
+                                                </div>
+                                                <div class="formInnerwidthfull ">
+                                                    <input type="text" class="inputboxpopover">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex gap-4 px-4 py-2 xsl:flex-wrap">
+                                            <div class="w-full">
+                                                <div class="light14greylong mb-1">Create new Rabbit ID/Comp ID</div>
+                                                <div class="formInnerwidthfull ">
+                                                    <div class="formInnerGroup py-2">
+                                                        <div class="text-center flex mb-2 ml-1">
+
+                                                            <div class="flex items-center mr-4">
+                                                                <input id="Rabbit" type="radio" name="radio"
+                                                                    class="hidden" checked="">
+                                                                <label for="Rabbit" class="radioLable">
+                                                                    <span class="radioCirle"></span>
+                                                                    Rabbit ID</label>
+                                                            </div>
+
+                                                            <div class="flex items-center ml-4">
+                                                                <input id="COMP" type="radio" name="radio"
+                                                                    class="hidden">
+                                                                <label for="COMP" class="radioLable">
+                                                                    <span class="radioCirle"></span>
+                                                                    COMP ID</label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="w-full">
+
+                                            </div>
+                                        </div>
+
+
+
+                                        <div class="actionButtons">
+                                            <div class="actionCancelbutton ">
+                                                Cancel
+                                            </div>
+                                            <div class="updateAction ml-5">
+                                                <button class="ErBlueButton">Map</button>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div> -->
 
 
 
