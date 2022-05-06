@@ -115,6 +115,7 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
     onMount(async () => {
         page_name = $page.url["pathname"].split("/").pop();
         console.log("page_name", page_name);
+        console.log("date",date);
         function get_max_date() {
             let current_date = new Date();
             console.log("current date", current_date);
@@ -133,7 +134,18 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
                 )
             );
             console.log("max date", max_date);
+            // date = get_date_format(max_date,'yyyy-mm-dd');
             date = get_date_format(max_date,'yyyy-mm-dd');
+            // if($facility_data_store.dob){
+            //     date = $facility_data_store.dob;
+            //     console.log("inside if date ");
+                
+
+            // }
+            // else{
+            //     date = get_date_format(max_date,'yyyy-mm-dd');
+            // }
+            
             temp_max_date = get_date_format(max_date,'yyyy-mm-dd');
             console.log("temp_max_date", temp_max_date);
                 
@@ -173,7 +185,7 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
             console.log("facility store",$facility_data_store);
             console.log("duplicate facility data store",$duplicate_facility_data_store);
             console.log("duplicate document store",$duplicate_documents_store);
-
+            
         }
     });
     function get_state_and_tier(data){
@@ -618,6 +630,9 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
     }
     $:{
         console.log("test_date",test_date);
+        console.log("type of test date",typeof(test_date));
+        const d = new Date(test_date);
+        console.log("date",d);
     }
 </script>
 
@@ -750,12 +765,13 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
                                         />
                                     </span>
                                     <!-- <input type="Email" class="inputbox"> -->
-                                    <DateInput
+                                    <!-- <DateInput
                                         placeholder="testing"
                                         bind:value={date}
                                         format="dd/MM/yyyy"
                                         max={max_date}
-                                    />
+                                    /> -->
+                                    <input type="date" max={max_date} bind:value={date}>
                                 </div>
                             </div>
                         </div>

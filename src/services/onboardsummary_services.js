@@ -216,6 +216,28 @@ const gst_details=()=>{
             method: "GET"
         },true)
 }
+const list_child_data=()=>{
+    let list_child_data_url = '/api/method/pravesh.facility.routes.super_store.get_child_details?field_name=parent_facility_id&field_value=%22'+new_facility_id+'%22'
+    return request(
+        list_child_data_url,{
+            method: "GET"
+        },true)
+}
+const remove_child=(child_id)=>{
+    let remove_child_url = '/api/method/pravesh.facility.routes.super_store.remove_mapping?name='+child_id+'&_=1651739902496';
+    return request(
+        remove_child_url,{
+            method: "GET"
+        },true)
+}
+const work_details_data = () =>{
+    let work_details_url = '/api/method/pravesh.facility.routes.contract.get_assign_contract?facility_id='+new_facility_id+'&is_physical=True';
+    return request(
+        work_details_url,{
+            method: "GET"
+        },true)
+
+}
 
 
 
@@ -242,5 +264,8 @@ export {
     get_child_dets,
     rem_child,
     add_gst_dets,
-    gst_details
+    gst_details,
+    list_child_data,
+    remove_child,
+    work_details_data
 }

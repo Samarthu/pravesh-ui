@@ -130,7 +130,7 @@ import { Router, Link, Route } from "svelte-routing";
     ,amount_message="",recrun_number_message="",file_number_message="",cheque_upload_message="";
     let child_box;
     let bank_details_res,bank_new_date,
-    facility_modified_date,facility_created_date,facility_doc_date;
+    facility_modified_date,facility_doc_date;
     // let client_det_res;
     let client_det_arr=[];
     let gst_doc_arr=[];
@@ -138,8 +138,10 @@ import { Router, Link, Route } from "svelte-routing";
     let file_data;
     let showbtn = 0;
     let selectTag,addRemark,selectsearch;
-    let facility_address,facility_postal,facility_password,city,location_id,status_name;
+    let city;
+    let facility_address,facility_postal,facility_password,location_id,status_name;
     let new_fac_remarks = [];
+    let facility_created_date;
     let select_tag_data,serv_ch_data;
     let total_pages;
     let pages=[];
@@ -195,7 +197,7 @@ import { Router, Link, Route } from "svelte-routing";
     }
     $:{
         if(city_select != null && $facility_id.facility_id_number != null){
-        console.log("citySelect",city_select);
+        
         link_child(city_select)
         }
     }
@@ -284,26 +286,26 @@ import { Router, Link, Route } from "svelte-routing";
             toast_type = "error";
             toast_text = err;
         }
-        let cheque_details_res = await cheque_details();
-        try{
+        // let cheque_details_res = await cheque_details();
+        // try{
             
-            if(cheque_details_res.body.status == "green" && cheque_details_res != "null"){
+        //     if(cheque_details_res.body.status == "green" && cheque_details_res != "null"){
             
-            $cheque_data_to_store.cheque_details_data = cheque_details_res.body.data;
+        //     $cheque_data_to_store.cheque_details_data = cheque_details_res.body.data;
             
-            cheque_data_to_store.subscribe((value) => {
-                cheque_values_from_store = value.cheque_details_data;
-            });
-            }
-            // console.log("cheque_values_from_store",cheque_values_from_store)
-            // cheque_values_from_store=cheque_values_from_store
-        }
-        catch(err) {
+        //     cheque_data_to_store.subscribe((value) => {
+        //         cheque_values_from_store = value.cheque_details_data;
+        //     });
+        //     }
+        //     // console.log("cheque_values_from_store",cheque_values_from_store)
+        //     // cheque_values_from_store=cheque_values_from_store
+        // }
+        // catch(err) {
            
-            toast_type = "error";
-            toast_text = err;
+        //     toast_type = "error";
+        //     toast_text = err;
             
-        }
+        // }
     
         /////////bank details/////////////
         let facility_document_res = await facility_document();
@@ -446,7 +448,7 @@ import { Router, Link, Route } from "svelte-routing";
         let id_date_format = new Date($facility_data_store.details_updated_on);
         id_new_date = get_date_format(id_date_format,"dd-mm-yyyy-hh-mm");
         
-        new_fac_remarks = $facility_data_store.remarks.split("\n");
+        // new_fac_remarks = $facility_data_store.remarks.split("\n");
         // console.log("new_fac_remarks",new_fac_remarks)
         
         let new_facility_date_format = new Date($facility_data_store.creation);
@@ -475,6 +477,7 @@ import { Router, Link, Route } from "svelte-routing";
                     }
                 }
                 gst_doc_type=gst_doc_type
+                console.log("gst_doc_type",gst_doc_type);
                 
                 if ($facility_data_store.addresess[j].default_address == "1") {
                     facility_address =$facility_data_store.addresess[j].address;
@@ -621,22 +624,22 @@ async function child_select_fun(){
         }
         
     }
-    async function gst_edit_click(address,city,state,gstn,gst_url,gst_name){
-        // console.log("gst_edit_click",address,city,state,gstn,gst_url,gst_name);
-        if(temp2 != "gst2"){
-            temp2 = "gst2";
-        }
-        else{
-            temp2 = temp2;
-        }
-        gst_address = address;
-        gst_city_select = city;
-        gst_city_link_state = state;
-        gst_number = gstn;
-        gst_file = gst_url;
-        gst_img = gst_name;
-    }
-
+    // async function gst_edit_click(address,city,state,gstn,gst_url,gst_name){
+    //     // console.log("gst_edit_click",address,city,state,gstn,gst_url,gst_name);
+    //     if(temp2 != "gst2"){
+    //         temp2 = "gst2";
+    //     }
+    //     else{
+    //         temp2 = temp2;
+    //     }
+    //     gst_address = address;
+    //     gst_city_select = city;
+    //     gst_city_link_state = state;
+    //     gst_number = gstn;
+    //     gst_file = gst_url;
+    //     gst_img = gst_name;
+    // }
+    ////////not used////////////
     function SearchClick() {
         searchBox.style.display = "block";
         supplierCount.style.display = "none";
@@ -694,6 +697,7 @@ async function child_select_fun(){
         }
         paginatedItems = searchArray;
     }
+    //////not used/////////////
     
 /////////bank details//////;///////
 
@@ -743,90 +747,90 @@ async function child_select_fun(){
         
     }
 
-    async function cheque_button_click() {
-        // show_spinner = true;
-        let new_cheque_date = new Date(cheque_date)
-        if(!bank_name.match(text_pattern)){
-        bank_name_message = "Invalid Bank Name";
-        return
-        }
-        if(!type){
-            type_message = "Invalid type";
-            return;
-        }
-        if(!cheque_date){
-            cheque_date_message = "Invalid Cheque Date";
-            return;
-        }
-        if(!cheque_number || isNaN(cheque_number)){
-            cheque_number_message = "Invalid Cheque Number";
-            return;
-        }
-        if(!amount || isNaN(amount)){
-            amount_message = "Invalid Amount";
-            return;
+    // async function cheque_button_click() {
+    //     // show_spinner = true;
+    //     let new_cheque_date = new Date(cheque_date)
+    //     if(!bank_name.match(text_pattern)){
+    //     bank_name_message = "Invalid Bank Name";
+    //     return
+    //     }
+    //     if(!type){
+    //         type_message = "Invalid type";
+    //         return;
+    //     }
+    //     if(!cheque_date){
+    //         cheque_date_message = "Invalid Cheque Date";
+    //         return;
+    //     }
+    //     if(!cheque_number || isNaN(cheque_number)){
+    //         cheque_number_message = "Invalid Cheque Number";
+    //         return;
+    //     }
+    //     if(!amount || isNaN(amount)){
+    //         amount_message = "Invalid Amount";
+    //         return;
             
-        }
+    //     }
         
-        if(!checkupload){
-            cheque_upload_message = "Invalid Cheque Upload"
-            return;
-        }
+    //     if(!checkupload){
+    //         cheque_upload_message = "Invalid Cheque Upload"
+    //         return;
+    //     }
         
-            const cheque_details_form = {
-                bank_name,
-                type,
-                cheque_date:(get_date_format(new_cheque_date,"yyyy-mm-dd")),
-                cheque_number,
-                amount,
-                recrun_number,
-                file_number,
-                file_data,
-                file_name:img_name,
-                facility_id:($facility_id.facility_id_number),
-            };
-            let cheque_add_res = await addnew_cheque_details(cheque_details_form);
-            // console.log("cheque_add_res",cheque_add_res);
-            try{
-                show_spinner = true;
-                if(cheque_add_res.body.status== "green"){
-                    show_spinner = false;
-                    toast_text = "Cheque Details Added Successfully";
-                    toast_type = "success";
-                    let cheque_details_res = await cheque_details();
-                    try{
-                        if(cheque_details_res.body.status == "green" && cheque_details_res != "null"){
+    //         const cheque_details_form = {
+    //             bank_name,
+    //             type,
+    //             cheque_date:(get_date_format(new_cheque_date,"yyyy-mm-dd")),
+    //             cheque_number,
+    //             amount,
+    //             recrun_number,
+    //             file_number,
+    //             file_data,
+    //             file_name:img_name,
+    //             facility_id:($facility_id.facility_id_number),
+    //         };
+    //         let cheque_add_res = await addnew_cheque_details(cheque_details_form);
+    //         // console.log("cheque_add_res",cheque_add_res);
+    //         try{
+    //             show_spinner = true;
+    //             if(cheque_add_res.body.status== "green"){
+    //                 show_spinner = false;
+    //                 toast_text = "Cheque Details Added Successfully";
+    //                 toast_type = "success";
+    //                 let cheque_details_res = await cheque_details();
+    //                 try{
+    //                     if(cheque_details_res.body.status == "green" && cheque_details_res != "null"){
                         
-                        $cheque_data_to_store.cheque_details_data = cheque_details_res.body.data;
+    //                     $cheque_data_to_store.cheque_details_data = cheque_details_res.body.data;
                         
-                        cheque_data_to_store.subscribe((value) => {
-                            cheque_values_from_store = value.cheque_details_data;
-                        });
-                        }
+    //                     cheque_data_to_store.subscribe((value) => {
+    //                         cheque_values_from_store = value.cheque_details_data;
+    //                     });
+    //                     }
                         
-                        // cheque_values_from_store=cheque_values_from_store
-                    }
-                    catch(err) {
-                        show_spinner = false;
-                        toast_type = "error";
-                        toast_text = err;
+    //                     // cheque_values_from_store=cheque_values_from_store
+    //                 }
+    //                 catch(err) {
+    //                     show_spinner = false;
+    //                     toast_type = "error";
+    //                     toast_text = err;
                         
-                    }
+    //                 }
 
-                }
-                else{
-                    show_spinner = false;
-                    toast_text = "Error in Adding Cheque Details";
-                    toast_type = "danger";
-                }
+    //             }
+    //             else{
+    //                 show_spinner = false;
+    //                 toast_text = "Error in Adding Cheque Details";
+    //                 toast_type = "danger";
+    //             }
 
-            }
-            catch(err){
-                show_spinner = false;
-                toast_text = "Error in Adding Cheque Details";
-                toast_type = "danger";
-            }
-    }
+    //         }
+    //         catch(err){
+    //             show_spinner = false;
+    //             toast_text = "Error in Adding Cheque Details";
+    //             toast_type = "danger";
+    //         }
+    // }
     
     
 
@@ -1278,7 +1282,6 @@ async function child_select_fun(){
     // return arr
     // }
     
-    
 
 </script>
 {#if show_spinner}
@@ -1629,13 +1632,28 @@ async function child_select_fun(){
             <div class="{bank_active}" on:click={() => {change_to = "Bank_details",work_active="",asso_active="",id_active="",bank_active="active"}}>Bank Details</div>
         </div> 
     {#if change_to == "Associate_details"}
-    <AssociateDetails />
+   
+    <AssociateDetails gst_doc_arr = {gst_doc_arr} facility_created_date = {facility_created_date}
+    city = {city} facility_postal={facility_postal}
+    gst_doc_obj={gst_doc_obj} addproof_obj={addproof_obj} 
+    fac_photo_objfac_photo_obj={fac_photo_obj} 
+    facility_password={facility_password}
+    facility_address = {facility_address}
+    pancard_obj={pancard_obj}/>
+    
     {:else if change_to == "Work_details"}
-    <WorkDetails />
+    <WorkDetails new_off_file_obj={new_off_file_obj} facility_modified_date={facility_modified_date} city={city}/>
+
     {:else if change_to == "Identity_details"}
-    <IdentityProof />
+    <IdentityProof pancard_obj={pancard_obj}
+    aadhar_obj ={aadhar_obj}
+    dl_photo_obj={dl_photo_obj}
+    id_new_date={id_new_date}/>
+    
     {:else if change_to == "Bank_details"}
-    <BankDetails />
+    <BankDetails bank_values_from_store = {bank_values_from_store}
+     city={city} can_cheque_obj = {can_cheque_obj}
+     bank_new_date={bank_new_date}/>
     {/if}
 
     
@@ -1783,7 +1801,7 @@ async function child_select_fun(){
 
                                                             </tbody>
                                                         </table>
-                                                        ​
+                                                        
                                                         <div
                                                             class="associateCard  border p-p7px  rounded-md hidden xs:block sm:block">
 
@@ -3089,521 +3107,6 @@ async function child_select_fun(){
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- GST Details modal -->
-<div class="hidden" id="modalidgst">
-    <div class=" viewDocmodal  ">
-        <div class="bglightcolormodal" />
-        <div class="allDocmodalsuccessbody rounded-lg">
-            <div class="">
-                <div class="viewDocPanmainbodyModal">
-                    <div class="flex justify-between mb-3">
-                        <div class="leftmodalInfo">
-                            <p class="text-lg text-erBlue font-medium  ">
-                                <span class=""> GST Details</span>
-                            </p>
-                            <p class="text-sm ">
-                                <span class="font-medium text-lg">
-                                    {$facility_data_store.facility_name}</span
-                                >
-                                <span class="userDesignation">
-                                    - Associate- {$facility_data_store.facility_type}, {city}</span
-                                >
-                            </p>
-                        </div>
-                        <div class="rightmodalclose" on:click={closeGST}>
-                            <img src="{$img_url_name.img_name}/blackclose.svg" alt="" />
-                        </div>
-                    </div>
-                    <div class="innermodal">
-                        <hr />
-                        <div class="scrollbar ">
-                            <div class="mainContainerWrapper ">
-                                <div class="DocCardlist ">
-                                    {#if !gst_details_data}
-                                    <p>No GST Details found</p>
-                                    {:else}
-                                    {#each gst_details_data as new_gst}
-                                    <div class="cardDocWrapper ">
-                                        <div class="infoDivCard ">
-                                            <div class="infofSection  ">
-                                                <div class="secFirstDoc ">
-                                                    <div
-                                                        class="locationInformation"
-                                                    >
-                                                        <div class="flex">
-                                                            <p
-                                                                class="detailLbalesm pr-3"
-                                                            >
-                                                                Address
-                                                            </p>
-                                                            <p
-                                                                class="detailDatasm"
-                                                            >
-                                                                {new_gst.address}
-                                                            </p>
-                                                        </div>
-                                                        <div class="flex">
-                                                            <p
-                                                                class="detailLbalesm pr-3"
-                                                            >
-                                                                City
-                                                            </p>
-                                                            <p
-                                                                class="detailDatasm"
-                                                            >
-                                                                {new_gst.city}
-                                                            </p>
-                                                        </div>
-                                                        <div class="flex">
-                                                            <p
-                                                                class="detailLbalesm pr-3"
-                                                            >
-                                                                GST State
-                                                            </p>
-                                                            <p
-                                                                class="detailDatasm"
-                                                            >
-                                                            {new_gst.state}
-                                                            </p>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="pl-2">
-                                                        <p
-                                                            class="detailLbale whitespace-nowrap mb-2"
-                                                        >
-                                                            GST Number
-                                                        </p>
-                                                        <p class="detailData">
-                                                            {new_gst.gstn}
-                                                        </p>
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p
-                                                            class="detailLbale whitespace-nowrap mb-2"
-                                                        >
-                                                            GST Certificate
-                                                        </p>
-                                                        <p class="verifyText">
-                                                            <a
-                                                                href=""
-                                                                class="smButton"
-                                                            >
-                                                                <img
-                                                                    src="{$img_url_name.img_name}/view.png"
-                                                                    alt=""
-                                                                    on:click="{openViewModel("mult_gsts",new_gst.gstn)}"
-                                                                />
-                                                            </a>
-                                                        </p>
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p
-                                                            class="detailLbale mb-2"
-                                                        >
-                                                            Edit
-                                                        </p>
-                                                        <p class="verifyText">
-                                                            <a
-                                                                href=""
-                                                                class="smButton"
-                                                            >
-                                                            <!-- for(let i = 0;i<gst_doc_arr.length;i++){ -->
-                                                                {#each gst_doc_arr as gst_doc}
-                                                                {#if gst_doc.gst_doc_num == new_gst.gstn}
-                                                                <img
-                                                                    src="{$img_url_name.img_name}/edit.png"
-                                                                    on:click="{()=>{gst_edit_click(new_gst.address,new_gst.city,
-                                                                    new_gst.state,new_gst.gstn,gst_doc.gst_url,gst_doc.gst_name)}}"
-                                                                    alt="gst edit"
-                                                                />
-                                                                {/if}
-                                                                {/each}
-                                                            </a>
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="statusSecForDoc">
-                                            <p class="userStatusTick ">
-                                                <!-- <img
-                                                    src="{$img_url_name.img_name}/checked.png"
-                                                    alt=""
-                                                    class="pr-1"
-                                                /> Verified
-                                            </p> -->
-                                            {#if gst_verified == "1"}
-                                                <p
-                                                class="statusContentTag text-green font-normal xs:w-5/12"
-                                            >
-                                                <img
-                                                    src="{$img_url_name.img_name}/checked.png"
-                                                    class="pr-2"
-                                                    alt=""
-                                                />GST Verified
-                                            </p>
-                                                {:else if gst_rejected == "1"} 
-                                                <p
-                                                class="statusContentTag text-rejectcolor font-normal xs:w-5/12"
-                                            >
-                                                <img
-                                                    src="{$img_url_name.img_name}/reject.png"
-                                                    class="pr-2"
-                                                    alt=""
-                                                />GST Rejected
-                                            </p>
-                                            <!-- {:else} -->
-                                            {:else if gst_verified == "0" && gst_rejected == "0"}
-                                            <p class="statusContent font-normal xs:w-5/12">
-                                                <img
-                                                    src="{$img_url_name.img_name}/timer.png"
-                                                    class="pr-2"
-                                                    alt=""
-                                                />GST Verification Pending
-                                            </p>
-                                                {/if}
-                                                        </div>
-                                                    </div>
-                                                    {/each}
-                                                    {/if}
-                                </div>
-                                <div class="addDocumentSection ">
-                                    <div class="addSecform hidden">
-                                        <div
-                                            class="addButtonSection my-3 py-16 text-center hidden"
-                                        >
-                                            <div class="updateAction">
-                                                <button class="ErBlueButton"
-                                                    >Add New GST Details</button
-                                                >
-                                            </div>
-                                        </div>
-                                        <div class="my-3 py-4 px-4 ">
-                                            <p class="text-lg font-medium">
-                                                Add new GST details
-                                            </p>
-
-                                            <div
-                                                class="flex  py-1 items-center flex-wrap"
-                                            >
-                                                <div class="light14grey  mb-1">
-                                                    Address
-                                                </div>
-                                                <div class="formInnerGroup">
-                                                    <input
-                                                        class="inputboxpopover"
-                                                        type="text"
-                                                        bind:value="{gst_address}"
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div
-                                                class="flex  py-3 items-center flex-wrap"
-                                            >
-                                                <div class="light14grey mb-1">
-                                                    City
-                                                </div>
-                                                <div class="formInnerGroup ">
-                                                    <select
-                                                        class="inputboxpopover"
-                                                        bind:value={gst_city_select}
-                                                    >
-                                                        <option class="pt-6"
-                                                            >Select</option
-                                                        >
-                                                        {#each city_data as new_city}
-                                                        <option class="pt-6"
-                                                            >{new_city}</option
-                                                        >
-                                                        {/each}
-                                                    </select>
-                                                    <div
-                                                        class="formSelectArrow "
-                                                    >
-                                                        <img
-                                                            src="{$img_url_name.img_name}/selectarrow.png"
-                                                            class="w-5 h-auto"
-                                                            alt=""
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div
-                                                class="flex  py-1 items-center flex-wrap"
-                                            >
-                                                <div class="light14grey  mb-1">
-                                                    GST State
-                                                </div>
-                                                <div class="formInnerGroup">
-                                                    <input
-                                                        class="inputboxpopover"
-                                                        type="text"
-                                                        bind:value="{gst_city_link_state}"
-                                                    />
-                                                </div>
-                                            </div>
-
-                                            <div
-                                                class="flex  py-3 items-center flex-wrap"
-                                            >
-                                                <div class="light14grey  mb-1">
-                                                    Upload Document
-                                                </div>
-                                                <div class="formInnerGroup">
-                                                    <label
-                                                        class="cursor-pointer flex"
-                                                    >
-                                                        <div
-                                                            class="ErBlueButton"
-                                                        >
-                                                            Select File
-                                                        </div>
-                                                        <input
-                                                            type="file"
-                                                            class="hidden"
-                                                                    on:change={(
-                                                                        e
-                                                                    ) =>
-                                                                        onFileSelected(
-                                                                            e,"gst_upload"
-                                                                        )}
-                                                            bind:value="{gst_file}"
-
-                                                        />
-                                                        <div class="text-red-500">{gst_upload_message}</div>
-                                                    </label>
-                                                    <p>{gst_img}</p>
-                                                </div>
-                                            </div>
-
-                                            <div
-                                                class="flex items-center justify-end mt-5"
-                                            >
-                                                <div
-                                                    class="updateAction text-erBlue"
-                                                >
-                                                    Cancel
-                                                </div>
-                                                <div class="updateAction ml-5">
-                                                    <button class="ErBlueButton"
-                                                        >Upload</button
-                                                    >
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div
-                                        class=" bg-lighterGrey rounded-lg h-full"
-                                    >
-                                        {#if temp2 == "gst1"}
-                                            <div
-                                                class="addButtonSection my-3 py-3  text-center "
-                                            >
-                                                <div class="updateAction mt-5">
-                                                    <button
-                                                        class="ErBlueButton"
-                                                        on:click={() => {
-                                                            temp2 = "gst2";
-                                                        }}
-                                                        >Add New GST Details</button
-                                                    >
-                                                </div>
-                                            </div>
-                                        {/if}
-
-                                        {#if temp2 == "gst2"}
-                                            <div class="my-0 py-4 px-4 ">
-                                                <div
-                                                    class="h-80 max-h-80 overflow-y-scroll pr-4 border-b-2"
-                                                >
-                                                    <p
-                                                        class="text-lg font-medium"
-                                                    >
-                                                        Add new GST details
-                                                    </p>
-
-                                                    <div
-                                                        class="flex  py-1 items-center flex-wrap"
-                                                    >
-                                                        <div
-                                                            class="light14grey  mb-1"
-                                                        >
-                                                            Address
-                                                        </div>
-                                                        <div
-                                                            class="formInnerGroup"
-                                                        >
-                                                            <input
-                                                                class="inputboxpopover"
-                                                                type="text"
-                                                                bind:value="{gst_address}"
-                                                            />
-                                                            <div class="text-red-500">{gst_add_message}</div>
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        class="flex  py-3 items-center flex-wrap"
-                                                    >
-                                                        <div
-                                                            class="light14grey mb-1"
-                                                        >
-                                                            City
-                                                        </div>
-                                                        <div
-                                                            class="formInnerGroup "
-                                                        >
-                                                        <select
-                                                        class="inputboxpopover"
-                                                        bind:value={gst_city_select}
-                                                    >
-                                                        <option class="pt-6"
-                                                            >Select</option
-                                                        >
-                                                        {#each city_data as new_city}
-                                                        <option class="pt-6"
-                                                            >{new_city}</option
-                                                        >
-                                                        {/each}
-                                                    </select>
-                                                    <div class="text-red-500">{gst_city_message}</div>
-                                                            <div
-                                                                class="formSelectArrow "
-                                                            >
-                                                                <img
-                                                                    src="{$img_url_name.img_name}/selectarrow.png"
-                                                                    class="w-5 h-auto"
-                                                                    alt=""
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        class="flex  py-1 items-center flex-wrap"
-                                                    >
-                                                        <div
-                                                            class="light14grey  mb-1"
-                                                        >
-                                                            GST State
-                                                        </div>
-                                                        <div
-                                                            class="formInnerGroup"
-                                                        >
-                                                            <input
-                                                                class="inputboxpopover"
-                                                                type="text"
-                                                                bind:value="{gst_city_link_state}"
-                                                            />
-                                                            
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        class="flex  py-1 items-center flex-wrap"
-                                                    >
-                                                        <div
-                                                            class="light14grey  mb-1"
-                                                        >
-                                                            GST Number
-                                                        </div>
-                                                        <div
-                                                            class="formInnerGroup"
-                                                        >
-                                                            <input
-                                                                class="inputboxpopover"
-                                                                type="text"
-                                                                bind:value="{gst_number}"
-                                                            />
-                                                            <div class="text-red-500">{gst_number_message}</div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="checkFormgroup">
-                                                        <input
-                                                            id="remember-me"
-                                                            name="remember-me"
-                                                            type="checkbox"
-                                                            placeholder="Your password"
-                                                            class="inputChecked"
-                                                            bind:checked = "{gst_checkbox}"
-                                                        />
-                                                        <label for="remember-me" class="onboardedText ">
-                                                            Default Address
-                                                        </label>
-                                                    </div>
-
-
-                                                    <div
-                                                        class="flex  py-3 items-center flex-wrap"
-                                                    >
-                                                        <div
-                                                            class="light14greylong  mb-1"
-                                                        >
-                                                            Upload GST
-                                                            Certificate
-                                                        </div>
-                                                        <div
-                                                            class="formInnerGroup"
-                                                        >
-                                                            <label
-                                                                class="cursor-pointer flex"
-                                                            >
-                                                                <div
-                                                                    class="ErBlueButton"
-                                                                >
-                                                                    Select File
-                                                                </div>
-                                                                <input
-                                                                    type="file"
-                                                                    class="hidden"
-                                                                    on:change={(
-                                                                        e
-                                                                    ) =>
-                                                                        onFileSelected(
-                                                                            e,"gst_upload"
-                                                                        )}
-                                                                    bind:value="{gst_file}"
-                                                                />
-                                                                <div class="text-red-500">{gst_upload_message}</div>
-                                                            </label>
-                                                            <p>{gst_img}</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div
-                                                    class="flex items-center justify-end mt-5"
-                                                >
-                                                    <div
-                                                        class="updateAction text-erBlue cursor-pointer "
-                                                        on:click={() => {
-                                                            temp2 = "gst1";
-                                                        }}
-                                                    >
-                                                        Cancel
-                                                    </div>
-                                                    <div
-                                                        class="updateAction ml-5"
-                                                    >
-                                                        <button
-                                                            class="ErBlueButton"
-                                                            on:click="{gst_submit_click}">Add</button
-                                                        >
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        {/if}
                                     </div>
                                 </div>
                             </div>
@@ -4940,938 +4443,9 @@ async function child_select_fun(){
     </div>
 </div>
 
-<!-- Cheque Details modal -->
 
-<div class="hidden" id="chequeModel">
-    <div class=" viewDocmodal  " id="modal-id">
-        <div class="bglightcolormodal" />
-        <div class="allDocmodalsuccessbody rounded-lg">
-            <div class="">
-                <div class="viewDocPanmainbodyModal">
-                    <div class="flex justify-between mb-3">
-                        <div class="leftmodalInfo">
-                            <p class="text-lg text-erBlue font-medium  ">
-                                <span class=""> Cheque Details </span>
-                            </p>
-                            <p class="text-sm ">
-                                <span class="font-medium text-lg">
-                                    {$facility_data_store.facility_name}</span
-                                >
-                                <span class="userDesignation">
-                                    - Associate- {$facility_data_store.facility_type}, MHPD - Mulsi
-                                    SP</span
-                                >
-                            </p>
-                        </div>
-                        <div
-                            class="rightmodalclose"
-                            on:click={closechequeDetails}
-                        >
-                            <img src="{$img_url_name.img_name}/blackclose.svg" alt="" />
-                        </div>
-                    </div>
-                    <div class="innermodal">
-                        <hr />
-                        <div class="scrollbar ">
-                            <div class="mainContainerWrapper ">
-                                <div class="DocCardlist ">
-                                    {#if !cheque_values_from_store}
-                                    <p>No Cheque Details found</p>
-                                    {:else}
-                                    {#each cheque_values_from_store as new_cheque}
-                                        <div class="cardDocWrapper ">
-                                            <div
-                                                class="grid grid-cols-2 xs:grid-cols-1 gap-4"
-                                            >
-                                                <div>
-                                                    <div
-                                                        class="grid grid-cols-2 gap-4 mb-1"
-                                                    >
-                                                        <div
-                                                            class="detailLbale"
-                                                        >
-                                                            Bank Name
-                                                        </div>
-                                                        <div class="detailData">
-                                                            {new_cheque.bank_name}
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        class="grid grid-cols-2 gap-4 mb-1"
-                                                    >
-                                                        <div
-                                                            class="detailLbale"
-                                                        >
-                                                            Cheque Type
-                                                        </div>
-                                                        <div class="detailData">
-                                                            {new_cheque.type}
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        class="grid grid-cols-2 gap-4 mb-1"
-                                                    >
-                                                        <div
-                                                            class="detailLbale"
-                                                        >
-                                                            Cheque Date
-                                                        </div>
-                                                        <div class="detailData">
-                                                            {new_cheque.cheque_date}
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        class="grid grid-cols-2 gap-4 mb-1"
-                                                    >
-                                                        <div
-                                                            class="detailLbale"
-                                                        >
-                                                            Cheque Number
-                                                        </div>
-                                                        <div class="detailData">
-                                                            {new_cheque.cheque_number}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div>
-                                                    <div
-                                                        class="grid grid-cols-2 gap-4 mb-1"
-                                                    >
-                                                        <div
-                                                            class="detailLbale"
-                                                        >
-                                                            Amount
-                                                        </div>
-                                                        <div class="detailData">
-                                                            Rs {new_cheque.amount}
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        class="grid grid-cols-2 gap-4 mb-1"
-                                                    >
-                                                        <div
-                                                            class="detailLbale"
-                                                        >
-                                                            Recrun Number
-                                                        </div>
-                                                        <div class="detailData">
-                                                            {#if new_cheque.recrun_number == "" || new_cheque.recrun_number == null}
-                                                                <p>-</p>
-                                                            {:else}
-                                                                {new_cheque.recrun_number}
-                                                            {/if}
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        class="grid grid-cols-2 gap-4 mb-1"
-                                                    >
-                                                        <div
-                                                            class="detailLbale"
-                                                        >
-                                                            View Cheque
-                                                        </div>
-                                                        <div
-                                                            class="userStatus "
-                                                        >
-                                                            <p
-                                                                class="verifyText"
-                                                            >
-                                                                <a
-                                                                    href=""
-                                                                    class="smButton"
-                                                                >
-                                                                    <img
-                                                                        src="{$img_url_name.img_name}/view.png"
-                                                                        alt="cheque img" on:click="{()=>{openViewModel("cheque_disp")}}"
-                                                                    />
-                                                                </a>
-                                                                
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    {/each}
-                                    {/if}
-                                </div>
-                                <div class="addDocumentSection ">
-                                    <div class="addSecform hidden">
-                                        <div
-                                            class="addButtonSection my-3 py-16 text-center hidden"
-                                        >
-                                            <div class="updateAction">
-                                                <button class="ErBlueButton"
-                                                    >Add New GST Details</button
-                                                >
-                                            </div>
-                                        </div>
-                                        <div class="my-3 py-4 px-4 ">
-                                            <p class="text-lg font-medium">
-                                                Add new GST details
-                                            </p>
 
-                                            <div
-                                                class="flex  py-1 items-center flex-wrap"
-                                            >
-                                                <div class="light14grey  mb-1">
-                                                    Address
-                                                </div>
-                                                <div class="formInnerGroup">
-                                                    <input
-                                                        class="inputboxpopover"
-                                                        type="text"
-                                                    />
-                                                </div>
-                                            </div>
-                                            <div
-                                                class="flex  py-3 items-center flex-wrap"
-                                            >
-                                                <div class="light14grey mb-1">
-                                                    City
-                                                </div>
-                                                <div class="formInnerGroup ">
-                                                    <select
-                                                        class="inputboxpopover"
-                                                        bind:value={gst_city_select}
-                                                    >
-                                                        <option class="pt-6"
-                                                            >Select</option
-                                                        >
-                                                        {#each city_data as new_city}
-                                                        <option class="pt-6"
-                                                            >{new_city}</option
-                                                        >
-                                                        {/each}
-                                                    </select>
-                                                    <div
-                                                        class="formSelectArrow "
-                                                    >
-                                                        <img
-                                                            src="{$img_url_name.img_name}/selectarrow.png"
-                                                            class="w-5 h-auto"
-                                                            alt=""
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div
-                                                class="flex  py-1 items-center flex-wrap"
-                                            >
-                                                <div class="light14grey  mb-1">
-                                                    GST State
-                                                </div>
-                                                <div class="formInnerGroup">
-                                                    <input
-                                                        class="inputboxpopover"
-                                                        type="text"
-                                                    />
-                                                </div>
-                                            </div>
 
-                                            <div
-                                                class="flex  py-3 items-center flex-wrap"
-                                            >
-                                                <div class="light14grey  mb-1">
-                                                    Upload Document
-                                                </div>
-                                                <div class="formInnerGroup">
-                                                    <label
-                                                        class="cursor-pointer flex"
-                                                    >
-                                                        <div
-                                                            class="ErBlueButton"
-                                                        >
-                                                            Select File
-                                                        </div>
-                                                        <input
-                                                            type="file"
-                                                            class="hidden"
-                                                        />
-                                                    </label>
-                                                </div>
-                                            </div>
-
-                                            <div
-                                                class="flex items-center justify-end mt-5"
-                                            >
-                                                <div
-                                                    class="updateAction text-erBlue"
-                                                >
-                                                    Cancel
-                                                </div>
-                                                <div class="updateAction ml-5">
-                                                    <button class="ErBlueButton"
-                                                        >Upload</button
-                                                    >
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div
-                                        class=" bg-lighterGrey rounded-lg h-full"
-                                    >
-                                        {#if temp6 == "cheque"}
-                                            <div
-                                                class="addButtonSection my-3 py-3  text-center"
-                                            >
-                                                <div
-                                                    class="updateAction mt-5"
-                                                    on:click={() => {
-                                                        temp6 = "cheque-2";
-                                                    }}
-                                                >
-                                                    <button class="ErBlueButton"
-                                                        >Add New Cheque Details</button
-                                                    >
-                                                </div>
-                                            </div>
-                                        {/if}
-
-                                        {#if temp6 == "cheque-2"}
-                                            <div class="my-0 py-4 px-4 ">
-                                                <div
-                                                    class="h-80 max-h-80 overflow-y-scroll pr-4 border-b-2"
-                                                >
-                                                    <p
-                                                        class="text-lg font-medium"
-                                                    >
-                                                        Add New Cheque Details
-                                                    </p>
-
-                                                    <div
-                                                        class="flex  py-3 items-center flex-wrap"
-                                                    >
-                                                        <div
-                                                            class="light14grey mb-1"
-                                                        >
-                                                            Bank Name
-                                                        </div>
-                                                        <div
-                                                            class="formInnerGroup "
-                                                        >
-                                                            <!-- <select class="inputboxpopover">
-                                                            <option class="pt-6">Select</option>
-                                                        </select> -->
-                                                            <input
-                                                                type="text"
-                                                                class="inputboxpopover"
-                                                                bind:value={bank_name}
-                                                            />
-                                                            <div class="text-red-500">{bank_name_message}</div>
-                                                            <div
-                                                                class="formSelectArrow "
-                                                            >
-                                                                <img
-                                                                    src="{$img_url_name.img_name}/selectarrow.png"
-                                                                    class="w-5 h-auto"
-                                                                    alt=""
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        class="flex  py-3 items-center flex-wrap"
-                                                    >
-                                                        <div
-                                                            class="light14grey mb-1"
-                                                        >
-                                                            Cheque Type
-                                                        </div>
-                                                        <div
-                                                            class="formInnerGroup "
-                                                        >
-                                                            <!-- <select class="inputboxpopover">
-                                                            <option class="pt-6">Select</option>
-                                                        </select> -->
-                                                            <select
-                                                                class="inputboxpopover"
-                                                                bind:value={type}
-                                                            >
-                                                                <option
-                                                                    value="-1"
-                                                                    >Select</option
-                                                                >
-                                                                <option
-                                                                    value="Crossed Cheque"
-                                                                    >Crossed
-                                                                    Cheque</option
-                                                                >
-                                                                <option
-                                                                    value="Bearer Cheque"
-                                                                    >Bearer
-                                                                    Cheque</option
-                                                                >
-                                                                <option
-                                                                    value="Order Cheque"
-                                                                    >Order
-                                                                    Cheque</option
-                                                                >
-                                                                <option
-                                                                    value="Open cheque"
-                                                                    >Open cheque</option
-                                                                >
-                                                                <option
-                                                                    value="Post-Dated Cheque"
-                                                                    >Post-Dated
-                                                                    Cheque</option
-                                                                >
-                                                                <option
-                                                                    value="Stale Cheque"
-                                                                    >Stale
-                                                                    Cheque</option
-                                                                >
-                                                                <option
-                                                                    value="Self Cheque"
-                                                                    >Self Cheque</option
-                                                                >
-                                                                <option
-                                                                    value="Banker’s Cheque"
-                                                                    >Banker’s
-                                                                    Cheque</option
-                                                                >
-                                                            </select>
-                                                            <div class="text-red-500">{type_message}</div>
-                                                            <div
-                                                                class="formSelectArrow "
-                                                            >
-                                                                <img
-                                                                    src="{$img_url_name.img_name}/selectarrow.png"
-                                                                    class="w-5 h-auto"
-                                                                    alt=""
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        class="flex  py-3 items-center flex-wrap"
-                                                    >
-                                                        <div
-                                                            class="light14grey mb-1"
-                                                        >
-                                                            Cheque Date
-                                                        </div>
-                                                        <div
-                                                            class="formInnerGroup "
-                                                        >
-                                                            <!-- <select class="inputboxpopover">
-                                                            <option class="pt-6">Select</option>
-                                                        </select> -->
-                                                            <DateInput
-                                                                class="inputboxpopover"
-                                                                placeholder="Cheque Date"
-                                                                format="dd/MM/yyyy"
-                                                                bind:value={cheque_date}
-                                                            />
-                                                            <div class="text-red-500">{cheque_date_message}</div>
-
-                                                            <div
-                                                                class="formSelectArrow "
-                                                            >
-                                                                <img
-                                                                    src="{$img_url_name.img_name}/selectarrow.png"
-                                                                    class="w-5 h-auto"
-                                                                    alt=""
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        class="flex  py-1 items-center flex-wrap"
-                                                    >
-                                                        <div
-                                                            class="light14greylong  mb-1"
-                                                        >
-                                                            Cheque Number
-                                                        </div>
-                                                        <div
-                                                            class="formInnerGroup"
-                                                        >
-                                                            <input
-                                                                class="inputboxpopover"
-                                                                type="text"
-                                                                bind:value={cheque_number}
-                                                            />
-                                                            <div class="text-red-500">{cheque_number_message}</div>
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        class="flex  py-1 items-center flex-wrap"
-                                                    >
-                                                        <div
-                                                            class="light14greylong  mb-1"
-                                                        >
-                                                            Amount
-                                                        </div>
-                                                        <div
-                                                            class="formInnerGroup"
-                                                        >
-                                                            <input
-                                                                class="inputboxpopover"
-                                                                type="text"
-                                                                bind:value={amount}
-                                                            />
-                                                            <div class="text-red-500">{amount_message}</div>
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        class="flex  py-1 items-center flex-wrap"
-                                                    >
-                                                        <div
-                                                            class="light14greylong  mb-1"
-                                                        >
-                                                            Recrun Number
-                                                        </div>
-                                                        <div
-                                                            class="formInnerGroup"
-                                                        >
-                                                            <input
-                                                                class="inputboxpopover"
-                                                                type="text"
-                                                                bind:value={recrun_number}
-                                                            />
-                                                            <div class="text-red-500">{recrun_number_message}</div>
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        class="flex  py-1 items-center flex-wrap"
-                                                    >
-                                                        <div
-                                                            class="light14greylong  mb-1"
-                                                        >
-                                                            File Number
-                                                        </div>
-                                                        <div
-                                                            class="formInnerGroup"
-                                                        >
-                                                            <input
-                                                                class="inputboxpopover"
-                                                                type="text"
-                                                                bind:value={file_number}
-                                                            />
-                                                            <div class="text-red-500">{file_number_message}</div>
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        class="flex  py-3 items-center flex-wrap"
-                                                    >
-                                                        <div
-                                                            class="light14greylong  mb-1"
-                                                        >
-                                                            Upload Cheque
-                                                        </div>
-                                                        <div
-                                                            class="formInnerGroup"
-                                                        >
-                                                            <label
-                                                                class="cursor-pointer flex"
-                                                            >
-                                                                <div
-                                                                    class="ErBlueButton"
-                                                                >
-                                                                    Select File
-                                                                </div>
-                                                                <!-- <input type="file" class="hidden"  bind:value={upload_cheque}> -->
-                                                                <input
-                                                                    type="file"
-                                                                    class="hidden"
-                                                                    on:change={(
-                                                                        e
-                                                                    ) =>
-                                                                        onFileSelected(
-                                                                            e,"cheque_upload"
-                                                                        )}
-                                                                        bind:value = "{checkupload}"
-                                                                />
-                                                                <div class="text-red-500">{cheque_upload_message}</div>
-                                                            </label>
-                                                            <p>{cheque_img}</p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div
-                                                    class="flex items-center justify-end mt-5"
-                                                >
-                                                    <div
-                                                        class="updateAction text-erBlue"
-                                                        on:click={() => {
-                                                            temp6 = "cheque";
-                                                        }}
-                                                    >
-                                                        Cancel
-                                                    </div>
-                                                    <div
-                                                        class="updateAction ml-5"
-                                                    >
-                                                        <button
-                                                            class="ErBlueButton"
-                                                            on:click={cheque_button_click}
-                                                            >Submit</button
-                                                        >
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        {/if}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Link Child Associates modal -->
-
-<div class="hidden" id="linkChildModel">
-    <div class=" viewDocmodal  " id="modal-id">
-        <div class="bglightcolormodal" />
-        <div class="allDocmodalsuccessbody rounded-lg">
-            <div class="">
-                <div class="viewDocPanmainbodyModal">
-                    <div class="flex justify-between mb-3">
-                        <div class="leftmodalInfo">
-                            <p class="text-lg text-erBlue font-medium  ">
-                                <span class=""> View/Edit Client Name</span>
-                            </p>
-                            <p class="text-sm ">
-                                <span class="font-medium text-lg">
-                                    {$facility_data_store.facility_name}</span
-                                >
-                                <span class="userDesignation">
-                                    - Associate- {$facility_data_store.facility_type}, MHPD - Mulsi
-                                    SP</span
-                                >
-                            </p>
-                        </div>
-                        <div
-                            class="rightmodalclose"
-                            on:click={linkChildModelclose}
-                        >
-                            <img src="{$img_url_name.img_name}/blackclose.svg" alt="" />
-                        </div>
-                    </div>
-                    <div class="innermodal">
-                        <hr />
-                        <div class="scrollbar ">
-                            <div class="mainContainerWrapper ">
-                                <div class="DocCardlist ">
-                                    <div
-                                        class="bg-bglightyellow py-2 px-3 mt-2 "
-                                    >
-                                        <div class="flex items-center">
-                                            <div class="detailLbale">
-                                                Tags added for this Associate
-                                                <span class="detailData " id="rem_comma">
-                                                    <!-- <p>{show_fac_array}</p> -->
-                                                    <!-- {#each show_fac_array as show_fac}
-                                                       {show_fac.tag_name}
-                                                    {/each} -->
-                                                    {#each tags_for_ass_arr as show_fac}
-                                                    {show_fac}
-                                                    {/each}
-                                                    </span
-                                                >
-                                            </div>
-                                        </div>
-                                    </div>
-                                   
-                                
-                                    <div class="flex  py-3 items-center ">
-                                        <div class="light14grey mb-1">
-                                            Select Location
-                                        </div>
-                                        <div class="formInnerGroup ">
-                                            <select
-                                                class="inputboxpopover"
-                                                on:click={() => {
-                                                    child = "linkchild2";
-                                                }}
-                                                bind:value={city_select}
-                                            >
-                                                <option class="pt-6"
-                                                    >Select</option
-                                                >
-                                                {#each city_data as new_city}
-                                                <option class="pt-6"
-                                                    >{new_city}</option
-                                                >
-                                                {/each}
-                                            </select>
-                                            <div class="formSelectArrow ">
-                                                <img
-                                                    src="{$img_url_name.img_name}/selectarrow.png"
-                                                    class="w-5 h-auto"
-                                                    alt=""
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="searchSupplier " id="searchBox">
-                                        <div class="formInnerGroup ">
-                                            <!-- <span class="searchicon">
-                                                <img
-                                                    src="{$img_url_name.img_name}/search.svg"
-                                                    class="placeholderIcon"
-                                                    alt=""
-                                                    on:click="{filterResults}"/>
-                                            </span> -->
-                                            <span class="searchicon">
-                                                <img
-                                                    src="{$img_url_name.img_name}/search.svg"
-                                                    class="placeholderIcon"
-                                                    alt=""
-                                                   />
-                                            </span>
-                                            <input bind:value="{searchTerm}"
-                                                class="inputboxsearch"
-                                                id="inputboxsearch"
-                                                placeholder="Search"
-                                                on:keypress="{enterKeyPress}"
-                                                
-                                            />
-                                            <!-- <input
-                                                    placeholder="Type some gibberish here"
-                                                    id="text"
-                                                    on:input={myFunc}
-                                            > -->
-                                            <div class="serchCloseIconSection " id="">
-                                                <div class="closeIconCon " on:click="{closeSearch}">
-                                                    <img
-                                                        src="{$img_url_name.img_name}/closeSearch.svg"
-                                                        class="w-4 h-auto"
-                                                        alt=""
-                                                    />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class=" searchClickbtn" on:click="{SearchClick}" >
-                                        <p class="searchIconPlace">
-                                            <img
-                                                src="{$img_url_name.img_name}/search.svg"
-                                                class="placeholderIcon"
-                                                alt=""
-                                            />
-                                        </p>
-                                    </div>
-                                    <div class="OtherAppliedTagsTable ">
-                                        <table
-                                            class="table  w-full text-center mt-2 xs:hidden sm:hidden"
-                                         id ="check_sel_id">
-                                            <thead class="theadpopover">
-                                                <tr>
-                                                    <th>Facility Name</th>
-                                                    <th>Unique ID</th>
-                                                    <th>Station</th>
-                                                    <th>Mobile No</th>
-                                                    <th>Select</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="tbodypopover" id="check_tbody">
-                                                {#if child == "linkchild"}
-                                                    <tr class="hidde">
-                                                        <td
-                                                            colspan="5"
-                                                            class="text-center"
-                                                        >
-                                                            <div
-                                                                class="light14greylong w-full mb-1"
-                                                            >
-                                                                Select a
-                                                                location to view
-                                                                Associates
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                {/if}
-
-                                                {#if child == "linkchild2"}
-                                                {#each paginatedItems as item}
-                                                    <tr class="border-b">
-                                                        <td>{item.facility_name}</td
-                                                        >
-                                                        <td>{item.name}</td>
-                                                        <td>{item.station_code}</td>
-                                                        <td>{item.phone_number}</td>
-                                                        <td
-                                                            ><input
-                                                                type="checkbox"
-                                                                class=" checked:bg-blue-500 ..."
-                                                                bind:value={check_selected}
-                                                               
-                                                            /></td
-                                                        > 
-                                                    </tr>
-                                                    <!-- <tr class="border-b">
-                                                        <td>
-                                                            Avinash Gopal Katari</td
-                                                        >
-                                                        <td>EFAU00088</td>
-                                                        <td>BOMG</td>
-                                                        <td>7620350909</td>
-                                                        <td
-                                                            ><input
-                                                                type="checkbox"
-                                                                class=" checked:bg-blue-500 ..."
-                                                            /></td
-                                                        >
-                                                    </tr> -->
-                                                    {/each}
-                                                {/if}
-                                            </tbody>
-                                        </table>
-                                        <div class="paginationButton">
-                                            <nav aria-label="Page navigation">
-                                                <ul class="pagiWrapper ">
-                                                    <!-- <li>
-                                                        <button class="preNextbtn"on:click={previous_function}>
-                                                            Previous</button
-                                                        > -->
-                                                        <!-- <button on:click={setValuechange}>value change</button> -->
-                                                    <!-- </li> -->
-                                                    <LightPaginationNav
-                                                            totalItems="{client_det_arr.length}"
-                                                            pageSize="{pageSize}"
-                                                            currentPage="{currentPage}"
-                                                            limit="{1}"
-                                                            showStepOptions="{true}"
-                                                            on:setPage="{(e) => currentPage = e.detail.page}"
-                                                            />
-                                                        <!-- {#if result === false}
-                                                        <li >
-                                                            <button id = "curr_page" class="pagiItemsNumber">
-                                                            1
-                                                            </button>
-                                                            </li>
-                                                        {:else}
-                                                        {#each paginatedItems as item}
-                                                        
-                                                        <li >
-                                                            <button id = "curr_page" class="pagiItemsNumber" on:click="{pageChange(page)}">
-                                                            {item}
-                                                            </button>
-                                                        </li>
-                                                        {/each}
-                                                        {/if} -->
-                                                        <!-- <ul class="items">
-                                                            {#each paginatedItems as item}
-                                                              <li class="item">
-                                                                {item}
-                                                              </li>
-                                                            {/each}
-                                                          </ul> -->
-                                                          
-                                                    <li>
-                                                        <!-- <button class="preNextbtn" on:click={next_function}>
-                                                            Next</button
-                                                        > -->
-                                                    </li>
-                                                </ul>
-                                            </nav>
-                                        </div>
-                                
-                                        <div class="text-right mt-3">
-                                            <button
-                                                class="ErBlueButton"
-                                                on:click={() => {child_select_fun(),
-                                                    childlink = "childlink2";
-                                                }}>Link Child Associate</button
-                                            >
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="addDocumentSection ">
-                                    <div class="addSecform ">
-                                        <div class="my-3 py-4 px-4 ">
-                                            <p class="text-lg font-medium">
-                                                Linked Child Associates
-                                            </p>
-                                        </div>
-                                        {#if childlink == "childlink"}
-                                            <div
-                                                class="light14greylong w-full mb-1 text-center"
-                                            >
-                                                No child assosiates are linked
-                                            </div>
-                                        {/if}
-                                        {#if childlink == "childlink2"}
-                                            <div
-                                                class="cardforlinkedChild px-5 border-b pb-3"
-                                            >
-                                                <div class="flex justify-end">
-                                                    <div
-                                                        class="detailData"
-                                                        on:click={() => {
-                                                            childlink =
-                                                                "childlink";
-                                                        }}
-                                                    >
-                                                        <img
-                                                            src="{$img_url_name.img_name}/reject.png"
-                                                            width="25px"
-                                                            alt=""
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <div class="flex ">
-                                                    <div class="w-1/3 ">
-                                                        <div
-                                                            class="detailLbale"
-                                                        >
-                                                            Location
-                                                        </div>
-                                                    </div>
-                                                    <div class="w-2/3 ">
-                                                        <div class="detailData">
-                                                            {city}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="flex ">
-                                                    <div class="w-1/3 ">
-                                                        <div
-                                                            class="detailLbale"
-                                                        >
-                                                            Facility Name
-                                                        </div>
-                                                    </div>
-                                                    <div class="w-2/3 ">
-                                                        <div class="detailData">
-                                                            Avinash Gopal Katari
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="flex ">
-                                                    <div class="w-1/3 ">
-                                                        <div
-                                                            class="detailLbale"
-                                                        >
-                                                            Unique ID
-                                                        </div>
-                                                    </div>
-                                                    <div class="w-2/3 ">
-                                                        <div class="detailData">
-                                                            EFAU00088
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        {/if}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <!-- Document view Model -->
 <div id="img_model" tabindex="-1" aria-hidden="true" role ="dialog" class=" actionDialogueOnboard" hidden>

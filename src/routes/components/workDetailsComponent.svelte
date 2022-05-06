@@ -4,7 +4,7 @@
         //     import Catagory from "../catagory.svelte";
         //     import { goto } from "$app/navigation";
         //     import Breadcrumb from "./breadcrumb.svelte";
-            import { onMount } from "svelte";
+            // import { onMount } from "svelte";
         //     import { DateInput, DatePicker } from "date-picker-svelte";
             import { bank_data_to_store,cheque_data_to_store } from "../../stores/onboardsummary_store";
         //     import { allowed_pdf_size } from "../services/pravesh_config";
@@ -14,7 +14,8 @@
             import { facility_data,facility_bgv_init,facility_bgv_check,all_facility_tags,
                     show_fac_tags,submit_fac_tag_data,remove_tag,tag_audit_trail,service_vendor,
                     get_loc_scope,client_details,erp_details,child_data,add_gst_dets,
-                    facility_document,addnew_cheque_details,bank_details,cheque_details,gst_details} from "../../services/onboardsummary_services";
+                    facility_document,addnew_cheque_details,bank_details,cheque_details,gst_details,
+                    work_details_data} from "../../services/onboardsummary_services";
         //     import {uploadDocs} from "../services/bgv_services";
         //     import {get_date_format} from "../services/date_format_servives";
             // import {bank_details,cheque_details,facility_document,show_fac_tags,get_loc_scope,
@@ -23,7 +24,7 @@
             import {facility_id} from "../../stores/facility_id_store"
             import {facility_data_store} from "../../stores/facility_store"
         //     import {bgv_config_store} from '../stores/bgv_config_store'
-        //     import Toast from './components/toast.svelte';
+            import Toast from './toast.svelte';
         //     import AssociateDetails from './components/associateDetailsComponent.svelte';
         //     import BankDetails from './components/bankDetailsComponent.svelte';
         //     import IdentityProof from './components/identityProofComponent.svelte';
@@ -34,7 +35,8 @@
             import {logged_user} from '../../services/supplier_services';
             import  {  page } from '$app/stores';
             import {documents_store} from '../../stores/document_store';
-import { goto } from "$app/navigation";
+            import { goto } from "$app/navigation";
+            // import {onFileSelected} from '../onboardsummaryComponent.svelte'
         
             let show_spinner = false;
             let toast_text;
@@ -71,56 +73,57 @@ import { goto } from "$app/navigation";
             let id_new_date='';
             let username;
             let all_tags_res;
-            let pancard_obj = {
-                pan_num:null,
-                pan_attach:null,
-                pan_name:null,
-                pan_verified:null,
-                pan_rejected:null
-            }
-            let aadhar_obj = {
-                aadhar_num:null,
-                aadhar_attach:null,
-                aadhar_name:null,
-                aadhar_verified:null,
-                aadhar_rejected:null
-            }
-            let fac_photo_obj = {
-                profile_url:null,
-                profile_verified:null,
-                profile_rejected:null
-            }
-            let addproof_obj = {
-                address_name:null,
-                address_url:null,
-                address_verified:null,
-                address_rejected:null
-            };
-            let can_cheque_obj = {
-                can_cheque_name:null,
-                can_cheque_url:null,
-                can_cheque_verified:null,
-                can_cheque_rejected:null
-            };
-            let dl_photo_obj = {
-                dl_lic_name:null,
-                dl_lic_url:null,
-                dl_verified:null,
-                dl_rejected:null
-            };
-            let new_off_file_obj = {
+            let work_details_arr = [];
+            // let pancard_obj = {
+            //     pan_num:null,
+            //     pan_attach:null,
+            //     pan_name:null,
+            //     pan_verified:null,
+            //     pan_rejected:null
+            // }
+            // let aadhar_obj = {
+            //     aadhar_num:null,
+            //     aadhar_attach:null,
+            //     aadhar_name:null,
+            //     aadhar_verified:null,
+            //     aadhar_rejected:null
+            // }
+            // let fac_photo_obj = {
+            //     profile_url:null,
+            //     profile_verified:null,
+            //     profile_rejected:null
+            // }
+            // let addproof_obj = {
+            //     address_name:null,
+            //     address_url:null,
+            //     address_verified:null,
+            //     address_rejected:null
+            // };
+            // export let can_cheque_obj = {
+            //     can_cheque_name:null,
+            //     can_cheque_url:null,
+            //     can_cheque_verified:null,
+            //     can_cheque_rejected:null
+            // };
+            // let dl_photo_obj = {
+            //     dl_lic_name:null,
+            //     dl_lic_url:null,
+            //     dl_verified:null,
+            //     dl_rejected:null
+            // };
+            export let new_off_file_obj = {
                 offer_name:null,
                 offer_url:null,
                 offer_verified:null,
                 offer_rejected:null
             };
-            let gst_doc_obj = {
-                gst_name:null,
-                gst_url:null,
-                gst_doc_num:null,
-                gst_verified:null,
-                gst_rejected:null
-            };
+            // let gst_doc_obj = {
+            //     gst_name:null,
+            //     gst_url:null,
+            //     gst_doc_num:null,
+            //     gst_verified:null,
+            //     gst_rejected:null
+            // };
         
             let text_pattern = /^[a-zA-Z_ ]+$/;
             let recrun_pattern =  /^[^-\s](?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9 _-]+)$/;
@@ -131,8 +134,8 @@ import { goto } from "$app/navigation";
             let bank_name_message ="",type_message="",cheque_date_message="",cheque_number_message=""
             ,amount_message="",recrun_number_message="",file_number_message="",cheque_upload_message="";
             let child_box;
-            let bank_details_res,bank_new_date,
-            facility_modified_date,facility_created_date,facility_doc_date;
+            let bank_details_res,bank_new_date,facility_created_date,facility_doc_date;
+            export let facility_modified_date;
             // let client_det_res;
             let client_det_arr=[];
             let gst_doc_arr=[];
@@ -140,7 +143,9 @@ import { goto } from "$app/navigation";
             let file_data;
             let showbtn = 0;
             let selectTag,addRemark,selectsearch;
-            let facility_address,facility_postal,facility_password,city,location_id,status_name;
+            export let city;
+            console.log("city data new",city);
+            let facility_address,facility_postal,facility_password,location_id,status_name;
             let new_fac_remarks = [];
             let select_tag_data,serv_ch_data;
             let total_pages;
@@ -219,14 +224,115 @@ import { goto } from "$app/navigation";
             function myBtn() {
             associateModal.style.display = "block";
             }
-            function workorganization() {
+           async function workorganization() {
                 workorganizationModel.style.display = "block";
+                let work_details_res = await work_details_data();
+                try {
+                    if(work_details_data.body.status == "green"){
+                        console.log("work_details_res",work_details_res);
+                        work_details_arr.push(work_details_res.body.data);
+                    }
+                    work_details_arr = work_details_arr;
+                    console.log("work_details_arr",work_details_arr);
+                } catch (error) {
+                    toast_type = "error";
+                    toast_text = work_details_res.body.message;   
+                }
+                console.log("work_details_res",work_details_res);
+            
+
             }
 
             function closeWorkorganization() {
                 workorganizationModel.style.display = "none";
             }
+            function closeViewModel(){
+        document.getElementById("img_model").style.display = "none";
+    }
+    function openViewModel(data,doc_number){
+        document.getElementById("img_model").style.display = "block";
+        if(data == "aadhar"){
+            document.getElementById("img_model_url").getAttribute('src',aadhar_obj.aadhar_attach);
+            alt_image = "aadhar proof";
+        }
+        else if(data == "pan"){
+            document.getElementById("img_model_url").getAttribute('src',pancard_obj.pan_attach);
+            alt_image = "pan-card proof";
+        }
+        else if(data == "address"){
+            document.getElementById("img_model_url").getAttribute('src',addproof_obj.address_url);
+            alt_image = "address proof";
+        }
+        else if(data == "licence"){
+            document.getElementById("img_model_url").getAttribute('src',dl_lic_attach);
+            alt_image = "driving licence proof";
+        }
+        else if(data == "offer"){
+            document.getElementById("img_model_url").getAttribute('src',new_off_file_obj.offer_url);
+            alt_image = "offer letter proof";
+        }
+        else if(data == "can_cheque"){
+            document.getElementById("img_model_url").getAttribute('src',can_cheque_obj.can_cheque_url);
+            alt_image = "cancel cheque proof";
+        }
+        else if(data == "cheque_disp"){
+            document.getElementById("img_model_url").getAttribute('src',new_cheque.file_url);
+            alt_image = "cheque proof";
+        }
+        for(let i = 0;i<gst_doc_arr.length;i++){
+            if(data == "mult_gsts"){
+                if(doc_number == gst_doc_arr[i].gst_doc_num)
+                document.getElementById("img_model_url").getAttribute('src',gst_url[i]);
+                alt_image = "gst proof";
+            }
+        }
+        
+    }const onFileSelected = (e,doctext) => {
+        let img = e.target.files[0];
+        if (img.size <= allowed_pdf_size) {
+            console.log("img", img);
             
+            if(doctext == "gst_upload"){
+                console.log("Photo log uploaded")  
+                gst_img = img.name;
+            }
+            else if(doctext == "cheque_upload"){
+            cheque_img = img.name;
+            }
+            var reader = new FileReader();
+            reader.readAsDataURL(img);
+            reader.onload = function () {
+            file_data = reader.result;
+            console.log("reader",reader.result);
+            
+            if(doctext == "gst_upload"){
+                gst_data = reader.result;
+                // console.log("photo_data",reader.result);
+                toast_text = "Photo Uploaded Successfully";
+                toast_type = "success";
+            }
+            else if(doctext == "cheque_upload"){
+                cheque_data = reader.result;
+                toast_text = "Document Uploaded Successfully";
+                toast_type = "success";
+            }
+            }
+                reader.onerror = function (error) {
+                console.log("Error: ", error);
+                }
+        }
+        else {
+        alert(
+            "File size is greater than " +
+                Number(allowed_pdf_size / 1048576) +
+                "MB. Please upload a file less than " +
+                Number(allowed_pdf_size / 1048576) +
+                "MB ."
+        );
+    };
+        
+    }
+    
         </script>
         {#if show_spinner}
             <Spinner />
@@ -241,10 +347,21 @@ import { goto } from "$app/navigation";
                                 class="font-medium"> By -> </span> {$facility_data_store.modified_by}</span>
                     </p>
                     <p class="flex items-center smButtonText">
-                        <a href="" class="smButton bg-erBlue text-white" on:click={()=>goto("workdetails")}>
+                        <!-- <a href="" class="smButton bg-erBlue text-white" on:click={()=>goto("workdetails")}>
                             Edit
-                        </a>
+                        </a> -->
+                        <button class="smButton bg-erBlue text-white" on:click={()=>goto("workdetails")}>
+                            Edit
+
+                        </button>
                     </p>
+                    <div class="userStatus ml-4">
+                        <p class="flex items-center smButtonText" on:click={workorganization}>
+                            <a href="" class="smButton modal-open">
+                                Work Contract
+                            </a>
+                        </p>
+                    </div>
                 </div>
 
             </div>
@@ -399,3 +516,24 @@ import { goto } from "$app/navigation";
             </div> 
          
         </div>
+<!-- Document view Model -->
+<div id="img_model" tabindex="-1" aria-hidden="true" role ="dialog" class=" actionDialogueOnboard" hidden>
+    <div class="pancardDialogueOnboardWrapper ">
+        <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+            <div class="flex justify-end p-2">
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel()}}">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
+                </button>
+            </div>
+            <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+                
+                <img src="" id="img_model_url" class="mx-auto" alt="{alt_image}">
+                
+                <div class="pt-3 flex justify-center">
+                    <button data-modal-toggle="popup-modal" type="button" class="dialogueNobutton"  on:click="{()=>{closeViewModel()}}">Close</button>
+            </form>
+        </div>
+    </div>
+</div> 
+<!-- Document view Model -->
+<Toast type={toast_type}  text={toast_text}/>

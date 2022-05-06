@@ -44,7 +44,9 @@
             import {logged_user} from '../../services/supplier_services';
             import  {  page } from '$app/stores';
             import {documents_store} from '../../stores/document_store';
-import { goto } from "$app/navigation";
+            import { goto } from "$app/navigation";
+            import Toast from './toast.svelte';
+            // import {onFileSelected} from '../onboardsummaryComponent.svelte'
     
         let show_spinner = false;
         let toast_text;
@@ -78,58 +80,29 @@ import { goto } from "$app/navigation";
         let check_val,query;
         let tags_for_ass_arr=[];
         let check_selected;
-        let id_new_date='';
+        export let id_new_date;
         let username;
         let all_tags_res;
-        let pancard_obj = {
+        export let pancard_obj = {
             pan_num:null,
             pan_attach:null,
             pan_name:null,
             pan_verified:null,
             pan_rejected:null
         }
-        let aadhar_obj = {
+        export let aadhar_obj = {
             aadhar_num:null,
             aadhar_attach:null,
             aadhar_name:null,
             aadhar_verified:null,
             aadhar_rejected:null
         }
-        let fac_photo_obj = {
-            profile_url:null,
-            profile_verified:null,
-            profile_rejected:null
-        }
-        let addproof_obj = {
-            address_name:null,
-            address_url:null,
-            address_verified:null,
-            address_rejected:null
-        };
-        let can_cheque_obj = {
-            can_cheque_name:null,
-            can_cheque_url:null,
-            can_cheque_verified:null,
-            can_cheque_rejected:null
-        };
-        let dl_photo_obj = {
+        
+        export let dl_photo_obj = {
             dl_lic_name:null,
             dl_lic_url:null,
             dl_verified:null,
             dl_rejected:null
-        };
-        let new_off_file_obj = {
-            offer_name:null,
-            offer_url:null,
-            offer_verified:null,
-            offer_rejected:null
-        };
-        let gst_doc_obj = {
-            gst_name:null,
-            gst_url:null,
-            gst_doc_num:null,
-            gst_verified:null,
-            gst_rejected:null
         };
     
         let text_pattern = /^[a-zA-Z_ ]+$/;
@@ -226,7 +199,94 @@ import { goto } from "$app/navigation";
         // $:if(gst_checkbox === true){
         //     gst_checkbox = true;
         // }
+        function closeViewModel(){
+        document.getElementById("img_model").style.display = "none";
+    }
+    function openViewModel(data,doc_number){
+        document.getElementById("img_model").style.display = "block";
+        if(data == "aadhar"){
+            document.getElementById("img_model_url").getAttribute('src',aadhar_obj.aadhar_attach);
+            alt_image = "aadhar proof";
+        }
+        else if(data == "pan"){
+            document.getElementById("img_model_url").getAttribute('src',pancard_obj.pan_attach);
+            alt_image = "pan-card proof";
+        }
+        else if(data == "address"){
+            document.getElementById("img_model_url").getAttribute('src',addproof_obj.address_url);
+            alt_image = "address proof";
+        }
+        else if(data == "licence"){
+            document.getElementById("img_model_url").getAttribute('src',dl_lic_attach);
+            alt_image = "driving licence proof";
+        }
+        else if(data == "offer"){
+            document.getElementById("img_model_url").getAttribute('src',new_off_file_obj.offer_url);
+            alt_image = "offer letter proof";
+        }
+        else if(data == "can_cheque"){
+            document.getElementById("img_model_url").getAttribute('src',can_cheque_obj.can_cheque_url);
+            alt_image = "cancel cheque proof";
+        }
+        else if(data == "cheque_disp"){
+            document.getElementById("img_model_url").getAttribute('src',new_cheque.file_url);
+            alt_image = "cheque proof";
+        }
+        for(let i = 0;i<gst_doc_arr.length;i++){
+            if(data == "mult_gsts"){
+                if(doc_number == gst_doc_arr[i].gst_doc_num)
+                document.getElementById("img_model_url").getAttribute('src',gst_url[i]);
+                alt_image = "gst proof";
+            }
+        }
         
+    }
+    const onFileSelected = (e,doctext) => {
+        let img = e.target.files[0];
+        if (img.size <= allowed_pdf_size) {
+            console.log("img", img);
+            
+            if(doctext == "gst_upload"){
+                console.log("Photo log uploaded")  
+                gst_img = img.name;
+            }
+            else if(doctext == "cheque_upload"){
+            cheque_img = img.name;
+            }
+            var reader = new FileReader();
+            reader.readAsDataURL(img);
+            reader.onload = function () {
+            file_data = reader.result;
+            console.log("reader",reader.result);
+            
+            if(doctext == "gst_upload"){
+                gst_data = reader.result;
+                // console.log("photo_data",reader.result);
+                toast_text = "Photo Uploaded Successfully";
+                toast_type = "success";
+            }
+            else if(doctext == "cheque_upload"){
+                cheque_data = reader.result;
+                toast_text = "Document Uploaded Successfully";
+                toast_type = "success";
+            }
+            }
+                reader.onerror = function (error) {
+                console.log("Error: ", error);
+                }
+        }
+        else {
+        alert(
+            "File size is greater than " +
+                Number(allowed_pdf_size / 1048576) +
+                "MB. Please upload a file less than " +
+                Number(allowed_pdf_size / 1048576) +
+                "MB ."
+        );
+    };
+        
+    }
+    
        
     </script>
     {#if show_spinner}
@@ -274,9 +334,12 @@ import { goto } from "$app/navigation";
                             class="font-medium"> By -> </span> {$facility_data_store.details_updated_by} </span>
                 </p>
                 <p class="flex items-center smButtonText">
-                    <a href="" class="smButton bg-erBlue text-white" on:click={()=>{goto("identityproof")}}>
+                    <!-- <a href="" class="smButton bg-erBlue text-white" on:click={()=>{goto("identityproof")}}>
                         Edit
-                    </a>
+                    </a> -->
+                    <button class="smButton bg-erBlue text-white" on:click={()=>{goto("identityproof")}}>
+                        Edit
+                    </button>
                 </p>
             </div>
         </div>
@@ -502,3 +565,24 @@ import { goto } from "$app/navigation";
  
 </div>
 
+<!-- Document view Model -->
+<div id="img_model" tabindex="-1" aria-hidden="true" role ="dialog" class=" actionDialogueOnboard" hidden>
+    <div class="pancardDialogueOnboardWrapper ">
+        <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+            <div class="flex justify-end p-2">
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel()}}">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
+                </button>
+            </div>
+            <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+                
+                <img src="" id="img_model_url" class="mx-auto" alt="{alt_image}">
+                
+                <div class="pt-3 flex justify-center">
+                    <button data-modal-toggle="popup-modal" type="button" class="dialogueNobutton"  on:click="{()=>{closeViewModel()}}">Close</button>
+            </form>
+        </div>
+    </div>
+</div> 
+<!-- Document view Model -->
+<Toast type={toast_type}  text={toast_text}/>
