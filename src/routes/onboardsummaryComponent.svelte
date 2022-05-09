@@ -219,18 +219,19 @@ import { Router, Link, Route } from "svelte-routing";
     
     
     onMount(async () => {
+        
         show_spinner = true;
         // console.log("facility document data",aadhar_obj,fac_photo_obj,addproof_obj
         // ,can_cheque_obj,dl_photo_obj,new_off_file_obj);
         query = $page.url;
-        console.log("query",query);
-        console.log("search params has",$page.url.searchParams.has("unFacID"));
-        console.log("search params get",$page.url.searchParams.get("unFacID"));
+        // console.log("query",query);
+        // console.log("search params has",$page.url.searchParams.has("unFacID"));
+        // console.log("search params get",$page.url.searchParams.get("unFacID"));
         // console.log("search params ",$page.url);
         if($page.url.searchParams.has("unFacID")){
             let temp  = $page.url.searchParams.get("unFacID");
             if(temp != ""){
-                console.log("temp",temp);
+                // console.log("temp",temp);
                 $facility_id.facility_id_number = temp;
             }
             else{
@@ -238,9 +239,10 @@ import { Router, Link, Route } from "svelte-routing";
                 toast_text = "Facility ID not found";
             }
         }
-        console.log("$facility_id",$facility_id.facility_id_number);
+        // console.log("$facility_id",$facility_id.facility_id_number);
 
 
+        
         let userdetails = await logged_user();
         
         try{
@@ -373,7 +375,7 @@ import { Router, Link, Route } from "svelte-routing";
                 }
             }
         }
-        console.log("pancard_obj",pancard_obj,"aadhar_obj",aadhar_obj,"fac_photo_obj",fac_photo_obj,"addproof_obj",addproof_obj,"can_cheque_obj",can_cheque_obj,"dl_photo_obj",dl_photo_obj,"new_off_file_obj",new_off_file_obj);
+        // console.log("pancard_obj",pancard_obj,"aadhar_obj",aadhar_obj,"fac_photo_obj",fac_photo_obj,"addproof_obj",addproof_obj,"can_cheque_obj",can_cheque_obj,"dl_photo_obj",dl_photo_obj,"new_off_file_obj",new_off_file_obj);
         }
         catch(err) {
        
@@ -1642,7 +1644,8 @@ async function child_select_fun(){
     pancard_obj={pancard_obj}/>
     
     {:else if change_to == "Work_details"}
-    <WorkDetails new_off_file_obj={new_off_file_obj} facility_modified_date={facility_modified_date} city={city}/>
+    <WorkDetails new_off_file_obj={new_off_file_obj} facility_modified_date={facility_modified_date} city={city}
+    facility_name = {$facility_data_store.facility_name} facility_id = {$facility_id.facility_id_number} />
 
     {:else if change_to == "Identity_details"}
     <IdentityProof pancard_obj={pancard_obj}
@@ -3174,7 +3177,7 @@ async function child_select_fun(){
 </div>
 
 <!--  Work Contract Details modal -->
-<div class="hidden" id="workContractModel">
+<!-- <div class="hidden" id="workContractModel">
     <div class="viewDocmodal ">
         <div class="absolute bg-black opacity-80 inset-0 z-0" />
         <div class="allDocmodalsuccessbody rounded-lg">
@@ -3939,10 +3942,10 @@ async function child_select_fun(){
             </div>
         </div>
     </div>
-</div>
+</div> -->
 
 <!--View/edit client name modal -->
-
+<!-- 
 <div class="hidden" id="workorganizationModel">
     <div class=" viewDocmodal  " id="modal-id">
         <div class="bglightcolormodal" />
@@ -4441,7 +4444,7 @@ async function child_select_fun(){
             </div>
         </div>
     </div>
-</div>
+</div> -->
 
 
 

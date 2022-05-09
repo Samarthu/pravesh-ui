@@ -82,7 +82,7 @@
         let facility_doc_date,facility_modified_date;
             let client_det_arr=[];
             export let gst_doc_arr;
-            console.log("gst_doc_arr",gst_doc_arr)
+            // console.log("gst_doc_arr",gst_doc_arr)
         //     // $: cheque_date = new Date();
             let file_data;
             let showbtn = 0;
@@ -324,7 +324,7 @@
                 for(let i=0;i < gst_details_res.body.data.length;i++){
                             for(let j = 0;j<gst_doc_arr.length;j++){ 
                                 if(gst_details_res.body.data[i].gstn == gst_doc_arr[j].gst_doc_num){
-                                    console.log("matched");
+                                    
                                     gst_details_data.push(gst_details_res.body.data[i]);
                                 }
                             }
@@ -342,6 +342,13 @@
     }
     function closeGST() {
         modalidgst.style.display = "none";
+        gst_address = "";
+        gst_city_select = "-1";
+        gst_city_link_state = "";
+        gst_number = "";
+        gst_file ="";
+        gst_img = "";
+
     }
     async function gst_edit_click(address,city,state,gstn,gst_url,gst_name){
         console.log("gst_edit_click",address,city,state,gstn,gst_url,gst_name);
@@ -448,7 +455,7 @@
                         gst_details_data=[];
                         for(let i=0;i < gst_details_res.body.data.length;i++){
                             for(let i = 0;i<gst_doc_arr.length;i++){
-                                console.log("gst_doc_arr[i].gst_doc_num comp",gst_doc_arr[i].gst_doc_num,"gst_details_res.body.data[i].gstn",gst_details_res.body.data[i].gstn)
+                                // console.log("gst_doc_arr[i].gst_doc_num comp",gst_doc_arr[i].gst_doc_num,"gst_details_res.body.data[i].gstn",gst_details_res.body.data[i].gstn)
                                 if(gst_details_res.body.data[i].gstn == gst_doc_arr[i].gst_doc_num){
                                     gst_details_data.push(gst_details_res.body.data[i]);
                                 }  
@@ -1214,7 +1221,7 @@
                                                         bind:value={gst_city_select}
                                                     >
                                                         <option class="pt-6"
-                                                            >Select</option
+                                                            value ="-1">Select</option
                                                         >
                                                         {#each city_data as new_city}
                                                         <option class="pt-6"
@@ -1364,7 +1371,7 @@
                                                         bind:value={gst_city_select}
                                                     >
                                                         <option class="pt-6"
-                                                            >Select</option
+                                                        value ="-1">Select</option
                                                         >
                                                         {#each city_data as new_city}
                                                         <option class="pt-6"

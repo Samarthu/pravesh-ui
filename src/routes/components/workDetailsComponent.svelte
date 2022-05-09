@@ -15,13 +15,13 @@
                     show_fac_tags,submit_fac_tag_data,remove_tag,tag_audit_trail,service_vendor,
                     get_loc_scope,client_details,erp_details,child_data,add_gst_dets,
                     facility_document,addnew_cheque_details,bank_details,cheque_details,gst_details,
-                    work_details_data} from "../../services/onboardsummary_services";
+                    work_details_data,print_data} from "../../services/onboardsummary_services";
         //     import {uploadDocs} from "../services/bgv_services";
         //     import {get_date_format} from "../services/date_format_servives";
             // import {bank_details,cheque_details,facility_document,show_fac_tags,get_loc_scope,
             //     facility_data,facility_bgv_init,all_facility_tags} from "../../services/onboardsummary_services";
             import {img_url_name} from '../../stores/flags_store';
-            import {facility_id} from "../../stores/facility_id_store"
+            // import {facility_id} from "../../stores/facility_id_store"
             import {facility_data_store} from "../../stores/facility_store"
         //     import {bgv_config_store} from '../stores/bgv_config_store'
             import Toast from './toast.svelte';
@@ -73,7 +73,11 @@
             let id_new_date='';
             let username;
             let all_tags_res;
-            let work_details_arr = [];
+            let work_contract_arr = [];
+            let print_data_arr = [];
+            let contract_data_val = "";
+            export let facility_name;
+            export let facility_id;
             // let pancard_obj = {
             //     pan_num:null,
             //     pan_attach:null,
@@ -139,6 +143,7 @@
             // let client_det_res;
             let client_det_arr=[];
             let gst_doc_arr=[];
+            let view_contract = 0;
             // $: cheque_date = new Date();
             let file_data;
             let showbtn = 0;
@@ -186,6 +191,7 @@
             let gst_details_data=[];
         ///////Document view Model/////////
             let alt_image="";
+            let new_contract_data = "";
         /////////Document view Model//////
             // $:{
             //     for(let key in all_tags_obj){
@@ -225,27 +231,44 @@
             associateModal.style.display = "block";
             }
            async function workorganization() {
-                workorganizationModel.style.display = "block";
+               show_spinner = true;
+               workContractModel.style.display = "block";
                 let work_details_res = await work_details_data();
                 try {
-                    if(work_details_data.body.status == "green"){
-                        console.log("work_details_res",work_details_res);
-                        work_details_arr.push(work_details_res.body.data);
+                    if(work_details_res.body.status == "green"){
+                        show_spinner = false;
+                        toast_type = "success";
+                        toast_text = work_details_res.body.message;
+                        work_contract_arr = work_details_res.body.data;
                     }
-                    work_details_arr = work_details_arr;
-                    console.log("work_details_arr",work_details_arr);
-                } catch (error) {
-                    toast_type = "error";
-                    toast_text = work_details_res.body.message;   
+                    else if(work_details_res.body.status == "red"){
+                        show_spinner = false;
+                        toast_type = "error";
+                        toast_text = work_details_res.body.message;
+                    }
+                    else{
+                        show_spinner = false;
+                        toast_type = "error";
+                        toast_text = "Something went wrong";
+                    }
+                    work_contract_arr = work_contract_arr;
+                    // console.log("work_contract_arr",work_contract_arr);
                 }
-                console.log("work_details_res",work_details_res);
+                catch (error) {
+                    show_spinner = false;
+                    toast_type = "error";
+                    toast_text = error;   
+                }
+                
+            
+                
             
 
             }
 
-            function closeWorkorganization() {
-                workorganizationModel.style.display = "none";
-            }
+            // function closeWorkorganization() {
+            //     workorganizationModel.style.display = "none";
+            // }
             function closeViewModel(){
         document.getElementById("img_model").style.display = "none";
     }
@@ -332,12 +355,122 @@
     };
         
     }
+    function workContract() {
+        workContractModel.style.display = "block";
+    }
+
+    function closeWorkContract() {
+        workContractModel.style.display = "none";
+    }
+    async function view_print_doc(assigned_id,type){
+        view_contract = 1;
+        let pass_contract_id
+        // window.print();
+        for(let i = 0;i<work_contract_arr.length;i++){
+            if(assigned_id == work_contract_arr[i].assigned_id){
+               pass_contract_id = work_contract_arr[i].assigned_id;
+            }
+        }
+        let print_data_res = await print_data(pass_contract_id);
+        try {
+            if(print_data_res.body.status == "green" && print_data_res.body.data != false){
+                console.log("not false")
+                show_spinner = false;
+                toast_type = "success";
+                toast_text = print_data_res.body.message;
+                print_data_arr = print_data_res.body.data;
+                print_data_arr = print_data_arr;
+                console.log("print_data_arr",print_data_arr);
+                for(let i = 0;i<work_contract_arr.length;i++){
+                if(assigned_id == work_contract_arr[i].assigned_id){
+                    contract_data_val = work_contract_arr[i].accepted_contract;
+                    console.log("print_data_arr.accepted_contract",print_data_arr);
+                    if(type == "view"){
+                        console.log("view print clicked ") 
+                        
+                        // document.getElementById("workContractDetails").style.display = "none";
+                        // document.getElementById("viewContractDetails").style.display = "block";
+                        new_contract_data = print_data_arr.accepted_contract+document.getElementById("user_details").innerHTML;
+                        window.frames["view_frame"].window.focus();
+                    }   
+                    else if(type == "print"){
+                        new_contract_data = document.getElementById("user_details").innerHTML+print_data_arr.accepted_contract;
+                        window.frames["print_frame"].window.print();
+                    }
+                }
+        }
+            }
+            else if(print_data_res.body.status == "red"){
+                show_spinner = false;
+                toast_type = "error";
+                toast_text = print_data_res.body.message;
+            }
+            else if(print_data_res.body.data == false){
+                show_spinner = false;
+                toast_type = "error";
+                toast_text = "No Contract Details Found";
+            }
+            
+        }
+        catch (error) {
+            show_spinner = false;
+            toast_type = "error";
+            toast_text = error;
+        }
+    }
+    
+    // function viewSaveContract() {
+    //     console.log("new_contract_data",new_contract_data);
+    //     // window.frames["print_frame"].document.body.innerHTML=printDivCSS + document.getElementById("div1").innerHTML;	
+    //     // window.frames["view_frame"].window.open("", "", "width=100%,height=100%").window.focus();
+    //     window.frames["print_frame"].window.print();
+        
+    // }
+    // document.getElementById("cont_view_table")
+    // console.log("cont_view_table",cont_view_table);
+    // var cont = contract;
+    // var facName = facility_name;
+    // var contract = cont.accepted_contract;
+    // if (cont.esign != undefined) {
+    //     for (var k = 0; k < cont.esign.length; k++) {
+    //         var timeS = moment(cont.esign[k].modified).format("DD-MMM-YYYY HH:mm a");
+    //         var tr = "<center><span style='font-size:22px;font-weight: bold;'>" + facSaved[0].name + " - " + facName + "</span></center><br><br><span style='font-size:20px;font-weight: bold;'>ESIGNATURE</span><br><br><table border='2' style='width:90%;'><thead><tr><th> Accepted On</th><th> Accepted By</th><th>IMEI</th><th>IP</th><th>Geocodes</th><th>UFID</th></tr></thead><tbody><tr><td style=text-align:center>" + timeS + "</td><td style=text-align:center>" + cont.esign[k].user_id + "</td><td style=text-align:center>" + cont.esign[k].imei + "</td><td style=text-align:center>" + cont.esign[k].ip_address + "</td><td style=text-align:center>" + cont.esign[k].lat_long + "</td><td style=text-align:center>" + cont.esign[k].facility_id + "</td></tr></tbody></table>";
+    //         tr = tr + "<br><table border='2'><tr><th style='padding:10px;'>Device Used : </th><td style=padding:10px>" + cont.esign[k].model_no + "</td></tr></table>";
+    //         tr = tr.replace(/null/g, "NA");
+    //         tr = tr.replace(/undefined/g, "NA");
+    //         document.getElementById("cont_view_table").append(tr);
+    //         document.getElementById("cont_view_table").append("<br><br>");
+    //     }
+    // }
+    // if (contract != null) {
+    //     contract = contract.replace(/\\\"/g, "\"");
+    //     contract = contract.replace(/null/g, "NA");
+    //     contract = contract.replace(/undefined/g, "NA");
+    //     document.getElementById("cont_view_table").append(unescape(unescapeHtml(contract)));
+    // }
+    // // console.log("contract",document.getElementById("cont_view_table").append(unescape(unescapeHtml(contract))));
+    // console.log(document.getElementById("cont_view_table"));
+    // document.getElementById("cont_view_table").each(function () {
+    //     if (!(document.getElementById("cont_view_table")(this).hasClass("table table-bordered"))) {
+    //         document.getElementById("cont_view_table")(this).addClass("table table-bordered");
+    //     }
+    // });
+    // document.getElementById("cont_view_table").printThis({
+    //     importStyle: true,
+    //     copyTagClasses: true,
+    //     header: "",
+    //     importCSS: false,
+    //     pageTitle: "E- Contract - " + facSaved[0].name + " - " + facName,
+    //     footer: "<br><br>E- Contract - " + facSaved[0].name + " - " + facName
+    // });
+// }
     
         </script>
         {#if show_spinner}
             <Spinner />
         {/if}
-       <!-- Work Details -->
+    
+         <!-- Work Details -->
         <div class="bg-white w-full Work_Details_Section ">
             <div class="detailsHeader_summary ">
                
@@ -536,4 +669,399 @@
     </div>
 </div> 
 <!-- Document view Model -->
+<!--  Work Contract Details modal -->
+<div class="hidden" id="workContractModel"> 
+    <div class="modalMain">
+        <div class="modalOverlay"></div>
+
+        <div class="modalContainer">
+            <div class="modalHeadConmb-0">
+                <div class="leftmodalInfo">
+                    <p class="modalTitleText"> Work Contract Details </p>
+                    <p class="text-sm ">
+                        <span class="font-medium text-lg"> Dhiraj Shah</span>
+                        <span class="userDesignation"> - Associate- NDA, MHPD - Mulsi SP</span>
+                    </p>
+                </div>
+                <div class="rightmodalclose">
+                    <img src="../src/img/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal">
+                </div>
+            </div>
+            <div class="modalContent">
+                <div class="tabwrapper flex justify-between text-center py-2 pb-3">
+                    <div class="changetype py-3 w-2/4	">
+                        <p>E-Contracts</p>
+                    </div>
+                    <div class="Historytab py-3 w-2/4	 bg-bglightgreye">
+                        <p>Physical Contracts</p>
+                    </div>
+                </div>
+                <div class="ConModalContent">
+                    <div class="gridMain hidden">
+                        <div class="heightCardContainer">
+                            <table class="table  w-full text-center mt-2">
+                                <thead class="theadpopover h-10">
+                                    <tr>
+                                        <th>Contract Name</th>
+                                        <th>Contract Type</th>
+                                        <th>
+                                            <div class="flex"> Accepted ? <img src="../src/img/arrowupdown.svg"
+                                                    class="ml-2" alt=""></div>
+                                        </th>
+                                        <th>Accepted On</th>
+                                        <th>Is Mandatory ?</th>
+                                        <th>View</th>
+                                        <th>Print/Save</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="tbodypopover">
+                                    <tr class="border-b">
+                                        <td>Background Verification Concent</td>
+                                        <td>Concent</td>
+                                        <td><span class="text-green">Yes</span> </td>
+                                        <td>10-06-2020</td>
+                                        <td>Yes</td>
+                                        <td>
+                                            <p class="flex justify-center">
+                                                <a href="" class="smButton">
+                                                    <img src="../src/img/view.png" alt="">
+                                                </a>
+                                            </p>
+                                        </td>
+                                        <td>
+                                            <p class="flex justify-center">
+                                                <a href="" class="smButton">
+                                                    <img src="../src/img/printer.svg" alt="">
+                                                </a>
+                                            </p>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td>Background Verification Concent</td>
+                                        <td>Concent</td>
+                                        <td><span class="text-red-700">No</span> </td>
+                                        <td>10-06-2020</td>
+                                        <td>Yes</td>
+                                        <td>
+                                            <p class="flex justify-center">
+                                                <a href="" class="smButton">
+                                                    <img src="../src/img/view.png" alt="">
+                                                </a>
+                                            </p>
+                                        </td>
+                                        <td>
+                                            <p class="flex justify-center">
+                                                <a href="" class="smButton">
+                                                    <img src="../src/img/printer.svg" alt="">
+                                                </a>
+                                            </p>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td>Background Verification Concent</td>
+                                        <td>Concent</td>
+                                        <td><span class="text-green">Yes</span> </td>
+                                        <td>10-06-2020</td>
+                                        <td>Yes</td>
+                                        <td>
+                                            <p class="flex justify-center">
+                                                <a href="" class="smButton">
+                                                    <img src="../src/img/view.png" alt="">
+                                                </a>
+                                            </p>
+                                        </td>
+                                        <td>
+                                            <p class="flex justify-center">
+                                                <a href="" class="smButton">
+                                                    <img src="../src/img/printer.svg" alt="">
+                                                </a>
+                                            </p>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td>Background Verification Concent</td>
+                                        <td>Concent</td>
+                                        <td><span class="text-green">Yes</span> </td>
+                                        <td>10-06-2020</td>
+                                        <td>Yes</td>
+                                        <td>
+                                            <p class="flex justify-center">
+                                                <a href="" class="smButton">
+                                                    <img src="../src/img/view.png" alt="">
+                                                </a>
+                                            </p>
+                                        </td>
+                                        <td>
+                                            <p class="flex justify-center">
+                                                <a href="" class="smButton">
+                                                    <img src="../src/img/printer.svg" alt="">
+                                                </a>
+                                            </p>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td>Background Verification Concent</td>
+                                        <td>Concent</td>
+                                        <td><span class="text-green">Yes</span> </td>
+                                        <td>10-06-2020</td>
+                                        <td>Yes</td>
+                                        <td>
+                                            <p class="flex justify-center">
+                                                <a href="" class="smButton">
+                                                    <img src="../src/img/view.png" alt="">
+                                                </a>
+                                            </p>
+                                        </td>
+                                        <td>
+                                            <p class="flex justify-center">
+                                                <a href="" class="smButton">
+                                                    <img src="../src/img/printer.svg" alt="">
+                                                </a>
+                                            </p>
+                                        </td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td>Background Verification Concent</td>
+                                        <td>Concent</td>
+                                        <td><span class="text-green">Yes</span> </td>
+                                        <td>10-06-2020</td>
+                                        <td>Yes</td>
+                                        <td>
+                                            <p class="flex justify-center">
+                                                <a href="" class="smButton">
+                                                    <img src="../src/img/view.png" alt="">
+                                                </a>
+                                            </p>
+                                        </td>
+                                        <td>
+                                            <p class="flex justify-center">
+                                                <a href="" class="smButton">
+                                                    <img src="../src/img/printer.svg" alt="">
+                                                </a>
+                                            </p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+
+                        </div>
+                    </div>
+
+                    <div class="gridCon">
+
+                        <div class="PhysicalCardContainer">
+                            <div class="heightCardContainer">
+                                <table class="table  w-full text-center mt-2 ">
+                                    <thead class="theadpopover h-10">
+                                        <tr>
+                                            <th>Contract Type</th>
+                                            <th>Starts From</th>
+                                            <th> Ends On</th>
+                                            <th>Cost Center</th>
+                                            <th> View</th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody class="tbodypopover">
+                                        <tr class="border-b">
+                                            <td>Procurement agreement</td>
+                                            <td>16-01-2020</td>
+                                            <td>11-06-2020</td>
+                                            <td>Mulshi - MHPD - NTEX</td>
+                                            <td>
+                                                <p class="flex justify-center">
+                                                    <a href="" class="smButton">
+                                                        <img src="../src/img/view.png" alt="">
+                                                    </a>
+                                                </p>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td>Procurement agreement</td>
+                                            <td>16-01-2020</td>
+                                            <td>11-06-2020</td>
+                                            <td>Mulshi - MHPD - NTEX</td>
+                                            <td>
+                                                <p class="flex justify-center">
+                                                    <a href="" class="smButton">
+                                                        <img src="../src/img/view.png" alt="">
+                                                    </a>
+                                                </p>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td>Procurement agreement</td>
+                                            <td>16-01-2020</td>
+                                            <td>11-06-2020</td>
+                                            <td>Mulshi - MHPD - NTEX</td>
+                                            <td>
+                                                <p class="flex justify-center">
+                                                    <a href="" class="smButton">
+                                                        <img src="../src/img/view.png" alt="">
+                                                    </a>
+                                                </p>
+                                            </td>
+                                        </tr>
+
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="bgAddSection">
+                                <div class="addbuttongst  hidden">
+                                    <div class="updateAction">
+                                        <p class="mb-3">Upload New Physical contract here</p>
+                                        <button class="ErBlueButton">Upload</button>
+                                    </div>
+                                </div>
+                                <div class="addGstForm ">
+                                    <div class="gstaddtitle px-4 py-4">
+                                        <p class="text-lg font-medium">Upload New Physical Contract</p>
+                                    </div>
+
+
+
+                                    <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
+                                        <div class="w-full">
+                                            <div class="light14grey mb-1">Select Contract Type</div>
+                                            <div class="formInnerwidthfull ">
+                                                <select class="inputboxpopover">
+                                                    <option class="pt-6">Select</option>
+                                                </select>
+                                                <div class="formSelectArrow ">
+                                                    <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="w-full">
+                                            <div class="light14grey mb-1">Select Organization</div>
+                                            <div class="formInnerwidthfull ">
+                                                <select class="inputboxpopover">
+                                                    <option class="pt-6">Select</option>
+                                                </select>
+                                                <div class="formSelectArrow ">
+                                                    <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
+                                        <div class="w-full">
+                                            <div class="light14grey mb-1">Select Station</div>
+                                            <div class="formInnerwidthfull ">
+                                                <select class="inputboxpopover">
+                                                    <option class="pt-6">Select</option>
+                                                </select>
+                                                <div class="formSelectArrow ">
+                                                    <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="w-full">
+                                            <div class="light14grey mb-1">Start Date</div>
+                                            <div class="formInnerwidthfull ">
+                                                <input type="date" class="inputboxpopoverdate">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
+                                        <div class="w-full">
+                                            <div class="light14grey mb-1">End Date</div>
+                                            <div class="formInnerwidthfull ">
+                                                <input type="date" class="inputboxpopoverdate">
+                                            </div>
+                                        </div>
+                                        <div class="w-full">
+                                            <div class="  py-3 ">
+                                                <div class="light14greylong  mb-1">Upload GST Certificate</div>
+                                                <div class="w-full">
+                                                    <label class="cursor-pointer flex">
+                                                        <div class="ErBlueButton">Select File</div>
+                                                        <input type="file" class="hidden">
+                                                    </label>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+
+                                    <div class="actionButtons">
+                                        <div class="actionCancelbutton ">
+                                            Cancel
+                                        </div>
+                                        <div class="updateAction ml-5">
+                                            <button class="ErBlueButton">Add</button>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- <div class="modal-body" style="overflow: auto;" id="cont_view_table"></div>  -->
+                
+                <!-- View Contract Model -->
+<div id="div1">{new_contract_data}</div>
+<iframe name="print_frame" width="0" height="0" frameborder="0" src="about:blank" srcdoc={new_contract_data}></iframe>
+<iframe name="view_frame" width="0" height="0" frameborder="0" src="about:blank" srcdoc={new_contract_data}></iframe>
+    {#if view_contract == 1}
+    <div id="user_details">
+    <center><span style="font-size:22px;font-weight: bold;">{facility_id}</span></center>
+    <br>
+    <br>
+    <span style="font-size:20px;font-weight: bold;">ESIGNATURE</span>
+    <br>
+    <br>
+    <table border="1" style="width:90% ;" class="table table-bordered">
+        <thead><tr><th> Accepted On</th>
+            <th> Accepted By</th>
+            <th>IMEI</th>
+            <th>IP</th>
+            <th>Geo-codes</th>
+            <th>UFID</th>
+        </tr></thead>
+        <tbody>
+            <tr>
+                <td>27-Apr-2022 04:26 pm</td>
+                <td>msmm00010@nomail.com</td>
+                <td>baba6506853fd3e9</td>
+                <td>58.216.109.89</td>
+                <td>17.6535439,75.8990996</td>
+                <td>MSMM00010</td>
+            </tr>
+        </tbody>
+    </table>
+    <br>
+    <table border="1" style="width:90%;" class="table table-bordered">
+        <tbody>
+            <tr>
+                <th>Device Used : </th>
+                <td>samsung SM-G610F 1 samsung/on7xeltedd/on7xelte:8.1.0/M1AJQ/G610FDDS1CTE6:user/release-keys<br> Version - 8.1.0</td>
+            </tr>
+        </tbody>
+    </table>
+    <br>
+    <br>
+   </div>
+    {/if}
+
+
+
+
 <Toast type={toast_type}  text={toast_text}/>
