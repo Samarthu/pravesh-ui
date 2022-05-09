@@ -2392,3 +2392,56 @@ p.tempText {
 
 
 
+      /* full width modal */
+
+.modalMain{
+    @apply fixed w-full h-screen top-0 left-0 right-0 flex items-center justify-center z-zindex99 mx-auto
+}
+
+.modalOverlay{
+    @apply  absolute w-full h-screen bg-black opacity-50
+}
+.modalContainer{
+    @apply fixed w-11/12  h-max-h-95vh z-50 overflow-y-auto bg-white rounded-br8 mt-5 mb-4
+}
+.modalHeadCon{
+    @apply flex justify-between mb-3 px-5 py-5 border-b
+}
+.modalHeadConmb-0{
+    @apply flex justify-between px-5 py-5 border-b
+}
+
+.modalTitleText{
+    @apply text-lg text-erBlue font-medium
+}
+.modalContent{
+    @apply text-left px-5
+}
+.gridCon{
+    @apply grid grid-cols-2 xsl:grid-cols-1 gap-4
+}
+
+.gstCardContainer{
+    @apply h-max-h-80vh overflow-scroll pr-5
+}
+.heightCardContainer{
+    @apply h-max-h-70vh overflow-scroll pr-5
+}
+.bgAddSection{
+    @apply bg-lighterGrey rounded mb-2
+}
+
+.addbuttongst{
+    @apply text-center py-10
+}
+
+.actionButtons{
+    @apply flex items-center justify-center mt-5 xsl:mb-5 pb-5
+}
+.actionCancelbutton{
+    @apply text-erBlue cursor-pointer
+}
+
+.formInnerwidthfull{
+    @apply  relative w-full  xs:w-full sm:w-full border-none
+}
