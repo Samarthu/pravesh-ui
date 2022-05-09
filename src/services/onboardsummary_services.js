@@ -238,6 +238,14 @@ const work_details_data = () =>{
         },true)
 
 }
+const print_data = (contract_id) =>{
+    let print_data_url = '/api/method/pravesh.facility.routes.contract.get_contract_detail?contract_id='+contract_id+'&is_accepted=1';
+    return request(
+        print_data_url,{
+            method: "GET"
+        },true)
+
+}
 
 
 export {
@@ -265,5 +273,6 @@ export {
     gst_details,
     list_child_data,
     remove_child,
-    work_details_data
+    work_details_data,
+    print_data
 }
