@@ -6,7 +6,7 @@ import {request} from './interceptor';
 //    new_facility_id = value.facility_id_number;
 // });
 // let facility_id = "AXVT00383";
-let facility_id = "CRUN00374";
+let facility_id = "MHAE00037";
 // let facility_id = "NAOD00048";
 // let facility_id = "MHPD01226";
 
@@ -111,6 +111,31 @@ const final_bgv_app_rej=(bgv_data)=>{
         }, true)
 }
 
+const get_client_details=(facility_id)=>{
+    let get_client_details_url = "/api/resource/Facility%20Org%20Config?filters=[[%22facility_id%22,%22=%22,%22"+facility_id+"%22]]&fields=[%22*%22]";
+    return request(
+        get_client_details_url,{
+            method: "GET"
+        },true)
+}
+
+const get_client_org_mapping=()=>{
+    let get_client_org_mapping_url = "/api/method/pravesh.facility.routes.organisation.get_org_list?org_field=[%22*%22]";
+    return request(
+        get_client_org_mapping_url,{
+            method: "GET"
+        },true)
+}
+
+const get_specific_name=(stat_code)=>{
+    let get_specific_name_url = "/api/method/pravesh.facility.routes.ecom_work_done.get_all_resource_ids?station_code="+stat_code+"&is_store=false";
+    return request(
+        get_specific_name_url,{
+            method: "GET"
+        },true)
+}
+
+
 export {
     get_facility_details,
     get_bank_facility_details,
@@ -120,5 +145,8 @@ export {
     bank_approve_reject,
     final_id_ver_rej,
     bgv_approve_rej,
-    final_bgv_app_rej
+    final_bgv_app_rej,
+    get_client_details,
+    get_client_org_mapping,
+    get_specific_name
 }

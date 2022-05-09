@@ -248,6 +248,8 @@ const print_data = (contract_id) =>{
 }
 
 
+
+
 export {
     bank_details,
     cheque_details,
