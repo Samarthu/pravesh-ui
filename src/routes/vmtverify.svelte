@@ -178,15 +178,26 @@
     let get_loc_scope_data = [];
     let org_name = [];
     let station_code = [];
-    let org_id = [];
+    let org_id;
     let stat_select;
+    let id_select;
     let get_specific_name_data = [];
+    let station_code_arr = [];
     // let stat_code = "";
     
     $:if(stat_select != null){
         console.log("station_select",stat_select)
         station_code_select(stat_select);
     }
+
+    $:if(id_select != null){
+        console.log("id_select",id_select)
+        org_id_select(id_select);
+    }
+
+    // $:if(station_id != null){
+    //     station_id_select(station_id)
+    // }
     // async function get_resourceid(){
     //     let response = await station_code_select(stat_select);
     //     console.log("response station code select",response);
@@ -467,11 +478,48 @@
     })
 
     async function station_code_select(station_code){
+        station_code_arr = [];
         console.log("station_code",station_code.toLowerCase())
         let get_specific_name_res = await get_specific_name(station_code.toLowerCase())
+        station_code_arr.push(get_specific_name_res.body.data[0].resource_id)
         console.log("get_specific_name_res",get_specific_name_res)
 
+        station_code_arr = station_code_arr;
+        console.log("station_code_arr",station_code_arr)
+
     }
+
+    async function org_id_select(org_id){
+        station_data_array = [];
+        console.log("org_id",org_id)
+        let get_loc_scope_res = await get_loc_scope(org_id)
+                for(let i=0;i<get_loc_scope_res.body.data.length;i++){
+                    for(let j =0 ;j<get_loc_scope_res.body.data[i].stations.length;j++){
+                        
+                        console.log("org id inside for",org_id)
+                    if(org_id  == get_loc_scope_res.body.data[i].stations[j].org_id){
+                        // console.log("org id found");
+                        station_data_array.push({"org_id":get_loc_scope_res.body.data[i].stations[j].org_id,"station_name":get_loc_scope_res.body.data[i].stations[j].station_name,"station_code":get_loc_scope_res.body.data[i].stations[j].station_code})
+                        
+                    }
+                    }
+                }
+                station_data_array = station_data_array;
+        console.log("station_data_array",station_data_array);
+    }
+
+    // async function station_id_select(org_id){
+    //     let station_id_res = await get_loc_scope(org_id)
+    //     for(i=0;i<station_id_res.body.data[0].length;i++){
+    //         for(j=0;j<station_id_res.body.data[i].stations.length;j++){    
+    //             if(org_id == station_id_res.body.data[i].stations.org_id)        
+    //             station_id_data.push(station_id_res.body.data[0].length)
+    //         }
+    //     }
+
+    //     station_id_data = station_id_data
+    //     console.log("station_id_data",station_id_data);
+    // }
 
     async function doc_approve(doc_cat){
         if (doc_cat == "pan"){
@@ -1900,35 +1948,35 @@
             toast_text = get_client_details_res.body.message;
         }
 
-        let get_loc_scope_res = await get_loc_scope()
-        try {
-            if (get_loc_scope_res != "null"){
-                // for(let i=0; i< get_loc_scope_res.body.data[0].stations.length;i++){
-                //     get_loc_scope_data.push(get_loc_scope_res.body.data[i]);
-                //     station_code.push(get_loc_scope_res.body.data[0].stations[i].station_code);
-                //     // console.log("get_loc_scope_res",get_loc_scope_res.body.data[0].stations[i].station_code)
-                // }
-                // station_code = station_code;
-                // get_loc_scope_data = get_loc_scope_data;
-                // console.log("get_loc_scope_data",get_loc_scope_data)
-                for(let i=0;i<get_loc_scope_res.body.data.length;i++){
-                    // console.log(get_loc_scope_res.body.data[i]);
-                    for(let j =0 ;j<get_loc_scope_res.body.data[i].stations.length;j++){
-                        // console.log(get_loc_scope_res.body.data[i].stations[j].station_name);
-                        station_data_array.push({"station_code":get_loc_scope_res.body.data[i].stations[j].station_code,"station_name":get_loc_scope_res.body.data[i].stations[j].station_name})
+        // let get_loc_scope_res = await get_loc_scope()
+        // try {
+        //     if (get_loc_scope_res != "null"){
+        //         // for(let i=0; i< get_loc_scope_res.body.data[0].stations.length;i++){
+        //         //     get_loc_scope_data.push(get_loc_scope_res.body.data[i]);
+        //         //     station_code.push(get_loc_scope_res.body.data[0].stations[i].station_code);
+        //         //     // console.log("get_loc_scope_res",get_loc_scope_res.body.data[0].stations[i].station_code)
+        //         // }
+        //         // station_code = station_code;
+        //         // get_loc_scope_data = get_loc_scope_data;
+        //         // console.log("get_loc_scope_data",get_loc_scope_data)
+        //         for(let i=0;i<get_loc_scope_res.body.data.length;i++){
+        //             // console.log(get_loc_scope_res.body.data[i]);
+        //             for(let j =0 ;j<get_loc_scope_res.body.data[i].stations.length;j++){
+        //                 // console.log(get_loc_scope_res.body.data[i].stations[j].station_name);
+        //                 station_data_array.push({"station_code":get_loc_scope_res.body.data[i].stations[j].station_code,"station_name":get_loc_scope_res.body.data[i].stations[j].station_name})
 
-                    }
+        //             }
 
-                }
-                station_data_array = station_data_array;
-                console.log("station_data_array",station_data_array);
-            }
+        //         }
+        //         station_data_array = station_data_array;
+        //         console.log("station_data_array",station_data_array);
+        //     }
 
 
-        } catch (error) {
-            toast_type = "error";
-            toast_text = get_loc_scope_res.body.message;
-        }
+        // } catch (error) {
+        //     toast_type = "error";
+        //     toast_text = get_loc_scope_res.body.message;
+        // }
 
 
         // let get_client_data_mapping_res = await get_client_org_mapping()
@@ -4538,7 +4586,7 @@
                             {/each}
                           </select> -->
                         <select class="selectInputbox" bind:value="{basic_info_res}">
-                            <option value="" selected disabled>Select</option>
+                            <option value="-1" selected disabled>Select</option>
                             {#each rejReasonMap.basicInfo as basic_info_rej}
                                 <option
                                 class="pt-6" >
@@ -4953,7 +5001,7 @@
 
 <!--View/edit client name modal -->
 
-<div class="hidden" id="workorganizationModel">
+<!-- <div class="hidden" id="workorganizationModel">
     <div class=" viewDocmodal  " id="modal-id">
         <div class="bglightcolormodal" />
         <div class="allDocmodalsuccessbody rounded-lg">
@@ -5278,6 +5326,7 @@
                                                         >
                                                             <select
                                                                 class="inputboxpopover"
+                                                                bind:value={id_select}
                                                             >
                                                             <option value="" disabled selected>Select</option>
                                                             {#each get_client_data_mapping_data as org_detail}
@@ -5348,10 +5397,17 @@
                                                             <select
                                                                 class="inputboxpopover"
                                                             >
+
                                                                 <option
                                                                     class="pt-6"
                                                                     >Select</option
                                                                 >
+                                                                {#each station_code_arr as stat_code}
+                                                                <option
+                                                                    class="pt-6"
+                                                                    >{stat_code}</option
+                                                                >
+                                                                {/each}
                                                             </select>
                                                             <div
                                                                 class="formSelectArrow "
@@ -5475,16 +5531,11 @@
             </div>
         </div>
     </div>
-</div>
+</div> -->
 
-                                        <!-- {#each get_client_data_mapping_data as new_map} -->
-                                        <!-- {/each} -->
+    <!-- Full screen modal  View/Edit Client Name Desktop and Responsive Done-->
 
-
-
-    <!-- Full screen modal  View/Edit Client Name -->
-
-    <!-- <div class="hidden" id="workorganizationModel">
+    <div class="hidden" >
         <div class="modalMain">
             <div class="modalOverlay"></div>
 
@@ -5497,8 +5548,8 @@
                             <span class="userDesignation"> - Associate- NDA, MHPD - Mulsi SP</span>
                         </p>
                     </div>
-                    <div class="rightmodalclose">
-                        <img src="../src/img/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal">
+                    <div class="rightmodalclose" on:click={closeWorkorganization}>
+                        <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal">
                     </div>
                 </div>
                 <div class="modalContent">
@@ -5507,46 +5558,46 @@
 
                         <div class="gridCon ">
                             <div class="heightCardContainer">
-                            {#if !get_client_details_data}
+                                {#if !get_client_details_data}
                                 <p>No client Details found</p>
                                 {:else}
                                 {#each get_client_details_data as new_client}
-                                <div class="cardDocWrapper ">
-                                    <div class="grid grid-cols-2 xs:grid-cols-1 gap-4">
-                                        <div>
-                                            <div class="grid grid-cols-2 gap-4 mb-1">
-                                                <div class="detailLbale"> Organisation</div>
-                                                <div class="detailData"> {new_client.org_name}</div>
+                                    <div class="cardDocWrapper ">
+                                        <div class="grid grid-cols-2 xs:grid-cols-1 gap-4">
+                                            <div>
+                                                <div class="grid grid-cols-2 gap-4 mb-1">
+                                                    <div class="detailLbale"> Organisation</div>
+                                                    <div class="detailData"> {new_client.org_name}</div>
+                                                </div>
+                                                <div class="grid grid-cols-2 gap-4 mb-1">
+                                                    <div class="detailLbale"> Station Name & code </div>
+                                                    <div class="detailData"> {get_loc_scope_data.station_code}</div>
+                                                </div>
+                                                <div class="grid grid-cols-2 gap-4 mb-1">
+                                                    <div class="detailLbale"> Org specified name </div>
+                                                    <div class="detailData break-words"> {new_client.org_specific_name}</div>
+                                                </div>
+                                                <div class="grid grid-cols-2 gap-4 mb-1">
+                                                    <div class="detailLbale"> Client Employee ID</div>
+                                                    <div class="detailData"> {new_client.client_id}</div>
+                                                </div>
                                             </div>
-                                            <div class="grid grid-cols-2 gap-4 mb-1">
-                                                <div class="detailLbale"> Station Name & code </div>
-                                                <div class="detailData"> {get_loc_scope_data.station_code}</div>
-                                            </div>
-                                            <div class="grid grid-cols-2 gap-4 mb-1">
-                                                <div class="detailLbale"> Org specified name </div>
-                                                <div class="detailData">  {new_client.org_specific_name}</div>
-                                            </div>
-                                            <div class="grid grid-cols-2 gap-4 mb-1">
-                                                <div class="detailLbale"> Client Employee ID</div>
-                                                <div class="detailData"> {new_client.client_id}</div>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <div class="grid grid-cols-2 gap-4 mb-1">
-                                                <div class="detailLbale"> Added On</div>
-                                                <div class="detailData">{new_client.creation}</div>
-                                            </div>
-                                            <div class="grid grid-cols-2 gap-4 mb-1">
-                                                <div class="detailLbale"> Added by </div>
-                                                <div class="detailData"> {new_client.modified_by}</div>
-                                            </div>
-                                            <div class="grid grid-cols-2 gap-4 mb-1">
-                                                <div class="detailLbale"> Client ID status/info </div>
-                                                <div class="detailData"> ----</div>
-                                            </div>
-                                            <div class="grid grid-cols-2 gap-4 mb-1">
-                                                <div class="detailLbale"> Status</div>
-                                                <div>
+                                            <div>
+                                                <div class="grid grid-cols-2 gap-4 mb-1">
+                                                    <div class="detailLbale"> Added On</div>
+                                                    <div class="detailData"> {new_client.creation}</div>
+                                                </div>
+                                                <div class="grid grid-cols-2 gap-4 mb-1">
+                                                    <div class="detailLbale"> Added by </div>
+                                                    <div class="detailData"> {new_client.modified_by}</div>
+                                                </div>
+                                                <div class="grid grid-cols-2 gap-4 mb-1">
+                                                    <div class="detailLbale"> Client ID status/info </div>
+                                                    <div class="detailData"> ----</div>
+                                                </div>
+                                                <div class="grid grid-cols-2 gap-4 mb-1">
+                                                    <div class="detailLbale"> Status</div>
+                                                    <div>
                                                         {#if new_client.status == "deactive"}
                                                         <p
                                                             class="userStatusTickVerified "
@@ -5569,116 +5620,143 @@
                                                         </p>
                                                         {/if}
                                                     </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            {/each}
+                                {/each}
                                 {/if}
                             </div>
 
                             <div>
                                 <div class="bgAddSection mt-2">
+                                    {#if temp5 == "newMap"}
                                     <div class="addbuttongst hidden ">
                                         <div class="updateAction">
-                                            <button class="ErBlueButton">Add New Mapping</button>
+                                            <button class="ErBlueButton" on:click={() => {temp5 = "newMap-2";}}>Add New Mapping</button>
                                         </div>
                                     </div>
-                                    <div class="addGstForm ">
-                                        <div class="gstaddtitle px-4 py-4">
-                                            <p class="text-lg font-medium">Add New Mapping</p>
-                                        </div>
+                                    {/if}
+                                    {#if temp5 == "newMap-2"}
+                                    {#if !get_client_data_mapping_data}
+                                    <p>No client Details found</p>
+                                    {:else}
+                                        <div class="addGstForm ">
+                                            <div class="gstaddtitle px-4 py-4">
+                                                <p class="text-lg font-medium">Add New Mapping</p>
+                                            </div>
 
 
 
-                                        <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
-                                            <div class="w-full">
-                                                <div class="light14grey mb-1">Organization</div>
-                                                <div class="formInnerwidthfull ">
-                                                    <select class="inputboxpopover">
-                                                        <option class="pt-6">Select</option>
-                                                    </select>
-                                                    <div class="formSelectArrow ">
-                                                        <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                            <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
+                                                <div class="w-full">
+                                                    <div class="light14grey mb-1">Organization</div>
+                                                    <div class="formInnerwidthfull ">
+                                                        <select class="inputboxpopover" bind:value={id_select}>
+                                                            <option value="" disabled selected>Select</option>
+                                                            {#each get_client_data_mapping_data as org_detail}
+                                                                <option
+                                                                    class="pt-6"
+                                                                    value="{org_detail.org_id}"
+                                                                    >{org_detail.org_name}</option
+                                                                >
+                                                            {/each}
+                                                        </select>
+                                                        <div class="formSelectArrow ">
+                                                            <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="w-full">
-                                                <div class="light14grey mb-1">Station</div>
-                                                <div class="formInnerwidthfull ">
-                                                    <select class="inputboxpopover">
-                                                        <option class="pt-6">Select</option>
-                                                    </select>
-                                                    <div class="formSelectArrow ">
-                                                        <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
-                                            <div class="w-full">
-                                                <div class="light14grey mb-1">Name in COMP</div>
-                                                <div class="formInnerwidthfull ">
-                                                    <select class="inputboxpopover">
-                                                        <option class="pt-6">Select</option>
-                                                    </select>
-                                                    <div class="formSelectArrow ">
-                                                        <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="w-full">
-                                                <div class="light14greylong mb-1">Client Empployee ID ( If available)
-                                                </div>
-                                                <div class="formInnerwidthfull ">
-                                                    <input type="text" class="inputboxpopover">
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="flex gap-4 px-4 py-2 xsl:flex-wrap">
-                                            <div class="w-full">
-                                                <div class="light14greylong mb-1">Create new Rabbit ID/Comp ID</div>
-                                                <div class="formInnerwidthfull ">
-                                                    <div class="formInnerGroup py-2">
-                                                        <div class="text-center flex mb-2 ml-1">
-
-                                                            <div class="flex items-center mr-4">
-                                                                <input id="Rabbit" type="radio" name="radio"
-                                                                    class="hidden" checked="">
-                                                                <label for="Rabbit" class="radioLable">
-                                                                    <span class="radioCirle"></span>
-                                                                    Rabbit ID</label>
-                                                            </div>
-
-                                                            <div class="flex items-center ml-4">
-                                                                <input id="COMP" type="radio" name="radio"
-                                                                    class="hidden">
-                                                                <label for="COMP" class="radioLable">
-                                                                    <span class="radioCirle"></span>
-                                                                    COMP ID</label>
-                                                            </div>
+                                                <div class="w-full">
+                                                    <div class="light14grey mb-1">Station</div>
+                                                    <div class="formInnerwidthfull ">
+                                                        <select class="inputboxpopover" bind:value={stat_select}>
+                                                            <option value="" disabled selected>Select</option>
+                                                            {#each station_data_array as station}
+                                                                <option
+                                                                    class="pt-6" 
+                                                                    value={station.station_code}
+                                                                    >{station.station_code} - {station.station_name}</option
+                                                                >
+                                                                {/each}
+                                                        </select>
+                                                        <div class="formSelectArrow ">
+                                                            <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div class="w-full">
-
+                                            <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
+                                                <div class="w-full">
+                                                    <div class="light14grey mb-1">Name in COMP</div>
+                                                    <div class="formInnerwidthfull ">
+                                                        <select class="inputboxpopover">
+                                                            <option class="pt-6">Select</option>
+                                                            {#each station_code_arr as stat_code}
+                                                                <option class="pt-6">
+                                                                    {stat_code}
+                                                                </option>
+                                                            {/each}
+                                                        </select>
+                                                        <div class="formSelectArrow ">
+                                                            <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="w-full">
+                                                    <div class="light14greylong mb-1">Client Empployee ID ( If available)
+                                                    </div>
+                                                    <div class="formInnerwidthfull ">
+                                                        <input type="text" class="inputboxpopover">
+                                                    </div>
+                                                </div>
                                             </div>
+
+                                            <div class="flex gap-4 px-4 py-2 xsl:flex-wrap">
+                                                <div class="w-full">
+                                                    <div class="light14greylong mb-1">Create new Rabbit ID/Comp ID</div>
+                                                    <div class="formInnerwidthfull ">
+                                                        <div class="formInnerGroup py-2">
+                                                            <div class="text-center flex mb-2 ml-1">
+
+                                                                <div class="flex items-center mr-4">
+                                                                    <input id="Rabbit" type="radio" name="radio"
+                                                                        class="hidden" checked="">
+                                                                    <label for="Rabbit" class="radioLable">
+                                                                        <span class="radioCirle"></span>
+                                                                        Rabbit ID</label>
+                                                                </div>
+
+                                                                <div class="flex items-center ml-4">
+                                                                    <input id="COMP" type="radio" name="radio"
+                                                                        class="hidden">
+                                                                    <label for="COMP" class="radioLable">
+                                                                        <span class="radioCirle"></span>
+                                                                        COMP ID</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="w-full">
+
+                                                </div>
+                                            </div>
+
+
+
+                                            <div class="actionButtons">
+                                                <div class="actionCancelbutton " on:click={() => {temp5 = "newMap";}} >
+                                                    Cancel
+                                                </div>
+                                                <div class="updateAction ml-5">
+                                                    <button class="ErBlueButton">Map</button>
+                                                </div>
+                                            </div>
+
                                         </div>
-
-
-
-                                        <div class="actionButtons">
-                                            <div class="actionCancelbutton ">
-                                                Cancel
-                                            </div>
-                                            <div class="updateAction ml-5">
-                                                <button class="ErBlueButton">Map</button>
-                                            </div>
-                                        </div>
-
-                                    </div>
+                                    {/if}
+                                    {/if}
                                 </div>
 
                             </div>
@@ -5691,7 +5769,7 @@
                 </div>
             </div>
         </div>
-    </div> -->
+    </div>
 
 
 

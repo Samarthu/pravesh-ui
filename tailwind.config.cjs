@@ -154,6 +154,9 @@ module.exports = {
         'h600': '600px',
         'heightSideNav':'calc(100vh - 58px)',
         'max-h-85vh':'85vh',
+        'max-h-80vh':'80vh',
+        'max-h-95vh':'95vh',
+        'max-h-70vh':'70vh',
 
       },
      
