@@ -411,7 +411,6 @@ import { Router, Link, Route } from "svelte-routing";
              for(let i=0;i<loc_data_res.body.data.length;i++){
                 city_data.push(loc_data_res.body.data[i].location_name);
                 scope_data.push(loc_data_res.body.data[i]);
-                
             }
             city_data = city_data;
             scope_data = scope_data;
@@ -2686,11 +2685,10 @@ async function child_select_fun(){
                             </p>
                             <p class="text-sm ">
                                 <span class="font-medium text-lg">
-                                    Dhiraj Shah</span
+                                    {$facility_data_store.facility_name}</span
                                 >
                                 <span class="userDesignation">
-                                    - Associate- {$facility_data_store.facility_type}, MHPD - Mulsi
-                                    SP</span
+                                    - Associate- {$facility_data_store.facility_type}, {$facility_data_store.name}</span
                                 >
                             </p>
                         </div>
@@ -2703,7 +2701,74 @@ async function child_select_fun(){
                         <div class="scrollbar ">
                             <div class="mainContainerWrapper ">
                                 <div class="DocCardlist ">
+                                    {#each facility_document_data as new_doc_data}
                                     <div class="cardDocWrapper ">
+                                        <div class="infoDivCard ">
+                                            <div class="infofSection  ">
+                                               
+                                                <div class="secFirstDoc ">
+                                                    
+                                                    <div class="docImageSec">
+                                                        <img
+                                                            src="{$img_url_name.img_name}/pancard.png"
+                                                            alt=""
+                                                        />
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale">
+                                                            Document Type
+                                                        </p>
+                                                        <p class="detailData">
+                                                            {new_doc_data.doc_category}
+                                                        </p>
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale">
+                                                            Uploaded By
+                                                        </p>
+                                                        <p class="detailData">
+                                                            {new_doc_data.modified_by}
+                                                        </p>
+                                                    </div>
+                                                    <div class="pl-2">
+                                                        <p class="detailLbale">
+                                                            Uploaded On
+                                                        </p>
+                                                        <p class="detailData">
+                                                            {new_doc_data.modified}
+                                                        </p>
+                                                    </div>
+                                                   
+                                                </div>
+                                                <div class="secSecond xs:mt-3">
+                                                    <div class="pl-4">
+                                                        <p class="verifyText">
+                                                            <a
+                                                                href=""
+                                                                class="smButton"
+                                                            >
+                                                                <img
+                                                                    src="{$img_url_name.img_name}/view.png"
+                                                                    alt=""
+                                                                />
+                                                            </a>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="statusSecForDoc">
+                                            <p class="userStatusTick ">
+                                                <img
+                                                    src="{$img_url_name.img_name}/checked.png"
+                                                    alt=""
+                                                    class="pr-1"
+                                                /> Verify
+                                            </p>
+                                        </div>
+                                    </div>
+                                    {/each}
+                                    <!-- <div class="cardDocWrapper ">
                                         <div class="infoDivCard ">
                                             <div class="infofSection  ">
                                                 <div class="secFirstDoc ">
@@ -2950,69 +3015,7 @@ async function child_select_fun(){
                                                 /> Verify
                                             </p>
                                         </div>
-                                    </div>
-                                    <div class="cardDocWrapper ">
-                                        <div class="infoDivCard ">
-                                            <div class="infofSection  ">
-                                                <div class="secFirstDoc ">
-                                                    <div class="docImageSec">
-                                                        <img
-                                                            src="{$img_url_name.img_name}/pancard.png"
-                                                            alt=""
-                                                        />
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p class="detailLbale">
-                                                            Document Type
-                                                        </p>
-                                                        <p class="detailData">
-                                                            PAN Card
-                                                        </p>
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p class="detailLbale">
-                                                            Uploaded By
-                                                        </p>
-                                                        <p class="detailData">
-                                                            Admin
-                                                        </p>
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p class="detailLbale">
-                                                            Uploaded On
-                                                        </p>
-                                                        <p class="detailData">
-                                                            27-Apr-2021 23:29 pm
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <div class="secSecond xs:mt-3">
-                                                    <div class="pl-4">
-                                                        <p class="verifyText">
-                                                            <a
-                                                                href=""
-                                                                class="smButton"
-                                                            >
-                                                                <img
-                                                                    src="{$img_url_name.img_name}/view.png"
-                                                                    alt=""
-                                                                />
-                                                            </a>
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="statusSecForDoc">
-                                            <p class="userStatusTick ">
-                                                <img
-                                                    src="{$img_url_name.img_name}/checked.png"
-                                                    alt=""
-                                                    class="pr-1"
-                                                /> Verify
-                                            </p>
-                                        </div>
-                                    </div>
+                                    </div> -->
                                 </div>
                                 <div class="addDocumentSection ">
                                     <div class="addSecform ">
@@ -3220,9 +3223,7 @@ async function child_select_fun(){
                             </div>
                             <div
                                 class="Historytab py-3 w-2/4	 bg-bglightgreye"
-                                on:click={() => {
-                                    temp3 = "p-contracts";
-                                }}
+                                on:click={() => {temp3 = "p-contracts";}}
                             >
                                 <p>Physical Contracts</p>
                             </div>

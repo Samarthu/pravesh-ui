@@ -246,7 +246,36 @@ const print_data = (contract_id) =>{
         },true)
 
 }
+const get_physical_contracts = () =>{
+    let get_physical_contracts_url = '/api/method/pravesh.facility.routes.contract.get_physical_contract_type';
+    return request(
+        get_physical_contracts_url,{
+            method: "GET"
+        },true)
 
+}
+const save_physical_contract = (data) =>{
+    let save_physical_contract_url = '/api/method/pravesh.facility.routes.contract.upload_physical_contract';
+    return request(
+        save_physical_contract_url, 
+        {  method: "POST",
+            body:JSON.stringify(data),            
+        },true)
+}
+const get_station_details = (station_code) =>{
+    let get_station_details_url = '/api/method/pravesh.facility.routes.facility.get_station_details?station_code='+station_code+'&_=1652169879220';
+        return request(
+        get_station_details_url,{
+        method: "GET"
+        },true)
+}
+const get_all_accepted_contracts = () =>{
+    let get_all_accepted_contracts_url = '/api/method/pravesh.facility.routes.contract.get_all_accepted_contract?facility_id='+new_facility_id+'';
+        return request(
+        get_all_accepted_contracts_url,{
+        method: "GET"
+        },true)
+}
 
 
 
@@ -276,5 +305,9 @@ export {
     list_child_data,
     remove_child,
     work_details_data,
-    print_data
+    print_data,
+    get_physical_contracts,
+    save_physical_contract,
+    get_station_details,
+    get_all_accepted_contracts
 }
