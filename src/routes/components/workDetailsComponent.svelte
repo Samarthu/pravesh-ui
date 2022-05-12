@@ -4,10 +4,10 @@
         //     import Catagory from "../catagory.svelte";
         //     import { goto } from "$app/navigation";
         //     import Breadcrumb from "./breadcrumb.svelte";
-            // import { onMount } from "svelte";
+            import { onMount } from "svelte";
         //     import { DateInput, DatePicker } from "date-picker-svelte";
             import { bank_data_to_store,cheque_data_to_store } from "../../stores/onboardsummary_store";
-        //     import { allowed_pdf_size } from "../services/pravesh_config";
+            import { allowed_pdf_size } from "../../services/pravesh_config";
         //     // import { addnew_cheque_details } from "../services/onboardsummary_services";
         //     // import { facility_document } from "../services/onboardsummary_services";
         //     import { audit_trail_data } from "../services/supplier_services";
@@ -15,9 +15,10 @@
                     show_fac_tags,submit_fac_tag_data,remove_tag,tag_audit_trail,service_vendor,
                     get_loc_scope,client_details,erp_details,child_data,add_gst_dets,
                     facility_document,addnew_cheque_details,bank_details,cheque_details,gst_details,
-                    work_details_data,print_data} from "../../services/onboardsummary_services";
+                    work_details_data,print_data,get_physical_contracts,save_physical_contract,get_station_details,
+                    get_all_accepted_contracts} from "../../services/onboardsummary_services";
         //     import {uploadDocs} from "../services/bgv_services";
-        //     import {get_date_format} from "../services/date_format_servives";
+            import {get_date_format} from "../../services/date_format_servives";
             // import {bank_details,cheque_details,facility_document,show_fac_tags,get_loc_scope,
             //     facility_data,facility_bgv_init,all_facility_tags} from "../../services/onboardsummary_services";
             import {img_url_name} from '../../stores/flags_store';
@@ -36,6 +37,8 @@
             import  {  page } from '$app/stores';
             import {documents_store} from '../../stores/document_store';
             import { goto } from "$app/navigation";
+            import {get_client_org_mapping} from '../../services/vmt_verify_services'
+            
             // import {onFileSelected} from '../onboardsummaryComponent.svelte'
         
             let show_spinner = false;
@@ -50,6 +53,7 @@
             let temp4 = "p-contracts-1";
             let temp5 = "newMap";
             let temp6 = "cheque";
+            let contract = "e-contract"
             let child = "linkchild";
             let childlink = "childlink"; 
             let asso_active = "active";
@@ -74,9 +78,20 @@
             let username;
             let all_tags_res;
             let work_contract_arr = [];
+            let physical_contract_arr = [];
+            let all_accepted_contract_arr = [];
+            let org_data_arr = [];
+            let cont_start_date;
+            let cont_end_date;
+            let phy_cont_file = ""
+            let phy_cont_message = ""
+            let phy_cont_img = ""
+            let station_data_arr = [];
+            let cost_center_details = [];
             let print_data_arr = [];
-            let contract_data_val = "";
-            export let facility_name;
+            let esign_data_arr = [];
+            let contract_tab_val = "e-cont";
+            // export let facility_name;
             export let facility_id;
             // let pancard_obj = {
             //     pan_num:null,
@@ -192,6 +207,16 @@
         ///////Document view Model/////////
             let alt_image="";
             let new_contract_data = "";
+            let cont_cost_center;
+            let cont_warehouse = "";
+            let contract_type;
+            let contract_name;
+            let e_bg_bglightgreye="bg-bglightgreye";
+            let phy_bg_bglightgreye="";
+            let all_bg_bglightgreye = "";
+            let is_e_grid_hidden = ""
+            let is_phy_grid_hidden = "hidden";
+
         /////////Document view Model//////
             // $:{
             //     for(let key in all_tags_obj){
@@ -226,14 +251,133 @@
             // }
             // $:if(gst_checkbox === true){
             //     gst_checkbox = true;
-            // }
-            function myBtn() {
-            associateModal.style.display = "block";
+            // } 
+            let org_selected;
+            let station_selected;
+            $:{
+                if(org_selected){
+                org_dependent()
+                }
             }
-           async function workorganization() {
-               show_spinner = true;
-               workContractModel.style.display = "block";
-                let work_details_res = await work_details_data();
+            $:{
+                if(station_selected){
+                station_dependent()
+                }
+
+            }
+
+            
+
+            async function org_dependent(){
+                station_data_arr = [];
+                let get_loc_scope_res = await get_loc_scope()
+                try {
+                    if (get_loc_scope_res != "null"){
+                        for(let i=0;i<get_loc_scope_res.body.data.length;i++){
+                            for(let j =0 ;j<get_loc_scope_res.body.data[i].stations.length;j++){
+                                if(get_loc_scope_res.body.data[i].stations[j].org_id == org_selected){
+                                    // console.log("inside if block",get_loc_scope_res.body.data[i].stations[j].station_code)
+                                    station_data_arr.push({"station_code":get_loc_scope_res.body.data[i].stations[j].station_code,"station_name":get_loc_scope_res.body.data[i].stations[j].station_name})
+                                }
+                            }
+                        }
+                        station_data_arr = station_data_arr;
+                        
+                    }
+                }
+                catch (error) {
+                    toast_type = "error";
+                    toast_text = get_loc_scope_res.body.message;
+                }
+            }
+
+            async function station_dependent(){
+                console.log("station_selected",station_selected)
+                let get_station_details_res = await get_station_details(station_selected);
+                try {
+                    if (get_station_details_res != "null"){
+                        cost_center_details = get_station_details_res.body.data;
+                    }
+                    cost_center_details = cost_center_details;
+                    console.log("cost_center_details",cost_center_details)
+                }
+                catch (error) {
+                    toast_type = "error";
+                    toast_text = error
+                };
+
+            }
+        async function submit_phy_contract(){
+            
+            show_spinner = true;
+            for(let i=0;i<physical_contract_arr.length;i++){
+                if(contract_type  == physical_contract_arr[i].contract_type){
+                    contract_name = physical_contract_arr[i].name;
+                }
+            }
+            let new_start_date = new Date(cont_start_date);
+            let updated_start_date = get_date_format(new_start_date,"yyyy-mm-dd");
+
+            let new_end_date = new Date(cont_end_date);
+            let updated_end_date = get_date_format(new_end_date,"yyyy-mm-dd");
+
+
+            console.log("contract_name",contract_name)
+            if(!contract_name){
+                toast_type = "error";
+                toast_text = "Select Contract Type";
+                return
+            }
+            if(!org_selected || org_selected == "-1"){
+                toast_type = "error";
+                toast_text = "Select Organization Id";
+                return
+            }
+            if(!station_selected || station_selected == "-1"){
+                toast_type = "error";
+                toast_text = "Select Station Id";
+                return
+            }
+            if(!cont_start_date){
+                toast_type = "error";
+                toast_text = "Select Start Date";
+                return
+            }
+            if(!cont_end_date){
+                toast_type = "error";
+                toast_text = "Select End Date";
+                return
+            }
+            if(!phy_cont_file){
+                toast_type = "error";
+                toast_text = "Upload File";
+                return
+            }
+
+
+
+            let pass_contract_id = {
+                contract_id: contract_name,
+                cost_center: cont_cost_center,
+                end_date: cont_end_date,
+                facility_id: facility_id,
+                file_data: phy_cont_file,
+                file_name: phy_cont_img,
+                org_id: org_selected,
+                start_date : cont_start_date,
+                station_code : station_selected,
+                warehouse: cont_warehouse
+                
+            }
+            console.log("pass_contract_id",pass_contract_id)
+            let save_phy_contract_res =await  save_physical_contract(pass_contract_id)
+                console.log("save_phy_contract_res",save_phy_contract_res);
+                if(save_phy_contract_res.body.status == "green"){
+                    work_contract_arr=[];
+                    show_spinner = false;
+                    toast_type = "success";
+                    toast_text = save_phy_contract_res.body.message;
+                    let work_details_res = await work_details_data();
                 try {
                     if(work_details_res.body.status == "green"){
                         show_spinner = false;
@@ -252,7 +396,94 @@
                         toast_text = "Something went wrong";
                     }
                     work_contract_arr = work_contract_arr;
-                    // console.log("work_contract_arr",work_contract_arr);
+                    // for(let i=0;i<work_contract_arr.length;i++){
+
+                    // }
+                    console.log("work_contract_arr",work_contract_arr);
+                }
+                catch (error) {
+                    show_spinner = false;
+                    toast_type = "error";
+                    toast_text = error;   
+                }
+
+            }
+        }
+    async function contract_tab(selected_tab){
+        if(selected_tab == "e-cont"){
+            e_bg_bglightgreye = "bg-bglightgreye"
+            phy_bg_bglightgreye = ""
+            all_bg_bglightgreye = ""
+            contract_tab_val = "e-cont"
+
+        }
+        if(selected_tab == "phy_cont"){
+            phy_bg_bglightgreye  = "bg-bglightgreye"
+            e_bg_bglightgreye = ""
+            all_bg_bglightgreye = ""
+            contract_tab_val = "phy_cont"
+        }
+        if(selected_tab == "all-cont"){
+            all_bg_bglightgreye = "bg-bglightgreye"
+            e_bg_bglightgreye = ""
+            phy_bg_bglightgreye = ""
+            contract_tab_val = "all_cont"
+        }
+    }
+        onMount(async () => {
+            let get_org_data_res =  await get_client_org_mapping();
+            try {
+            if(get_org_data_res.body.status == "green"){
+                for(let i=0;i<get_org_data_res.body.data.length;i++){
+                    org_data_arr.push({"org_id":get_org_data_res.body.data[i].org_id,"org_name":get_org_data_res.body.data[i].org_name})
+                }
+                org_data_arr = org_data_arr;
+                
+            }
+            else{
+                toast_type = "error";
+                toast_text = "No client Data";
+            }
+            } catch(err) {
+                toast_type = "error";
+                toast_text = err;
+       
+            }
+        });
+
+            function myBtn() {
+            associateModal.style.display = "block";
+            }
+           async function workorganization() {
+               show_spinner = true;
+               workContractModel.style.display = "block";
+                let work_details_res = await work_details_data();
+                try {
+                    if(work_details_res.body.status == "green"){
+                        show_spinner = false;
+                        toast_type = "success";
+                        toast_text = work_details_res.body.message;
+                        work_contract_arr = work_details_res.body.data;
+                        for(let i=0;i<work_contract_arr.length;i++){
+                            let updated_date_format = new Date(work_contract_arr[i].updated_date);
+                            work_contract_arr[i].updated_date = get_date_format(updated_date_format,"dd-mm-yyyy-hh-mm");
+                            let creation_date_format = new Date(work_contract_arr[i].creation);
+                            work_contract_arr[i].creation = get_date_format(creation_date_format,"dd-mm-yyyy-hh-mm");
+                            
+                        }
+                    }
+                    else if(work_details_res.body.status == "red"){
+                        show_spinner = false;
+                        toast_type = "error";
+                        toast_text = work_details_res.body.message;
+                    }
+                    else{
+                        show_spinner = false;
+                        toast_type = "error";
+                        toast_text = "Something went wrong";
+                    }
+                    work_contract_arr = work_contract_arr;
+                    console.log("work_contract_arr",work_contract_arr);
                 }
                 catch (error) {
                     show_spinner = false;
@@ -260,9 +491,48 @@
                     toast_text = error;   
                 }
                 
-            
-                
-            
+                let physical_contract_res =await get_physical_contracts();
+                try {
+                    if(physical_contract_res.body.status == "green"){
+                        show_spinner = false;
+                        toast_type = "success";
+                        toast_text = physical_contract_res.body.message;
+                        physical_contract_arr = physical_contract_res.body.data;
+                    }
+                    else{
+                        show_spinner = false;
+                        toast_type = "error";
+                        toast_text = "Something went wrong";
+                    }  
+                    physical_contract_arr = physical_contract_arr;
+                }
+                catch (error) {
+                    show_spinner = false;
+                    toast_type = "error";
+                    toast_text = error;
+                }
+
+                let all_accepted_contract_res =await get_all_accepted_contracts();
+                try {
+                    if(all_accepted_contract_res.body.status == "green"){
+                        show_spinner = false;
+                        toast_type = "success";
+                        toast_text = all_accepted_contract_res.body.message;
+                        all_accepted_contract_arr = all_accepted_contract_res.body.data;
+                    }
+                    else{
+                        show_spinner = false;
+                        toast_type = "error";
+                        toast_text = "Something went wrong";
+                    }  
+                    all_accepted_contract_arr = all_accepted_contract_arr;
+                    console.log("all_accepted_contract_arr",all_accepted_contract_arr);
+                }
+                catch (error) {
+                    show_spinner = false;
+                    toast_type = "error";
+                    toast_text = error;
+                }
 
             }
 
@@ -310,32 +580,24 @@
             }
         }
         
-    }const onFileSelected = (e,doctext) => {
+    }
+    const onFileSelected = (e,doctext) => {
         let img = e.target.files[0];
         if (img.size <= allowed_pdf_size) {
             console.log("img", img);
             
-            if(doctext == "gst_upload"){
-                console.log("Photo log uploaded")  
-                gst_img = img.name;
+            if(doctext == "contract_upload"){
+            phy_cont_img = img.name;
             }
-            else if(doctext == "cheque_upload"){
-            cheque_img = img.name;
-            }
+
             var reader = new FileReader();
             reader.readAsDataURL(img);
             reader.onload = function () {
             file_data = reader.result;
             console.log("reader",reader.result);
             
-            if(doctext == "gst_upload"){
-                gst_data = reader.result;
-                // console.log("photo_data",reader.result);
-                toast_text = "Photo Uploaded Successfully";
-                toast_type = "success";
-            }
-            else if(doctext == "cheque_upload"){
-                cheque_data = reader.result;
+            if(doctext == "contract_upload"){
+                phy_cont_file = reader.result;
                 toast_text = "Document Uploaded Successfully";
                 toast_type = "success";
             }
@@ -361,8 +623,11 @@
 
     function closeWorkContract() {
         workContractModel.style.display = "none";
+        view_contract = 0;
     }
     async function view_print_doc(assigned_id,type){
+        
+        console.log("view btn clicked",assigned_id,type)
         view_contract = 1;
         let pass_contract_id
         // window.print();
@@ -374,24 +639,30 @@
         let print_data_res = await print_data(pass_contract_id);
         try {
             if(print_data_res.body.status == "green" && print_data_res.body.data != false){
-                console.log("not false")
+                
                 show_spinner = false;
                 toast_type = "success";
                 toast_text = print_data_res.body.message;
                 print_data_arr = print_data_res.body.data;
-                print_data_arr = print_data_arr;
-                console.log("print_data_arr",print_data_arr);
+                esign_data_arr = print_data_res.body.data.esign
+               
                 for(let i = 0;i<work_contract_arr.length;i++){
                 if(assigned_id == work_contract_arr[i].assigned_id){
-                    contract_data_val = work_contract_arr[i].accepted_contract;
-                    console.log("print_data_arr.accepted_contract",print_data_arr);
+                    
                     if(type == "view"){
-                        console.log("view print clicked ") 
+
+                     
+                        var demo = window.open()
+                        new_contract_data = print_data_arr.accepted_contract+document.getElementById("user_details").innerHTML;
+                        demo.document.write(String(new_contract_data));
                         
                         // document.getElementById("workContractDetails").style.display = "none";
                         // document.getElementById("viewContractDetails").style.display = "block";
-                        new_contract_data = print_data_arr.accepted_contract+document.getElementById("user_details").innerHTML;
-                        window.frames["view_frame"].window.focus();
+                        
+                        // document.getElementById("viewContractDetails").innerHTML = '<iframe name="view_frame" width="0" height="0" frameborder="0" src="about:blank" srcdoc='+{new_contract_data}+'></iframe>';
+                        // new_contract_data = print_data_arr.accepted_contract+document.getElementById("user_details").innerHTML;
+                        // window.frames["view_frame"].window.focus();
+                        // window.open(new_contract_data,'popUpWindow','height=500,width=400,left=100,top=100,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes');
                     }   
                     else if(type == "print"){
                         new_contract_data = document.getElementById("user_details").innerHTML+print_data_arr.accepted_contract;
@@ -417,55 +688,16 @@
             toast_type = "error";
             toast_text = error;
         }
-    }
-    
-    // function viewSaveContract() {
-    //     console.log("new_contract_data",new_contract_data);
-    //     // window.frames["print_frame"].document.body.innerHTML=printDivCSS + document.getElementById("div1").innerHTML;	
-    //     // window.frames["view_frame"].window.open("", "", "width=100%,height=100%").window.focus();
-    //     window.frames["print_frame"].window.print();
         
-    // }
-    // document.getElementById("cont_view_table")
-    // console.log("cont_view_table",cont_view_table);
-    // var cont = contract;
-    // var facName = facility_name;
-    // var contract = cont.accepted_contract;
-    // if (cont.esign != undefined) {
-    //     for (var k = 0; k < cont.esign.length; k++) {
-    //         var timeS = moment(cont.esign[k].modified).format("DD-MMM-YYYY HH:mm a");
-    //         var tr = "<center><span style='font-size:22px;font-weight: bold;'>" + facSaved[0].name + " - " + facName + "</span></center><br><br><span style='font-size:20px;font-weight: bold;'>ESIGNATURE</span><br><br><table border='2' style='width:90%;'><thead><tr><th> Accepted On</th><th> Accepted By</th><th>IMEI</th><th>IP</th><th>Geocodes</th><th>UFID</th></tr></thead><tbody><tr><td style=text-align:center>" + timeS + "</td><td style=text-align:center>" + cont.esign[k].user_id + "</td><td style=text-align:center>" + cont.esign[k].imei + "</td><td style=text-align:center>" + cont.esign[k].ip_address + "</td><td style=text-align:center>" + cont.esign[k].lat_long + "</td><td style=text-align:center>" + cont.esign[k].facility_id + "</td></tr></tbody></table>";
-    //         tr = tr + "<br><table border='2'><tr><th style='padding:10px;'>Device Used : </th><td style=padding:10px>" + cont.esign[k].model_no + "</td></tr></table>";
-    //         tr = tr.replace(/null/g, "NA");
-    //         tr = tr.replace(/undefined/g, "NA");
-    //         document.getElementById("cont_view_table").append(tr);
-    //         document.getElementById("cont_view_table").append("<br><br>");
-    //     }
-    // }
-    // if (contract != null) {
-    //     contract = contract.replace(/\\\"/g, "\"");
-    //     contract = contract.replace(/null/g, "NA");
-    //     contract = contract.replace(/undefined/g, "NA");
-    //     document.getElementById("cont_view_table").append(unescape(unescapeHtml(contract)));
-    // }
-    // // console.log("contract",document.getElementById("cont_view_table").append(unescape(unescapeHtml(contract))));
-    // console.log(document.getElementById("cont_view_table"));
-    // document.getElementById("cont_view_table").each(function () {
-    //     if (!(document.getElementById("cont_view_table")(this).hasClass("table table-bordered"))) {
-    //         document.getElementById("cont_view_table")(this).addClass("table table-bordered");
-    //     }
-    // });
-    // document.getElementById("cont_view_table").printThis({
-    //     importStyle: true,
-    //     copyTagClasses: true,
-    //     header: "",
-    //     importCSS: false,
-    //     pageTitle: "E- Contract - " + facSaved[0].name + " - " + facName,
-    //     footer: "<br><br>E- Contract - " + facSaved[0].name + " - " + facName
-    // });
-// }
-    
-        </script>
+        
+        // console.log("print_data_arr",print_data_arr);
+        }
+    function closeContractView(){
+        document.getElementById("viewContractDetails").style.display = "none";
+    }  
+   
+
+    </script>
         {#if show_spinner}
             <Spinner />
         {/if}
@@ -480,9 +712,7 @@
                                 class="font-medium"> By -> </span> {$facility_data_store.modified_by}</span>
                     </p>
                     <p class="flex items-center smButtonText">
-                        <!-- <a href="" class="smButton bg-erBlue text-white" on:click={()=>goto("workdetails")}>
-                            Edit
-                        </a> -->
+                        
                         <button class="smButton bg-erBlue text-white" on:click={()=>goto("workdetails")}>
                             Edit
 
@@ -670,244 +900,32 @@
 </div> 
 <!-- Document view Model -->
 <!--  Work Contract Details modal -->
-<div class="hidden" id="workContractModel"> 
+ <!-- Full screen modal work contract Desktop and Responsive Done-->
+    
+ <div class="hidden" id="workContractModel">
     <div class="modalMain">
         <div class="modalOverlay"></div>
 
         <div class="modalContainer">
-            <div class="modalHeadConmb-0">
+            <div class="modalHeadConmb-0 sticky top-0 bg-white z-zindex99">
                 <div class="leftmodalInfo">
                     <p class="modalTitleText"> Work Contract Details </p>
                     <p class="text-sm ">
-                        <span class="font-medium text-lg"> Dhiraj Shah</span>
-                        <span class="userDesignation"> - Associate- NDA, MHPD - Mulsi SP</span>
+                        <span class="font-medium text-lg"> {$facility_data_store.facility_name}</span>
+                        <span class="userDesignation"> - {$facility_data_store.facility_type} -{$facility_data_store.name}</span>
                     </p>
                 </div>
                 <div class="rightmodalclose">
-                    <img src="../src/img/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal">
+                    <img src="../src/img/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal" on:click="{closeWorkContract}">
                 </div>
             </div>
             <div class="modalContent">
-                <div class="tabwrapper flex justify-between text-center py-2 pb-3">
-                    <div class="changetype py-3 w-2/4	">
-                        <p>E-Contracts</p>
-                    </div>
-                    <div class="Historytab py-3 w-2/4	 bg-bglightgreye">
-                        <p>Physical Contracts</p>
-                    </div>
-                </div>
                 <div class="ConModalContent">
-                    <div class="gridMain hidden">
-                        <div class="heightCardContainer">
-                            <table class="table  w-full text-center mt-2">
-                                <thead class="theadpopover h-10">
-                                    <tr>
-                                        <th>Contract Name</th>
-                                        <th>Contract Type</th>
-                                        <th>
-                                            <div class="flex"> Accepted ? <img src="../src/img/arrowupdown.svg"
-                                                    class="ml-2" alt=""></div>
-                                        </th>
-                                        <th>Accepted On</th>
-                                        <th>Is Mandatory ?</th>
-                                        <th>View</th>
-                                        <th>Print/Save</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="tbodypopover">
-                                    <tr class="border-b">
-                                        <td>Background Verification Concent</td>
-                                        <td>Concent</td>
-                                        <td><span class="text-green">Yes</span> </td>
-                                        <td>10-06-2020</td>
-                                        <td>Yes</td>
-                                        <td>
-                                            <p class="flex justify-center">
-                                                <a href="" class="smButton">
-                                                    <img src="../src/img/view.png" alt="">
-                                                </a>
-                                            </p>
-                                        </td>
-                                        <td>
-                                            <p class="flex justify-center">
-                                                <a href="" class="smButton">
-                                                    <img src="../src/img/printer.svg" alt="">
-                                                </a>
-                                            </p>
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td>Background Verification Concent</td>
-                                        <td>Concent</td>
-                                        <td><span class="text-red-700">No</span> </td>
-                                        <td>10-06-2020</td>
-                                        <td>Yes</td>
-                                        <td>
-                                            <p class="flex justify-center">
-                                                <a href="" class="smButton">
-                                                    <img src="../src/img/view.png" alt="">
-                                                </a>
-                                            </p>
-                                        </td>
-                                        <td>
-                                            <p class="flex justify-center">
-                                                <a href="" class="smButton">
-                                                    <img src="../src/img/printer.svg" alt="">
-                                                </a>
-                                            </p>
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td>Background Verification Concent</td>
-                                        <td>Concent</td>
-                                        <td><span class="text-green">Yes</span> </td>
-                                        <td>10-06-2020</td>
-                                        <td>Yes</td>
-                                        <td>
-                                            <p class="flex justify-center">
-                                                <a href="" class="smButton">
-                                                    <img src="../src/img/view.png" alt="">
-                                                </a>
-                                            </p>
-                                        </td>
-                                        <td>
-                                            <p class="flex justify-center">
-                                                <a href="" class="smButton">
-                                                    <img src="../src/img/printer.svg" alt="">
-                                                </a>
-                                            </p>
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td>Background Verification Concent</td>
-                                        <td>Concent</td>
-                                        <td><span class="text-green">Yes</span> </td>
-                                        <td>10-06-2020</td>
-                                        <td>Yes</td>
-                                        <td>
-                                            <p class="flex justify-center">
-                                                <a href="" class="smButton">
-                                                    <img src="../src/img/view.png" alt="">
-                                                </a>
-                                            </p>
-                                        </td>
-                                        <td>
-                                            <p class="flex justify-center">
-                                                <a href="" class="smButton">
-                                                    <img src="../src/img/printer.svg" alt="">
-                                                </a>
-                                            </p>
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td>Background Verification Concent</td>
-                                        <td>Concent</td>
-                                        <td><span class="text-green">Yes</span> </td>
-                                        <td>10-06-2020</td>
-                                        <td>Yes</td>
-                                        <td>
-                                            <p class="flex justify-center">
-                                                <a href="" class="smButton">
-                                                    <img src="../src/img/view.png" alt="">
-                                                </a>
-                                            </p>
-                                        </td>
-                                        <td>
-                                            <p class="flex justify-center">
-                                                <a href="" class="smButton">
-                                                    <img src="../src/img/printer.svg" alt="">
-                                                </a>
-                                            </p>
-                                        </td>
-                                    </tr>
-                                    <tr class="border-b">
-                                        <td>Background Verification Concent</td>
-                                        <td>Concent</td>
-                                        <td><span class="text-green">Yes</span> </td>
-                                        <td>10-06-2020</td>
-                                        <td>Yes</td>
-                                        <td>
-                                            <p class="flex justify-center">
-                                                <a href="" class="smButton">
-                                                    <img src="../src/img/view.png" alt="">
-                                                </a>
-                                            </p>
-                                        </td>
-                                        <td>
-                                            <p class="flex justify-center">
-                                                <a href="" class="smButton">
-                                                    <img src="../src/img/printer.svg" alt="">
-                                                </a>
-                                            </p>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+
+                    <div class=" xsl:grid-cols-1 gap-4">
 
 
-                        </div>
-                    </div>
-
-                    <div class="gridCon">
-
-                        <div class="PhysicalCardContainer">
-                            <div class="heightCardContainer">
-                                <table class="table  w-full text-center mt-2 ">
-                                    <thead class="theadpopover h-10">
-                                        <tr>
-                                            <th>Contract Type</th>
-                                            <th>Starts From</th>
-                                            <th> Ends On</th>
-                                            <th>Cost Center</th>
-                                            <th> View</th>
-
-                                        </tr>
-                                    </thead>
-                                    <tbody class="tbodypopover">
-                                        <tr class="border-b">
-                                            <td>Procurement agreement</td>
-                                            <td>16-01-2020</td>
-                                            <td>11-06-2020</td>
-                                            <td>Mulshi - MHPD - NTEX</td>
-                                            <td>
-                                                <p class="flex justify-center">
-                                                    <a href="" class="smButton">
-                                                        <img src="../src/img/view.png" alt="">
-                                                    </a>
-                                                </p>
-                                            </td>
-                                        </tr>
-                                        <tr class="border-b">
-                                            <td>Procurement agreement</td>
-                                            <td>16-01-2020</td>
-                                            <td>11-06-2020</td>
-                                            <td>Mulshi - MHPD - NTEX</td>
-                                            <td>
-                                                <p class="flex justify-center">
-                                                    <a href="" class="smButton">
-                                                        <img src="../src/img/view.png" alt="">
-                                                    </a>
-                                                </p>
-                                            </td>
-                                        </tr>
-                                        <tr class="border-b">
-                                            <td>Procurement agreement</td>
-                                            <td>16-01-2020</td>
-                                            <td>11-06-2020</td>
-                                            <td>Mulshi - MHPD - NTEX</td>
-                                            <td>
-                                                <p class="flex justify-center">
-                                                    <a href="" class="smButton">
-                                                        <img src="../src/img/view.png" alt="">
-                                                    </a>
-                                                </p>
-                                            </td>
-                                        </tr>
-
-
-                                    </tbody>
-                                </table>
-                            </div>
+                        <div class="tabwrapper flex justify-between text-center py-2 pb-3">
                         </div>
                         <div>
                             <div class="bgAddSection">
@@ -928,8 +946,11 @@
                                         <div class="w-full">
                                             <div class="light14grey mb-1">Select Contract Type</div>
                                             <div class="formInnerwidthfull ">
-                                                <select class="inputboxpopover">
+                                                <select class="inputboxpopover" bind:value = {contract_type}>
                                                     <option class="pt-6">Select</option>
+                                                    {#each physical_contract_arr as contract_type}
+                                                 <option class="pt-6">{contract_type.contract_type}</option>
+                                                 {/each}
                                                 </select>
                                                 <div class="formSelectArrow ">
                                                     <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
@@ -939,8 +960,19 @@
                                         <div class="w-full">
                                             <div class="light14grey mb-1">Select Organization</div>
                                             <div class="formInnerwidthfull ">
-                                                <select class="inputboxpopover">
-                                                    <option class="pt-6">Select</option>
+                                                <select class="inputboxpopover"  bind:value = "{org_selected}">
+                                                    {#if !org_data_arr}
+                                                <p>No client Details found</p>
+                                                {:else}
+                                                <option class="pt-6" value="-1">Select</option>
+                                                {#each org_data_arr as org_detail}
+                                                            <option
+                                                                class="pt-6"
+                                                                value="{org_detail.org_id}"
+                                                                >{org_detail.org_name}</option
+                                                            >
+                                                {/each}
+                                                {/if}
                                                 </select>
                                                 <div class="formSelectArrow ">
                                                     <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
@@ -952,18 +984,93 @@
                                         <div class="w-full">
                                             <div class="light14grey mb-1">Select Station</div>
                                             <div class="formInnerwidthfull ">
-                                                <select class="inputboxpopover">
-                                                    <option class="pt-6">Select</option>
+                                                <select class="inputboxpopover" bind:value = "{station_selected}">
+                                                    {#if !station_data_arr}
+                                        <p></p>
+                                        {:else}
+                                        <option value="-1" disabled selected>Select</option>
+                                        {#each station_data_arr as station}
+                                            <option
+                                                class="pt-6" 
+                                                value={station.station_code}
+                                                >{station.station_code} - {station.station_name}</option
+                                            >
+                                        {/each}
+                                        {/if}
                                                 </select>
                                                 <div class="formSelectArrow ">
                                                     <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
                                                 </div>
                                             </div>
                                         </div>
+
+
+
+
+
+
+
+                                        {#each cost_center_details as cost_dets}
+                                    {#if !cost_dets.cost_center}
+                                    <p></p>
+                                    {:else}
+                                    <div class="w-full">
+                                        <div class="light14grey mb-1">Cost Center</div>
+                                        <div class="formInnerwidthfull ">
+                                            <select
+                                            class="inputboxpopover"
+                                            bind:value="{cont_cost_center}"
+                                        >
+                                            <option
+                                                class="pt-6" 
+                                                >{cost_dets.cost_center}</option
+                                            >
+                                        
+                                        </select>
+                                            <div class="formSelectArrow ">
+                                                <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                            </div>
+                                        </div>
+                                        </div>
+                                        {/if}
+                                        {#if !cost_dets.warehouse}
+                                        <p></p>
+                                        {:else}
+                                        <div class="w-full">
+                                            <div class="light14grey mb-1">Warehouse</div>
+                                            <div class="formInnerwidthfull ">
+                                                <select
+                                                class="inputboxpopover"
+                                               bind:value="{cont_warehouse}"
+                                            >
+                                                <option
+                                                    class="pt-6" 
+                                                    
+                                                    >{cost_dets.warehouse}</option
+                                                >
+                                            
+                                            </select>
+                                                <div class="formSelectArrow ">
+                                                    <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                                </div>
+                                            </div>
+                                            </div>
+                                            {/if}
+                                            {/each}
+
+
+
+
+
+
+
+
+
+
                                         <div class="w-full">
                                             <div class="light14grey mb-1">Start Date</div>
                                             <div class="formInnerwidthfull ">
-                                                <input type="date" class="inputboxpopoverdate">
+                                                <input type="date" class="inputboxpopoverdate" bind:value = {cont_start_date}>
                                             </div>
                                         </div>
                                     </div>
@@ -972,7 +1079,7 @@
                                         <div class="w-full">
                                             <div class="light14grey mb-1">End Date</div>
                                             <div class="formInnerwidthfull ">
-                                                <input type="date" class="inputboxpopoverdate">
+                                                <input type="date" class="inputboxpopoverdate" bind:value = {cont_end_date}>
                                             </div>
                                         </div>
                                         <div class="w-full">
@@ -981,9 +1088,17 @@
                                                 <div class="w-full">
                                                     <label class="cursor-pointer flex">
                                                         <div class="ErBlueButton">Select File</div>
-                                                        <input type="file" class="hidden">
+                                                        <input type="file" class="hidden"
+                                                        on:change={(
+                                                            e
+                                                        ) =>
+                                                            onFileSelected(
+                                                                e,"contract_upload"
+                                                            )}
+                                                bind:value="{phy_cont_file}">
+                                                <div class="text-red-500">{phy_cont_message}</div>
                                                     </label>
-
+                                                    <p>{phy_cont_img}</p>
                                                 </div>
                                             </div>
                                         </div>
@@ -992,16 +1107,338 @@
 
 
                                     <div class="actionButtons">
-                                        <div class="actionCancelbutton ">
+                                        <div class="actionCancelbutton " on:click="{closeWorkContract}">
                                             Cancel
                                         </div>
-                                        <div class="updateAction ml-5">
+                                        <div class="updateAction ml-5"  on:click="{submit_phy_contract}">
                                             <button class="ErBlueButton">Add</button>
                                         </div>
                                     </div>
 
                                 </div>
                             </div>
+
+                        </div>
+
+
+
+                        <div class="tabwrapper flex justify-between text-center py-2 pb-3"> 
+                            <div class="changetype py-3 w-1/2 {e_bg_bglightgreye}" on:click={() => {contract_tab("e-cont")}}>
+                                <p>E-Contracts</p>
+                            </div>
+                            <div class="Historytab py-3 w-1/2	 {phy_bg_bglightgreye}"  on:click={() => {contract_tab("phy_cont")}} >
+                                <!-- on:click="{()=>contract_tab("phy_cont")} -->
+                                <p>Physical Contracts</p>
+                            </div>
+                            <div class="changetype py-3 w-1/2 {all_bg_bglightgreye}" on:click={() => {contract_tab("all-cont")}}>
+                                <p>View All Accepted Contracts</p>
+                            </div>
+                        </div>
+                        <div class="PhysicalCardContainer">
+                           <div class="gridMain ">
+                                {#if contract_tab_val == "e-cont"}
+                                <div class="heightCardContainer">
+                                    <table class="table  w-full text-center mt-2">
+                                        <thead class="theadpopover h-10">
+                                            <tr>
+                                                <th>Contract Name</th>
+                                                <th>Contract Type</th>
+                                                <th>
+                                                    <div class="flex justify-center" > Accepted ? <img src="../src/img/arrowupdown.svg"
+                                                            class="ml-2" alt=""></div>
+                                                </th>
+                                                <th>Accepted On</th>
+                                                <th>Is Mandatory ?</th>
+                                                <th>View</th>
+                                                <th>Print/Save</th>
+                                            </tr>
+                                        </thead>
+                                        {#each work_contract_arr as contract}
+                                        {#if contract.is_physical_contract == 0}
+                                        <tbody class="tbodypopover">
+                                            <tr class="border-b">
+                                                <td
+                                                    >{contract.contract_name}</td
+                                                >
+                                                <td>{contract.contract_type}</td>
+                                                <td
+                                                    >
+                                                    {#if contract.contract_accepted == 1}
+                                                    <span class="text-green"
+                                                        >Yes</span
+                                                    >
+                                                    {:else if contract.contract_accepted == 0}
+                                                    <span class="text-green"
+                                                        >No</span
+                                                    >
+                                                    {:else}
+                                                    <p>-</p>
+                                                    {/if}
+                                                </td>
+            
+                                                <td
+                                                    >
+                                                    {contract.updated_date}
+                                                </td>
+            
+            
+                                                <!-- <td>10-06-2020</td> -->
+                                                {#if contract.is_mandatory == 1}
+                                                <td>Yes</td>
+                                                {:else if contract.is_mandatory == 0}
+                                                <td>No</td>
+                                                {:else}
+                                                <p>-</p>
+                                                {/if}
+                                                <td style="text-align: -webkit-center;">
+                                                    {#if contract.contract_accepted == 0}
+                                                    <button
+                                                        class="flex justify-center"
+                                                    >
+                                                        <a
+                                                            href=""
+                                                            class="smButton"
+                                                        >
+                                                            <img
+                                                                src="{$img_url_name.img_name}/view.png"
+                                                                alt=""
+                                                            />
+                                                        </a>
+                                                    </button>
+                                                    {:else}
+                                                    <button on:click="{view_print_doc(contract.assigned_id,"view")}"
+                                                        class="flex justify-center"
+                                                    >
+                                                        <a href = "" class="smButton">
+                                                            <img
+                                                                src="{$img_url_name.img_name}/view.png"
+                                                                alt=""
+                                                            />
+                                                        </a>
+                                                    </button>
+                                                    {/if}
+                                                </td>
+                                                <td style="text-align: -webkit-center;"> 
+                                                    <button on:click="{view_print_doc(contract.assigned_id,"print")}"
+                                                        class="flex justify-center"
+                                                    >
+                                                        <a
+                                                            href=""
+                                                            class="smButton"
+                                                        >
+                                                            <img
+                                                                src="{$img_url_name.img_name}/printer.svg"
+                                                                alt=""
+                                                            />
+                                                        </a>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                        {/if}
+                                        {/each}
+                                    </table>
+        
+        
+                                </div>
+                                {/if}
+                                {#if contract_tab_val == "phy_cont"}
+                                <div class="heightCardContainer">
+                                    <table class="table  w-full text-center mt-2 ">
+                                        <thead class="theadpopover h-10">
+                                            <tr>
+                                                <th>Contract Type</th>
+                                                <th>Starts From</th>
+                                                <th> Ends On</th>
+                                                <th>Cost Center</th>
+                                                <th> View</th>
+        
+                                            </tr>
+                                        </thead>
+                                        {#each work_contract_arr as contract}
+                                        <tbody class="tbodypopover">
+                                            <tr class="border-b">
+                                                {#if contract.is_physical_contract == "1"}
+                                                <td>{contract.contract_type}</td>
+                                                <td>{contract.start_date}</td>
+                                                <td>{contract.end_date}</td>
+                                                <td>{contract.cost_center}</td>
+                                                <td style="text-align: -webkit-center;">
+                                                    {#if contract.contract_accepted == "0"}
+                                                    <button 
+                                                    class="flex justify-center disabled"
+                                                >
+                                                    <a
+                                                        href=""
+                                                        class="smButton"
+                                                    >
+                                                        <img
+                                                            src="{$img_url_name.img_name}/view.png"
+                                                            alt=""
+                                                        />
+                                                    </a>
+                                                </button>
+                                                    {:else}
+                                                    <p class="flex justify-center">
+                                                        <button on:click="{view_print_doc(contract.assigned_id,"view")}"
+                                                                class="flex justify-center"
+                                                            >
+                                                                <a
+                                                                    href=""
+                                                                    class="smButton"
+                                                                >
+                                                                    <img
+                                                                        src="{$img_url_name.img_name}/view.png"
+                                                                        alt=""
+                                                                    />
+                                                                </a>
+                                                            </button>
+                                                    </p>
+                                                    {/if}
+                                                </td>
+                                                {/if}
+                                            </tr>
+                                            <!-- <tr class="border-b">
+                                                <td>Procurement agreement</td>
+                                                <td>16-01-2020</td>
+                                                <td>11-06-2020</td>
+                                                <td>Mulshi - MHPD - NTEX</td>
+                                                <td>
+                                                    <p class="flex justify-center">
+                                                        <a href="" class="smButton">
+                                                            <img src="../src/img/view.png" alt="">
+                                                        </a>
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-b">
+                                                <td>Procurement agreement</td>
+                                                <td>16-01-2020</td>
+                                                <td>11-06-2020</td>
+                                                <td>Mulshi - MHPD - NTEX</td>
+                                                <td>
+                                                    <p class="flex justify-center">
+                                                        <a href="" class="smButton">
+                                                            <img src="../src/img/view.png" alt="">
+                                                        </a>
+                                                    </p>
+                                                </td>
+                                            </tr> -->
+        
+        
+                                        </tbody>
+                                        {/each}
+                                    </table>
+                                </div>
+                                {/if}
+                                {#if contract_tab_val == "all_cont"}
+                                <div class="heightCardContainer">
+                                    <table class="table  w-full text-center mt-2">
+                                        <thead class="theadpopover h-10">
+                                            <tr>
+                                                <th>Contract Name</th>
+                                                <th>Contract Type</th>
+                                                <th>
+                                                    <div class="flex justify-center"> Accepted ? <img src="../src/img/arrowupdown.svg"
+                                                            class="ml-2" alt=""></div>
+                                                </th>
+                                                <th>Accepted On</th>
+                                                <th>Is Mandatory ?</th>
+                                                <th>View</th>
+                                                <th>Print/Save</th>
+                                            </tr>
+                                        </thead>
+                                        {#each all_accepted_contract_arr as contract}
+                                        
+                                        <tbody class="tbodypopover">
+                                            <tr class="border-b">
+                                                <td
+                                                    >{contract.contract_name}</td
+                                                >
+                                                <td>{contract.contract_type}</td>
+                                                <td
+                                                    >
+                                                    {#if contract.contract_accepted == 1}
+                                                    <span class="text-green"
+                                                        >Yes</span
+                                                    >
+                                                    {:else if contract.contract_accepted == 0}
+                                                    <span class="text-green"
+                                                        >No</span
+                                                    >
+                                                    {:else}
+                                                    <p>-</p>
+                                                    {/if}
+                                                </td>
+            
+                                                <td
+                                                    >
+                                                    {contract.updated_date}
+                                                </td>
+            
+            
+                                                <!-- <td>10-06-2020</td> -->
+                                                {#if contract.is_mandatory == 1}
+                                                <td>Yes</td>
+                                                {:else if contract.is_mandatory == 0}
+                                                <td>No</td>
+                                                {:else}
+                                                <p>-</p>
+                                                {/if}
+                                                <p>{contract.contract_accepted}</p>
+                                                <td style="text-align: -webkit-center;">
+                                                    {#if contract.contract_accepted == 0}
+                                                    <button
+                                                        class="flex justify-center disabled" 
+                                                    >
+                                                        <a
+                                                            href=""
+                                                            class="smButton"
+                                                        >
+                                                            <img
+                                                                src="{$img_url_name.img_name}/view.png"
+                                                                alt=""
+                                                            />
+                                                        </a>
+                                                    </button>
+                                                    {:else}
+                                                    <button on:click="{view_print_doc(contract.assigned_id,"view")}"
+                                                        class="flex justify-center"
+                                                    >
+                                                        <a href = "" class="smButton">
+                                                            <img
+                                                                src="{$img_url_name.img_name}/view.png"
+                                                                alt=""
+                                                            />
+                                                        </a>
+                                                    </button>
+                                                    {/if}
+                                                </td>
+                                                <td style="text-align: -webkit-center;">
+                                                    <button on:click="{view_print_doc(contract.assigned_id,"print")}"
+                                                        class="flex justify-center"
+                                                    >
+                                                        <a
+                                                            href=""
+                                                            class="smButton"
+                                                        >
+                                                            <img
+                                                                src="{$img_url_name.img_name}/printer.svg"
+                                                                alt=""
+                                                            />
+                                                        </a>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                        {/each}
+                                    </table>
+        
+        
+                                </div>
+                                {/if}
+                            </div>
+
 
                         </div>
 
@@ -1014,54 +1451,93 @@
         </div>
     </div>
 </div>
-<!-- <div class="modal-body" style="overflow: auto;" id="cont_view_table"></div>  -->
-                
+             
                 <!-- View Contract Model -->
+{#if view_contract == 1}
 <div id="div1">{new_contract_data}</div>
 <iframe name="print_frame" width="0" height="0" frameborder="0" src="about:blank" srcdoc={new_contract_data}></iframe>
 <iframe name="view_frame" width="0" height="0" frameborder="0" src="about:blank" srcdoc={new_contract_data}></iframe>
-    {#if view_contract == 1}
-    <div id="user_details">
+
+   <div id="user_details">
     <center><span style="font-size:22px;font-weight: bold;">{facility_id}</span></center>
     <br>
     <br>
+
     <span style="font-size:20px;font-weight: bold;">ESIGNATURE</span>
     <br>
     <br>
+    {#each esign_data_arr as esign}
     <table border="1" style="width:90% ;" class="table table-bordered">
-        <thead><tr><th> Accepted On</th>
+        <thead><tr>
+            <th> Accepted On</th>
             <th> Accepted By</th>
             <th>IMEI</th>
             <th>IP</th>
             <th>Geo-codes</th>
             <th>UFID</th>
         </tr></thead>
+        
         <tbody>
             <tr>
-                <td>27-Apr-2022 04:26 pm</td>
-                <td>msmm00010@nomail.com</td>
-                <td>baba6506853fd3e9</td>
-                <td>58.216.109.89</td>
-                <td>17.6535439,75.8990996</td>
-                <td>MSMM00010</td>
+                <td>{esign.modified}</td>
+                <td>{esign.modified_by}</td>
+                <td>{esign.imei}</td>
+                <td>{esign.ip_address}</td>
+                <td>{esign.lat_long}</td>
+                <td>{esign.facility_id}</td>
             </tr>
         </tbody>
-    </table>
+       
+    </table> 
     <br>
+    <br>
+    {/each}
+    
+    <br>
+    {#each esign_data_arr as esign}
     <table border="1" style="width:90%;" class="table table-bordered">
+        
         <tbody>
             <tr>
                 <th>Device Used : </th>
-                <td>samsung SM-G610F 1 samsung/on7xeltedd/on7xelte:8.1.0/M1AJQ/G610FDDS1CTE6:user/release-keys<br> Version - 8.1.0</td>
+                <td>{esign.model_no}<br> Version - {esign.android_version}</td>
+                
             </tr>
+            
         </tbody>
-    </table>
+        </table>
+        <br>
+        <br>
+    {/each}
     <br>
     <br>
    </div>
-    {/if}
+{/if}
+   
+   
 
-
+    <!-- view Contract Model -->
+    <!-- <div class="hidden" id= "viewContractDetails">
+        <div class="modalMain">
+            <div class="modalOverlay"></div>
+    
+            <div class="modalContainer">
+                <div class="modalHeadConmb-0">
+                    <div class="leftmodalInfo">
+                        <p class="modalTitleText"> View </p>
+                       
+                    </div>
+                    <div class="rightmodalclose">
+                        <img src="../src/img/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal" on:click="{closeContractView}">
+                    </div>
+                </div>
+                <div class="modalContent"> -->
+                   <!-- {new_contract_data} -->
+                   <!-- <iframe name="view_frame" width="0" height="0" frameborder="0" src="about:blank" srcdoc={new_contract_data}></iframe>
+                </div>
+            </div>
+        </div>
+    </div>  -->
 
 
 <Toast type={toast_type}  text={toast_text}/>
