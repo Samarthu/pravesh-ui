@@ -3,7 +3,7 @@
     import {facility_data_store} from "../stores/facility_store";
     import { bank_details } from "../stores/bank_details_store";
     import {get_facility_details,facility_bgv_check,get_bank_facility_details,facility_document,
-         approve_reject_status,bank_approve_reject,bgv_approve_rej,final_id_ver_rej,final_bgv_app_rej,get_client_details,get_client_org_mapping,get_specific_name} from "../services/vmt_verify_services";
+         approve_reject_status,bank_approve_reject,bgv_approve_rej,final_id_ver_rej,final_bgv_app_rej,get_client_details,get_client_org_mapping,get_specific_name,save_mapping} from "../services/vmt_verify_services";
     import {facility_bgv_init} from "../services/onboardsummary_services";
     import {bgv_config_store} from '../stores/bgv_config_store';
     import { goto } from "$app/navigation";
@@ -16,10 +16,10 @@
     import { each } from "svelte/internal";
     import { get_user_scope_function } from "../services/workdetails_services";
     import { get_loc_scope} from "../services/onboardsummary_services";
+    import {get_pravesh_properties_method} from "../services/workdetails_services"
 
     let station_data_array=[];
     let org_name_array=[];
-
     let temp5 = "newMap";
     let show_spinner = false;
     let facility_document_data = "";
@@ -71,6 +71,8 @@
     let pan_receipt_reject_msg = "";
     let pan_verified,pan_rejected,voter_verified,voter_rejected,aadhar_verified,aadhar_rejected,address_verified,
     address_rejected,offer_verified,offer_rejected,dl_verified,dl_rejected,pass_photo_verified,pass_photo_rejected,police_verified,police_rejected;
+    let pan_number = "";
+    let dl_number = "";
     let temp = "";
     let final_id_ver_btn = 1;
     let final_bank_ver_btn = 0;
@@ -183,8 +185,14 @@
     let id_select;
     let get_specific_name_data = [];
     let station_code_arr = [];
-    // let stat_code = "";
-    
+    let status_display = 0; 
+    let org_AN_flag = 0;
+    let stat_code = "";
+    let requestType = "";
+    let mapping_blocked_data = [];
+    let emp_number ="";
+    let table_head = "";
+    let crClient = "no";
     $:if(stat_select != null){
         console.log("station_select",stat_select)
         station_code_select(stat_select);
@@ -194,7 +202,7 @@
         console.log("id_select",id_select)
         org_id_select(id_select);
     }
-
+   
     // $:if(station_id != null){
     //     station_id_select(station_id)
     // }
@@ -330,6 +338,7 @@
                                 pan_rejected = facility_document_data[i].rejected;
                                 // console.log("successfully fetched Pan")
                                 contains_pan = 1;
+                                pan_number = facility_document_data[i].doc_number;
                                 // for (var i = 0; i < doctype_array.length; i++){
                                 //     if(doctype_array[i] == "pan-photo")
                                 //     temp_switchto = "pan_tab";
@@ -392,6 +401,7 @@
                                 dl_verified = facility_document_data[i].verified;
                                 dl_rejected = facility_document_data[i].rejected;
                                 contains_dl = 1;
+                                dl_number  = facility_document_data[i].doc_number;
                                 // for (var i = 0; i < doctype_array.length; i++){
                                 //     if(doctype_array[i] == "dl-photo")
                                 //     temp_switchto = "DL_tab";
@@ -490,22 +500,42 @@
     }
 
     async function org_id_select(org_id){
+        if(org_id == "AN"){
+            table_head = "Name in COMP"
+        }
+        else if(org_id == "FT"){
+            table_head = "Name in LIBERA"
+        }
+        else{
+            table_head = "Org Specific Name"
+        }
+        station_code_arr = [];
+        org_AN_flag = 0;
+        console.log("org_AN_flag",org_AN_flag)
         station_data_array = [];
-        console.log("org_id",org_id)
+        // console.log("orgOrganization_id",org_id)
         let get_loc_scope_res = await get_loc_scope(org_id)
                 for(let i=0;i<get_loc_scope_res.body.data.length;i++){
                     for(let j =0 ;j<get_loc_scope_res.body.data[i].stations.length;j++){
                         
-                        console.log("org id inside for",org_id)
+                        // console.log("org id inside for",org_id)
                     if(org_id  == get_loc_scope_res.body.data[i].stations[j].org_id){
-                        // console.log("org id found");
+                        console.log("org id found",org_id);
                         station_data_array.push({"org_id":get_loc_scope_res.body.data[i].stations[j].org_id,"station_name":get_loc_scope_res.body.data[i].stations[j].station_name,"station_code":get_loc_scope_res.body.data[i].stations[j].station_code})
-                        
+                        if(get_loc_scope_res.body.data[i].stations[j].org_id == "AN"){
+                            org_AN_flag = 1;
+                            console.log("inside if org_id",org_AN_flag)
+                        }
+                        else{
+                            org_AN_flag = 0; 
+                        }
                     }
                     }
                 }
                 station_data_array = station_data_array;
         console.log("station_data_array",station_data_array);
+
+                
     }
 
     // async function station_id_select(org_id){
@@ -1934,6 +1964,11 @@
 
     async function workorganization() {
         workorganizationModel.style.display = "block";
+        if($facility_data_store.status == "Deactive"){
+            status_display = -1;
+            toast_text = "User is Deactive";
+            toast_type = "error";
+        }
         let get_client_details_res = await get_client_details(facility_id)
         try {
             if (get_client_details_res != "null"){
@@ -1948,35 +1983,35 @@
             toast_text = get_client_details_res.body.message;
         }
 
-        // let get_loc_scope_res = await get_loc_scope()
-        // try {
-        //     if (get_loc_scope_res != "null"){
-        //         // for(let i=0; i< get_loc_scope_res.body.data[0].stations.length;i++){
-        //         //     get_loc_scope_data.push(get_loc_scope_res.body.data[i]);
-        //         //     station_code.push(get_loc_scope_res.body.data[0].stations[i].station_code);
-        //         //     // console.log("get_loc_scope_res",get_loc_scope_res.body.data[0].stations[i].station_code)
-        //         // }
-        //         // station_code = station_code;
-        //         // get_loc_scope_data = get_loc_scope_data;
-        //         // console.log("get_loc_scope_data",get_loc_scope_data)
-        //         for(let i=0;i<get_loc_scope_res.body.data.length;i++){
-        //             // console.log(get_loc_scope_res.body.data[i]);
-        //             for(let j =0 ;j<get_loc_scope_res.body.data[i].stations.length;j++){
-        //                 // console.log(get_loc_scope_res.body.data[i].stations[j].station_name);
-        //                 station_data_array.push({"station_code":get_loc_scope_res.body.data[i].stations[j].station_code,"station_name":get_loc_scope_res.body.data[i].stations[j].station_name})
+        let get_loc_scope_res = await get_loc_scope()
+        try {
+            if (get_loc_scope_res != "null"){
+                // for(let i=0; i< get_loc_scope_res.body.data[0].stations.length;i++){
+                //     get_loc_scope_data.push(get_loc_scope_res.body.data[i]);
+                //     station_code.push(get_loc_scope_res.body.data[0].stations[i].station_code);
+                //     // console.log("get_loc_scope_res",get_loc_scope_res.body.data[0].stations[i].station_code)
+                // }
+                // station_code = station_code;
+                // get_loc_scope_data = get_loc_scope_data;
+                // console.log("get_loc_scope_data",get_loc_scope_data)
+                for(let i=0;i<get_loc_scope_res.body.data.length;i++){
+                    // console.log(get_loc_scope_res.body.data[i]);
+                    for(let j =0 ;j<get_loc_scope_res.body.data[i].stations.length;j++){
+                        // console.log(get_loc_scope_res.body.data[i].stations[j].station_name);
+                        station_data_array.push({"station_code":get_loc_scope_res.body.data[i].stations[j].station_code,"station_name":get_loc_scope_res.body.data[i].stations[j].station_name})
 
-        //             }
+                    }
 
-        //         }
-        //         station_data_array = station_data_array;
-        //         console.log("station_data_array",station_data_array);
-        //     }
+                }
+                station_data_array = station_data_array;
+                console.log("station_data_array",station_data_array);
+            }
 
 
-        // } catch (error) {
-        //     toast_type = "error";
-        //     toast_text = get_loc_scope_res.body.message;
-        // }
+        } catch (error) {
+            toast_type = "error";
+            toast_text = get_loc_scope_res.body.message;
+        }
 
 
         // let get_client_data_mapping_res = await get_client_org_mapping()
@@ -2008,7 +2043,6 @@
             // org_name_array=org_name_array;
             get_client_data_mapping_data = get_client_data_mapping_data;
             console.log("get_client_data_mapping_data",get_client_data_mapping_data)
-            
             // for(let i=0;i<get_client_data_mapping_data.length;i++){
                
             //     org_name = get_client_data_mapping_data[i].org_name;
@@ -2062,7 +2096,163 @@
     function closeWorkorganization() {
         workorganizationModel.style.display = "none";
     }
-    
+
+
+    async function finalMap(){ 
+        let phoneNumber,emailId;
+        let orgSpecificNumber = [];
+
+        
+        // console.log("get_pravesh_properties_method",response)
+        if(!id_select){
+            toast_text = "Please select organization";
+            toast_type = "error"
+            return
+        }
+        let response = await get_pravesh_properties_method()
+        // console.log("id_select == response.body.data.mapping_blocked_org",id_select,)
+        // if(id_select == response.body.data.mapping_blocked_org){
+            mapping_blocked_data = response.body.data.mapping_blocked_org.split(",");
+            
+            console.log("response.body.data.mapping_blocked_org.split",response.body.data.mapping_blocked_org.split(","))
+
+
+            mapping_blocked_data = mapping_blocked_data;
+            for(let i = 0; i<mapping_blocked_data.length;i++){
+                // console.log("mapping_blocked_data inside if",mapping_blocked_data[i])
+                if(id_select == mapping_blocked_data[i]){
+                    toast_text = "Mapping is not allowed for this Organization";
+                    toast_type = "error"
+                    return
+                }
+            }
+            if($facility_data_store.is_bgv_verified == undefined || $facility_data_store.is_bgv_verified != 1){
+                toast_text = "BGV Verification Incomplete !!";
+                toast_type = "error"
+                return
+            }
+            var profileIncom = false;
+            if (dl_number == undefined || dl_number.length < 7) {
+                profileIncom = true;
+            }
+            if (pan_number == undefined || pan_number.length < 7) {
+                profileIncom = true;
+            }
+            if (profileIncom) {
+                toast_text = "Upload both Pancard and Driving Licence first !!";
+                toast_type = "error"
+                return;
+            }
+            console.log("checking requestType",requestType)
+            if(requestType != null){
+                crClient = "yes";
+                console.log("checking req2 ",crClient)
+            }
+        
+
+            console.log("checking req ",crClient)
+            if (crClient == "yes"){
+                if ($facility_data_store.is_bgv_intiated == 1) {
+                console.log("inside $facility_data_store.is_bgv_intiated == 1")
+                    if ($bgv_data_store != undefined && $bgv_data_store.phone_number != undefined) {
+                        phoneNumber = $bgv_data_store.phone_number;
+                        console.log("inside phoneNumber",phoneNumber,get_client_details_data)
+                        
+                        for(let i=0;i<get_client_details_data.length;i++){
+                            if(get_client_details_data[i].mobile_number == phoneNumber){
+                                toast_text =  'Rabbit ID already requested for mob number <br>' + phoneNumber + "<br> Please update new number in <br> Basic Information Section under BGV <br> and try again";
+                                toast_type = "error"
+                            }
+                        }
+
+                    }
+                    if ($bgv_data_store.email_id == undefined || $bgv_data_store.email_id.trim().length == 0) {
+                        toast_type = "error"
+                        toast_text = "Please update email address in BGV form and then try"
+                        return;
+                    }
+                    
+
+                    if ($bgv_data_store.is_email_verified != 1) {
+                        toast_type = "error"
+                        toast_text = "Please verify email address in BGV form and then try"
+                        return;
+                    }
+                    emailId = $bgv_data_store.email_id;
+            }
+            }
+            
+            
+
+            if(!stat_select){
+                toast_text = "Please select Station";
+                toast_type = "error";
+                return
+            }
+
+            if(!stat_code){
+                toast_text = "Please select Specific Name or COMP Name";
+                toast_type = "error";
+                return
+            }
+            if(stat_code == "Create Only Rabbit ID/COMP ID" && requestType == ""){
+                toast_text = "Please select Rabbit Id or Comp Id option";
+                toast_type = "error";
+            }
+
+            let new_org_name
+            for(let i=0;i<get_client_data_mapping_data.length;i++){
+                if(id_select == get_client_data_mapping_data[i].org_id){
+                    new_org_name = get_client_data_mapping_data[i].org_name
+                }
+
+            }
+
+            for(let i=0;i<station_code_arr.length;i++){
+                console.log("inside station_code_arr" , station_code_arr[i])
+                if(stat_code == station_code_arr[i]){
+                    let org_num = parseInt(station_code_arr[i].split("_").pop())
+                    if(isNaN(org_num) == false){
+                            orgSpecificNumber.push(station_code_arr[i].resource_idsplit("_").pop())
+                        }
+                }
+            }
+
+            if(stat_code == "Create Only Rabbit ID/COMP ID") {
+                stat_code = $bgv_data_store.facility_name ;
+                console.log("stat_code checking",stat_code)
+            }
+
+            
+                let final_map_load = {
+                "facility_id":facility_id,
+                "org_id": id_select,
+                "org_name": new_org_name,
+                "station_code": stat_select,
+                "cr_client":crClient,
+                "client_id": emp_number,
+                "status": "active",
+                "mobile_number": phoneNumber,
+                "extName": stat_code.trim(),
+                "req_type": requestType,
+                "email_id": emailId
+            }
+
+            let final_save_mapping_res = await save_mapping(final_map_load)
+            console.log("final_save_mapping_res",final_save_mapping_res)
+            // try {
+                if(final_save_mapping_res.body.status == "green"){
+                    toast_text = final_save_mapping_res.body.message;
+                    toast_type = "green";
+                }
+            // }
+             else {
+                toast_text = "Error occured while adding mapping";
+                toast_type = "error";
+            }
+        console.log("final_map_load",final_map_load)
+
+    }
 
 </script>
 
@@ -4998,554 +5188,20 @@
         </div>
     </div>
 
-
-<!--View/edit client name modal -->
-
-<!-- <div class="hidden" id="workorganizationModel">
-    <div class=" viewDocmodal  " id="modal-id">
-        <div class="bglightcolormodal" />
-        <div class="allDocmodalsuccessbody rounded-lg">
-            <div class="">
-                
-                <div class="viewDocPanmainbodyModal">
-                    <div class="flex justify-between mb-3">
-                        <div class="leftmodalInfo">
-                            <p class="text-lg text-erBlue font-medium  ">
-                                <span class=""> View/Edit Client Name</span>
-                            </p>
-                            <p class="text-sm ">
-                                <span class="font-medium text-lg">
-                                    Dhiraj Shah</span
-                                >
-                                <span class="userDesignation">
-                                    - Associate- {$facility_data_store.facility_type}, MHPD - Mulsi
-                                    SP</span
-                                >
-                            </p>
-                        </div>
-                        <div
-                            class="rightmodalclose"
-                            on:click={closeWorkorganization}
-                        >
-                            <img src="{$img_url_name.img_name}/blackclose.svg" alt="" />
-                        </div>
-                    </div>
-                    <div class="innermodal">
-                        <hr />
-                        <div class="scrollbar ">
-                            <div class="mainContainerWrapper">
-                                {#if !get_client_details_data}
-                                <p>No client Details found</p>
-                                {:else}
-                                {#each get_client_details_data as new_client}
-                                <div class="DocCardlist ">
-                                    <div class="cardDocWrapper">
-                                        <div class="grid grid-flow-col xs:grid-cols-1 gap-4">
-                                            <div>
-                                                <div
-                                                    class="grid grid-cols-2 gap-4 mb-1"
-                                                >
-                                                    <div class="detailLbale">
-                                                        Organisation
-                                                    </div>
-                                                    <div class="detailData">
-                                                        {new_client.org_name}
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    class="grid grid-cols-2 gap-4 mb-1"
-                                                >
-                                                    <div class="detailLbale">
-                                                        Station Name & code
-                                                    </div>
-                                                    <div class="detailData">
-                                                        {get_loc_scope_data.station_code}
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    class="grid grid-cols-2 gap-4 mb-1"
-                                                >
-                                                    <div class="detailLbale">
-                                                        Org specified name
-                                                    </div>
-                                                    <div class="detailData break-normal" style="overflow-wrap: anywhere;">
-                                                        
-                                                        {new_client.org_specific_name}
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    class="grid grid-cols-2 gap-4 mb-1"
-                                                >
-                                                    <div class="detailLbale">
-                                                        Client Employee ID
-                                                    </div>
-                                                    <div class="detailData">
-                                                        {new_client.client_id}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <div class="grid grid-cols-2 gap-4 mb-1">
-                                                    <div class="detailLbale">
-                                                        Added On
-                                                    </div>
-                                                    <div class="detailData">
-                                                        {new_client.creation}
-                                                    </div>
-                                                </div>
-                                                <div class="grid grid-cols-2 gap-4 mb-1">
-                                                    <div class="detailLbale">
-                                                        Added by
-                                                    </div>
-                                                    <div class="detailData">
-                                                        {new_client.modified_by}
-                                                    </div>
-                                                </div>
-                                                <div class="grid grid-cols-2 gap-4 mb-1">
-                                                    <div class="detailLbale">
-                                                        Client ID status/info
-                                                    </div>
-                                                    <div class="detailData">
-                                                        ----
-                                                    </div>
-                                                </div>
-                                                <div class="grid grid-cols-2 gap-4 mb-1">
-                                                    <div class="detailLbale">
-                                                        Status
-                                                    </div>
-                                                    <div>
-                                                        {#if new_client.status == "deactive"}
-                                                        <p
-                                                            class="userStatusTickVerified "
-                                                        >
-                                                            <img
-                                                                src="{$img_url_name.img_name}/reject.png"
-                                                                alt=""
-                                                                class="pr-1"
-                                                            /> {new_client.status}
-                                                        </p>
-                                                        {:else}
-                                                        <p
-                                                            class="userStatusTickVerified "
-                                                        >
-                                                            <img
-                                                                src="{$img_url_name.img_name}/checked.png"
-                                                                alt=""
-                                                                class="pr-1"
-                                                            /> {new_client.status}
-                                                        </p>
-                                                        {/if}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                {/each}
-                                {/if}
-                                <div class="addDocumentSection ">
-                                    <div class="addSecform hidden">
-                                        {#if temp5 == "newMap"}
-                                            <div
-                                                class="addButtonSection my-3 py-16 text-center"
-                                            >
-                                                <div class="updateAction">
-                                                    <button
-                                                        class="ErBlueButton"
-                                                        on:click={() => {
-                                                            temp5 = "newMap-2";
-                                                        }}
-                                                        >Add New Mapping</button
-                                                    >
-                                                </div>
-                                            </div>
-                                        {/if}
-                                        {#if temp5 == "newMap-2"}
-                                            <div class="my-3 py-4 px-4 ">
-                                                <p class="text-lg font-medium">
-                                                    Add new Mapping
-                                                </p>
-
-                                                <div
-                                                    class="flex  py-1 items-center flex-wrap"
-                                                >
-                                                    <div
-                                                        class="light14grey  mb-1"
-                                                    >
-                                                        Address
-                                                    </div>
-                                                    <div class="formInnerGroup">
-                                                        <input
-                                                            class="inputboxpopover"
-                                                            type="text"
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    class="flex  py-3 items-center flex-wrap"
-                                                >
-                                                    <div
-                                                        class="light14grey mb-1"
-                                                    >
-                                                        City
-                                                    </div>
-                                                    <div
-                                                        class="formInnerGroup "
-                                                    >
-                                                        <select
-                                                            class="inputboxpopover"
-                                                        >
-                                                            <option class="pt-6"
-                                                                >Select</option
-                                                            >
-                                                            <option
-                                                                >ICICI</option
-                                                            >
-                                                            <option>Axis</option
-                                                            >
-                                                            <option>SIB</option>
-                                                        </select>
-                                                        <div
-                                                            class="formSelectArrow "
-                                                        >
-                                                            <img
-                                                                src="{$img_url_name.img_name}/selectarrow.png"
-                                                                class="w-5 h-auto"
-                                                                alt=""
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    class="flex  py-1 items-center flex-wrap"
-                                                >
-                                                    <div
-                                                        class="light14grey  mb-1"
-                                                    >
-                                                        GST State
-                                                    </div>
-                                                    <div class="formInnerGroup">
-                                                        <input
-                                                            class="inputboxpopover"
-                                                            type="text"
-                                                        />
-                                                    </div>
-                                                </div>
-
-                                                <div
-                                                    class="flex  py-3 items-center flex-wrap"
-                                                >
-                                                    <div
-                                                        class="light14grey  mb-1"
-                                                    >
-                                                        Upload Document
-                                                    </div>
-                                                    <div class="formInnerGroup">
-                                                        <label
-                                                            class="cursor-pointer flex"
-                                                        >
-                                                            <div
-                                                                class="ErBlueButton"
-                                                            >
-                                                                Select File
-                                                            </div>
-                                                            <input
-                                                                type="file"
-                                                                class="hidden"
-                                                            />
-                                                        </label>
-                                                    </div>
-                                                </div>
-
-                                                <div
-                                                    class="flex items-center justify-end mt-5"
-                                                >
-                                                    <div
-                                                        class="updateAction text-erBlue"
-                                                        on:click={() => {
-                                                            temp3 = "newMap";
-                                                        }}
-                                                    >
-                                                        Cancel
-                                                    </div>
-                                                    <div
-                                                        class="updateAction ml-5"
-                                                    >
-                                                        <button
-                                                            class="ErBlueButton"
-                                                            >Upload</button
-                                                        >
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        {/if}
-                                    </div>
-                                    <div
-                                        class=" bg-lighterGrey rounded-lg h-full"
-                                     >
-                                        {#if temp5 == "newMap"}
-                                            <div
-                                                class="addButtonSection my-3 py-3  text-center "
-                                            >
-                                                <div class="updateAction mt-5">
-                                                    <button
-                                                        class="ErBlueButton"
-                                                        on:click={() => {
-                                                            temp5 = "newMap-2";
-                                                        }}
-                                                        >Add New Mapping</button
-                                                    >
-                                                </div>
-                                            </div>
-                                        {/if}
-                                        {#if temp5 == "newMap-2"}
-                                        {#if !get_client_data_mapping_data}
-                                        <p>No client Details found</p>
-                                        {:else}
-
-                                            <div class="my-0 py-4 px-4 ">
-                                                <div
-                                                    class="h-80 max-h-80 overflow-y-scroll pr-4 border-b-2"
-                                                >
-                                                    <p
-                                                        class="text-lg font-medium"
-                                                    >
-                                                        Add New Mapping
-                                                    </p>
-
-                                                    <div
-                                                        class="flex  py-3 items-center flex-wrap"
-                                                    >
-                                                        <div
-                                                            class="light14grey mb-1"
-                                                        >
-                                                            Organization
-                                                        </div>
-                                                        <div
-                                                            class="formInnerGroup "
-                                                        >
-                                                            <select
-                                                                class="inputboxpopover"
-                                                                bind:value={id_select}
-                                                            >
-                                                            <option value="" disabled selected>Select</option>
-                                                            {#each get_client_data_mapping_data as org_detail}
-                                                                <option
-                                                                    class="pt-6"
-                                                                    value="{org_detail.org_id}"
-                                                                    >{org_detail.org_name}</option
-                                                                >
-                                                            {/each}
-                                                            </select>
-                                                            <div
-                                                                class="formSelectArrow "
-                                                            >
-                                                                <img
-                                                                    src="{$img_url_name.img_name}/selectarrow.png"
-                                                                    class="w-5 h-auto"
-                                                                    alt=""
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        class="flex  py-3 items-center flex-wrap"
-                                                    >
-                                                        <div
-                                                            class="light14grey mb-1"
-                                                        >
-                                                            Station
-                                                        </div>
-                                                        <div
-                                                            class="formInnerGroup "
-                                                        >
-                                                            <select
-                                                                class="inputboxpopover"
-                                                                bind:value={stat_select}
-                                                            >
-                                                            <option value="" disabled selected>Select</option>
-                                                            {#each station_data_array as station}
-                                                                <option
-                                                                    class="pt-6" 
-                                                                    value={station.station_code}
-                                                                    >{station.station_code} - {station.station_name}</option
-                                                                >
-                                                                {/each}
-                                                            </select>
-                                                            <div
-                                                                class="formSelectArrow "
-                                                            >
-                                                                <img
-                                                                    src="{$img_url_name.img_name}/selectarrow.png"
-                                                                    class="w-5 h-auto"
-                                                                    alt=""
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        class="flex  py-3 items-center flex-wrap"
-                                                    >
-                                                        <div
-                                                            class="light14grey mb-1"
-                                                        >
-                                                            Name in COMP
-                                                        </div>
-                                                        <div
-                                                            class="formInnerGroup "
-                                                        >
-                                                            <select
-                                                                class="inputboxpopover"
-                                                            >
-
-                                                                <option
-                                                                    class="pt-6"
-                                                                    >Select</option
-                                                                >
-                                                                {#each station_code_arr as stat_code}
-                                                                <option
-                                                                    class="pt-6"
-                                                                    >{stat_code}</option
-                                                                >
-                                                                {/each}
-                                                            </select>
-                                                            <div
-                                                                class="formSelectArrow "
-                                                            >
-                                                                <img
-                                                                    src="{$img_url_name.img_name}/selectarrow.png"
-                                                                    class="w-5 h-auto"
-                                                                    alt=""
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        class="flex  py-1 items-center flex-wrap"
-                                                    >
-                                                        <div
-                                                            class="light14greylong  mb-1"
-                                                        >
-                                                            Client Empployee ID
-                                                            ( If available)
-                                                        </div>
-                                                        <div
-                                                            class="formInnerGroup"
-                                                        >
-                                                            <input
-                                                                class="inputboxpopover"
-                                                                type="text"
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        class="flex  py-1 items-center flex-wrap mb-4"
-                                                    >
-                                                        <div
-                                                            class="light14greylong  mb-1"
-                                                        >
-                                                            Create new Rabbit
-                                                            ID/Comp ID
-                                                        </div>
-                                                        <div
-                                                            class="formInnerGroup"
-                                                        >
-                                                            <div
-                                                                class="text-center flex mb-2 ml-1"
-                                                            >
-                                                                <div
-                                                                    class="flex items-center mr-4"
-                                                                >
-                                                                    <input
-                                                                        id="radio1"
-                                                                        type="radio"
-                                                                        name="radio"
-                                                                        class="hidden"
-                                                                        checked=""
-                                                                    />
-                                                                    <label
-                                                                        for="radio1"
-                                                                        class="radioLable"
-                                                                    >
-                                                                        <span
-                                                                            class="radioCirle"
-                                                                        />
-                                                                        Rabbit ID</label
-                                                                    >
-                                                                </div>
-
-                                                                <div
-                                                                    class="flex items-center "
-                                                                >
-                                                                    <input
-                                                                        id="radio2"
-                                                                        type="radio"
-                                                                        name="radio"
-                                                                        class="hidden"
-                                                                    />
-                                                                    <label
-                                                                        for="radio2"
-                                                                        class="radioLable"
-                                                                    >
-                                                                        <span
-                                                                            class="radioCirle"
-                                                                        />
-                                                                        COMP ID</label
-                                                                    >
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div
-                                                    class="flex items-center justify-end mt-5"
-                                                >
-                                                    <div
-                                                        class="updateAction text-erBlue cursor-pointer"
-                                                        on:click={() => {
-                                                            temp5 = "newMap";
-                                                        }}
-                                                    >
-                                                        Cancel
-                                                    </div>
-                                                    <div
-                                                        class="updateAction ml-5"
-                                                    >
-                                                        <button
-                                                            class="ErBlueButton"
-                                                            >Map</button
-                                                        >
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        
-                                        {/if}
-                                        {/if}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div> -->
-
     <!-- Full screen modal  View/Edit Client Name Desktop and Responsive Done-->
 
-    <div class="hidden" >
+    <div class="hidden" id="workorganizationModel">
         <div class="modalMain">
             <div class="modalOverlay"></div>
 
             <div class="modalContainer">
-                <div class="modalHeadConmb-0">
+                <div class="modalHeadConmb-0 sticky top-0 bg-white z-zindex99">
                     <div class="leftmodalInfo">
                         <p class="modalTitleText"> View/Edit Client Name </p>
                         <p class="text-sm ">
-                            <span class="font-medium text-lg"> Dhiraj Shah</span>
-                            <span class="userDesignation"> - Associate- NDA, MHPD - Mulsi SP</span>
+                            <span class="font-medium text-lg"> {$facility_data_store.facility_name}</span>
+                            <span class="userDesignation"> (Associate
+                                - {$facility_data_store.facility_type} / ID - {$facility_data_store.name})</span>
                         </p>
                     </div>
                     <div class="rightmodalclose" on:click={closeWorkorganization}>
@@ -5556,7 +5212,162 @@
 
                     <div class="ConModalContent">
 
-                        <div class="gridCon ">
+                        <div class="xsl:grid-cols-1 gap-4 ">
+
+                            <div class=""> <!-- sticky top-24 bg-white z-zindex99 -->
+                                <div class="bgAddSection mt-2">
+                                    {#if temp5 == "newMap"}
+                                    <div class="addbuttongst  ">
+                                        {#if  status_display == -1}
+                                            <p>user in inactive</p>
+                                        {:else}
+                                        <div class="updateAction">
+                                            <button class="ErBlueButton" on:click={() => {temp5 = "newMap-2";}}>Add New Mapping</button>
+                                        </div>
+                                        {/if}
+                                    </div>
+                                    {/if}
+                                    {#if temp5 == "newMap-2"}
+                                    {#if !get_client_data_mapping_data}
+                                    <p>No client Details found</p>
+                                    {:else}
+                                        <div class="addGstForm ">
+                                            <div class="gstaddtitle px-4 py-4">
+                                                <p class="text-lg font-medium">Add New Mapping</p>
+                                            </div>
+
+
+
+                                            <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
+                                                <div class="w-full">
+                                                    <div class="light14grey mb-1">Organization</div>
+                                                    <div class="formInnerwidthfull ">
+                                                        <select class="inputboxpopover" bind:value={id_select}>
+                                                            <option value="" disabled selected>Select</option>
+                                                            {#each get_client_data_mapping_data as org_detail}
+                                                                <option
+                                                                    class="pt-6"
+                                                                    value="{org_detail.org_id}"
+                                                                    >{org_detail.org_name}</option
+                                                                >
+                                                            {/each}
+                                                        </select>
+                                                        <div class="formSelectArrow ">
+                                                            <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="w-full">
+                                                    <div class="light14grey mb-1">Station</div>
+                                                    <div class="formInnerwidthfull ">
+                                                        <select class="inputboxpopover" bind:value={stat_select}>
+                                                            <option value="" disabled selected>Select</option>
+                                                            {#each station_data_array as station}
+                                                                <option
+                                                                    class="pt-6" 
+                                                                    value={station.station_code}
+                                                                    >{station.station_code} - {station.station_name}</option
+                                                                >
+                                                                {/each}
+                                                        </select>
+                                                        <div class="formSelectArrow ">
+                                                            <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
+                                                <div class="w-full">
+                                                    <div class="light14grey mb-1">{table_head}</div>
+                                                    <div class="formInnerwidthfull ">
+                                                        <select class="inputboxpopover" bind:value ={stat_code}>
+                                                            {#if org_AN_flag == 1}
+                                                            <option class="pt-6" >Select</option>
+                                                            <option class="pt-6">Create Only Rabbit ID/COMP ID</option>
+                                                            {#each station_code_arr as stat_code}
+                                                                <option class="pt-6">
+                                                                    {stat_code.trim()}
+                                                                </option>
+                                                            {/each}
+                                                            {:else }
+                                                            <option class="pt-6">Select</option>
+                                                            {#each station_code_arr as stat_code}
+                                                                <option class="pt-6">
+                                                                    {stat_code.trim()}
+                                                                </option>
+                                                            {/each}
+                                                            {/if}
+                                                        </select>
+                                                        <div class="formSelectArrow ">
+                                                            <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="w-full">
+                                                    <div class="light14greylong mb-1">Client Empployee ID ( If available)
+                                                    </div>
+                                                    <div class="formInnerwidthfull ">
+                                                        <input type="text" class="inputboxpopover" bind:value="{emp_number}">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="flex gap-4 px-4 py-2 xsl:flex-wrap">
+                                                <div class="w-full">
+                                                    <div class="light14greylong mb-1">Create new Rabbit ID/Comp ID</div>
+                                                    <div class="formInnerwidthfull ">
+                                                        <div class="formInnerGroup py-2">
+                                                            {#if org_AN_flag == 1}
+                                                            <div class="text-center flex mb-2 ml-1">
+
+                                                                <div class="flex items-center mr-4">
+                                                                    <input id="Rabbit" type="radio" name="crClient" bind:group="{requestType}"
+                                                                        class="hidden" checked="" value="rabbitid">
+                                                                    <label for="Rabbit" class="radioLable">
+                                                                        <span class="radioCirle"></span>
+                                                                        Rabbit ID</label>
+                                                                </div>
+
+                                                                <div class="flex items-center ml-4">
+                                                                    <input id="COMP" type="radio" name="crClient" bind:group="{requestType}"
+                                                                        class="hidden" value="compid">
+                                                                    <label for="COMP" class="radioLable">
+                                                                        <span class="radioCirle"></span>
+                                                                        COMP ID</label>
+                                                                </div>
+                                                            </div>
+                                                            {:else if org_AN_flag == 0}
+                                                            <h1>Not Applicable</h1>
+                                                            {/if}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="w-full">
+
+                                                </div>
+                                            </div>
+
+
+
+                                            <div class="actionButtons">
+                                                <div class="actionCancelbutton " on:click={() => {temp5 = "newMap";}} >
+                                                    Cancel
+                                                </div>
+                                                <div class="updateAction ml-5" on:click="{finalMap}">
+                                                    <button class="ErBlueButton">Map</button>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    {/if}
+                                    {/if}
+                                </div>
+
+                            </div>
+
+
+
+
                             <div class="heightCardContainer">
                                 {#if !get_client_details_data}
                                 <p>No client Details found</p>
@@ -5628,138 +5439,7 @@
                                 {/if}
                             </div>
 
-                            <div>
-                                <div class="bgAddSection mt-2">
-                                    {#if temp5 == "newMap"}
-                                    <div class="addbuttongst hidden ">
-                                        <div class="updateAction">
-                                            <button class="ErBlueButton" on:click={() => {temp5 = "newMap-2";}}>Add New Mapping</button>
-                                        </div>
-                                    </div>
-                                    {/if}
-                                    {#if temp5 == "newMap-2"}
-                                    {#if !get_client_data_mapping_data}
-                                    <p>No client Details found</p>
-                                    {:else}
-                                        <div class="addGstForm ">
-                                            <div class="gstaddtitle px-4 py-4">
-                                                <p class="text-lg font-medium">Add New Mapping</p>
-                                            </div>
-
-
-
-                                            <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
-                                                <div class="w-full">
-                                                    <div class="light14grey mb-1">Organization</div>
-                                                    <div class="formInnerwidthfull ">
-                                                        <select class="inputboxpopover" bind:value={id_select}>
-                                                            <option value="" disabled selected>Select</option>
-                                                            {#each get_client_data_mapping_data as org_detail}
-                                                                <option
-                                                                    class="pt-6"
-                                                                    value="{org_detail.org_id}"
-                                                                    >{org_detail.org_name}</option
-                                                                >
-                                                            {/each}
-                                                        </select>
-                                                        <div class="formSelectArrow ">
-                                                            <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="w-full">
-                                                    <div class="light14grey mb-1">Station</div>
-                                                    <div class="formInnerwidthfull ">
-                                                        <select class="inputboxpopover" bind:value={stat_select}>
-                                                            <option value="" disabled selected>Select</option>
-                                                            {#each station_data_array as station}
-                                                                <option
-                                                                    class="pt-6" 
-                                                                    value={station.station_code}
-                                                                    >{station.station_code} - {station.station_name}</option
-                                                                >
-                                                                {/each}
-                                                        </select>
-                                                        <div class="formSelectArrow ">
-                                                            <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
-                                                <div class="w-full">
-                                                    <div class="light14grey mb-1">Name in COMP</div>
-                                                    <div class="formInnerwidthfull ">
-                                                        <select class="inputboxpopover">
-                                                            <option class="pt-6">Select</option>
-                                                            {#each station_code_arr as stat_code}
-                                                                <option class="pt-6">
-                                                                    {stat_code}
-                                                                </option>
-                                                            {/each}
-                                                        </select>
-                                                        <div class="formSelectArrow ">
-                                                            <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="w-full">
-                                                    <div class="light14greylong mb-1">Client Empployee ID ( If available)
-                                                    </div>
-                                                    <div class="formInnerwidthfull ">
-                                                        <input type="text" class="inputboxpopover">
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="flex gap-4 px-4 py-2 xsl:flex-wrap">
-                                                <div class="w-full">
-                                                    <div class="light14greylong mb-1">Create new Rabbit ID/Comp ID</div>
-                                                    <div class="formInnerwidthfull ">
-                                                        <div class="formInnerGroup py-2">
-                                                            <div class="text-center flex mb-2 ml-1">
-
-                                                                <div class="flex items-center mr-4">
-                                                                    <input id="Rabbit" type="radio" name="radio"
-                                                                        class="hidden" checked="">
-                                                                    <label for="Rabbit" class="radioLable">
-                                                                        <span class="radioCirle"></span>
-                                                                        Rabbit ID</label>
-                                                                </div>
-
-                                                                <div class="flex items-center ml-4">
-                                                                    <input id="COMP" type="radio" name="radio"
-                                                                        class="hidden">
-                                                                    <label for="COMP" class="radioLable">
-                                                                        <span class="radioCirle"></span>
-                                                                        COMP ID</label>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="w-full">
-
-                                                </div>
-                                            </div>
-
-
-
-                                            <div class="actionButtons">
-                                                <div class="actionCancelbutton " on:click={() => {temp5 = "newMap";}} >
-                                                    Cancel
-                                                </div>
-                                                <div class="updateAction ml-5">
-                                                    <button class="ErBlueButton">Map</button>
-                                                </div>
-                                            </div>
-
-                                        </div>
-                                    {/if}
-                                    {/if}
-                                </div>
-
-                            </div>
+                            
 
                         </div>
 

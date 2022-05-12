@@ -48,7 +48,7 @@ const approve_reject_status = (data) =>{
     let approve_reject_status_url = '/api/method/pravesh.facility.routes.document.approve_reject_document'
     return request(
         approve_reject_status_url, {
-        method: "PUT",
+        method: "POST",
         body:JSON.stringify(data)
         },true
     ).then(
@@ -61,7 +61,7 @@ const bank_approve_reject = (data) =>{
     let bank_approve_reject_url = "/api/method/pravesh.facility.routes.bank.verify_bank_details";
     return request(
         bank_approve_reject_url, {
-        method: "PUT",
+        method: "POST",
         body:JSON.stringify(data)
         },true
     ).then(
@@ -87,7 +87,7 @@ const final_id_ver_rej=(final_id_data)=>{
     let final_id_ver_rej_url = "/api/method/pravesh.facility.routes.facility.update_id_prof";
     return request(
         final_id_ver_rej_url, {
-        method: "PUT",
+        method: "POST",
         body:JSON.stringify(final_id_data)
         }, true)
 }
@@ -97,7 +97,7 @@ const bgv_approve_rej=(bgv_data)=>{
     let bgv_approve_rej_url = "/api/method/pravesh.facility.routes.facility_background_verification.update_details";
     return request(
         bgv_approve_rej_url, {
-        method: "PUT",
+        method: "POST",
         body:JSON.stringify(bgv_data)
         }, true)
 }
@@ -106,7 +106,7 @@ const final_bgv_app_rej=(bgv_data)=>{
     let final_bgv_app_rej_url = "/api/method/pravesh.facility.routes.facility_background_verification.update_bgv_status";
     return request(
         final_bgv_app_rej_url, {
-        method: "PUT",
+        method: "POST",
         body:JSON.stringify(bgv_data)
         }, true)
 }
@@ -135,6 +135,25 @@ const get_specific_name=(stat_code)=>{
         },true)
 }
 
+// const save_mapping=()=>{
+//     let save_mapping_url = "/api/method/pravesh.facility.routes.facility_org_config.save_mapping";
+//     return request(
+//         save_mapping_url,{
+//             method: "POST"
+//         },true)
+// }
+
+
+const save_mapping=(map_data)=>{
+   
+    let save_mapping_url = "/api/method/pravesh.facility.routes.facility_org_config.save_mapping";
+    return request(
+        save_mapping_url, {
+        method: "POST",
+        body:JSON.stringify(map_data)
+        }, true)
+}
+
 
 export {
     get_facility_details,
@@ -148,5 +167,6 @@ export {
     final_bgv_app_rej,
     get_client_details,
     get_client_org_mapping,
-    get_specific_name
+    get_specific_name,
+    save_mapping
 }
