@@ -14,7 +14,8 @@ import { Router, Link, Route } from "svelte-routing";
             show_fac_tags,submit_fac_tag_data,remove_tag,tag_audit_trail,service_vendor,
             get_loc_scope,client_details,erp_details,child_data,add_gst_dets,
             facility_document,addnew_cheque_details,bank_details,cheque_details,gst_details} from "../services/onboardsummary_services";
-    import {uploadDocs} from "../services/bgv_services";
+    
+    import {uploadDocs} from '../services/bgv_services'
     import {get_date_format} from "../services/date_format_servives";
     import {img_url_name} from '../stores/flags_store';
     import {facility_id} from "../stores/facility_id_store"
@@ -182,6 +183,11 @@ import { Router, Link, Route } from "svelte-routing";
 ///////Document view Model/////////
     let alt_image="";
 /////////Document view Model//////
+    let selected_document_type="";
+    let document_desc = "";
+    let document_url = "";
+    let new_doc_upload_message = "";
+    let document_name = "";
     $:{
         for(let key in all_tags_obj){
             if(select_tag_data == key){
@@ -216,6 +222,7 @@ import { Router, Link, Route } from "svelte-routing";
     $:if(gst_checkbox === true){
         gst_checkbox = true;
     }
+    
     
     
     onMount(async () => {
@@ -327,6 +334,10 @@ import { Router, Link, Route } from "svelte-routing";
 
             facility_document_data = facility_document_res.body.data;
             for (var i = 0; i < facility_document_data.length; i++) {
+                console.log("facility_document_data ii",facility_document_data)
+                let doc_date_format = new Date(facility_document_data[i].creation);
+                let doc_creation_date = get_date_format(doc_date_format,"dd-mm-yyyy-hh-mm");
+                facility_document_data[i].creation = doc_creation_date
                 if(facility_document_data[i].doc_type == "pan-photo"){
                     pancard_obj = {pan_num : facility_document_data[i].doc_number,
                     pan_attach : facility_document_data[i].file_url,
@@ -714,6 +725,10 @@ async function child_select_fun(){
             else if(doctext == "cheque_upload"){
             cheque_img = img.name;
             }
+            else if(doctext == "new_doc_upload"){
+            document_name = img.name;
+            }
+
             var reader = new FileReader();
             reader.readAsDataURL(img);
             reader.onload = function () {
@@ -728,6 +743,11 @@ async function child_select_fun(){
             }
             else if(doctext == "cheque_upload"){
                 cheque_data = reader.result;
+                toast_text = "Document Uploaded Successfully";
+                toast_type = "success";
+            }
+            else if(doctext == "new_doc_upload"){
+                document_url = reader.result;
                 toast_text = "Document Uploaded Successfully";
                 toast_type = "success";
             }
@@ -1226,10 +1246,10 @@ async function child_select_fun(){
                         if(gst_doc_submit_res.body.status == "green"){
                             
                             toast_type = "success";
-                            toast_text = "GST Document Added Successfully";
+                            toast_text = gst_doc_submit_res.body.message;
                         }
                     } catch (err) {
-                        toast_type = "error";
+                        toast_type = err;
                         toast_text = "Error in Uploading GST Certificate";
                     }
 
@@ -1282,7 +1302,45 @@ async function child_select_fun(){
     // }
     // return arr
     // }
-    
+    async function save_document(){
+        let e = document.getElementById("selected_doc_type");
+        var selected_doc_type_name = e.options[e.selectedIndex].text;
+        
+        let new_doc_payload = {"documents":[{
+        "file_name":document_name,
+        "doc_category":selected_doc_type_name,
+        "status":"created",
+        "resource_id":$facility_id.facility_id_number,
+        "user_id":username,
+        "doc_number":"",
+        "doc_type":selected_document_type,
+        "facility_id":$facility_data_store.facility_id,
+        "remarks":document_desc,
+        "pod":document_url}]}
+        let save_doc_res = await uploadDocs(new_doc_payload);
+        console.log("save_doc_res",save_doc_res)
+        try {
+            if(save_doc_res.body.status == "green"){
+                
+                toast_type = "success";
+                toast_text = save_doc_res.body.message;
+                let facility_document_res = await facility_document();
+                try{
+                    if(facility_document_res != "null"){
+                    facility_document_data = facility_document_res.body.data;
+                    }
+                }
+                catch(err){
+                    toast_type = "error";
+                    toast_text = "Something went wrong";
+                }
+            }
+        } 
+        catch (err) {
+            toast_type = "error";
+            toast_text = err;
+        }
+    }
 
 </script>
 {#if show_spinner}
@@ -2727,7 +2785,7 @@ async function child_select_fun(){
                                                             Uploaded By
                                                         </p>
                                                         <p class="detailData">
-                                                            {new_doc_data.modified_by}
+                                                            {new_doc_data.owner}
                                                         </p>
                                                     </div>
                                                     <div class="pl-2">
@@ -2735,7 +2793,7 @@ async function child_select_fun(){
                                                             Uploaded On
                                                         </p>
                                                         <p class="detailData">
-                                                            {new_doc_data.modified}
+                                                            {new_doc_data.creation}
                                                         </p>
                                                     </div>
                                                    
@@ -2758,13 +2816,29 @@ async function child_select_fun(){
                                             </div>
                                         </div>
                                         <div class="statusSecForDoc">
+                                            {#if new_doc_data.verified == "1"}
                                             <p class="userStatusTick ">
                                                 <img
                                                     src="{$img_url_name.img_name}/checked.png"
                                                     alt=""
                                                     class="pr-1"
-                                                /> Verify
+                                                /> Verified
                                             </p>
+                                            
+                                            {:else if new_doc_data.rejected == "1"}
+                                            <p class="userStatusCross ">
+                                                <img
+                                                    src="{$img_url_name.img_name}/reject.png"
+                                                    alt=""
+                                                    class="pr-1"
+                                                /> Rejected
+                                            </p>
+                                            {:else}
+                                            <p class="userStatusTimer">
+                                                <img src="{$img_url_name.img_name}/timer.png" alt="" class="pr-1">
+                                                Pending</p>
+                                            {/if}
+                                            
                                         </div>
                                     </div>
                                     {/each}
@@ -3042,14 +3116,27 @@ async function child_select_fun(){
                                                 </div>
                                                 <div class="formInnerGroup ">
                                                     <select
+                                                        id="selected_doc_type"
                                                         class="inputboxpopover"
+                                                        bind:value="{selected_document_type}"
                                                     >
                                                         <option class="pt-6"
-                                                            >Select</option
+                                                            value = "-1">Select</option
                                                         >
-                                                        <option>ICICI</option>
-                                                        <option>Axis</option>
-                                                        <option>SIB</option>
+                                                        <option value="contract">Contract </option>
+                                                        <option value="work_order_annexure_1">Code of Business Annexure 2 </option>
+                                                        <option value="master_service_agreement">Master Service Agreement </option>
+                                                        <option value="general_information_NEFT">General Information - NEFT </option>
+                                                        <option value="shop_act_license">Shop Act License </option>
+                                                        <option value="service_tax_declaration">Service Tax Declaration </option>
+                                                        <option value="vendor_onboarding">Vendor Onboarding </option>
+                                                        <option value="NDA">NDA </option><option value="bgv_details_collection">BGV Details Collection </option>
+                                                        <option value="photo_of_the_store_owner">Photo of the store owner </option>
+                                                        <option value="photo_of_the_store ">Photo of the store </option>
+                                                        <option value="FnF">Termination / F&amp;F </option>
+                                                        <option value="addproof-photo"> Address Proof </option>
+                                                        <option value="other">Other </option>
+                                                        <option value="newOffFile">3P Variable Associate Agreement </option>
                                                     </select>
                                                     <div
                                                         class="formSelectArrow "
@@ -3072,31 +3159,42 @@ async function child_select_fun(){
                                                     <input
                                                         class="inputboxpopover"
                                                         type="text"
+                                                        bind:value="{document_desc}"
                                                     />
                                                 </div>
                                             </div>
                                             <div
-                                                class="flex  py-3 items-center flex-wrap"
-                                            >
-                                                <div class="light14grey  mb-1">
-                                                    Upload Document
-                                                </div>
-                                                <div class="formInnerGroup">
-                                                    <label
-                                                        class="cursor-pointer flex"
-                                                    >
-                                                        <div
-                                                            class="ErBlueButton"
-                                                        >
-                                                            Select File
-                                                        </div>
-                                                        <input
-                                                            type="file"
-                                                            class="hidden"
-                                                        />
-                                                    </label>
-                                                </div>
+                                            class="flex  py-3 items-center flex-wrap"
+                                        >
+                                            <div class="light14grey  mb-1">
+                                                Upload Document
                                             </div>
+                                            <div class="formInnerGroup">
+                                                <label
+                                                    class="cursor-pointer flex"
+                                                >
+                                                    <div
+                                                        class="ErBlueButton"
+                                                    >
+                                                        Select File
+                                                    </div>
+                                                    <input
+                                                        type="file"
+                                                        class="hidden"
+                                                                on:change={(
+                                                                    e
+                                                                ) =>
+                                                                    onFileSelected(
+                                                                        e,"new_doc_upload"
+                                                                    )}
+                                                        bind:value="{document_url}"
+
+                                                    />
+                                                    <div class="text-red-500">{new_doc_upload_message}</div>
+                                                </label>
+                                                <p>{document_name}</p>
+                                            </div>
+                                        </div>
 
                                             <div
                                                 class="flex items-center justify-end mt-5"
@@ -3108,7 +3206,7 @@ async function child_select_fun(){
                                                 </div>
                                                 <div class="updateAction ml-5">
                                                     <button class="ErBlueButton"
-                                                        >Upload</button
+                                                        on:click="{save_document}">Upload</button
                                                     >
                                                 </div>
                                             </div>

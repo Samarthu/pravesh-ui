@@ -387,6 +387,12 @@
 .userStatusTick{
     @apply flex items-center text-sm text-green italic font-medium flex justify-end
 }
+.userStatusCross{
+    @apply flex items-center text-sm text-redRequired italic font-medium flex justify-end
+}
+.userStatusTimer{
+    @apply flex items-center text-sm text-orange italic font-medium flex justify-end
+}
 
 .userInfoSecPadding{
     @apply px-5 py-5
