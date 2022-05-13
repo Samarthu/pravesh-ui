@@ -3,7 +3,7 @@
     import {facility_data_store} from "../stores/facility_store";
     import { bank_details } from "../stores/bank_details_store";
     import {get_facility_details,facility_bgv_check,get_bank_facility_details,facility_document,
-         approve_reject_status,bank_approve_reject,bgv_approve_rej,final_id_ver_rej,final_bgv_app_rej,get_client_details,get_client_org_mapping,get_specific_name,save_mapping} from "../services/vmt_verify_services";
+         approve_reject_status,bank_approve_reject,bgv_approve_rej,final_id_ver_rej,final_bgv_app_rej,get_client_details,get_client_org_mapping,get_specific_name,save_mapping,get_change_associte,get_assoc_types,send_associate_req} from "../services/vmt_verify_services";
     import {facility_bgv_init} from "../services/onboardsummary_services";
     import {bgv_config_store} from '../stores/bgv_config_store';
     import { goto } from "$app/navigation";
@@ -183,16 +183,22 @@
     let org_id;
     let stat_select;
     let id_select;
+    let newType;
+    let attendenceType;
     let get_specific_name_data = [];
     let station_code_arr = [];
+    let get_change_associte_data = [];
     let status_display = 0; 
     let org_AN_flag = 0;
     let stat_code = "";
     let requestType = "";
     let mapping_blocked_data = [];
+    let get_assoc_types_data = [];
     let emp_number ="";
     let table_head = "";
     let crClient = "no";
+    let assocRemarks = "";
+    let fromDate;
     $:if(stat_select != null){
         console.log("station_select",stat_select)
         station_code_select(stat_select);
@@ -202,6 +208,14 @@
         console.log("id_select",id_select)
         org_id_select(id_select);
     }
+
+    $:{
+        attendenceType = newType;
+    }
+
+    // $:if(newType != null){
+    //     newType = attendenceType;
+    // }
    
     // $:if(station_id != null){
     //     station_id_select(station_id)
@@ -1962,6 +1976,7 @@
     //     workContractModel.style.display = "none";
     // }
 
+
     async function workorganization() {
         workorganizationModel.style.display = "block";
         if($facility_data_store.status == "Deactive"){
@@ -2095,6 +2110,49 @@
 
     function closeWorkorganization() {
         workorganizationModel.style.display = "none";
+    }
+
+    async function openassociateTypeMOdal() {
+        associateTypeMOdal.style.display = "block";
+
+        let get_change_associte_res = await get_change_associte();
+        // console.log("testing get_change_associte_res",get_change_associte_res)
+        try {
+            if (get_change_associte_res.body.status == "green"){
+                // console.log("get_change_associte_res.body.status",get_change_associte_res.body.data.length)
+                    for(let i=0; i< get_change_associte_res.body.data.length;i++){
+                        // console.log("inside get_change_associte_data",get_change_associte_data)
+                        get_change_associte_data.push(get_change_associte_res.body.data[i]);
+                    }
+                    get_change_associte_data = get_change_associte_data;
+                    // console.log("get_change_associte_data",get_change_associte_data)
+                }
+        } catch (err) {
+            // toast_type = "error";
+            // toast_text = get_change_associte_res.body.message;
+            console.log("inside error with associate")
+        }
+
+        let get_assoc_types_res = await get_assoc_types();
+        console.log("testing get_assoc_types_res",get_assoc_types_res)
+        try {
+            if (get_assoc_types_res.body.status == "green"){
+                // console.log("inisde get_assoc_types_res.body.status",get_assoc_types_res.body.data)
+                // for(let i=0;i<=get_assoc_types_res.body.data.length;i++){
+                    for(let i=0;i<get_assoc_types_res.body.data.length;i++){
+                    get_assoc_types_data.push(get_assoc_types_res.body.data[i])
+                }
+                get_assoc_types_data = get_assoc_types_data;
+                console.log("inside for get_assoc_types_data",get_assoc_types_data)
+            }
+        } catch (err) {
+            console.log(err)
+            console.log("error in getting assoc types")
+        }
+    }
+
+    function closeassociateTypeMOdal() {
+        associateTypeMOdal.style.display = "none";
     }
 
 
@@ -2254,6 +2312,59 @@
 
     }
 
+    async function finalreqAssoc(){
+
+        // let new_from_date =  get_date_format(fromDate,"yyyy-mm-dd")
+        // new Date(fromDate)
+        let new_start_date = new Date(fromDate);
+        let updated_start_date = get_date_format(new_start_date,"yyyy-mm-dd");
+        let get_change_associte_res = await get_change_associte();
+        let get_assoc_types_res = await get_assoc_types();
+
+        if(!newType){
+            toast_text = "Please select New Type";
+            toast_type = "error";
+            return
+            }
+
+        if(!fromDate){
+            toast_text = "Please select From date";
+            toast_type = "error";
+            return
+        }
+
+
+        if(!assocRemarks){
+            toast_text = "Please select Remarks";
+            toast_type = "error";
+            return
+        }
+
+        let final_req_load = {
+                "facility_id":facility_id,
+                "facility_type": $facility_data_store.facility_type,
+                "attendance_facility_type": newType,
+                "from_date": updated_start_date,
+                "property_type":'facility_type',
+                "property_value": attendenceType,
+                "remark": assocRemarks,
+                "status": $facility_data_store.status,
+            }
+
+            let send_associate_req_res = await send_associate_req(final_req_load)
+            console.log("send_associate_req_res",send_associate_req_res)
+                if(send_associate_req_res.body.status == "green"){
+                    toast_text = send_associate_req_res.body.message;
+                    toast_type = "green";
+                }
+            else {
+                toast_text = "Error occured while sending associate request";
+                toast_type = "error";
+            }
+            console.log("final_req_load",final_req_load)
+        }
+
+
 </script>
 
 {#if show_spinner}
@@ -2290,6 +2401,15 @@
                     <p class="flex items-center smButtonText" on:click={workorganization}>
                         <a href="" class="smButton modal-open">
                             View/Client edit
+                        </a>
+                    </p>
+                </div>
+
+
+                <div class="userStatus ">
+                    <p class="flex items-center smButtonText" on:click="{openassociateTypeMOdal}">
+                        <a href="" class="smButton modal-open">
+                            Associate Type
                         </a>
                     </p>
                 </div>
@@ -5382,7 +5502,7 @@
                                                 </div>
                                                 <div class="grid grid-cols-2 gap-4 mb-1">
                                                     <div class="detailLbale"> Station Name & code </div>
-                                                    <div class="detailData"> {get_loc_scope_data.station_code}</div>
+                                                    <div class="detailData"> {new_client.station_code}</div>
                                                 </div>
                                                 <div class="grid grid-cols-2 gap-4 mb-1">
                                                     <div class="detailLbale"> Org specified name </div>
@@ -5451,6 +5571,201 @@
         </div>
     </div>
 
+
+        <!-- Full screen modal  Change Associate Type Desktop and Responsive Done--->
+
+        <div class="hidden"  id="associateTypeMOdal">
+            <div class="modalMain ">
+                <div class="modalOverlay"></div>
+    
+                <div class="modalContainer">
+    
+                    <div class="modalHeadCon sticky top-0 bg-white z-zindex99">
+                        <div class="leftmodalInfo">
+                            <p class="modalTitleText">  Change Associate Type </p>
+                            <p class="text-sm ">
+                                <span class="font-medium text-lg"> {$facility_data_store.facility_name}</span>
+                                <span class="userDesignation"> (Associate
+                                    - {$facility_data_store.facility_type} / ID - {$facility_data_store.name})</span>
+                            </p>
+                        </div>
+                        <div class="rightmodalclose" on:click="{closeassociateTypeMOdal}">
+                            <img src="../src/img/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal">
+                        </div>
+                    </div>
+    
+                    <div class="modalContent">
+                        <!-- <div class="tabwrapper flex justify-between text-center py-2 pb-3">
+                        <div class="changetype py-3 w-2/4	">
+                            <p>Change Type</p>
+                        </div>
+                        <div class="Historytab py-3 w-2/4	 bg-bglightgreye">
+                            <p>History</p>
+                        </div>
+                    </div> -->
+                        <div class="ConModalContent mt-3">
+    
+                            <div class="xsl:grid-cols-1 gap-4">
+    
+    
+                                <div>
+                                    <div class="bgAddSection">
+                                        <p class="font-medium px-3 pt-4">Change Type </p>
+                                        {#if  status_display == -1}
+                                            <p>user in inactive</p>
+                                        {:else}
+                                        <div class="addGstForm pt-4">
+                                            <!-- {#each $facility_data_store as new_client} -->
+                                            <div class="flex gap-4 px-4 py-1 xsl:flex-wrap mb-3">
+                                                <div class="w-full">
+                                                    <div class="light14grey mb-1">Current Type</div>
+                                                    <div class="formInnerwidthfull ">
+                                                        <div class="font-normal text-base text-greycolor mb-1">{$facility_data_store.facility_type}</div>
+                                                    </div>
+                                                </div>
+                                                <div class="w-full">
+                                                    <div class="light14grey mb-1">Pravesh ID</div>
+                                                    <div class="formInnerwidthfull ">
+                                                        <div class="font-normal text-base text-greycolor mb-1">{$facility_data_store.name}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- {/each} -->
+    
+                                            <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
+                                                <div class="w-full">
+                                                    <div class="light14grey mb-1">New Type</div>
+                                                    <div class="formInnerwidthfull ">
+                                                        <select class="inputboxpopover" bind:value="{newType}">
+                                                            <option class="pt-6">Select</option>
+                                                            {#each get_assoc_types_data as assoc}
+                                                                <option
+                                                                    class="pt-6" 
+                                                                    value={assoc.facility_type}
+                                                                    >{assoc.facility_type}</option
+                                                                >
+                                                                {/each}
+                                                        </select>
+                                                        <div class="formSelectArrow ">
+                                                            <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="w-full">
+                                                    <div class="light14grey mb-1">Type of Attendance</div>
+                                                    <div class="formInnerwidthfull ">
+                                                        <select class="inputboxpopover" bind:value="{attendenceType}">
+                                                            <option class="pt-6">Select</option>
+                                                            {#each get_assoc_types_data as assoc}
+                                                                <option
+                                                                    class="pt-6" 
+                                                                    value={assoc.facility_type}
+                                                                    >{assoc.facility_type}</option
+                                                                >
+                                                                {/each}
+                                                        </select>
+                                                        <div class="formSelectArrow ">
+                                                            <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                                        </div>
+                                                    </div>
+                                                </div>
+    
+                                            </div>
+                                            <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
+                                                <div class="w-full">
+                                                    <div class="light14grey mb-1">From Date</div>
+                                                    <div class="formInnerwidthfull ">
+                                                        <input type="date" class="inputboxpopoverdate" bind:value="{fromDate}">
+                                                    </div>
+    
+                                                </div>
+                                                <div class="w-full">
+                                                    <div class="light14grey mb-1">To Date</div>
+                                                    <div class="formInnerwidthfull ">
+                                                        <input type="date" class="inputboxpopoverdate">
+                                                    </div>
+                                                    <div class="w-full">
+                                                        <div class="light14greylong mb-1 invisible"></div>
+                                                        <div class="formInnerwidthfull ">
+                                                            <div class="light14greylong mb-1 text-xs">Note: Leave empty if
+                                                                no end date</div>
+    
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
+                                                <div class="w-full">
+                                                    <div class="light14grey mb-1">Remarks</div>
+                                                    <div class="formInnerwidthfull ">
+                                                        <input type="text" class="inputbox" bind:value="{assocRemarks}">
+                                                    </div>
+                                                </div>
+    
+                                            </div>
+                                            <div class="actionButtons">
+    
+                                                <div class="updateAction " on:click="{finalreqAssoc}">
+                                                    <button class="ErBlueButton">Submit</button>
+                                                </div>
+                                            </div>
+    
+                                        </div>
+                                        {/if}
+                                    </div>
+    
+                                </div>
+    
+                                <div class="PhysicalCardContainer">
+                                    <p class="font-medium px-3 pt-4">History</p>
+                                    <div class="heightCardContainer">
+                                        <table class="table  w-full text-center mt-2 ">
+                                            <thead class="theadpopover h-10">
+                                                <tr>
+                                                    <th>Associate
+                                                        Type</th>
+                                                    <th>Type of Attendance</th>
+                                                    <th> Effective From</th>
+                                                    <th>Effective Till</th>
+                                                    <th> Requested On</th>
+                                                    <th> Requested By</th>
+                                                    <th> Remarks</th>
+    
+                                                </tr>
+                                            </thead>
+                                            {#each get_change_associte_data as associate}
+                                            <tbody class="tbodypopover">
+                                                <tr class="border-b">
+                                                    
+                                                    <td>{associate.property_value}</td>
+                                                    <td>{associate.attendance_facility_type}</td>
+                                                    <td>{associate.from_date}</td>
+                                                    <td>{associate.to_date}</td>
+                                                    <td>{associate.creation}</td>
+                                                    <td>{associate.owner}</td>
+                                                    <td>
+                                                        {associate.remark}
+                                                    </td>
+                                                    
+                                                </tr>
+                                            </tbody>
+                                            {/each}
+                                        </table>
+                                    </div>
+                                </div>
+        
+                            </div>
+    
+    
+    
+    
+                        </div>
+    
+                    </div>
+                </div>
+            </div>
+        </div>
 
 
 <Toast type={toast_type}  text={toast_text}/> 
