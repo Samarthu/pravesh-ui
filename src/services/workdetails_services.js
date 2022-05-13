@@ -28,7 +28,7 @@ get_city_id_from_org_station_api_link.subscribe(value =>{
     get_city_id_from_org_station_api_url = value;
 
 })
-let get_pravesh_properties_data ={"property_name":"bank_rejection_reasons,secon_base_url,bank_section_required_associates,offer_letter_required_associates,offer_letter_not_required_tags,pan_required_tags,adhoc_facility_tag,mapping_blocked_org,pan_required_associates,only_admin_child_update,id_proof_rejection_reasons,document_types,org_name_validation_orgs,external_verification_visible,id_card_config,mapping_blocked_org"};
+let get_pravesh_properties_data ={"property_name":"bank_rejection_reasons,secon_base_url,bank_section_required_associates,offer_letter_required_associates,offer_letter_not_required_tags,pan_required_tags,adhoc_facility_tag,mapping_blocked_org,pan_required_associates,only_admin_child_update,id_proof_rejection_reasons,document_types,org_name_validation_orgs,external_verification_visible,id_card_config,mapping_blocked_org,user_roles_required"};
 
 const get_user_scope_function = () =>{
    return request(get_scope_api_url,{mode: 'no-cors',method:"GET"},true,false)

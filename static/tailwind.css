@@ -2334,3 +2334,10 @@ ul.menuList li a.active span{
 .formInnerwidthfull{
     @apply  relative w-full  xs:w-full sm:w-full border-none
 }
+
+/* docmodle table */
+
+.userStatusTicktable{
+    @apply flex items-center text-sm text-green italic font-medium justify-center
+}
+/* end docmodle table */

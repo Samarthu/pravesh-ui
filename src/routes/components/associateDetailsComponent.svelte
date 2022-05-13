@@ -774,8 +774,12 @@
                      <img src="{$img_url_name.img_name}/location1.png" alt="">
                      <div class="pl-4">
                          <p class="detailLbale">Address & Pincode</p>
-                         <p class="detailData "> {facility_address}
-                             {facility_postal}</p>
+                         {#if !facility_address}
+                         <p>-</p>
+                         {:else}
+                         <p class="detailData">{facility_address}-{facility_postal} </p>
+                         {/if}
+                        
                      </div>
                  </div>
 
@@ -784,7 +788,11 @@
                          <img src="{$img_url_name.img_name}/mobilephone.png" alt="">
                          <div class="pl-4">
                              <p class="detailLbale">Mobile Number</p>
-                             <p class="detailData">{$facility_data_store.phone_number}</p>
+                            {#if !$facility_data_store.phone_number}
+                            <p>-</p>
+                            {:else}
+                            <p class="detailData">{$facility_data_store.phone_number}</p>
+                            {/if}
                          </div>
                      </div>
                      <!-- <div class="userStatus ">
@@ -819,7 +827,11 @@
                          <img src="{$img_url_name.img_name}/email.png" alt="">
                          <div class="pl-4">
                              <p class="detailLbale">Email</p>
+                             {#if !$facility_data_store.facility_email}
+                             <p>-</p>
+                             {:else}
                              <p class="detailData">{$facility_data_store.facility_email}</p>
+                             {/if}
                          </div>
                      </div>
                      <!-- {#if $facility_data_store.email_verified == "1"}
@@ -898,8 +910,11 @@
                              <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
                              <div class="pl-4 flex items-center">
                                  <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
-
+                                 {#if !addproof_obj.address_name}
+                                 <p>-</p>
+                                 {:else}
                                  <p class="detailLbale">{addproof_obj.address_name}</p>
+                                 {/if}
                              </div>
                          </div>
                          <div class="userStatus ">
@@ -956,11 +971,11 @@
                              <!-- <p class="detailLbale">User ID</p>
                              <p class="detailData">dhiraj.shah@elastic.run</p> -->
                              <p class="detailLbale">User ID</p>
-                     {#if !$facility_data_store.facility_id}
-                     <p>-</p>
-                     {:else}
-                     <p class="detailData">{$facility_data_store.facility_id}</p>
-                     {/if}
+                            {#if !$facility_data_store.facility_id}
+                            <p>-</p>
+                            {:else}
+                            <p class="detailData">{$facility_data_store.facility_id}</p>
+                            {/if}
                          </div>
                      </div>
 
@@ -970,7 +985,11 @@
                          <img src="{$img_url_name.img_name}/password.png" alt="">
                          <div class="pl-4">
                              <p class="detailLbale">Password</p>
-                             <p class="detailData">{facility_password}</p>
+                            {#if !facility_password}
+                            <p>-</p>
+                            {:else}
+                            <p class="detailData">{facility_password}</p>
+                            {/if}
                          </div>
                      </div>
 

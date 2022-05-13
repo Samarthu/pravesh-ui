@@ -353,18 +353,16 @@
                 toast_text = "Upload File";
                 return
             }
-
-
-
+            
             let pass_contract_id = {
                 contract_id: contract_name,
                 cost_center: cont_cost_center,
-                end_date: cont_end_date,
+                end_date: updated_end_date,
                 facility_id: facility_id,
                 file_data: phy_cont_file,
                 file_name: phy_cont_img,
                 org_id: org_selected,
-                start_date : cont_start_date,
+                start_date : updated_start_date,
                 station_code : station_selected,
                 warehouse: cont_warehouse
                 
@@ -736,7 +734,11 @@
                             <img src="{$img_url_name.img_name}/Subtract.png" alt="" class="w-5 h-auto">
                             <div class="pl-4">
                                 <p class="detailLbale">Associate Type</p>
+                                {#if !$facility_data_store.facility_type}
+                                <p>-</p>
+                                {:else}
                                 <p class="detailData">{$facility_data_store.facility_type}</p>
+                                {/if}
                             </div>
                         </div>
                         <div class="userStatus ">
@@ -752,7 +754,11 @@
                             <img src="{$img_url_name.img_name}/pan.png" alt="" class="w-5 h-5">
                             <div class="pl-4">
                                 <p class="detailLbale">Associate ID</p>
+                                {#if !$facility_data_store.name}
+                                <p>-</p>
+                                {:else}
                                 <p class="detailData">{$facility_data_store.name}</p>
+                                {/if}
                             </div>
                         </div>
 
@@ -762,7 +768,12 @@
                             <img src="{$img_url_name.img_name}/organization.png" alt="" class="w-5 h-5">
                             <div class="pl-4">
                                 <p class="detailLbale">Organization</p>
+                                {#if !$facility_data_store.org_id}
+                                <p>-</p>
+                                {:else}
                                 <p class="detailData">{$facility_data_store.org_id}</p>
+                                {/if}
+                                
                             </div>
                         </div>
                         <div class="userStatus ">
@@ -778,7 +789,11 @@
                             <img src="{$img_url_name.img_name}/location.png" class="w-6 h-6" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">City</p>
+                                {#if !city}
+                                <p>-</p>
+                                {:else}
                                 <p class="detailData">{city}</p>
+                                {/if}
                             </div>
                         </div>
                     </div>
@@ -787,7 +802,11 @@
                             <img src="{$img_url_name.img_name}/warehouse.png" class="w-5 h-5" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">Station</p>
+                                {#if !$facility_data_store.station_code}
+                                <p>-</p>
+                                {:else}
                                 <p class="detailData">{$facility_data_store.station_code}</p>
+                                {/if}
                             </div>
                         </div>
 
@@ -845,8 +864,11 @@
                                 <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
                                 <div class="pl-4 flex items-center">
                                     <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
-
+                                    {#if !new_off_file_obj.offer_name}
+                                    <p>-</p>
+                                    {:else}
                                     <p class="detailLbale">{new_off_file_obj.offer_name}</p>
+                                    {/if}
                                 </div>
                             </div>
                             <div class="userStatus ">
@@ -870,7 +892,11 @@
                             <img src="{$img_url_name.img_name}/managerVendor.png" class="w-5 h-5" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">Vendor</p>
+                                {#if !$facility_data_store.vendor_name}
+                                <p>-</p>
+                                {:else}
                                 <p class="detailData">{$facility_data_store.vendor_name} - {$facility_data_store.vendor_code}</p>
+                                {/if}
                             </div>
                         </div>
 
