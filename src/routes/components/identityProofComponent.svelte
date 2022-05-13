@@ -354,7 +354,12 @@
                     <img src="{$img_url_name.img_name}/pan.png" alt="" class="w-5 h-5">
                     <div class="pl-4">
                         <p class="detailLbale">PAN Number</p>
+                        {#if !pancard_obj.pan_num}
+                        <p>-</p>
+                        {:else}
                         <p class="detailData">{pancard_obj.pan_num}</p>
+                        {/if}
+                        
                     </div>
                 </div>
 
@@ -365,7 +370,11 @@
                     <img src="{$img_url_name.img_name}/pan.png" class="w-6 h-6" alt="">
                     <div class="pl-4">
                         <p class="detailLbale">Aadhar Number</p>
+                        {#if !aadhar_obj.aadhar_num}
+                        <p>-</p>
+                        {:else}
                         <p class="detailData">{aadhar_obj.aadhar_num}</p>
+                        {/if}
                     </div>
                 </div>
             </div>
@@ -374,7 +383,11 @@
                     <img src="{$img_url_name.img_name}/warehouse.png" class="w-5 h-5" alt="">
                     <div class="pl-4">
                         <p class="detailLbale">Driving License</p>
+                        {#if !dl_photo_obj.dl_lic_name}
+                        <p>-</p>
+                        {:else}
                         <p class="detailData">{dl_photo_obj.dl_lic_name}</p>
+                        {/if}
                     </div>
                 </div>
 
@@ -432,8 +445,11 @@
                         <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
                         <div class="pl-4 flex items-center">
                             <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
-
+                            {#if !pancard_obj.pan_name}
+                            <p>-</p>
+                            {:else}
                             <p class="detailLbale">{pancard_obj.pan_name}</p>
+                            {/if}
                         </div>
                     </div>
                     <div class="userStatus ">
@@ -489,8 +505,11 @@
                         <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
                         <div class="pl-4 flex items-center">
                             <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
-
+                            {#if !aadhar_obj.aadhar_name}
+                            <p>-</p>
+                            {:else}
                             <p class="detailLbale">{aadhar_obj.aadhar_name}</p>
+                            {/if}
                         </div>
                     </div>
                     <div class="userStatus ">
@@ -547,8 +566,11 @@
                         <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
                         <div class="pl-4 flex items-center">
                             <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
-
+                            {#if !dl_photo_obj.dl_lic_name}
+                            <p>-</p>
+                            {:else}
                             <p class="detailLbale">{dl_photo_obj.dl_lic_name}</p>
+                            {/if}
                         </div>
                     </div>
                     <div class="userStatus ">

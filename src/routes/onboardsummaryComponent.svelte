@@ -13,8 +13,8 @@ import { Router, Link, Route } from "svelte-routing";
     import { facility_data,facility_bgv_init,facility_bgv_check,all_facility_tags,
             show_fac_tags,submit_fac_tag_data,remove_tag,tag_audit_trail,service_vendor,
             get_loc_scope,client_details,erp_details,child_data,add_gst_dets,
-            facility_document,addnew_cheque_details,bank_details,cheque_details,gst_details} from "../services/onboardsummary_services";
-    
+            facility_document,addnew_cheque_details,bank_details,cheque_details,gst_details,blacklist_vendor} from "../services/onboardsummary_services";
+    import {get_pravesh_properties_method,} from '../services/workdetails_services'
     import {uploadDocs} from '../services/bgv_services'
     import {get_date_format} from "../services/date_format_servives";
     import {img_url_name} from '../stores/flags_store';
@@ -61,6 +61,7 @@ import { Router, Link, Route } from "svelte-routing";
     let all_tags_obj= {};
     let show_fac_array = [];
     let tag_data_arr = [];
+    let document_type_arr = [];
     let show_creation_date;
     let child_select;
     let child_list=[];
@@ -161,6 +162,7 @@ import { Router, Link, Route } from "svelte-routing";
     let gst_state_code = "";
     let gst_city_loc_id="";
     export let url = "";
+    let blacklist_remark = "";
     /////////////////////svelte plugin pagiantion//////////
     let items;
     let currentPage = 1;
@@ -325,7 +327,7 @@ import { Router, Link, Route } from "svelte-routing";
             
             $documents_store = facility_document_res.body.data
             $duplicate_documents_store.documents = facility_document_res.body.data;
-            console.log("duplicate document store",$duplicate_documents_store)
+            // console.log("duplicate document store",$duplicate_documents_store)
 
             // console.log("documents_store",$documents_store)
             // for(let i=0;i < $documents_store.length;i++){
@@ -334,7 +336,6 @@ import { Router, Link, Route } from "svelte-routing";
 
             facility_document_data = facility_document_res.body.data;
             for (var i = 0; i < facility_document_data.length; i++) {
-                console.log("facility_document_data ii",facility_document_data)
                 let doc_date_format = new Date(facility_document_data[i].creation);
                 let doc_creation_date = get_date_format(doc_date_format,"dd-mm-yyyy-hh-mm");
                 facility_document_data[i].creation = doc_creation_date
@@ -489,7 +490,6 @@ import { Router, Link, Route } from "svelte-routing";
                     }
                 }
                 gst_doc_type=gst_doc_type
-                console.log("gst_doc_type",gst_doc_type);
                 
                 if ($facility_data_store.addresess[j].default_address == "1") {
                     facility_address =$facility_data_store.addresess[j].address;
@@ -596,6 +596,7 @@ async function child_select_fun(){
 
     function closeViewModel(){
         document.getElementById("img_model").style.display = "none";
+        document.getElementById("img_model_approve_rej").style.display = "none";
     }
     function openViewModel(data,doc_number){
         document.getElementById("img_model").style.display = "block";
@@ -1065,12 +1066,38 @@ async function child_select_fun(){
         associateModal.style.display = "none";
     }
 
-    function allDoc() {
+    async function allDoc() {
+        let doc_arr_from_res = [];
         modalid.style.display = "block";
+        let get_pravesh_properties_res = await get_pravesh_properties_method();
+        
+
+        try{
+            if(get_pravesh_properties_res.body.status == "green"){
+                let split_str = [];
+                var doc_obj = {};    
+                doc_arr_from_res = get_pravesh_properties_res.body.data.document_types.split("\n")
+                
+
+            for (var k = 0; k < doc_arr_from_res.length; k++) {
+                    var ele = doc_arr_from_res[k];
+                        var ele_id = document.getElementById('selected_doc_type');
+                        ele_id.innerHTML += '<option value="' + ele.split("=")[0] + '">' + ele.split("=")[1] + ' </option>';
+					}
+
+            }
+        
+        }
+        catch(err){
+            toast_type = "error"
+            toast_text = err
+        }
+        // img_model_approve_rej.style.display = "block";
     }
 
     function closeDoc() {
         modalid.style.display = "none";
+        
     }
 
     routeBgv = "bgv";
@@ -1097,6 +1124,31 @@ async function child_select_fun(){
 
     function closeAuditTrailModal() {
         supplierInfoModal.style.display = "none";
+    }
+    function blacklist_remark_select(){
+        Blacklist_confirmation_modal.style.display = "block";
+        // Basic_Reject_modal.style.display = "block";
+    }
+    function close_blacklist_remark(){
+        Blacklist_confirmation_modal.style.display = "none";
+        Basic_Reject_modal.style.display = "none";
+    }
+    function confirm_blacklist(){
+        Basic_Reject_modal.style.display = "block";
+    }
+
+    async function blacklist_click(){
+        console.log("blacklist_remark",blacklist_remark)
+        let blacklist_res = await blacklist_vendor(blacklist_remark);
+        try {
+            if (blacklist_res.body.status == "green") {
+               toast_type = "success";
+                toast_text = blacklist_res.body.message;
+            }
+        }
+        catch (err) {
+            message.innerHTML = "Error is  " + err;
+        }
     }
 
     async function gstModel() {
@@ -1303,9 +1355,27 @@ async function child_select_fun(){
     // return arr
     // }
     async function save_document(){
+        
         let e = document.getElementById("selected_doc_type");
+        console.log("document.getElementById",e.selectedIndex)
+        if(!e.selectedIndex || e.selectedIndex == "-1"){
+            toast_type = "error"
+            toast_text = "Please Select DocType"
+            return 
+        }
         var selected_doc_type_name = e.options[e.selectedIndex].text;
         
+        if(!selected_document_type || selected_document_type =="-1"){
+            toast_type = "error"
+            toast_text = "Please Select DocType"
+            return
+        }
+        else if(!document_url){
+            toast_type = "error"
+            toast_text = "Please Upload Document"
+            return 
+        }
+
         let new_doc_payload = {"documents":[{
         "file_name":document_name,
         "doc_category":selected_doc_type_name,
@@ -1376,7 +1446,7 @@ async function child_select_fun(){
                             <img src="{$img_url_name.img_name}/audittrail.png" class="pr-2" alt=""> Audit Trial (12)
                         </span>
                     </a>
-                    <span class="backlistText">
+                    <span class="backlistText cursor-pointer" on:click="{blacklist_remark_select}">
                         <img src="{$img_url_name.img_name}/backlist.png" class="pr-2" alt=""> Backlist Vendor
                     </span>
                 </p>
@@ -2729,402 +2799,55 @@ async function child_select_fun(){
     </div>
 </div>
 
-<!-- All Documents modal -->
+<!-- full screen All Documents modal with table view-->
 <div class="hidden" id="modalid">
-    <div class=" viewDocmodal  ">
-        <div class="bglightcolormodal" />
-        <div class="allDocmodalsuccessbody rounded-lg">
+    <div class=" modalMain  " id="modal-id">
+        <div class="modalOverlay"></div>
+        <div class="modalContainer rounded-lg">
+            <div class="modalHeadConmb-0 sticky top-0 bg-white z-99">
+                <div class="leftmodalInfo">
+                    <p class="text-lg text-erBlue font-medium  ">
+                        <span class=""> All Documents</span>
+                    </p>
+                    <p class="text-sm ">
+                        <span class="font-medium text-lg"> {$facility_data_store.facility_name}</span>
+                        <span class="userDesignation"> - Associate- {$facility_data_store.facility_type} - {$facility_data_store.name}</span>
+                    </p>
+                </div>
+                <div class="rightmodalclose">
+                    <img src="../src/img/blackclose.svg" alt="">
+                </div>
+            </div>
             <div class="">
                 <div class="viewDocPanmainbodyModal">
-                    <div class="flex justify-between mb-3">
-                        <div class="leftmodalInfo">
-                            <p class="text-lg text-erBlue font-medium  ">
-                                <span class=""> All Documents</span>
-                            </p>
-                            <p class="text-sm ">
-                                <span class="font-medium text-lg">
-                                    {$facility_data_store.facility_name}</span
-                                >
-                                <span class="userDesignation">
-                                    - Associate- {$facility_data_store.facility_type}, {$facility_data_store.name}</span
-                                >
-                            </p>
-                        </div>
-                        <div class="rightmodalclose" on:click={closeDoc}>
-                            <img src="{$img_url_name.img_name}/blackclose.svg" alt="" />
-                        </div>
-                    </div>
+                   
                     <div class="innermodal">
-                        <hr />
                         <div class="scrollbar ">
-                            <div class="mainContainerWrapper ">
-                                <div class="DocCardlist ">
-                                    {#each facility_document_data as new_doc_data}
-                                    <div class="cardDocWrapper ">
-                                        <div class="infoDivCard ">
-                                            <div class="infofSection  ">
-                                               
-                                                <div class="secFirstDoc ">
-                                                    
-                                                    <div class="docImageSec">
-                                                        <img
-                                                            src="{$img_url_name.img_name}/pancard.png"
-                                                            alt=""
-                                                        />
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p class="detailLbale">
-                                                            Document Type
-                                                        </p>
-                                                        <p class="detailData">
-                                                            {new_doc_data.doc_category}
-                                                        </p>
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p class="detailLbale">
-                                                            Uploaded By
-                                                        </p>
-                                                        <p class="detailData">
-                                                            {new_doc_data.owner}
-                                                        </p>
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p class="detailLbale">
-                                                            Uploaded On
-                                                        </p>
-                                                        <p class="detailData">
-                                                            {new_doc_data.creation}
-                                                        </p>
-                                                    </div>
-                                                   
-                                                </div>
-                                                <div class="secSecond xs:mt-3">
-                                                    <div class="pl-4">
-                                                        <p class="verifyText">
-                                                            <a
-                                                                href=""
-                                                                class="smButton"
-                                                            >
-                                                                <img
-                                                                    src="{$img_url_name.img_name}/view.png"
-                                                                    alt=""
-                                                                />
-                                                            </a>
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="statusSecForDoc">
-                                            {#if new_doc_data.verified == "1"}
-                                            <p class="userStatusTick ">
-                                                <img
-                                                    src="{$img_url_name.img_name}/checked.png"
-                                                    alt=""
-                                                    class="pr-1"
-                                                /> Verified
-                                            </p>
-                                            
-                                            {:else if new_doc_data.rejected == "1"}
-                                            <p class="userStatusCross ">
-                                                <img
-                                                    src="{$img_url_name.img_name}/reject.png"
-                                                    alt=""
-                                                    class="pr-1"
-                                                /> Rejected
-                                            </p>
-                                            {:else}
-                                            <p class="userStatusTimer">
-                                                <img src="{$img_url_name.img_name}/timer.png" alt="" class="pr-1">
-                                                Pending</p>
-                                            {/if}
-                                            
-                                        </div>
-                                    </div>
-                                    {/each}
-                                    <!-- <div class="cardDocWrapper ">
-                                        <div class="infoDivCard ">
-                                            <div class="infofSection  ">
-                                                <div class="secFirstDoc ">
-                                                    <div class="docImageSec">
-                                                        <img
-                                                            src="{$img_url_name.img_name}/pancard.png"
-                                                            alt=""
-                                                        />
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p class="detailLbale">
-                                                            Document Type
-                                                        </p>
-                                                        <p class="detailData">
-                                                            PAN Card
-                                                        </p>
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p class="detailLbale">
-                                                            Uploaded By
-                                                        </p>
-                                                        <p class="detailData">
-                                                            Admin
-                                                        </p>
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p class="detailLbale">
-                                                            Uploaded On
-                                                        </p>
-                                                        <p class="detailData">
-                                                            27-Apr-2021 23:29 pm
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <div class="secSecond xs:mt-3">
-                                                    <div class="pl-4">
-                                                        <p class="verifyText">
-                                                            <a
-                                                                href=""
-                                                                class="smButton"
-                                                            >
-                                                                <img
-                                                                    src="{$img_url_name.img_name}/view.png"
-                                                                    alt=""
-                                                                />
-                                                            </a>
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="statusSecForDoc">
-                                            <p class="userStatusTick ">
-                                                <img
-                                                    src="{$img_url_name.img_name}/checked.png"
-                                                    alt=""
-                                                    class="pr-1"
-                                                /> Verify
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div class="cardDocWrapper ">
-                                        <div class="infoDivCard ">
-                                            <div class="infofSection  ">
-                                                <div class="secFirstDoc ">
-                                                    <div class="docImageSec">
-                                                        <img
-                                                            src="{$img_url_name.img_name}/pancard.png"
-                                                            alt=""
-                                                        />
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p class="detailLbale">
-                                                            Document Type
-                                                        </p>
-                                                        <p class="detailData">
-                                                            PAN Card
-                                                        </p>
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p class="detailLbale">
-                                                            Uploaded By
-                                                        </p>
-                                                        <p class="detailData">
-                                                            Admin
-                                                        </p>
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p class="detailLbale">
-                                                            Uploaded On
-                                                        </p>
-                                                        <p class="detailData">
-                                                            27-Apr-2021 23:29 pm
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <div class="secSecond xs:mt-3">
-                                                    <div class="pl-4">
-                                                        <p class="verifyText">
-                                                            <a
-                                                                href=""
-                                                                class="smButton"
-                                                            >
-                                                                <img
-                                                                    src="{$img_url_name.img_name}/view.png"
-                                                                    alt=""
-                                                                />
-                                                            </a>
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="statusSecForDoc">
-                                            <p class="userStatusTick ">
-                                                <img
-                                                    src="{$img_url_name.img_name}/checked.png"
-                                                    alt=""
-                                                    class="pr-1"
-                                                /> Verify
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div class="cardDocWrapper ">
-                                        <div class="infoDivCard ">
-                                            <div class="infofSection  ">
-                                                <div class="secFirstDoc ">
-                                                    <div class="docImageSec">
-                                                        <img
-                                                            src="{$img_url_name.img_name}/pancard.png"
-                                                            alt=""
-                                                        />
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p class="detailLbale">
-                                                            Document Type
-                                                        </p>
-                                                        <p class="detailData">
-                                                            PAN Card
-                                                        </p>
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p class="detailLbale">
-                                                            Uploaded By
-                                                        </p>
-                                                        <p class="detailData">
-                                                            Admin
-                                                        </p>
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p class="detailLbale">
-                                                            Uploaded On
-                                                        </p>
-                                                        <p class="detailData">
-                                                            27-Apr-2021 23:29 pm
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <div class="secSecond xs:mt-3">
-                                                    <div class="pl-4">
-                                                        <p class="verifyText">
-                                                            <a
-                                                                href=""
-                                                                class="smButton"
-                                                            >
-                                                                <img
-                                                                    src="{$img_url_name.img_name}/view.png"
-                                                                    alt=""
-                                                                />
-                                                            </a>
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="statusSecForDoc">
-                                            <p class="userStatusTick ">
-                                                <img
-                                                    src="{$img_url_name.img_name}/checked.png"
-                                                    alt=""
-                                                    class="pr-1"
-                                                /> Verify
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div class="cardDocWrapper ">
-                                        <div class="infoDivCard ">
-                                            <div class="infofSection  ">
-                                                <div class="secFirstDoc ">
-                                                    <div class="docImageSec">
-                                                        <img
-                                                            src="{$img_url_name.img_name}/pancard.png"
-                                                            alt=""
-                                                        />
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p class="detailLbale">
-                                                            Document Type
-                                                        </p>
-                                                        <p class="detailData">
-                                                            PAN Card
-                                                        </p>
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p class="detailLbale">
-                                                            Uploaded By
-                                                        </p>
-                                                        <p class="detailData">
-                                                            Admin
-                                                        </p>
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p class="detailLbale">
-                                                            Uploaded On
-                                                        </p>
-                                                        <p class="detailData">
-                                                            27-Apr-2021 23:29 pm
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <div class="secSecond xs:mt-3">
-                                                    <div class="pl-4">
-                                                        <p class="verifyText">
-                                                            <a
-                                                                href=""
-                                                                class="smButton"
-                                                            >
-                                                                <img
-                                                                    src="{$img_url_name.img_name}/view.png"
-                                                                    alt=""
-                                                                />
-                                                            </a>
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="statusSecForDoc">
-                                            <p class="userStatusTick ">
-                                                <img
-                                                    src="{$img_url_name.img_name}/checked.png"
-                                                    alt=""
-                                                    class="pr-1"
-                                                /> Verify
-                                            </p>
-                                        </div>
-                                    </div> -->
-                                </div>
-                                <div class="addDocumentSection ">
+                            <div class=" ">
+                                <div class=" ">
                                     <div class="addSecform ">
-                                        <div
-                                            class="addButtonSection my-3 py-16 text-center hidden"
-                                        >
+
+                                        <div class="addButtonSection my-3 py-16 text-center hidden">
                                             <div class="updateAction">
-                                                <button class="ErBlueButton"
-                                                    >Add New Document</button
-                                                >
+                                                <button class="ErBlueButton">Add New Document</button>
                                             </div>
                                         </div>
 
                                         <div class="my-3 py-4 px-4 ">
-                                            <p class="text-lg font-medium">
-                                                Add New Document
-                                            </p>
+                                            <p class="text-lg font-medium">Add New Document</p>
 
-                                            <div
-                                                class="flex  py-3 items-center flex-wrap"
-                                            >
-                                                <div class="light14grey mb-1">
-                                                    Document Type
-                                                </div>
+                                            <div class="flex  py-3 items-center flex-wrap">
+                                                <div class="light14grey mb-1">Document Type</div>
                                                 <div class="formInnerGroup ">
                                                     <select
                                                         id="selected_doc_type"
                                                         class="inputboxpopover"
-                                                        bind:value="{selected_document_type}"
-                                                    >
+                                                        bind:value="{selected_document_type}">
                                                         <option class="pt-6"
                                                             value = "-1">Select</option
                                                         >
-                                                        <option value="contract">Contract </option>
-                                                        <option value="work_order_annexure_1">Code of Business Annexure 2 </option>
+                                                        
+                                                        <!-- <option value="work_order_annexure_1">Code of Business Annexure 2 </option>
                                                         <option value="master_service_agreement">Master Service Agreement </option>
                                                         <option value="general_information_NEFT">General Information - NEFT </option>
                                                         <option value="shop_act_license">Shop Act License </option>
@@ -3136,16 +2859,11 @@ async function child_select_fun(){
                                                         <option value="FnF">Termination / F&amp;F </option>
                                                         <option value="addproof-photo"> Address Proof </option>
                                                         <option value="other">Other </option>
-                                                        <option value="newOffFile">3P Variable Associate Agreement </option>
+                                                        <option value="newOffFile">3P Variable Associate Agreement </option> -->
                                                     </select>
-                                                    <div
-                                                        class="formSelectArrow "
-                                                    >
-                                                        <img
-                                                            src="{$img_url_name.img_name}/selectarrow.png"
-                                                            class="w-5 h-auto"
-                                                            alt=""
-                                                        />
+                                                    <div class="formSelectArrow ">
+                                                        <img src="../src/img/selectarrow.png" class="w-5 h-auto"
+                                                            alt="">
                                                     </div>
                                                 </div>
                                             </div>
@@ -3196,22 +2914,95 @@ async function child_select_fun(){
                                             </div>
                                         </div>
 
-                                            <div
-                                                class="flex items-center justify-end mt-5"
+
+                                        <div
+                                        class="flex items-center justify-end mt-5"
+                                    >
+                                        <div
+                                            class="updateAction text-erBlue"
+                                        >
+                                            Cancel
+                                        </div>
+                                        <div class="updateAction ml-5">
+                                            <button class="ErBlueButton"
+                                                on:click="{save_document}">Upload</button
                                             >
-                                                <div
-                                                    class="updateAction text-erBlue"
-                                                >
-                                                    Cancel
-                                                </div>
-                                                <div class="updateAction ml-5">
-                                                    <button class="ErBlueButton"
-                                                        on:click="{save_document}">Upload</button
-                                                    >
-                                                </div>
-                                            </div>
                                         </div>
                                     </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class=" ">
+                                    
+                                    <table class="table  w-full text-center mt-2 ">
+                                        <thead class="theadpopover h-10">
+                                            <tr>
+                                                <th>Document</th>
+                                                <th>Document Type   </th>
+                                                <th> Uploaded By  </th>
+                                                <th>Uploaded On    </th>
+                                                <th> View</th>
+                                                <th> Remarks</th>
+
+                                            </tr>
+                                        </thead>
+                                        {#each facility_document_data as new_doc_data}
+                                        <tbody class="tbodypopover">
+                                            <tr class="border-b">
+                                                <td>
+                                                    <img src="../src/img/pancard.png" alt="">
+                                                </td>
+                                                <td>  
+                                                    <p class="detailData">{new_doc_data.doc_category}</p>
+                                                </td>
+                                                <td>
+                                                    <p class="detailData">{new_doc_data.owner}</p>
+                                                </td>
+                                                <td>
+                                                    <p class="detailData"> {new_doc_data.creation}</p>
+                                                </td>
+                                               
+                                                <td> 
+                                                    <p class="verifyText justify-center">
+                                                    <a href="" class="smButton">
+                                                        <img src="../src/img/view.png" alt="">
+                                                    </a>
+                                                </p>
+                                            </td>
+                                            <td>
+                                                <div class="userStatusTicktable">
+                                                    {#if new_doc_data.verified == "1"}
+                                                    <p class="userStatusTick ">
+                                                        <img
+                                                            src="{$img_url_name.img_name}/checked.png"
+                                                            alt=""
+                                                            class="pr-1"
+                                                        /> Verified
+                                                    </p>
+                                                    
+                                                    {:else if new_doc_data.rejected == "1"}
+                                                    <p class="userStatusCross ">
+                                                        <img
+                                                            src="{$img_url_name.img_name}/reject.png"
+                                                            alt=""
+                                                            class="pr-1"
+                                                        /> Rejected
+                                                    </p>
+                                                    {:else}
+                                                    <p class="userStatusTimer">
+                                                        <img src="{$img_url_name.img_name}/timer.png" alt="" class="pr-1">
+                                                        Pending</p>
+                                                    {/if}
+                                                    
+                                                </div>
+                                            </td>
+                                               
+                                            </tr>
+                                        </tbody>
+                                        {/each}
+                                    </table>
+                                    
                                 </div>
                             </div>
                         </div>
@@ -4569,4 +4360,137 @@ async function child_select_fun(){
     </div>
 </div> 
 <!-- Document view Model -->
+
+<!-- Document view Model With Approve and reject -->
+<div id="img_model_approve_rej" tabindex="-1" aria-hidden="true" role ="dialog" class=" actionDialogueOnboard" >
+    <div class="pancardDialogueOnboardWrapper ">
+        <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+            
+            <div class="flex justify-end p-2">
+                <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium mr-2">Reject</button>
+                <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium mr-2">Approve</button>
+       
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5  inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel()}}">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
+                </button>
+            </div>
+
+            <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+                
+                <img src="" id="img_model_url" class="mx-auto" alt="{alt_image}">
+                
+                <div class="pt-3 flex justify-center">
+                    <button data-modal-toggle="popup-modal" type="button" class="dialogueNobutton"  on:click="{()=>{closeViewModel()}}">Close</button>
+            </form>
+        </div>
+    </div>
+</div> 
+<!-- Document view Model -->
+
+<!--blacklist Confirmation modal -->
+
+<div id="Blacklist_confirmation_modal" class="hidden">
+    <div  class="actionDialogueOnboard ">
+        <div class="pancardDialogueOnboardWrapper ">
+            <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+                <div class="modalHeadConmb-0">
+                    <div class="leftmodalInfo">
+                        <!-- <p class=""> Reject Reason</p> -->
+                    </div>
+                    <div class="rightmodalclose">
+                        <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" on:click="{close_blacklist_remark}">
+                    </div>
+                </div>
+                <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+    
+                    <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0 mt-4">
+                        <label class="block  tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-state">
+                        Do you want to Blacklist+{$facility_id.facility_id_number}-{$facility_data_store.facility_type}?
+                        </label>
+                        <div class="relative">
+                          <!-- <select class="block appearance-none w-full  border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-state" bind:value="{pan_info_res}">
+                            <option value="" selected disabled>Select</option>
+                            {#each rejReasonMap.panInfo as pan_info_rej}
+                            <option>{pan_info_rej} </option>
+                            {/each}
+                          </select> -->
+                          <br>
+                          <br>
+                          <div
+                                class="flex  py-1 items-center flex-wrap"
+                            >
+                                <div class="formInnerGroup">
+                                    <!-- <input
+                                        class="inputboxpopover"
+                                        type="text"
+                                        bind:value="{blacklist_remark}"
+                                    /> -->
+                                    <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium mr-2" on:click="{close_blacklist_remark}">Cancel</button>
+                                    <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium mr-2" on:click="{confirm_blacklist}">Ok</button>
+                                </div>
+                            </div>
+                          <!-- <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                          </div> -->
+                        </div>
+                      </div>
+                </form>
+            </div>
+        </div>
+    </div> 
+</div>
+
+<!--blacklist Confirmation modal -->
+
+<!--blacklist  Reject modal -->
+<div id="Basic_Reject_modal" class="hidden">
+    <div  class="actionDialogueOnboard ">
+        <div class="pancardDialogueOnboardWrapper ">
+            <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+                <div class="modalHeadConmb-0">
+                    <div class="leftmodalInfo">
+                        <!-- <p class=""> Reject Reason</p> -->
+                    </div>
+                    <div class="rightmodalclose">
+                        <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" on:click="{close_blacklist_remark}">
+                    </div>
+                </div>
+                <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+    
+                    <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0 mt-4">
+                        <label class="block  tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-state">
+                        Enter Remarks
+                        </label>
+                        <div class="relative">
+                          <!-- <select class="block appearance-none w-full  border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-state" bind:value="{pan_info_res}">
+                            <option value="" selected disabled>Select</option>
+                            {#each rejReasonMap.panInfo as pan_info_rej}
+                            <option>{pan_info_rej} </option>
+                            {/each}
+                          </select> -->
+                          <div
+                                class="flex  py-1 items-center flex-wrap"
+                            >
+                                <div class="formInnerGroup">
+                                    <input
+                                        class="inputboxpopover"
+                                        type="text"
+                                        bind:value="{blacklist_remark}"
+                                    />
+                                </div>
+                            </div>
+                          <!-- <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                          </div> -->
+                        </div>
+                      </div>
+                   
+                      <div class="pt-3 flex justify-center">
+                        <button type="button" class="dialogueNobutton" on:click="{blacklist_click}">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div> 
+</div>
+<!--BG Basic Detail Reject modal -->
 <Toast type={toast_type}  text={toast_text}/>
