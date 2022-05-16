@@ -394,6 +394,7 @@
     @apply flex items-center text-sm text-orange italic font-medium flex justify-end
 }
 
+
 .userInfoSecPadding{
     @apply px-5 py-5
 }
@@ -2127,7 +2128,7 @@ ul.menuList li a.active span{
 
 
     .actionDialogueOnboard{
-        @apply bg-bgtransparent  h-full overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50   md:h-full
+        @apply bg-bgtransparent  h-full overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-zindex999  md:h-full
     }
 
     .actionDialogueOnboardWrapper{
@@ -2235,7 +2236,7 @@ ul.menuList li a.active span{
 
 
     .actionDialogueOnboard{
-        @apply bg-bgtransparent  h-full overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50   md:h-full
+        @apply bg-bgtransparent  h-full overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-zindex999   md:h-full
     }
 
     .actionDialogueOnboardWrapper{

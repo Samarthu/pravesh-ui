@@ -277,7 +277,7 @@ const get_all_accepted_contracts = () =>{
         },true)
 }
 const blacklist_vendor = (remark) =>{
-    let blacklist_vendor_url = '/api/method/pravesh.facility.routes.facility.blacklist_facility?facility_id=MHPE545770&remarks='+remark+'';
+    let blacklist_vendor_url = '/api/method/pravesh.facility.routes.facility.blacklist_facility?facility_id='+new_facility_id+'&remarks='+remark+'';
         return request(
             blacklist_vendor_url,{
         method: "GET"
