@@ -67,6 +67,7 @@ import { Router, Link, Route } from "svelte-routing";
     let child_list=[];
     let check_val,query;
     let tags_for_ass_arr=[];
+    var doc_type_name = [];
     let check_selected;
     let id_new_date='';
     let username;
@@ -185,11 +186,12 @@ import { Router, Link, Route } from "svelte-routing";
 ///////Document view Model/////////
     let alt_image="";
 /////////Document view Model//////
-    let selected_document_type="";
+    let selected_document_type;
     let document_desc = "";
     let document_url = "";
     let new_doc_upload_message = "";
     let document_name = "";
+   
     $:{
         for(let key in all_tags_obj){
             if(select_tag_data == key){
@@ -228,6 +230,7 @@ import { Router, Link, Route } from "svelte-routing";
     
     
     onMount(async () => {
+
         
         show_spinner = true;
         // console.log("facility document data",aadhar_obj,fac_photo_obj,addproof_obj
@@ -557,15 +560,37 @@ import { Router, Link, Route } from "svelte-routing";
         toast_text = all_tags_res.body.message;
     }
     show_spinner = false;
+
+    
 }); 
-async function child_select_fun(){
-        
-        var rows = document.getElementById("check_tbody")[0].rows;
-            for(var i=0;i<rows.length;i++){
-                console.log("check_sel_id inside")
-            }
+function check_facility_status(message) {
+    if (!$facility_data_store.status && $facility_data_store.status != undefined && ($facility_data_store.status.toLowerCase() == "deactive" || $facility_data_store.is_blacklisted == 1)) {
+        if (message != undefined){
+            toast_text = message;
+            toast_type = "error";
+        }
+        else{
+            toast_text = "Request not allowed for Deactive/Blacklisted Facility";
+            toast_type = "error";
+        return false;
+        }
     }
+        toast_text = message;
+        toast_type = "error";
+        return true;
+        
+    }
+// async function child_select_fun(){
+        
+//         var rows = document.getElementById("check_tbody")[0].rows;
+//             for(var i=0;i<rows.length;i++){
+//                 console.log("check_sel_id inside")
+//             }
+//     }
     async function link_child(data){
+        if (check_facility_status("Add Child Facilities not allowed for Deactive/Blacklisted Facility")) {
+        return;
+        }
         show_spinner = true;
         let client_det_res = await client_details(data);
         try{
@@ -597,8 +622,25 @@ async function child_select_fun(){
     function closeViewModel(){
         document.getElementById("img_model").style.display = "none";
         document.getElementById("img_model_approve_rej").style.display = "none";
+        document.getElementById("modalid").style.display = "none";
+
     }
     function openViewModel(data,doc_number){
+        console.log("view clicked")
+        if(data == "new_doc"){
+            // console.log("inside new_doc view")
+            document.getElementById("img_model_approve_rej").style.display = "block";
+            for(let i=0;i<facility_document_data.length;i++){
+                // console.log("inside for view new_doc")
+                if(doc_number == facility_document_data[i].doc_category){
+                    // console.log("inside if")
+                    document.getElementById("doc_img_model_url").getAttribute('src',facility_document_data[i].file_url);
+                    alt_image = "uploaded document";
+                }
+            }
+            // if(doc_number)
+            
+        }
         document.getElementById("img_model").style.display = "block";
         if(data == "aadhar"){
             document.getElementById("img_model_url").getAttribute('src',aadhar_obj.aadhar_attach);
@@ -628,6 +670,8 @@ async function child_select_fun(){
             document.getElementById("img_model_url").getAttribute('src',new_cheque.file_url);
             alt_image = "cheque proof";
         }
+        
+        
         for(let i = 0;i<gst_doc_arr.length;i++){
             if(data == "mult_gsts"){
                 if(doc_number == gst_doc_arr[i].gst_doc_num)
@@ -1073,31 +1117,26 @@ async function child_select_fun(){
         
 
         try{
+            
             if(get_pravesh_properties_res.body.status == "green"){
-                let split_str = [];
-                var doc_obj = {};    
+                
                 doc_arr_from_res = get_pravesh_properties_res.body.data.document_types.split("\n")
                 
 
             for (var k = 0; k < doc_arr_from_res.length; k++) {
                     var ele = doc_arr_from_res[k];
-                        var ele_id = document.getElementById('selected_doc_type');
-                        ele_id.innerHTML += '<option value="' + ele.split("=")[0] + '">' + ele.split("=")[1] + ' </option>';
+                    var doc_name = ele.split("=")[0]
+                    var doc_val = ele.split("=")[1]
+                        doc_type_name.push({"doc_name":doc_name ,"doc_value":doc_val});
 					}
-
+                    doc_type_name = doc_type_name
             }
-        
         }
         catch(err){
             toast_type = "error"
             toast_text = err
         }
         // img_model_approve_rej.style.display = "block";
-    }
-
-    function closeDoc() {
-        modalid.style.display = "none";
-        
     }
 
     routeBgv = "bgv";
@@ -1138,16 +1177,20 @@ async function child_select_fun(){
     }
 
     async function blacklist_click(){
-        console.log("blacklist_remark",blacklist_remark)
-        let blacklist_res = await blacklist_vendor(blacklist_remark);
-        try {
-            if (blacklist_res.body.status == "green") {
-               toast_type = "success";
-                toast_text = blacklist_res.body.message;
-            }
+        if (check_facility_status("Facility is already Blacklisted")) {
+            return;
         }
-        catch (err) {
-            message.innerHTML = "Error is  " + err;
+        else{
+            let blacklist_res = await blacklist_vendor(blacklist_remark);
+            try {
+                if (blacklist_res.body.status == "green") {
+                toast_type = "success";
+                    toast_text = blacklist_res.body.message;
+                }
+            }
+            catch (err) {
+                message.innerHTML = "Error is  " + err;
+            }   
         }
     }
 
@@ -1355,9 +1398,10 @@ async function child_select_fun(){
     // return arr
     // }
     async function save_document(){
+        let new_doc_type_name
         
         let e = document.getElementById("selected_doc_type");
-        console.log("document.getElementById",e.selectedIndex)
+       
         if(!e.selectedIndex || e.selectedIndex == "-1"){
             toast_type = "error"
             toast_text = "Please Select DocType"
@@ -1365,9 +1409,15 @@ async function child_select_fun(){
         }
         var selected_doc_type_name = e.options[e.selectedIndex].text;
         
-        if(!selected_document_type || selected_document_type =="-1"){
+        for (let i = 0; i < doc_type_name.length; i++) {
+            if(selected_doc_type_name == doc_type_name[i].doc_value){
+                new_doc_type_name  = doc_type_name[i].doc_name
+            }
+            
+        }
+        if(!selected_doc_type_name || selected_doc_type_name =="-1"){
             toast_type = "error"
-            toast_text = "Please Select DocType"
+            toast_text = "Please Select DocType 1"
             return
         }
         else if(!document_url){
@@ -1383,12 +1433,12 @@ async function child_select_fun(){
         "resource_id":$facility_id.facility_id_number,
         "user_id":username,
         "doc_number":"",
-        "doc_type":selected_document_type,
+        "doc_type":new_doc_type_name,
         "facility_id":$facility_data_store.facility_id,
         "remarks":document_desc,
         "pod":document_url}]}
+        console.log("new_doc_payload",new_doc_payload)
         let save_doc_res = await uploadDocs(new_doc_payload);
-        console.log("save_doc_res",save_doc_res)
         try {
             if(save_doc_res.body.status == "green"){
                 
@@ -1789,885 +1839,6 @@ async function child_select_fun(){
     
     
 
-    <div class="fullsection w-widthforWorkDetailSection hidden">
-            <div class="WorkDetailSection bg-white rounded-lg mb-5">
-                <div class="detailsHeader xsl:flex-wrap ">
-                    <div class="left">
-                        <p class="detailsTitle">Work Details</p>
-                        <p class="detailsUpdate">
-                            <span><span class="font-medium">Last updated -> </span> {facility_modified_date} <span
-                                    class="font-medium"> By -> </span> {$facility_data_store.modified_by}</span>
-                        </p>
-                    </div>
-                    <div class="right flex">
-                        <div class="AddRemoveTagsSection">
-                            <p class="flex items-center smButtonText pr-3">
-                                <a class="smButton" id="addRemoveTages">
-                                    Add/Remove Tags
-                                </a>
-                            </p>
-
-                            <!-- Add Remove Tag Modal -->
-
-
-                            <div class="hidden" id="addRemoveModal">
-                                <div class="ChangeAssociateTypeWrapper">
-                                    <div class="changeAssoMain ">
-                                        <div class=" w-full bg-white rounded shadow-2xl">
-                                            <div class="relative  rounded-t ">
-                                                <svg class="absolute top-36 transform rotate-90 -right-6 -mt-5 block md:hidden xs:hidden"
-                                                    xmlns="http://www.w3.org/2000/svg" width="26" height="23"
-                                                    viewBox="0 0 26 23" fill="none">
-                                                    <path id="Polygon 2" d="M13 0L25.9904 22.5H0.00961876L13 0Z"
-                                                        fill="#ffffff" stroke='#E7E7E7' />
-                                                </svg>
-                                            </div>
-                                            <div class="w-full h-full  pb-5 ">
-                                                <div
-                                                    class="bg-black px-4 flex py-4 justify-between rounded-t-md rounded-tr-md">
-                                                    <div class="leftHeadingpopover text-white">
-                                                        <p>Add / Remove Tags</p>
-                                                    </div>
-                                                    <div class="rightcloseIconBlack">
-                                                        <img src="{$img_url_name.img_name}/closewhite.svg"
-                                                            class="cursor-pointer" id="closeAddRemove" alt="">
-                                                    </div>
-                                                </div>
-                                                <div class="tabwrapper flex justify-between text-center">
-                                                    <div class="changetype py-3 w-2/4	">
-                                                        <p>Add Tags</p>
-                                                    </div>
-                                                    <div class="Historytab py-3 w-2/4	 bg-bglightgreye">
-                                                        <p>Tag Audit Trail</p>
-                                                    </div>
-                                                </div>
-
-                                                <div class="changetypeSection ">
-
-
-
-                                                    <div class="flex px-2 pt-3 items-center xs:flex-wrap">
-                                                        <div class="light14grey">Select Tag</div>
-                                                        <div class="formInnerGroup ">
-                                                            <select class="inputboxpopover">
-                                                                <option class="pt-6">Select</option>
-                                                                <option>ICICI</option>
-                                                                <option>Axis</option>
-                                                                <option>SIB</option>
-                                                            </select>
-                                                            <div class="formSelectArrow ">
-                                                                <img src="{$img_url_name.img_name}/selectarrow.png"
-                                                                    class="w-5 h-auto" alt="">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="flex px-2 py-3 items-center xs:flex-wrap">
-                                                        <div class="light14grey">Remove On</div>
-                                                        <div class="formInnerGroup ">
-                                                            <input type="date" class="inputboxpopoverdate"
-                                                                placeholder=" ">
-                                                            <p
-                                                                class="text-grey whitespace-nowrap text-xs px-1 mt-1">
-                                                                Note: Use only if required</p>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="flex px-2 py-0 items-center xs:flex-wrap">
-                                                        <div class="light14grey w-36">Remarks</div>
-                                                        <div class="formInnerGroup">
-                                                            <input class="inputboxpopover" type="text">
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="flex px-3 justify-between mt-4">
-                                                        <div class="light14grey w-36"></div>
-                                                        <button class="saveandproceed">Add</button>
-                                                    </div>
-
-                                                    <div class="OtherAppliedTagsTable px-3">
-                                                        <p class="text-lg text-blackshade font-medium">Other
-                                                            Applied Tags</p>
-                                                        <table
-                                                            class="table  w-full text-center mt-2 xs:hidden sm:hidden">
-                                                            <thead class="theadpopover">
-                                                                <tr>
-                                                                    <th>Tag</th>
-                                                                    <th>Remarks</th>
-                                                                    <th>Added by</th>
-                                                                    <th>Added On</th>
-                                                                    <th>Auto Removal On</th>
-                                                                    <th>Remove</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody class="tbodypopover">
-                                                                <tr class="border-b">
-                                                                    <td>Addhoc Facility</td>
-                                                                    <td>No Remarks</td>
-                                                                    <td>User name</td>
-                                                                    <td>10-09-2020</td>
-                                                                    <td>No date</td>
-                                                                    <td>
-                                                                        <div class="flex justify-center">
-                                                                            <img src="{$img_url_name.img_name}/reject.png"
-                                                                                alt="">
-                                                                        </div>
-                                                                    </td>
-                                                                </tr>
-                                                                <tr class="border-b">
-                                                                    <td>Addhoc Facility</td>
-                                                                    <td>No Remarks</td>
-                                                                    <td>User name</td>
-                                                                    <td>10-09-2020</td>
-                                                                    <td>No date</td>
-                                                                    <td>
-                                                                        <div class="flex justify-center">
-                                                                            <img src="{$img_url_name.img_name}/reject.png"
-                                                                                alt="">
-                                                                        </div>
-                                                                    </td>
-                                                                </tr>
-
-
-                                                            </tbody>
-                                                        </table>
-                                                        
-                                                        <div
-                                                            class="associateCard  border p-p7px  rounded-md hidden xs:block sm:block">
-
-                                                            <div class="flex px-4 py-1 items-center">
-                                                                <div class="light14grey">Tag</div>
-                                                                <div class="dataValue">Addhoc Facility </div>
-                                                            </div>
-                                                            <div class="flex px-4 py-1 items-center">
-                                                                <div class="light14grey">Remarks </div>
-                                                                <div class="dataValue">No Remarks </div>
-                                                            </div>
-                                                            <div class="flex px-4 py-1 items-center">
-                                                                <div class="light14grey">Added by </div>
-                                                                <div class="dataValue">User name </div>
-                                                            </div>
-                                                            <div class="flex px-4 py-1 items-center">
-                                                                <div class="light14grey">Added On </div>
-                                                                <div class="dataValue">13-Apr-2021 </div>
-                                                            </div>
-                                                            <div class="flex px-4 py-1 items-center">
-                                                                <div class="light14grey">Auto Removal On </div>
-                                                                <div class="dataValue">No date </div>
-                                                            </div>
-                                                            <div class="flex px-4 py-1 items-center">
-                                                                <div class="light14grey">Remove</div>
-                                                                <div class="dataValue"> <img
-                                                                        src="{$img_url_name.img_name}/reject.png" alt="">
-                                                                </div>
-                                                            </div>
-
-
-                                                        </div>
-                                                    </div>
-
-
-                                                </div>
-
-                                                <div class="changeAssociateSection mx-3 hidden">
-                                                    <table class="table  mt-2 w-full xs:hidden sm:hidden">
-                                                        <thead class="theadpopover">
-                                                            <tr>
-                                                                <th>Tag</th>
-                                                                <th>Date</th>
-                                                                <th>Given by</th>
-                                                                <th>Status</th>
-
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody class="tbodypopover">
-                                                            <tr class="border-b">
-                                                                <td>Addhoc Facility</td>
-                                                                <td>10-09-2020</td>
-                                                                <td>User name</td>
-                                                                <td>Active</td>
-
-                                                            </tr>
-                                                            <tr class="border-b">
-                                                                <td>Addhoc Facility</td>
-                                                                <td>10-09-2020</td>
-                                                                <td>User name</td>
-                                                                <td>Active</td>
-                                                            </tr>
-
-                                                        </tbody>
-                                                    </table>
-                                                    ​
-                                                    <div
-                                                        class="associateCard  border p-p7px rounded-md hidden xs:block sm:block">
-
-                                                        <div class="flex px-4 py-1 items-center">
-                                                            <div class="light14grey">Tag</div>
-                                                            <div class="dataValue">Addhoc Facility </div>
-                                                        </div>
-                                                        <div class="flex px-4 py-1 items-center">
-                                                            <div class="light14grey">Date</div>
-                                                            <div class="dataValue">10-09-2020 </div>
-                                                        </div>
-                                                        <div class="flex px-4 py-1 items-center">
-                                                            <div class="light14grey"> Given by</div>
-                                                            <div class="dataValue">User name</div>
-                                                        </div>
-                                                        <div class="flex px-4 py-1 items-center">
-                                                            <div class="light14grey">Status</div>
-                                                            <div class="dataValue">Active</div>
-                                                        </div>
-
-                                                    </div>
-
-                                                    <div
-                                                        class="associateCard  border p-p7px  rounded-md hidden xs:block sm:block">
-
-                                                        <div class="flex px-4 py-1 items-center">
-                                                            <div class="light14grey">Tag</div>
-                                                            <div class="dataValue">Addhoc Facility </div>
-                                                        </div>
-                                                        <div class="flex px-4 py-1 items-center">
-                                                            <div class="light14grey">Date</div>
-                                                            <div class="dataValue">10-09-2020 </div>
-                                                        </div>
-                                                        <div class="flex px-4 py-1 items-center">
-                                                            <div class="light14grey"> Given by</div>
-                                                            <div class="dataValue">User name</div>
-                                                        </div>
-                                                        <div class="flex px-4 py-1 items-center">
-                                                            <div class="light14grey">Status</div>
-                                                            <div class="dataValue">Active</div>
-                                                        </div>
-
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <p class="flex items-center smButtonText pr-3">
-                            <a href="" class="smButton">
-                                Work Contract
-                            </a>
-                        </p>
-                        <a href="" class="smButton">
-                            <img src="{$img_url_name.img_name}/edit.png" alt="">
-                        </a>
-                    </div>
-
-                </div>
-                <div class="detailsrow ">
-                    <div class="workDetailSection w-full">
-                        <div class="userInfoSec3">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/Subtract.png" alt="" class="w-5 h-auto">
-                                <div class="pl-4">
-                                    <p class="detailLbale">Associate Type</p>
-                                    <p class="detailData">NDA</p>
-                                </div>
-                            </div>
-                            <div class="userStatus ">
-
-                                <p class="flex items-center smButtonText">
-                                    <a class="smButton" id="changeAssociate">
-                                        Change
-                                    </a>
-                                </p>
-
-                                <!-- associate Modal -->
-
-                                <div class="hidden" id="associateModal">
-                                    <div class="ChangeAssociateTypeWrapper">
-                                        <div class="changeAssoMain ">
-                                            <div class=" w-full bg-white rounded shadow-2xl">
-                                                <div class="relative  rounded-t ">
-                                                    <svg class="absolute top-36 transform rotate-90 -right-6 -mt-5 block md:hidden xs:hidden"
-                                                        xmlns="http://www.w3.org/2000/svg" width="26"
-                                                        height="23" viewBox="0 0 26 23" fill="none">
-                                                        <path id="Polygon 2"
-                                                            d="M13 0L25.9904 22.5H0.00961876L13 0Z"
-                                                            fill="#ffffff" stroke='#E7E7E7' />
-                                                    </svg>
-                                                </div>
-                                                <div class="w-full h-full  pb-5 ">
-                                                    <div
-                                                        class="bg-black px-4 flex py-4 justify-between rounded-t-md rounded-tr-md">
-                                                        <div class="leftHeadingpopover text-white">
-                                                            <p>Change Associate Type</p>
-                                                        </div>
-                                                        <div class="rightcloseIconBlack">
-                                                            <img src="{$img_url_name.img_name}/closewhite.svg"
-                                                                class="cursor-pointer" id="closeAssociate"
-                                                                alt="">
-                                                        </div>
-                                                    </div>
-                                                    <div class="tabwrapper flex justify-between text-center">
-                                                        <div class="changetype py-4 w-2/4	">
-                                                            <p>Change Type</p>
-                                                        </div>
-                                                        <div class="Historytab py-4 w-2/4	 bg-bglightgreye">
-                                                            <p>History</p>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="changetypeSection ">
-
-                                                        <div
-                                                            class="flex px-4 pt-4 items-center gap-10 xs:gap-4 xs:flex-wrap">
-                                                            <div class="flex items-center">
-                                                                <div class="light14greylable">Current Type</div>
-                                                                <div class="dataValue">NDA </div>
-                                                            </div>
-                                                            <div class="flex items-center">
-                                                                <div class="light14greylable">Pravesh ID</div>
-                                                                <div class="dataValue">EFVS00072</div>
-                                                            </div>
-
-                                                        </div>
-
-                                                        <div class="flex px-4 py-3 items-center xs:flex-wrap">
-                                                            <div class="light14grey">New Type</div>
-                                                            <div class="formInnerGroup ">
-                                                                <select class="inputboxpopover">
-                                                                    <option class="pt-6">Select</option>
-                                                                    <option>ICICI</option>
-                                                                    <option>Axis</option>
-                                                                    <option>SIB</option>
-                                                                </select>
-                                                                <div class="formSelectArrow ">
-                                                                    <img src="{$img_url_name.img_name}/selectarrow.png"
-                                                                        class="w-5 h-auto" alt="">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="flex px-4 py-0 items-center xs:flex-wrap">
-                                                            <div class="light14grey">Type of Attendance</div>
-                                                            <div class="formInnerGroup">
-                                                                <select class="inputboxpopover">
-                                                                    <option class="pt-6">Select</option>
-                                                                    <option>ICICI</option>
-                                                                    <option>Axis</option>
-                                                                    <option>SIB</option>
-                                                                </select>
-                                                                <div class="formSelectArrow ">
-                                                                    <img src="{$img_url_name.img_name}/selectarrow.png"
-                                                                        class="w-5 h-auto" alt="">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="flex px-4 py-3 items-center xs:flex-wrap">
-                                                            <div class="light14grey">From Date</div>
-                                                            <div class="formInnerGroup ">
-                                                                <input type="date" class="inputboxpopoverdate"
-                                                                    placeholder=" ">
-                                                            </div>
-                                                        </div>
-                                                        <div class="flex px-4 py-0 items-center xs:flex-wrap">
-                                                            <div class="light14grey w-36">To Date</div>
-                                                            <div class="formInnerGroup">
-                                                                <input type="date" class="inputboxpopoverdate">
-                                                                <p
-                                                                    class="light14grey whitespace-nowrap text-xs px-1">
-                                                                    Leave empty if no end date</p>
-                                                            </div>
-
-                                                        </div>
-                                                        <div class="flex px-4 py-3 items-center xs:flex-wrap">
-                                                            <div class="light14grey w-36">Remarks</div>
-                                                            <div class="formInnerGroup">
-                                                                <input class="inputboxpopover" type="text">
-                                                            </div>
-                                                        </div>
-                                                        <div class="flex px-9 justify-between">
-                                                            <div class="light14grey w-36"></div>
-                                                            <button class="saveandproceed">Submit</button>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="changeAssociateSection hidden">
-                                                        <table class="table mx-3 mt-2 xs:hidden sm:hidden">
-                                                            <thead class="theadpopover">
-                                                                <tr>
-                                                                    <th>Associate Type</th>
-                                                                    <th>Type of Attendance</th>
-                                                                    <th>Effective From</th>
-                                                                    <th>Effective Till</th>
-                                                                    <th>Requested On</th>
-                                                                    <th>Requested By</th>
-                                                                    <th>Remarks</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody class="tbodypopover">
-                                                                <tr class="border-b">
-                                                                    <td>NDA</td>
-                                                                    <td>HDA</td>
-                                                                    <td>11-06-2020</td>
-                                                                    <td>10-09-2020</td>
-                                                                    <td>10-06-2020</td>
-                                                                    <td>suraj.takale@el...</td>
-                                                                    <td>OK</td>
-                                                                </tr>
-                                                                <tr class="border-b">
-                                                                    <td>NDA</td>
-                                                                    <td>HDA</td>
-                                                                    <td>11-06-2020</td>
-                                                                    <td>10-09-2020</td>
-                                                                    <td>10-06-2020</td>
-                                                                    <td>suraj.takale@el...</td>
-                                                                    <td>OK</td>
-                                                                </tr>
-
-                                                            </tbody>
-                                                        </table>
-                                                        ​
-                                                        <div
-                                                            class="associateCard  border p-p7px m-2.5 rounded-md hidden xs:block sm:block">
-
-                                                            <div class="flex px-4 py-1 items-center">
-                                                                <div class="light14grey">Associate Type</div>
-                                                                <div class="dataValue">NDA </div>
-                                                            </div>
-                                                            <div class="flex px-4 py-1 items-center">
-                                                                <div class="light14grey">Type for Attendance
-                                                                </div>
-                                                                <div class="dataValue">NDA </div>
-                                                            </div>
-                                                            <div class="flex px-4 py-1 items-center">
-                                                                <div class="light14grey">Efffective From</div>
-                                                                <div class="dataValue">11-Jun-2020 </div>
-                                                            </div>
-                                                            <div class="flex px-4 py-1 items-center">
-                                                                <div class="light14grey">Effective Till</div>
-                                                                <div class="dataValue">13-Apr-2021 </div>
-                                                            </div>
-                                                            <div class="flex px-4 py-1 items-center">
-                                                                <div class="light14grey">Requested on </div>
-                                                                <div class="dataValue">14-Apr-2021</div>
-                                                            </div>
-                                                            <div class="flex px-4 py-1 items-center">
-                                                                <div class="light14grey">Requested by </div>
-                                                                <div class="dataValue">suraj.takale@elasti...
-                                                                </div>
-                                                            </div>
-                                                            <div class="flex px-4 py-1 items-center">
-                                                                <div class="light14grey">Remarks</div>
-                                                                <div class="dataValue">Ok </div>
-                                                            </div>
-                                                            <!-- <div class="flex px-4 py-1 items-center">
-                                                                <div class="light14grey">Status</div>
-                                                                <div class="dataValue">Completed </div>
-                                                            </div> -->
-                                                        </div>
-                                                    </div>
-
-                                                </div>
-
-
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-
-                            </div>
-                        </div>
-                        <div class="userInfoSec3 ">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/pan.png" alt="" class="w-5 h-5">
-                                <div class="pl-4">
-                                    <p class="detailLbale">Associate ID</p>
-                                    <p class="detailData">BOMG00538</p>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="userInfoSec3">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/organization.png" alt="" class="w-5 h-5">
-                                <div class="pl-4">
-                                    <p class="detailLbale">Organization</p>
-                                    <p class="detailData">Amazon Transportation</p>
-                                </div>
-                            </div>
-                            <div class="userStatus ">
-                                <p class="flex items-center smButtonText">
-                                    <a href="" class="smButton">
-                                        Add/Edit
-                                    </a>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="userInfoSecPadding">
-                            <div class="wrapperInfoFirst">
-                                <div class="flex items-start">
-                                    <img src="{$img_url_name.img_name}/offerlatter.png" alt="" class="w-5 h-5">
-                                    <div class="pl-4">
-                                        <p class="detailLbale">Offer Letter</p>
-                                    </div>
-                                </div>
-                                <div class="userStatus ">
-                                    <p class="verifyText"><img src="{$img_url_name.img_name}/timer.png" alt="" class="pr-1">
-                                        Verification Pending</p>
-                                </div>
-
-                            </div>
-                            <div class="wrapperInfo ">
-                                <div class="flex items-start">
-                                    <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
-                                    <div class="pl-4 flex items-center">
-                                        <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
-
-                                        <p class="detailLbale">{new_off_file_obj.offer_name}</p>
-                                    </div>
-                                </div>
-                                <div class="userStatus ">
-                                    <p class="verifyText">
-                                        <a href="" class="smButton">
-                                            <img src="{$img_url_name.img_name}/view.png" alt="">
-                                        </a>
-                                    </p>
-                                </div>
-
-                            </div>
-
-
-                        </div>
-                    </div>
-                    <div class="workDetailSection w-full">
-                        <div class="userInfoSec3 ">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/location.png" class="w-6 h-6" alt="">
-                                <div class="pl-4">
-                                    <p class="detailLbale">City</p>
-                                    <p class="detailData">Pune</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="userInfoSec3 ">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/warehouse.png" class="w-5 h-5" alt="">
-                                <div class="pl-4">
-                                    <p class="detailLbale">Station</p>
-                                    <p class="detailData">MHPD - Mulsi SP</p>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="userInfoSec3 ">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/managerVendor.png" class="w-5 h-5" alt="">
-                                <div class="pl-4">
-                                    <p class="detailLbale">Vendor</p>
-                                    <p class="detailData">Vitthal Sutar - MHPD00012</p>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="WorkDetailSection bg-white rounded-br5 mb-5">
-                <div class="detailsHeader xsl:flex-wrap">
-                    <div class="left">
-                        <p class="detailsTitle">Identity Proof</p>
-                        <p class="detailsUpdate">
-                            <span><span class="font-medium">Last updated -> </span> {id_new_date} <span
-                                    class="font-medium"> By -> </span> {$facility_data_store.details_updated_by} </span>
-                        </p>
-                    </div>
-                    <div class="right flex">
-                        <p class="rejectText pr-3"><img src="{$img_url_name.img_name}/reject.png" alt="" class="pr-2"> Reject
-                        </p>
-                        <div class="hidden">
-                            <p class="verifiedTextGreen pr-3"><img src="{$img_url_name.img_name}/checked.png" alt=""
-                                    class="pr-1">
-                                Verified</p>
-                        </div>
-                        <div class="hidden">
-                            <p class="verifyText pr-3"><img src="{$img_url_name.img_name}/timer.png" alt="" class="pr-2">
-                                Verification Pending</p>
-                        </div>
-                        <a href="" class="smButton">
-                            <img src="{$img_url_name.img_name}/edit.png" alt="">
-                        </a>
-                    </div>
-
-                </div>
-                <div class="userInfoSecPadding ">
-                    <div class="innercardSection">
-                        <div class="remark">
-                            <p class="text-base text-greycolor font-medium mb-2">Remarks</p>
-                            <ul class="text-sm text-greycolor list-disc	ml-m15">
-                                <li>Pancard number mismatch</li>
-                                <li>Voter ID not clear</li>
-                            </ul>
-                        </div>
-                        <div class="requiredaction">
-                            <p class="text-base text-redRequired font-medium mb-2">Required Action</p>
-                            <ul class="text-sm text-greycolor list-disc ml-m15	">
-                                <li>Update correct pan number
-                                </li>
-                                <li>Re-submit voter ID</li>
-                            </ul>
-                        </div>
-                        <div class="updateAction xs:w-full">
-                            <button class="ErBlueButton">Update</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="detailsrow">
-                    <div class="workDetailSection w-full">
-                        <div class="userInfoSecPadding">
-
-                            <div class="wrapperInfoFirst">
-                                <div class="flex items-start">
-                                    <img src="{$img_url_name.img_name}/pan.png" alt="">
-                                    <div class="pl-4">
-                                        <p class="detailLbale">PAN Number</p>
-                                        <p class="detailData">{pancard_obj.pan_num}</p>
-
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="attachment mt-5">
-                                <div class="flex items-start">
-                                    <img src="{$img_url_name.img_name}/pan.png" class="invisible" alt="">
-                                    <div class="pl-4 flex items-center">
-                                        <p class="detailLbale">PAN Card Attachment</p>
-
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="wrapperInfo ">
-                                <div class="flex items-start">
-                                    <img src="{$img_url_name.img_name}/pan.png" class="invisible" alt="">
-                                    <div class="pl-4 flex items-center">
-                                        <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
-
-                                        <p class="detailLbale">{pancard_obj.pan_name}</p>
-                                    </div>
-                                </div>
-                                <div class="userStatus ">
-                                    <p class="verifyText">
-                                        <a href="" class="smButton">
-                                            <img src="{$img_url_name.img_name}/view.png" alt="">
-                                        </a>
-                                    </p>
-                                </div>
-
-                            </div>
-
-
-                        </div>
-                        <div class="userInfoSec3 ">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/pan.png" alt="">
-                                <div class="pl-4">
-                                    <p class="detailLbale">Driving License</p>
-                                    <p class="detailData">Not Submitted</p>
-                                </div>
-                            </div>
-
-                        </div>
-
-                    </div>
-                    <div class="workDetailSection w-full">
-                        <div class="userInfoSecPadding">
-
-                            <div class="wrapperInfoFirst">
-                                <div class="flex items-start">
-                                    <img src="{$img_url_name.img_name}/pan.png" alt="">
-                                    <div class="pl-4">
-                                        <p class="detailLbale">Aadhar Number</p>
-                                        <p class="detailData">9714 1358 8022</p>
-
-                                    </div>
-                                </div>
-
-                            </div>
-                            <div class="attachment mt-5">
-                                <div class="flex items-start">
-                                    <img src="{$img_url_name.img_name}/pan.png" class="invisible" alt="">
-                                    <div class="pl-4 flex items-center">
-                                        <p class="detailLbale">Aadhar Card Attachment</p>
-
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="wrapperInfo ">
-                                <div class="flex items-start">
-                                    <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
-                                    <div class="pl-4 flex items-center">
-                                        <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
-
-                                        <p class="detailLbale">aadhar-card-copy.jpeg</p>
-                                    </div>
-                                </div>
-                                <div class="userStatus ">
-                                    <p class="verifyText">
-                                        <a href="" class="smButton">
-                                            <img src="{$img_url_name.img_name}/view.png" alt="">
-                                        </a>
-                                    </p>
-                                </div>
-
-                            </div>
-
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="WorkDetailSection bg-white rounded-lg">
-                <div class="detailsHeader  xsl:flex-wrap">
-                    <div class="left">
-                        <p class="detailsTitle">Bank Details
-                        </p>
-                        <p class="detailsUpdate">
-                            <span><span class="font-medium text-greycolor"> Last updated -> </span> {bank_new_date}
-                            <span class="font-medium text-greycolor"> By -> </span> {bank_values_from_store.modified_by} </span>
-                        </p>
-                    </div>
-                    <div class="right flex">
-                        <!-- <p class="verifyText pr-3"><img src="{$img_url_name.img_name}/timer.png" alt="" class="pr-1">
-                            Verification Pending</p> -->
-                            
-                        <a href="" class="smButton">
-                            <img src="{$img_url_name.img_name}/edit.png" alt="">
-                        </a>
-                    </div>
-
-                </div>
-
-                <div class="userInfoSecPadding ">
-                    <div class="innercardSection">
-                        <div class="remark">
-                            <p class="text-base text-greycolor font-medium mb-2">Remarks</p>
-                            <ul class="text-sm text-greycolor list-disc	ml-m15">
-                                <li>IFSC Code missing/not clear on document</li>
-                            </ul>
-                        </div>
-                        <div class="requiredaction">
-                            <p class="text-base text-redRequired font-medium mb-2">Required Action</p>
-                            <ul class="text-sm text-greycolor list-disc ml-m15	">
-                                <li>Resubmit bank documents
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="updateAction xs:w-full">
-                            <button class="ErBlueButton">Update</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="detailsrow">
-                    <div class="workDetailSection w-full">
-                        <div class="userInfoSec3 ">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/bank.png" alt="">
-                                <div class="pl-4">
-                                    <p class="detailLbale">Bank Name</p>
-                                    <p class="detailData">{bank_values_from_store.bank_name}</p>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="userInfoSec3 ">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/account.png" alt="">
-                                <div class="pl-4">
-                                    <p class="detailLbale">Account Number</p>
-                                    <p class="detailData">{bank_values_from_store.account_number}</p>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="userInfoSec3 ">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/account.png" alt="">
-                                <div class="pl-4">
-                                    <p class="detailLbale">IFSC Code</p>
-                                    <p class="detailData">{bank_values_from_store.ifsc_code}</p>
-                                </div>
-                            </div>
-
-                        </div>
-
-                    </div>
-                    <div class="workDetailSection w-full">
-                        <div class="userInfoSec3 ">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/pincode.png" alt="">
-                                <div class="pl-4">
-                                    <p class="detailLbale">Branch</p>
-                                    <p class="detailData">{bank_values_from_store.branch_name} - {bank_values_from_store.branch_pin_code}</p>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="userInfoSecPadding">
-
-                            <div class="wrapperInfoFirst">
-                                <div class="flex items-start justify-between">
-                                    <div class="flex">
-                                        <img src="{$img_url_name.img_name}/bankdoc.png" alt="">
-                                        <div class="pl-4">
-                                            <p class="detailLbale">Aadhar Number</p>
-                                        </div>
-                                    </div>
-                                    <div class="pl-4">
-                                        <p class="flex items-center smButtonText">
-                                            <a href="" class="smButton">
-                                                Cheque Details
-                                            </a>
-                                        </p>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-                            <div class="attachment mt-5">
-                                <div class="flex items-start">
-                                    <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
-                                    <div class="pl-4 flex items-center">
-                                        <p class="detailLbale">Cancel Cheque Attachment</p>
-
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="wrapperInfo ">
-                                <div class="flex items-start">
-                                    <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
-                                    <div class="pl-4 flex items-center">
-                                        <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
-
-                                        <p class="detailLbale">cancel-cheque-copy.jpeg</p>
-                                    </div>
-                                </div>
-                                <div class="userStatus ">
-                                    <p class="verifyText">
-                                        <a href="" class="smButton">
-                                            <img src="{$img_url_name.img_name}/view.png" alt="">
-                                        </a>
-                                    </p>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-
-        </div>
 
     </div>
 
@@ -2814,7 +1985,7 @@ async function child_select_fun(){
                         <span class="userDesignation"> - Associate- {$facility_data_store.facility_type} - {$facility_data_store.name}</span>
                     </p>
                 </div>
-                <div class="rightmodalclose">
+                <div class="rightmodalclose" on:click="{closeViewModel}">
                     <img src="../src/img/blackclose.svg" alt="">
                 </div>
             </div>
@@ -2839,13 +2010,14 @@ async function child_select_fun(){
                                             <div class="flex  py-3 items-center flex-wrap">
                                                 <div class="light14grey mb-1">Document Type</div>
                                                 <div class="formInnerGroup ">
+                                                    
                                                     <select
                                                         id="selected_doc_type"
-                                                        class="inputboxpopover"
-                                                        bind:value="{selected_document_type}">
+                                                        class="inputboxpopover">
                                                         <option class="pt-6"
-                                                            value = "-1">Select</option
-                                                        >
+                                                            value = "-1">Select</option>
+                                                        {#each doc_type_name as doc_name}
+                                                        <option value="abc">{doc_name.doc_value} </option>
                                                         
                                                         <!-- <option value="work_order_annexure_1">Code of Business Annexure 2 </option>
                                                         <option value="master_service_agreement">Master Service Agreement </option>
@@ -2860,7 +2032,10 @@ async function child_select_fun(){
                                                         <option value="addproof-photo"> Address Proof </option>
                                                         <option value="other">Other </option>
                                                         <option value="newOffFile">3P Variable Associate Agreement </option> -->
+                                                        {/each}
+                                                   
                                                     </select>
+                                                   
                                                     <div class="formSelectArrow ">
                                                         <img src="../src/img/selectarrow.png" class="w-5 h-auto"
                                                             alt="">
@@ -2964,9 +2139,9 @@ async function child_select_fun(){
                                                 </td>
                                                
                                                 <td> 
-                                                    <p class="verifyText justify-center">
+                                                    <p class="verifyText justify-center" >
                                                     <a href="" class="smButton">
-                                                        <img src="../src/img/view.png" alt="">
+                                                        <img src="../src/img/view.png" alt="" on:click={openViewModel("new_doc",new_doc_data.doc_category)}>
                                                     </a>
                                                 </p>
                                             </td>
@@ -3068,1278 +2243,6 @@ async function child_select_fun(){
     </div>
 </div>
 
-<!--  Work Contract Details modal -->
-<!-- <div class="hidden" id="workContractModel">
-    <div class="viewDocmodal ">
-        <div class="absolute bg-black opacity-80 inset-0 z-0" />
-        <div class="allDocmodalsuccessbody rounded-lg">
-            <div class="">
-                <div class="viewDocPanmainbodyModal">
-                    <div class="flex justify-between mb-3">
-                        <div class="leftmodalInfo">
-                            <p class="text-lg text-erBlue font-medium  ">
-                                <span class=""> Work Contract Details</span>
-                            </p>
-                            <p class="text-sm ">
-                                <span class="font-medium text-lg">
-                                    Dhiraj Shah</span
-                                >
-                                <span class="userDesignation">
-                                    - Associate- {$facility_data_store.facility_type}, MHPD - Mulsi
-                                    SP</span
-                                >
-                            </p>
-                        </div>
-                        <div
-                            class="rightmodalclose"
-                            on:click={closeWorkContract}
-                        >
-                            <img src="{$img_url_name.img_name}/blackclose.svg" alt="" />
-                        </div>
-                    </div>
-                    <div class="innermodal">
-                        <hr />
-                        <div
-                            class="tabwrapper flex justify-between text-center py-2"
-                        >
-                            <div
-                                class="changetype py-3 w-2/4	"
-                                on:click={() => {
-                                    temp3 = "e-contracts";
-                                }}
-                            >
-                                <p>E-Contracts</p>
-                            </div>
-                            <div
-                                class="Historytab py-3 w-2/4	 bg-bglightgreye"
-                                on:click={() => {temp3 = "p-contracts";}}
-                            >
-                                <p>Physical Contracts</p>
-                            </div>
-                        </div>
-
-                        {#if temp3 == "e-contracts"}
-                            <div class="scrollbar ">
-                                <div
-                                    class="OtherAppliedTagsTable px-3 overflow-y-scroll"
-                                >
-                                    <table
-                                        class="table  w-full text-center mt-2 "
-                                    >
-                                        <thead class="theadpopover h-10">
-                                            <tr>
-                                                <th>Contract Name</th>
-                                                <th>Contract Type</th>
-                                                <th>
-                                                    <div class="flex">
-                                                        Accepted ? <img
-                                                            src="{$img_url_name.img_name}/arrowupdown.svg"
-                                                            class="ml-2"
-                                                            alt=""
-                                                        />
-                                                    </div></th
-                                                >
-                                                <th>Accepted On</th>
-                                                <th>Is Mandatory ?</th>
-                                                <th>View</th>
-                                                <th>Print/Save</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="tbodypopover">
-                                            <tr class="border-b">
-                                                <td
-                                                    >Background Verification
-                                                    Concent</td
-                                                >
-                                                <td>Concent</td>
-                                                <td
-                                                    ><span class="text-green"
-                                                        >Yes</span
-                                                    >
-                                                </td>
-                                                <td>10-06-2020</td>
-                                                <td>Yes</td>
-                                                <td>
-                                                    <p
-                                                        class="flex justify-center"
-                                                    >
-                                                        <a
-                                                            href=""
-                                                            class="smButton"
-                                                        >
-                                                            <img
-                                                                src="{$img_url_name.img_name}/view.png"
-                                                                alt=""
-                                                            />
-                                                        </a>
-                                                    </p>
-                                                </td>
-                                                <td>
-                                                    <p
-                                                        class="flex justify-center"
-                                                    >
-                                                        <a
-                                                            href=""
-                                                            class="smButton"
-                                                        >
-                                                            <img
-                                                                src="{$img_url_name.img_name}/printer.svg"
-                                                                alt=""
-                                                            />
-                                                        </a>
-                                                    </p>
-                                                </td>
-                                            </tr>
-                                            <tr class="border-b">
-                                                <td
-                                                    >Background Verification
-                                                    Concent</td
-                                                >
-                                                <td>Concent</td>
-                                                <td
-                                                    ><span class="text-red-700"
-                                                        >No</span
-                                                    >
-                                                </td>
-                                                <td>10-06-2020</td>
-                                                <td>Yes</td>
-                                                <td>
-                                                    <p
-                                                        class="flex justify-center"
-                                                    >
-                                                        <a
-                                                            href=""
-                                                            class="smButton"
-                                                        >
-                                                            <img
-                                                                src="{$img_url_name.img_name}/view.png"
-                                                                alt=""
-                                                            />
-                                                        </a>
-                                                    </p>
-                                                </td>
-                                                <td>
-                                                    <p
-                                                        class="flex justify-center"
-                                                    >
-                                                        <a
-                                                            href=""
-                                                            class="smButton"
-                                                        >
-                                                            <img
-                                                                src="{$img_url_name.img_name}/printer.svg"
-                                                                alt=""
-                                                            />
-                                                        </a>
-                                                    </p>
-                                                </td>
-                                            </tr>
-                                            <tr class="border-b">
-                                                <td
-                                                    >Background Verification
-                                                    Concent</td
-                                                >
-                                                <td>Concent</td>
-                                                <td
-                                                    ><span class="text-green"
-                                                        >Yes</span
-                                                    >
-                                                </td>
-                                                <td>10-06-2020</td>
-                                                <td>Yes</td>
-                                                <td>
-                                                    <p
-                                                        class="flex justify-center"
-                                                    >
-                                                        <a
-                                                            href=""
-                                                            class="smButton"
-                                                        >
-                                                            <img
-                                                                src="{$img_url_name.img_name}/view.png"
-                                                                alt=""
-                                                            />
-                                                        </a>
-                                                    </p>
-                                                </td>
-                                                <td>
-                                                    <p
-                                                        class="flex justify-center"
-                                                    >
-                                                        <a
-                                                            href=""
-                                                            class="smButton"
-                                                        >
-                                                            <img
-                                                                src="{$img_url_name.img_name}/printer.svg"
-                                                                alt=""
-                                                            />
-                                                        </a>
-                                                    </p>
-                                                </td>
-                                            </tr>
-                                            <tr class="border-b">
-                                                <td
-                                                    >Background Verification
-                                                    Concent</td
-                                                >
-                                                <td>Concent</td>
-                                                <td
-                                                    ><span class="text-green"
-                                                        >Yes</span
-                                                    >
-                                                </td>
-                                                <td>10-06-2020</td>
-                                                <td>Yes</td>
-                                                <td>
-                                                    <p
-                                                        class="flex justify-center"
-                                                    >
-                                                        <a
-                                                            href=""
-                                                            class="smButton"
-                                                        >
-                                                            <img
-                                                                src="{$img_url_name.img_name}/view.png"
-                                                                alt=""
-                                                            />
-                                                        </a>
-                                                    </p>
-                                                </td>
-                                                <td>
-                                                    <p
-                                                        class="flex justify-center"
-                                                    >
-                                                        <a
-                                                            href=""
-                                                            class="smButton"
-                                                        >
-                                                            <img
-                                                                src="{$img_url_name.img_name}/printer.svg"
-                                                                alt=""
-                                                            />
-                                                        </a>
-                                                    </p>
-                                                </td>
-                                            </tr>
-                                            <tr class="border-b">
-                                                <td
-                                                    >Background Verification
-                                                    Concent</td
-                                                >
-                                                <td>Concent</td>
-                                                <td
-                                                    ><span class="text-green"
-                                                        >Yes</span
-                                                    >
-                                                </td>
-                                                <td>10-06-2020</td>
-                                                <td>Yes</td>
-                                                <td>
-                                                    <p
-                                                        class="flex justify-center"
-                                                    >
-                                                        <a
-                                                            href=""
-                                                            class="smButton"
-                                                        >
-                                                            <img
-                                                                src="{$img_url_name.img_name}/view.png"
-                                                                alt=""
-                                                            />
-                                                        </a>
-                                                    </p>
-                                                </td>
-                                                <td>
-                                                    <p
-                                                        class="flex justify-center"
-                                                    >
-                                                        <a
-                                                            href=""
-                                                            class="smButton"
-                                                        >
-                                                            <img
-                                                                src="{$img_url_name.img_name}/printer.svg"
-                                                                alt=""
-                                                            />
-                                                        </a>
-                                                    </p>
-                                                </td>
-                                            </tr>
-                                            <tr class="border-b">
-                                                <td
-                                                    >Background Verification
-                                                    Concent</td
-                                                >
-                                                <td>Concent</td>
-                                                <td
-                                                    ><span class="text-green"
-                                                        >Yes</span
-                                                    >
-                                                </td>
-                                                <td>10-06-2020</td>
-                                                <td>Yes</td>
-                                                <td>
-                                                    <p
-                                                        class="flex justify-center"
-                                                    >
-                                                        <a
-                                                            href=""
-                                                            class="smButton"
-                                                        >
-                                                            <img
-                                                                src="{$img_url_name.img_name}/view.png"
-                                                                alt=""
-                                                            />
-                                                        </a>
-                                                    </p>
-                                                </td>
-                                                <td>
-                                                    <p
-                                                        class="flex justify-center"
-                                                    >
-                                                        <a
-                                                            href=""
-                                                            class="smButton"
-                                                        >
-                                                            <img
-                                                                src="{$img_url_name.img_name}/printer.svg"
-                                                                alt=""
-                                                            />
-                                                        </a>
-                                                    </p>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                    <div
-                                        class="associateCard  border p-p7px  rounded-md hidden xs:block sm:block"
-                                    >
-                                        <div
-                                            class="flex px-4 py-1 items-center"
-                                        >
-                                            <div class="light14grey">Tag</div>
-                                            <div class="dataValue">
-                                                Addhoc Facility
-                                            </div>
-                                        </div>
-                                        <div
-                                            class="flex px-4 py-1 items-center"
-                                        >
-                                            <div class="light14grey">
-                                                Remarks
-                                            </div>
-                                            <div class="dataValue">
-                                                No Remarks
-                                            </div>
-                                        </div>
-                                        <div
-                                            class="flex px-4 py-1 items-center"
-                                        >
-                                            <div class="light14grey">
-                                                Added by
-                                            </div>
-                                            <div class="dataValue">
-                                                User name
-                                            </div>
-                                        </div>
-                                        <div
-                                            class="flex px-4 py-1 items-center"
-                                        >
-                                            <div class="light14grey">
-                                                Added On
-                                            </div>
-                                            <div class="dataValue">
-                                                13-Apr-2021
-                                            </div>
-                                        </div>
-                                        <div
-                                            class="flex px-4 py-1 items-center"
-                                        >
-                                            <div class="light14grey">
-                                                Auto Removal On
-                                            </div>
-                                            <div class="dataValue">No date</div>
-                                        </div>
-                                        <div
-                                            class="flex px-4 py-1 items-center"
-                                        >
-                                            <div class="light14grey">
-                                                Remove
-                                            </div>
-                                            <div class="dataValue">
-                                                <img
-                                                    src="{$img_url_name.img_name}/reject.png"
-                                                    alt=""
-                                                    
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        {/if}
-
-                        {#if temp3 == "p-contracts"}
-                            <div class="scrollbar ">
-                                <div class="mainContainerWrapper flex gap-6">
-                                    <div
-                                        class="DocCardlist w-7/12 pr-4 h-h442 overflow-y-scroll"
-                                    >
-                                        <table
-                                            class="table  w-full text-center mt-2 "
-                                        >
-                                            <thead class="theadpopover h-10">
-                                                <tr>
-                                                    <th>Contract Type</th>
-                                                    <th>Starts From</th>
-                                                    <th> Ends On</th>
-                                                    <th>Cost Center</th>
-                                                    <th> View</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="tbodypopover">
-                                                <tr class="border-b">
-                                                    <td
-                                                        >Procurement agreement</td
-                                                    >
-                                                    <td>16-01-2020</td>
-                                                    <td>11-06-2020</td>
-                                                    <td>Mulshi - MHPD - NTEX</td
-                                                    >
-                                                    <td>
-                                                        <p
-                                                            class="flex justify-center"
-                                                        >
-                                                            <a
-                                                                href=""
-                                                                class="smButton"
-                                                            >
-                                                                <img
-                                                                    src="{$img_url_name.img_name}/view.png"
-                                                                    alt=""
-                                                                />
-                                                            </a>
-                                                        </p>
-                                                    </td>
-                                                </tr>
-                                                <tr class="border-b">
-                                                    <td
-                                                        >Procurement agreement</td
-                                                    >
-                                                    <td>16-01-2020</td>
-                                                    <td>11-06-2020</td>
-                                                    <td>Mulshi - MHPD - NTEX</td
-                                                    >
-                                                    <td>
-                                                        <p
-                                                            class="flex justify-center"
-                                                        >
-                                                            <a
-                                                                href=""
-                                                                class="smButton"
-                                                            >
-                                                                <img
-                                                                    src="{$img_url_name.img_name}/view.png"
-                                                                    alt=""
-                                                                />
-                                                            </a>
-                                                        </p>
-                                                    </td>
-                                                </tr>
-                                                <tr class="border-b">
-                                                    <td
-                                                        >Procurement agreement</td
-                                                    >
-                                                    <td>16-01-2020</td>
-                                                    <td>11-06-2020</td>
-                                                    <td>Mulshi - MHPD - NTEX</td
-                                                    >
-                                                    <td>
-                                                        <p
-                                                            class="flex justify-center"
-                                                        >
-                                                            <a
-                                                                href=""
-                                                                class="smButton"
-                                                            >
-                                                                <img
-                                                                    src="{$img_url_name.img_name}/view.png"
-                                                                    alt=""
-                                                                />
-                                                            </a>
-                                                        </p>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                        ​
-                                    </div>
-                                    <div class="addDocumentSection w-5/12  ">
-                                        <div
-                                            class=" bg-lighterGrey rounded-lg h-full"
-                                        >
-                                            {#if temp4 == "p-contracts-1"}
-                                                <div
-                                                    class="addButtonSection my-3 py-3 text-center "
-                                                >
-                                                    <p
-                                                        class="text-lg font-medium text-blackshade mb-3"
-                                                    >
-                                                        Upload New Physical
-                                                        contract here
-                                                    </p>
-                                                    <div class="updateAction">
-                                                        <button
-                                                            class="ErBlueButton"
-                                                            on:click={() => {
-                                                                temp4 =
-                                                                    "p-contracts-2";
-                                                            }}>Upload</button
-                                                        >
-                                                    </div>
-                                                </div>
-                                            {/if}
-                                            {#if temp4 == "p-contracts-2"}
-                                                <div
-                                                    class="addButtonSection mt-3 pt-3 text-center "
-                                                >
-                                                    <p
-                                                        class="text-lg font-medium text-blackshade"
-                                                    >
-                                                        Upload New Physical
-                                                        Contract
-                                                    </p>
-                                                </div>
-                                                <div class="my-0 py-4 px-4 ">
-                                                    <div
-                                                        class="h-80 max-h-80 overflow-y-scroll pr-4 border-b-2"
-                                                    >
-                                                        <div
-                                                            class="flex  py-3 items-center flex-wrap"
-                                                        >
-                                                            <div
-                                                                class="light14grey mb-1"
-                                                            >
-                                                                Select Contract
-                                                                Type
-                                                            </div>
-                                                            <div
-                                                                class="formInnerGroup "
-                                                            >
-                                                                <select
-                                                                    class="inputboxpopover"
-                                                                >
-                                                                    <option
-                                                                        class="pt-6"
-                                                                        >Select</option
-                                                                    >
-                                                                    <option
-                                                                        >ICICI</option
-                                                                    >
-                                                                    <option
-                                                                        >Axis</option
-                                                                    >
-                                                                    <option
-                                                                        >SIB</option
-                                                                    >
-                                                                </select>
-                                                                <div
-                                                                    class="formSelectArrow "
-                                                                >
-                                                                    <img
-                                                                        src="{$img_url_name.img_name}/selectarrow.png"
-                                                                        class="w-5 h-auto"
-                                                                        alt=""
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div
-                                                            class="flex  py-3 items-center flex-wrap"
-                                                        >
-                                                            <div
-                                                                class="light14grey mb-1"
-                                                            >
-                                                                Select
-                                                                Organization
-                                                            </div>
-                                                            <div
-                                                                class="formInnerGroup "
-                                                            >
-                                                                <select
-                                                                    class="inputboxpopover"
-                                                                >
-                                                                    <option
-                                                                        class="pt-6"
-                                                                        >Select</option
-                                                                    >
-                                                                    <option
-                                                                        >ICICI</option
-                                                                    >
-                                                                    <option
-                                                                        >Axis</option
-                                                                    >
-                                                                    <option
-                                                                        >SIB</option
-                                                                    >
-                                                                </select>
-                                                                <div
-                                                                    class="formSelectArrow "
-                                                                >
-                                                                    <img
-                                                                        src="{$img_url_name.img_name}/selectarrow.png"
-                                                                        class="w-5 h-auto"
-                                                                        alt=""
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div
-                                                            class="flex  py-3 items-center flex-wrap"
-                                                        >
-                                                            <div
-                                                                class="light14grey mb-1"
-                                                            >
-                                                                Select Station
-                                                            </div>
-                                                            <div
-                                                                class="formInnerGroup "
-                                                            >
-                                                                <select
-                                                                    class="inputboxpopover"
-                                                                >
-                                                                    <option
-                                                                        class="pt-6"
-                                                                        >Select</option
-                                                                    >
-                                                                    <option
-                                                                        >ICICI</option
-                                                                    >
-                                                                    <option
-                                                                        >Axis</option
-                                                                    >
-                                                                    <option
-                                                                        >SIB</option
-                                                                    >
-                                                                </select>
-                                                                <div
-                                                                    class="formSelectArrow "
-                                                                >
-                                                                    <img
-                                                                        src="{$img_url_name.img_name}/selectarrow.png"
-                                                                        class="w-5 h-auto"
-                                                                        alt=""
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div
-                                                            class="flex py-3 items-center flex-wrap "
-                                                        >
-                                                            <div
-                                                                class="light14grey"
-                                                            >
-                                                                From Date
-                                                            </div>
-                                                            <div
-                                                                class="formInnerGroup "
-                                                            >
-                                                                <input
-                                                                    type="date"
-                                                                    class="inputboxpopoverdate"
-                                                                    placeholder=" "
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                        <div
-                                                            class="flex py-3 items-center flex-wrap "
-                                                        >
-                                                            <div
-                                                                class="light14grey"
-                                                            >
-                                                                End Date
-                                                            </div>
-                                                            <div
-                                                                class="formInnerGroup "
-                                                            >
-                                                                <input
-                                                                    type="date"
-                                                                    class="inputboxpopoverdate"
-                                                                    placeholder=" "
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                        <div
-                                                            class="flex  py-3 items-center flex-wrap"
-                                                        >
-                                                            <div
-                                                                class="light14grey  mb-1"
-                                                            >
-                                                                Upload Document
-                                                            </div>
-                                                            <div
-                                                                class="formInnerGroup"
-                                                            >
-                                                                <label
-                                                                    class="cursor-pointer flex"
-                                                                >
-                                                                    <div
-                                                                        class="ErBlueButton"
-                                                                    >
-                                                                        Select
-                                                                        File
-                                                                    </div>
-                                                                    <input
-                                                                        type="file"
-                                                                        class="hidden"
-                                                                    />
-                                                                </label>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div
-                                                        class="flex items-center justify-end mt-5"
-                                                    >
-                                                        <div
-                                                            class="updateAction text-erBlue cursor-pointer"
-                                                            on:click={() => {
-                                                                temp4 =
-                                                                    "p-contracts-1";
-                                                            }}
-                                                        >
-                                                            Cancel
-                                                        </div>
-                                                        <div
-                                                            class="updateAction ml-5"
-                                                        >
-                                                            <button
-                                                                class="ErBlueButton"
-                                                                >Upload</button
-                                                            >
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            {/if}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        {/if}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div> -->
-
-<!--View/edit client name modal -->
-<!-- 
-<div class="hidden" id="workorganizationModel">
-    <div class=" viewDocmodal  " id="modal-id">
-        <div class="bglightcolormodal" />
-        <div class="allDocmodalsuccessbody rounded-lg">
-            <div class="">
-                <div class="viewDocPanmainbodyModal">
-                    <div class="flex justify-between mb-3">
-                        <div class="leftmodalInfo">
-                            <p class="text-lg text-erBlue font-medium  ">
-                                <span class=""> View/Edit Client Name</span>
-                            </p>
-                            <p class="text-sm ">
-                                <span class="font-medium text-lg">
-                                    Dhiraj Shah</span
-                                >
-                                <span class="userDesignation">
-                                    - Associate- {$facility_data_store.facility_type}, MHPD - Mulsi
-                                    SP</span
-                                >
-                            </p>
-                        </div>
-                        <div
-                            class="rightmodalclose"
-                            on:click={closeWorkorganization}
-                        >
-                            <img src="{$img_url_name.img_name}/blackclose.svg" alt="" />
-                        </div>
-                    </div>
-                    <div class="innermodal">
-                        <hr />
-                        <div class="scrollbar ">
-                            <div class="mainContainerWrapper ">
-                                <div class="DocCardlist ">
-                                    <div class="cardDocWrapper ">
-                                        <div
-                                            class="grid grid-cols-2 xs:grid-cols-1 gap-4"
-                                        >
-                                            <div>
-                                                <div
-                                                    class="grid grid-cols-2 gap-4 mb-1"
-                                                >
-                                                    <div class="detailLbale">
-                                                        Organisation
-                                                    </div>
-                                                    <div class="detailData">
-                                                        Amazon
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    class="grid grid-cols-2 gap-4 mb-1"
-                                                >
-                                                    <div class="detailLbale">
-                                                        Station Name & code
-                                                    </div>
-                                                    <div class="detailData">
-                                                        Akola, SP
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    class="grid grid-cols-2 gap-4 mb-1"
-                                                >
-                                                    <div class="detailLbale">
-                                                        Org specified name
-                                                    </div>
-                                                    <div class="detailData">
-                                                        Dhiraj Shah
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    class="grid grid-cols-2 gap-4 mb-1"
-                                                >
-                                                    <div class="detailLbale">
-                                                        Client Employee ID
-                                                    </div>
-                                                    <div class="detailData">
-                                                        AMA00300
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <div
-                                                    class="grid grid-cols-2 gap-4 mb-1"
-                                                >
-                                                    <div class="detailLbale">
-                                                        Added On
-                                                    </div>
-                                                    <div class="detailData">
-                                                        23-01-2021
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    class="grid grid-cols-2 gap-4 mb-1"
-                                                >
-                                                    <div class="detailLbale">
-                                                        Added by
-                                                    </div>
-                                                    <div class="detailData">
-                                                        Admin
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    class="grid grid-cols-2 gap-4 mb-1"
-                                                >
-                                                    <div class="detailLbale">
-                                                        Client ID status/info
-                                                    </div>
-                                                    <div class="detailData">
-                                                        ----
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    class="grid grid-cols-2 gap-4 mb-1"
-                                                >
-                                                    <div class="detailLbale">
-                                                        Status
-                                                    </div>
-                                                    <div>
-                                                        <p
-                                                            class="userStatusTickVerified "
-                                                        >
-                                                            <img
-                                                                src="{$img_url_name.img_name}/checked.png"
-                                                                alt=""
-                                                                class="pr-1"
-                                                            /> Verified
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="addDocumentSection ">
-                                    <div class="addSecform hidden">
-                                        {#if temp5 == "newMap"}
-                                            <div
-                                                class="addButtonSection my-3 py-16 text-center"
-                                            >
-                                                <div class="updateAction">
-                                                    <button
-                                                        class="ErBlueButton"
-                                                        on:click={() => {
-                                                            temp5 = "newMap-2";
-                                                        }}
-                                                        >Add New Mapping</button
-                                                    >
-                                                </div>
-                                            </div>
-                                        {/if}
-                                        {#if temp5 == "newMap-2"}
-                                            <div class="my-3 py-4 px-4 ">
-                                                <p class="text-lg font-medium">
-                                                    Add new Mapping
-                                                </p>
-
-                                                <div
-                                                    class="flex  py-1 items-center flex-wrap"
-                                                >
-                                                    <div
-                                                        class="light14grey  mb-1"
-                                                    >
-                                                        Address
-                                                    </div>
-                                                    <div class="formInnerGroup">
-                                                        <input
-                                                            class="inputboxpopover"
-                                                            type="text"
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    class="flex  py-3 items-center flex-wrap"
-                                                >
-                                                    <div
-                                                        class="light14grey mb-1"
-                                                    >
-                                                        City
-                                                    </div>
-                                                    <div
-                                                        class="formInnerGroup "
-                                                    >
-                                                        <select
-                                                            class="inputboxpopover"
-                                                        >
-                                                            <option class="pt-6"
-                                                                >Select</option
-                                                            >
-                                                            <option
-                                                                >ICICI</option
-                                                            >
-                                                            <option>Axis</option
-                                                            >
-                                                            <option>SIB</option>
-                                                        </select>
-                                                        <div
-                                                            class="formSelectArrow "
-                                                        >
-                                                            <img
-                                                                src="{$img_url_name.img_name}/selectarrow.png"
-                                                                class="w-5 h-auto"
-                                                                alt=""
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    class="flex  py-1 items-center flex-wrap"
-                                                >
-                                                    <div
-                                                        class="light14grey  mb-1"
-                                                    >
-                                                        GST State
-                                                    </div>
-                                                    <div class="formInnerGroup">
-                                                        <input
-                                                            class="inputboxpopover"
-                                                            type="text"
-                                                        />
-                                                    </div>
-                                                </div>
-
-                                                <div
-                                                    class="flex  py-3 items-center flex-wrap"
-                                                >
-                                                    <div
-                                                        class="light14grey  mb-1"
-                                                    >
-                                                        Upload Document
-                                                    </div>
-                                                    <div class="formInnerGroup">
-                                                        <label
-                                                            class="cursor-pointer flex"
-                                                        >
-                                                            <div
-                                                                class="ErBlueButton"
-                                                            >
-                                                                Select File
-                                                            </div>
-                                                            <input
-                                                                type="file"
-                                                                class="hidden"
-                                                            />
-                                                        </label>
-                                                    </div>
-                                                </div>
-
-                                                <div
-                                                    class="flex items-center justify-end mt-5"
-                                                >
-                                                    <div
-                                                        class="updateAction text-erBlue"
-                                                        on:click={() => {
-                                                            temp3 = "newMap";
-                                                        }}
-                                                    >
-                                                        Cancel
-                                                    </div>
-                                                    <div
-                                                        class="updateAction ml-5"
-                                                    >
-                                                        <button
-                                                            class="ErBlueButton"
-                                                            >Upload</button
-                                                        >
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        {/if}
-                                    </div>
-
-                                    <div
-                                        class=" bg-lighterGrey rounded-lg h-full"
-                                    >
-                                        {#if temp5 == "newMap"}
-                                            <div
-                                                class="addButtonSection my-3 py-3  text-center "
-                                            >
-                                                <div class="updateAction mt-5">
-                                                    <button
-                                                        class="ErBlueButton"
-                                                        on:click={() => {
-                                                            temp5 = "newMap-2";
-                                                        }}
-                                                        >Add New Mapping</button
-                                                    >
-                                                </div>
-                                            </div>
-                                        {/if}
-                                        {#if temp5 == "newMap-2"}
-                                            <div class="my-0 py-4 px-4 ">
-                                                <div
-                                                    class="h-80 max-h-80 overflow-y-scroll pr-4 border-b-2"
-                                                >
-                                                    <p
-                                                        class="text-lg font-medium"
-                                                    >
-                                                        Add New Mapping
-                                                    </p>
-
-                                                    <div
-                                                        class="flex  py-3 items-center flex-wrap"
-                                                    >
-                                                        <div
-                                                            class="light14grey mb-1"
-                                                        >
-                                                            Organization
-                                                        </div>
-                                                        <div
-                                                            class="formInnerGroup "
-                                                        >
-                                                            <select
-                                                                class="inputboxpopover"
-                                                            >
-                                                                <option
-                                                                    class="pt-6"
-                                                                    >Select</option
-                                                                >
-                                                            </select>
-                                                            <div
-                                                                class="formSelectArrow "
-                                                            >
-                                                                <img
-                                                                    src="{$img_url_name.img_name}/selectarrow.png"
-                                                                    class="w-5 h-auto"
-                                                                    alt=""
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        class="flex  py-3 items-center flex-wrap"
-                                                    >
-                                                        <div
-                                                            class="light14grey mb-1"
-                                                        >
-                                                            Station
-                                                        </div>
-                                                        <div
-                                                            class="formInnerGroup "
-                                                        >
-                                                            <select
-                                                                class="inputboxpopover"
-                                                            >
-                                                                <option
-                                                                    class="pt-6"
-                                                                    >Select</option
-                                                                >
-                                                            </select>
-                                                            <div
-                                                                class="formSelectArrow "
-                                                            >
-                                                                <img
-                                                                    src="{$img_url_name.img_name}/selectarrow.png"
-                                                                    class="w-5 h-auto"
-                                                                    alt=""
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        class="flex  py-3 items-center flex-wrap"
-                                                    >
-                                                        <div
-                                                            class="light14grey mb-1"
-                                                        >
-                                                            Name in COMP
-                                                        </div>
-                                                        <div
-                                                            class="formInnerGroup "
-                                                        >
-                                                            <select
-                                                                class="inputboxpopover"
-                                                            >
-                                                                <option
-                                                                    class="pt-6"
-                                                                    >Select</option
-                                                                >
-                                                            </select>
-                                                            <div
-                                                                class="formSelectArrow "
-                                                            >
-                                                                <img
-                                                                    src="{$img_url_name.img_name}/selectarrow.png"
-                                                                    class="w-5 h-auto"
-                                                                    alt=""
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        class="flex  py-1 items-center flex-wrap"
-                                                    >
-                                                        <div
-                                                            class="light14greylong  mb-1"
-                                                        >
-                                                            Client Empployee ID
-                                                            ( If available)
-                                                        </div>
-                                                        <div
-                                                            class="formInnerGroup"
-                                                        >
-                                                            <input
-                                                                class="inputboxpopover"
-                                                                type="text"
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        class="flex  py-1 items-center flex-wrap mb-4"
-                                                    >
-                                                        <div
-                                                            class="light14greylong  mb-1"
-                                                        >
-                                                            Create new Rabbit
-                                                            ID/Comp ID
-                                                        </div>
-                                                        <div
-                                                            class="formInnerGroup"
-                                                        >
-                                                            <div
-                                                                class="text-center flex mb-2 ml-1"
-                                                            >
-                                                                <div
-                                                                    class="flex items-center mr-4"
-                                                                >
-                                                                    <input
-                                                                        id="radio1"
-                                                                        type="radio"
-                                                                        name="radio"
-                                                                        class="hidden"
-                                                                        checked=""
-                                                                    />
-                                                                    <label
-                                                                        for="radio1"
-                                                                        class="radioLable"
-                                                                    >
-                                                                        <span
-                                                                            class="radioCirle"
-                                                                        />
-                                                                        Rabbit ID</label
-                                                                    >
-                                                                </div>
-
-                                                                <div
-                                                                    class="flex items-center "
-                                                                >
-                                                                    <input
-                                                                        id="radio2"
-                                                                        type="radio"
-                                                                        name="radio"
-                                                                        class="hidden"
-                                                                    />
-                                                                    <label
-                                                                        for="radio2"
-                                                                        class="radioLable"
-                                                                    >
-                                                                        <span
-                                                                            class="radioCirle"
-                                                                        />
-                                                                        COMP ID</label
-                                                                    >
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div
-                                                    class="flex items-center justify-end mt-5"
-                                                >
-                                                    <div
-                                                        class="updateAction text-erBlue cursor-pointer"
-                                                        on:click={() => {
-                                                            temp5 = "newMap";
-                                                        }}
-                                                    >
-                                                        Cancel
-                                                    </div>
-                                                    <div
-                                                        class="updateAction ml-5"
-                                                    >
-                                                        <button
-                                                            class="ErBlueButton"
-                                                            >Map</button
-                                                        >
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        {/if}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div> -->
-
-
-
-
-
 <!-- Document view Model -->
 <div id="img_model" tabindex="-1" aria-hidden="true" role ="dialog" class=" actionDialogueOnboard" hidden>
     <div class="pancardDialogueOnboardWrapper ">
@@ -4362,7 +2265,7 @@ async function child_select_fun(){
 <!-- Document view Model -->
 
 <!-- Document view Model With Approve and reject -->
-<div id="img_model_approve_rej" tabindex="-1" aria-hidden="true" role ="dialog" class=" actionDialogueOnboard" >
+<div id="img_model_approve_rej" tabindex="-1" aria-hidden="true" role ="dialog" class=" actionDialogueOnboard" hidden>
     <div class="pancardDialogueOnboardWrapper ">
         <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
             
@@ -4377,7 +2280,7 @@ async function child_select_fun(){
 
             <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
                 
-                <img src="" id="img_model_url" class="mx-auto" alt="{alt_image}">
+                <img src="" id="doc_img_model_url" class="mx-auto" alt="{alt_image}">
                 
                 <div class="pt-3 flex justify-center">
                     <button data-modal-toggle="popup-modal" type="button" class="dialogueNobutton"  on:click="{()=>{closeViewModel()}}">Close</button>

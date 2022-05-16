@@ -143,7 +143,7 @@
             //     gst_verified:null,
             //     gst_rejected:null
             // };
-        
+            let selectserCh ;
             let text_pattern = /^[a-zA-Z_ ]+$/;
             let recrun_pattern =  /^[^-\s](?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9 _-]+)$/;
             let city_select;
@@ -292,14 +292,12 @@
             }
 
             async function station_dependent(){
-                console.log("station_selected",station_selected)
                 let get_station_details_res = await get_station_details(station_selected);
                 try {
                     if (get_station_details_res != "null"){
                         cost_center_details = get_station_details_res.body.data;
                     }
                     cost_center_details = cost_center_details;
-                    console.log("cost_center_details",cost_center_details)
                 }
                 catch (error) {
                     toast_type = "error";
@@ -447,6 +445,26 @@
                 toast_text = err;
        
             }
+
+            all_tags_res = await all_facility_tags($facility_data_store.name);
+    
+            try {
+                if(all_tags_res.body.status == "green"){
+                    for(let i=0;i < all_tags_res.body.data.length;i++){
+                        all_tags_data.push(all_tags_res.body.data[i].tag_name);
+                        // console.log("all_tags_data",all_tags_data);
+                        all_tags_obj[all_tags_res.body.data[i].tag_name] = all_tags_res.body.data[i].tag_description;
+                        
+                        // console.log("all_tags_obj",all_tags_obj);
+                    }
+                    all_tags_data = all_tags_data;
+                }
+            } 
+            catch(err) {
+                toast_type = "error";
+                toast_text = all_tags_res.body.message;
+            }
+            show_spinner = false;
         });
 
             function myBtn() {
@@ -533,6 +551,197 @@
                 }
 
             }
+        function clear() {
+            addRemoveModal.style.display = "none";
+        }
+
+
+        async function tagAddRemove() {
+            console.log("tag remove clicked")
+        addRemoveModal.style.display = "block";
+        let tag_res = await show_fac_tags($facility_data_store.facility_type);
+        console.log("tag_res",tag_res);
+        try {
+            show_spinner = true;
+            if(tag_res.body.data.length != 0){
+                show_spinner = false;
+                show_fac_array = tag_res.body.data;
+                console.log("show_fac_array",show_fac_array)
+                for(let i=0;i < show_fac_array.length;i++){
+                    
+                    let new_date =new Date(show_fac_array[i].creation)
+                    
+                    show_fac_array[i].creation=new_date;
+                    // console.log("new_date",new_date);
+                }
+                show_fac_array.sort(function(a, b) {
+                if (a.creation > b.creation) return -1;
+                if (a.creation < b.creation) return 1;
+                return 0;
+                });
+
+                for(let i=0;i < show_fac_array.length;i++){
+                let show_creation_date =get_date_format(show_fac_array[i].creation,"yyyy-mm-dd")
+                show_fac_array[i].creation=show_creation_date;
+                }
+            }
+            else{
+                show_spinner = false;
+                toast_type = "error";
+                toast_text = "No Tags Found";
+            }
+        } 
+        catch(err) {
+            toast_type = "error";
+            toast_text = err;
+        
+         }
+
+        let service_vend_res = await service_vendor();
+        console.log("service_vend_res",service_vend_res)
+        try {
+            show_spinner = true;
+            if(service_vend_res.body.status == "green"){
+                show_spinner = false;
+                for(let i=0;i<service_vend_res.body.data.length;i++){
+                    if(service_vend_res.body.data[i].location_id == location_id){
+                        // tag_data_obj[service_vend_res.body.data[i].vendor_id] = service_vend_res.body.data[i].vendor_name;
+                        tag_data_obj.push(service_vend_res.body.data[i]);
+                    }
+                }
+                tag_data_obj = tag_data_obj;
+                console.log("tag_data_obj",tag_data_obj)
+            }
+            else{
+                show_spinner = false;
+                toast_type = "error";
+                toast_text = "No Vendor Found";
+            }
+        }
+        catch(err) {
+            show_spinner = false;
+            toast_type = "error";
+            toast_text = err;
+        }
+
+
+    }
+    async function handleTagClick(){
+        console.log("handle tag clicked")
+    let new_tag_id
+    try {   
+    //     if(all_tags_res.body.status == "green"){
+        
+        for(let i=0; i < all_tags_res.body.data.length; i++){
+            // console.log("INDISDE FOR LOOPform_data from html",select_tag_data,all_tags_res.body.data[i].tag_name)
+            if(select_tag_data == all_tags_res.body.data[i].tag_name){
+                new_tag_id = all_tags_res.body.data[i].tag_id;
+            }
+            
+        }
+        if(!select_tag_data){
+            selectTag = 1;
+            if(!tag_remark){
+            addRemark = 1;
+                if(!serv_ch_data){
+                    selectsearch=1;
+                }
+            }   
+
+        }
+        else{
+            console.log("select_tag_data",select_tag_data)
+            show_fac_array = [];
+            console.log("serv_ch_data",serv_ch_data)
+            let submit_fac_res = await submit_fac_tag_data(new_tag_id,select_tag_data,tag_date,tag_remark,serv_ch_data)
+            try {
+                show_spinner = true;
+                if(submit_fac_res.body.status == "green"){
+                    show_spinner = false;
+                    let temp_res = await show_fac_tags($facility_data_store.facility_type);
+                    show_fac_array = temp_res.body.data;
+                    for(let i=0;i < show_fac_array.length;i++){
+                        let new_date =new Date(show_fac_array[i].creation)
+                        show_creation_date = get_date_format(new_date,"yyyy-mm-dd")
+                        show_fac_array[i].creation=show_creation_date;
+                    }
+                    show_fac_array = show_fac_array;
+                }
+                // console.log("submit_fac_res.body",submit_fac_res.body)
+                else if(submit_fac_res.body.message == "Tag already exist..!"){
+                    show_spinner = false;
+                    console.log("Cannot Add Tag already exist..!")
+                }
+            }
+                catch(err) {
+                    show_spinner = false;
+                    toast_type = "error";
+                    toast_text = err;
+                }
+        }
+
+    }
+    catch(err) {
+        toast_type = "error";
+        toast_text = err;
+    }
+      
+}
+
+    async function removeTag(tag_id,tag_name,owner,tag_status){
+        show_fac_array = [];
+        let fac_id
+        if(owner == $facility_data_store.owner){
+                fac_id = $facility_data_store.name
+                console.log("fac_id",fac_id)
+        }
+        let remove_tag_res = await remove_tag(fac_id,tag_id,tag_name);
+        if(remove_tag_res.body.status == "green")
+        {
+        let temp_res = await show_fac_tags($facility_data_store.facility_type);
+        try {
+                show_fac_array = temp_res.body.data;
+                
+                // console.log("show_fac_array IN remove",show_fac_array)
+                for(let i=0;i < show_fac_array.length;i++){
+                    
+                    let new_date =new Date(show_fac_array[i].creation)
+                    show_creation_date = get_date_format(new_date,"yyyy-mm-dd")
+                    show_fac_array[i].creation=show_creation_date;
+                   
+        }
+       
+    }
+        catch(err) {
+        console.log("ERROR")
+        
+         }
+
+    }
+}
+
+
+   async function tagAuditFunc(){
+        temp = "tag";
+        let tag_audit_res =await tag_audit_trail();
+        try {
+            if(tag_audit_res.body.status == "green"){
+            
+            tag_data_arr = tag_audit_res.body.data
+            for(let i=0;i < tag_data_arr.length;i++){
+                let new_date =new Date(tag_data_arr[i].creation)
+                show_creation_date = get_date_format(new_date,"yyyy-mm-dd")
+                tag_data_arr[i].creation=show_creation_date;
+            }
+            // console.log("TAG DATA ARRA",tag_data_arr)
+            tag_data_arr = tag_data_arr;
+               
+        }} catch(err) {
+        console.log("ERROR")
+        
+         }
+       
+    }
 
             // function closeWorkorganization() {
             //     workorganizationModel.style.display = "none";
@@ -716,6 +925,13 @@
 
                         </button>
                     </p>
+                    <div class="userStatus ml-4">
+                        <p class="flex items-center smButtonText" on:click={tagAddRemove}>
+                            <a href="" class="smButton modal-open">
+                                Add/Remove Tags
+                            </a>
+                        </p>
+                    </div>
                     <div class="userStatus ml-4">
                         <p class="flex items-center smButtonText" on:click={workorganization}>
                             <a href="" class="smButton modal-open">
@@ -905,6 +1121,676 @@
             </div> 
          
         </div>
+
+  <!-- Add Remove Tag Modal -->
+
+  <div class="hidden" id="addRemoveModal">
+    <div class="ChangeAssociateTypeWrapper">
+        <div class="changeAssoMain ">
+            <div
+                class=" w-full bg-white rounded shadow-2xl"
+            >
+                <div class="relative  rounded-t ">
+                    <svg
+                        class="absolute top-36 transform rotate-90 -right-6 -mt-5 block md:hidden xs:hidden"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="26"
+                        height="23"
+                        viewBox="0 0 26 23"
+                        fill="none"
+                    >
+                        <path
+                            id="Polygon 2"
+                            d="M13 0L25.9904 22.5H0.00961876L13 0Z"
+                            fill="#ffffff"
+                            stroke="#E7E7E7"
+                        />
+                    </svg>
+                </div>
+                <div class="w-full h-full  pb-5 ">
+                    <div
+                        class="bg-black px-4 flex py-4 justify-between rounded-t-md rounded-tr-md"
+                    >
+                        <div
+                            class="leftHeadingpopover text-white"
+                        >
+                            <p>Add / Remove Tags</p>
+                        </div>
+                        <div
+                            class="rightcloseIconBlack"
+                            on:click={clear}
+                        >
+                            <img
+                                src="../src/img/closewhite.svg"
+                                class="cursor-pointer"
+                                id="closeAddRemove"
+                                alt=""
+                            />
+                        </div>
+                    </div>
+                    <div
+                        class="tabwrapper flex justify-between text-center"
+                    >
+                        <div
+                            class="changetype py-3 w-2/4 "
+                            on:click={() => {
+                                temp = "Add";
+                            }}
+                        >
+                            <p>Add Tags</p>
+                        </div>
+                        <div
+                            class="Historytab py-3 w-2/4	 bg-bglightgreye"
+                            on:click={tagAuditFunc}
+                        
+                        >
+                            <p>Tag Audit Trail</p>
+                        </div>
+                    </div>
+
+                    {#if temp == "Add"}
+                        <div class="changetypeSection ">
+                            <div
+                                class="flex px-2 pt-3 items-center xs:flex-wrap"
+                            >
+                                <div
+                                    class="light14grey"
+                                >
+                                    Select Tag
+                                </div>
+                                <div
+                                    class="formInnerGroup "
+                                >
+                                    <select
+                                        class="inputboxpopover"
+                                    bind:value="{select_tag_data}">
+                                    
+                                    <!-- <option
+                                            class="pt-6"
+                                            >Select</option
+                                        > -->
+                                    <option value="">Select</option>
+                                    {#if !all_tags_data}
+                                    <p></p>
+                                    {:else}
+                                    {#each all_tags_data as tag_data}
+                                    <option>{tag_data}</option>
+                                        <!-- <option
+                                            >Axis</option
+                                        >
+                                        <option
+                                            >SIB</option
+                                        > -->
+                                        {/each}
+                                        {/if}
+                                    </select>
+                                    {#if selectTag == "1"}
+                                    <div class="text-red-500">
+                                        "Select tag name"
+                                    </div>
+                                    {/if}
+                                    
+                                    <div
+                                        class="formSelectArrow "
+                                    >
+                                        <img
+                                            src="../src/img/selectarrow.png"
+                                            class="w-5 h-auto"
+                                            alt=""
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div
+                            class="flex px-2 pt-3 items-center xs:flex-wrap {hidden_field}"
+                        >
+                            <div
+                                class="light14grey"
+                            >
+                            Select Sevice Charge Vendor
+                            </div>
+                            <div
+                                class="formInnerGroup "
+                            >
+                                <select
+                                    class="inputboxpopover"
+                                bind:value={serv_ch_data}>
+                                
+                                <!-- <option
+                                        class="pt-6"
+                                        >Select</option
+                                    > -->
+                                <option value="">Select</option>
+                                {#if !tag_data_obj}
+                                <p></p>
+                                {:else}
+                                <!-- {#each Object.keys(tag_data_obj),tag_data_obj[Object.keys(tag_data_obj)] as key,value} -->
+                                {#each tag_data_obj as obj}
+                                <option value={obj.vendor_id}>{obj.vendor_name} - {obj.vendor_id}</option>
+                                    <!-- <option
+                                        >Axis</option
+                                    >
+                                    <option
+                                        >SIB</option
+                                    > -->
+                                    
+                                {/each}
+                                {/if}
+
+                               
+                                </select>
+                                {#if selectserCh == "1"}
+                                <div class="text-red-500">
+                                    "Select Sevice Charge Vendor"
+                                </div>
+                                {/if}
+                                
+                                <div
+                                    class="formSelectArrow "
+                                >
+                                    <img
+                                        src="../src/img/selectarrow.png"
+                                        class="w-5 h-auto"
+                                        alt=""
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                            <div
+                                class="flex px-2 py-3 items-center xs:flex-wrap"
+                            >
+                                <div
+                                    class="light14grey"
+                                >
+                                    Remove On
+                                </div>
+                                <div
+                                    class="formInnerGroup "
+                                >
+                                    <input
+                                        type="date"
+                                        class="inputboxpopoverdate"
+                                        placeholder=" "
+                                        min={new Date().toISOString().split('T')[0]}
+                                        bind:value="{tag_date}" 
+                                    />
+                                    <p
+                                        class="text-grey whitespace-nowrap text-xs px-1 mt-1"
+                                    >
+                                        Note: Use only
+                                        if required
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div
+                                class="flex px-2 py-0 items-center xs:flex-wrap"
+                            >
+                                <div
+                                    class="light14grey w-36"
+                                >
+                                    Remarks
+                                </div>
+                                <div
+                                    class="formInnerGroup"
+                                >
+                                    <input
+                                        class="inputboxpopover"
+                                        type="text"
+                                        bind:value="{tag_remark}"
+                                    />
+                                </div>
+                                
+                            </div>
+                            <div
+                                class="flex px-2 py-0 items-center xs:flex-wrap"
+                            >
+                            
+                            {#if addRemark == "1"}
+                            
+                                    <div class="text-red-500">
+                                        "Please enter a remark"
+                                    </div>
+                                {/if}
+                                </div>
+                            
+
+                            <div
+                                class="flex px-3 justify-between mt-4"
+                            >
+                                <div
+                                    class="light14grey w-36"
+                                />
+                                <button
+                                    class="saveandproceed"
+                                    on:click="{handleTagClick(select_tag_data,tag_date,tag_remark,tag_data_obj)}"
+                                    >Add</button
+                                >
+                            </div>
+
+                            <div
+                                class="OtherAppliedTagsTable px-3"
+                            >
+                                <p
+                                    class="text-lg text-blackshade font-medium"
+                                >
+                                    Other Applied Tags
+                                </p>
+                                <table
+                                    class="table  w-full text-center mt-2 xs:hidden sm:hidden"
+                                >
+                                    <thead
+                                        class="theadpopover"
+                                    >
+                                        <tr>
+                                            <th>Tag</th>
+                                            <th
+                                                >Remarks</th
+                                            >
+                                            <th
+                                                >Added
+                                                by</th
+                                            >
+                                            <th
+                                                >Added
+                                                On</th
+                                            >
+                                            <th
+                                                >Auto
+                                                Removal
+                                                On</th
+                                            >
+                                            <th
+                                                >Remove</th
+                                            >
+                                        </tr>
+                                    </thead>
+                                    <tbody
+                                        class="tbodypopover"
+                                    >{#each show_fac_array as show_fac}
+                                    
+                                        <tr
+                                            class="border-b"
+                                        >
+                                            <td
+                                                >{show_fac.tag_name}</td
+                                            >
+                                            <td
+                                                >
+                                                {#if !show_fac.remarks}
+                                                <p>-</p>
+                                                {:else}
+                                                {show_fac.remarks}{/if}</td
+                                            >
+                                            <td
+                                                >{show_fac.owner}</td
+                                            >
+                                            <td
+                                                >{show_fac.creation}</td
+                                            >
+                                            <td
+                                                >
+                                                {#if !show_fac.deactivation_date}
+                                                <p>-</p>
+                                                {:else}
+                                                {show_fac.deactivation_date}{/if}</td
+                                            >
+                                            <td>
+                                                <div
+                                                    class="flex justify-center"
+                                                >
+                                                    <img
+                                                        src="../src/img/reject.png"
+                                                        alt=""
+                                                        on:click="{removeTag(show_fac.name,show_fac.tag_name,show_fac.owner)}"
+                                                    />
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <!-- <tr
+                                            class="border-b"
+                                        >
+                                            <td
+                                                >Addhoc
+                                                Facility</td
+                                            >
+                                            <td
+                                                >No
+                                                Remarks</td
+                                            >
+                                            <td
+                                                >User
+                                                name</td
+                                            >
+                                            <td
+                                                >10-09-2020</td
+                                            >
+                                            <td
+                                                >No date</td
+                                            >
+                                            <td>
+                                                <div
+                                                    class="flex justify-center"
+                                                >
+                                                    <img
+                                                        src="../src/img/reject.png"
+                                                        alt=""
+                                                    />
+                                                </div>
+                                            </td>
+                                        </tr> -->
+                        
+                                        {/each}
+                                    </tbody>
+                                </table>
+                                ​
+                                <div
+                                    class="associateCard  border p-p7px  rounded-md hidden xs:block sm:block"
+                                >
+                                    <div
+                                        class="flex px-4 py-1 items-center"
+                                    >
+                                        <div
+                                            class="light14grey"
+                                        >
+                                            Tag
+                                        </div>
+                                        <div
+                                            class="dataValue"
+                                        >
+                                            Addhoc
+                                            Facility
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="flex px-4 py-1 items-center"
+                                    >
+                                        <div
+                                            class="light14grey"
+                                        >
+                                            Remarks
+                                        </div>
+                                        <div
+                                            class="dataValue"
+                                        >
+                                            No Remarks
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="flex px-4 py-1 items-center"
+                                    >
+                                        <div
+                                            class="light14grey"
+                                        >
+                                            Added by
+                                        </div>
+                                        <div
+                                            class="dataValue"
+                                        >
+                                            User name
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="flex px-4 py-1 items-center"
+                                    >
+                                        <div
+                                            class="light14grey"
+                                        >
+                                            Added On
+                                        </div>
+                                        <div
+                                            class="dataValue"
+                                        >
+                                            13-Apr-2021
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="flex px-4 py-1 items-center"
+                                    >
+                                        <div
+                                            class="light14grey"
+                                        >
+                                            Auto Removal
+                                            On
+                                        </div>
+                                        <div
+                                            class="dataValue"
+                                        >
+                                            No date
+                                        </div>
+                                    </div>
+                                    <div
+                                        class="flex px-4 py-1 items-center"
+                                    >
+                                        <div
+                                            class="light14grey"
+                                        >
+                                            Remove
+                                        </div>
+                                        <div
+                                            class="dataValue"
+                                        >
+                                            <img
+                                                src="../src/img/reject.png"
+                                                alt=""
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {/if}
+
+                    {#if temp == "tag"}
+                        <div
+                            class="changeAssociateSection mx-3 "
+                        >
+                            <table
+                                class="table  mt-2 w-full xs:hidden sm:hidden"
+                            >
+                           
+                                <thead
+                                    class="theadpopover"
+                                >
+                                    <tr>
+                                        <th>Tag</th>
+                                        <th>Date</th>
+                                        <th>Given by</th
+                                        >
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody
+                                    class="tbodypopover"
+                                >
+                                {#each tag_data_arr as new_tag_audit}   
+                                <tr
+                                        class="border-b"
+                                    >
+                                    <!-- {#each tag_data_arr as new_tag_audit}
+                                        <td
+                                            >{new_tag_audit.parenttype}</td
+                                        >
+                                        <td
+                                            >{new_tag_audit.creation}</td
+                                        >
+                                        <td
+                                            >{new_tag_audit.owner}</td
+                                        >
+                                        <td>{new_tag_audit.status}</td>
+                                        {/each} -->
+                                        
+                                       
+                                        <td
+                                            >{new_tag_audit.parenttype}</td
+                                        >
+                                        <td
+                                            >{new_tag_audit.creation}</td
+                                        >
+                                        <td
+                                            >{new_tag_audit.owner}</td
+                                        >
+                                        <td>{new_tag_audit.status}</td>
+                                       
+            
+                                       
+                                        <!-- <td>demo</td> -->
+                                    </tr>
+                                    {/each}
+                                    <!-- <tr
+                                        class="border-b"
+                                    >
+                                        <td
+                                            >Addhoc
+                                            Facility</td
+                                        >
+                                        <td
+                                            >10-09-2020</td
+                                        >
+                                        <td
+                                            >User name</td
+                                        >
+                                        <td>Active</td>
+                                    </tr> -->
+                                    
+                                </tbody>
+                                
+                            </table>
+                            <div
+                                class="associateCard  border p-p7px rounded-md hidden xs:block sm:block"
+                            >
+                                <div
+                                    class="flex px-4 py-1 items-center"
+                                >
+                                    <div
+                                        class="light14grey"
+                                    >
+                                        Tag
+                                    </div>
+                                    <div
+                                        class="dataValue"
+                                    >
+                                        Addhoc Facility
+                                    </div>
+                                </div>
+                                <div
+                                    class="flex px-4 py-1 items-center"
+                                >
+                                    <div
+                                        class="light14grey"
+                                    >
+                                        Date
+                                    </div>
+                                    <div
+                                        class="dataValue"
+                                    >
+                                        10-09-2020
+                                    </div>
+                                </div>
+                                <div
+                                    class="flex px-4 py-1 items-center"
+                                >
+                                    <div
+                                        class="light14grey"
+                                    >
+                                        Given by
+                                    </div>
+                                    <div
+                                        class="dataValue"
+                                    >
+                                        User name
+                                    </div>
+                                </div>
+                                <div
+                                    class="flex px-4 py-1 items-center"
+                                >
+                                    <div
+                                        class="light14grey"
+                                    >
+                                        Status
+                                    </div>
+                                    <div
+                                        class="dataValue"
+                                    >
+                                        Active
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div
+                                class="associateCard  border p-p7px  rounded-md hidden xs:block sm:block"
+                            >
+                                <div
+                                    class="flex px-4 py-1 items-center"
+                                >
+                                    <div
+                                        class="light14grey"
+                                    >
+                                        Tag
+                                    </div>
+                                    <div
+                                        class="dataValue"
+                                    >
+                                        Addhoc Facility
+                                    </div>
+                                </div>
+                                <div
+                                    class="flex px-4 py-1 items-center"
+                                >
+                                    <div
+                                        class="light14grey"
+                                    >
+                                        Date
+                                    </div>
+                                    <div
+                                        class="dataValue"
+                                    >
+                                        10-09-2020
+                                    </div>
+                                </div>
+                                <div
+                                    class="flex px-4 py-1 items-center"
+                                >
+                                    <div
+                                        class="light14grey"
+                                    >
+                                        Given by
+                                    </div>
+                                    <div
+                                        class="dataValue"
+                                    >
+                                        User name
+                                    </div>
+                                </div>
+                                <div
+                                    class="flex px-4 py-1 items-center"
+                                >
+                                    <div
+                                        class="light14grey"
+                                    >
+                                        Status
+                                    </div>
+                                    <div
+                                        class="dataValue"
+                                    >
+                                        Active
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {/if}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- </div> -->
+
+
+<!--End Add Remove Tags -->
+
 <!-- Document view Model -->
 <div id="img_model" tabindex="-1" aria-hidden="true" role ="dialog" class=" actionDialogueOnboard" hidden>
     <div class="pancardDialogueOnboardWrapper ">

@@ -500,11 +500,28 @@
         childlink = "childlink2";
         
     }
+    function check_facility_status(message) {
+    if (!$facility_data_store.status && $facility_data_store.status != undefined && ($facility_data_store.status.toLowerCase() == "deactive" || $facility_data_store.is_blacklisted == 1)) {
+        if (message != undefined){
+            toast_text = message;
+            toast_type = "error";
+        }
+        else{
+            toast_text = "Request not allowed for Deactive/Blacklisted Facility";
+            toast_type = "error";
+        return false;
+        }
+    }
+        return true;
+    }
     async function checkbox_clicked(facility_name,name){
         child_selected_arr.push({"location":city_select,"facility_name":facility_name,"name":name});
         
     }
     async function link_child(data){
+        if (!check_facility_status("Add Child Facilities not allowed for Deactive/Blacklisted Facility")) {
+        return;
+        }
         show_spinner = true;
         let client_det_res = await client_details(data);
         try{
