@@ -1188,7 +1188,8 @@ function check_facility_status(message) {
             try {
                 if (blacklist_res.body.status == "green") {
                 toast_type = "success";
-                    toast_text = blacklist_res.body.message;
+                toast_text = blacklist_res.body.message;
+                window.location.reload();
                 }
             }
             catch (err) {

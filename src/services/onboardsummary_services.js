@@ -283,6 +283,14 @@ const blacklist_vendor = (remark) =>{
         method: "GET"
         },true)
 }
+const reset_deact_status = () => {
+    let reset_deact_status_url = '/api/method/pravesh.facility.routes.facility.reset_deactive_facility?facility_id='+new_facility_id+'';
+    return request(
+        reset_deact_status_url,{
+    method: "GET"
+    },true)
+
+}
 
 
 
@@ -317,5 +325,6 @@ export {
     save_physical_contract,
     get_station_details,
     get_all_accepted_contracts,
-    blacklist_vendor
+    blacklist_vendor,
+    reset_deact_status
 }
