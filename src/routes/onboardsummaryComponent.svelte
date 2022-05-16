@@ -14,7 +14,8 @@ import { Router, Link, Route } from "svelte-routing";
             show_fac_tags,submit_fac_tag_data,remove_tag,tag_audit_trail,service_vendor,
             get_loc_scope,client_details,erp_details,child_data,add_gst_dets,
             facility_document,addnew_cheque_details,bank_details,cheque_details,gst_details,blacklist_vendor} from "../services/onboardsummary_services";
-    import {get_pravesh_properties_method,} from '../services/workdetails_services'
+    import {get_pravesh_properties_method,} from '../services/workdetails_services';
+    import {approve_reject_status} from '../services/vmt_verify_services';
     import {uploadDocs} from '../services/bgv_services'
     import {get_date_format} from "../services/date_format_servives";
     import {img_url_name} from '../stores/flags_store';
@@ -191,6 +192,7 @@ import { Router, Link, Route } from "svelte-routing";
     let document_url = "";
     let new_doc_upload_message = "";
     let document_name = "";
+    let document_type,document_number;
    
     $:{
         for(let key in all_tags_obj){
@@ -626,20 +628,22 @@ function check_facility_status(message) {
 
     }
     function openViewModel(data,doc_number){
+        console.log("Inside functin")
+        img_model_approve_rej.style.display = "block";
         console.log("view clicked")
         if(data == "new_doc"){
-            // console.log("inside new_doc view")
-            document.getElementById("img_model_approve_rej").style.display = "block";
+            console.log("inside new_doc view")
+            
             for(let i=0;i<facility_document_data.length;i++){
                 // console.log("inside for view new_doc")
                 if(doc_number == facility_document_data[i].doc_category){
                     // console.log("inside if")
                     document.getElementById("doc_img_model_url").getAttribute('src',facility_document_data[i].file_url);
                     alt_image = "uploaded document";
+                    document_type = facility_document_data[i].doc_type;
+                    document_number = facility_document_data[i].doc_number;
                 }
             }
-            // if(doc_number)
-            
         }
         document.getElementById("img_model").style.display = "block";
         if(data == "aadhar"){
@@ -1136,7 +1140,6 @@ function check_facility_status(message) {
             toast_type = "error"
             toast_text = err
         }
-        // img_model_approve_rej.style.display = "block";
     }
 
     routeBgv = "bgv";
@@ -1461,6 +1464,43 @@ function check_facility_status(message) {
             toast_text = err;
         }
     }
+
+    async function docApproveRejected(doc_cat){
+        let document_load,new_status
+        console.log("doc_cat",doc_cat)
+        show_spinner = true;
+        if(doc_cat == "approve"){
+            new_status="DV"
+        }
+        else if(doc_cat == "reject"){
+            new_status="RJ"
+        }
+        document_load = {
+        "resource_id":$facility_id.facility_id_number,
+        "doc_number":document_number,
+        "status_type":new_status,
+        "status":"true",
+        "doc_type":document_type
+        }
+        let doc_res = await approve_reject_status(document_load)
+        show_spinner = false;
+        try{
+            if(doc_res.body.status == "green"){
+                toast_text = "Document Approved";
+                toast_type = "success";
+            }
+        }
+        catch(err){
+            toast_text = err;
+            toast_type = "error";
+        }
+            
+    }
+    
+    // async function new_doc_cat_func(data){
+    //     console.log("inside new_doc_cat_func")
+    //     console.log("data",data)
+    // }
 
 </script>
 {#if show_spinner}
@@ -2270,8 +2310,8 @@ function check_facility_status(message) {
         <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
             
             <div class="flex justify-end p-2">
-                <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium mr-2">Reject</button>
-                <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium mr-2">Approve</button>
+                <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium mr-2" on:click={()=>{docApproveRejected("reject")}}>Reject</button>
+                <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium mr-2" on:click={()=>{docApproveRejected("approve")}}>Approve</button>
        
                 <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5  inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel()}}">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
