@@ -35,6 +35,9 @@ import { Router, Link, Route } from "svelte-routing";
     import {documents_store} from '../stores/document_store';
     import {duplicate_documents_store} from '../stores/duplicate_document_store';
     import {duplicate_facility_data_store} from '../stores/duplicate_facility_data_store';
+    import {
+        sorting_pravesh_properties,
+    } from "../services/pravesh_config";
 
     let show_spinner = false;
     let toast_text;
@@ -255,6 +258,22 @@ import { Router, Link, Route } from "svelte-routing";
             }
         }
         // console.log("$facility_id",$facility_id.facility_id_number);
+        ///////////////pravesh properties//////////////
+        let get_pravesh_properties_response =
+            await get_pravesh_properties_method();
+        console.log(
+            "get_pravesh_properties_response",
+            get_pravesh_properties_response
+        );
+        if (get_pravesh_properties_response.body.status == "green") {
+            sorting_pravesh_properties(
+                get_pravesh_properties_response.body.data
+            );
+        } else {
+            toast_type = "error";
+            toast_text = "Error in fetching pravesh properties";
+        }
+        //////////////////////////////////////////////////////////
 
 
 
