@@ -136,6 +136,8 @@
                 offer_verified:null,
                 offer_rejected:null
             };
+            export let admin;
+            export let is_adhoc_facility;
             // let gst_doc_obj = {
             //     gst_name:null,
             //     gst_url:null,
@@ -164,6 +166,8 @@
             let showbtn = 0;
             let selectTag,addRemark,selectsearch;
             export let city;
+            export let show_upload_btn;
+            export let remove_upload_btn;
             console.log("city data new",city);
             let facility_address,facility_postal,facility_password,location_id,status_name;
             let new_fac_remarks = [];
@@ -216,6 +220,9 @@
             let all_bg_bglightgreye = "";
             let is_e_grid_hidden = ""
             let is_phy_grid_hidden = "hidden";
+            let new_offer_name = ""
+            let offer_upload_message =""
+            let new_offer_img = ""
 
         /////////Document view Model//////
             // $:{
@@ -743,12 +750,16 @@
          }
        
     }
+     function uploadOfferLetter(){
+         OfferLetterModel.style.display ="block";
+     }
 
             // function closeWorkorganization() {
             //     workorganizationModel.style.display = "none";
             // }
             function closeViewModel(){
         document.getElementById("img_model").style.display = "none";
+        OfferLetterModel.style.display ="block";
     }
     function openViewModel(data,doc_number){
         document.getElementById("img_model").style.display = "block";
@@ -797,6 +808,9 @@
             if(doctext == "contract_upload"){
             phy_cont_img = img.name;
             }
+            else if(doctext == "new_offer_upload"){
+            new_offer_img = img.name;
+            }
 
             var reader = new FileReader();
             reader.readAsDataURL(img);
@@ -809,6 +823,12 @@
                 toast_text = "Document Uploaded Successfully";
                 toast_type = "success";
             }
+            else if(doctext == "new_offer_upload"){
+                new_offer_name = reader.result;
+                toast_text = "Document Uploaded Successfully";
+                toast_type = "success";
+            }
+            
             }
                 reader.onerror = function (error) {
                 console.log("Error: ", error);
@@ -926,6 +946,9 @@
 
                         </button>
                     </p>
+                    {#if admin == false}
+                    <p></p>
+                    {:else}
                     <div class="userStatus ml-4">
                         <p class="flex items-center smButtonText" on:click={tagAddRemove}>
                             <a href="" class="smButton modal-open">
@@ -933,6 +956,8 @@
                             </a>
                         </p>
                     </div>
+                    {/if}
+                    {#if is_adhoc_facility == false}
                     <div class="userStatus ml-4">
                         <p class="flex items-center smButtonText" on:click={workorganization}>
                             <a href="" class="smButton modal-open">
@@ -940,6 +965,7 @@
                             </a>
                         </p>
                     </div>
+                    {/if}
                 </div>
 
             </div>
@@ -958,6 +984,9 @@
                                 {/if}
                             </div>
                         </div>
+                        {#if admin == false}
+                        <p></p>
+                        {:else}
                         <div class="userStatus ">
                             <p class="flex items-center smButtonText" on:click={myBtn}>
                                 <a class="smButton" id="changeAssociate">
@@ -965,6 +994,7 @@
                                 </a>
                             </p>
                         </div>
+                        {/if}
                     </div>
                     <div class="userInfoSec3 ">
                         <div class="flex items-start">
@@ -993,6 +1023,7 @@
                                 
                             </div>
                         </div>
+                        {#if is_adhoc_facility == false}
                         <div class="userStatus ">
                             <p class="flex items-center smButtonText" on:click={workorganization}>
                                 <a href="" class="smButton">
@@ -1000,6 +1031,7 @@
                                 </a>
                             </p>
                         </div>
+                        {/if}
                     </div>
                     <div class="userInfoSec3 ">
                         <div class="flex items-start">
@@ -1082,18 +1114,32 @@
                                 <div class="pl-4 flex items-center">
                                     <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
                                     {#if !new_off_file_obj.offer_name}
-                                    <p>-</p>
+                                    <p>Not Required</p>
                                     {:else}
                                     <p class="detailLbale">{new_off_file_obj.offer_name}</p>
                                     {/if}
                                 </div>
                             </div>
                             <div class="userStatus ">
-                                <p class="verifyText">
-                                    <a href="" class="smButton">
-                                        <img src="{$img_url_name.img_name}/view.png" alt="" on:click="{()=>{openViewModel("offer")}}">
-                                    </a>
-                                </p>
+                                {#if new_off_file_obj.offer_name}
+                                    <p class="verifyText">
+                                        <a href="" class="smButton">
+                                            <img src="{$img_url_name.img_name}/view.png" alt="" on:click="{()=>{openViewModel("offer")}}">
+                                        </a>
+                                    </p>
+                                {:else}
+                                    {#if show_upload_btn == "true"}
+                                        <p class="flex items-center smButtonText" on:click={uploadOfferLetter}>
+                                            <a href="" class="smButton modal-open">
+                                                Upload 
+                                            </a>
+                                        </p>
+                                        {:else if remove_upload_btn == "true"}
+                                        <p></p>
+                                    {/if}
+                                {/if}
+                               
+
                             </div>
                         </div>
                     </div>
@@ -2105,6 +2151,77 @@
             </div>
         </div>
     </div>  -->
+
+<!--Offer letter upload  modal -->
+
+<div id="OfferLetterModel" class="hidden">
+    <div  class="actionDialogueOnboard ">
+        <div class="pancardDialogueOnboardWrapper ">
+            <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+                <div class="modalHeadConmb-0">
+                    <div class="leftmodalInfo">
+                        <!-- <p class=""> Reject Reason</p> -->
+                    </div>
+                    <div class="rightmodalclose">
+                        <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" on:click="{closeViewModel}">
+                    </div>
+                </div>
+                <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+    
+                    <!-- <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0 mt-4">
+                        <label class="block  tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-state">
+                        Upload Offer Letter
+                        </label>
+                        <div class="relative">
+                         
+                          <br>
+                          <br>
+                          <div
+                                class="flex  py-1 items-center flex-wrap"
+                            >
+                                <div class="formInnerGroup">
+                                    <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium mr-2" on:click="{confirm_blacklist}">Ok</button>
+                                </div>
+                            </div>
+                          
+                        </div>
+                      </div> -->
+
+                      <div class="light14grey  mb-1">
+                        Upload Offer Letter
+                    </div>
+                    <div class="formInnerGroup">
+                        <label
+                            class="cursor-pointer flex"
+                        >
+                            <div
+                                class="ErBlueButton"
+                            >
+                                Select File
+                            </div>
+                            <input
+                                type="file"
+                                class="hidden"
+                                        on:change={(
+                                            e
+                                        ) =>
+                                            onFileSelected(
+                                                e,"new_offer_upload"
+                                            )}
+                                bind:value="{new_offer_name}"
+
+                            />
+                            <div class="text-red-500">{offer_upload_message}</div>
+                        </label>
+                        <p>{new_offer_img}</p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div> 
+</div>
+
+<!--Offer letter upload  modal -->
 
 
 <Toast type={toast_type}  text={toast_text}/>

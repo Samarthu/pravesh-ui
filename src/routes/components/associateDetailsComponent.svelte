@@ -21,6 +21,7 @@
             import { allowed_pdf_size } from "../../services/pravesh_config";
             import {uploadDocs} from "../../services/bgv_services";
             import Toast from './toast.svelte';
+            // import {check_facility_status} from '.././onboardsummaryComponent.svelte';
 
             let show_spinner = false;
             let toast_text;
@@ -61,6 +62,7 @@
                 pan_verified:null,
                 pan_rejected:null
         }
+        export let admin;
         let child_selected_arr=[];
         
         
@@ -91,6 +93,7 @@
         export let facility_password;
         export let city;
         export let facility_postal;
+        export let is_adhoc_facility;
         //     let facility_address,facility_postal,facility_password,city,location_id,status_name;
             let new_fac_remarks = [];
         //     let select_tag_data,serv_ch_data;
@@ -174,7 +177,7 @@
             }
 
     onMount(async () => {
-        
+       
 
     //     let facility_data_res = await facility_data();
     //     try{
@@ -297,6 +300,7 @@
                 gst_city_loc_id = scope_data[i].location_id;
                 gst_state_code = scope_data[i].state_code;
             }
+            
         }
         else{
             toast_type = "error";
@@ -308,7 +312,15 @@
         toast_text = loc_data_res.body.message;
        
     }
+    
+        // console.log("is adhoc",is_adhoc_facility)
+        //     if(is_adhoc_facility == true){
+        //         console.log("inside id isadhoc")
+        //         // gst_details.style.display = "none";
+        //     }
+    
     });
+    
             
         function editWorkDetail() {
         let replaceState = false;
@@ -472,7 +484,7 @@
                     
                 }
             }  
-            17}
+            }
             
     async function linkChild() {
         let no_com = document.getElementById("comma");
@@ -1046,8 +1058,11 @@
 
 
                  </div>
-
-                 <div class="userInfoSec3">
+                 {#if is_adhoc_facility == false}
+                 {#if admin == "false"}
+                 <p></p>
+                 {:else}
+                 <div class="userInfoSec3" id="gst_details">
                      <div class="flex items-start">
                          <img src="{$img_url_name.img_name}/gst.png" alt="">
                          <div class="pl-4">
@@ -1063,6 +1078,8 @@
                          </p>
                      </div>
                  </div>
+                {/if}
+                {/if}
              </div>
 
          </div> 
@@ -1113,7 +1130,7 @@
 
                  </div>
              </div>
-
+             {#if is_adhoc_facility == false}
              <div class="contact_details">
                  <div class="userInfoSec3">
                      <div class="flex items-start">
@@ -1150,7 +1167,7 @@
                  </div>
                  {/if}
              </div>
-
+             {/if}
          </div> 
      </div>
      <!-- GST Details modal -->

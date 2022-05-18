@@ -148,6 +148,7 @@
         let gst_details_data=[];
     ///////Document view Model/////////
         let alt_image="";
+        export let is_adhoc_facility;
     /////////Document view Model//////
         // $:{
         //     for(let key in all_tags_obj){
@@ -534,6 +535,7 @@
                                  <p class="detailLbale">Bank Document</p>
                              </div>
                          </div>
+                         {#if is_adhoc_facility == false}
                          <div class="pl-4">
                              <p class="flex items-center smButtonText" on:click={chequeDetails}>
                                  <a href="" class="smButton">
@@ -542,7 +544,7 @@
                              </p>
 
                          </div>
-
+                        {/if}
                      </div>
 
                  </div>

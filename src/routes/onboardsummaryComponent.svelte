@@ -193,7 +193,13 @@ import { Router, Link, Route } from "svelte-routing";
     let new_doc_upload_message = "";
     let document_name = "";
     let document_type,document_number;
-   
+    let admin = false;
+    let itadmin = false;
+    let show_upload_btn = false;
+    let remove_upload_btn = false;
+    let adhoc_facility_tag;
+    let is_adhoc_facility = false; 
+    
     $:{
         for(let key in all_tags_obj){
             if(select_tag_data == key){
@@ -232,16 +238,11 @@ import { Router, Link, Route } from "svelte-routing";
     
     
     onMount(async () => {
+        show_spinner = true;
+        query = $page.url;
 
         
-        show_spinner = true;
-        // console.log("facility document data",aadhar_obj,fac_photo_obj,addproof_obj
-        // ,can_cheque_obj,dl_photo_obj,new_off_file_obj);
-        query = $page.url;
-        // console.log("query",query);
-        // console.log("search params has",$page.url.searchParams.has("unFacID"));
-        // console.log("search params get",$page.url.searchParams.get("unFacID"));
-        // console.log("search params ",$page.url);
+        
         if($page.url.searchParams.has("unFacID")){
             let temp  = $page.url.searchParams.get("unFacID");
             if(temp != ""){
@@ -256,12 +257,26 @@ import { Router, Link, Route } from "svelte-routing";
         // console.log("$facility_id",$facility_id.facility_id_number);
 
 
-        
+
         let userdetails = await logged_user();
         
         try{
             if(userdetails.body.status == "green"){
-                username = userdetails.body.data.user.email;
+                for(let i=0;i<userdetails.body.data.user.roles.length;i++){
+                    console.log("user roles",userdetails.body.data.user.roles[i].role)
+                        if(userdetails.body.data.user.roles[i].role == "ROLE_ITADMIN"
+                    || userdetails.body.data.user.roles[i].role == "ROLE_VMT" 
+                    || userdetails.body.data.user.roles[i].role == "ROLE_VMT_ADMIN"
+                    || userdetails.body.data.user.roles[i].role == "ROLE_HR"){
+                        admin = true
+                        console.log("inside admin = true",admin)
+                    }
+                    else if(userdetails.body.data.user.roles[i].role == "ROLE_ITADMIN"){
+                        itadmin = true
+                    }
+                }
+
+                console.log("user roles",admin);
             }
         }
         catch(err) {
@@ -421,6 +436,48 @@ import { Router, Link, Route } from "svelte-routing";
             toast_type = "error";
             toast_text = err;
         }
+
+                // Pravesh Properties //
+    let doc_arr_from_res = [];
+       
+       let get_pravesh_properties_res = await get_pravesh_properties_method();
+       try{
+           if(get_pravesh_properties_res.body.status == "green"){
+               
+               doc_arr_from_res = get_pravesh_properties_res.body.data.document_types.split("\n")
+               let offer_letter_required_associates = get_pravesh_properties_res.body.data.offer_letter_required_associates.split(",");
+               let offer_letter_not_required_tags = get_pravesh_properties_res.body.data.offer_letter_not_required_tags.split(",");
+               adhoc_facility_tag = get_pravesh_properties_res.body.data.adhoc_facility_tag.split(",");
+               
+               if(offer_letter_required_associates.includes($facility_data_store.facility_type) && admin == true){
+                   show_upload_btn = true;
+               }
+               for(let i=0;i < show_fac_array.length;i++){
+                   
+                   if(show_upload_btn == true && offer_letter_not_required_tags.includes(show_fac_array[i].tag_id)){
+                       remove_upload_btn = true;
+                   } 
+                   if(adhoc_facility_tag.includes(show_fac_array[i].tag_id)){
+                       is_adhoc_facility = true;
+                   }
+               }
+               console.log("offer_letter_required_associates",offer_letter_required_associates)
+           for (var k = 0; k < doc_arr_from_res.length; k++) {
+                   var ele = doc_arr_from_res[k];
+                   var doc_name = ele.split("=")[0]
+                   var doc_val = ele.split("=")[1]
+                       doc_type_name.push({"doc_name":doc_name ,"doc_value":doc_val});
+                   }
+                   doc_type_name = doc_type_name
+           }
+           console.log("adhoic fac tag",adhoc_facility_tag)
+       }
+       catch(err){
+           toast_type = "error"
+           toast_text = err
+       }
+       
+              // Pravesh Properties //
         //////////city_data/////////////
         let loc_data_res =  await get_loc_scope();
         try {
@@ -561,8 +618,45 @@ import { Router, Link, Route } from "svelte-routing";
         toast_type = "error";
         toast_text = all_tags_res.body.message;
     }
-    show_spinner = false;
+    // show_spinner = false;
 
+    let tag_res = await show_fac_tags($facility_data_store.facility_type);
+        console.log("tag_res",tag_res);
+        try {
+            show_spinner = true;
+            if(tag_res.body.data.length != 0){
+                show_spinner = false;
+                show_fac_array = tag_res.body.data;
+                console.log("show_fac_array",show_fac_array)
+                for(let i=0;i < show_fac_array.length;i++){
+                    
+                    let new_date =new Date(show_fac_array[i].creation)
+                    
+                    show_fac_array[i].creation=new_date;
+                    // console.log("new_date",new_date);
+                }
+                show_fac_array.sort(function(a, b) {
+                if (a.creation > b.creation) return -1;
+                if (a.creation < b.creation) return 1;
+                return 0;
+                });
+
+                for(let i=0;i < show_fac_array.length;i++){
+                let show_creation_date =get_date_format(show_fac_array[i].creation,"yyyy-mm-dd")
+                show_fac_array[i].creation=show_creation_date;
+                }
+            }
+            else{
+                show_spinner = false;
+                toast_type = "error";
+                toast_text = "No Tags Found";
+            }
+        } 
+        catch(err) {
+            toast_type = "error";
+            toast_text = err;
+        
+         }
     
 }); 
 function check_facility_status(message) {
@@ -574,7 +668,7 @@ function check_facility_status(message) {
         else{
             toast_text = "Request not allowed for Deactive/Blacklisted Facility";
             toast_type = "error";
-        return false;
+            return false;
         }
     }
         toast_text = message;
@@ -758,6 +852,8 @@ function check_facility_status(message) {
         }
         paginatedItems = searchArray;
     }
+
+
     //////not used/////////////
     
 /////////bank details//////;///////
@@ -921,225 +1017,228 @@ function check_facility_status(message) {
         associateModal.style.display = "block";
     }
 
-    async function tagAddRemove() {
-        addRemoveModal.style.display = "block";
-        let tag_res = await show_fac_tags($facility_data_store.facility_type);
-        console.log("tag_res",tag_res);
-        try {
-            show_spinner = true;
-            if(tag_res.body.data.length != 0){
-                show_spinner = false;
-                show_fac_array = tag_res.body.data;
-                console.log("show_fac_array",show_fac_array)
-                for(let i=0;i < show_fac_array.length;i++){
-                    
-                    let new_date =new Date(show_fac_array[i].creation)
-                    
-                    show_fac_array[i].creation=new_date;
-                    // console.log("new_date",new_date);
-                }
-                show_fac_array.sort(function(a, b) {
-                if (a.creation > b.creation) return -1;
-                if (a.creation < b.creation) return 1;
-                return 0;
-                });
-
-                for(let i=0;i < show_fac_array.length;i++){
-                let show_creation_date =get_date_format(show_fac_array[i].creation,"yyyy-mm-dd")
-                show_fac_array[i].creation=show_creation_date;
-                }
-            }
-            else{
-                show_spinner = false;
-                toast_type = "error";
-                toast_text = "No Tags Found";
-            }
-        } 
-        catch(err) {
-            toast_type = "error";
-            toast_text = err;
-        
-         }
-
-        let service_vend_res = await service_vendor();
-        console.log("service_vend_res",service_vend_res)
-        try {
-            show_spinner = true;
-            if(service_vend_res.body.status == "green"){
-                show_spinner = false;
-                for(let i=0;i<service_vend_res.body.data.length;i++){
-                    if(service_vend_res.body.data[i].location_id == location_id){
-                        // tag_data_obj[service_vend_res.body.data[i].vendor_id] = service_vend_res.body.data[i].vendor_name;
-                        tag_data_obj.push(service_vend_res.body.data[i]);
-                    }
-                }
-                tag_data_obj = tag_data_obj;
-                console.log("tag_data_obj",tag_data_obj)
-            }
-            else{
-                show_spinner = false;
-                toast_type = "error";
-                toast_text = "No Vendor Found";
-            }
-        }
-        catch(err) {
-            show_spinner = false;
-            toast_type = "error";
-            toast_text = err;
-        }
-
-
+    function goto_vmt_verify(){
+        goto("./vmt_verify");
     }
-    async function handleTagClick(){
-    let new_tag_id
-    try {   
-    //     if(all_tags_res.body.status == "green"){
+//     async function tagAddRemove() {
+//         addRemoveModal.style.display = "block";
+//         let tag_res = await show_fac_tags($facility_data_store.facility_type);
+//         console.log("tag_res",tag_res);
+//         try {
+//             show_spinner = true;
+//             if(tag_res.body.data.length != 0){
+//                 show_spinner = false;
+//                 show_fac_array = tag_res.body.data;
+//                 console.log("show_fac_array",show_fac_array)
+//                 for(let i=0;i < show_fac_array.length;i++){
+                    
+//                     let new_date =new Date(show_fac_array[i].creation)
+                    
+//                     show_fac_array[i].creation=new_date;
+//                     // console.log("new_date",new_date);
+//                 }
+//                 show_fac_array.sort(function(a, b) {
+//                 if (a.creation > b.creation) return -1;
+//                 if (a.creation < b.creation) return 1;
+//                 return 0;
+//                 });
+
+//                 for(let i=0;i < show_fac_array.length;i++){
+//                 let show_creation_date =get_date_format(show_fac_array[i].creation,"yyyy-mm-dd")
+//                 show_fac_array[i].creation=show_creation_date;
+//                 }
+//             }
+//             else{
+//                 show_spinner = false;
+//                 toast_type = "error";
+//                 toast_text = "No Tags Found";
+//             }
+//         } 
+//         catch(err) {
+//             toast_type = "error";
+//             toast_text = err;
         
-        for(let i=0; i < all_tags_res.body.data.length; i++){
-            // console.log("INDISDE FOR LOOPform_data from html",select_tag_data,all_tags_res.body.data[i].tag_name)
-            if(select_tag_data == all_tags_res.body.data[i].tag_name){
-                new_tag_id = all_tags_res.body.data[i].tag_id;
-            }
+//          }
+
+//         let service_vend_res = await service_vendor();
+//         console.log("service_vend_res",service_vend_res)
+//         try {
+//             show_spinner = true;
+//             if(service_vend_res.body.status == "green"){
+//                 show_spinner = false;
+//                 for(let i=0;i<service_vend_res.body.data.length;i++){
+//                     if(service_vend_res.body.data[i].location_id == location_id){
+//                         // tag_data_obj[service_vend_res.body.data[i].vendor_id] = service_vend_res.body.data[i].vendor_name;
+//                         tag_data_obj.push(service_vend_res.body.data[i]);
+//                     }
+//                 }
+//                 tag_data_obj = tag_data_obj;
+//                 console.log("tag_data_obj",tag_data_obj)
+//             }
+//             else{
+//                 show_spinner = false;
+//                 toast_type = "error";
+//                 toast_text = "No Vendor Found";
+//             }
+//         }
+//         catch(err) {
+//             show_spinner = false;
+//             toast_type = "error";
+//             toast_text = err;
+//         }
+
+
+//     }
+//     async function handleTagClick(){
+//     let new_tag_id
+//     try {   
+//     //     if(all_tags_res.body.status == "green"){
+        
+//         for(let i=0; i < all_tags_res.body.data.length; i++){
+//             // console.log("INDISDE FOR LOOPform_data from html",select_tag_data,all_tags_res.body.data[i].tag_name)
+//             if(select_tag_data == all_tags_res.body.data[i].tag_name){
+//                 new_tag_id = all_tags_res.body.data[i].tag_id;
+//             }
             
-        }
-        if(!select_tag_data){
-            selectTag = 1;
-            if(!tag_remark){
-            addRemark = 1;
-                if(!serv_ch_data){
-                    selectsearch=1;
-                }
-            }   
+//         }
+//         if(!select_tag_data){
+//             selectTag = 1;
+//             if(!tag_remark){
+//             addRemark = 1;
+//                 if(!serv_ch_data){
+//                     selectsearch=1;
+//                 }
+//             }   
 
-        }
-        else{
-            console.log("select_tag_data",select_tag_data)
-            show_fac_array = [];
-            console.log("serv_ch_data",serv_ch_data)
-            let submit_fac_res = await submit_fac_tag_data(new_tag_id,select_tag_data,tag_date,tag_remark,serv_ch_data)
-            try {
-                show_spinner = true;
-                if(submit_fac_res.body.status == "green"){
-                    show_spinner = false;
-                    let temp_res = await show_fac_tags($facility_data_store.facility_type);
-                    show_fac_array = temp_res.body.data;
-                    for(let i=0;i < show_fac_array.length;i++){
-                        let new_date =new Date(show_fac_array[i].creation)
-                        show_creation_date = get_date_format(new_date,"yyyy-mm-dd")
-                        show_fac_array[i].creation=show_creation_date;
-                    }
-                    show_fac_array = show_fac_array;
-                }
-                // console.log("submit_fac_res.body",submit_fac_res.body)
-                else if(submit_fac_res.body.message == "Tag already exist..!"){
-                    show_spinner = false;
-                    console.log("Cannot Add Tag already exist..!")
-                }
-            }
-                catch(err) {
-                    show_spinner = false;
-                    toast_type = "error";
-                    toast_text = err;
-                }
-        }
+//         }
+//         else{
+//             console.log("select_tag_data",select_tag_data)
+//             show_fac_array = [];
+//             console.log("serv_ch_data",serv_ch_data)
+//             let submit_fac_res = await submit_fac_tag_data(new_tag_id,select_tag_data,tag_date,tag_remark,serv_ch_data)
+//             try {
+//                 show_spinner = true;
+//                 if(submit_fac_res.body.status == "green"){
+//                     show_spinner = false;
+//                     let temp_res = await show_fac_tags($facility_data_store.facility_type);
+//                     show_fac_array = temp_res.body.data;
+//                     for(let i=0;i < show_fac_array.length;i++){
+//                         let new_date =new Date(show_fac_array[i].creation)
+//                         show_creation_date = get_date_format(new_date,"yyyy-mm-dd")
+//                         show_fac_array[i].creation=show_creation_date;
+//                     }
+//                     show_fac_array = show_fac_array;
+//                 }
+//                 // console.log("submit_fac_res.body",submit_fac_res.body)
+//                 else if(submit_fac_res.body.message == "Tag already exist..!"){
+//                     show_spinner = false;
+//                     console.log("Cannot Add Tag already exist..!")
+//                 }
+//             }
+//                 catch(err) {
+//                     show_spinner = false;
+//                     toast_type = "error";
+//                     toast_text = err;
+//                 }
+//         }
 
-    }
-    catch(err) {
-        toast_type = "error";
-        toast_text = err;
-    }
+//     }
+//     catch(err) {
+//         toast_type = "error";
+//         toast_text = err;
+//     }
       
-}
+// }
 
-    async function removeTag(tag_id,tag_name,owner,tag_status){
-        show_fac_array = [];
-        let fac_id
-        if(owner == $facility_data_store.owner){
-                fac_id = $facility_data_store.name
-                console.log("fac_id",fac_id)
-        }
-        let remove_tag_res = await remove_tag(fac_id,tag_id,tag_name);
-        if(remove_tag_res.body.status == "green")
-        {
-        let temp_res = await show_fac_tags($facility_data_store.facility_type);
-        try {
-                show_fac_array = temp_res.body.data;
+//     async function removeTag(tag_id,tag_name,owner,tag_status){
+//         show_fac_array = [];
+//         let fac_id
+//         if(owner == $facility_data_store.owner){
+//                 fac_id = $facility_data_store.name
+//                 console.log("fac_id",fac_id)
+//         }
+//         let remove_tag_res = await remove_tag(fac_id,tag_id,tag_name);
+//         if(remove_tag_res.body.status == "green")
+//         {
+//         let temp_res = await show_fac_tags($facility_data_store.facility_type);
+//         try {
+//                 show_fac_array = temp_res.body.data;
                 
-                // console.log("show_fac_array IN remove",show_fac_array)
-                for(let i=0;i < show_fac_array.length;i++){
+//                 // console.log("show_fac_array IN remove",show_fac_array)
+//                 for(let i=0;i < show_fac_array.length;i++){
                     
-                    let new_date =new Date(show_fac_array[i].creation)
-                    show_creation_date = get_date_format(new_date,"yyyy-mm-dd")
-                    show_fac_array[i].creation=show_creation_date;
+//                     let new_date =new Date(show_fac_array[i].creation)
+//                     show_creation_date = get_date_format(new_date,"yyyy-mm-dd")
+//                     show_fac_array[i].creation=show_creation_date;
                    
-        }
+//         }
        
-    }
-        catch(err) {
-        console.log("ERROR")
+//     }
+//         catch(err) {
+//         console.log("ERROR")
         
-         }
+//          }
 
-    }
-}
+//     }
+// }
 
 
-   async function tagAuditFunc(){
-        temp = "tag";
-        let tag_audit_res =await tag_audit_trail();
-        try {
-            if(tag_audit_res.body.status == "green"){
+//    async function tagAuditFunc(){
+//         temp = "tag";
+//         let tag_audit_res =await tag_audit_trail();
+//         try {
+//             if(tag_audit_res.body.status == "green"){
             
-            tag_data_arr = tag_audit_res.body.data
-            for(let i=0;i < tag_data_arr.length;i++){
-                let new_date =new Date(tag_data_arr[i].creation)
-                show_creation_date = get_date_format(new_date,"yyyy-mm-dd")
-                tag_data_arr[i].creation=show_creation_date;
-            }
-            // console.log("TAG DATA ARRA",tag_data_arr)
-            tag_data_arr = tag_data_arr;
+//             tag_data_arr = tag_audit_res.body.data
+//             for(let i=0;i < tag_data_arr.length;i++){
+//                 let new_date =new Date(tag_data_arr[i].creation)
+//                 show_creation_date = get_date_format(new_date,"yyyy-mm-dd")
+//                 tag_data_arr[i].creation=show_creation_date;
+//             }
+//             // console.log("TAG DATA ARRA",tag_data_arr)
+//             tag_data_arr = tag_data_arr;
                
-        }} catch(err) {
-        console.log("ERROR")
+//         }} catch(err) {
+//         console.log("ERROR")
         
-         }
+//          }
        
-    }
+//     }
 
-    function clear() {
-        addRemoveModal.style.display = "none";
-    }
+//     function clear() {
+//         addRemoveModal.style.display = "none";
+//     }
 
     function close() {
         associateModal.style.display = "none";
     }
 
     async function allDoc() {
-        let doc_arr_from_res = [];
+    //     let doc_arr_from_res = [];
         modalid.style.display = "block";
-        let get_pravesh_properties_res = await get_pravesh_properties_method();
+    //     let get_pravesh_properties_res = await get_pravesh_properties_method();
         
 
-        try{
+    //     try{
             
-            if(get_pravesh_properties_res.body.status == "green"){
+    //         if(get_pravesh_properties_res.body.status == "green"){
                 
-                doc_arr_from_res = get_pravesh_properties_res.body.data.document_types.split("\n")
+    //             doc_arr_from_res = get_pravesh_properties_res.body.data.document_types.split("\n")
                 
 
-            for (var k = 0; k < doc_arr_from_res.length; k++) {
-                    var ele = doc_arr_from_res[k];
-                    var doc_name = ele.split("=")[0]
-                    var doc_val = ele.split("=")[1]
-                        doc_type_name.push({"doc_name":doc_name ,"doc_value":doc_val});
-					}
-                    doc_type_name = doc_type_name
-            }
-        }
-        catch(err){
-            toast_type = "error"
-            toast_text = err
-        }
+    //         for (var k = 0; k < doc_arr_from_res.length; k++) {
+    //                 var ele = doc_arr_from_res[k];
+    //                 var doc_name = ele.split("=")[0]
+    //                 var doc_val = ele.split("=")[1]
+    //                     doc_type_name.push({"doc_name":doc_name ,"doc_value":doc_val});
+	// 				}
+    //                 doc_type_name = doc_type_name
+    //         }
+    //     }
+    //     catch(err){
+    //         toast_type = "error"
+    //         toast_text = err
+    //     }
     }
 
     routeBgv = "bgv";
@@ -1503,6 +1602,7 @@ function check_facility_status(message) {
     //     console.log("data",data)
     // }
 
+
 </script>
 {#if show_spinner}
     <Spinner />
@@ -1521,7 +1621,9 @@ function check_facility_status(message) {
                     </span>
                 </p>
                
+                
                 <p class="breadcrumbRight">
+                    {#if is_adhoc_facility == false}
                     <a href=""> 
                         <span class="breadRightIcons" on:click={erpModel}> 
                              ERP Details
@@ -1532,14 +1634,21 @@ function check_facility_status(message) {
                                 alt=""> Documents
                         </span> 
                     </a>
+                    {/if}
                     <a class="cursor-pointer">
                         <span class="breadRightIcons" id="SupplerModalbuttonClick" on:click={auditTrial}>
                             <img src="{$img_url_name.img_name}/audittrail.png" class="pr-2" alt=""> Audit Trial (12)
                         </span>
                     </a>
+                    {#if admin == false}
+                    <p></p>
+                    {:else}
+                    {#if is_adhoc_facility == false}
                     <span class="backlistText cursor-pointer" on:click="{blacklist_remark_select}">
                         <img src="{$img_url_name.img_name}/backlist.png" class="pr-2" alt=""> Backlist Vendor
                     </span>
+                    {/if}
+                    {/if}
                 </p>
             
             </div>
@@ -1753,7 +1862,9 @@ function check_facility_status(message) {
                                     </p>
                                     {/if} 
                                 {/if}  
-                               
+                                {#if is_adhoc_facility == true}
+                                <p> - ( Adhoc )</p>
+                               {/if}
                             </div>
                         </div>
                     </div>
@@ -1788,8 +1899,11 @@ function check_facility_status(message) {
                     Verify <img src="{$img_url_name.img_name}/downarrowwhite.svg" class="pl-2" alt="arrow">
                 </div>
             </div> -->
+            
             <div class="statusrightlink">
+                
                 <div>
+                    {#if is_adhoc_facility == false}
                     {#if showbtn == "1"}
                         {#if $facility_data_store.is_bgv_intiated == "0"}
                         
@@ -1837,10 +1951,24 @@ function check_facility_status(message) {
                     {:else}
                     <p></p>
                     {/if}
+                    {/if}
                 </div>
+                {#if admin == true}
+                <p></p>
+                {:else}
+                    <div class="mt-4 mb-3  xsl:flex">
+                        <div class="vmtVerify " on:click="{goto_vmt_verify}">
+                            <!-- <div class="vmtVerify " > -->
+                            Verify <img src="{$img_url_name.img_name}/downarrowwhite.svg" class="pl-2" alt="arrow">
+                        </div>
+                    </div>
+                {/if}
+                </div>
+            
             </div>
-            </div>
+            
         </div>
+       
     </div>
 
     <div class="contentsectionDetailview_summary ">
@@ -1859,22 +1987,28 @@ function check_facility_status(message) {
     fac_photo_objfac_photo_obj={fac_photo_obj} 
     facility_password={facility_password}
     facility_address = {facility_address}
-    pancard_obj={pancard_obj}/>
+    pancard_obj={pancard_obj} admin = {admin}
+    is_adhoc_facility = {is_adhoc_facility}/>
     
     {:else if change_to == "Work_details"}
     <WorkDetails new_off_file_obj={new_off_file_obj} facility_modified_date={facility_modified_date} city={city}
-    facility_name = {$facility_data_store.facility_name} facility_id = {$facility_id.facility_id_number} />
+    facility_name = {$facility_data_store.facility_name} facility_id = {$facility_id.facility_id_number} admin = {admin} 
+    show_upload_btn = {show_upload_btn}
+    remove_upload_btn = {remove_upload_btn}
+    is_adhoc_facility = {is_adhoc_facility}/>
 
     {:else if change_to == "Identity_details"}
     <IdentityProof pancard_obj={pancard_obj}
     aadhar_obj ={aadhar_obj}
     dl_photo_obj={dl_photo_obj}
-    id_new_date={id_new_date}/>
+    id_new_date={id_new_date} admin = {admin}
+    is_adhoc_facility = {is_adhoc_facility}/>
     
     {:else if change_to == "Bank_details"}
     <BankDetails bank_values_from_store = {bank_values_from_store}
      city={city} can_cheque_obj = {can_cheque_obj}
-     bank_new_date={bank_new_date}/>
+     bank_new_date={bank_new_date} admin = {admin}
+     is_adhoc_facility = {is_adhoc_facility}/>
     {/if}
 
     
@@ -2352,30 +2486,19 @@ function check_facility_status(message) {
                         Do you want to Blacklist+{$facility_id.facility_id_number}-{$facility_data_store.facility_type}?
                         </label>
                         <div class="relative">
-                          <!-- <select class="block appearance-none w-full  border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-state" bind:value="{pan_info_res}">
-                            <option value="" selected disabled>Select</option>
-                            {#each rejReasonMap.panInfo as pan_info_rej}
-                            <option>{pan_info_rej} </option>
-                            {/each}
-                          </select> -->
+                         
                           <br>
                           <br>
                           <div
                                 class="flex  py-1 items-center flex-wrap"
                             >
                                 <div class="formInnerGroup">
-                                    <!-- <input
-                                        class="inputboxpopover"
-                                        type="text"
-                                        bind:value="{blacklist_remark}"
-                                    /> -->
+                                   
                                     <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium mr-2" on:click="{close_blacklist_remark}">Cancel</button>
                                     <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium mr-2" on:click="{confirm_blacklist}">Ok</button>
                                 </div>
                             </div>
-                          <!-- <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-                          </div> -->
+                          
                         </div>
                       </div>
                 </form>
