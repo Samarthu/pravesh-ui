@@ -37,7 +37,7 @@
             import  {  page } from '$app/stores';
             import {documents_store} from '../../stores/document_store';
             import { goto } from "$app/navigation";
-            import {get_client_org_mapping} from '../../services/vmt_verify_services'
+            import {get_client_org_mapping,get_client_details} from '../../services/vmt_verify_services'
             
             // import {onFileSelected} from '../onboardsummaryComponent.svelte'
         
@@ -93,6 +93,17 @@
             let contract_tab_val = "e-cont";
             // export let facility_name;
             export let facility_id;
+            let id_select;
+            let stat_select;
+            let stat_code = "";
+            let emp_number
+            let requestType = "";
+            let status_display = 0; 
+            let get_client_details_data = [];
+            let newType;
+            let attendenceType;
+            let get_client_data_mapping_data = [];
+
             // let pancard_obj = {
             //     pan_num:null,
             //     pan_attach:null,
@@ -272,6 +283,19 @@
                 }
 
             }
+            $:if(stat_select != null){
+        console.log("station_select",stat_select)
+        station_code_select(stat_select);
+    }
+
+    $:if(id_select != null){
+        console.log("id_select",id_select)
+        org_id_select(id_select);
+    }
+
+    $:{
+        attendenceType = newType;
+    }
 
             
 
@@ -433,6 +457,56 @@
             contract_tab_val = "all_cont"
         }
     }
+    async function station_code_select(station_code){
+        station_code_arr = [];
+        console.log("station_code",station_code.toLowerCase())
+        let get_specific_name_res = await get_specific_name(station_code.toLowerCase())
+        station_code_arr.push(get_specific_name_res.body.data[0].resource_id)
+        console.log("get_specific_name_res",get_specific_name_res)
+
+        station_code_arr = station_code_arr;
+        console.log("station_code_arr",station_code_arr)
+
+    }
+
+    async function org_id_select(org_id){
+        if(org_id == "AN"){
+            table_head = "Name in COMP"
+        }
+        else if(org_id == "FT"){
+            table_head = "Name in LIBERA"
+        }
+        else{
+            table_head = "Org Specific Name"
+        }
+        station_code_arr = [];
+        org_AN_flag = 0;
+        console.log("org_AN_flag",org_AN_flag)
+        station_data_array = [];
+        // console.log("orgOrganization_id",org_id)
+        let get_loc_scope_res = await get_loc_scope(org_id)
+                for(let i=0;i<get_loc_scope_res.body.data.length;i++){
+                    for(let j =0 ;j<get_loc_scope_res.body.data[i].stations.length;j++){
+                        
+                        // console.log("org id inside for",org_id)
+                    if(org_id  == get_loc_scope_res.body.data[i].stations[j].org_id){
+                        console.log("org id found",org_id);
+                        station_data_array.push({"org_id":get_loc_scope_res.body.data[i].stations[j].org_id,"station_name":get_loc_scope_res.body.data[i].stations[j].station_name,"station_code":get_loc_scope_res.body.data[i].stations[j].station_code})
+                        if(get_loc_scope_res.body.data[i].stations[j].org_id == "AN"){
+                            org_AN_flag = 1;
+                            console.log("inside if org_id",org_AN_flag)
+                        }
+                        else{
+                            org_AN_flag = 0; 
+                        }
+                    }
+                    }
+                }
+                station_data_array = station_data_array;
+        console.log("station_data_array",station_data_array);
+
+                
+    }
         onMount(async () => {
             let get_org_data_res =  await get_client_org_mapping();
             try {
@@ -561,6 +635,141 @@
         function clear() {
             addRemoveModal.style.display = "none";
         }
+
+        async function view_add_client() {
+        workorganizationModel.style.display = "block";
+        if($facility_data_store.status == "Deactive"){
+            status_display = -1;
+            toast_text = "User is Deactive";
+            toast_type = "error";
+        }
+        let get_client_details_res = await get_client_details(facility_id)
+        try {
+            if (get_client_details_res != "null"){
+                for(let i=0; i< get_client_details_res.body.data.length;i++){
+                    get_client_details_data.push(get_client_details_res.body.data[i]);
+                }
+                get_client_details_data = get_client_details_data;
+                console.log("get_client_details_data",get_client_details_data)
+            }
+        } catch (err) {
+            toast_type = "error";
+            toast_text = get_client_details_res.body.message;
+        }
+
+        let get_loc_scope_res = await get_loc_scope()
+        try {
+            if (get_loc_scope_res != "null"){
+                // for(let i=0; i< get_loc_scope_res.body.data[0].stations.length;i++){
+                //     get_loc_scope_data.push(get_loc_scope_res.body.data[i]);
+                //     station_code.push(get_loc_scope_res.body.data[0].stations[i].station_code);
+                //     // console.log("get_loc_scope_res",get_loc_scope_res.body.data[0].stations[i].station_code)
+                // }
+                // station_code = station_code;
+                // get_loc_scope_data = get_loc_scope_data;
+                // console.log("get_loc_scope_data",get_loc_scope_data)
+                for(let i=0;i<get_loc_scope_res.body.data.length;i++){
+                    // console.log(get_loc_scope_res.body.data[i]);
+                    for(let j =0 ;j<get_loc_scope_res.body.data[i].stations.length;j++){
+                        // console.log(get_loc_scope_res.body.data[i].stations[j].station_name);
+                        station_data_array.push({"station_code":get_loc_scope_res.body.data[i].stations[j].station_code,"station_name":get_loc_scope_res.body.data[i].stations[j].station_name})
+
+                    }
+
+                }
+                station_data_array = station_data_array;
+                console.log("station_data_array",station_data_array);
+            }
+
+
+        } catch (error) {
+            toast_type = "error";
+            toast_text = get_loc_scope_res.body.message;
+        }
+
+
+        // let get_client_data_mapping_res = await get_client_org_mapping()
+        // if (get_client_data_mapping_res != "null"){
+        //     for(let i=0;i<get_client_data_mapping_res.body.state.data.length;i++){
+        //         get_client_data_mapping_data.push(get_client_data_mapping_res.body.data[i]);
+        //         org_id.push(loc_data_res.body.data[i].org_id);
+        //     }
+        //     org_id = org_id;
+        //     get_client_data_mapping_data = get_client_data_mapping_data;
+        //     console.log("get_client_data_mapping_data",get_client_data_mapping_data)
+        // }
+
+
+
+
+        let get_client_data_mapping_res =  await get_client_org_mapping();
+        try {
+        if(get_client_data_mapping_res.body.status == "green"){
+             for(let i=0;i<get_client_data_mapping_res.body.data.length;i++){
+                // station_code.push(get_client_data_mapping_res.body.data[i].station_code);
+                // org_name_array.push(get_client_data_mapping_res.body.data[i].org_name)
+                // get_client_data_mapping_data.push(get_client_data_mapping_res.body.data[i]);
+                get_client_data_mapping_data.push({"org_id":get_client_data_mapping_res.body.data[i].org_id,"org_name":get_client_data_mapping_res.body.data[i].org_name})
+
+                
+            }
+            // station_code = station_code;
+            // org_name_array=org_name_array;
+            get_client_data_mapping_data = get_client_data_mapping_data;
+            console.log("get_client_data_mapping_data",get_client_data_mapping_data)
+            // for(let i=0;i<get_client_data_mapping_data.length;i++){
+               
+            //     org_name = get_client_data_mapping_data[i].org_name;
+            //     // gst_city_loc_id = get_client_data_mapping_data[i].location_id;
+            //     // gst_state_code = get_client_data_mapping_data[i].state_code;
+            //     console.log("org_name",org_name)
+            // }
+        }
+        else{
+            toast_type = "error";
+            toast_text = "No client Data";
+        }
+        
+    } catch(err) {
+        toast_type = "error";
+        toast_text = get_client_data_mapping_res.body.message;
+       
+    }
+//     async function station_code_select(stat_select){
+//         console.log("stat_select inside station_code_select",stat_select)
+//     let get_specific_name_res = await get_specific_name(stat_code)
+//     console.log("get_specific_name_res",get_specific_name_res)
+//     try {
+//         if(get_specific_name_res.stat_code != "null"){
+//             // for(i=0;i<get_specific_name_res.body.data.length;i++)
+//             // console.log("get_specific_name_res",get_specific_name_data)
+//             // get_specific_name_data.push({"resouce_id":get_specific_name_res.body.data[i].resource_id})
+//             // console.log("get_specific_name_res",get_specific_name_data)
+//             for(let i=0; i< get_specific_name_res.body.data.length;i++){
+//                 get_specific_name_data.push(get_specific_name_res.body.data[i]);
+//                 }
+//                 get_specific_name_data = get_specific_name_data;
+//                 // console.log("get_client_details_data",get_specific_name_data)
+//         }
+//     } catch (error) {
+//         toast_type = "error";
+//         toast_text = get_specific_name_res.body.message;
+//     }
+    
+// }
+
+
+
+
+
+
+
+
+    }
+
+    function closeWorkorganization() {
+        workorganizationModel.style.display = "none";
+    }
 
 
         async function tagAddRemove() {
@@ -1025,7 +1234,7 @@
                         </div>
                         {#if is_adhoc_facility == false}
                         <div class="userStatus ">
-                            <p class="flex items-center smButtonText" on:click={workorganization}>
+                            <p class="flex items-center smButtonText" on:click={view_add_client}>
                                 <a href="" class="smButton">
                                     Add/Edit
                                 </a>
@@ -2222,6 +2431,271 @@
 </div>
 
 <!--Offer letter upload  modal -->
+<!-- Full screen modal  View/Edit Client Name Desktop and Responsive Done-->
+
+<div class="hidden" id="workorganizationModel">
+    <div class="modalMain">
+        <div class="modalOverlay"></div>
+
+        <div class="modalContainer">
+            <div class="modalHeadConmb-0 sticky top-0 bg-white z-zindex99">
+                <div class="leftmodalInfo">
+                    <p class="modalTitleText"> View/Edit Client Name </p>
+                    <p class="text-sm ">
+                        <span class="font-medium text-lg"> {$facility_data_store.facility_name}</span>
+                        <span class="userDesignation"> (Associate
+                            - {$facility_data_store.facility_type} / ID - {$facility_data_store.name})</span>
+                    </p>
+                </div>
+                <div class="rightmodalclose" on:click={closeWorkorganization}>
+                    <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal">
+                </div>
+            </div>
+            <div class="modalContent">
+
+                <div class="ConModalContent">
+
+                    <div class="xsl:grid-cols-1 gap-4 ">
+
+                        <div class=""> <!-- sticky top-24 bg-white z-zindex99 -->
+                            <div class="bgAddSection mt-2">
+                                {#if temp5 == "newMap"}
+                                <div class="addbuttongst  ">
+                                    {#if  status_display == -1}
+                                        <p>user in inactive</p>
+                                    {:else}
+                                    <div class="updateAction">
+                                        <button class="ErBlueButton" on:click={() => {temp5 = "newMap-2";}}>Add New Mapping</button>
+                                    </div>
+                                    {/if}
+                                </div>
+                                {/if}
+                                {#if temp5 == "newMap-2"}
+                                {#if !get_client_data_mapping_data}
+                                <p>No client Details found</p>
+                                {:else}
+                                    <div class="addGstForm ">
+                                        <div class="gstaddtitle px-4 py-4">
+                                            <p class="text-lg font-medium">Add New Mapping</p>
+                                        </div>
+
+
+
+                                        <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
+                                            <div class="w-full">
+                                                <div class="light14grey mb-1">Organization</div>
+                                                <div class="formInnerwidthfull ">
+                                                    <select class="inputboxpopover" bind:value={id_select}>
+                                                        <option value="" disabled selected>Select</option>
+                                                        {#each get_client_data_mapping_data as org_detail}
+                                                            <option
+                                                                class="pt-6"
+                                                                value="{org_detail.org_id}"
+                                                                >{org_detail.org_name}</option
+                                                            >
+                                                        {/each}
+                                                    </select>
+                                                    <div class="formSelectArrow ">
+                                                        <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="w-full">
+                                                <div class="light14grey mb-1">Station</div>
+                                                <div class="formInnerwidthfull ">
+                                                    <select class="inputboxpopover" bind:value={stat_select}>
+                                                        <option value="" disabled selected>Select</option>
+                                                        {#each station_data_array as station}
+                                                            <option
+                                                                class="pt-6" 
+                                                                value={station.station_code}
+                                                                >{station.station_code} - {station.station_name}</option
+                                                            >
+                                                            {/each}
+                                                    </select>
+                                                    <div class="formSelectArrow ">
+                                                        <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
+                                            <div class="w-full">
+                                                <div class="light14grey mb-1">{table_head}</div>
+                                                <div class="formInnerwidthfull ">
+                                                    <select class="inputboxpopover" bind:value ={stat_code}>
+                                                        {#if org_AN_flag == 1}
+                                                        <option class="pt-6" >Select</option>
+                                                        <option class="pt-6">Create Only Rabbit ID/COMP ID</option>
+                                                        {#each station_code_arr as stat_code}
+                                                            <option class="pt-6">
+                                                                {stat_code.trim()}
+                                                            </option>
+                                                        {/each}
+                                                        {:else }
+                                                        <option class="pt-6">Select</option>
+                                                        {#each station_code_arr as stat_code}
+                                                            <option class="pt-6">
+                                                                {stat_code.trim()}
+                                                            </option>
+                                                        {/each}
+                                                        {/if}
+                                                    </select>
+                                                    <div class="formSelectArrow ">
+                                                        <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="w-full">
+                                                <div class="light14greylong mb-1">Client Empployee ID ( If available)
+                                                </div>
+                                                <div class="formInnerwidthfull ">
+                                                    <input type="text" class="inputboxpopover" bind:value="{emp_number}">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex gap-4 px-4 py-2 xsl:flex-wrap">
+                                            <div class="w-full">
+                                                <div class="light14greylong mb-1">Create new Rabbit ID/Comp ID</div>
+                                                <div class="formInnerwidthfull ">
+                                                    <div class="formInnerGroup py-2">
+                                                        {#if org_AN_flag == 1}
+                                                        <div class="text-center flex mb-2 ml-1">
+
+                                                            <div class="flex items-center mr-4">
+                                                                <input id="Rabbit" type="radio" name="crClient" bind:group="{requestType}"
+                                                                    class="hidden" checked="" value="rabbitid">
+                                                                <label for="Rabbit" class="radioLable">
+                                                                    <span class="radioCirle"></span>
+                                                                    Rabbit ID</label>
+                                                            </div>
+
+                                                            <div class="flex items-center ml-4">
+                                                                <input id="COMP" type="radio" name="crClient" bind:group="{requestType}"
+                                                                    class="hidden" value="compid">
+                                                                <label for="COMP" class="radioLable">
+                                                                    <span class="radioCirle"></span>
+                                                                    COMP ID</label>
+                                                            </div>
+                                                        </div>
+                                                        {:else if org_AN_flag == 0}
+                                                        <h1>Not Applicable</h1>
+                                                        {/if}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="w-full">
+
+                                            </div>
+                                        </div>
+
+
+
+                                        <div class="actionButtons">
+                                            <div class="actionCancelbutton " on:click={() => {temp5 = "newMap";}} >
+                                                Cancel
+                                            </div>
+                                            <div class="updateAction ml-5" on:click="{finalMap}">
+                                                <button class="ErBlueButton">Map</button>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                {/if}
+                                {/if}
+                            </div>
+
+                        </div>
+
+
+
+
+                        <div class="heightCardContainer">
+                            {#if !get_client_details_data}
+                            <p>No client Details found</p>
+                            {:else}
+                            {#each get_client_details_data as new_client}
+                                <div class="cardDocWrapper ">
+                                    <div class="grid grid-cols-2 xs:grid-cols-1 gap-4">
+                                        <div>
+                                            <div class="grid grid-cols-2 gap-4 mb-1">
+                                                <div class="detailLbale"> Organisation</div>
+                                                <div class="detailData"> {new_client.org_name}</div>
+                                            </div>
+                                            <div class="grid grid-cols-2 gap-4 mb-1">
+                                                <div class="detailLbale"> Station Name & code </div>
+                                                <div class="detailData"> {new_client.station_code}</div>
+                                            </div>
+                                            <div class="grid grid-cols-2 gap-4 mb-1">
+                                                <div class="detailLbale"> Org specified name </div>
+                                                <div class="detailData break-words"> {new_client.org_specific_name}</div>
+                                            </div>
+                                            <div class="grid grid-cols-2 gap-4 mb-1">
+                                                <div class="detailLbale"> Client Employee ID</div>
+                                                <div class="detailData"> {new_client.client_id}</div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div class="grid grid-cols-2 gap-4 mb-1">
+                                                <div class="detailLbale"> Added On</div>
+                                                <div class="detailData"> {new_client.creation}</div>
+                                            </div>
+                                            <div class="grid grid-cols-2 gap-4 mb-1">
+                                                <div class="detailLbale"> Added by </div>
+                                                <div class="detailData"> {new_client.modified_by}</div>
+                                            </div>
+                                            <div class="grid grid-cols-2 gap-4 mb-1">
+                                                <div class="detailLbale"> Client ID status/info </div>
+                                                <div class="detailData"> ----</div>
+                                            </div>
+                                            <div class="grid grid-cols-2 gap-4 mb-1">
+                                                <div class="detailLbale"> Status</div>
+                                                <div>
+                                                    {#if new_client.status == "deactive"}
+                                                    <p
+                                                        class="userStatusTickVerified "
+                                                    >
+                                                        <img
+                                                            src="{$img_url_name.img_name}/reject.png"
+                                                            alt=""
+                                                            class="pr-1"
+                                                        /> {new_client.status}
+                                                    </p>
+                                                    {:else}
+                                                    <p
+                                                        class="userStatusTickVerified "
+                                                    >
+                                                        <img
+                                                            src="{$img_url_name.img_name}/checked.png"
+                                                            alt=""
+                                                            class="pr-1"
+                                                        /> {new_client.status}
+                                                    </p>
+                                                    {/if}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {/each}
+                            {/if}
+                        </div>
+
+                        
+
+                    </div>
+
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <!-- Full screen modal  Change Associate Type Desktop and Responsive Done--->
 
 
 <Toast type={toast_type}  text={toast_text}/>

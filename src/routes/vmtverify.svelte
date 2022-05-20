@@ -2129,7 +2129,9 @@
         let get_client_data_mapping_res =  await get_client_org_mapping();
         try {
         if(get_client_data_mapping_res.body.status == "green"){
+            console.log("GREEN")
              for(let i=0;i<get_client_data_mapping_res.body.data.length;i++){
+                 console.log("inside /api/method/pravesh.facility.routes.organisation.get_org_list?org_field=[%22*%22]")
                 // station_code.push(get_client_data_mapping_res.body.data[i].station_code);
                 // org_name_array.push(get_client_data_mapping_res.body.data[i].org_name)
                 // get_client_data_mapping_data.push(get_client_data_mapping_res.body.data[i]);
@@ -2156,7 +2158,7 @@
         
     } catch(err) {
         toast_type = "error";
-        toast_text = get_client_data_mapping_res.body.message;
+        toast_text = err;
        
     }
 //     async function station_code_select(stat_select){
