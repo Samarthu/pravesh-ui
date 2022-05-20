@@ -14,9 +14,12 @@
     import Spinner from "./components/spinner.svelte";
     import { img_url_name } from "../stores/flags_store";
     import { each } from "svelte/internal";
-    import { get_user_scope_function } from "../services/workdetails_services";
+    import { get_user_scope_function,  } from "../services/workdetails_services";
     import { get_loc_scope} from "../services/onboardsummary_services";
-    import {get_pravesh_properties_method} from "../services/workdetails_services"
+    import {get_pravesh_properties_method} from "../services/workdetails_services";
+    // import axios from 'axios';
+    import QRCode from "./components/qr-code.svelte";
+
 
     let station_data_array=[];
     let org_name_array=[];
@@ -193,12 +196,15 @@
     let stat_code = "";
     let requestType = "";
     let mapping_blocked_data = [];
+    let id_card_data = [];
+    // let id_res_data = [];
     let get_assoc_types_data = [];
     let emp_number ="";
     let table_head = "";
     let crClient = "no";
     let assocRemarks = "";
     let fromDate;
+    let profile_url = "";
     $:if(stat_select != null){
         console.log("station_select",stat_select)
         station_code_select(stat_select);
@@ -212,7 +218,13 @@
     $:{
         attendenceType = newType;
     }
+    
 
+    let minDate = new Date(); 
+        minDate.setMonth(minDate.getMonth() + 1);
+        console.log("minDate", minDate)
+        minDate =  get_date_format(minDate,"dd-mm-yyyy")
+        console.log("mindate", minDate)
     // $:if(newType != null){
     //     newType = attendenceType;
     // }
@@ -261,9 +273,9 @@
         // facility_id.subscribe(value => {
         // new_facility_id = value.facility_id_number;
         // })
-        facility_id = "MHAE00037"
+        facility_id = "CRUN00374"
         // console.log('habscib',rejReasonMap.basicInfo)
-        // facility_id = "MHPD01226"
+        // facility_id = "BOMG03251"
         console.log("new_facility_id",facility_id)
             let facility_data_res = await get_facility_details()
             console.log("facility_data_res",facility_data_res.body.data[0])
@@ -344,6 +356,10 @@
                     for (var i = 0; i < facility_document_data.length; i++){
 
                             facility_docs_arr[i] = facility_document_data[i].doc_type;
+
+                            if(!facility_docs_arr[i]){
+                                profile_url = facility_document_data[i].file_url;
+                            }
                             
                             if(facility_docs_arr.includes("pan-photo")){
                                 // console.log("pan___",facility_document_data[i].file_url)
@@ -1959,13 +1975,54 @@
         Final_bg_Reject_modal.style.display = "none";
     }
 
-    function openIDcard(){
-        showIDCard.style.display = "block";
+    // function errorID(){
+    //     toast_text = "User is not Active";
+    //     toast_type = "error"
+    // }
+
+    async function openIDcard(){
+        if($facility_data_store.status == "Deactive" ){
+            toast_text = "User is not active ";
+            toast_type = "error"
+        }
+        else{
+            if(!profile_url){
+                showIDCard.style.display = "block";
+                let response = await get_pravesh_properties_method();
+                
+                console.log("respo",JSON.parse(response.body.data.id_card_config))
+
+                // let new_respo = JSON.parse(response.body.data.id_card_config)
+
+                // console.log("new respo",new_respo.id_label_1)
+
+                if(response.body.status == "green"){
+                    // id_card_data = response.body.data.id_card_config;
+
+                    id_card_data = JSON.parse(response.body.data.id_card_config)
+
+                    id_card_data = id_card_data
+                    console.log("id_card_data respo",id_card_data)
+                }
+                else{
+                    console.log("err in side",response.body.message)
+                }
+            }
+            else{
+                toast_text = "Upload Profile Pic ";
+                toast_type = "error"
+            }
+        }
+
     }
 
     function closeIDcard(){
         showIDCard.style.display = "none";
     }
+
+    // async function idCard(){
+
+    // }
 
 
     // function workContract() {
@@ -2312,14 +2369,21 @@
 
     }
 
-    async function finalreqAssoc(){
 
-        // let new_from_date =  get_date_format(fromDate,"yyyy-mm-dd")
+    async function finalreqAssoc(){
+        let update_date_arr = [];
+        console.log("get_change_associte_data inside final",get_change_associte_data)
+        // let new_from_date =  get_date_format(fromDate,"yyyy-mm-dd"))
         // new Date(fromDate)
         let new_start_date = new Date(fromDate);
         let updated_start_date = get_date_format(new_start_date,"yyyy-mm-dd");
         let get_change_associte_res = await get_change_associte();
         let get_assoc_types_res = await get_assoc_types();
+
+        for(let i=0;i<get_change_associte_data.length;i++){
+            update_date_arr.push(get_change_associte_data[i].from_date)
+
+        }
 
         if(!newType){
             toast_text = "Please select New Type";
@@ -2327,8 +2391,10 @@
             return
             }
 
-        if(!fromDate){
-            toast_text = "Please select From date";
+            console.log("inside update_date_arr.includes(updated_start_date)",update_date_arr.includes(updated_start_date))
+        if(!fromDate && update_date_arr.includes(updated_start_date) == true){
+            
+            toast_text = "Please select vaild From date";
             toast_type = "error";
             return
         }
@@ -2339,6 +2405,7 @@
             toast_type = "error";
             return
         }
+
 
         let final_req_load = {
                 "facility_id":facility_id,
@@ -2354,8 +2421,25 @@
             let send_associate_req_res = await send_associate_req(final_req_load)
             console.log("send_associate_req_res",send_associate_req_res)
                 if(send_associate_req_res.body.status == "green"){
+                    get_change_associte_data = [];
+                    console.log("inside final",get_change_associte_data)
                     toast_text = send_associate_req_res.body.message;
                     toast_type = "green";
+                    console.log("inside 2404")
+                    let get_change_associte_res = await get_change_associte();
+                    try {
+                        if (get_change_associte_res.body.status == "green"){
+                            console.log("inside 2404")
+                                for(let i=0; i< get_change_associte_res.body.data.length;i++){
+                                    console.log("inside 2404")
+                                    get_change_associte_data.push(get_change_associte_res.body.data[i]);
+                                }
+                                get_change_associte_data = get_change_associte_data;
+                                console.log("inside 2404")
+                            }
+                    } catch (err) {
+                        console.log("inside error with associate")
+                    }
                 }
             else {
                 toast_text = "Error occured while sending associate request";
@@ -2363,6 +2447,12 @@
             }
             console.log("final_req_load",final_req_load)
         }
+
+
+    function printID(){
+        document.getElementById("nonPrintable").className += "noPrint";
+        window.print();
+    }
 
 
 </script>
@@ -5235,15 +5325,17 @@
                 </div>
                 <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 mt-5" action="#">
 
+                    <div  id="nonPrintable">
                     <div class="idCardWrapper my-4">
                         <div class="ErAndEmp flex">
                             <div class="leftborder"></div>
                             <div class="rightLogoSection flex-auto">
                             <div class="erlogo">
-                               <p>Valid Till :02-Jun-2022</p>
+                               <p>Valid till {minDate}</p>
                             </div>
                             <div class="profilePhoto">
-                                <img src="{$img_url_name.img_name}/profilepic.png" alt="profilePic" class="profilePic">
+                                <img src="{{profile_url}}" class="profilePic">
+                                <!-- {$img_url_name.img_name}/profilepic.png -->
                             </div>
                             <div class="bloodgroup">
                                 Blood Group
@@ -5258,50 +5350,66 @@
                             <div>
                                 <p class="tempText">TEMP</p>
                             </div>
+                            <!-- {#each id_res_data as id_res_data} -->
                             <div class="UserName">
                                 <div class="infoGroupName">
-                                    <label>Name</label>
-                                    <p>Dhiraj Shah </p>
+                                    <label>{id_card_data.id_label_1}</label>
+                                    <p>{$facility_data_store.owner_name} </p>
                                 </div>
                             </div>
                             <div class="otherInfo flex mt-2">
+                                
                                 <div class="">
+                                    <!-- {#each id_card_data as id} -->
                                     <div class="infoGroupName">
-                                        <label>ID</label>
-                                        <p>ID88D88DD7</p>
+                                        <label>{id_card_data.id_label_2}</label>
+                                        <p>{$facility_data_store.name}</p>
                                     </div>
                                     <div class="infoGroupName">
-                                        <label>Contact Number</label>
-                                        <p>9876543212</p>
+                                        <label> {id_card_data.id_label_3}</label>
+                                        <p>{$facility_data_store.phone_number}</p>
                                     </div>
                                     <div class="infoGroupName">
-                                        <label>Vendor</label>
-                                        <p>ElasticRun</p>
+                                        <label>{id_card_data.id_label_4}</label>
+                                        <p>{$facility_data_store.vendor_name}</p>
                                     </div>
+                                    <!-- {/each} -->
                                 </div>  
                                 <div class="flex-auto">
                                     <div class="text-right">
                                     <div class="barcode flex justify-end mb-2 ml-3">
-                                    <img src="{$img_url_name.img_name}/qrcode.png">
+                                    <!-- <img src="{$img_url_name.img_name}/qrcode.png"> -->
+                                    <QRCode codeValue={$facility_data_store.facility_id} squareSize=200/>
                                     </div>
-                                    <div class="partner">
-                                            <p>Partner with ElasticRun</p>
-                                        </div>
-                                        </div>
+                                    <div class="partner mr-1">
+                                            <p>{id_card_data.info_id_card}</p>
+                                    </div>
+                                    </div>
 
                                 </div>    
                                 
                             </div>
+                            
                            
                         </div>
 
                     </div>    
-
+                    </div>
                     
                   
                    
                       <div class="pt-3 flex justify-center" on:click="{closeIDcard}">
                         <button type="button" class="dialogueSingleButton">Close</button>
+                        <button type="button" class="dialogueSingleButton ml-1 " on:click="{printID}">Print
+                            <!-- <a href="" class="smButton">
+                                <img src="{$img_url_name.img_name}/printer.svg" alt=""/> 
+                            </a> -->
+                        </button>
+                        <!-- <button on:click="{view_print_doc(contract.assigned_id,"print")}" class="flex justify-center">
+                        <a href="" class="smButton">
+                            <img src="{$img_url_name.img_name}/printer.svg" alt=""/>
+                        </a>
+                    </button> -->
                     </div>
                 </form>
             </div>
@@ -5769,3 +5877,11 @@
 
 
 <Toast type={toast_type}  text={toast_text}/> 
+
+
+<style type="text/css" media="print">
+    .noPrint{
+        display: none;
+        background: none;
+    }
+</style>
