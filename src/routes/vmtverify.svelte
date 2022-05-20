@@ -277,7 +277,7 @@
         // facility_id = "CRUN00374"
         // console.log('habscib',rejReasonMap.basicInfo)
         // facility_id = "MHAE00037"
-        console.log("new_facility_id",facility_id)
+        console.log("new_facility_id",$facility_id.facility_id_number)
             let facility_data_res = await get_facility_details()
             console.log("facility_data_res",facility_data_res.body.data[0])
             try{
@@ -588,7 +588,7 @@
             if(vmt_pan != 0){
                 show_spinner = true;
                 let document_load = {
-                "resource_id":facility_id,
+                "resource_id":$facility_id.facility_id_number,
                 "doc_number":vmt_pan,
                 "status_type":"DV",
                 "status":"true",
@@ -618,7 +618,7 @@
         if(vmt_voter!=0){
             show_spinner = true;
             let document_load = {
-            "resource_id":facility_id,
+            "resource_id":$facility_id.facility_id_number,
             "doc_number":vmt_voter,
             "status_type":"DV",
             "status":"true",
@@ -647,7 +647,7 @@
             if (vmt_aadhar != 0){
                 show_spinner = true;
                 let document_load = {
-                "resource_id":facility_id,
+                "resource_id":$facility_id.facility_id_number,
                 "doc_number":vmt_aadhar,
                 "status_type":"DV",
                 "status":"true",
@@ -674,7 +674,7 @@
         if (vmt_dl != 0){
             show_spinner = true;
             let document_load = {
-            "resource_id":facility_id,
+            "resource_id":$facility_id.facility_id_number,
             "doc_number":vmt_dl,
             "status_type":"DV",
             "status":"true",
@@ -700,7 +700,7 @@
         if (doc_cat == "address"){
             show_spinner = true;
                 let document_load = {
-                "resource_id":facility_id,
+                "resource_id":$facility_id.facility_id_number,
                 "doc_number":vmt_address,
                 "status_type":"DV",
                 "status":"true",
@@ -722,7 +722,7 @@
         if(off_Name != 0 && off_assoc_type != 0 && off_vend_name != 0 && vmt_offer != 0){
             show_spinner = true;
             let document_load = {
-                "resource_id":facility_id,
+                "resource_id":$facility_id.facility_id_number,
                 "facility_name":off_Name,
                 "facility_type":off_assoc_type,
                 "vendor_name":off_vend_name,
@@ -835,7 +835,7 @@
             console.log("payload", $facility_data_store)
             
             let document_load = {
-                "resource_id":facility_id,
+                "resource_id":$facility_id.facility_id_number,
                 "doc_number":vmt_pan,
                 "status_type":"RJ",
                 "status":"true",
@@ -858,7 +858,7 @@
         console.log("payload", $facility_data_store)
         show_spinner = true;
         let document_load = {
-            "resource_id":facility_id,
+            "resource_id":$facility_id.facility_id_number,
             "doc_number":vmt_voter,
             "status_type":"RJ",
             "status":"true",
@@ -879,7 +879,7 @@
         if (doc_cat == "aadhar"){
             show_spinner = true;
             let document_load = {
-                "resource_id":facility_id,
+                "resource_id":$facility_id.facility_id_number,
                 "doc_number":vmt_aadhar,
                 "status_type":"RJ",
                 "status":"true",
@@ -899,7 +899,7 @@
         if (doc_cat == "dl"){
             show_spinner = true;
         let document_load = {
-            "resource_id":facility_id,
+            "resource_id":$facility_id.facility_id_number,
             "doc_number":vmt_dl,
             "status_type":"RJ",
             "status":"true",
@@ -919,7 +919,7 @@
         if (doc_cat == "address"){
             show_spinner = true;
             let document_load = {
-                "resource_id":facility_id,
+                "resource_id":$facility_id.facility_id_number,
                 "doc_number":vmt_address,
                 "status_type":"RJ",
                 "status":"true",
@@ -940,7 +940,7 @@
     if (doc_cat == "offer"){
         show_spinner = true;
             let document_load = {
-                "resource_id":facility_id,
+                "resource_id":$facility_id.facility_id_number,
                 "doc_number":vmt_offer,
                 "status_type":"RJ",
                 "status":"true",
@@ -1029,22 +1029,22 @@
                 console.log("final_approved successful data arr",facility_document_data);
                 for(let i=0;i<facility_document_data.length;i++){
                     if(pan_success_flag == "1" && facility_document_data[i].doc_type == "pan-photo"){
-                        final_approve_data_arr.push({"name":facility_document_data[i].name,"resource_id":facility_id,"verified":1,"rejected":0,"remarks":"TEsting","result":"true"})    
+                        final_approve_data_arr.push({"name":facility_document_data[i].name,"resource_id":$facility_id.facility_id_number,"verified":1,"rejected":0,"remarks":"TEsting","result":"true"})    
                     }
                     if(voter_success_flag == "1" && facility_document_data[i].doc_type == "voter-id-proof"){
-                        final_approve_data_arr.push({"name":facility_document_data[i].name,"resource_id":facility_id,"verified":1,"rejected":0,"remarks":"TEsting","result":"true"})
+                        final_approve_data_arr.push({"name":facility_document_data[i].name,"resource_id":$facility_id.facility_id_number,"verified":1,"rejected":0,"remarks":"TEsting","result":"true"})
                     }
                     if(aadhar_success_flag == "1" && facility_document_data[i].doc_type == "aadhar-id-proof"){
-                        final_approve_data_arr.push({"name":facility_document_data[i].name,"resource_id":facility_id,"verified":1,"rejected":0,"remarks":"TEsting","result":"true"})
+                        final_approve_data_arr.push({"name":facility_document_data[i].name,"resource_id":$facility_id.facility_id_number,"verified":1,"rejected":0,"remarks":"TEsting","result":"true"})
                     }
                     if(dl_success_flag == "1" && facility_document_data[i].doc_type == "dl-photo"){
-                        final_approve_data_arr.push({"name":facility_document_data[i].name,"resource_id":facility_id,"verified":1,"rejected":0,"remarks":"TEsting","result":"true"})
+                        final_approve_data_arr.push({"name":facility_document_data[i].name,"resource_id":$facility_id.facility_id_number,"verified":1,"rejected":0,"remarks":"TEsting","result":"true"})
                     }
                     if(address_success_flag == "1" && facility_document_data[i].doc_type == "addproof-photo"){
-                        final_approve_data_arr.push({"name":facility_document_data[i].name,"resource_id":facility_id,"verified":1,"rejected":0,"remarks":"TEsting","result":"true"})
+                        final_approve_data_arr.push({"name":facility_document_data[i].name,"resource_id":$facility_id.facility_id_number,"verified":1,"rejected":0,"remarks":"TEsting","result":"true"})
                     }
                     if(offer_success_flag == "1" && facility_document_data[i].doc_type == "newOffFile"){
-                        final_approve_data_arr.push({"name":facility_document_data[i].name,"resource_id":facility_id,"verified":1,"rejected":0,"remarks":"TEsting","result":"true"})
+                        final_approve_data_arr.push({"name":facility_document_data[i].name,"resource_id":$facility_id.facility_id_number,"verified":1,"rejected":0,"remarks":"TEsting","result":"true"})
                     }
                     
                     
@@ -1200,22 +1200,22 @@
                 console.log("final_rejected successful");
                 for(let i=0;i<facility_document_data.length;i++){
                     if(pan_reject_flag == "1" && facility_document_data[i].doc_type == "pan-photo"){
-                        final_reject_data_arr.push({"name":facility_document_data[i].name,"resource_id":facility_id,"verified":0,"rejected":1,"remarks":"TEsting","result":"false"})
+                        final_reject_data_arr.push({"name":facility_document_data[i].name,"resource_id":$facility_id.facility_id_number,"verified":0,"rejected":1,"remarks":"TEsting","result":"false"})
                     }
                     if(voter_reject_flag == "1" && facility_document_data[i].doc_type == "voter-id-proof"){
-                        final_reject_data_arr.push({"name":facility_document_data[i].name,"resource_id":facility_id,"verified":0,"rejected":1,"remarks":"TEsting","result":"false"})
+                        final_reject_data_arr.push({"name":facility_document_data[i].name,"resource_id":$facility_id.facility_id_number,"verified":0,"rejected":1,"remarks":"TEsting","result":"false"})
                     }
                     if(aadhar_reject_flag == "1" && facility_document_data[i].doc_type == "aadhar-id-proof"){
-                        final_reject_data_arr.push({"name":facility_document_data[i].name,"resource_id":facility_id,"verified":0,"rejected":1,"remarks":"TEsting","result":"false"})
+                        final_reject_data_arr.push({"name":facility_document_data[i].name,"resource_id":$facility_id.facility_id_number,"verified":0,"rejected":1,"remarks":"TEsting","result":"false"})
                     }
                     if(dl_reject_flag == "1" && facility_document_data[i].doc_type == "dl-photo"){
-                        final_reject_data_arr.push({"name":facility_document_data[i].name,"resource_id":facility_id,"verified":0,"rejected":1,"remarks":"TEsting","result":"false"})
+                        final_reject_data_arr.push({"name":facility_document_data[i].name,"resource_id":$facility_id.facility_id_number,"verified":0,"rejected":1,"remarks":"TEsting","result":"false"})
                     }
                     if(address_reject_flag == "1" && facility_document_data[i].doc_type == "addproof-photo"){
-                        final_reject_data_arr.push({"name":facility_document_data[i].name,"resource_id":facility_id,"verified":0,"rejected":1,"remarks":"TEsting","result":"false"})
+                        final_reject_data_arr.push({"name":facility_document_data[i].name,"resource_id":$facility_id.facility_id_number,"verified":0,"rejected":1,"remarks":"TEsting","result":"false"})
                     }
                     if(offer_reject_flag == "1" && facility_document_data[i].doc_type == "newOffFile"){
-                        final_reject_data_arr.push({"name":facility_document_data[i].name,"resource_id":facility_id,"verified":0,"rejected":1,"remarks":"TEsting","result":"false"})
+                        final_reject_data_arr.push({"name":facility_document_data[i].name,"resource_id":$facility_id.facility_id_number,"verified":0,"rejected":1,"remarks":"TEsting","result":"false"})
                     }
 
             }
@@ -1385,7 +1385,7 @@
                     // if(remark == $bank_details.remark){
                     //     console.log("remark match")
                         let document_load = {
-                        "facility_id": facility_id,
+                        "facility_id": $facility_id.facility_id_number,
                         "approved": true,
                         "rejected": false,
                         "remarks": remark
@@ -1409,7 +1409,7 @@
         async function bank_reject(){
             show_spinner = true;
             let document_load = {
-            "facility_id": facility_id,
+            "facility_id": $facility_id.facility_id_number,
             "approved": false,
             "rejected": true,
             "remarks": remark
@@ -1461,7 +1461,7 @@
             // if(show_fields ==1){
                 let basic_dets_data = {
                 action_type:"Verified",
-                facility_id:facility_id,
+                facility_id:$facility_id.facility_id_number,
                 field_type:"basicInfo",
                 station_model:$bgv_data_store.station_model,
                 hub_name:$bgv_data_store.hub_name,
@@ -1488,7 +1488,7 @@
             console.log("address_approve")
             let address_dets_data = {
                 action_type:"Verified",
-                facility_id:facility_id,
+                facility_id:$facility_id.facility_id_number,
                 field_type:"addressInfo"
             }
             let address_app_res = await bgv_approve_rej(address_dets_data)
@@ -1503,7 +1503,7 @@
             console.log("pan_approve")
             let pan_dets_data = {
                 action_type:"Verified",
-                facility_id:facility_id,
+                facility_id:$facility_id.facility_id_number,
                 field_type:"panInfo",
             }
             let pan_app_res = await bgv_approve_rej(pan_dets_data)
@@ -1519,7 +1519,7 @@
             console.log("dl_approve")
             let dl_dets_data = {
                 action_type:"Verified",
-                facility_id:facility_id,
+                facility_id:$facility_id.facility_id_number,
                 field_type:"dlInfo",
             }
             let dl_app_res = await bgv_approve_rej(dl_dets_data)
@@ -1535,7 +1535,7 @@
             console.log("pol_approve")
             let pol_dets_data = {
                 action_type:"Verified",
-                facility_id:facility_id,
+                facility_id:$facility_id.facility_id_number,
                 field_type:"policeInfo",
             }
             let pol_app_res = await bgv_approve_rej(pol_dets_data)
@@ -1613,7 +1613,7 @@
             // {
                 let basic_dets_data = {
                 action_type:"Rejected",
-                facility_id:facility_id,
+                facility_id:$facility_id.facility_id_number,
                 field_type:"basicInfo",
                 remarks:basic_info_res.trim(),
             }
@@ -1632,7 +1632,7 @@
             console.log("address_reject")
             let address_dets_data = {
                 action_type:"Rejected",
-                facility_id:facility_id,
+                facility_id:$facility_id.facility_id_number,
                 field_type:"addressInfo",
                 remarks:address_info_res.trim(),
             }
@@ -1648,7 +1648,7 @@
             console.log("dl_reject")
             let dl_dets_data = {
                 action_type:"Rejected",
-                facility_id:facility_id,
+                facility_id:$facility_id.facility_id_number,
                 field_type:"dlInfo",
                 remarks:dl_info_res.trim(),
             }
@@ -1664,7 +1664,7 @@
             console.log("po_reject")
             let pol_dets_data = {
                 action_type:"Rejected",
-                facility_id:facility_id,
+                facility_id:$facility_id.facility_id_number,
                 field_type:"policeInfo",
                 remarks:pol_info_res.trim(),
             }
@@ -1680,7 +1680,7 @@
             console.log("pan_reject")
             let pan_dets_data = {
                 action_type:"Rejected",
-                facility_id:facility_id,
+                facility_id:$facility_id.facility_id_number,
                 field_type:"panInfo",
                 remarks:pan_info_res.trim(),
             }
@@ -1745,7 +1745,7 @@
             console.log("final_bgv_verify_func")
             show_spinner=true;
             let final_bgv_verify_data = {
-                "facility_id":facility_id,
+                "facility_id":$facility_id.facility_id_number,
                 "bgv_status":"verified"
             }
 
@@ -1790,7 +1790,7 @@
             // show_spinner=true;
             console.log("final_bgv_reject_func, qwerty 1")
             let final_bgv_reject_data = {
-                "facility_id":facility_id,
+                "facility_id":$facility_id.facility_id_number,
                 "bgv_status":"rejected",
                 "bgv_remarks":bgv_remarks
             }
@@ -2067,7 +2067,7 @@
             toast_text = "User is Deactive";
             toast_type = "error";
         }
-        let get_client_details_res = await get_client_details(facility_id)
+        let get_client_details_res = await get_client_details()
         try {
             if (get_client_details_res != "null"){
                 for(let i=0; i< get_client_details_res.body.data.length;i++){
@@ -2366,7 +2366,7 @@
 
             
                 let final_map_load = {
-                "facility_id":facility_id,
+                "facility_id":$facility_id.facility_id_number,
                 "org_id": id_select,
                 "org_name": new_org_name,
                 "station_code": stat_select,
@@ -2434,7 +2434,7 @@
 
 
         let final_req_load = {
-                "facility_id":facility_id,
+                "facility_id":$facility_id.facility_id_number,
                 "facility_type": $facility_data_store.facility_type,
                 "attendance_facility_type": newType,
                 "from_date": updated_start_date,
