@@ -557,9 +557,13 @@ import { facility_id } from "../stores/facility_id_store";
                         j < user_scope_response.body.data[i]["stations"].length;
                         j++
                     ) {
-                        station_list.push(
+                        if(user_scope_response.body.data[i]["stations"][j].org_id == $facility_data_store.org_id){
+                            station_list.push(
                             user_scope_response.body.data[i]["stations"][j]
                         );
+
+                        }
+                        
                     }
                     break;
                 }
