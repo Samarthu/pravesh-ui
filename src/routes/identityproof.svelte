@@ -27,6 +27,8 @@
     import Spinner from "./components/spinner.svelte";
     import Success_popup from "./components/success_popup.svelte";
     import Toast from "./components/toast.svelte";
+    import {duplicate_documents_store} from "../stores/duplicate_document_store";
+import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_store";
     let toast_text = "";
     let toast_type = null;
     let success_text = "";
@@ -68,8 +70,28 @@
         status: "created",
         user_id: null,
     };
+    let edit_pan_card_data = {
+        doc_category: "Pancard",
+        doc_number: null,
+        doc_type: "pan-photo",
+        file_name: null,
+        pod: null,
+        resource_id: null,
+        status: "created",
+        user_id: null,
+    };
 
     let adhar_card_data = {
+        doc_category: "Aadhar Id proof",
+        doc_number: null,
+        doc_type: "aadhar-id-proof",
+        file_name: null,
+        pod: null,
+        resource_id: null,
+        status: "created",
+        user_id: null,
+    };
+    let edit_adhar_card_data = {
         doc_category: "Aadhar Id proof",
         doc_number: null,
         doc_type: "aadhar-id-proof",
@@ -90,8 +112,28 @@
         status: "created",
         user_id: null,
     };
+    let edit_voter_id_card_data = {
+        doc_category: "Voter Id proof",
+        doc_number: null,
+        doc_type: "voter-id-proof",
+        file_name: null,
+        pod: null,
+        resource_id: null,
+        status: "created",
+        user_id: null,
+    };
 
     let driving_license_data = {
+        doc_category: "Driving License",
+        doc_number: null,
+        doc_type: "dl-photo",
+        file_name: null,
+        pod: null,
+        resource_id: null,
+        status: "created",
+        user_id: null,
+    };
+    let edit_driving_license_data = {
         doc_category: "Driving License",
         doc_number: null,
         doc_type: "dl-photo",
@@ -104,6 +146,38 @@
     onMount(async () => {
         page_name = $page.url["pathname"].split("/").pop();
         console.log("page name on identity", page_name);
+
+        console.log("duplicate document store", $duplicate_documents_store);
+        console.log("duplicate documents length",$duplicate_documents_store.documents.length);
+
+        if($facility_id.facility_id_number){
+            for(let i=0;i<$duplicate_documents_store.documents.length;i++){
+                if($duplicate_documents_store.documents[i].doc_category == "Pancard"){
+                    edit_pan_card_data = $duplicate_documents_store.documents[i];
+                    pan_card_data.doc_number = $duplicate_documents_store.documents[i].doc_number;
+                    console.log("edit_pan_card_data", edit_pan_card_data);
+
+                }
+                else if($duplicate_documents_store.documents[i].doc_category == "Aadhar Id proof"){
+                    edit_adhar_card_data = $duplicate_documents_store.documents[i];
+                    console.log("edit_adhar_card_data", edit_adhar_card_data);
+                    adhar_card_data.doc_number = $duplicate_documents_store.documents[i].doc_number;
+                }
+                else if($duplicate_documents_store.documents[i].doc_category == "Voter Id proof"){
+                    edit_voter_id_card_data = $duplicate_documents_store.documents[i];
+                    console.log("edit_voter_id_card_data", edit_voter_id_card_data);
+                    voter_id_card_data.doc_number = $duplicate_documents_store.documents[i].doc_number;
+                }
+                else if($duplicate_documents_store.documents[i].doc_category == "Driving License"){
+                    edit_driving_license_data = $duplicate_documents_store.documents[i];
+                    console.log("edit_driving_license_data", edit_driving_license_data);
+                    driving_license_data.doc_number = $duplicate_documents_store.documents[i].doc_number;
+                }
+            }
+
+
+            
+        }
     });
     // let driving_lice
     function check_facility_condition() {}
@@ -123,7 +197,9 @@
                 pan_card_message = "Invalid Pan Card Number";
                 pan_check = false;
             } else {
+                
                 pan_card_message = "";
+
                 let pan_card_proof_response = await verify_document_function(
                     pan_card_data.doc_number
                 );
@@ -754,10 +830,38 @@
             }
         }
         else{
-            toast_type = "error";
-            toast_text = "Facility already exists";
+            if(pan_card_data.doc_number){
+                if(pan_card_data.doc_number != edit_pan_card_data.doc_number){
+                    for(let i=0;i<$documents_store.documents.length;i++){
+                        if($documents_store.documents[i].doc_category == "Pancard"){
+                            $documents_store.documents.splice(i, 1);
+
+                        }
+                    }
+                    $documents_store.documents.push(pan_card_data);
+                }
+            }
+
+            if(adhar_card_data.doc_number){
+                if(adhar_card_data.doc_number != edit_adhar_card_data.doc_number){
+                    for(let i=0;i<$documents_store.documents.length;i++){
+                        if($documents_store.documents[i].doc_category == "Aadhar Id proof"){
+                            $documents_store.documents.splice(i, 1);
+                        }
+                    }
+                    $documents_store.documents.push(adhar_card_data);
+                }
+            }
+
+
+            // toast_type = "error";
+            // toast_text = "Facility already exists";
+            console.log("$documents_store.documents",$documents_store.documents);
             show_spinner = false;
+            
         }
+
+        
     }
     function delete_files(file_name) {
         for (let i = 0; i < $documents_store.documents.length; i++) {
@@ -1125,6 +1229,17 @@
                                             />
                                         {/if}
                                     </div>
+                                    <br>
+                                    {#if $facility_id.facility_id_number}
+                                    {#if edit_pan_card_data.file_name}
+                                    <div class="flex">
+                                        <a href={$page.url.origin+edit_pan_card_data.file_url} target="_blank" class="text-blue-600 text-decoration-line: underline">{edit_pan_card_data.file_name}</a>
+                                        <br>
+
+
+                                    </div>
+                                    {/if}
+                                    {/if}
                                     <p class="noteDescription mt-2">
                                         <span class="font-medium">Note:</span>
                                         Photo must be clear and in JPG, PNG, or PDF
@@ -1207,6 +1322,16 @@
                                             />
                                         {/if}
                                     </div>
+                                    {#if $facility_id.facility_id_number}
+                                    {#if edit_adhar_card_data.file_name}
+                                    <div class="flex">
+                                        <a href={$page.url.origin+edit_adhar_card_data.file_url} target="_blank" class="text-blue-600 text-decoration-line: underline">{edit_adhar_card_data.file_name}</a>
+                                        <br>
+
+
+                                    </div>
+                                    {/if}
+                                    {/if}
                                     <p class="noteDescription mt-2">
                                         <span class="font-medium">Note:</span>
                                         Photo must be clear and in JPG, PNG, or PDF
@@ -1304,6 +1429,16 @@
                                             />
                                         {/if}
                                     </div>
+                                    {#if $facility_id.facility_id_number}
+                                    {#if edit_voter_id_card_data.file_name}
+                                    <div class="flex">
+                                        <a href={$page.url.origin+edit_voter_id_card_data.file_url} target="_blank" class="text-blue-600 text-decoration-line: underline">{edit_voter_id_card_data.file_name}</a>
+                                        <br>
+
+
+                                    </div>
+                                    {/if}
+                                    {/if}
                                     <p class="noteDescription mt-2">
                                         <span class="font-medium">Note:</span>
                                         Photo must be clear and in JPG, PNG, or PDF
@@ -1388,6 +1523,16 @@
                                             />
                                         {/if}
                                     </div>
+                                    {#if $facility_id.facility_id_number}
+                                    {#if edit_driving_license_data.file_name}
+                                    <div class="flex">
+                                        <a href={$page.url.origin+edit_driving_license_data.file_url} target="_blank" class="text-blue-600 text-decoration-line: underline">{edit_driving_license_data.file_name}</a>
+                                        <br>
+
+
+                                    </div>
+                                    {/if}
+                                    {/if}
                                     <p class="noteDescription mt-2">
                                         <span class="font-medium">Note:</span>
                                         Photo must be clear and in JPG, PNG, or PDF

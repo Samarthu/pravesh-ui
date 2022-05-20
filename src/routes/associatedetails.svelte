@@ -78,6 +78,16 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
         status: "created",
         user_id: null,
     };
+    let edit_profile_pic_data = {
+        doc_category: "Profile Pic",
+        doc_number: "",
+        doc_type: "fac-photo",
+        file_name: null,
+        pod: null,
+        resource_id: null,
+        status: "created",
+        user_id: null,
+    };
     let address_proof_data = {
         doc_category: "Address Proof",
         doc_number: "",
@@ -88,7 +98,27 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
         status: "created",
         user_id: null,
     };
+    let edit_address_proof_data = {
+        doc_category: "Address Proof",
+        doc_number: "",
+        doc_type: "addproof-photo",
+        file_name: null,
+        pod: null,
+        resource_id: null,
+        status: "created",
+        user_id: null,
+    };
     let present_address_proof_data = {
+        doc_category: "Present Address Proof",
+        doc_number: "",
+        doc_type: "pre-addproof-photo",
+        file_name: null,
+        pod: null,
+        resource_id: null,
+        status: "created",
+        user_id: null,
+    };
+    let edit_present_address_proof_data = {
         doc_category: "Present Address Proof",
         doc_number: "",
         doc_type: "pre-addproof-photo",
@@ -109,6 +139,7 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
     let present_address_postal_message = "";
     let present_address_address_proof_message = "";
     let address_check_message = "";
+    let work_address_proof_message = "";
     let work_address_city_message = "";
     let work_address_address_message = "";
     let work_address_postal_message = "";
@@ -134,8 +165,10 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
                 )
             );
             console.log("max date", max_date);
+          
             // date = get_date_format(max_date,'yyyy-mm-dd');
             date = get_date_format(max_date,'yyyy-mm-dd');
+            console.log("date format", date);
             // if($facility_data_store.dob){
             //     date = $facility_data_store.dob;
             //     console.log("inside if date ");
@@ -185,6 +218,49 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
             console.log("facility store",$facility_data_store);
             console.log("duplicate facility data store",$duplicate_facility_data_store);
             console.log("duplicate document store",$duplicate_documents_store);
+            let temp_date = $facility_data_store.date_of_birth;
+            console.log("temp date date of birth",temp_date);
+            let temp = new Date(temp_date);
+            console.log("temp",temp);
+            date = get_date_format(temp,'yyyy-mm-dd');
+            let temp_address_array = $facility_data_store.address;
+            console.log("temp address",temp_address_array);
+            for(let i=0;i<temp_address_array.length;i++){
+                if(temp_address_array[i].address_type == "Work Address" || temp_address_array[i].address_type == "Facility Address"){
+                    work_address.city = temp_address_array[i].city;
+                    work_address.address = temp_address_array[i].address;
+                    work_address.postal = temp_address_array[i].postal;
+                }
+                else if(temp_address_array[i].address_type == "Present Address"){
+                    address_check = "No";
+                    present_address.postal = temp_address_array[i].postal;
+                    present_address.address = temp_address_array[i].address;
+                    present_address.location_id = temp_address_array[i].location_id;
+                    console.log("present address",present_address);
+
+
+                } 
+            }
+            for(let i=0;i<$duplicate_documents_store.documents.length;i++){
+                if($duplicate_documents_store.documents[i].doc_category == "Profile Pic"){
+                console.log("profile pic",$duplicate_documents_store.documents[i]);
+                edit_profile_pic_data = $duplicate_documents_store.documents[i];
+                console.log("edit profile pic data",edit_profile_pic_data);
+                }
+                else if($duplicate_documents_store.documents[i].doc_category == "Present Address Proof"){
+                    
+                    edit_present_address_proof_data = $duplicate_documents_store.documents[i];
+                    console.log("present address proof",$duplicate_documents_store.documents[i]);
+                    // console.log("edit present address proof data",edit_present_address_proof_data);
+                }
+                else if($duplicate_documents_store.documents[i].doc_category == "Address Proof"){
+                    edit_address_proof_data = $duplicate_documents_store.documents[i];
+                    console.log("edit address proof data",edit_address_proof_data);
+
+                }
+            }
+
+
             
         }
     });
@@ -302,18 +378,23 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
             }
         }
 
-        if (
+        if(!$facility_id.facility_id_number){
+            if (
             address_proof_data.pod == null ||
             address_proof_data.file_name == null ||
             address_proof_data.pod == "" ||
             address_proof_data.file_name == ""
         ) {
             valid = false;
-            present_address_address_proof_message = "Please upload a document";
+            work_address_proof_message = "Please upload a document";
         } else {
             // valid = true;
-            present_address_address_proof_message = "";
+            work_address_proof_message = "";
         }
+
+        }
+
+        
 
         if (address_check != "Yes" && address_check != "No") {
             valid = false;
@@ -373,8 +454,8 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
             }
             console.log("document store", $documents_store);
 
-            // let replaceState = false;
-            // goto(routeTo, { replaceState });
+            let replaceState = false;
+            goto(routeTo, { replaceState });
         }
 
         // $documents_store.documents.push(address_proof_data);
@@ -541,36 +622,37 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
     // }
 
     $: {
-        console.log("date", date);
-        // console.log("reactive blocks");
-        let dob_date = date.getDate();
+        console.log("date in reactive block", date);
+        
+        
+        
+        let dob_date = new Date(date)
+
         console.log("dob_date",dob_date);
-        // console.log("_____",moment(date, 'YYYY-MM-DD').format("DD/MM/YYYY"))
-        // console.log("_____",date.getDate())
-        console.log(typeof dob_date);
-        if (dob_date < 10) {
-            dob_date = "0" + String(dob_date);
-        }
-        console.log("dob_date", dob_date);
-        let dob_month = date.getMonth() + 1;
-        console.log(typeof dob_month);
-        if (dob_month < 10) {
-            dob_month = "0" + String(dob_month);
-        }
-        // console.log("dob_month",dob_month);
+        dob_date = get_date_format(dob_date, "dd-mm-yyyy");
+        console.log("dob_date",dob_date);
+     
+        // console.log(typeof dob_date);
+        // if (dob_date < 10) {
+        //     dob_date = "0" + String(dob_date);
+        // }
+        // console.log("dob_date", dob_date);
+        // let dob_month = date.getMonth() + 1;
+        // console.log(typeof dob_month);
+        // if (dob_month < 10) {
+        //     dob_month = "0" + String(dob_month);
+        // }
+        
 
-        // console.log(String(dob_date+"-"+dob_month+"-"+date.getFullYear()));
-
-        //facility_data_store.set({dob: String(date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate())})
-        // $facility_data_store.dob = String(date.getFullYear()+"-"+(date.getMonth()+1)+"-"+date.getDate());
-
-        $facility_data_store.dob = String(
-            date.getDate() +
-                "-" +
-                (date.getMonth() + 1) +
-                "-" +
-                date.getFullYear()
-        );
+        // $facility_data_store.dob = String(
+        //     date.getDate() +
+        //         "-" +
+        //         (date.getMonth() + 1) +
+        //         "-" +
+        //         date.getFullYear()
+        // );
+        $facility_data_store.dob = dob_date;
+        console.log("facility store",$facility_data_store);
     }
     function save_address_to_store() {
         $facility_data_store.address = [];
@@ -826,6 +908,12 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
                                                     alt=""
                                                 />
                                             {/if}
+                                            <br>
+                                            {#if $facility_id.facility_id_number}
+                                            {#if edit_profile_pic_data.file_name}
+                                            <a href={$page.url.origin+edit_profile_pic_data.file_url} class="text-blue-600 text-decoration-line: underline">{edit_profile_pic_data.file_name}</a>
+                                            {/if}
+                                            {/if}
                                         </div>
                                     </span>
                                 </div>
@@ -976,6 +1064,11 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
                                                 alt=""
                                             />
                                         {/if}
+                                        {#if $facility_id.facility_id_number}
+                                        {#if edit_address_proof_data.file_name}
+                                        <a href={$page.url.origin+edit_address_proof_data.file_url} class="text-blue-600 text-decoration-line: underline">{edit_address_proof_data.file_name}</a>
+                                        {/if}
+                                        {/if}
                                     </div>
                                 </div>
                             </div>
@@ -985,7 +1078,7 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
                                 <label class="formLable invisible" />
                                 <div class="formInnerGroup mt-1">
                                     <div class="text-red-500 text-xs">
-                                        {present_address_address_proof_message}
+                                        {work_address_proof_message}
                                     </div>
                                 </div>
                             </div>
@@ -1219,6 +1312,11 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
                                                     alt=""
                                                 />
                                             {/if}
+                                            {#if $facility_id.facility_id_number}
+                                        {#if edit_present_address_proof_data.file_name}
+                                        <a href={$page.url+edit_present_address_proof_data.file_url} class="text-blue-600 text-decoration-line: underline">{edit_present_address_proof_data.file_name}</a>
+                                        {/if}
+                                        {/if}
                                         </div>
                                     </div>
                                 </div>

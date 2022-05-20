@@ -1302,7 +1302,7 @@ import { facility_id } from "../stores/facility_id_store";
                             </div>
                             {#if $facility_id.facility_id_number}
                                                 {#if edit_msme_data.file_name}
-                                                <a href={edit_document_link} target="_blank">click me</a>
+                                                <a href={edit_document_link} target="_blank" class="text-blue-600 text-decoration-line: underline">click me{edit_msme_data.file_name}</a>
                                                 <br>
                                                     
                                                 {/if}
