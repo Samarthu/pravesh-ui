@@ -3,7 +3,7 @@
     import {facility_data_store} from "../stores/facility_store";
     import { bank_details } from "../stores/bank_details_store";
     import {get_facility_details,facility_bgv_check,get_bank_facility_details,facility_document,
-         approve_reject_status,bank_approve_reject,bgv_approve_rej,final_id_ver_rej,final_bgv_app_rej,get_client_details,get_client_org_mapping,get_specific_name,save_mapping,get_change_associte,get_assoc_types,send_associate_req} from "../services/vmt_verify_services";
+         approve_reject_status,bank_approve_reject,bgv_approve_rej,final_id_ver_rej,final_bgv_app_rej,get_client_details,get_client_org_mapping,get_specific_name,save_mapping,get_change_associte,get_assoc_types,send_associate_req,get_cas_user} from "../services/vmt_verify_services";
     import {facility_bgv_init} from "../services/onboardsummary_services";
     import {bgv_config_store} from '../stores/bgv_config_store';
     import { goto } from "$app/navigation";
@@ -19,7 +19,7 @@
     import {get_pravesh_properties_method} from "../services/workdetails_services";
     // import axios from 'axios';
     import QRCode from "./components/qr-code.svelte";
-
+    import {facility_id} from "../stores/facility_id_store"
 
     let station_data_array=[];
     let org_name_array=[];
@@ -160,7 +160,7 @@
     let change_to = "basic_details";
     let voter_switchto = "tab1";
     let new_facility_id;
-    let facility_id;
+    // let facility_id;
     let acc_num,ifsc_code,acc_hold_name,remark;
     let gend_selected,add_is_perm,curr_same,police_add_per;
     let basic_info_res = "";
@@ -205,6 +205,7 @@
     let assocRemarks = "";
     let fromDate;
     let profile_url = "";
+    let cas_flag = 0;
     $:if(stat_select != null){
         console.log("station_select",stat_select)
         station_code_select(stat_select);
@@ -247,7 +248,7 @@
     // }
 
     onMount(async () => {
-
+        console.log("$facility_id.facility_id_number",$facility_id.facility_id_number)
 
         // let bgv_pass_data=[
         // // $facility_data_store.org_id,
@@ -273,9 +274,9 @@
         // facility_id.subscribe(value => {
         // new_facility_id = value.facility_id_number;
         // })
-        facility_id = "CRUN00374"
+        // facility_id = "CRUN00374"
         // console.log('habscib',rejReasonMap.basicInfo)
-        // facility_id = "BOMG03251"
+        // facility_id = "MHAE00037"
         console.log("new_facility_id",facility_id)
             let facility_data_res = await get_facility_details()
             console.log("facility_data_res",facility_data_res.body.data[0])
@@ -2020,6 +2021,31 @@
         showIDCard.style.display = "none";
     }
 
+
+    async function openCasUser(){
+        let get_cas_user_res = await get_cas_user()
+        console.log("get_cas_user_res",get_cas_user_res)
+
+        if(get_cas_user_res.status == "green"){
+            toast_text = "User is active";
+            toast_type = "success";
+        }
+        else{
+            showCasUser.style.display = "block";
+            if(get_cas_user_res.message = "User is Deactive in CAS" || get_cas_user_res.status == "red"){
+                cas_flag = 1
+            }
+            else {
+                cas_flag = 2
+            }
+
+        }
+    }
+
+    function closeCasUser(){
+        showCasUser.style.display = "none";
+    }
+
     // async function idCard(){
 
     // }
@@ -2485,6 +2511,10 @@
                 </p> -->
                 <button on:click="{openIDcard}" type="button" class="px-p15 text-sm text-white font-medium py-p10 rounded bg-erBlue ml-3">
                     ID Card
+                </button>
+
+                <button on:click="{openCasUser}" type="button" class="px-p15 text-sm text-white font-medium py-p10 rounded bg-erBlue ml-3">
+                    cas user
                 </button>
 
                 <div class="userStatus ">
@@ -5875,6 +5905,49 @@
             </div>
         </div>
 
+
+            <!-- ID Card View modal HTML-->
+    
+    <div  class="actionDialogueOnboard " id="showCasUser" hidden>
+        <div class="pancardDialogueOnboardWrapper ">
+            <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+                <div class="modalHeadConmb-0">
+                    <div class="leftmodalInfo">
+                        <p class=""> Cas User Status</p>
+                    </div>
+                    <div class="rightmodalclose" on:click="{closeCasUser}">
+                        <img src="../src/img/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal">
+                    </div>
+                </div>
+                <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 mt-5" action="#">
+
+                    {#if cas_flag == 1}
+                    <div class="justify-center">
+                        <p>
+                            User is not Active
+                        </p>
+                    </div>
+                    <div class="pt-3 flex justify-center" on:click="{closeCasUser}">
+                        <button type="button" class="dialogueSingleButton">Activate User</button>
+                    </div>
+                    {:else if cas_flag == 2}
+                    <div class="justify-center">
+                        <p>
+                            User is not in the cas
+                        </p>
+                    </div>
+                    <div class="pt-3 flex justify-center" on:click="{closeCasUser}">
+                        <button type="button" class="dialogueSingleButton">Create User</button>
+                    </div>
+                    {/if}
+                   
+                      <!-- <div class="pt-3 flex justify-center" on:click="{closeCasUser}">
+                        <button type="button" class="dialogueSingleButton">Activate User</button>
+                    </div> -->
+                </form>
+            </div>
+        </div>
+    </div>
 
 <Toast type={toast_type}  text={toast_text}/> 
 

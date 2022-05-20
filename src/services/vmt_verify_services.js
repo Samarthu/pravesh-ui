@@ -1,18 +1,18 @@
 import {request} from './interceptor';
-// import {facility_id} from '../stores/facility_id_store';
+import {facility_id} from '../stores/facility_id_store';
 
-// let new_facility_id
-// facility_id.subscribe(value => {
-//    new_facility_id = value.facility_id_number;
-// });
-// let facility_id = "AXVT00383";
-let facility_id = "CRUN00374";
+let new_facility_id
+facility_id.subscribe(value => {
+   new_facility_id = value.facility_id_number;
+});
+// let facility_id = "MHAE00037";
+// let facility_id = "CRUN00374";
 // let facility_id = "BOMG03251";
 // let facility_id = "MHPD01226";
 
 
 const get_facility_details = () =>{
-    let get_facility_details_url = '/api/method/pravesh.facility.routes.facility.get_facilitys?facility_filter=[[%22name%22,%22=%22,%22'+facility_id+'%22]]&facility_field=[%22*%22]';
+    let get_facility_details_url = '/api/method/pravesh.facility.routes.facility.get_facilitys?facility_filter=[[%22name%22,%22=%22,%22'+new_facility_id+'%22]]&facility_field=[%22*%22]';
     return request(
         get_facility_details_url, {
         method: "GET",
@@ -21,7 +21,7 @@ const get_facility_details = () =>{
 
 const facility_bgv_check =() =>{
     //   let facility_bgv_check_url = '/api/resource/Facility%20BGV?filters=[[%22facility_id%22,%22=%22,%22'+new_facility_id+'%22]]&fields=[%22*%22]';
-    let facility_bgv_check_url = '/api/resource/Facility%20BGV?filters=[[%22facility_id%22,%22=%22,%22'+facility_id+'%22]]&fields=[%22*%22]';  //TEMPORARY as facility id is refreshed in bgv.svelte
+    let facility_bgv_check_url = '/api/resource/Facility%20BGV?filters=[[%22facility_id%22,%22=%22,%22'+new_facility_id+'%22]]&fields=[%22*%22]';  //TEMPORARY as facility id is refreshed in bgv.svelte
     return request(
             facility_bgv_check_url,{
                 method: "GET"
@@ -29,7 +29,7 @@ const facility_bgv_check =() =>{
     }
 
 const get_bank_facility_details = () =>{
-    let get_bank_facility_details_url = '/api/resource/Bank Detail?filters=[["facility_id","=","' + facility_id + '"]]&fields=["*"]'
+    let get_bank_facility_details_url = '/api/resource/Bank Detail?filters=[["facility_id","=","' + new_facility_id + '"]]&fields=["*"]'
     return request(
         get_bank_facility_details_url, {
         method: "GET",
@@ -37,7 +37,7 @@ const get_bank_facility_details = () =>{
 }
 
 const facility_document = () =>{
-    let facility_document_url = '/api/method/pravesh.facility.routes.document.get_all_facility_documents?facility_id='+facility_id+''
+    let facility_document_url = '/api/method/pravesh.facility.routes.document.get_all_facility_documents?facility_id='+new_facility_id+''
     return request(
         facility_document_url, {
         method: "GET",
@@ -112,7 +112,7 @@ const final_bgv_app_rej=(bgv_data)=>{
 }
 
 const get_client_details=(facility_id)=>{
-    let get_client_details_url = "/api/resource/Facility%20Org%20Config?filters=[[%22facility_id%22,%22=%22,%22"+facility_id+"%22]]&fields=[%22*%22]";
+    let get_client_details_url = "/api/resource/Facility%20Org%20Config?filters=[[%22facility_id%22,%22=%22,%22"+new_facility_id+"%22]]&fields=[%22*%22]";
     return request(
         get_client_details_url,{
             method: "GET"
@@ -155,7 +155,7 @@ const save_mapping=(map_data)=>{
 }
 
 const get_change_associte = () =>{
-    let get_change_associte_url = '/api/method/pravesh.facility.routes.facilty_property_config.get_all_type_change_requests?facility_id='+facility_id+''
+    let get_change_associte_url = '/api/method/pravesh.facility.routes.facilty_property_config.get_all_type_change_requests?facility_id='+new_facility_id+''
     return request(
         get_change_associte_url, {
         method: "GET",
@@ -180,6 +180,14 @@ const get_assoc_types=(org,station)=>{
         },true)
 }
 
+const get_cas_user = () =>{
+    let get_cas_user_url = '/api/method/pravesh.facility.routes.facility.get_cas_user_status?facility_id='+new_facility_id+''
+    return request(
+        get_cas_user_url, {
+        method: "GET",
+        }, true)
+}
+
 
 
 export {
@@ -198,5 +206,6 @@ export {
     save_mapping,
     get_change_associte,
     send_associate_req,
-    get_assoc_types
+    get_assoc_types,
+    get_cas_user
 }

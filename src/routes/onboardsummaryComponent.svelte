@@ -38,6 +38,7 @@ import { Router, Link, Route } from "svelte-routing";
     import {
         sorting_pravesh_properties,
     } from "../services/pravesh_config";
+    import {pravesh_properties} from '../stores/pravesh_properties_store';
 
     let show_spinner = false;
     let toast_text;
@@ -200,7 +201,6 @@ import { Router, Link, Route } from "svelte-routing";
     let itadmin = false;
     let show_upload_btn = false;
     let remove_upload_btn = false;
-    let adhoc_facility_tag;
     let is_adhoc_facility = false; 
     
     $:{
@@ -265,16 +265,35 @@ import { Router, Link, Route } from "svelte-routing";
             "get_pravesh_properties_response",
             get_pravesh_properties_response
         );
+        try{
         if (get_pravesh_properties_response.body.status == "green") {
             sorting_pravesh_properties(
                 get_pravesh_properties_response.body.data
             );
+        if($pravesh_properties.properties.offer_letter_required_associates.includes($facility_data_store.facility_type) && admin == true){
+                   show_upload_btn = true;
+               }
+               for(let i=0;i < show_fac_array.length;i++){
+                   
+                   if(show_upload_btn == true && $pravesh_properties.properties.offer_letter_not_required_tags.includes(show_fac_array[i].tag_id)){
+                       remove_upload_btn = true;
+                   } 
+                   if($pravesh_properties.properties.adhoc_facility_tag.includes(show_fac_array[i].tag_id)){
+                       is_adhoc_facility = true;
+                   }
+               }
+            //    console.log("offer_letter_required_associates",$pravesh_properties.properties.offer_letter_required_associates)
+            
         } else {
             toast_type = "error";
             toast_text = "Error in fetching pravesh properties";
         }
         //////////////////////////////////////////////////////////
-
+    }
+    catch(err){
+        toast_type = "error";
+        toast_text = err;
+    }
 
 
         let userdetails = await logged_user();
@@ -456,47 +475,6 @@ import { Router, Link, Route } from "svelte-routing";
             toast_text = err;
         }
 
-                // Pravesh Properties //
-    let doc_arr_from_res = [];
-       
-       let get_pravesh_properties_res = await get_pravesh_properties_method();
-       try{
-           if(get_pravesh_properties_res.body.status == "green"){
-               
-               doc_arr_from_res = get_pravesh_properties_res.body.data.document_types.split("\n")
-               let offer_letter_required_associates = get_pravesh_properties_res.body.data.offer_letter_required_associates.split(",");
-               let offer_letter_not_required_tags = get_pravesh_properties_res.body.data.offer_letter_not_required_tags.split(",");
-               adhoc_facility_tag = get_pravesh_properties_res.body.data.adhoc_facility_tag.split(",");
-               
-               if(offer_letter_required_associates.includes($facility_data_store.facility_type) && admin == true){
-                   show_upload_btn = true;
-               }
-               for(let i=0;i < show_fac_array.length;i++){
-                   
-                   if(show_upload_btn == true && offer_letter_not_required_tags.includes(show_fac_array[i].tag_id)){
-                       remove_upload_btn = true;
-                   } 
-                   if(adhoc_facility_tag.includes(show_fac_array[i].tag_id)){
-                       is_adhoc_facility = true;
-                   }
-               }
-               console.log("offer_letter_required_associates",offer_letter_required_associates)
-           for (var k = 0; k < doc_arr_from_res.length; k++) {
-                   var ele = doc_arr_from_res[k];
-                   var doc_name = ele.split("=")[0]
-                   var doc_val = ele.split("=")[1]
-                       doc_type_name.push({"doc_name":doc_name ,"doc_value":doc_val});
-                   }
-                   doc_type_name = doc_type_name
-           }
-           console.log("adhoic fac tag",adhoc_facility_tag)
-       }
-       catch(err){
-           toast_type = "error"
-           toast_text = err
-       }
-       
-              // Pravesh Properties //
         //////////city_data/////////////
         let loc_data_res =  await get_loc_scope();
         try {
@@ -1037,7 +1015,7 @@ function check_facility_status(message) {
     }
 
     function goto_vmt_verify(){
-        goto("./vmt_verify");
+        goto("vmtverify");
     }
 //     async function tagAddRemove() {
 //         addRemoveModal.style.display = "block";
@@ -1972,7 +1950,7 @@ function check_facility_status(message) {
                     {/if}
                     {/if}
                 </div>
-                {#if admin == true}
+                {#if admin == false }
                 <p></p>
                 {:else}
                     <div class="mt-4 mb-3  xsl:flex">
