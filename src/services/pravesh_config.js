@@ -12,8 +12,27 @@ function sorting_pravesh_properties(pravesh_properties_data){
         console.log("keys", keys);
         for(let i=0;i<keys.length;i++){
             let temp_array =[];
-            temp_array = pravesh_properties_data[keys[i]].split(",");
-            final_object[keys[i]] = temp_array;
+            if(pravesh_properties_data[keys[i]]){
+                
+                console.log("pravesh property",keys[i]);
+                if(keys[i] =="document_types" || keys[i] == "id_proof_rejection_reasons" ||keys[i] ==  "bank_rejection_reasons"){
+                    console.log("inside iffffff");
+                    console.log("inside ifffff",pravesh_properties_data[keys[i]]);
+                temp_array = pravesh_properties_data[keys[i]].split("\n");
+                // console.log("temp array",temp_array[0].split("\n"));
+                final_object[keys[i]] = temp_array;
+
+
+                }
+                else{
+                temp_array = pravesh_properties_data[keys[i]].split(",");
+                final_object[keys[i]] = temp_array;
+
+                }
+                
+
+            }
+           
 
 
 
@@ -27,7 +46,7 @@ function sorting_pravesh_properties(pravesh_properties_data){
             temp = value.properties;
             
         })
-console.log("store value",temp);
+console.log("pravesh properties values",temp);
 
 
 }

@@ -7,7 +7,7 @@
             import {get_date_format} from "../../services/date_format_servives";
             import {bank_details,cheque_details,facility_document,show_fac_tags,get_loc_scope,
                 facility_data,facility_bgv_init,all_facility_tags,gst_details,client_details,add_gst_dets,
-                list_child_data,remove_child} from "../../services/onboardsummary_services";
+                list_child_data,remove_child,reset_deact_status} from "../../services/onboardsummary_services";
             import {img_url_name} from '../../stores/flags_store';
             import {facility_id} from "../../stores/facility_id_store"
             import {facility_data_store} from "../../stores/facility_store";
@@ -21,6 +21,7 @@
             import { allowed_pdf_size } from "../../services/pravesh_config";
             import {uploadDocs} from "../../services/bgv_services";
             import Toast from './toast.svelte';
+            // import {check_facility_status} from '.././onboardsummaryComponent.svelte';
 
             let show_spinner = false;
             let toast_text;
@@ -61,6 +62,7 @@
                 pan_verified:null,
                 pan_rejected:null
         }
+        export let admin;
         let child_selected_arr=[];
         
         
@@ -91,6 +93,7 @@
         export let facility_password;
         export let city;
         export let facility_postal;
+        export let is_adhoc_facility;
         //     let facility_address,facility_postal,facility_password,city,location_id,status_name;
             let new_fac_remarks = [];
         //     let select_tag_data,serv_ch_data;
@@ -174,7 +177,7 @@
             }
 
     onMount(async () => {
-        
+       
 
     //     let facility_data_res = await facility_data();
     //     try{
@@ -297,6 +300,7 @@
                 gst_city_loc_id = scope_data[i].location_id;
                 gst_state_code = scope_data[i].state_code;
             }
+            
         }
         else{
             toast_type = "error";
@@ -308,7 +312,15 @@
         toast_text = loc_data_res.body.message;
        
     }
+    
+        // console.log("is adhoc",is_adhoc_facility)
+        //     if(is_adhoc_facility == true){
+        //         console.log("inside id isadhoc")
+        //         // gst_details.style.display = "none";
+        //     }
+    
     });
+    
             
         function editWorkDetail() {
         let replaceState = false;
@@ -472,7 +484,7 @@
                     
                 }
             }  
-            17}
+            }
             
     async function linkChild() {
         let no_com = document.getElementById("comma");
@@ -496,6 +508,107 @@
         }
 
     }
+    function reset_deact_func(){
+        if($facility_data_store.is_blacklisted == 0){
+            Reset_confirmation_modal.style.display = "block";
+        }
+        else if($facility_data_store.is_blacklisted == 1){
+            toast_type = "error";
+            toast_text = "Reset Deactivation status not allowed for Blacklisted Facility!!!";
+        }
+    }
+    function close_reset_deact_tab(){
+        Reset_confirmation_modal.style.display = "none";
+    }
+    async function confirm_reset_deact_tab(){
+        let reset_deact_res = await reset_deact_status();
+        try {
+            if (reset_deact_res.body.status == "green") {
+                toast_type = "success";
+                toast_text = reset_deact_res.body.message;
+            //     let facility_data_res = await facility_data();
+            //     try{
+            //         if(facility_data_res != "null"){
+                    
+            //     facility_data_store.set(
+            //         JSON.parse(JSON.stringify(facility_data_res.body.data[0]))
+                
+            //     )
+
+            //     duplicate_facility_data_store.set(
+            //         JSON.parse(JSON.stringify(facility_data_res.body.data[0]))
+            //     )
+                
+            //     let id_date_format = new Date($facility_data_store.details_updated_on);
+            //     id_new_date = get_date_format(id_date_format,"dd-mm-yyyy-hh-mm");
+                
+                
+            //     let new_facility_date_format = new Date($facility_data_store.creation);
+            //     facility_created_date = get_date_format(new_facility_date_format,"dd-mm-yyyy-hh-mm");
+                
+            //     let new_doc_date_format = new Date($facility_data_store.creation);
+            //     facility_doc_date =get_date_format(new_doc_date_format,"dd-mm-yyyy-hh-mm");
+                
+            //     let facility_date_format = new Date($facility_data_store.modified);
+            //     facility_modified_date = get_date_format(facility_date_format,"dd-mm-yyyy-hh-mm");
+                
+                
+
+            //         if($facility_data_store.status.includes("Rejected")){
+                    
+            //             $facility_data_store.status = "Rejected";
+            //             status_name = $facility_data_store.status;
+            //         }
+            //         if ($facility_data_store.password == "") {
+            //             facility_password = "-";
+            //         }
+            //         for (var j = 0;j < $facility_data_store.addresess.length;j++){
+            //             for(let k=0;k<scope_data.length;k++){
+            //                 if($facility_data_store.addresess[j].state == scope_data[k].location_state){
+            //                     gst_doc_type[j] = "gst-certificate-" + scope_data[k].state_code;
+            //                 }
+            //             }
+            //             gst_doc_type=gst_doc_type
+                        
+            //             if ($facility_data_store.addresess[j].default_address == "1") {
+            //                 facility_address =$facility_data_store.addresess[j].address;
+            //                 facility_postal =$facility_data_store.addresess[j].postal;
+            //                 city = $facility_data_store.addresess[j].city;
+            //                 location_id = $facility_data_store.addresess[j].location_id;
+
+            //             }
+            //         }
+                    
+            //         for (var i = 0; i < facility_document_data.length; i++) {
+            //             for(let j=0; j<gst_doc_type.length;j++){
+            //                 if(facility_document_data[i].doc_type == gst_doc_type[j]){
+            //                     gst_doc_obj = {gst_name : facility_document_data[i].file_name,
+            //                         gst_url : facility_document_data[i].file_url,
+            //                         gst_doc_num : facility_document_data[i].doc_number,
+            //                         gst_verified : facility_document_data[i].verified,
+            //                         gst_rejected : facility_document_data[i].rejected};
+                                
+            //                     gst_doc_arr.push({"gst_name":gst_doc_obj.gst_name,"gst_url":gst_doc_obj.gst_url,"gst_doc_num":gst_doc_obj.gst_doc_num});
+            //                 }
+            //             }
+            //         }
+            //         gst_doc_arr=gst_doc_arr;
+            //         // console.log("gst_doc_arr",gst_doc_arr)
+            //     }
+            // }
+            // catch(err) {
+            //     toast_type = "error";
+            //     toast_text = facility_data_res.body.message;
+                
+            //     }
+            window.location.reload();
+            }
+        } catch (err) {
+            toast_type = "error";
+            toast_text = reset_deact_res.body.message;
+        }
+    }
+
     async function child_select_fun(facility_name,name,station_code,phone_number,check_selected){
         childlink = "childlink2";
         
@@ -945,8 +1058,11 @@
 
 
                  </div>
-
-                 <div class="userInfoSec3">
+                 {#if is_adhoc_facility == false}
+                 {#if admin == "false"}
+                 <p></p>
+                 {:else}
+                 <div class="userInfoSec3" id="gst_details">
                      <div class="flex items-start">
                          <img src="{$img_url_name.img_name}/gst.png" alt="">
                          <div class="pl-4">
@@ -962,6 +1078,8 @@
                          </p>
                      </div>
                  </div>
+                {/if}
+                {/if}
              </div>
 
          </div> 
@@ -1012,7 +1130,7 @@
 
                  </div>
              </div>
-
+             {#if is_adhoc_facility == false}
              <div class="contact_details">
                  <div class="userInfoSec3">
                      <div class="flex items-start">
@@ -1030,8 +1148,26 @@
                          </p>
                      </div>
                  </div>
-             </div>
+                 <br>
+                 {#if $facility_data_store.status == "Deactive"}
+                 <div class="userInfoSec3 ">
+                     <div class="flex items-start">
+                         <div class="pl-4">
+                            <div
+                            class="updateAction ml-5"
+                        >
+                            <button
+                                class="ErBlueButton"
+                                on:click="{reset_deact_func}">Reset Deactivation Status</button
+                            >
+                        </div>
+                         </div>
+                     </div>
 
+                 </div>
+                 {/if}
+             </div>
+             {/if}
          </div> 
      </div>
      <!-- GST Details modal -->
@@ -1857,6 +1993,62 @@
         </div>
     </div>
 </div>
+
+<!--Reset Deactivation Status Confirmation modal -->
+
+<div id="Reset_confirmation_modal" class="hidden">
+    <div  class="actionDialogueOnboard ">
+        <div class="pancardDialogueOnboardWrapper ">
+            <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+                <div class="modalHeadConmb-0">
+                    <div class="leftmodalInfo">
+                        <!-- <p class=""> Reject Reason</p> -->
+                    </div>
+                    <div class="rightmodalclose">
+                        <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" on:click="{close_reset_deact_tab}">
+                    </div>
+                </div>
+                <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+    
+                    <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0 mt-4">
+                        <label class="block  tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-state">
+                            Are You Sure To Reset Deactivation Status!
+                        </label>
+                        <div class="relative">
+                          <!-- <select class="block appearance-none w-full  border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-state" bind:value="{pan_info_res}">
+                            <option value="" selected disabled>Select</option>
+                            {#each rejReasonMap.panInfo as pan_info_rej}
+                            <option>{pan_info_rej} </option>
+                            {/each}
+                          </select> -->
+                          <br>
+                          <br>
+                          <div
+                                class="flex  py-1 items-center flex-wrap"
+                            >
+                                <div class="formInnerGroup">
+                                    <!-- <input
+                                        class="inputboxpopover"
+                                        type="text"
+                                        bind:value="{blacklist_remark}"
+                                    /> -->
+                                    <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium mr-2" on:click="{close_reset_deact_tab}">Cancel</button>
+                                    <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium mr-2" on:click="{confirm_reset_deact_tab}">Ok</button>
+                                </div>
+                            </div>
+                          <!-- <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                          </div> -->
+                        </div>
+                      </div>
+                </form>
+            </div>
+        </div>
+    </div> 
+</div>
+
+<!--Reset Deactivation Status Confirmation modal -->
+
 <!-- Document view Model -->
 <div id="img_model" tabindex="-1" aria-hidden="true" role ="dialog" class=" actionDialogueOnboard" hidden>
     <div class="pancardDialogueOnboardWrapper ">

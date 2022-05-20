@@ -150,7 +150,7 @@
     function routeToBussiness() {
         let replaceState = false;
         // console.log(routeNew)
-        goto("bussiness", { replaceState });
+        goto("bussines", { replaceState });
         // goto_wrapper("bussiness",{ replaceState });
     }
 
@@ -198,7 +198,7 @@
                 >
             </p>
             <p on:click={() => routeToBussiness()}>
-                <a href="#" class="newonboard ">
+                <a href="" class="newonboard ">
                     Onboard<span class="xs:hidden"> New</span>
                     <img
                         src="{$img_url_name.img_name}/useradd.svg"

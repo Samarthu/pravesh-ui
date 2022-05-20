@@ -2335,9 +2335,46 @@ ul.menuList li a.active span{
     @apply  relative w-full  xs:w-full sm:w-full border-none
 }
 
-/* docmodle table */
 
-.userStatusTicktable{
-    @apply flex items-center text-sm text-green italic font-medium justify-center
+
+@media print {
+    .noPrint{
+        display: none;
+    }
+
+    button {
+        display: none;
+    }    
+
+    .mainContent {
+        display: none;
+    }
+
+    .verifyIdSection{
+        display: none;
+    }
+
+    .sidenav{
+        display: none;
+    }
+
+    Nav {
+        visibility: hidden;
+    }
+
+    .modalHeadConmb-0 {
+        visibility: hidden;
+    }
+
+    body {
+        visibility: hidden;
+    }
+
+    .idCardWrapper{
+        visibility: visible;
+    }
+
+    .actionDialogueOnboard{
+        visibility: hidden;
+    }
 }
-/* end docmodle table */
