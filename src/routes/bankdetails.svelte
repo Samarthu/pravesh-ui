@@ -97,6 +97,8 @@
         // console.log("TEMP RESULT",result)
         page_name = $page.url["pathname"].split("/").pop();
         console.log("bank pahge name", page_name);
+
+        
     });
 
     function routeToSuccess() {
