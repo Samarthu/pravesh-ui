@@ -474,7 +474,7 @@ import { Router, Link, Route } from "svelte-routing";
             toast_type = "error";
             toast_text = err;
         }
-        
+
         //////////city_data/////////////
         let loc_data_res =  await get_loc_scope();
         try {
@@ -1015,7 +1015,7 @@ function check_facility_status(message) {
     }
 
     function goto_vmt_verify(){
-        goto("./vmt_verify");
+        goto("vmtverify");
     }
 //     async function tagAddRemove() {
 //         addRemoveModal.style.display = "block";
