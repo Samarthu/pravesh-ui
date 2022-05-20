@@ -1950,7 +1950,7 @@ function check_facility_status(message) {
                     {/if}
                     {/if}
                 </div>
-                {#if admin == true}
+                {#if admin == false }
                 <p></p>
                 {:else}
                     <div class="mt-4 mb-3  xsl:flex">
