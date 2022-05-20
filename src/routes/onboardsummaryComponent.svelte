@@ -13,8 +13,9 @@ import { Router, Link, Route } from "svelte-routing";
     import { facility_data,facility_bgv_init,facility_bgv_check,all_facility_tags,
             show_fac_tags,submit_fac_tag_data,remove_tag,tag_audit_trail,service_vendor,
             get_loc_scope,client_details,erp_details,child_data,add_gst_dets,
-            facility_document,addnew_cheque_details,bank_details,cheque_details,gst_details} from "../services/onboardsummary_services";
-    
+            facility_document,addnew_cheque_details,bank_details,cheque_details,gst_details,blacklist_vendor} from "../services/onboardsummary_services";
+    import {get_pravesh_properties_method,} from '../services/workdetails_services';
+    import {approve_reject_status} from '../services/vmt_verify_services';
     import {uploadDocs} from '../services/bgv_services'
     import {get_date_format} from "../services/date_format_servives";
     import {img_url_name} from '../stores/flags_store';
@@ -34,6 +35,9 @@ import { Router, Link, Route } from "svelte-routing";
     import {documents_store} from '../stores/document_store';
     import {duplicate_documents_store} from '../stores/duplicate_document_store';
     import {duplicate_facility_data_store} from '../stores/duplicate_facility_data_store';
+    import {
+        sorting_pravesh_properties,
+    } from "../services/pravesh_config";
 
     let show_spinner = false;
     let toast_text;
@@ -61,11 +65,13 @@ import { Router, Link, Route } from "svelte-routing";
     let all_tags_obj= {};
     let show_fac_array = [];
     let tag_data_arr = [];
+    let document_type_arr = [];
     let show_creation_date;
     let child_select;
     let child_list=[];
     let check_val,query;
     let tags_for_ass_arr=[];
+    var doc_type_name = [];
     let check_selected;
     let id_new_date='';
     let username;
@@ -161,6 +167,7 @@ import { Router, Link, Route } from "svelte-routing";
     let gst_state_code = "";
     let gst_city_loc_id="";
     export let url = "";
+    let blacklist_remark = "";
     /////////////////////svelte plugin pagiantion//////////
     let items;
     let currentPage = 1;
@@ -183,11 +190,19 @@ import { Router, Link, Route } from "svelte-routing";
 ///////Document view Model/////////
     let alt_image="";
 /////////Document view Model//////
-    let selected_document_type="";
+    let selected_document_type;
     let document_desc = "";
     let document_url = "";
     let new_doc_upload_message = "";
     let document_name = "";
+    let document_type,document_number;
+    let admin = false;
+    let itadmin = false;
+    let show_upload_btn = false;
+    let remove_upload_btn = false;
+    let adhoc_facility_tag;
+    let is_adhoc_facility = false; 
+    
     $:{
         for(let key in all_tags_obj){
             if(select_tag_data == key){
@@ -226,15 +241,11 @@ import { Router, Link, Route } from "svelte-routing";
     
     
     onMount(async () => {
-        
         show_spinner = true;
-        // console.log("facility document data",aadhar_obj,fac_photo_obj,addproof_obj
-        // ,can_cheque_obj,dl_photo_obj,new_off_file_obj);
         query = $page.url;
-        // console.log("query",query);
-        // console.log("search params has",$page.url.searchParams.has("unFacID"));
-        // console.log("search params get",$page.url.searchParams.get("unFacID"));
-        // console.log("search params ",$page.url);
+
+        
+        
         if($page.url.searchParams.has("unFacID")){
             let temp  = $page.url.searchParams.get("unFacID");
             if(temp != ""){
@@ -247,14 +258,44 @@ import { Router, Link, Route } from "svelte-routing";
             }
         }
         // console.log("$facility_id",$facility_id.facility_id_number);
+        ///////////////pravesh properties//////////////
+        let get_pravesh_properties_response =
+            await get_pravesh_properties_method();
+        console.log(
+            "get_pravesh_properties_response",
+            get_pravesh_properties_response
+        );
+        if (get_pravesh_properties_response.body.status == "green") {
+            sorting_pravesh_properties(
+                get_pravesh_properties_response.body.data
+            );
+        } else {
+            toast_type = "error";
+            toast_text = "Error in fetching pravesh properties";
+        }
+        //////////////////////////////////////////////////////////
 
 
-        
+
         let userdetails = await logged_user();
         
         try{
             if(userdetails.body.status == "green"){
-                username = userdetails.body.data.user.email;
+                for(let i=0;i<userdetails.body.data.user.roles.length;i++){
+                    console.log("user roles",userdetails.body.data.user.roles[i].role)
+                        if(userdetails.body.data.user.roles[i].role == "ROLE_ITADMIN"
+                    || userdetails.body.data.user.roles[i].role == "ROLE_VMT" 
+                    || userdetails.body.data.user.roles[i].role == "ROLE_VMT_ADMIN"
+                    || userdetails.body.data.user.roles[i].role == "ROLE_HR"){
+                        admin = true
+                        console.log("inside admin = true",admin)
+                    }
+                    else if(userdetails.body.data.user.roles[i].role == "ROLE_ITADMIN"){
+                        itadmin = true
+                    }
+                }
+
+                console.log("user roles",admin);
             }
         }
         catch(err) {
@@ -325,7 +366,7 @@ import { Router, Link, Route } from "svelte-routing";
             
             $documents_store = facility_document_res.body.data
             $duplicate_documents_store.documents = facility_document_res.body.data;
-            console.log("duplicate document store",$duplicate_documents_store)
+            // console.log("duplicate document store",$duplicate_documents_store)
 
             // console.log("documents_store",$documents_store)
             // for(let i=0;i < $documents_store.length;i++){
@@ -334,7 +375,6 @@ import { Router, Link, Route } from "svelte-routing";
 
             facility_document_data = facility_document_res.body.data;
             for (var i = 0; i < facility_document_data.length; i++) {
-                console.log("facility_document_data ii",facility_document_data)
                 let doc_date_format = new Date(facility_document_data[i].creation);
                 let doc_creation_date = get_date_format(doc_date_format,"dd-mm-yyyy-hh-mm");
                 facility_document_data[i].creation = doc_creation_date
@@ -415,6 +455,48 @@ import { Router, Link, Route } from "svelte-routing";
             toast_type = "error";
             toast_text = err;
         }
+
+                // Pravesh Properties //
+    let doc_arr_from_res = [];
+       
+       let get_pravesh_properties_res = await get_pravesh_properties_method();
+       try{
+           if(get_pravesh_properties_res.body.status == "green"){
+               
+               doc_arr_from_res = get_pravesh_properties_res.body.data.document_types.split("\n")
+               let offer_letter_required_associates = get_pravesh_properties_res.body.data.offer_letter_required_associates.split(",");
+               let offer_letter_not_required_tags = get_pravesh_properties_res.body.data.offer_letter_not_required_tags.split(",");
+               adhoc_facility_tag = get_pravesh_properties_res.body.data.adhoc_facility_tag.split(",");
+               
+               if(offer_letter_required_associates.includes($facility_data_store.facility_type) && admin == true){
+                   show_upload_btn = true;
+               }
+               for(let i=0;i < show_fac_array.length;i++){
+                   
+                   if(show_upload_btn == true && offer_letter_not_required_tags.includes(show_fac_array[i].tag_id)){
+                       remove_upload_btn = true;
+                   } 
+                   if(adhoc_facility_tag.includes(show_fac_array[i].tag_id)){
+                       is_adhoc_facility = true;
+                   }
+               }
+               console.log("offer_letter_required_associates",offer_letter_required_associates)
+           for (var k = 0; k < doc_arr_from_res.length; k++) {
+                   var ele = doc_arr_from_res[k];
+                   var doc_name = ele.split("=")[0]
+                   var doc_val = ele.split("=")[1]
+                       doc_type_name.push({"doc_name":doc_name ,"doc_value":doc_val});
+                   }
+                   doc_type_name = doc_type_name
+           }
+           console.log("adhoic fac tag",adhoc_facility_tag)
+       }
+       catch(err){
+           toast_type = "error"
+           toast_text = err
+       }
+       
+              // Pravesh Properties //
         //////////city_data/////////////
         let loc_data_res =  await get_loc_scope();
         try {
@@ -489,7 +571,6 @@ import { Router, Link, Route } from "svelte-routing";
                     }
                 }
                 gst_doc_type=gst_doc_type
-                console.log("gst_doc_type",gst_doc_type);
                 
                 if ($facility_data_store.addresess[j].default_address == "1") {
                     facility_address =$facility_data_store.addresess[j].address;
@@ -556,16 +637,75 @@ import { Router, Link, Route } from "svelte-routing";
         toast_type = "error";
         toast_text = all_tags_res.body.message;
     }
-    show_spinner = false;
-}); 
-async function child_select_fun(){
-        
-        var rows = document.getElementById("check_tbody")[0].rows;
-            for(var i=0;i<rows.length;i++){
-                console.log("check_sel_id inside")
+    // show_spinner = false;
+
+    let tag_res = await show_fac_tags($facility_data_store.facility_type);
+        console.log("tag_res",tag_res);
+        try {
+            show_spinner = true;
+            if(tag_res.body.data.length != 0){
+                show_spinner = false;
+                show_fac_array = tag_res.body.data;
+                console.log("show_fac_array",show_fac_array)
+                for(let i=0;i < show_fac_array.length;i++){
+                    
+                    let new_date =new Date(show_fac_array[i].creation)
+                    
+                    show_fac_array[i].creation=new_date;
+                    // console.log("new_date",new_date);
+                }
+                show_fac_array.sort(function(a, b) {
+                if (a.creation > b.creation) return -1;
+                if (a.creation < b.creation) return 1;
+                return 0;
+                });
+
+                for(let i=0;i < show_fac_array.length;i++){
+                let show_creation_date =get_date_format(show_fac_array[i].creation,"yyyy-mm-dd")
+                show_fac_array[i].creation=show_creation_date;
+                }
             }
+            else{
+                show_spinner = false;
+                toast_type = "error";
+                toast_text = "No Tags Found";
+            }
+        } 
+        catch(err) {
+            toast_type = "error";
+            toast_text = err;
+        
+         }
+    
+}); 
+function check_facility_status(message) {
+    if (!$facility_data_store.status && $facility_data_store.status != undefined && ($facility_data_store.status.toLowerCase() == "deactive" || $facility_data_store.is_blacklisted == 1)) {
+        if (message != undefined){
+            toast_text = message;
+            toast_type = "error";
+        }
+        else{
+            toast_text = "Request not allowed for Deactive/Blacklisted Facility";
+            toast_type = "error";
+            return false;
+        }
     }
+        toast_text = message;
+        toast_type = "error";
+        return true;
+        
+    }
+// async function child_select_fun(){
+        
+//         var rows = document.getElementById("check_tbody")[0].rows;
+//             for(var i=0;i<rows.length;i++){
+//                 console.log("check_sel_id inside")
+//             }
+//     }
     async function link_child(data){
+        if (check_facility_status("Add Child Facilities not allowed for Deactive/Blacklisted Facility")) {
+        return;
+        }
         show_spinner = true;
         let client_det_res = await client_details(data);
         try{
@@ -596,8 +736,28 @@ async function child_select_fun(){
 
     function closeViewModel(){
         document.getElementById("img_model").style.display = "none";
+        document.getElementById("img_model_approve_rej").style.display = "none";
+        document.getElementById("modalid").style.display = "none";
+
     }
     function openViewModel(data,doc_number){
+        console.log("Inside functin")
+        img_model_approve_rej.style.display = "block";
+        console.log("view clicked")
+        if(data == "new_doc"){
+            console.log("inside new_doc view")
+            
+            for(let i=0;i<facility_document_data.length;i++){
+                // console.log("inside for view new_doc")
+                if(doc_number == facility_document_data[i].doc_category){
+                    // console.log("inside if")
+                    document.getElementById("doc_img_model_url").getAttribute('src',facility_document_data[i].file_url);
+                    alt_image = "uploaded document";
+                    document_type = facility_document_data[i].doc_type;
+                    document_number = facility_document_data[i].doc_number;
+                }
+            }
+        }
         document.getElementById("img_model").style.display = "block";
         if(data == "aadhar"){
             document.getElementById("img_model_url").getAttribute('src',aadhar_obj.aadhar_attach);
@@ -627,6 +787,8 @@ async function child_select_fun(){
             document.getElementById("img_model_url").getAttribute('src',new_cheque.file_url);
             alt_image = "cheque proof";
         }
+        
+        
         for(let i = 0;i<gst_doc_arr.length;i++){
             if(data == "mult_gsts"){
                 if(doc_number == gst_doc_arr[i].gst_doc_num)
@@ -709,6 +871,8 @@ async function child_select_fun(){
         }
         paginatedItems = searchArray;
     }
+
+
     //////not used/////////////
     
 /////////bank details//////;///////
@@ -872,205 +1036,228 @@ async function child_select_fun(){
         associateModal.style.display = "block";
     }
 
-    async function tagAddRemove() {
-        addRemoveModal.style.display = "block";
-        let tag_res = await show_fac_tags($facility_data_store.facility_type);
-        console.log("tag_res",tag_res);
-        try {
-            show_spinner = true;
-            if(tag_res.body.data.length != 0){
-                show_spinner = false;
-                show_fac_array = tag_res.body.data;
-                console.log("show_fac_array",show_fac_array)
-                for(let i=0;i < show_fac_array.length;i++){
-                    
-                    let new_date =new Date(show_fac_array[i].creation)
-                    
-                    show_fac_array[i].creation=new_date;
-                    // console.log("new_date",new_date);
-                }
-                show_fac_array.sort(function(a, b) {
-                if (a.creation > b.creation) return -1;
-                if (a.creation < b.creation) return 1;
-                return 0;
-                });
-
-                for(let i=0;i < show_fac_array.length;i++){
-                let show_creation_date =get_date_format(show_fac_array[i].creation,"yyyy-mm-dd")
-                show_fac_array[i].creation=show_creation_date;
-                }
-            }
-            else{
-                show_spinner = false;
-                toast_type = "error";
-                toast_text = "No Tags Found";
-            }
-        } 
-        catch(err) {
-            toast_type = "error";
-            toast_text = err;
-        
-         }
-
-        let service_vend_res = await service_vendor();
-        console.log("service_vend_res",service_vend_res)
-        try {
-            show_spinner = true;
-            if(service_vend_res.body.status == "green"){
-                show_spinner = false;
-                for(let i=0;i<service_vend_res.body.data.length;i++){
-                    if(service_vend_res.body.data[i].location_id == location_id){
-                        // tag_data_obj[service_vend_res.body.data[i].vendor_id] = service_vend_res.body.data[i].vendor_name;
-                        tag_data_obj.push(service_vend_res.body.data[i]);
-                    }
-                }
-                tag_data_obj = tag_data_obj;
-                console.log("tag_data_obj",tag_data_obj)
-            }
-            else{
-                show_spinner = false;
-                toast_type = "error";
-                toast_text = "No Vendor Found";
-            }
-        }
-        catch(err) {
-            show_spinner = false;
-            toast_type = "error";
-            toast_text = err;
-        }
-
-
+    function goto_vmt_verify(){
+        goto("./vmt_verify");
     }
-    async function handleTagClick(){
-    let new_tag_id
-    try {   
-    //     if(all_tags_res.body.status == "green"){
+//     async function tagAddRemove() {
+//         addRemoveModal.style.display = "block";
+//         let tag_res = await show_fac_tags($facility_data_store.facility_type);
+//         console.log("tag_res",tag_res);
+//         try {
+//             show_spinner = true;
+//             if(tag_res.body.data.length != 0){
+//                 show_spinner = false;
+//                 show_fac_array = tag_res.body.data;
+//                 console.log("show_fac_array",show_fac_array)
+//                 for(let i=0;i < show_fac_array.length;i++){
+                    
+//                     let new_date =new Date(show_fac_array[i].creation)
+                    
+//                     show_fac_array[i].creation=new_date;
+//                     // console.log("new_date",new_date);
+//                 }
+//                 show_fac_array.sort(function(a, b) {
+//                 if (a.creation > b.creation) return -1;
+//                 if (a.creation < b.creation) return 1;
+//                 return 0;
+//                 });
+
+//                 for(let i=0;i < show_fac_array.length;i++){
+//                 let show_creation_date =get_date_format(show_fac_array[i].creation,"yyyy-mm-dd")
+//                 show_fac_array[i].creation=show_creation_date;
+//                 }
+//             }
+//             else{
+//                 show_spinner = false;
+//                 toast_type = "error";
+//                 toast_text = "No Tags Found";
+//             }
+//         } 
+//         catch(err) {
+//             toast_type = "error";
+//             toast_text = err;
         
-        for(let i=0; i < all_tags_res.body.data.length; i++){
-            // console.log("INDISDE FOR LOOPform_data from html",select_tag_data,all_tags_res.body.data[i].tag_name)
-            if(select_tag_data == all_tags_res.body.data[i].tag_name){
-                new_tag_id = all_tags_res.body.data[i].tag_id;
-            }
+//          }
+
+//         let service_vend_res = await service_vendor();
+//         console.log("service_vend_res",service_vend_res)
+//         try {
+//             show_spinner = true;
+//             if(service_vend_res.body.status == "green"){
+//                 show_spinner = false;
+//                 for(let i=0;i<service_vend_res.body.data.length;i++){
+//                     if(service_vend_res.body.data[i].location_id == location_id){
+//                         // tag_data_obj[service_vend_res.body.data[i].vendor_id] = service_vend_res.body.data[i].vendor_name;
+//                         tag_data_obj.push(service_vend_res.body.data[i]);
+//                     }
+//                 }
+//                 tag_data_obj = tag_data_obj;
+//                 console.log("tag_data_obj",tag_data_obj)
+//             }
+//             else{
+//                 show_spinner = false;
+//                 toast_type = "error";
+//                 toast_text = "No Vendor Found";
+//             }
+//         }
+//         catch(err) {
+//             show_spinner = false;
+//             toast_type = "error";
+//             toast_text = err;
+//         }
+
+
+//     }
+//     async function handleTagClick(){
+//     let new_tag_id
+//     try {   
+//     //     if(all_tags_res.body.status == "green"){
+        
+//         for(let i=0; i < all_tags_res.body.data.length; i++){
+//             // console.log("INDISDE FOR LOOPform_data from html",select_tag_data,all_tags_res.body.data[i].tag_name)
+//             if(select_tag_data == all_tags_res.body.data[i].tag_name){
+//                 new_tag_id = all_tags_res.body.data[i].tag_id;
+//             }
             
-        }
-        if(!select_tag_data){
-            selectTag = 1;
-            if(!tag_remark){
-            addRemark = 1;
-                if(!serv_ch_data){
-                    selectsearch=1;
-                }
-            }   
+//         }
+//         if(!select_tag_data){
+//             selectTag = 1;
+//             if(!tag_remark){
+//             addRemark = 1;
+//                 if(!serv_ch_data){
+//                     selectsearch=1;
+//                 }
+//             }   
 
-        }
-        else{
-            console.log("select_tag_data",select_tag_data)
-            show_fac_array = [];
-            console.log("serv_ch_data",serv_ch_data)
-            let submit_fac_res = await submit_fac_tag_data(new_tag_id,select_tag_data,tag_date,tag_remark,serv_ch_data)
-            try {
-                show_spinner = true;
-                if(submit_fac_res.body.status == "green"){
-                    show_spinner = false;
-                    let temp_res = await show_fac_tags($facility_data_store.facility_type);
-                    show_fac_array = temp_res.body.data;
-                    for(let i=0;i < show_fac_array.length;i++){
-                        let new_date =new Date(show_fac_array[i].creation)
-                        show_creation_date = get_date_format(new_date,"yyyy-mm-dd")
-                        show_fac_array[i].creation=show_creation_date;
-                    }
-                    show_fac_array = show_fac_array;
-                }
-                // console.log("submit_fac_res.body",submit_fac_res.body)
-                else if(submit_fac_res.body.message == "Tag already exist..!"){
-                    show_spinner = false;
-                    console.log("Cannot Add Tag already exist..!")
-                }
-            }
-                catch(err) {
-                    show_spinner = false;
-                    toast_type = "error";
-                    toast_text = err;
-                }
-        }
+//         }
+//         else{
+//             console.log("select_tag_data",select_tag_data)
+//             show_fac_array = [];
+//             console.log("serv_ch_data",serv_ch_data)
+//             let submit_fac_res = await submit_fac_tag_data(new_tag_id,select_tag_data,tag_date,tag_remark,serv_ch_data)
+//             try {
+//                 show_spinner = true;
+//                 if(submit_fac_res.body.status == "green"){
+//                     show_spinner = false;
+//                     let temp_res = await show_fac_tags($facility_data_store.facility_type);
+//                     show_fac_array = temp_res.body.data;
+//                     for(let i=0;i < show_fac_array.length;i++){
+//                         let new_date =new Date(show_fac_array[i].creation)
+//                         show_creation_date = get_date_format(new_date,"yyyy-mm-dd")
+//                         show_fac_array[i].creation=show_creation_date;
+//                     }
+//                     show_fac_array = show_fac_array;
+//                 }
+//                 // console.log("submit_fac_res.body",submit_fac_res.body)
+//                 else if(submit_fac_res.body.message == "Tag already exist..!"){
+//                     show_spinner = false;
+//                     console.log("Cannot Add Tag already exist..!")
+//                 }
+//             }
+//                 catch(err) {
+//                     show_spinner = false;
+//                     toast_type = "error";
+//                     toast_text = err;
+//                 }
+//         }
 
-    }
-    catch(err) {
-        toast_type = "error";
-        toast_text = err;
-    }
+//     }
+//     catch(err) {
+//         toast_type = "error";
+//         toast_text = err;
+//     }
       
-}
+// }
 
-    async function removeTag(tag_id,tag_name,owner,tag_status){
-        show_fac_array = [];
-        let fac_id
-        if(owner == $facility_data_store.owner){
-                fac_id = $facility_data_store.name
-                console.log("fac_id",fac_id)
-        }
-        let remove_tag_res = await remove_tag(fac_id,tag_id,tag_name);
-        if(remove_tag_res.body.status == "green")
-        {
-        let temp_res = await show_fac_tags($facility_data_store.facility_type);
-        try {
-                show_fac_array = temp_res.body.data;
+//     async function removeTag(tag_id,tag_name,owner,tag_status){
+//         show_fac_array = [];
+//         let fac_id
+//         if(owner == $facility_data_store.owner){
+//                 fac_id = $facility_data_store.name
+//                 console.log("fac_id",fac_id)
+//         }
+//         let remove_tag_res = await remove_tag(fac_id,tag_id,tag_name);
+//         if(remove_tag_res.body.status == "green")
+//         {
+//         let temp_res = await show_fac_tags($facility_data_store.facility_type);
+//         try {
+//                 show_fac_array = temp_res.body.data;
                 
-                // console.log("show_fac_array IN remove",show_fac_array)
-                for(let i=0;i < show_fac_array.length;i++){
+//                 // console.log("show_fac_array IN remove",show_fac_array)
+//                 for(let i=0;i < show_fac_array.length;i++){
                     
-                    let new_date =new Date(show_fac_array[i].creation)
-                    show_creation_date = get_date_format(new_date,"yyyy-mm-dd")
-                    show_fac_array[i].creation=show_creation_date;
+//                     let new_date =new Date(show_fac_array[i].creation)
+//                     show_creation_date = get_date_format(new_date,"yyyy-mm-dd")
+//                     show_fac_array[i].creation=show_creation_date;
                    
-        }
+//         }
        
-    }
-        catch(err) {
-        console.log("ERROR")
+//     }
+//         catch(err) {
+//         console.log("ERROR")
         
-         }
+//          }
 
-    }
-}
+//     }
+// }
 
 
-   async function tagAuditFunc(){
-        temp = "tag";
-        let tag_audit_res =await tag_audit_trail();
-        try {
-            if(tag_audit_res.body.status == "green"){
+//    async function tagAuditFunc(){
+//         temp = "tag";
+//         let tag_audit_res =await tag_audit_trail();
+//         try {
+//             if(tag_audit_res.body.status == "green"){
             
-            tag_data_arr = tag_audit_res.body.data
-            for(let i=0;i < tag_data_arr.length;i++){
-                let new_date =new Date(tag_data_arr[i].creation)
-                show_creation_date = get_date_format(new_date,"yyyy-mm-dd")
-                tag_data_arr[i].creation=show_creation_date;
-            }
-            // console.log("TAG DATA ARRA",tag_data_arr)
-            tag_data_arr = tag_data_arr;
+//             tag_data_arr = tag_audit_res.body.data
+//             for(let i=0;i < tag_data_arr.length;i++){
+//                 let new_date =new Date(tag_data_arr[i].creation)
+//                 show_creation_date = get_date_format(new_date,"yyyy-mm-dd")
+//                 tag_data_arr[i].creation=show_creation_date;
+//             }
+//             // console.log("TAG DATA ARRA",tag_data_arr)
+//             tag_data_arr = tag_data_arr;
                
-        }} catch(err) {
-        console.log("ERROR")
+//         }} catch(err) {
+//         console.log("ERROR")
         
-         }
+//          }
        
-    }
+//     }
 
-    function clear() {
-        addRemoveModal.style.display = "none";
-    }
+//     function clear() {
+//         addRemoveModal.style.display = "none";
+//     }
 
     function close() {
         associateModal.style.display = "none";
     }
 
-    function allDoc() {
+    async function allDoc() {
+    //     let doc_arr_from_res = [];
         modalid.style.display = "block";
-    }
+    //     let get_pravesh_properties_res = await get_pravesh_properties_method();
+        
 
-    function closeDoc() {
-        modalid.style.display = "none";
+    //     try{
+            
+    //         if(get_pravesh_properties_res.body.status == "green"){
+                
+    //             doc_arr_from_res = get_pravesh_properties_res.body.data.document_types.split("\n")
+                
+
+    //         for (var k = 0; k < doc_arr_from_res.length; k++) {
+    //                 var ele = doc_arr_from_res[k];
+    //                 var doc_name = ele.split("=")[0]
+    //                 var doc_val = ele.split("=")[1]
+    //                     doc_type_name.push({"doc_name":doc_name ,"doc_value":doc_val});
+	// 				}
+    //                 doc_type_name = doc_type_name
+    //         }
+    //     }
+    //     catch(err){
+    //         toast_type = "error"
+    //         toast_text = err
+    //     }
     }
 
     routeBgv = "bgv";
@@ -1097,6 +1284,36 @@ async function child_select_fun(){
 
     function closeAuditTrailModal() {
         supplierInfoModal.style.display = "none";
+    }
+    function blacklist_remark_select(){
+        Blacklist_confirmation_modal.style.display = "block";
+        // Basic_Reject_modal.style.display = "block";
+    }
+    function close_blacklist_remark(){
+        Blacklist_confirmation_modal.style.display = "none";
+        Basic_Reject_modal.style.display = "none";
+    }
+    function confirm_blacklist(){
+        Basic_Reject_modal.style.display = "block";
+    }
+
+    async function blacklist_click(){
+        if (check_facility_status("Facility is already Blacklisted")) {
+            return;
+        }
+        else{
+            let blacklist_res = await blacklist_vendor(blacklist_remark);
+            try {
+                if (blacklist_res.body.status == "green") {
+                toast_type = "success";
+                toast_text = blacklist_res.body.message;
+                window.location.reload();
+                }
+            }
+            catch (err) {
+                message.innerHTML = "Error is  " + err;
+            }   
+        }
     }
 
     async function gstModel() {
@@ -1303,9 +1520,34 @@ async function child_select_fun(){
     // return arr
     // }
     async function save_document(){
+        let new_doc_type_name
+        
         let e = document.getElementById("selected_doc_type");
+       
+        if(!e.selectedIndex || e.selectedIndex == "-1"){
+            toast_type = "error"
+            toast_text = "Please Select DocType"
+            return 
+        }
         var selected_doc_type_name = e.options[e.selectedIndex].text;
         
+        for (let i = 0; i < doc_type_name.length; i++) {
+            if(selected_doc_type_name == doc_type_name[i].doc_value){
+                new_doc_type_name  = doc_type_name[i].doc_name
+            }
+            
+        }
+        if(!selected_doc_type_name || selected_doc_type_name =="-1"){
+            toast_type = "error"
+            toast_text = "Please Select DocType 1"
+            return
+        }
+        else if(!document_url){
+            toast_type = "error"
+            toast_text = "Please Upload Document"
+            return 
+        }
+
         let new_doc_payload = {"documents":[{
         "file_name":document_name,
         "doc_category":selected_doc_type_name,
@@ -1313,12 +1555,12 @@ async function child_select_fun(){
         "resource_id":$facility_id.facility_id_number,
         "user_id":username,
         "doc_number":"",
-        "doc_type":selected_document_type,
+        "doc_type":new_doc_type_name,
         "facility_id":$facility_data_store.facility_id,
         "remarks":document_desc,
         "pod":document_url}]}
+        console.log("new_doc_payload",new_doc_payload)
         let save_doc_res = await uploadDocs(new_doc_payload);
-        console.log("save_doc_res",save_doc_res)
         try {
             if(save_doc_res.body.status == "green"){
                 
@@ -1342,6 +1584,44 @@ async function child_select_fun(){
         }
     }
 
+    async function docApproveRejected(doc_cat){
+        let document_load,new_status
+        console.log("doc_cat",doc_cat)
+        show_spinner = true;
+        if(doc_cat == "approve"){
+            new_status="DV"
+        }
+        else if(doc_cat == "reject"){
+            new_status="RJ"
+        }
+        document_load = {
+        "resource_id":$facility_id.facility_id_number,
+        "doc_number":document_number,
+        "status_type":new_status,
+        "status":"true",
+        "doc_type":document_type
+        }
+        let doc_res = await approve_reject_status(document_load)
+        show_spinner = false;
+        try{
+            if(doc_res.body.status == "green"){
+                toast_text = "Document Approved";
+                toast_type = "success";
+            }
+        }
+        catch(err){
+            toast_text = err;
+            toast_type = "error";
+        }
+            
+    }
+    
+    // async function new_doc_cat_func(data){
+    //     console.log("inside new_doc_cat_func")
+    //     console.log("data",data)
+    // }
+
+
 </script>
 {#if show_spinner}
     <Spinner />
@@ -1360,7 +1640,9 @@ async function child_select_fun(){
                     </span>
                 </p>
                
+                
                 <p class="breadcrumbRight">
+                    {#if is_adhoc_facility == false}
                     <a href=""> 
                         <span class="breadRightIcons" on:click={erpModel}> 
                              ERP Details
@@ -1371,14 +1653,21 @@ async function child_select_fun(){
                                 alt=""> Documents
                         </span> 
                     </a>
+                    {/if}
                     <a class="cursor-pointer">
                         <span class="breadRightIcons" id="SupplerModalbuttonClick" on:click={auditTrial}>
                             <img src="{$img_url_name.img_name}/audittrail.png" class="pr-2" alt=""> Audit Trial (12)
                         </span>
                     </a>
-                    <span class="backlistText">
+                    {#if admin == false}
+                    <p></p>
+                    {:else}
+                    {#if is_adhoc_facility == false}
+                    <span class="backlistText cursor-pointer" on:click="{blacklist_remark_select}">
                         <img src="{$img_url_name.img_name}/backlist.png" class="pr-2" alt=""> Backlist Vendor
                     </span>
+                    {/if}
+                    {/if}
                 </p>
             
             </div>
@@ -1592,7 +1881,9 @@ async function child_select_fun(){
                                     </p>
                                     {/if} 
                                 {/if}  
-                               
+                                {#if is_adhoc_facility == true}
+                                <p> - ( Adhoc )</p>
+                               {/if}
                             </div>
                         </div>
                     </div>
@@ -1627,8 +1918,11 @@ async function child_select_fun(){
                     Verify <img src="{$img_url_name.img_name}/downarrowwhite.svg" class="pl-2" alt="arrow">
                 </div>
             </div> -->
+            
             <div class="statusrightlink">
+                
                 <div>
+                    {#if is_adhoc_facility == false}
                     {#if showbtn == "1"}
                         {#if $facility_data_store.is_bgv_intiated == "0"}
                         
@@ -1676,10 +1970,24 @@ async function child_select_fun(){
                     {:else}
                     <p></p>
                     {/if}
+                    {/if}
                 </div>
+                {#if admin == true}
+                <p></p>
+                {:else}
+                    <div class="mt-4 mb-3  xsl:flex">
+                        <div class="vmtVerify " on:click="{goto_vmt_verify}">
+                            <!-- <div class="vmtVerify " > -->
+                            Verify <img src="{$img_url_name.img_name}/downarrowwhite.svg" class="pl-2" alt="arrow">
+                        </div>
+                    </div>
+                {/if}
+                </div>
+            
             </div>
-            </div>
+            
         </div>
+       
     </div>
 
     <div class="contentsectionDetailview_summary ">
@@ -1698,906 +2006,33 @@ async function child_select_fun(){
     fac_photo_objfac_photo_obj={fac_photo_obj} 
     facility_password={facility_password}
     facility_address = {facility_address}
-    pancard_obj={pancard_obj}/>
+    pancard_obj={pancard_obj} admin = {admin}
+    is_adhoc_facility = {is_adhoc_facility}/>
     
     {:else if change_to == "Work_details"}
     <WorkDetails new_off_file_obj={new_off_file_obj} facility_modified_date={facility_modified_date} city={city}
-    facility_name = {$facility_data_store.facility_name} facility_id = {$facility_id.facility_id_number} />
+    facility_name = {$facility_data_store.facility_name} facility_id = {$facility_id.facility_id_number} admin = {admin} 
+    show_upload_btn = {show_upload_btn}
+    remove_upload_btn = {remove_upload_btn}
+    is_adhoc_facility = {is_adhoc_facility}/>
 
     {:else if change_to == "Identity_details"}
     <IdentityProof pancard_obj={pancard_obj}
     aadhar_obj ={aadhar_obj}
     dl_photo_obj={dl_photo_obj}
-    id_new_date={id_new_date}/>
+    id_new_date={id_new_date} admin = {admin}
+    is_adhoc_facility = {is_adhoc_facility}/>
     
     {:else if change_to == "Bank_details"}
     <BankDetails bank_values_from_store = {bank_values_from_store}
      city={city} can_cheque_obj = {can_cheque_obj}
-     bank_new_date={bank_new_date}/>
+     bank_new_date={bank_new_date} admin = {admin}
+     is_adhoc_facility = {is_adhoc_facility}/>
     {/if}
 
     
     
 
-    <div class="fullsection w-widthforWorkDetailSection hidden">
-            <div class="WorkDetailSection bg-white rounded-lg mb-5">
-                <div class="detailsHeader xsl:flex-wrap ">
-                    <div class="left">
-                        <p class="detailsTitle">Work Details</p>
-                        <p class="detailsUpdate">
-                            <span><span class="font-medium">Last updated -> </span> {facility_modified_date} <span
-                                    class="font-medium"> By -> </span> {$facility_data_store.modified_by}</span>
-                        </p>
-                    </div>
-                    <div class="right flex">
-                        <div class="AddRemoveTagsSection">
-                            <p class="flex items-center smButtonText pr-3">
-                                <a class="smButton" id="addRemoveTages">
-                                    Add/Remove Tags
-                                </a>
-                            </p>
-
-                            <!-- Add Remove Tag Modal -->
-
-
-                            <div class="hidden" id="addRemoveModal">
-                                <div class="ChangeAssociateTypeWrapper">
-                                    <div class="changeAssoMain ">
-                                        <div class=" w-full bg-white rounded shadow-2xl">
-                                            <div class="relative  rounded-t ">
-                                                <svg class="absolute top-36 transform rotate-90 -right-6 -mt-5 block md:hidden xs:hidden"
-                                                    xmlns="http://www.w3.org/2000/svg" width="26" height="23"
-                                                    viewBox="0 0 26 23" fill="none">
-                                                    <path id="Polygon 2" d="M13 0L25.9904 22.5H0.00961876L13 0Z"
-                                                        fill="#ffffff" stroke='#E7E7E7' />
-                                                </svg>
-                                            </div>
-                                            <div class="w-full h-full  pb-5 ">
-                                                <div
-                                                    class="bg-black px-4 flex py-4 justify-between rounded-t-md rounded-tr-md">
-                                                    <div class="leftHeadingpopover text-white">
-                                                        <p>Add / Remove Tags</p>
-                                                    </div>
-                                                    <div class="rightcloseIconBlack">
-                                                        <img src="{$img_url_name.img_name}/closewhite.svg"
-                                                            class="cursor-pointer" id="closeAddRemove" alt="">
-                                                    </div>
-                                                </div>
-                                                <div class="tabwrapper flex justify-between text-center">
-                                                    <div class="changetype py-3 w-2/4	">
-                                                        <p>Add Tags</p>
-                                                    </div>
-                                                    <div class="Historytab py-3 w-2/4	 bg-bglightgreye">
-                                                        <p>Tag Audit Trail</p>
-                                                    </div>
-                                                </div>
-
-                                                <div class="changetypeSection ">
-
-
-
-                                                    <div class="flex px-2 pt-3 items-center xs:flex-wrap">
-                                                        <div class="light14grey">Select Tag</div>
-                                                        <div class="formInnerGroup ">
-                                                            <select class="inputboxpopover">
-                                                                <option class="pt-6">Select</option>
-                                                                <option>ICICI</option>
-                                                                <option>Axis</option>
-                                                                <option>SIB</option>
-                                                            </select>
-                                                            <div class="formSelectArrow ">
-                                                                <img src="{$img_url_name.img_name}/selectarrow.png"
-                                                                    class="w-5 h-auto" alt="">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="flex px-2 py-3 items-center xs:flex-wrap">
-                                                        <div class="light14grey">Remove On</div>
-                                                        <div class="formInnerGroup ">
-                                                            <input type="date" class="inputboxpopoverdate"
-                                                                placeholder=" ">
-                                                            <p
-                                                                class="text-grey whitespace-nowrap text-xs px-1 mt-1">
-                                                                Note: Use only if required</p>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="flex px-2 py-0 items-center xs:flex-wrap">
-                                                        <div class="light14grey w-36">Remarks</div>
-                                                        <div class="formInnerGroup">
-                                                            <input class="inputboxpopover" type="text">
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="flex px-3 justify-between mt-4">
-                                                        <div class="light14grey w-36"></div>
-                                                        <button class="saveandproceed">Add</button>
-                                                    </div>
-
-                                                    <div class="OtherAppliedTagsTable px-3">
-                                                        <p class="text-lg text-blackshade font-medium">Other
-                                                            Applied Tags</p>
-                                                        <table
-                                                            class="table  w-full text-center mt-2 xs:hidden sm:hidden">
-                                                            <thead class="theadpopover">
-                                                                <tr>
-                                                                    <th>Tag</th>
-                                                                    <th>Remarks</th>
-                                                                    <th>Added by</th>
-                                                                    <th>Added On</th>
-                                                                    <th>Auto Removal On</th>
-                                                                    <th>Remove</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody class="tbodypopover">
-                                                                <tr class="border-b">
-                                                                    <td>Addhoc Facility</td>
-                                                                    <td>No Remarks</td>
-                                                                    <td>User name</td>
-                                                                    <td>10-09-2020</td>
-                                                                    <td>No date</td>
-                                                                    <td>
-                                                                        <div class="flex justify-center">
-                                                                            <img src="{$img_url_name.img_name}/reject.png"
-                                                                                alt="">
-                                                                        </div>
-                                                                    </td>
-                                                                </tr>
-                                                                <tr class="border-b">
-                                                                    <td>Addhoc Facility</td>
-                                                                    <td>No Remarks</td>
-                                                                    <td>User name</td>
-                                                                    <td>10-09-2020</td>
-                                                                    <td>No date</td>
-                                                                    <td>
-                                                                        <div class="flex justify-center">
-                                                                            <img src="{$img_url_name.img_name}/reject.png"
-                                                                                alt="">
-                                                                        </div>
-                                                                    </td>
-                                                                </tr>
-
-
-                                                            </tbody>
-                                                        </table>
-                                                        
-                                                        <div
-                                                            class="associateCard  border p-p7px  rounded-md hidden xs:block sm:block">
-
-                                                            <div class="flex px-4 py-1 items-center">
-                                                                <div class="light14grey">Tag</div>
-                                                                <div class="dataValue">Addhoc Facility </div>
-                                                            </div>
-                                                            <div class="flex px-4 py-1 items-center">
-                                                                <div class="light14grey">Remarks </div>
-                                                                <div class="dataValue">No Remarks </div>
-                                                            </div>
-                                                            <div class="flex px-4 py-1 items-center">
-                                                                <div class="light14grey">Added by </div>
-                                                                <div class="dataValue">User name </div>
-                                                            </div>
-                                                            <div class="flex px-4 py-1 items-center">
-                                                                <div class="light14grey">Added On </div>
-                                                                <div class="dataValue">13-Apr-2021 </div>
-                                                            </div>
-                                                            <div class="flex px-4 py-1 items-center">
-                                                                <div class="light14grey">Auto Removal On </div>
-                                                                <div class="dataValue">No date </div>
-                                                            </div>
-                                                            <div class="flex px-4 py-1 items-center">
-                                                                <div class="light14grey">Remove</div>
-                                                                <div class="dataValue"> <img
-                                                                        src="{$img_url_name.img_name}/reject.png" alt="">
-                                                                </div>
-                                                            </div>
-
-
-                                                        </div>
-                                                    </div>
-
-
-                                                </div>
-
-                                                <div class="changeAssociateSection mx-3 hidden">
-                                                    <table class="table  mt-2 w-full xs:hidden sm:hidden">
-                                                        <thead class="theadpopover">
-                                                            <tr>
-                                                                <th>Tag</th>
-                                                                <th>Date</th>
-                                                                <th>Given by</th>
-                                                                <th>Status</th>
-
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody class="tbodypopover">
-                                                            <tr class="border-b">
-                                                                <td>Addhoc Facility</td>
-                                                                <td>10-09-2020</td>
-                                                                <td>User name</td>
-                                                                <td>Active</td>
-
-                                                            </tr>
-                                                            <tr class="border-b">
-                                                                <td>Addhoc Facility</td>
-                                                                <td>10-09-2020</td>
-                                                                <td>User name</td>
-                                                                <td>Active</td>
-                                                            </tr>
-
-                                                        </tbody>
-                                                    </table>
-                                                    ​
-                                                    <div
-                                                        class="associateCard  border p-p7px rounded-md hidden xs:block sm:block">
-
-                                                        <div class="flex px-4 py-1 items-center">
-                                                            <div class="light14grey">Tag</div>
-                                                            <div class="dataValue">Addhoc Facility </div>
-                                                        </div>
-                                                        <div class="flex px-4 py-1 items-center">
-                                                            <div class="light14grey">Date</div>
-                                                            <div class="dataValue">10-09-2020 </div>
-                                                        </div>
-                                                        <div class="flex px-4 py-1 items-center">
-                                                            <div class="light14grey"> Given by</div>
-                                                            <div class="dataValue">User name</div>
-                                                        </div>
-                                                        <div class="flex px-4 py-1 items-center">
-                                                            <div class="light14grey">Status</div>
-                                                            <div class="dataValue">Active</div>
-                                                        </div>
-
-                                                    </div>
-
-                                                    <div
-                                                        class="associateCard  border p-p7px  rounded-md hidden xs:block sm:block">
-
-                                                        <div class="flex px-4 py-1 items-center">
-                                                            <div class="light14grey">Tag</div>
-                                                            <div class="dataValue">Addhoc Facility </div>
-                                                        </div>
-                                                        <div class="flex px-4 py-1 items-center">
-                                                            <div class="light14grey">Date</div>
-                                                            <div class="dataValue">10-09-2020 </div>
-                                                        </div>
-                                                        <div class="flex px-4 py-1 items-center">
-                                                            <div class="light14grey"> Given by</div>
-                                                            <div class="dataValue">User name</div>
-                                                        </div>
-                                                        <div class="flex px-4 py-1 items-center">
-                                                            <div class="light14grey">Status</div>
-                                                            <div class="dataValue">Active</div>
-                                                        </div>
-
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <p class="flex items-center smButtonText pr-3">
-                            <a href="" class="smButton">
-                                Work Contract
-                            </a>
-                        </p>
-                        <a href="" class="smButton">
-                            <img src="{$img_url_name.img_name}/edit.png" alt="">
-                        </a>
-                    </div>
-
-                </div>
-                <div class="detailsrow ">
-                    <div class="workDetailSection w-full">
-                        <div class="userInfoSec3">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/Subtract.png" alt="" class="w-5 h-auto">
-                                <div class="pl-4">
-                                    <p class="detailLbale">Associate Type</p>
-                                    <p class="detailData">NDA</p>
-                                </div>
-                            </div>
-                            <div class="userStatus ">
-
-                                <p class="flex items-center smButtonText">
-                                    <a class="smButton" id="changeAssociate">
-                                        Change
-                                    </a>
-                                </p>
-
-                                <!-- associate Modal -->
-
-                                <div class="hidden" id="associateModal">
-                                    <div class="ChangeAssociateTypeWrapper">
-                                        <div class="changeAssoMain ">
-                                            <div class=" w-full bg-white rounded shadow-2xl">
-                                                <div class="relative  rounded-t ">
-                                                    <svg class="absolute top-36 transform rotate-90 -right-6 -mt-5 block md:hidden xs:hidden"
-                                                        xmlns="http://www.w3.org/2000/svg" width="26"
-                                                        height="23" viewBox="0 0 26 23" fill="none">
-                                                        <path id="Polygon 2"
-                                                            d="M13 0L25.9904 22.5H0.00961876L13 0Z"
-                                                            fill="#ffffff" stroke='#E7E7E7' />
-                                                    </svg>
-                                                </div>
-                                                <div class="w-full h-full  pb-5 ">
-                                                    <div
-                                                        class="bg-black px-4 flex py-4 justify-between rounded-t-md rounded-tr-md">
-                                                        <div class="leftHeadingpopover text-white">
-                                                            <p>Change Associate Type</p>
-                                                        </div>
-                                                        <div class="rightcloseIconBlack">
-                                                            <img src="{$img_url_name.img_name}/closewhite.svg"
-                                                                class="cursor-pointer" id="closeAssociate"
-                                                                alt="">
-                                                        </div>
-                                                    </div>
-                                                    <div class="tabwrapper flex justify-between text-center">
-                                                        <div class="changetype py-4 w-2/4	">
-                                                            <p>Change Type</p>
-                                                        </div>
-                                                        <div class="Historytab py-4 w-2/4	 bg-bglightgreye">
-                                                            <p>History</p>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="changetypeSection ">
-
-                                                        <div
-                                                            class="flex px-4 pt-4 items-center gap-10 xs:gap-4 xs:flex-wrap">
-                                                            <div class="flex items-center">
-                                                                <div class="light14greylable">Current Type</div>
-                                                                <div class="dataValue">NDA </div>
-                                                            </div>
-                                                            <div class="flex items-center">
-                                                                <div class="light14greylable">Pravesh ID</div>
-                                                                <div class="dataValue">EFVS00072</div>
-                                                            </div>
-
-                                                        </div>
-
-                                                        <div class="flex px-4 py-3 items-center xs:flex-wrap">
-                                                            <div class="light14grey">New Type</div>
-                                                            <div class="formInnerGroup ">
-                                                                <select class="inputboxpopover">
-                                                                    <option class="pt-6">Select</option>
-                                                                    <option>ICICI</option>
-                                                                    <option>Axis</option>
-                                                                    <option>SIB</option>
-                                                                </select>
-                                                                <div class="formSelectArrow ">
-                                                                    <img src="{$img_url_name.img_name}/selectarrow.png"
-                                                                        class="w-5 h-auto" alt="">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="flex px-4 py-0 items-center xs:flex-wrap">
-                                                            <div class="light14grey">Type of Attendance</div>
-                                                            <div class="formInnerGroup">
-                                                                <select class="inputboxpopover">
-                                                                    <option class="pt-6">Select</option>
-                                                                    <option>ICICI</option>
-                                                                    <option>Axis</option>
-                                                                    <option>SIB</option>
-                                                                </select>
-                                                                <div class="formSelectArrow ">
-                                                                    <img src="{$img_url_name.img_name}/selectarrow.png"
-                                                                        class="w-5 h-auto" alt="">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="flex px-4 py-3 items-center xs:flex-wrap">
-                                                            <div class="light14grey">From Date</div>
-                                                            <div class="formInnerGroup ">
-                                                                <input type="date" class="inputboxpopoverdate"
-                                                                    placeholder=" ">
-                                                            </div>
-                                                        </div>
-                                                        <div class="flex px-4 py-0 items-center xs:flex-wrap">
-                                                            <div class="light14grey w-36">To Date</div>
-                                                            <div class="formInnerGroup">
-                                                                <input type="date" class="inputboxpopoverdate">
-                                                                <p
-                                                                    class="light14grey whitespace-nowrap text-xs px-1">
-                                                                    Leave empty if no end date</p>
-                                                            </div>
-
-                                                        </div>
-                                                        <div class="flex px-4 py-3 items-center xs:flex-wrap">
-                                                            <div class="light14grey w-36">Remarks</div>
-                                                            <div class="formInnerGroup">
-                                                                <input class="inputboxpopover" type="text">
-                                                            </div>
-                                                        </div>
-                                                        <div class="flex px-9 justify-between">
-                                                            <div class="light14grey w-36"></div>
-                                                            <button class="saveandproceed">Submit</button>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="changeAssociateSection hidden">
-                                                        <table class="table mx-3 mt-2 xs:hidden sm:hidden">
-                                                            <thead class="theadpopover">
-                                                                <tr>
-                                                                    <th>Associate Type</th>
-                                                                    <th>Type of Attendance</th>
-                                                                    <th>Effective From</th>
-                                                                    <th>Effective Till</th>
-                                                                    <th>Requested On</th>
-                                                                    <th>Requested By</th>
-                                                                    <th>Remarks</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody class="tbodypopover">
-                                                                <tr class="border-b">
-                                                                    <td>NDA</td>
-                                                                    <td>HDA</td>
-                                                                    <td>11-06-2020</td>
-                                                                    <td>10-09-2020</td>
-                                                                    <td>10-06-2020</td>
-                                                                    <td>suraj.takale@el...</td>
-                                                                    <td>OK</td>
-                                                                </tr>
-                                                                <tr class="border-b">
-                                                                    <td>NDA</td>
-                                                                    <td>HDA</td>
-                                                                    <td>11-06-2020</td>
-                                                                    <td>10-09-2020</td>
-                                                                    <td>10-06-2020</td>
-                                                                    <td>suraj.takale@el...</td>
-                                                                    <td>OK</td>
-                                                                </tr>
-
-                                                            </tbody>
-                                                        </table>
-                                                        ​
-                                                        <div
-                                                            class="associateCard  border p-p7px m-2.5 rounded-md hidden xs:block sm:block">
-
-                                                            <div class="flex px-4 py-1 items-center">
-                                                                <div class="light14grey">Associate Type</div>
-                                                                <div class="dataValue">NDA </div>
-                                                            </div>
-                                                            <div class="flex px-4 py-1 items-center">
-                                                                <div class="light14grey">Type for Attendance
-                                                                </div>
-                                                                <div class="dataValue">NDA </div>
-                                                            </div>
-                                                            <div class="flex px-4 py-1 items-center">
-                                                                <div class="light14grey">Efffective From</div>
-                                                                <div class="dataValue">11-Jun-2020 </div>
-                                                            </div>
-                                                            <div class="flex px-4 py-1 items-center">
-                                                                <div class="light14grey">Effective Till</div>
-                                                                <div class="dataValue">13-Apr-2021 </div>
-                                                            </div>
-                                                            <div class="flex px-4 py-1 items-center">
-                                                                <div class="light14grey">Requested on </div>
-                                                                <div class="dataValue">14-Apr-2021</div>
-                                                            </div>
-                                                            <div class="flex px-4 py-1 items-center">
-                                                                <div class="light14grey">Requested by </div>
-                                                                <div class="dataValue">suraj.takale@elasti...
-                                                                </div>
-                                                            </div>
-                                                            <div class="flex px-4 py-1 items-center">
-                                                                <div class="light14grey">Remarks</div>
-                                                                <div class="dataValue">Ok </div>
-                                                            </div>
-                                                            <!-- <div class="flex px-4 py-1 items-center">
-                                                                <div class="light14grey">Status</div>
-                                                                <div class="dataValue">Completed </div>
-                                                            </div> -->
-                                                        </div>
-                                                    </div>
-
-                                                </div>
-
-
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-
-                            </div>
-                        </div>
-                        <div class="userInfoSec3 ">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/pan.png" alt="" class="w-5 h-5">
-                                <div class="pl-4">
-                                    <p class="detailLbale">Associate ID</p>
-                                    <p class="detailData">BOMG00538</p>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="userInfoSec3">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/organization.png" alt="" class="w-5 h-5">
-                                <div class="pl-4">
-                                    <p class="detailLbale">Organization</p>
-                                    <p class="detailData">Amazon Transportation</p>
-                                </div>
-                            </div>
-                            <div class="userStatus ">
-                                <p class="flex items-center smButtonText">
-                                    <a href="" class="smButton">
-                                        Add/Edit
-                                    </a>
-                                </p>
-                            </div>
-                        </div>
-                        <div class="userInfoSecPadding">
-                            <div class="wrapperInfoFirst">
-                                <div class="flex items-start">
-                                    <img src="{$img_url_name.img_name}/offerlatter.png" alt="" class="w-5 h-5">
-                                    <div class="pl-4">
-                                        <p class="detailLbale">Offer Letter</p>
-                                    </div>
-                                </div>
-                                <div class="userStatus ">
-                                    <p class="verifyText"><img src="{$img_url_name.img_name}/timer.png" alt="" class="pr-1">
-                                        Verification Pending</p>
-                                </div>
-
-                            </div>
-                            <div class="wrapperInfo ">
-                                <div class="flex items-start">
-                                    <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
-                                    <div class="pl-4 flex items-center">
-                                        <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
-
-                                        <p class="detailLbale">{new_off_file_obj.offer_name}</p>
-                                    </div>
-                                </div>
-                                <div class="userStatus ">
-                                    <p class="verifyText">
-                                        <a href="" class="smButton">
-                                            <img src="{$img_url_name.img_name}/view.png" alt="">
-                                        </a>
-                                    </p>
-                                </div>
-
-                            </div>
-
-
-                        </div>
-                    </div>
-                    <div class="workDetailSection w-full">
-                        <div class="userInfoSec3 ">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/location.png" class="w-6 h-6" alt="">
-                                <div class="pl-4">
-                                    <p class="detailLbale">City</p>
-                                    <p class="detailData">Pune</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="userInfoSec3 ">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/warehouse.png" class="w-5 h-5" alt="">
-                                <div class="pl-4">
-                                    <p class="detailLbale">Station</p>
-                                    <p class="detailData">MHPD - Mulsi SP</p>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="userInfoSec3 ">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/managerVendor.png" class="w-5 h-5" alt="">
-                                <div class="pl-4">
-                                    <p class="detailLbale">Vendor</p>
-                                    <p class="detailData">Vitthal Sutar - MHPD00012</p>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="WorkDetailSection bg-white rounded-br5 mb-5">
-                <div class="detailsHeader xsl:flex-wrap">
-                    <div class="left">
-                        <p class="detailsTitle">Identity Proof</p>
-                        <p class="detailsUpdate">
-                            <span><span class="font-medium">Last updated -> </span> {id_new_date} <span
-                                    class="font-medium"> By -> </span> {$facility_data_store.details_updated_by} </span>
-                        </p>
-                    </div>
-                    <div class="right flex">
-                        <p class="rejectText pr-3"><img src="{$img_url_name.img_name}/reject.png" alt="" class="pr-2"> Reject
-                        </p>
-                        <div class="hidden">
-                            <p class="verifiedTextGreen pr-3"><img src="{$img_url_name.img_name}/checked.png" alt=""
-                                    class="pr-1">
-                                Verified</p>
-                        </div>
-                        <div class="hidden">
-                            <p class="verifyText pr-3"><img src="{$img_url_name.img_name}/timer.png" alt="" class="pr-2">
-                                Verification Pending</p>
-                        </div>
-                        <a href="" class="smButton">
-                            <img src="{$img_url_name.img_name}/edit.png" alt="">
-                        </a>
-                    </div>
-
-                </div>
-                <div class="userInfoSecPadding ">
-                    <div class="innercardSection">
-                        <div class="remark">
-                            <p class="text-base text-greycolor font-medium mb-2">Remarks</p>
-                            <ul class="text-sm text-greycolor list-disc	ml-m15">
-                                <li>Pancard number mismatch</li>
-                                <li>Voter ID not clear</li>
-                            </ul>
-                        </div>
-                        <div class="requiredaction">
-                            <p class="text-base text-redRequired font-medium mb-2">Required Action</p>
-                            <ul class="text-sm text-greycolor list-disc ml-m15	">
-                                <li>Update correct pan number
-                                </li>
-                                <li>Re-submit voter ID</li>
-                            </ul>
-                        </div>
-                        <div class="updateAction xs:w-full">
-                            <button class="ErBlueButton">Update</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="detailsrow">
-                    <div class="workDetailSection w-full">
-                        <div class="userInfoSecPadding">
-
-                            <div class="wrapperInfoFirst">
-                                <div class="flex items-start">
-                                    <img src="{$img_url_name.img_name}/pan.png" alt="">
-                                    <div class="pl-4">
-                                        <p class="detailLbale">PAN Number</p>
-                                        <p class="detailData">{pancard_obj.pan_num}</p>
-
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="attachment mt-5">
-                                <div class="flex items-start">
-                                    <img src="{$img_url_name.img_name}/pan.png" class="invisible" alt="">
-                                    <div class="pl-4 flex items-center">
-                                        <p class="detailLbale">PAN Card Attachment</p>
-
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="wrapperInfo ">
-                                <div class="flex items-start">
-                                    <img src="{$img_url_name.img_name}/pan.png" class="invisible" alt="">
-                                    <div class="pl-4 flex items-center">
-                                        <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
-
-                                        <p class="detailLbale">{pancard_obj.pan_name}</p>
-                                    </div>
-                                </div>
-                                <div class="userStatus ">
-                                    <p class="verifyText">
-                                        <a href="" class="smButton">
-                                            <img src="{$img_url_name.img_name}/view.png" alt="">
-                                        </a>
-                                    </p>
-                                </div>
-
-                            </div>
-
-
-                        </div>
-                        <div class="userInfoSec3 ">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/pan.png" alt="">
-                                <div class="pl-4">
-                                    <p class="detailLbale">Driving License</p>
-                                    <p class="detailData">Not Submitted</p>
-                                </div>
-                            </div>
-
-                        </div>
-
-                    </div>
-                    <div class="workDetailSection w-full">
-                        <div class="userInfoSecPadding">
-
-                            <div class="wrapperInfoFirst">
-                                <div class="flex items-start">
-                                    <img src="{$img_url_name.img_name}/pan.png" alt="">
-                                    <div class="pl-4">
-                                        <p class="detailLbale">Aadhar Number</p>
-                                        <p class="detailData">9714 1358 8022</p>
-
-                                    </div>
-                                </div>
-
-                            </div>
-                            <div class="attachment mt-5">
-                                <div class="flex items-start">
-                                    <img src="{$img_url_name.img_name}/pan.png" class="invisible" alt="">
-                                    <div class="pl-4 flex items-center">
-                                        <p class="detailLbale">Aadhar Card Attachment</p>
-
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="wrapperInfo ">
-                                <div class="flex items-start">
-                                    <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
-                                    <div class="pl-4 flex items-center">
-                                        <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
-
-                                        <p class="detailLbale">aadhar-card-copy.jpeg</p>
-                                    </div>
-                                </div>
-                                <div class="userStatus ">
-                                    <p class="verifyText">
-                                        <a href="" class="smButton">
-                                            <img src="{$img_url_name.img_name}/view.png" alt="">
-                                        </a>
-                                    </p>
-                                </div>
-
-                            </div>
-
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="WorkDetailSection bg-white rounded-lg">
-                <div class="detailsHeader  xsl:flex-wrap">
-                    <div class="left">
-                        <p class="detailsTitle">Bank Details
-                        </p>
-                        <p class="detailsUpdate">
-                            <span><span class="font-medium text-greycolor"> Last updated -> </span> {bank_new_date}
-                            <span class="font-medium text-greycolor"> By -> </span> {bank_values_from_store.modified_by} </span>
-                        </p>
-                    </div>
-                    <div class="right flex">
-                        <!-- <p class="verifyText pr-3"><img src="{$img_url_name.img_name}/timer.png" alt="" class="pr-1">
-                            Verification Pending</p> -->
-                            
-                        <a href="" class="smButton">
-                            <img src="{$img_url_name.img_name}/edit.png" alt="">
-                        </a>
-                    </div>
-
-                </div>
-
-                <div class="userInfoSecPadding ">
-                    <div class="innercardSection">
-                        <div class="remark">
-                            <p class="text-base text-greycolor font-medium mb-2">Remarks</p>
-                            <ul class="text-sm text-greycolor list-disc	ml-m15">
-                                <li>IFSC Code missing/not clear on document</li>
-                            </ul>
-                        </div>
-                        <div class="requiredaction">
-                            <p class="text-base text-redRequired font-medium mb-2">Required Action</p>
-                            <ul class="text-sm text-greycolor list-disc ml-m15	">
-                                <li>Resubmit bank documents
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="updateAction xs:w-full">
-                            <button class="ErBlueButton">Update</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="detailsrow">
-                    <div class="workDetailSection w-full">
-                        <div class="userInfoSec3 ">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/bank.png" alt="">
-                                <div class="pl-4">
-                                    <p class="detailLbale">Bank Name</p>
-                                    <p class="detailData">{bank_values_from_store.bank_name}</p>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="userInfoSec3 ">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/account.png" alt="">
-                                <div class="pl-4">
-                                    <p class="detailLbale">Account Number</p>
-                                    <p class="detailData">{bank_values_from_store.account_number}</p>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="userInfoSec3 ">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/account.png" alt="">
-                                <div class="pl-4">
-                                    <p class="detailLbale">IFSC Code</p>
-                                    <p class="detailData">{bank_values_from_store.ifsc_code}</p>
-                                </div>
-                            </div>
-
-                        </div>
-
-                    </div>
-                    <div class="workDetailSection w-full">
-                        <div class="userInfoSec3 ">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/pincode.png" alt="">
-                                <div class="pl-4">
-                                    <p class="detailLbale">Branch</p>
-                                    <p class="detailData">{bank_values_from_store.branch_name} - {bank_values_from_store.branch_pin_code}</p>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="userInfoSecPadding">
-
-                            <div class="wrapperInfoFirst">
-                                <div class="flex items-start justify-between">
-                                    <div class="flex">
-                                        <img src="{$img_url_name.img_name}/bankdoc.png" alt="">
-                                        <div class="pl-4">
-                                            <p class="detailLbale">Aadhar Number</p>
-                                        </div>
-                                    </div>
-                                    <div class="pl-4">
-                                        <p class="flex items-center smButtonText">
-                                            <a href="" class="smButton">
-                                                Cheque Details
-                                            </a>
-                                        </p>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-                            <div class="attachment mt-5">
-                                <div class="flex items-start">
-                                    <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
-                                    <div class="pl-4 flex items-center">
-                                        <p class="detailLbale">Cancel Cheque Attachment</p>
-
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="wrapperInfo ">
-                                <div class="flex items-start">
-                                    <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
-                                    <div class="pl-4 flex items-center">
-                                        <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
-
-                                        <p class="detailLbale">cancel-cheque-copy.jpeg</p>
-                                    </div>
-                                </div>
-                                <div class="userStatus ">
-                                    <p class="verifyText">
-                                        <a href="" class="smButton">
-                                            <img src="{$img_url_name.img_name}/view.png" alt="">
-                                        </a>
-                                    </p>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-
-        </div>
 
     </div>
 
@@ -2729,402 +2164,56 @@ async function child_select_fun(){
     </div>
 </div>
 
-<!-- All Documents modal -->
+<!-- full screen All Documents modal with table view-->
 <div class="hidden" id="modalid">
-    <div class=" viewDocmodal  ">
-        <div class="bglightcolormodal" />
-        <div class="allDocmodalsuccessbody rounded-lg">
+    <div class=" modalMain  " id="modal-id">
+        <div class="modalOverlay"></div>
+        <div class="modalContainer rounded-lg">
+            <div class="modalHeadConmb-0 sticky top-0 bg-white z-99">
+                <div class="leftmodalInfo">
+                    <p class="text-lg text-erBlue font-medium  ">
+                        <span class=""> All Documents</span>
+                    </p>
+                    <p class="text-sm ">
+                        <span class="font-medium text-lg"> {$facility_data_store.facility_name}</span>
+                        <span class="userDesignation"> - Associate- {$facility_data_store.facility_type} - {$facility_data_store.name}</span>
+                    </p>
+                </div>
+                <div class="rightmodalclose" on:click="{closeViewModel}">
+                    <img src="../src/img/blackclose.svg" alt="">
+                </div>
+            </div>
             <div class="">
                 <div class="viewDocPanmainbodyModal">
-                    <div class="flex justify-between mb-3">
-                        <div class="leftmodalInfo">
-                            <p class="text-lg text-erBlue font-medium  ">
-                                <span class=""> All Documents</span>
-                            </p>
-                            <p class="text-sm ">
-                                <span class="font-medium text-lg">
-                                    {$facility_data_store.facility_name}</span
-                                >
-                                <span class="userDesignation">
-                                    - Associate- {$facility_data_store.facility_type}, {$facility_data_store.name}</span
-                                >
-                            </p>
-                        </div>
-                        <div class="rightmodalclose" on:click={closeDoc}>
-                            <img src="{$img_url_name.img_name}/blackclose.svg" alt="" />
-                        </div>
-                    </div>
+                   
                     <div class="innermodal">
-                        <hr />
                         <div class="scrollbar ">
-                            <div class="mainContainerWrapper ">
-                                <div class="DocCardlist ">
-                                    {#each facility_document_data as new_doc_data}
-                                    <div class="cardDocWrapper ">
-                                        <div class="infoDivCard ">
-                                            <div class="infofSection  ">
-                                               
-                                                <div class="secFirstDoc ">
-                                                    
-                                                    <div class="docImageSec">
-                                                        <img
-                                                            src="{$img_url_name.img_name}/pancard.png"
-                                                            alt=""
-                                                        />
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p class="detailLbale">
-                                                            Document Type
-                                                        </p>
-                                                        <p class="detailData">
-                                                            {new_doc_data.doc_category}
-                                                        </p>
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p class="detailLbale">
-                                                            Uploaded By
-                                                        </p>
-                                                        <p class="detailData">
-                                                            {new_doc_data.owner}
-                                                        </p>
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p class="detailLbale">
-                                                            Uploaded On
-                                                        </p>
-                                                        <p class="detailData">
-                                                            {new_doc_data.creation}
-                                                        </p>
-                                                    </div>
-                                                   
-                                                </div>
-                                                <div class="secSecond xs:mt-3">
-                                                    <div class="pl-4">
-                                                        <p class="verifyText">
-                                                            <a
-                                                                href=""
-                                                                class="smButton"
-                                                            >
-                                                                <img
-                                                                    src="{$img_url_name.img_name}/view.png"
-                                                                    alt=""
-                                                                />
-                                                            </a>
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="statusSecForDoc">
-                                            {#if new_doc_data.verified == "1"}
-                                            <p class="userStatusTick ">
-                                                <img
-                                                    src="{$img_url_name.img_name}/checked.png"
-                                                    alt=""
-                                                    class="pr-1"
-                                                /> Verified
-                                            </p>
-                                            
-                                            {:else if new_doc_data.rejected == "1"}
-                                            <p class="userStatusCross ">
-                                                <img
-                                                    src="{$img_url_name.img_name}/reject.png"
-                                                    alt=""
-                                                    class="pr-1"
-                                                /> Rejected
-                                            </p>
-                                            {:else}
-                                            <p class="userStatusTimer">
-                                                <img src="{$img_url_name.img_name}/timer.png" alt="" class="pr-1">
-                                                Pending</p>
-                                            {/if}
-                                            
-                                        </div>
-                                    </div>
-                                    {/each}
-                                    <!-- <div class="cardDocWrapper ">
-                                        <div class="infoDivCard ">
-                                            <div class="infofSection  ">
-                                                <div class="secFirstDoc ">
-                                                    <div class="docImageSec">
-                                                        <img
-                                                            src="{$img_url_name.img_name}/pancard.png"
-                                                            alt=""
-                                                        />
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p class="detailLbale">
-                                                            Document Type
-                                                        </p>
-                                                        <p class="detailData">
-                                                            PAN Card
-                                                        </p>
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p class="detailLbale">
-                                                            Uploaded By
-                                                        </p>
-                                                        <p class="detailData">
-                                                            Admin
-                                                        </p>
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p class="detailLbale">
-                                                            Uploaded On
-                                                        </p>
-                                                        <p class="detailData">
-                                                            27-Apr-2021 23:29 pm
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <div class="secSecond xs:mt-3">
-                                                    <div class="pl-4">
-                                                        <p class="verifyText">
-                                                            <a
-                                                                href=""
-                                                                class="smButton"
-                                                            >
-                                                                <img
-                                                                    src="{$img_url_name.img_name}/view.png"
-                                                                    alt=""
-                                                                />
-                                                            </a>
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="statusSecForDoc">
-                                            <p class="userStatusTick ">
-                                                <img
-                                                    src="{$img_url_name.img_name}/checked.png"
-                                                    alt=""
-                                                    class="pr-1"
-                                                /> Verify
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div class="cardDocWrapper ">
-                                        <div class="infoDivCard ">
-                                            <div class="infofSection  ">
-                                                <div class="secFirstDoc ">
-                                                    <div class="docImageSec">
-                                                        <img
-                                                            src="{$img_url_name.img_name}/pancard.png"
-                                                            alt=""
-                                                        />
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p class="detailLbale">
-                                                            Document Type
-                                                        </p>
-                                                        <p class="detailData">
-                                                            PAN Card
-                                                        </p>
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p class="detailLbale">
-                                                            Uploaded By
-                                                        </p>
-                                                        <p class="detailData">
-                                                            Admin
-                                                        </p>
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p class="detailLbale">
-                                                            Uploaded On
-                                                        </p>
-                                                        <p class="detailData">
-                                                            27-Apr-2021 23:29 pm
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <div class="secSecond xs:mt-3">
-                                                    <div class="pl-4">
-                                                        <p class="verifyText">
-                                                            <a
-                                                                href=""
-                                                                class="smButton"
-                                                            >
-                                                                <img
-                                                                    src="{$img_url_name.img_name}/view.png"
-                                                                    alt=""
-                                                                />
-                                                            </a>
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="statusSecForDoc">
-                                            <p class="userStatusTick ">
-                                                <img
-                                                    src="{$img_url_name.img_name}/checked.png"
-                                                    alt=""
-                                                    class="pr-1"
-                                                /> Verify
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div class="cardDocWrapper ">
-                                        <div class="infoDivCard ">
-                                            <div class="infofSection  ">
-                                                <div class="secFirstDoc ">
-                                                    <div class="docImageSec">
-                                                        <img
-                                                            src="{$img_url_name.img_name}/pancard.png"
-                                                            alt=""
-                                                        />
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p class="detailLbale">
-                                                            Document Type
-                                                        </p>
-                                                        <p class="detailData">
-                                                            PAN Card
-                                                        </p>
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p class="detailLbale">
-                                                            Uploaded By
-                                                        </p>
-                                                        <p class="detailData">
-                                                            Admin
-                                                        </p>
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p class="detailLbale">
-                                                            Uploaded On
-                                                        </p>
-                                                        <p class="detailData">
-                                                            27-Apr-2021 23:29 pm
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <div class="secSecond xs:mt-3">
-                                                    <div class="pl-4">
-                                                        <p class="verifyText">
-                                                            <a
-                                                                href=""
-                                                                class="smButton"
-                                                            >
-                                                                <img
-                                                                    src="{$img_url_name.img_name}/view.png"
-                                                                    alt=""
-                                                                />
-                                                            </a>
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="statusSecForDoc">
-                                            <p class="userStatusTick ">
-                                                <img
-                                                    src="{$img_url_name.img_name}/checked.png"
-                                                    alt=""
-                                                    class="pr-1"
-                                                /> Verify
-                                            </p>
-                                        </div>
-                                    </div>
-                                    <div class="cardDocWrapper ">
-                                        <div class="infoDivCard ">
-                                            <div class="infofSection  ">
-                                                <div class="secFirstDoc ">
-                                                    <div class="docImageSec">
-                                                        <img
-                                                            src="{$img_url_name.img_name}/pancard.png"
-                                                            alt=""
-                                                        />
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p class="detailLbale">
-                                                            Document Type
-                                                        </p>
-                                                        <p class="detailData">
-                                                            PAN Card
-                                                        </p>
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p class="detailLbale">
-                                                            Uploaded By
-                                                        </p>
-                                                        <p class="detailData">
-                                                            Admin
-                                                        </p>
-                                                    </div>
-                                                    <div class="pl-2">
-                                                        <p class="detailLbale">
-                                                            Uploaded On
-                                                        </p>
-                                                        <p class="detailData">
-                                                            27-Apr-2021 23:29 pm
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                                <div class="secSecond xs:mt-3">
-                                                    <div class="pl-4">
-                                                        <p class="verifyText">
-                                                            <a
-                                                                href=""
-                                                                class="smButton"
-                                                            >
-                                                                <img
-                                                                    src="{$img_url_name.img_name}/view.png"
-                                                                    alt=""
-                                                                />
-                                                            </a>
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="statusSecForDoc">
-                                            <p class="userStatusTick ">
-                                                <img
-                                                    src="{$img_url_name.img_name}/checked.png"
-                                                    alt=""
-                                                    class="pr-1"
-                                                /> Verify
-                                            </p>
-                                        </div>
-                                    </div> -->
-                                </div>
-                                <div class="addDocumentSection ">
+                            <div class=" ">
+                                <div class=" ">
                                     <div class="addSecform ">
-                                        <div
-                                            class="addButtonSection my-3 py-16 text-center hidden"
-                                        >
+
+                                        <div class="addButtonSection my-3 py-16 text-center hidden">
                                             <div class="updateAction">
-                                                <button class="ErBlueButton"
-                                                    >Add New Document</button
-                                                >
+                                                <button class="ErBlueButton">Add New Document</button>
                                             </div>
                                         </div>
 
                                         <div class="my-3 py-4 px-4 ">
-                                            <p class="text-lg font-medium">
-                                                Add New Document
-                                            </p>
+                                            <p class="text-lg font-medium">Add New Document</p>
 
-                                            <div
-                                                class="flex  py-3 items-center flex-wrap"
-                                            >
-                                                <div class="light14grey mb-1">
-                                                    Document Type
-                                                </div>
+                                            <div class="flex  py-3 items-center flex-wrap">
+                                                <div class="light14grey mb-1">Document Type</div>
                                                 <div class="formInnerGroup ">
+                                                    
                                                     <select
                                                         id="selected_doc_type"
-                                                        class="inputboxpopover"
-                                                        bind:value="{selected_document_type}"
-                                                    >
+                                                        class="inputboxpopover">
                                                         <option class="pt-6"
-                                                            value = "-1">Select</option
-                                                        >
-                                                        <option value="contract">Contract </option>
-                                                        <option value="work_order_annexure_1">Code of Business Annexure 2 </option>
+                                                            value = "-1">Select</option>
+                                                        {#each doc_type_name as doc_name}
+                                                        <option value="abc">{doc_name.doc_value} </option>
+                                                        
+                                                        <!-- <option value="work_order_annexure_1">Code of Business Annexure 2 </option>
                                                         <option value="master_service_agreement">Master Service Agreement </option>
                                                         <option value="general_information_NEFT">General Information - NEFT </option>
                                                         <option value="shop_act_license">Shop Act License </option>
@@ -3136,16 +2225,14 @@ async function child_select_fun(){
                                                         <option value="FnF">Termination / F&amp;F </option>
                                                         <option value="addproof-photo"> Address Proof </option>
                                                         <option value="other">Other </option>
-                                                        <option value="newOffFile">3P Variable Associate Agreement </option>
+                                                        <option value="newOffFile">3P Variable Associate Agreement </option> -->
+                                                        {/each}
+                                                   
                                                     </select>
-                                                    <div
-                                                        class="formSelectArrow "
-                                                    >
-                                                        <img
-                                                            src="{$img_url_name.img_name}/selectarrow.png"
-                                                            class="w-5 h-auto"
-                                                            alt=""
-                                                        />
+                                                   
+                                                    <div class="formSelectArrow ">
+                                                        <img src="../src/img/selectarrow.png" class="w-5 h-auto"
+                                                            alt="">
                                                     </div>
                                                 </div>
                                             </div>
@@ -3196,22 +2283,95 @@ async function child_select_fun(){
                                             </div>
                                         </div>
 
-                                            <div
-                                                class="flex items-center justify-end mt-5"
+
+                                        <div
+                                        class="flex items-center justify-end mt-5"
+                                    >
+                                        <div
+                                            class="updateAction text-erBlue"
+                                        >
+                                            Cancel
+                                        </div>
+                                        <div class="updateAction ml-5">
+                                            <button class="ErBlueButton"
+                                                on:click="{save_document}">Upload</button
                                             >
-                                                <div
-                                                    class="updateAction text-erBlue"
-                                                >
-                                                    Cancel
-                                                </div>
-                                                <div class="updateAction ml-5">
-                                                    <button class="ErBlueButton"
-                                                        on:click="{save_document}">Upload</button
-                                                    >
-                                                </div>
-                                            </div>
                                         </div>
                                     </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class=" ">
+                                    
+                                    <table class="table  w-full text-center mt-2 ">
+                                        <thead class="theadpopover h-10">
+                                            <tr>
+                                                <th>Document</th>
+                                                <th>Document Type   </th>
+                                                <th> Uploaded By  </th>
+                                                <th>Uploaded On    </th>
+                                                <th> View</th>
+                                                <th> Remarks</th>
+
+                                            </tr>
+                                        </thead>
+                                        {#each facility_document_data as new_doc_data}
+                                        <tbody class="tbodypopover">
+                                            <tr class="border-b">
+                                                <td>
+                                                    <img src="../src/img/pancard.png" alt="">
+                                                </td>
+                                                <td>  
+                                                    <p class="detailData">{new_doc_data.doc_category}</p>
+                                                </td>
+                                                <td>
+                                                    <p class="detailData">{new_doc_data.owner}</p>
+                                                </td>
+                                                <td>
+                                                    <p class="detailData"> {new_doc_data.creation}</p>
+                                                </td>
+                                               
+                                                <td> 
+                                                    <p class="verifyText justify-center" >
+                                                    <a href="" class="smButton">
+                                                        <img src="../src/img/view.png" alt="" on:click={openViewModel("new_doc",new_doc_data.doc_category)}>
+                                                    </a>
+                                                </p>
+                                            </td>
+                                            <td>
+                                                <div class="userStatusTicktable">
+                                                    {#if new_doc_data.verified == "1"}
+                                                    <p class="userStatusTick ">
+                                                        <img
+                                                            src="{$img_url_name.img_name}/checked.png"
+                                                            alt=""
+                                                            class="pr-1"
+                                                        /> Verified
+                                                    </p>
+                                                    
+                                                    {:else if new_doc_data.rejected == "1"}
+                                                    <p class="userStatusCross ">
+                                                        <img
+                                                            src="{$img_url_name.img_name}/reject.png"
+                                                            alt=""
+                                                            class="pr-1"
+                                                        /> Rejected
+                                                    </p>
+                                                    {:else}
+                                                    <p class="userStatusTimer">
+                                                        <img src="{$img_url_name.img_name}/timer.png" alt="" class="pr-1">
+                                                        Pending</p>
+                                                    {/if}
+                                                    
+                                                </div>
+                                            </td>
+                                               
+                                            </tr>
+                                        </tbody>
+                                        {/each}
+                                    </table>
+                                    
                                 </div>
                             </div>
                         </div>
@@ -3277,1278 +2437,6 @@ async function child_select_fun(){
     </div>
 </div>
 
-<!--  Work Contract Details modal -->
-<!-- <div class="hidden" id="workContractModel">
-    <div class="viewDocmodal ">
-        <div class="absolute bg-black opacity-80 inset-0 z-0" />
-        <div class="allDocmodalsuccessbody rounded-lg">
-            <div class="">
-                <div class="viewDocPanmainbodyModal">
-                    <div class="flex justify-between mb-3">
-                        <div class="leftmodalInfo">
-                            <p class="text-lg text-erBlue font-medium  ">
-                                <span class=""> Work Contract Details</span>
-                            </p>
-                            <p class="text-sm ">
-                                <span class="font-medium text-lg">
-                                    Dhiraj Shah</span
-                                >
-                                <span class="userDesignation">
-                                    - Associate- {$facility_data_store.facility_type}, MHPD - Mulsi
-                                    SP</span
-                                >
-                            </p>
-                        </div>
-                        <div
-                            class="rightmodalclose"
-                            on:click={closeWorkContract}
-                        >
-                            <img src="{$img_url_name.img_name}/blackclose.svg" alt="" />
-                        </div>
-                    </div>
-                    <div class="innermodal">
-                        <hr />
-                        <div
-                            class="tabwrapper flex justify-between text-center py-2"
-                        >
-                            <div
-                                class="changetype py-3 w-2/4	"
-                                on:click={() => {
-                                    temp3 = "e-contracts";
-                                }}
-                            >
-                                <p>E-Contracts</p>
-                            </div>
-                            <div
-                                class="Historytab py-3 w-2/4	 bg-bglightgreye"
-                                on:click={() => {temp3 = "p-contracts";}}
-                            >
-                                <p>Physical Contracts</p>
-                            </div>
-                        </div>
-
-                        {#if temp3 == "e-contracts"}
-                            <div class="scrollbar ">
-                                <div
-                                    class="OtherAppliedTagsTable px-3 overflow-y-scroll"
-                                >
-                                    <table
-                                        class="table  w-full text-center mt-2 "
-                                    >
-                                        <thead class="theadpopover h-10">
-                                            <tr>
-                                                <th>Contract Name</th>
-                                                <th>Contract Type</th>
-                                                <th>
-                                                    <div class="flex">
-                                                        Accepted ? <img
-                                                            src="{$img_url_name.img_name}/arrowupdown.svg"
-                                                            class="ml-2"
-                                                            alt=""
-                                                        />
-                                                    </div></th
-                                                >
-                                                <th>Accepted On</th>
-                                                <th>Is Mandatory ?</th>
-                                                <th>View</th>
-                                                <th>Print/Save</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="tbodypopover">
-                                            <tr class="border-b">
-                                                <td
-                                                    >Background Verification
-                                                    Concent</td
-                                                >
-                                                <td>Concent</td>
-                                                <td
-                                                    ><span class="text-green"
-                                                        >Yes</span
-                                                    >
-                                                </td>
-                                                <td>10-06-2020</td>
-                                                <td>Yes</td>
-                                                <td>
-                                                    <p
-                                                        class="flex justify-center"
-                                                    >
-                                                        <a
-                                                            href=""
-                                                            class="smButton"
-                                                        >
-                                                            <img
-                                                                src="{$img_url_name.img_name}/view.png"
-                                                                alt=""
-                                                            />
-                                                        </a>
-                                                    </p>
-                                                </td>
-                                                <td>
-                                                    <p
-                                                        class="flex justify-center"
-                                                    >
-                                                        <a
-                                                            href=""
-                                                            class="smButton"
-                                                        >
-                                                            <img
-                                                                src="{$img_url_name.img_name}/printer.svg"
-                                                                alt=""
-                                                            />
-                                                        </a>
-                                                    </p>
-                                                </td>
-                                            </tr>
-                                            <tr class="border-b">
-                                                <td
-                                                    >Background Verification
-                                                    Concent</td
-                                                >
-                                                <td>Concent</td>
-                                                <td
-                                                    ><span class="text-red-700"
-                                                        >No</span
-                                                    >
-                                                </td>
-                                                <td>10-06-2020</td>
-                                                <td>Yes</td>
-                                                <td>
-                                                    <p
-                                                        class="flex justify-center"
-                                                    >
-                                                        <a
-                                                            href=""
-                                                            class="smButton"
-                                                        >
-                                                            <img
-                                                                src="{$img_url_name.img_name}/view.png"
-                                                                alt=""
-                                                            />
-                                                        </a>
-                                                    </p>
-                                                </td>
-                                                <td>
-                                                    <p
-                                                        class="flex justify-center"
-                                                    >
-                                                        <a
-                                                            href=""
-                                                            class="smButton"
-                                                        >
-                                                            <img
-                                                                src="{$img_url_name.img_name}/printer.svg"
-                                                                alt=""
-                                                            />
-                                                        </a>
-                                                    </p>
-                                                </td>
-                                            </tr>
-                                            <tr class="border-b">
-                                                <td
-                                                    >Background Verification
-                                                    Concent</td
-                                                >
-                                                <td>Concent</td>
-                                                <td
-                                                    ><span class="text-green"
-                                                        >Yes</span
-                                                    >
-                                                </td>
-                                                <td>10-06-2020</td>
-                                                <td>Yes</td>
-                                                <td>
-                                                    <p
-                                                        class="flex justify-center"
-                                                    >
-                                                        <a
-                                                            href=""
-                                                            class="smButton"
-                                                        >
-                                                            <img
-                                                                src="{$img_url_name.img_name}/view.png"
-                                                                alt=""
-                                                            />
-                                                        </a>
-                                                    </p>
-                                                </td>
-                                                <td>
-                                                    <p
-                                                        class="flex justify-center"
-                                                    >
-                                                        <a
-                                                            href=""
-                                                            class="smButton"
-                                                        >
-                                                            <img
-                                                                src="{$img_url_name.img_name}/printer.svg"
-                                                                alt=""
-                                                            />
-                                                        </a>
-                                                    </p>
-                                                </td>
-                                            </tr>
-                                            <tr class="border-b">
-                                                <td
-                                                    >Background Verification
-                                                    Concent</td
-                                                >
-                                                <td>Concent</td>
-                                                <td
-                                                    ><span class="text-green"
-                                                        >Yes</span
-                                                    >
-                                                </td>
-                                                <td>10-06-2020</td>
-                                                <td>Yes</td>
-                                                <td>
-                                                    <p
-                                                        class="flex justify-center"
-                                                    >
-                                                        <a
-                                                            href=""
-                                                            class="smButton"
-                                                        >
-                                                            <img
-                                                                src="{$img_url_name.img_name}/view.png"
-                                                                alt=""
-                                                            />
-                                                        </a>
-                                                    </p>
-                                                </td>
-                                                <td>
-                                                    <p
-                                                        class="flex justify-center"
-                                                    >
-                                                        <a
-                                                            href=""
-                                                            class="smButton"
-                                                        >
-                                                            <img
-                                                                src="{$img_url_name.img_name}/printer.svg"
-                                                                alt=""
-                                                            />
-                                                        </a>
-                                                    </p>
-                                                </td>
-                                            </tr>
-                                            <tr class="border-b">
-                                                <td
-                                                    >Background Verification
-                                                    Concent</td
-                                                >
-                                                <td>Concent</td>
-                                                <td
-                                                    ><span class="text-green"
-                                                        >Yes</span
-                                                    >
-                                                </td>
-                                                <td>10-06-2020</td>
-                                                <td>Yes</td>
-                                                <td>
-                                                    <p
-                                                        class="flex justify-center"
-                                                    >
-                                                        <a
-                                                            href=""
-                                                            class="smButton"
-                                                        >
-                                                            <img
-                                                                src="{$img_url_name.img_name}/view.png"
-                                                                alt=""
-                                                            />
-                                                        </a>
-                                                    </p>
-                                                </td>
-                                                <td>
-                                                    <p
-                                                        class="flex justify-center"
-                                                    >
-                                                        <a
-                                                            href=""
-                                                            class="smButton"
-                                                        >
-                                                            <img
-                                                                src="{$img_url_name.img_name}/printer.svg"
-                                                                alt=""
-                                                            />
-                                                        </a>
-                                                    </p>
-                                                </td>
-                                            </tr>
-                                            <tr class="border-b">
-                                                <td
-                                                    >Background Verification
-                                                    Concent</td
-                                                >
-                                                <td>Concent</td>
-                                                <td
-                                                    ><span class="text-green"
-                                                        >Yes</span
-                                                    >
-                                                </td>
-                                                <td>10-06-2020</td>
-                                                <td>Yes</td>
-                                                <td>
-                                                    <p
-                                                        class="flex justify-center"
-                                                    >
-                                                        <a
-                                                            href=""
-                                                            class="smButton"
-                                                        >
-                                                            <img
-                                                                src="{$img_url_name.img_name}/view.png"
-                                                                alt=""
-                                                            />
-                                                        </a>
-                                                    </p>
-                                                </td>
-                                                <td>
-                                                    <p
-                                                        class="flex justify-center"
-                                                    >
-                                                        <a
-                                                            href=""
-                                                            class="smButton"
-                                                        >
-                                                            <img
-                                                                src="{$img_url_name.img_name}/printer.svg"
-                                                                alt=""
-                                                            />
-                                                        </a>
-                                                    </p>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                    <div
-                                        class="associateCard  border p-p7px  rounded-md hidden xs:block sm:block"
-                                    >
-                                        <div
-                                            class="flex px-4 py-1 items-center"
-                                        >
-                                            <div class="light14grey">Tag</div>
-                                            <div class="dataValue">
-                                                Addhoc Facility
-                                            </div>
-                                        </div>
-                                        <div
-                                            class="flex px-4 py-1 items-center"
-                                        >
-                                            <div class="light14grey">
-                                                Remarks
-                                            </div>
-                                            <div class="dataValue">
-                                                No Remarks
-                                            </div>
-                                        </div>
-                                        <div
-                                            class="flex px-4 py-1 items-center"
-                                        >
-                                            <div class="light14grey">
-                                                Added by
-                                            </div>
-                                            <div class="dataValue">
-                                                User name
-                                            </div>
-                                        </div>
-                                        <div
-                                            class="flex px-4 py-1 items-center"
-                                        >
-                                            <div class="light14grey">
-                                                Added On
-                                            </div>
-                                            <div class="dataValue">
-                                                13-Apr-2021
-                                            </div>
-                                        </div>
-                                        <div
-                                            class="flex px-4 py-1 items-center"
-                                        >
-                                            <div class="light14grey">
-                                                Auto Removal On
-                                            </div>
-                                            <div class="dataValue">No date</div>
-                                        </div>
-                                        <div
-                                            class="flex px-4 py-1 items-center"
-                                        >
-                                            <div class="light14grey">
-                                                Remove
-                                            </div>
-                                            <div class="dataValue">
-                                                <img
-                                                    src="{$img_url_name.img_name}/reject.png"
-                                                    alt=""
-                                                    
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        {/if}
-
-                        {#if temp3 == "p-contracts"}
-                            <div class="scrollbar ">
-                                <div class="mainContainerWrapper flex gap-6">
-                                    <div
-                                        class="DocCardlist w-7/12 pr-4 h-h442 overflow-y-scroll"
-                                    >
-                                        <table
-                                            class="table  w-full text-center mt-2 "
-                                        >
-                                            <thead class="theadpopover h-10">
-                                                <tr>
-                                                    <th>Contract Type</th>
-                                                    <th>Starts From</th>
-                                                    <th> Ends On</th>
-                                                    <th>Cost Center</th>
-                                                    <th> View</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="tbodypopover">
-                                                <tr class="border-b">
-                                                    <td
-                                                        >Procurement agreement</td
-                                                    >
-                                                    <td>16-01-2020</td>
-                                                    <td>11-06-2020</td>
-                                                    <td>Mulshi - MHPD - NTEX</td
-                                                    >
-                                                    <td>
-                                                        <p
-                                                            class="flex justify-center"
-                                                        >
-                                                            <a
-                                                                href=""
-                                                                class="smButton"
-                                                            >
-                                                                <img
-                                                                    src="{$img_url_name.img_name}/view.png"
-                                                                    alt=""
-                                                                />
-                                                            </a>
-                                                        </p>
-                                                    </td>
-                                                </tr>
-                                                <tr class="border-b">
-                                                    <td
-                                                        >Procurement agreement</td
-                                                    >
-                                                    <td>16-01-2020</td>
-                                                    <td>11-06-2020</td>
-                                                    <td>Mulshi - MHPD - NTEX</td
-                                                    >
-                                                    <td>
-                                                        <p
-                                                            class="flex justify-center"
-                                                        >
-                                                            <a
-                                                                href=""
-                                                                class="smButton"
-                                                            >
-                                                                <img
-                                                                    src="{$img_url_name.img_name}/view.png"
-                                                                    alt=""
-                                                                />
-                                                            </a>
-                                                        </p>
-                                                    </td>
-                                                </tr>
-                                                <tr class="border-b">
-                                                    <td
-                                                        >Procurement agreement</td
-                                                    >
-                                                    <td>16-01-2020</td>
-                                                    <td>11-06-2020</td>
-                                                    <td>Mulshi - MHPD - NTEX</td
-                                                    >
-                                                    <td>
-                                                        <p
-                                                            class="flex justify-center"
-                                                        >
-                                                            <a
-                                                                href=""
-                                                                class="smButton"
-                                                            >
-                                                                <img
-                                                                    src="{$img_url_name.img_name}/view.png"
-                                                                    alt=""
-                                                                />
-                                                            </a>
-                                                        </p>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                        ​
-                                    </div>
-                                    <div class="addDocumentSection w-5/12  ">
-                                        <div
-                                            class=" bg-lighterGrey rounded-lg h-full"
-                                        >
-                                            {#if temp4 == "p-contracts-1"}
-                                                <div
-                                                    class="addButtonSection my-3 py-3 text-center "
-                                                >
-                                                    <p
-                                                        class="text-lg font-medium text-blackshade mb-3"
-                                                    >
-                                                        Upload New Physical
-                                                        contract here
-                                                    </p>
-                                                    <div class="updateAction">
-                                                        <button
-                                                            class="ErBlueButton"
-                                                            on:click={() => {
-                                                                temp4 =
-                                                                    "p-contracts-2";
-                                                            }}>Upload</button
-                                                        >
-                                                    </div>
-                                                </div>
-                                            {/if}
-                                            {#if temp4 == "p-contracts-2"}
-                                                <div
-                                                    class="addButtonSection mt-3 pt-3 text-center "
-                                                >
-                                                    <p
-                                                        class="text-lg font-medium text-blackshade"
-                                                    >
-                                                        Upload New Physical
-                                                        Contract
-                                                    </p>
-                                                </div>
-                                                <div class="my-0 py-4 px-4 ">
-                                                    <div
-                                                        class="h-80 max-h-80 overflow-y-scroll pr-4 border-b-2"
-                                                    >
-                                                        <div
-                                                            class="flex  py-3 items-center flex-wrap"
-                                                        >
-                                                            <div
-                                                                class="light14grey mb-1"
-                                                            >
-                                                                Select Contract
-                                                                Type
-                                                            </div>
-                                                            <div
-                                                                class="formInnerGroup "
-                                                            >
-                                                                <select
-                                                                    class="inputboxpopover"
-                                                                >
-                                                                    <option
-                                                                        class="pt-6"
-                                                                        >Select</option
-                                                                    >
-                                                                    <option
-                                                                        >ICICI</option
-                                                                    >
-                                                                    <option
-                                                                        >Axis</option
-                                                                    >
-                                                                    <option
-                                                                        >SIB</option
-                                                                    >
-                                                                </select>
-                                                                <div
-                                                                    class="formSelectArrow "
-                                                                >
-                                                                    <img
-                                                                        src="{$img_url_name.img_name}/selectarrow.png"
-                                                                        class="w-5 h-auto"
-                                                                        alt=""
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div
-                                                            class="flex  py-3 items-center flex-wrap"
-                                                        >
-                                                            <div
-                                                                class="light14grey mb-1"
-                                                            >
-                                                                Select
-                                                                Organization
-                                                            </div>
-                                                            <div
-                                                                class="formInnerGroup "
-                                                            >
-                                                                <select
-                                                                    class="inputboxpopover"
-                                                                >
-                                                                    <option
-                                                                        class="pt-6"
-                                                                        >Select</option
-                                                                    >
-                                                                    <option
-                                                                        >ICICI</option
-                                                                    >
-                                                                    <option
-                                                                        >Axis</option
-                                                                    >
-                                                                    <option
-                                                                        >SIB</option
-                                                                    >
-                                                                </select>
-                                                                <div
-                                                                    class="formSelectArrow "
-                                                                >
-                                                                    <img
-                                                                        src="{$img_url_name.img_name}/selectarrow.png"
-                                                                        class="w-5 h-auto"
-                                                                        alt=""
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div
-                                                            class="flex  py-3 items-center flex-wrap"
-                                                        >
-                                                            <div
-                                                                class="light14grey mb-1"
-                                                            >
-                                                                Select Station
-                                                            </div>
-                                                            <div
-                                                                class="formInnerGroup "
-                                                            >
-                                                                <select
-                                                                    class="inputboxpopover"
-                                                                >
-                                                                    <option
-                                                                        class="pt-6"
-                                                                        >Select</option
-                                                                    >
-                                                                    <option
-                                                                        >ICICI</option
-                                                                    >
-                                                                    <option
-                                                                        >Axis</option
-                                                                    >
-                                                                    <option
-                                                                        >SIB</option
-                                                                    >
-                                                                </select>
-                                                                <div
-                                                                    class="formSelectArrow "
-                                                                >
-                                                                    <img
-                                                                        src="{$img_url_name.img_name}/selectarrow.png"
-                                                                        class="w-5 h-auto"
-                                                                        alt=""
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div
-                                                            class="flex py-3 items-center flex-wrap "
-                                                        >
-                                                            <div
-                                                                class="light14grey"
-                                                            >
-                                                                From Date
-                                                            </div>
-                                                            <div
-                                                                class="formInnerGroup "
-                                                            >
-                                                                <input
-                                                                    type="date"
-                                                                    class="inputboxpopoverdate"
-                                                                    placeholder=" "
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                        <div
-                                                            class="flex py-3 items-center flex-wrap "
-                                                        >
-                                                            <div
-                                                                class="light14grey"
-                                                            >
-                                                                End Date
-                                                            </div>
-                                                            <div
-                                                                class="formInnerGroup "
-                                                            >
-                                                                <input
-                                                                    type="date"
-                                                                    class="inputboxpopoverdate"
-                                                                    placeholder=" "
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                        <div
-                                                            class="flex  py-3 items-center flex-wrap"
-                                                        >
-                                                            <div
-                                                                class="light14grey  mb-1"
-                                                            >
-                                                                Upload Document
-                                                            </div>
-                                                            <div
-                                                                class="formInnerGroup"
-                                                            >
-                                                                <label
-                                                                    class="cursor-pointer flex"
-                                                                >
-                                                                    <div
-                                                                        class="ErBlueButton"
-                                                                    >
-                                                                        Select
-                                                                        File
-                                                                    </div>
-                                                                    <input
-                                                                        type="file"
-                                                                        class="hidden"
-                                                                    />
-                                                                </label>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div
-                                                        class="flex items-center justify-end mt-5"
-                                                    >
-                                                        <div
-                                                            class="updateAction text-erBlue cursor-pointer"
-                                                            on:click={() => {
-                                                                temp4 =
-                                                                    "p-contracts-1";
-                                                            }}
-                                                        >
-                                                            Cancel
-                                                        </div>
-                                                        <div
-                                                            class="updateAction ml-5"
-                                                        >
-                                                            <button
-                                                                class="ErBlueButton"
-                                                                >Upload</button
-                                                            >
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            {/if}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        {/if}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div> -->
-
-<!--View/edit client name modal -->
-<!-- 
-<div class="hidden" id="workorganizationModel">
-    <div class=" viewDocmodal  " id="modal-id">
-        <div class="bglightcolormodal" />
-        <div class="allDocmodalsuccessbody rounded-lg">
-            <div class="">
-                <div class="viewDocPanmainbodyModal">
-                    <div class="flex justify-between mb-3">
-                        <div class="leftmodalInfo">
-                            <p class="text-lg text-erBlue font-medium  ">
-                                <span class=""> View/Edit Client Name</span>
-                            </p>
-                            <p class="text-sm ">
-                                <span class="font-medium text-lg">
-                                    Dhiraj Shah</span
-                                >
-                                <span class="userDesignation">
-                                    - Associate- {$facility_data_store.facility_type}, MHPD - Mulsi
-                                    SP</span
-                                >
-                            </p>
-                        </div>
-                        <div
-                            class="rightmodalclose"
-                            on:click={closeWorkorganization}
-                        >
-                            <img src="{$img_url_name.img_name}/blackclose.svg" alt="" />
-                        </div>
-                    </div>
-                    <div class="innermodal">
-                        <hr />
-                        <div class="scrollbar ">
-                            <div class="mainContainerWrapper ">
-                                <div class="DocCardlist ">
-                                    <div class="cardDocWrapper ">
-                                        <div
-                                            class="grid grid-cols-2 xs:grid-cols-1 gap-4"
-                                        >
-                                            <div>
-                                                <div
-                                                    class="grid grid-cols-2 gap-4 mb-1"
-                                                >
-                                                    <div class="detailLbale">
-                                                        Organisation
-                                                    </div>
-                                                    <div class="detailData">
-                                                        Amazon
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    class="grid grid-cols-2 gap-4 mb-1"
-                                                >
-                                                    <div class="detailLbale">
-                                                        Station Name & code
-                                                    </div>
-                                                    <div class="detailData">
-                                                        Akola, SP
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    class="grid grid-cols-2 gap-4 mb-1"
-                                                >
-                                                    <div class="detailLbale">
-                                                        Org specified name
-                                                    </div>
-                                                    <div class="detailData">
-                                                        Dhiraj Shah
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    class="grid grid-cols-2 gap-4 mb-1"
-                                                >
-                                                    <div class="detailLbale">
-                                                        Client Employee ID
-                                                    </div>
-                                                    <div class="detailData">
-                                                        AMA00300
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <div
-                                                    class="grid grid-cols-2 gap-4 mb-1"
-                                                >
-                                                    <div class="detailLbale">
-                                                        Added On
-                                                    </div>
-                                                    <div class="detailData">
-                                                        23-01-2021
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    class="grid grid-cols-2 gap-4 mb-1"
-                                                >
-                                                    <div class="detailLbale">
-                                                        Added by
-                                                    </div>
-                                                    <div class="detailData">
-                                                        Admin
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    class="grid grid-cols-2 gap-4 mb-1"
-                                                >
-                                                    <div class="detailLbale">
-                                                        Client ID status/info
-                                                    </div>
-                                                    <div class="detailData">
-                                                        ----
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    class="grid grid-cols-2 gap-4 mb-1"
-                                                >
-                                                    <div class="detailLbale">
-                                                        Status
-                                                    </div>
-                                                    <div>
-                                                        <p
-                                                            class="userStatusTickVerified "
-                                                        >
-                                                            <img
-                                                                src="{$img_url_name.img_name}/checked.png"
-                                                                alt=""
-                                                                class="pr-1"
-                                                            /> Verified
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="addDocumentSection ">
-                                    <div class="addSecform hidden">
-                                        {#if temp5 == "newMap"}
-                                            <div
-                                                class="addButtonSection my-3 py-16 text-center"
-                                            >
-                                                <div class="updateAction">
-                                                    <button
-                                                        class="ErBlueButton"
-                                                        on:click={() => {
-                                                            temp5 = "newMap-2";
-                                                        }}
-                                                        >Add New Mapping</button
-                                                    >
-                                                </div>
-                                            </div>
-                                        {/if}
-                                        {#if temp5 == "newMap-2"}
-                                            <div class="my-3 py-4 px-4 ">
-                                                <p class="text-lg font-medium">
-                                                    Add new Mapping
-                                                </p>
-
-                                                <div
-                                                    class="flex  py-1 items-center flex-wrap"
-                                                >
-                                                    <div
-                                                        class="light14grey  mb-1"
-                                                    >
-                                                        Address
-                                                    </div>
-                                                    <div class="formInnerGroup">
-                                                        <input
-                                                            class="inputboxpopover"
-                                                            type="text"
-                                                        />
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    class="flex  py-3 items-center flex-wrap"
-                                                >
-                                                    <div
-                                                        class="light14grey mb-1"
-                                                    >
-                                                        City
-                                                    </div>
-                                                    <div
-                                                        class="formInnerGroup "
-                                                    >
-                                                        <select
-                                                            class="inputboxpopover"
-                                                        >
-                                                            <option class="pt-6"
-                                                                >Select</option
-                                                            >
-                                                            <option
-                                                                >ICICI</option
-                                                            >
-                                                            <option>Axis</option
-                                                            >
-                                                            <option>SIB</option>
-                                                        </select>
-                                                        <div
-                                                            class="formSelectArrow "
-                                                        >
-                                                            <img
-                                                                src="{$img_url_name.img_name}/selectarrow.png"
-                                                                class="w-5 h-auto"
-                                                                alt=""
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div
-                                                    class="flex  py-1 items-center flex-wrap"
-                                                >
-                                                    <div
-                                                        class="light14grey  mb-1"
-                                                    >
-                                                        GST State
-                                                    </div>
-                                                    <div class="formInnerGroup">
-                                                        <input
-                                                            class="inputboxpopover"
-                                                            type="text"
-                                                        />
-                                                    </div>
-                                                </div>
-
-                                                <div
-                                                    class="flex  py-3 items-center flex-wrap"
-                                                >
-                                                    <div
-                                                        class="light14grey  mb-1"
-                                                    >
-                                                        Upload Document
-                                                    </div>
-                                                    <div class="formInnerGroup">
-                                                        <label
-                                                            class="cursor-pointer flex"
-                                                        >
-                                                            <div
-                                                                class="ErBlueButton"
-                                                            >
-                                                                Select File
-                                                            </div>
-                                                            <input
-                                                                type="file"
-                                                                class="hidden"
-                                                            />
-                                                        </label>
-                                                    </div>
-                                                </div>
-
-                                                <div
-                                                    class="flex items-center justify-end mt-5"
-                                                >
-                                                    <div
-                                                        class="updateAction text-erBlue"
-                                                        on:click={() => {
-                                                            temp3 = "newMap";
-                                                        }}
-                                                    >
-                                                        Cancel
-                                                    </div>
-                                                    <div
-                                                        class="updateAction ml-5"
-                                                    >
-                                                        <button
-                                                            class="ErBlueButton"
-                                                            >Upload</button
-                                                        >
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        {/if}
-                                    </div>
-
-                                    <div
-                                        class=" bg-lighterGrey rounded-lg h-full"
-                                    >
-                                        {#if temp5 == "newMap"}
-                                            <div
-                                                class="addButtonSection my-3 py-3  text-center "
-                                            >
-                                                <div class="updateAction mt-5">
-                                                    <button
-                                                        class="ErBlueButton"
-                                                        on:click={() => {
-                                                            temp5 = "newMap-2";
-                                                        }}
-                                                        >Add New Mapping</button
-                                                    >
-                                                </div>
-                                            </div>
-                                        {/if}
-                                        {#if temp5 == "newMap-2"}
-                                            <div class="my-0 py-4 px-4 ">
-                                                <div
-                                                    class="h-80 max-h-80 overflow-y-scroll pr-4 border-b-2"
-                                                >
-                                                    <p
-                                                        class="text-lg font-medium"
-                                                    >
-                                                        Add New Mapping
-                                                    </p>
-
-                                                    <div
-                                                        class="flex  py-3 items-center flex-wrap"
-                                                    >
-                                                        <div
-                                                            class="light14grey mb-1"
-                                                        >
-                                                            Organization
-                                                        </div>
-                                                        <div
-                                                            class="formInnerGroup "
-                                                        >
-                                                            <select
-                                                                class="inputboxpopover"
-                                                            >
-                                                                <option
-                                                                    class="pt-6"
-                                                                    >Select</option
-                                                                >
-                                                            </select>
-                                                            <div
-                                                                class="formSelectArrow "
-                                                            >
-                                                                <img
-                                                                    src="{$img_url_name.img_name}/selectarrow.png"
-                                                                    class="w-5 h-auto"
-                                                                    alt=""
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        class="flex  py-3 items-center flex-wrap"
-                                                    >
-                                                        <div
-                                                            class="light14grey mb-1"
-                                                        >
-                                                            Station
-                                                        </div>
-                                                        <div
-                                                            class="formInnerGroup "
-                                                        >
-                                                            <select
-                                                                class="inputboxpopover"
-                                                            >
-                                                                <option
-                                                                    class="pt-6"
-                                                                    >Select</option
-                                                                >
-                                                            </select>
-                                                            <div
-                                                                class="formSelectArrow "
-                                                            >
-                                                                <img
-                                                                    src="{$img_url_name.img_name}/selectarrow.png"
-                                                                    class="w-5 h-auto"
-                                                                    alt=""
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        class="flex  py-3 items-center flex-wrap"
-                                                    >
-                                                        <div
-                                                            class="light14grey mb-1"
-                                                        >
-                                                            Name in COMP
-                                                        </div>
-                                                        <div
-                                                            class="formInnerGroup "
-                                                        >
-                                                            <select
-                                                                class="inputboxpopover"
-                                                            >
-                                                                <option
-                                                                    class="pt-6"
-                                                                    >Select</option
-                                                                >
-                                                            </select>
-                                                            <div
-                                                                class="formSelectArrow "
-                                                            >
-                                                                <img
-                                                                    src="{$img_url_name.img_name}/selectarrow.png"
-                                                                    class="w-5 h-auto"
-                                                                    alt=""
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        class="flex  py-1 items-center flex-wrap"
-                                                    >
-                                                        <div
-                                                            class="light14greylong  mb-1"
-                                                        >
-                                                            Client Empployee ID
-                                                            ( If available)
-                                                        </div>
-                                                        <div
-                                                            class="formInnerGroup"
-                                                        >
-                                                            <input
-                                                                class="inputboxpopover"
-                                                                type="text"
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                    <div
-                                                        class="flex  py-1 items-center flex-wrap mb-4"
-                                                    >
-                                                        <div
-                                                            class="light14greylong  mb-1"
-                                                        >
-                                                            Create new Rabbit
-                                                            ID/Comp ID
-                                                        </div>
-                                                        <div
-                                                            class="formInnerGroup"
-                                                        >
-                                                            <div
-                                                                class="text-center flex mb-2 ml-1"
-                                                            >
-                                                                <div
-                                                                    class="flex items-center mr-4"
-                                                                >
-                                                                    <input
-                                                                        id="radio1"
-                                                                        type="radio"
-                                                                        name="radio"
-                                                                        class="hidden"
-                                                                        checked=""
-                                                                    />
-                                                                    <label
-                                                                        for="radio1"
-                                                                        class="radioLable"
-                                                                    >
-                                                                        <span
-                                                                            class="radioCirle"
-                                                                        />
-                                                                        Rabbit ID</label
-                                                                    >
-                                                                </div>
-
-                                                                <div
-                                                                    class="flex items-center "
-                                                                >
-                                                                    <input
-                                                                        id="radio2"
-                                                                        type="radio"
-                                                                        name="radio"
-                                                                        class="hidden"
-                                                                    />
-                                                                    <label
-                                                                        for="radio2"
-                                                                        class="radioLable"
-                                                                    >
-                                                                        <span
-                                                                            class="radioCirle"
-                                                                        />
-                                                                        COMP ID</label
-                                                                    >
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div
-                                                    class="flex items-center justify-end mt-5"
-                                                >
-                                                    <div
-                                                        class="updateAction text-erBlue cursor-pointer"
-                                                        on:click={() => {
-                                                            temp5 = "newMap";
-                                                        }}
-                                                    >
-                                                        Cancel
-                                                    </div>
-                                                    <div
-                                                        class="updateAction ml-5"
-                                                    >
-                                                        <button
-                                                            class="ErBlueButton"
-                                                            >Map</button
-                                                        >
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        {/if}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div> -->
-
-
-
-
-
 <!-- Document view Model -->
 <div id="img_model" tabindex="-1" aria-hidden="true" role ="dialog" class=" actionDialogueOnboard" hidden>
     <div class="pancardDialogueOnboardWrapper ">
@@ -4569,4 +2457,126 @@ async function child_select_fun(){
     </div>
 </div> 
 <!-- Document view Model -->
+
+<!-- Document view Model With Approve and reject -->
+<div id="img_model_approve_rej" tabindex="-1" aria-hidden="true" role ="dialog" class=" actionDialogueOnboard" hidden>
+    <div class="pancardDialogueOnboardWrapper ">
+        <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+            
+            <div class="flex justify-end p-2">
+                <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium mr-2" on:click={()=>{docApproveRejected("reject")}}>Reject</button>
+                <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium mr-2" on:click={()=>{docApproveRejected("approve")}}>Approve</button>
+       
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5  inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel()}}">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
+                </button>
+            </div>
+
+            <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+                
+                <img src="" id="doc_img_model_url" class="mx-auto" alt="{alt_image}">
+                
+                <div class="pt-3 flex justify-center">
+                    <button data-modal-toggle="popup-modal" type="button" class="dialogueNobutton"  on:click="{()=>{closeViewModel()}}">Close</button>
+            </form>
+        </div>
+    </div>
+</div> 
+<!-- Document view Model -->
+
+<!--blacklist Confirmation modal -->
+
+<div id="Blacklist_confirmation_modal" class="hidden">
+    <div  class="actionDialogueOnboard ">
+        <div class="pancardDialogueOnboardWrapper ">
+            <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+                <div class="modalHeadConmb-0">
+                    <div class="leftmodalInfo">
+                        <!-- <p class=""> Reject Reason</p> -->
+                    </div>
+                    <div class="rightmodalclose">
+                        <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" on:click="{close_blacklist_remark}">
+                    </div>
+                </div>
+                <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+    
+                    <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0 mt-4">
+                        <label class="block  tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-state">
+                        Do you want to Blacklist+{$facility_id.facility_id_number}-{$facility_data_store.facility_type}?
+                        </label>
+                        <div class="relative">
+                         
+                          <br>
+                          <br>
+                          <div
+                                class="flex  py-1 items-center flex-wrap"
+                            >
+                                <div class="formInnerGroup">
+                                   
+                                    <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium mr-2" on:click="{close_blacklist_remark}">Cancel</button>
+                                    <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium mr-2" on:click="{confirm_blacklist}">Ok</button>
+                                </div>
+                            </div>
+                          
+                        </div>
+                      </div>
+                </form>
+            </div>
+        </div>
+    </div> 
+</div>
+
+<!--blacklist Confirmation modal -->
+
+<!--blacklist  Reject modal -->
+<div id="Basic_Reject_modal" class="hidden">
+    <div  class="actionDialogueOnboard ">
+        <div class="pancardDialogueOnboardWrapper ">
+            <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+                <div class="modalHeadConmb-0">
+                    <div class="leftmodalInfo">
+                        <!-- <p class=""> Reject Reason</p> -->
+                    </div>
+                    <div class="rightmodalclose">
+                        <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" on:click="{close_blacklist_remark}">
+                    </div>
+                </div>
+                <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+    
+                    <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0 mt-4">
+                        <label class="block  tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-state">
+                        Enter Remarks
+                        </label>
+                        <div class="relative">
+                          <!-- <select class="block appearance-none w-full  border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-state" bind:value="{pan_info_res}">
+                            <option value="" selected disabled>Select</option>
+                            {#each rejReasonMap.panInfo as pan_info_rej}
+                            <option>{pan_info_rej} </option>
+                            {/each}
+                          </select> -->
+                          <div
+                                class="flex  py-1 items-center flex-wrap"
+                            >
+                                <div class="formInnerGroup">
+                                    <input
+                                        class="inputboxpopover"
+                                        type="text"
+                                        bind:value="{blacklist_remark}"
+                                    />
+                                </div>
+                            </div>
+                          <!-- <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                          </div> -->
+                        </div>
+                      </div>
+                   
+                      <div class="pt-3 flex justify-center">
+                        <button type="button" class="dialogueNobutton" on:click="{blacklist_click}">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div> 
+</div>
+<!--BG Basic Detail Reject modal -->
 <Toast type={toast_type}  text={toast_text}/>

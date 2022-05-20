@@ -136,6 +136,8 @@
                 offer_verified:null,
                 offer_rejected:null
             };
+            export let admin;
+            export let is_adhoc_facility;
             // let gst_doc_obj = {
             //     gst_name:null,
             //     gst_url:null,
@@ -143,7 +145,7 @@
             //     gst_verified:null,
             //     gst_rejected:null
             // };
-        
+            let selectserCh ;
             let text_pattern = /^[a-zA-Z_ ]+$/;
             let recrun_pattern =  /^[^-\s](?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9 _-]+)$/;
             let city_select;
@@ -164,6 +166,8 @@
             let showbtn = 0;
             let selectTag,addRemark,selectsearch;
             export let city;
+            export let show_upload_btn;
+            export let remove_upload_btn;
             console.log("city data new",city);
             let facility_address,facility_postal,facility_password,location_id,status_name;
             let new_fac_remarks = [];
@@ -216,6 +220,9 @@
             let all_bg_bglightgreye = "";
             let is_e_grid_hidden = ""
             let is_phy_grid_hidden = "hidden";
+            let new_offer_name = ""
+            let offer_upload_message =""
+            let new_offer_img = ""
 
         /////////Document view Model//////
             // $:{
@@ -292,14 +299,12 @@
             }
 
             async function station_dependent(){
-                console.log("station_selected",station_selected)
                 let get_station_details_res = await get_station_details(station_selected);
                 try {
                     if (get_station_details_res != "null"){
                         cost_center_details = get_station_details_res.body.data;
                     }
                     cost_center_details = cost_center_details;
-                    console.log("cost_center_details",cost_center_details)
                 }
                 catch (error) {
                     toast_type = "error";
@@ -353,18 +358,16 @@
                 toast_text = "Upload File";
                 return
             }
-
-
-
+            
             let pass_contract_id = {
                 contract_id: contract_name,
                 cost_center: cont_cost_center,
-                end_date: cont_end_date,
+                end_date: updated_end_date,
                 facility_id: facility_id,
                 file_data: phy_cont_file,
                 file_name: phy_cont_img,
                 org_id: org_selected,
-                start_date : cont_start_date,
+                start_date : updated_start_date,
                 station_code : station_selected,
                 warehouse: cont_warehouse
                 
@@ -449,6 +452,26 @@
                 toast_text = err;
        
             }
+
+            all_tags_res = await all_facility_tags($facility_data_store.name);
+    
+            try {
+                if(all_tags_res.body.status == "green"){
+                    for(let i=0;i < all_tags_res.body.data.length;i++){
+                        all_tags_data.push(all_tags_res.body.data[i].tag_name);
+                        // console.log("all_tags_data",all_tags_data);
+                        all_tags_obj[all_tags_res.body.data[i].tag_name] = all_tags_res.body.data[i].tag_description;
+                        
+                        // console.log("all_tags_obj",all_tags_obj);
+                    }
+                    all_tags_data = all_tags_data;
+                }
+            } 
+            catch(err) {
+                toast_type = "error";
+                toast_text = all_tags_res.body.message;
+            }
+            show_spinner = false;
         });
 
             function myBtn() {
@@ -535,12 +558,208 @@
                 }
 
             }
+        function clear() {
+            addRemoveModal.style.display = "none";
+        }
+
+
+        async function tagAddRemove() {
+            addRemoveModal.style.display = "block";
+            console.log("tag remove clicked")
+        
+        let tag_res = await show_fac_tags($facility_data_store.facility_type);
+        console.log("tag_res",tag_res);
+        try {
+            show_spinner = true;
+            if(tag_res.body.data.length != 0){
+                show_spinner = false;
+                show_fac_array = tag_res.body.data;
+                console.log("show_fac_array",show_fac_array)
+                for(let i=0;i < show_fac_array.length;i++){
+                    
+                    let new_date =new Date(show_fac_array[i].creation)
+                    
+                    show_fac_array[i].creation=new_date;
+                    // console.log("new_date",new_date);
+                }
+                show_fac_array.sort(function(a, b) {
+                if (a.creation > b.creation) return -1;
+                if (a.creation < b.creation) return 1;
+                return 0;
+                });
+
+                for(let i=0;i < show_fac_array.length;i++){
+                let show_creation_date =get_date_format(show_fac_array[i].creation,"yyyy-mm-dd")
+                show_fac_array[i].creation=show_creation_date;
+                }
+            }
+            else{
+                show_spinner = false;
+                toast_type = "error";
+                toast_text = "No Tags Found";
+            }
+        } 
+        catch(err) {
+            toast_type = "error";
+            toast_text = err;
+        
+         }
+
+        let service_vend_res = await service_vendor();
+        console.log("service_vend_res",service_vend_res)
+        try {
+            show_spinner = true;
+            if(service_vend_res.body.status == "green"){
+                show_spinner = false;
+                for(let i=0;i<service_vend_res.body.data.length;i++){
+                    if(service_vend_res.body.data[i].location_id == location_id){
+                        // tag_data_obj[service_vend_res.body.data[i].vendor_id] = service_vend_res.body.data[i].vendor_name;
+                        tag_data_obj.push(service_vend_res.body.data[i]);
+                    }
+                }
+                tag_data_obj = tag_data_obj;
+                console.log("tag_data_obj",tag_data_obj)
+            }
+            else{
+                show_spinner = false;
+                toast_type = "error";
+                toast_text = "No Vendor Found";
+            }
+        }
+        catch(err) {
+            show_spinner = false;
+            toast_type = "error";
+            toast_text = err;
+        }
+
+
+    }
+    async function handleTagClick(){
+        console.log("handle tag clicked")
+    let new_tag_id
+    try {   
+    //     if(all_tags_res.body.status == "green"){
+        
+        for(let i=0; i < all_tags_res.body.data.length; i++){
+            // console.log("INDISDE FOR LOOPform_data from html",select_tag_data,all_tags_res.body.data[i].tag_name)
+            if(select_tag_data == all_tags_res.body.data[i].tag_name){
+                new_tag_id = all_tags_res.body.data[i].tag_id;
+            }
+            
+        }
+        if(!select_tag_data){
+            selectTag = 1;
+            if(!tag_remark){
+            addRemark = 1;
+                if(!serv_ch_data){
+                    selectsearch=1;
+                }
+            }   
+
+        }
+        else{
+            console.log("select_tag_data",select_tag_data)
+            show_fac_array = [];
+            console.log("serv_ch_data",serv_ch_data)
+            let submit_fac_res = await submit_fac_tag_data(new_tag_id,select_tag_data,tag_date,tag_remark,serv_ch_data)
+            try {
+                show_spinner = true;
+                if(submit_fac_res.body.status == "green"){
+                    show_spinner = false;
+                    let temp_res = await show_fac_tags($facility_data_store.facility_type);
+                    show_fac_array = temp_res.body.data;
+                    for(let i=0;i < show_fac_array.length;i++){
+                        let new_date =new Date(show_fac_array[i].creation)
+                        show_creation_date = get_date_format(new_date,"yyyy-mm-dd")
+                        show_fac_array[i].creation=show_creation_date;
+                    }
+                    show_fac_array = show_fac_array;
+                }
+                // console.log("submit_fac_res.body",submit_fac_res.body)
+                else if(submit_fac_res.body.message == "Tag already exist..!"){
+                    show_spinner = false;
+                    console.log("Cannot Add Tag already exist..!")
+                }
+            }
+                catch(err) {
+                    show_spinner = false;
+                    toast_type = "error";
+                    toast_text = err;
+                }
+        }
+
+    }
+    catch(err) {
+        toast_type = "error";
+        toast_text = err;
+    }
+      
+}
+
+    async function removeTag(tag_id,tag_name,owner,tag_status){
+        show_fac_array = [];
+        let fac_id
+        if(owner == $facility_data_store.owner){
+                fac_id = $facility_data_store.name
+                console.log("fac_id",fac_id)
+        }
+        let remove_tag_res = await remove_tag(fac_id,tag_id,tag_name);
+        if(remove_tag_res.body.status == "green")
+        {
+        let temp_res = await show_fac_tags($facility_data_store.facility_type);
+        try {
+                show_fac_array = temp_res.body.data;
+                
+                // console.log("show_fac_array IN remove",show_fac_array)
+                for(let i=0;i < show_fac_array.length;i++){
+                    
+                    let new_date =new Date(show_fac_array[i].creation)
+                    show_creation_date = get_date_format(new_date,"yyyy-mm-dd")
+                    show_fac_array[i].creation=show_creation_date;
+                   
+        }
+       
+    }
+        catch(err) {
+        console.log("ERROR")
+        
+         }
+
+    }
+}
+
+
+   async function tagAuditFunc(){
+        temp = "tag";
+        let tag_audit_res =await tag_audit_trail();
+        try {
+            if(tag_audit_res.body.status == "green"){
+            
+            tag_data_arr = tag_audit_res.body.data
+            for(let i=0;i < tag_data_arr.length;i++){
+                let new_date =new Date(tag_data_arr[i].creation)
+                show_creation_date = get_date_format(new_date,"yyyy-mm-dd")
+                tag_data_arr[i].creation=show_creation_date;
+            }
+            // console.log("TAG DATA ARRA",tag_data_arr)
+            tag_data_arr = tag_data_arr;
+               
+        }} catch(err) {
+        console.log("ERROR")
+        
+         }
+       
+    }
+     function uploadOfferLetter(){
+         OfferLetterModel.style.display ="block";
+     }
 
             // function closeWorkorganization() {
             //     workorganizationModel.style.display = "none";
             // }
             function closeViewModel(){
         document.getElementById("img_model").style.display = "none";
+        OfferLetterModel.style.display ="block";
     }
     function openViewModel(data,doc_number){
         document.getElementById("img_model").style.display = "block";
@@ -589,6 +808,9 @@
             if(doctext == "contract_upload"){
             phy_cont_img = img.name;
             }
+            else if(doctext == "new_offer_upload"){
+            new_offer_img = img.name;
+            }
 
             var reader = new FileReader();
             reader.readAsDataURL(img);
@@ -601,6 +823,12 @@
                 toast_text = "Document Uploaded Successfully";
                 toast_type = "success";
             }
+            else if(doctext == "new_offer_upload"){
+                new_offer_name = reader.result;
+                toast_text = "Document Uploaded Successfully";
+                toast_type = "success";
+            }
+            
             }
                 reader.onerror = function (error) {
                 console.log("Error: ", error);
@@ -718,6 +946,18 @@
 
                         </button>
                     </p>
+                    {#if admin == false}
+                    <p></p>
+                    {:else}
+                    <div class="userStatus ml-4">
+                        <p class="flex items-center smButtonText" on:click={tagAddRemove}>
+                            <a href="" class="smButton modal-open">
+                                Add/Remove Tags
+                            </a>
+                        </p>
+                    </div>
+                    {/if}
+                    {#if is_adhoc_facility == false}
                     <div class="userStatus ml-4">
                         <p class="flex items-center smButtonText" on:click={workorganization}>
                             <a href="" class="smButton modal-open">
@@ -725,6 +965,7 @@
                             </a>
                         </p>
                     </div>
+                    {/if}
                 </div>
 
             </div>
@@ -736,9 +977,16 @@
                             <img src="{$img_url_name.img_name}/Subtract.png" alt="" class="w-5 h-auto">
                             <div class="pl-4">
                                 <p class="detailLbale">Associate Type</p>
+                                {#if !$facility_data_store.facility_type}
+                                <p>-</p>
+                                {:else}
                                 <p class="detailData">{$facility_data_store.facility_type}</p>
+                                {/if}
                             </div>
                         </div>
+                        {#if admin == false}
+                        <p></p>
+                        {:else}
                         <div class="userStatus ">
                             <p class="flex items-center smButtonText" on:click={myBtn}>
                                 <a class="smButton" id="changeAssociate">
@@ -746,13 +994,18 @@
                                 </a>
                             </p>
                         </div>
+                        {/if}
                     </div>
                     <div class="userInfoSec3 ">
                         <div class="flex items-start">
                             <img src="{$img_url_name.img_name}/pan.png" alt="" class="w-5 h-5">
                             <div class="pl-4">
                                 <p class="detailLbale">Associate ID</p>
+                                {#if !$facility_data_store.name}
+                                <p>-</p>
+                                {:else}
                                 <p class="detailData">{$facility_data_store.name}</p>
+                                {/if}
                             </div>
                         </div>
 
@@ -762,9 +1015,15 @@
                             <img src="{$img_url_name.img_name}/organization.png" alt="" class="w-5 h-5">
                             <div class="pl-4">
                                 <p class="detailLbale">Organization</p>
+                                {#if !$facility_data_store.org_id}
+                                <p>-</p>
+                                {:else}
                                 <p class="detailData">{$facility_data_store.org_id}</p>
+                                {/if}
+                                
                             </div>
                         </div>
+                        {#if is_adhoc_facility == false}
                         <div class="userStatus ">
                             <p class="flex items-center smButtonText" on:click={workorganization}>
                                 <a href="" class="smButton">
@@ -772,13 +1031,18 @@
                                 </a>
                             </p>
                         </div>
+                        {/if}
                     </div>
                     <div class="userInfoSec3 ">
                         <div class="flex items-start">
                             <img src="{$img_url_name.img_name}/location.png" class="w-6 h-6" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">City</p>
+                                {#if !city}
+                                <p>-</p>
+                                {:else}
                                 <p class="detailData">{city}</p>
+                                {/if}
                             </div>
                         </div>
                     </div>
@@ -787,7 +1051,11 @@
                             <img src="{$img_url_name.img_name}/warehouse.png" class="w-5 h-5" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">Station</p>
+                                {#if !$facility_data_store.station_code}
+                                <p>-</p>
+                                {:else}
                                 <p class="detailData">{$facility_data_store.station_code}</p>
+                                {/if}
                             </div>
                         </div>
 
@@ -845,16 +1113,33 @@
                                 <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
                                 <div class="pl-4 flex items-center">
                                     <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
-
+                                    {#if !new_off_file_obj.offer_name}
+                                    <p>Not Required</p>
+                                    {:else}
                                     <p class="detailLbale">{new_off_file_obj.offer_name}</p>
+                                    {/if}
                                 </div>
                             </div>
                             <div class="userStatus ">
-                                <p class="verifyText">
-                                    <a href="" class="smButton">
-                                        <img src="{$img_url_name.img_name}/view.png" alt="" on:click="{()=>{openViewModel("offer")}}">
-                                    </a>
-                                </p>
+                                {#if new_off_file_obj.offer_name}
+                                    <p class="verifyText">
+                                        <a href="" class="smButton">
+                                            <img src="{$img_url_name.img_name}/view.png" alt="" on:click="{()=>{openViewModel("offer")}}">
+                                        </a>
+                                    </p>
+                                {:else}
+                                    {#if show_upload_btn == "true"}
+                                        <p class="flex items-center smButtonText" on:click={uploadOfferLetter}>
+                                            <a href="" class="smButton modal-open">
+                                                Upload 
+                                            </a>
+                                        </p>
+                                        {:else if remove_upload_btn == "true"}
+                                        <p></p>
+                                    {/if}
+                                {/if}
+                               
+
                             </div>
                         </div>
                     </div>
@@ -870,7 +1155,11 @@
                             <img src="{$img_url_name.img_name}/managerVendor.png" class="w-5 h-5" alt="">
                             <div class="pl-4">
                                 <p class="detailLbale">Vendor</p>
+                                {#if !$facility_data_store.vendor_name}
+                                <p>-</p>
+                                {:else}
                                 <p class="detailData">{$facility_data_store.vendor_name} - {$facility_data_store.vendor_code}</p>
+                                {/if}
                             </div>
                         </div>
 
@@ -879,6 +1168,330 @@
             </div> 
          
         </div>
+
+  <!-- Full screen modal  Add / Remove Tags  change replacement section-->
+
+
+  <div class="hidden" id = "addRemoveModal">
+    <div class="modalMain">
+        <div class="modalOverlay"></div>
+
+        <div class="modalContainer">
+            <div class="modalHeadConmb-0">
+                <div class="leftmodalInfo">
+                    <p class="modalTitleText"> Add / Remove Tags</p>
+
+                </div>
+                <div class="rightmodalclose" on:click={clear}>
+                    <img src="../src/img/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal">
+                </div>
+            </div>
+
+            <div class="modalContent">
+               
+                <div class="ConModalContent">
+
+                    <div class="">
+                        <div class="bgAddSection mt-3">
+                            <div class="addGstForm pt-4">
+                                <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
+                                    <div class="w-full">
+                                        <div class="light14grey mb-1">Select Tag</div>
+                                        <div class="formInnerwidthfull ">
+                                            <select
+                                                   class="inputboxpopover"
+                                               bind:value="{select_tag_data}">
+                                               <option value="">Select</option>
+                                               {#if !all_tags_data}
+                                               <p></p>
+                                               {:else}
+                                               {#each all_tags_data as tag_data}
+                                               <option>{tag_data}</option>
+                                                   {/each}
+                                                   {/if}
+                                            </select>
+                                            {#if selectTag == "1"}
+                                               <div class="text-red-500">
+                                                   "Select tag name"
+                                               </div>
+                                               {/if}
+
+                                            <div class="formSelectArrow ">
+                                                <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div
+                                       class="flex px-2 pt-3 items-center xs:flex-wrap {hidden_field}"
+                                   >
+                                       <div
+                                           class="light14grey"
+                                       >
+                                       Select Sevice Charge Vendor
+                                       </div>
+                                       <div
+                                           class="formInnerGroup "
+                                       >
+                                           <select
+                                               class="inputboxpopover"
+                                           bind:value={serv_ch_data}>
+                                          
+                                           <!-- <option
+                                                   class="pt-6"
+                                                   >Select</option
+                                               > -->
+                                           <option value="">Select</option>
+                                           {#if !tag_data_obj}
+                                           <p></p>
+                                           {:else}
+                                           <!-- {#each Object.keys(tag_data_obj),tag_data_obj[Object.keys(tag_data_obj)] as key,value} -->
+                                           {#each tag_data_obj as obj}
+                                           <option value={obj.vendor_id}>{obj.vendor_name} - {obj.vendor_id}</option>
+                                               <!-- <option
+                                                   >Axis</option
+                                               >
+                                               <option
+                                                   >SIB</option
+                                               > -->
+                                              
+                                           {/each}
+                                           {/if}
+ 
+                                      
+                                           </select>
+                                           {#if selectserCh == "1"}
+                                           <div class="text-red-500">
+                                               "Select Sevice Charge Vendor"
+                                           </div>
+                                           {/if}
+                                          
+                                           <div
+                                               class="formSelectArrow "
+                                           >
+                                               <img
+                                                   src="../src/img/selectarrow.png"
+                                                   class="w-5 h-auto"
+                                                   alt=""
+                                               />
+                                           </div>
+                                       </div>
+                                   </div>
+                                    <div class="w-full">
+                                        <div class="light14grey mb-1">Remove On</div>
+                                        <div class="formInnerwidthfull ">
+                                            <input
+                                                   type="date"
+                                                   class="inputboxpopoverdate"
+                                                   placeholder=" "
+                                                   min={new Date().toISOString().split('T')[0]}
+                                                   bind:value="{tag_date}"
+                                               />
+
+                                        </div>
+                                        <div class="w-full">
+                                            <div class="light14greylong mb-1 invisible"></div>
+                                            <div class="formInnerwidthfull ">
+                                                <div class="light14greylong mb-1 text-xs">Note: Use only if
+                                                    required</div>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
+                                    <div class="w-full">
+                                        <div class="light14grey mb-1">Remarks</div>
+                                        <div class="formInnerwidthfull ">
+                                            <input
+                                                   class="inputboxpopover"
+                                                   type="text"
+                                                   bind:value="{tag_remark}"
+                                               />
+
+                                        </div>
+                                    </div>
+                                    <div
+                                           class="flex px-2 py-0 items-center xs:flex-wrap"
+                                       >
+                                      
+                                       {#if addRemark == "1"}
+                                      
+                                               <div class="text-red-500">
+                                                   "Please enter a remark"
+                                               </div>
+                                           {/if}
+                                           </div>
+
+                                </div>
+                                <div class="actionButtons">
+
+                                    <div class="updateAction ">
+                                        <button
+                                               class="saveandproceed"
+                                               on:click="{handleTagClick(select_tag_data,tag_date,tag_remark,tag_data_obj)}"
+                                               >Add</button
+                                           >
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="tabwrapper flex justify-between text-center py-2 pb-3">
+                            <!-- <div class="changetype py-3 w-2/4   ">
+                                <p>Add Tags</p>
+                            </div> -->
+                            <div
+                                class="changetype py-3 w-2/4 "
+                                on:click={() => {
+                                    temp = "Add";
+                                }}
+                            >
+                                <p>Add Tags</p>
+                            </div>
+
+                            <div class="Historytab py-3 w-2/4    bg-bglightgreye"  on:click={tagAuditFunc}
+                            >
+                                <p>Tag Audit Trail</p>
+                            </div>
+                        </div>
+
+                        <div class="PhysicalCardContainer">
+                            <p class="font-medium">Other Applied Tags</p>
+                            <div class="">
+                                <table class="table  w-full text-center mt-2 ">
+                                    <thead class="theadpopover h-10">
+                                        <tr>
+                                            <th>Tag</th>
+                                            <th>Remarks</th>
+                                            <th> Added by</th>
+                                            <th>Added On</th>
+                                            <th> Auto Removal On</th>
+                                            <th> Remove</th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody class="tbodypopover">{#each show_fac_array as show_fac}
+                                              
+                                                   <tr
+                                                       class="border-b"
+                                                   >
+                                                       <td
+                                                           >{show_fac.tag_name}</td
+                                                       >
+                                                       <td
+                                                           >
+                                                           {#if !show_fac.remarks}
+                                                           <p>-</p>
+                                                           {:else}
+                                                           {show_fac.remarks}{/if}</td
+                                                       >
+                                                       <td
+                                                           >{show_fac.owner}</td
+                                                       >
+                                                       <td
+                                                           >{show_fac.creation}</td
+                                                       >
+                                                       <td
+                                                           >
+                                                           {#if !show_fac.deactivation_date}
+                                                           <p>-</p>
+                                                           {:else}
+                                                           {show_fac.deactivation_date}{/if}</td
+                                                       >
+                                                       <td>
+                                                           <div
+                                                               class="flex justify-center"
+                                                           >
+                                                               <img
+                                                                   src="../src/img/reject.png"
+                                                                   alt=""
+                                                                   on:click="{removeTag(show_fac.name,show_fac.tag_name,show_fac.owner)}"
+                                                               />
+                                                           </div>
+                                                       </td>
+                                                   </tr>
+                                  
+                                                   {/each}
+                                               </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        {#if temp == "tag"}
+                            <div class="PhysicalCardContainer mb-3 ">
+                                <div class="">
+                            <p class="font-medium">Tag Audit Trail
+</p>
+
+                                    <table class="table  w-full text-center mt-2 ">
+                                        <thead class="theadpopover h-10">
+                                            <tr>
+                                                <th>Tag</th>
+                                                <th>Date</th>
+                                                <th> Given by</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody
+                                        class="tbodypopover"
+                                    >
+                                    {#each tag_data_arr as new_tag_audit}  
+                                    <tr
+                                            class="border-b"
+                                        >
+                                        <!-- {#each tag_data_arr as new_tag_audit}
+                                            <td
+                                                >{new_tag_audit.parenttype}</td
+                                            >
+                                            <td
+                                                >{new_tag_audit.creation}</td
+                                            >
+                                            <td
+                                                >{new_tag_audit.owner}</td
+                                            >
+                                            <td>{new_tag_audit.status}</td>
+                                            {/each} -->
+                                           
+                                       
+                                            <td
+                                                >{new_tag_audit.parenttype}</td
+                                            >
+                                            <td
+                                                >{new_tag_audit.creation}</td
+                                            >
+                                            <td
+                                                >{new_tag_audit.owner}</td
+                                            >
+                                            <td>{new_tag_audit.status}</td>
+                                            
+                                        </tr>
+                                        {/each}
+                                        
+                                       
+                                    </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                      {/if}
+                    </div>
+
+                   
+
+                 
+
+
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--End Full screen modal  Add / Remove Tags  change replacement section-->
+
+
 <!-- Document view Model -->
 <div id="img_model" tabindex="-1" aria-hidden="true" role ="dialog" class=" actionDialogueOnboard" hidden>
     <div class="pancardDialogueOnboardWrapper ">
@@ -1538,6 +2151,77 @@
             </div>
         </div>
     </div>  -->
+
+<!--Offer letter upload  modal -->
+
+<div id="OfferLetterModel" class="hidden">
+    <div  class="actionDialogueOnboard ">
+        <div class="pancardDialogueOnboardWrapper ">
+            <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+                <div class="modalHeadConmb-0">
+                    <div class="leftmodalInfo">
+                        <!-- <p class=""> Reject Reason</p> -->
+                    </div>
+                    <div class="rightmodalclose">
+                        <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" on:click="{closeViewModel}">
+                    </div>
+                </div>
+                <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+    
+                    <!-- <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0 mt-4">
+                        <label class="block  tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-state">
+                        Upload Offer Letter
+                        </label>
+                        <div class="relative">
+                         
+                          <br>
+                          <br>
+                          <div
+                                class="flex  py-1 items-center flex-wrap"
+                            >
+                                <div class="formInnerGroup">
+                                    <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium mr-2" on:click="{confirm_blacklist}">Ok</button>
+                                </div>
+                            </div>
+                          
+                        </div>
+                      </div> -->
+
+                      <div class="light14grey  mb-1">
+                        Upload Offer Letter
+                    </div>
+                    <div class="formInnerGroup">
+                        <label
+                            class="cursor-pointer flex"
+                        >
+                            <div
+                                class="ErBlueButton"
+                            >
+                                Select File
+                            </div>
+                            <input
+                                type="file"
+                                class="hidden"
+                                        on:change={(
+                                            e
+                                        ) =>
+                                            onFileSelected(
+                                                e,"new_offer_upload"
+                                            )}
+                                bind:value="{new_offer_name}"
+
+                            />
+                            <div class="text-red-500">{offer_upload_message}</div>
+                        </label>
+                        <p>{new_offer_img}</p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div> 
+</div>
+
+<!--Offer letter upload  modal -->
 
 
 <Toast type={toast_type}  text={toast_text}/>

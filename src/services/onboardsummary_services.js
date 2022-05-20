@@ -276,6 +276,21 @@ const get_all_accepted_contracts = () =>{
         method: "GET"
         },true)
 }
+const blacklist_vendor = (remark) =>{
+    let blacklist_vendor_url = '/api/method/pravesh.facility.routes.facility.blacklist_facility?facility_id='+new_facility_id+'&remarks='+remark+'';
+        return request(
+            blacklist_vendor_url,{
+        method: "GET"
+        },true)
+}
+const reset_deact_status = () => {
+    let reset_deact_status_url = '/api/method/pravesh.facility.routes.facility.reset_deactive_facility?facility_id='+new_facility_id+'';
+    return request(
+        reset_deact_status_url,{
+    method: "GET"
+    },true)
+
+}
 
 
 
@@ -309,5 +324,7 @@ export {
     get_physical_contracts,
     save_physical_contract,
     get_station_details,
-    get_all_accepted_contracts
+    get_all_accepted_contracts,
+    blacklist_vendor,
+    reset_deact_status
 }
