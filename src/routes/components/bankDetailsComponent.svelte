@@ -245,7 +245,7 @@
             alt_image = "cancel cheque proof";
         }
         else if(data == "cheque_disp"){
-            document.getElementById("img_model_url").getAttribute('src',new_cheque.file_url);
+            document.getElementById("img_model_url").getAttribute('src',cheque_values_from_store.file_url);
             alt_image = "cheque proof";
         }
         for(let i = 0;i<gst_doc_arr.length;i++){
@@ -315,23 +315,38 @@
             type_message = "Invalid type";
             return;
         }
+        else{
+            type_message= "";
+        }
         if(!cheque_date){
             cheque_date_message = "Invalid Cheque Date";
             return;
         }
+        else{
+            cheque_date_message = "";
+        }
         if(!cheque_number || isNaN(cheque_number)){
             cheque_number_message = "Invalid Cheque Number";
             return;
+        }
+        else{
+            cheque_number_message=""
         }
         if(!amount || isNaN(amount)){
             amount_message = "Invalid Amount";
             return;
             
         }
+        else{
+            amount_message=""
+        }
         
         if(!checkupload){
             cheque_upload_message = "Invalid Cheque Upload"
             return;
+        }
+        else{
+            cheque_upload_message = "";
         }
         
             const cheque_details_form = {

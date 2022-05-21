@@ -177,7 +177,7 @@ import { Router, Link, Route } from "svelte-routing";
     let change_to = "Associate_details";
     //////GST vars////////////
     let gst_address=""
-    let gst_city_select=""
+    // let gst_city_select=""
     let gst_number=""
     let gst_file=""
     let gst_upload_message ="";
@@ -227,13 +227,13 @@ import { Router, Link, Route } from "svelte-routing";
         clearedSearchFunc();
     }
     $:new_pages = [];
-    $:for(let i=0;i<scope_data.length;i++){
-        if(scope_data[i].location_name == gst_city_select){
-            gst_city_link_state = scope_data[i].location_state;
-            gst_city_loc_id = scope_data[i].location_id;
-            gst_state_code = scope_data[i].state_code;
-        }
-    }
+    // $:for(let i=0;i<scope_data.length;i++){
+    //     if(scope_data[i].location_name == gst_city_select){
+    //         gst_city_link_state = scope_data[i].location_state;
+    //         gst_city_loc_id = scope_data[i].location_id;
+    //         gst_state_code = scope_data[i].state_code;
+    //     }
+    // }
     $:if(gst_checkbox === true){
         gst_checkbox = true;
     }
@@ -347,6 +347,7 @@ import { Router, Link, Route } from "svelte-routing";
                 });
                 let bank_date_format = new Date(bank_values_from_store.modified);
                 bank_new_date = get_date_format(bank_date_format,"dd-mm-yyyy-hh-mm");
+                bank_values_from_store.account_number= bank_values_from_store.account_number.replace(/.(?=.{4})/g, 'x');;
                 
                 }
             }
@@ -398,6 +399,7 @@ import { Router, Link, Route } from "svelte-routing";
                 let doc_creation_date = get_date_format(doc_date_format,"dd-mm-yyyy-hh-mm");
                 facility_document_data[i].creation = doc_creation_date
                 if(facility_document_data[i].doc_type == "pan-photo"){
+                    facility_document_data[i].doc_number = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, 'x');
                     pancard_obj = {pan_num : facility_document_data[i].doc_number,
                     pan_attach : facility_document_data[i].file_url,
                     pan_name : facility_document_data[i].file_name,
@@ -767,13 +769,14 @@ function check_facility_status(message) {
         }
         
         
-        for(let i = 0;i<gst_doc_arr.length;i++){
-            if(data == "mult_gsts"){
-                if(doc_number == gst_doc_arr[i].gst_doc_num)
-                document.getElementById("img_model_url").getAttribute('src',gst_url[i]);
-                alt_image = "gst proof";
-            }
-        }
+        // for(let i = 0;i<gst_doc_arr.length;i++){
+        //     if(data == "mult_gsts"){
+        //         if(doc_number == gst_doc_arr[i].gst_doc_num)
+        //         document.getElementById("img_model_url").getAttribute('src',gst_url[i]);
+        //         alt_image = "gst proof";
+        //     }
+        // }
+        // console.log("gst_doc_arr in onboard",gst_doc_arr)
         
     }
     // async function gst_edit_click(address,city,state,gstn,gst_url,gst_name){
@@ -1211,31 +1214,31 @@ function check_facility_status(message) {
     }
 
     async function allDoc() {
-    //     let doc_arr_from_res = [];
+        let doc_arr_from_res = [];
         modalid.style.display = "block";
-    //     let get_pravesh_properties_res = await get_pravesh_properties_method();
+        let get_pravesh_properties_res = await get_pravesh_properties_method();
         
 
-    //     try{
+        try{
             
-    //         if(get_pravesh_properties_res.body.status == "green"){
+            if(get_pravesh_properties_res.body.status == "green"){
                 
-    //             doc_arr_from_res = get_pravesh_properties_res.body.data.document_types.split("\n")
+                doc_arr_from_res = get_pravesh_properties_res.body.data.document_types.split("\n")
                 
 
-    //         for (var k = 0; k < doc_arr_from_res.length; k++) {
-    //                 var ele = doc_arr_from_res[k];
-    //                 var doc_name = ele.split("=")[0]
-    //                 var doc_val = ele.split("=")[1]
-    //                     doc_type_name.push({"doc_name":doc_name ,"doc_value":doc_val});
-	// 				}
-    //                 doc_type_name = doc_type_name
-    //         }
-    //     }
-    //     catch(err){
-    //         toast_type = "error"
-    //         toast_text = err
-    //     }
+            for (var k = 0; k < doc_arr_from_res.length; k++) {
+                    var ele = doc_arr_from_res[k];
+                    var doc_name = ele.split("=")[0]
+                    var doc_val = ele.split("=")[1]
+                        doc_type_name.push({"doc_name":doc_name ,"doc_value":doc_val});
+					}
+                    doc_type_name = doc_type_name
+            }
+        }
+        catch(err){
+            toast_type = "error"
+            toast_text = err
+        }
     }
 
     routeBgv = "bgv";
@@ -1261,7 +1264,7 @@ function check_facility_status(message) {
     }
 
     function closeAuditTrailModal() {
-        supplierInfoModal.style.display = "none";
+        document.getElementById("supplierInfoModal").style.display = "none";
     }
     function blacklist_remark_select(){
         Blacklist_confirmation_modal.style.display = "block";
@@ -1321,9 +1324,11 @@ function check_facility_status(message) {
     async function erpModel() {
         erpIdModel.style.display = "block";
         let erp_details_res = await erp_details();
-        console.log("erp_details_res",erp_details_res)
+        // console.log("erp_details_res",erp_details_res.body.data[0])
         try{
-            if(erp_details_res.body.data=[] || erp_details_res.body.data==null){
+            if(!erp_details_res.body.data[0]){
+                toast_type = "error";
+                toast_text = "No ERP Details Found";
                 erp_details_arr.creation="-";
                 erp_details_arr.erp_id="-";
                 erp_details_arr.erp_name="-";
@@ -1335,7 +1340,7 @@ function check_facility_status(message) {
                 erp_details_arr = erp_details_res.body.data[0];
                 let erp_creation_date_format = new Date(erp_details_arr.creation);
                 erp_details_res.body.data[0].creation= get_date_format(erp_creation_date_format,'dd-mm-yyyy-hh-mm');
-                console.log("erp_details_arr",erp_details_arr)
+                // console.log("erp_details_arr",erp_details_arr)
             }
         }
         catch(err){
@@ -1381,84 +1386,84 @@ function check_facility_status(message) {
         linkChildModel.style.display = "none";
     }
 
-    async function gst_submit_click(){
-        let def_add = 0;
-        // show_spinner = true;
-        if(!gst_address.match(text_pattern)){
-            gst_add_message = "Enter Valid Address";
-            return  
-        }
-        if(!gst_city_select){
-            gst_city_message = "Select Valid City";
-            return;
-        }
-        // console.log("gst details for gst number",gst_number,gst_state_code,pan_num,gst_number.trim().length,gst_number.substring(0, 2),gst_number.substring(2, 12),gst_number.substring(13,14))
-        if (gst_number == undefined || gst_number.trim().length < 15 || gst_number.substring(0, 2) != gst_state_code || gst_number.substring(2, 12) != pancard_obj.pan_num || gst_number.substring(13,14) != "Z") {
-            gst_number_message = "Invalid GST Number";
-        return;
-        }
-        if(!gst_file){
-            gst_upload_message = "Invalid File Upload"
-            return;
-        }
-        if(gst_checkbox == true){
-            def_add = 1;
-        }
-        else{
-            def_add = 0;
-        }
-            const gst_details_form = {
-                "address":gst_address,
-                "city":gst_city_select,
-                "state":gst_city_link_state,
-                "tier":"2",
-                "location_id":gst_city_loc_id,
-                "default_address":def_add,
-                "gstn":gst_number,
-                "name":"",
-                "address_type":"Facility Address",
-                "doctype":"Facility Address"
-            }
+    // async function gst_submit_click(){
+    //     let def_add = 0;
+    //     // show_spinner = true;
+    //     if(!gst_address.match(text_pattern)){
+    //         gst_add_message = "Enter Valid Address";
+    //         return  
+    //     }
+    //     if(!gst_city_select){
+    //         gst_city_message = "Select Valid City";
+    //         return;
+    //     }
+    //     // console.log("gst details for gst number",gst_number,gst_state_code,pan_num,gst_number.trim().length,gst_number.substring(0, 2),gst_number.substring(2, 12),gst_number.substring(13,14))
+    //     if (gst_number == undefined || gst_number.trim().length < 15 || gst_number.substring(0, 2) != gst_state_code || gst_number.substring(2, 12) != pancard_obj.pan_num || gst_number.substring(13,14) != "Z") {
+    //         gst_number_message = "Invalid GST Number";
+    //     return;
+    //     }
+    //     if(!gst_file){
+    //         gst_upload_message = "Invalid File Upload"
+    //         return;
+    //     }
+    //     if(gst_checkbox == true){
+    //         def_add = 1;
+    //     }
+    //     else{
+    //         def_add = 0;
+    //     }
+    //         const gst_details_form = {
+    //             "address":gst_address,
+    //             "city":gst_city_select,
+    //             "state":gst_city_link_state,
+    //             "tier":"2",
+    //             "location_id":gst_city_loc_id,
+    //             "default_address":def_add,
+    //             "gstn":gst_number,
+    //             "name":"",
+    //             "address_type":"Facility Address",
+    //             "doctype":"Facility Address"
+    //         }
             
-            let new_gst_payload = {
-                "facility_id":$facility_id.facility_id_number,
-                "address":[gst_details_form]
-            }
-            console.log("new_gst_payload",new_gst_payload)
+    //         let new_gst_payload = {
+    //             "facility_id":$facility_id.facility_id_number,
+    //             "address":[gst_details_form]
+    //         }
+    //         console.log("new_gst_payload",new_gst_payload)
             
-            let gst_add_res = await add_gst_dets(new_gst_payload);
-            try {
-                if(gst_add_res.body.status == "green"){
-                    console.log("gst_add_res",gst_add_res)
-                    toast_type = "success";
-                    toast_text = "GST Details Added Successfully";
+    //         let gst_add_res = await add_gst_dets(new_gst_payload);
+    //         try {
+    //             if(gst_add_res.body.status == "green"){
+    //                 console.log("gst_add_res",gst_add_res)
+    //                 // toast_type = "success";
+    //                 // toast_text = "GST Details Added Successfully";
                     
-                    let new_doc_type = "gst-certificate-"+gst_state_code;
-                    console.log("new_doc_type",new_doc_type)
-                    const gst_file_data = {"documents":[{"file_name":gst_img,"doc_category":"GST Certificate","status":"created","resource_id":$facility_id.facility_id_number,"user_id":username,"doc_number":"","pod":gst_data,"doc_type":new_doc_type,"facility_id":$facility_data_store.facility_id}]}
-                    let gst_doc_submit_res = await uploadDocs(gst_file_data);
-                    try {
-                        if(gst_doc_submit_res.body.status == "green"){
+    //                 let new_doc_type = "gst-certificate-"+gst_state_code;
+    //                 console.log("new_doc_type",new_doc_type)
+    //                 const gst_file_data = {"documents":[{"file_name":gst_img,"doc_category":"GST Certificate","status":"created","resource_id":$facility_id.facility_id_number,"user_id":username,"doc_number":"","pod":gst_data,"doc_type":new_doc_type,"facility_id":$facility_data_store.facility_id}]}
+    //                 let gst_doc_submit_res = await uploadDocs(gst_file_data);
+    //                 try {
+    //                     if(gst_doc_submit_res.body.status == "green"){
                             
-                            toast_type = "success";
-                            toast_text = gst_doc_submit_res.body.message;
-                        }
-                    } catch (err) {
-                        toast_type = err;
-                        toast_text = "Error in Uploading GST Certificate";
-                    }
+    //                         toast_type = "success";
+    //                         toast_text = "GST Details Added Successfully";
+    //                     }
+    //                 } catch (err) {
+    //                     toast_type = err;
+    //                     toast_text = "Error in Uploading GST Certificate";
+    //                 }
 
-                }
-                else{
-                    toast_type = "error";
-                    toast_text = gst_add_res.body.message;
-                }
+    //             }
+    //             else{
+    //                 toast_type = "error";
+    //                 toast_text = gst_add_res.body.message;
+    //             }
                 
-            } catch (err) {
-                toast_type = "error";
-                toast_text = "Error in Adding GST Details";
-            }
-        }  
+    //         } catch (err) {
+    //             toast_type = "error";
+    //             toast_text = "Error in Adding GST Details";
+    //         }
+    //     }  
  
     ////////////Pagination in Link Child///////////////
     // function next_function(){   
@@ -1542,17 +1547,25 @@ function check_facility_status(message) {
         try {
             if(save_doc_res.body.status == "green"){
                 
-                toast_type = "success";
-                toast_text = save_doc_res.body.message;
+                toast_type = "success"
+                toast_text = save_doc_res.body.message
                 let facility_document_res = await facility_document();
                 try{
                     if(facility_document_res != "null"){
+                    facility_document_data = [];
                     facility_document_data = facility_document_res.body.data;
+                        for(let i=0;i<facility_document_data.length;i++){
+                        let doc_date_format = new Date(facility_document_data[i].creation);
+                        let doc_creation_date = get_date_format(doc_date_format,"dd-mm-yyyy-hh-mm");
+                        facility_document_data[i].creation = doc_creation_date
+                        
+                    }
+                    
                     }
                 }
                 catch(err){
                     toast_type = "error";
-                    toast_text = "Something went wrong";
+                    toast_text = err;
                 }
             }
         } 
@@ -2060,9 +2073,9 @@ function check_facility_status(message) {
                             </div>
                         </div>
                     </div>
-                    <div class="updatebutton ">
+                    <!-- <div class="updatebutton ">
                         <button class="ErBlueupdated">Update</button>
-                    </div>
+                    </div> -->
                     <div
                         class="closebuttonsection"
                         on:click={closeAuditTrailModal}
@@ -2075,7 +2088,7 @@ function check_facility_status(message) {
                         />
                     </div>
                 </div>
-                <div class="commentBox">
+                <!-- <div class="commentBox">
                     <div class="textAndSubmitButton ">
                         <p class="text-base text-white">Add your comment</p>
                         <button class="btnsubmitComment " type="submit">
@@ -2090,7 +2103,7 @@ function check_facility_status(message) {
                         cols="30"
                         rows="3"
                     />
-                </div>
+                </div> -->
 
                 <div class="timelinescroll ">
                     <div class="flex md:contents">
@@ -2157,9 +2170,9 @@ function check_facility_status(message) {
                         <span class="userDesignation"> - Associate- {$facility_data_store.facility_type} - {$facility_data_store.name}</span>
                     </p>
                 </div>
-                <div class="rightmodalclose" on:click="{closeViewModel}">
-                    <img src="../src/img/blackclose.svg" alt="">
-                </div>
+                <button class="rightmodalclose" on:click="{closeViewModel}">
+                    <img src="{$img_url_name.img_name}/blackclose.svg" alt="">
+                </button>
             </div>
             <div class="">
                 <div class="viewDocPanmainbodyModal">
@@ -2209,7 +2222,7 @@ function check_facility_status(message) {
                                                     </select>
                                                    
                                                     <div class="formSelectArrow ">
-                                                        <img src="../src/img/selectarrow.png" class="w-5 h-auto"
+                                                        <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto"
                                                             alt="">
                                                     </div>
                                                 </div>
@@ -2265,11 +2278,9 @@ function check_facility_status(message) {
                                         <div
                                         class="flex items-center justify-end mt-5"
                                     >
-                                        <div
-                                            class="updateAction text-erBlue"
-                                        >
-                                            Cancel
-                                        </div>
+                                    <button 
+                                    on:click="{closeViewModel}">Cancel</button
+                                >
                                         <div class="updateAction ml-5">
                                             <button class="ErBlueButton"
                                                 on:click="{save_document}">Upload</button
@@ -2298,7 +2309,7 @@ function check_facility_status(message) {
                                         <tbody class="tbodypopover">
                                             <tr class="border-b">
                                                 <td>
-                                                    <img src="../src/img/pancard.png" alt="">
+                                                    <img src="{$img_url_name.img_name}/pancard.png" alt="">
                                                 </td>
                                                 <td>  
                                                     <p class="detailData">{new_doc_data.doc_category}</p>
@@ -2313,7 +2324,7 @@ function check_facility_status(message) {
                                                 <td> 
                                                     <p class="verifyText justify-center" >
                                                     <a href="" class="smButton">
-                                                        <img src="../src/img/view.png" alt="" on:click={openViewModel("new_doc",new_doc_data.doc_category)}>
+                                                        <img src="{$img_url_name.img_name}/view.png" alt="" on:click={openViewModel("new_doc",new_doc_data.doc_category)}>
                                                     </a>
                                                 </p>
                                             </td>
@@ -2380,9 +2391,9 @@ function check_facility_status(message) {
                                 >
                             </p>
                         </div>
-                        <div class="rightmodalclose" on:click={closeERP}>
+                        <button class="rightmodalclose" on:click={closeERP}>
                             <img src="{$img_url_name.img_name}/blackclose.svg" alt="" />
-                        </div>
+                        </button>
                     </div>
                     <div class="innermodal">
                         <hr />
