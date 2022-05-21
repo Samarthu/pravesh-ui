@@ -17,6 +17,7 @@
                     facility_document,addnew_cheque_details,bank_details,cheque_details,gst_details,
                     work_details_data,print_data,get_physical_contracts,save_physical_contract,get_station_details,
                     get_all_accepted_contracts} from "../../services/onboardsummary_services";
+            import {bgv_data_store} from '../../stores/bgv_store'
         //     import {uploadDocs} from "../services/bgv_services";
             import {get_date_format} from "../../services/date_format_servives";
             // import {bank_details,cheque_details,facility_document,show_fac_tags,get_loc_scope,
@@ -37,7 +38,8 @@
             import  {  page } from '$app/stores';
             import {documents_store} from '../../stores/document_store';
             import { goto } from "$app/navigation";
-            import {get_client_org_mapping,get_client_details} from '../../services/vmt_verify_services'
+            import {get_pravesh_properties_method} from "../../services/workdetails_services";
+            import {get_client_org_mapping,get_client_details,get_specific_name,get_change_associte,get_assoc_types,send_associate_req} from '../../services/vmt_verify_services'
             
             // import {onFileSelected} from '../onboardsummaryComponent.svelte'
         
@@ -99,10 +101,21 @@
             let emp_number
             let requestType = "";
             let status_display = 0; 
+            let org_AN_flag = 0;
             let get_client_details_data = [];
             let newType;
             let attendenceType;
             let get_client_data_mapping_data = [];
+            let station_code_arr = [];
+            let station_data_array = [];
+            let table_head = "";
+            let mapping_blocked_data = [];
+
+        //    ASSOCIATE TYPE VARS
+        let fromDate;
+        let assocRemarks = "";
+        let get_assoc_types_data = [];
+        let get_change_associte_data =[];
 
             // let pancard_obj = {
             //     pan_num:null,
@@ -271,10 +284,16 @@
             //     gst_checkbox = true;
             // } 
             let org_selected;
-            let station_selected;
+            let station_selected = "";
             $:{
                 if(org_selected){
                 org_dependent()
+                }
+            }
+            $:if(stat_select != null){
+                console.log("station_select",stat_select)
+                if(stat_select){
+                    station_code_select(stat_select);
                 }
             }
             $:{
@@ -283,10 +302,10 @@
                 }
 
             }
-            $:if(stat_select != null){
-        console.log("station_select",stat_select)
-        station_code_select(stat_select);
-    }
+    //     $:if(stat_select != null){
+    //     console.log("station_select",stat_select)
+    //     station_code_select(stat_select);
+    // }
 
     $:if(id_select != null){
         console.log("id_select",id_select)
@@ -458,6 +477,7 @@
         }
     }
     async function station_code_select(station_code){
+        console.log("station_code",station_code)
         station_code_arr = [];
         console.log("station_code",station_code.toLowerCase())
         let get_specific_name_res = await get_specific_name(station_code.toLowerCase())
@@ -506,6 +526,162 @@
         console.log("station_data_array",station_data_array);
 
                 
+    }
+
+    async function finalMap(){ 
+        let phoneNumber,emailId;
+        let orgSpecificNumber = [];
+
+        
+        // console.log("get_pravesh_properties_method",response)
+        if(!id_select){
+            toast_text = "Please select organization";
+            toast_type = "error"
+            return
+        }
+        let response = await get_pravesh_properties_method()
+        // console.log("id_select == response.body.data.mapping_blocked_org",id_select,)
+        // if(id_select == response.body.data.mapping_blocked_org){
+            mapping_blocked_data = response.body.data.mapping_blocked_org.split(",");
+            
+            console.log("response.body.data.mapping_blocked_org.split",response.body.data.mapping_blocked_org.split(","))
+
+
+            mapping_blocked_data = mapping_blocked_data;
+            for(let i = 0; i<mapping_blocked_data.length;i++){
+                // console.log("mapping_blocked_data inside if",mapping_blocked_data[i])
+                if(id_select == mapping_blocked_data[i]){
+                    toast_text = "Mapping is not allowed for this Organization";
+                    toast_type = "error"
+                    return
+                }
+            }
+            if($facility_data_store.is_bgv_verified == undefined || $facility_data_store.is_bgv_verified != 1){
+                toast_text = "BGV Verification Incomplete !!";
+                toast_type = "error"
+                return
+            }
+            var profileIncom = false;
+            if (dl_number == undefined || dl_number.length < 7) {
+                profileIncom = true;
+            }
+            if (pan_number == undefined || pan_number.length < 7) {
+                profileIncom = true;
+            }
+            if (profileIncom) {
+                toast_text = "Upload both Pancard and Driving Licence first !!";
+                toast_type = "error"
+                return;
+            }
+            console.log("checking requestType",requestType)
+            if(requestType != null){
+                crClient = "yes";
+                console.log("checking req2 ",crClient)
+            }
+        
+
+            console.log("checking req ",crClient)
+            if (crClient == "yes"){
+                if ($facility_data_store.is_bgv_intiated == 1) {
+                console.log("inside $facility_data_store.is_bgv_intiated == 1")
+                    if ($bgv_data_store != undefined && $bgv_data_store.phone_number != undefined) {
+                        phoneNumber = $bgv_data_store.phone_number;
+                        console.log("inside phoneNumber",phoneNumber,get_client_details_data)
+                        
+                        for(let i=0;i<get_client_details_data.length;i++){
+                            if(get_client_details_data[i].mobile_number == phoneNumber){
+                                toast_text =  'Rabbit ID already requested for mob number <br>' + phoneNumber + "<br> Please update new number in <br> Basic Information Section under BGV <br> and try again";
+                                toast_type = "error"
+                            }
+                        }
+
+                    }
+                    if ($bgv_data_store.email_id == undefined || $bgv_data_store.email_id.trim().length == 0) {
+                        toast_type = "error"
+                        toast_text = "Please update email address in BGV form and then try"
+                        return;
+                    }
+                    
+
+                    if ($bgv_data_store.is_email_verified != 1) {
+                        toast_type = "error"
+                        toast_text = "Please verify email address in BGV form and then try"
+                        return;
+                    }
+                    emailId = $bgv_data_store.email_id;
+            }
+            }
+            
+            
+
+            if(!stat_select){
+                toast_text = "Please select Station";
+                toast_type = "error";
+                return
+            }
+
+            if(!stat_code){
+                toast_text = "Please select Specific Name or COMP Name";
+                toast_type = "error";
+                return
+            }
+            if(stat_code == "Create Only Rabbit ID/COMP ID" && requestType == ""){
+                toast_text = "Please select Rabbit Id or Comp Id option";
+                toast_type = "error";
+            }
+
+            let new_org_name
+            for(let i=0;i<get_client_data_mapping_data.length;i++){
+                if(id_select == get_client_data_mapping_data[i].org_id){
+                    new_org_name = get_client_data_mapping_data[i].org_name
+                }
+
+            }
+
+            for(let i=0;i<station_code_arr.length;i++){
+                console.log("inside station_code_arr" , station_code_arr[i])
+                if(stat_code == station_code_arr[i]){
+                    let org_num = parseInt(station_code_arr[i].split("_").pop())
+                    if(isNaN(org_num) == false){
+                            orgSpecificNumber.push(station_code_arr[i].resource_idsplit("_").pop())
+                        }
+                }
+            }
+
+            if(stat_code == "Create Only Rabbit ID/COMP ID") {
+                stat_code = $bgv_data_store.facility_name ;
+                console.log("stat_code checking",stat_code)
+            }
+
+            
+                let final_map_load = {
+                "facility_id":facility_id,
+                "org_id": id_select,
+                "org_name": new_org_name,
+                "station_code": stat_select,
+                "cr_client":crClient,
+                "client_id": emp_number,
+                "status": "active",
+                "mobile_number": phoneNumber,
+                "extName": stat_code.trim(),
+                "req_type": requestType,
+                "email_id": emailId
+            }
+
+            let final_save_mapping_res = await save_mapping(final_map_load)
+            console.log("final_save_mapping_res",final_save_mapping_res)
+            // try {
+                if(final_save_mapping_res.body.status == "green"){
+                    toast_text = final_save_mapping_res.body.message;
+                    toast_type = "green";
+                }
+            // }
+             else {
+                toast_text = "Error occured while adding mapping";
+                toast_type = "error";
+            }
+        console.log("final_map_load",final_map_load)
+
     }
         onMount(async () => {
             let get_org_data_res =  await get_client_org_mapping();
@@ -770,6 +946,127 @@
     function closeWorkorganization() {
         workorganizationModel.style.display = "none";
     }
+
+    async function openassociateTypeMOdal() {
+        associateTypeMOdal.style.display = "block";
+
+        let get_change_associte_res = await get_change_associte();
+        // console.log("testing get_change_associte_res",get_change_associte_res)
+        try {
+            if (get_change_associte_res.body.status == "green"){
+                // console.log("get_change_associte_res.body.status",get_change_associte_res.body.data.length)
+                    for(let i=0; i< get_change_associte_res.body.data.length;i++){
+                        // console.log("inside get_change_associte_data",get_change_associte_data)
+                        get_change_associte_data.push(get_change_associte_res.body.data[i]);
+                    }
+                    get_change_associte_data = get_change_associte_data;
+                    // console.log("get_change_associte_data",get_change_associte_data)
+                }
+        } catch (err) {
+            // toast_type = "error";
+            // toast_text = get_change_associte_res.body.message;
+            console.log("inside error with associate")
+        }
+
+        let get_assoc_types_res = await get_assoc_types();
+        console.log("testing get_assoc_types_res",get_assoc_types_res)
+        try {
+            if (get_assoc_types_res.body.status == "green"){
+                // console.log("inisde get_assoc_types_res.body.status",get_assoc_types_res.body.data)
+                // for(let i=0;i<=get_assoc_types_res.body.data.length;i++){
+                    for(let i=0;i<get_assoc_types_res.body.data.length;i++){
+                    get_assoc_types_data.push(get_assoc_types_res.body.data[i])
+                }
+                get_assoc_types_data = get_assoc_types_data;
+                console.log("inside for get_assoc_types_data",get_assoc_types_data)
+            }
+        } catch (err) {
+            console.log(err)
+            console.log("error in getting assoc types")
+        }
+    }
+
+    function closeassociateTypeMOdal() {
+        associateTypeMOdal.style.display = "none";
+    }
+
+    async function finalreqAssoc(){
+        let update_date_arr = [];
+        console.log("get_change_associte_data inside final",get_change_associte_data)
+        // let new_from_date =  get_date_format(fromDate,"yyyy-mm-dd"))
+        // new Date(fromDate)
+        let new_start_date = new Date(fromDate);
+        let updated_start_date = get_date_format(new_start_date,"yyyy-mm-dd");
+        let get_change_associte_res = await get_change_associte();
+        let get_assoc_types_res = await get_assoc_types();
+
+        for(let i=0;i<get_change_associte_data.length;i++){
+            update_date_arr.push(get_change_associte_data[i].from_date)
+
+        }
+
+        if(!newType){
+            toast_text = "Please select New Type";
+            toast_type = "error";
+            return
+            }
+
+            console.log("inside update_date_arr.includes(updated_start_date)",update_date_arr.includes(updated_start_date))
+        if(!fromDate && update_date_arr.includes(updated_start_date) == true){
+            
+            toast_text = "Please select vaild From date";
+            toast_type = "error";
+            return
+        }
+
+
+        if(!assocRemarks){
+            toast_text = "Please select Remarks";
+            toast_type = "error";
+            return
+        }
+
+
+        let final_req_load = {
+                "facility_id":facility_id,
+                "facility_type": $facility_data_store.facility_type,
+                "attendance_facility_type": newType,
+                "from_date": updated_start_date,
+                "property_type":'facility_type',
+                "property_value": attendenceType,
+                "remark": assocRemarks,
+                "status": $facility_data_store.status,
+            }
+
+            let send_associate_req_res = await send_associate_req(final_req_load)
+            console.log("send_associate_req_res",send_associate_req_res)
+                if(send_associate_req_res.body.status == "green"){
+                    get_change_associte_data = [];
+                    console.log("inside final",get_change_associte_data)
+                    toast_text = send_associate_req_res.body.message;
+                    toast_type = "green";
+                    console.log("inside 2404")
+                    let get_change_associte_res = await get_change_associte();
+                    try {
+                        if (get_change_associte_res.body.status == "green"){
+                            console.log("inside 2404")
+                                for(let i=0; i< get_change_associte_res.body.data.length;i++){
+                                    console.log("inside 2404")
+                                    get_change_associte_data.push(get_change_associte_res.body.data[i]);
+                                }
+                                get_change_associte_data = get_change_associte_data;
+                                console.log("inside 2404")
+                            }
+                    } catch (err) {
+                        console.log("inside error with associate")
+                    }
+                }
+            else {
+                toast_text = "Error occured while sending associate request";
+                toast_type = "error";
+            }
+            console.log("final_req_load",final_req_load)
+        }
 
 
         async function tagAddRemove() {
@@ -1193,17 +1490,17 @@
                                 {/if}
                             </div>
                         </div>
-                        {#if admin == false}
+                        <!-- {#if admin == false}
                         <p></p>
-                        {:else}
+                        {:else} -->
                         <div class="userStatus ">
-                            <p class="flex items-center smButtonText" on:click={myBtn}>
+                            <p class="flex items-center smButtonText" on:click={openassociateTypeMOdal}>
                                 <a class="smButton" id="changeAssociate">
                                     Change
                                 </a>
                             </p>
                         </div>
-                        {/if}
+                        <!-- {/if} -->
                     </div>
                     <div class="userInfoSec3 ">
                         <div class="flex items-start">
@@ -1392,7 +1689,7 @@
 
                 </div>
                 <div class="rightmodalclose" on:click={clear}>
-                    <img src="../src/img/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal">
+                    <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal">
                 </div>
             </div>
 
@@ -1426,7 +1723,7 @@
                                                {/if}
 
                                             <div class="formSelectArrow ">
-                                                <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                                <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
                                             </div>
                                         </div>
                                     </div>
@@ -1478,7 +1775,7 @@
                                                class="formSelectArrow "
                                            >
                                                <img
-                                                   src="../src/img/selectarrow.png"
+                                                   src="{$img_url_name.img_name}/selectarrow.png"
                                                    class="w-5 h-auto"
                                                    alt=""
                                                />
@@ -1613,7 +1910,7 @@
                                                                class="flex justify-center"
                                                            >
                                                                <img
-                                                                   src="../src/img/reject.png"
+                                                                   src="{$img_url_name.img_name}/reject.png"
                                                                    alt=""
                                                                    on:click="{removeTag(show_fac.name,show_fac.tag_name,show_fac.owner)}"
                                                                />
@@ -1738,7 +2035,7 @@
                     </p>
                 </div>
                 <div class="rightmodalclose">
-                    <img src="../src/img/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal" on:click="{closeWorkContract}">
+                    <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal" on:click="{closeWorkContract}">
                 </div>
             </div>
             <div class="modalContent">
@@ -1775,7 +2072,7 @@
                                                  {/each}
                                                 </select>
                                                 <div class="formSelectArrow ">
-                                                    <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                                    <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
                                                 </div>
                                             </div>
                                         </div>
@@ -1797,7 +2094,7 @@
                                                 {/if}
                                                 </select>
                                                 <div class="formSelectArrow ">
-                                                    <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                                    <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
                                                 </div>
                                             </div>
                                         </div>
@@ -1821,7 +2118,7 @@
                                         {/if}
                                                 </select>
                                                 <div class="formSelectArrow ">
-                                                    <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                                    <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
                                                 </div>
                                             </div>
                                         </div>
@@ -1850,7 +2147,7 @@
                                         
                                         </select>
                                             <div class="formSelectArrow ">
-                                                <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                                <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
                                             </div>
                                         </div>
                                         </div>
@@ -1873,7 +2170,7 @@
                                             
                                             </select>
                                                 <div class="formSelectArrow ">
-                                                    <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                                    <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
                                                 </div>
                                             </div>
                                             </div>
@@ -1966,7 +2263,7 @@
                                                 <th>Contract Name</th>
                                                 <th>Contract Type</th>
                                                 <th>
-                                                    <div class="flex justify-center" > Accepted ? <img src="../src/img/arrowupdown.svg"
+                                                    <div class="flex justify-center" > Accepted ? <img src="{$img_url_name.img_name}/arrowupdown.svg"
                                                             class="ml-2" alt=""></div>
                                                 </th>
                                                 <th>Accepted On</th>
@@ -2128,7 +2425,7 @@
                                                 <td>
                                                     <p class="flex justify-center">
                                                         <a href="" class="smButton">
-                                                            <img src="../src/img/view.png" alt="">
+                                                            <img src="{$img_url_name.img_name}/view.png" alt="">
                                                         </a>
                                                     </p>
                                                 </td>
@@ -2141,7 +2438,7 @@
                                                 <td>
                                                     <p class="flex justify-center">
                                                         <a href="" class="smButton">
-                                                            <img src="../src/img/view.png" alt="">
+                                                            <img src="{$img_url_name.img_name}/view.png" alt="">
                                                         </a>
                                                     </p>
                                                 </td>
@@ -2161,7 +2458,7 @@
                                                 <th>Contract Name</th>
                                                 <th>Contract Type</th>
                                                 <th>
-                                                    <div class="flex justify-center"> Accepted ? <img src="../src/img/arrowupdown.svg"
+                                                    <div class="flex justify-center"> Accepted ? <img src="{$img_url_name.img_name}/arrowupdown.svg"
                                                             class="ml-2" alt=""></div>
                                                 </th>
                                                 <th>Accepted On</th>
@@ -2350,7 +2647,7 @@
                        
                     </div>
                     <div class="rightmodalclose">
-                        <img src="../src/img/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal" on:click="{closeContractView}">
+                        <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal" on:click="{closeContractView}">
                     </div>
                 </div>
                 <div class="modalContent"> -->
@@ -2696,6 +2993,200 @@
 
 
     <!-- Full screen modal  Change Associate Type Desktop and Responsive Done--->
+
+    <div class="hidden"  id="associateTypeMOdal">
+        <div class="modalMain ">
+            <div class="modalOverlay"></div>
+
+            <div class="modalContainer">
+
+                <div class="modalHeadCon sticky top-0 bg-white z-zindex99">
+                    <div class="leftmodalInfo">
+                        <p class="modalTitleText">  Change Associate Type </p>
+                        <p class="text-sm ">
+                            <span class="font-medium text-lg"> {$facility_data_store.facility_name}</span>
+                            <span class="userDesignation"> (Associate
+                                - {$facility_data_store.facility_type} / ID - {$facility_data_store.name})</span>
+                        </p>
+                    </div>
+                    <div class="rightmodalclose" on:click="{closeassociateTypeMOdal}">
+                        <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal">
+                    </div>
+                </div>
+
+                <div class="modalContent">
+                    <!-- <div class="tabwrapper flex justify-between text-center py-2 pb-3">
+                    <div class="changetype py-3 w-2/4	">
+                        <p>Change Type</p>
+                    </div>
+                    <div class="Historytab py-3 w-2/4	 bg-bglightgreye">
+                        <p>History</p>
+                    </div>
+                </div> -->
+                    <div class="ConModalContent mt-3">
+
+                        <div class="xsl:grid-cols-1 gap-4">
+
+
+                            <div>
+                                <div class="bgAddSection">
+                                    <p class="font-medium px-3 pt-4">Change Type </p>
+                                    {#if  status_display == -1}
+                                        <p>user in inactive</p>
+                                    {:else}
+                                    <div class="addGstForm pt-4">
+                                        <!-- {#each $facility_data_store as new_client} -->
+                                        <div class="flex gap-4 px-4 py-1 xsl:flex-wrap mb-3">
+                                            <div class="w-full">
+                                                <div class="light14grey mb-1">Current Type</div>
+                                                <div class="formInnerwidthfull ">
+                                                    <div class="font-normal text-base text-greycolor mb-1">{$facility_data_store.facility_type}</div>
+                                                </div>
+                                            </div>
+                                            <div class="w-full">
+                                                <div class="light14grey mb-1">Pravesh ID</div>
+                                                <div class="formInnerwidthfull ">
+                                                    <div class="font-normal text-base text-greycolor mb-1">{$facility_data_store.name}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- {/each} -->
+
+                                        <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
+                                            <div class="w-full">
+                                                <div class="light14grey mb-1">New Type</div>
+                                                <div class="formInnerwidthfull ">
+                                                    <select class="inputboxpopover" bind:value="{newType}">
+                                                        <option class="pt-6">Select</option>
+                                                        {#each get_assoc_types_data as assoc}
+                                                            <option
+                                                                class="pt-6" 
+                                                                value={assoc.facility_type}
+                                                                >{assoc.facility_type}</option
+                                                            >
+                                                            {/each}
+                                                    </select>
+                                                    <div class="formSelectArrow ">
+                                                        <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="w-full">
+                                                <div class="light14grey mb-1">Type of Attendance</div>
+                                                <div class="formInnerwidthfull ">
+                                                    <select class="inputboxpopover" bind:value="{attendenceType}">
+                                                        <option class="pt-6">Select</option>
+                                                        {#each get_assoc_types_data as assoc}
+                                                            <option
+                                                                class="pt-6" 
+                                                                value={assoc.facility_type}
+                                                                >{assoc.facility_type}</option
+                                                            >
+                                                            {/each}
+                                                    </select>
+                                                    <div class="formSelectArrow ">
+                                                        <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
+                                            <div class="w-full">
+                                                <div class="light14grey mb-1">From Date</div>
+                                                <div class="formInnerwidthfull ">
+                                                    <input type="date" class="inputboxpopoverdate" bind:value="{fromDate}">
+                                                </div>
+
+                                            </div>
+                                            <div class="w-full">
+                                                <div class="light14grey mb-1">To Date</div>
+                                                <div class="formInnerwidthfull ">
+                                                    <input type="date" class="inputboxpopoverdate">
+                                                </div>
+                                                <div class="w-full">
+                                                    <div class="light14greylong mb-1 invisible"></div>
+                                                    <div class="formInnerwidthfull ">
+                                                        <div class="light14greylong mb-1 text-xs">Note: Leave empty if
+                                                            no end date</div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
+                                            <div class="w-full">
+                                                <div class="light14grey mb-1">Remarks</div>
+                                                <div class="formInnerwidthfull ">
+                                                    <input type="text" class="inputbox" bind:value="{assocRemarks}">
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="actionButtons">
+
+                                            <div class="updateAction " on:click="{finalreqAssoc}">
+                                                <button class="ErBlueButton">Submit</button>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    {/if}
+                                </div>
+
+                            </div>
+
+                            <div class="PhysicalCardContainer">
+                                <p class="font-medium px-3 pt-4">History</p>
+                                <div class="heightCardContainer">
+                                    <table class="table  w-full text-center mt-2 ">
+                                        <thead class="theadpopover h-10">
+                                            <tr>
+                                                <th>Associate
+                                                    Type</th>
+                                                <th>Type of Attendance</th>
+                                                <th> Effective From</th>
+                                                <th>Effective Till</th>
+                                                <th> Requested On</th>
+                                                <th> Requested By</th>
+                                                <th> Remarks</th>
+
+                                            </tr>
+                                        </thead>
+                                        {#each get_change_associte_data as associate}
+                                        <tbody class="tbodypopover">
+                                            <tr class="border-b">
+                                                
+                                                <td>{associate.property_value}</td>
+                                                <td>{associate.attendance_facility_type}</td>
+                                                <td>{associate.from_date}</td>
+                                                <td>{associate.to_date}</td>
+                                                <td>{associate.creation}</td>
+                                                <td>{associate.owner}</td>
+                                                <td>
+                                                    {associate.remark}
+                                                </td>
+                                                
+                                            </tr>
+                                        </tbody>
+                                        {/each}
+                                    </table>
+                                </div>
+                            </div>
+    
+                        </div>
+
+
+
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 
 <Toast type={toast_type}  text={toast_text}/>
