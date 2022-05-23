@@ -140,6 +140,9 @@ async function send_otp_function(){
     if(otp_response.body.data == true)
     {
         toggele = false;
+        toast_type = "success";
+        toast_text = "OTP sent successfully.";
+
 
     }else{
         toast_type = "error";
