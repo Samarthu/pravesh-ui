@@ -4,6 +4,7 @@
     // import {vercticle_name} from '../stores/verticle_store';
     import {get_organistaion_method,get_organisation_ui_fun} from '../services/organisation_services';
     import {facility_data_store} from '../stores/facility_store';
+    import Spinner from "./components/spinner.svelte";
     import {org_name} from '../stores/organisation_store';
     import Toast from './components/toast.svelte';
     let toast_text = "";
@@ -12,8 +13,10 @@
     let org_list = [];
     let final_list = [];
     let org_select = null;
+    let show_spinner = false;
     
     onMount(async () =>{
+        show_spinner = true;
         // vercticle_name.subscribe(value =>{
         //     verticle = value.verticle;
         // });
@@ -26,6 +29,7 @@
         console.log("org_list_number", org_list.length);
 
         }else{
+            show_spinner = false;
             toast_text = "Organisation list not found";
             toast_type = "error";
             
@@ -70,6 +74,7 @@
         }
 
         }else{
+            show_spinner = false;
             toast_text = "Organisation ui properties not found";
             toast_type = "error";
 
@@ -108,6 +113,7 @@
             
         //     final_list.push(temp);
         // }
+        show_spinner = false;
         console.log("final_list", final_list);
 
     });
@@ -323,6 +329,11 @@
 
     
 <!-- </div> -->
+{#if show_spinner}
+<Spinner />
+    
+{/if}
+
 <div class="mainContent ">
     <div class="breadcrumb">
         <div class="breadcrumb-section">

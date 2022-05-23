@@ -7,8 +7,10 @@
     import Breadcrumb from "../routes/breadcrumb.svelte";
     import {img_url_name} from '../stores/flags_store';
     import Toast from './components/toast.svelte';
+    import Spinner from "./components/spinner.svelte";
     let toast_text = "";
     let toast_type = null;
+    let show_spinner = false;
 
     let routeNext = "";
     let routeNext2 = "";
@@ -47,6 +49,7 @@
     routeNext2 = "workforce";
     routeNext3 = "vendor";
     onMount(async () =>{
+        show_spinner = true;
         let category_response = await get_categories_list();
 
         console.log("category_response",category_response);
@@ -65,6 +68,7 @@
 
         }
         else{
+            show_spinner = false;
             toast_type = "error";
             toast_text = "Category list not found";
 
@@ -93,12 +97,19 @@
 
         }
         else{
+            show_spinner = false;
             toast_type = "error";
             toast_text = "Category  UI propeerties not found";
         }
+        show_spinner = false;
 
     })
 </script>
+
+{#if show_spinner}
+<Spinner />
+    
+{/if}
 
 <!-- Category -->
 <div class="mainContent ">

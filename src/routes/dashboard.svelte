@@ -197,15 +197,16 @@
                     >Dashboard</span
                 >
             </p>
-            <p on:click={() => routeToBussiness()}>
-                <a href="" class="newonboard ">
+            <p >
+                <button class="newonboard " on:click={() => routeToBussiness()}>
+                
                     Onboard<span class="xs:hidden"> New</span>
                     <img
                         src="{$img_url_name.img_name}/useradd.svg"
                         class="pl-2"
                         alt=""
-                    /></a
-                >
+                    />
+            </button>
             </p>
         </div>
     </div>

@@ -533,14 +533,14 @@
                     console.log("$bank_details", $bank_details);
                     let save_bank_details = await save_bank_details_function();
                     console.log("save_bank_details", save_bank_details);
-                    if ((save_bank_details.body.status = "green")) {
+                    if (save_bank_details.body.status == "green") {
                         // alert("Bank Details Saved Successfully");
                         toast_text = "Bank Details Saved Successfully";
                         toast_type = "success";
                         success_text = "Facility created and Bank Details Saved Successfully";
                         // let replaceState = false
-                        setTimeout(() => {}, 2000);
-                        goto("onboardsummary?unFacID="+$facility_id.facility_id_number, { replaceState:true });
+                        setTimeout(goto("onboardsummary?unFacID="+$facility_id.facility_id_number, { replaceState:true }), 2000);
+                        
                     } else {
                         // alert("Something went wrong!");
                         toast_type = "error";
@@ -557,14 +557,14 @@
                 console.log("$bank_details", $bank_details);
                 let save_bank_details = await save_bank_details_function();
                 console.log("save_bank_details", save_bank_details);
-                if ((save_bank_details.body.status = "green")) {
+                if (save_bank_details.body.status == "green") {
                     // alert("Bank Details Saved Successfully");
                     toast_type = "success";
                     toast_text = "Bank Details Saved Successfully";
                     success_text = "Bank Details Saved Successfully";
-                    // let replaceState = false;
-                    setTimeout(() => {}, 2000);
-                    goto("onboardsummary?unFacID="+$facility_id.facility_id_number, { replaceState:true });
+                    let replaceState = false;
+                    setTimeout(goto("onboardsummary?unFacID="+$facility_id.facility_id_number, { replaceState:true }), 2000);
+                    // goto("onboardsummary?unFacID="+$facility_id.facility_id_number, { replaceState:true });
                 } else {
                     // alert("Something went wrong!");
                     toast_type = "error";

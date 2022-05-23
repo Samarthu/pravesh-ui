@@ -11,6 +11,7 @@
     
   
     import Breadcrumb from "./breadcrumb.svelte";
+    import Spinner from "./components/spinner.svelte";
     import {get_verticles_ui_fun} from '../services/business_vertical_services';
 
     let org_list= [];
@@ -18,6 +19,7 @@
     let combined_list = [];
     let toast_text = "";
     let toast_type = null;
+    let show_spinner = false;
 
 
     let routeNext = "";
@@ -45,6 +47,7 @@
         // alert("button clicked");
     }
     onMount(async () =>{
+        show_spinner = true;
         let response = await get_verticles_fun();
         if(response.body.status =="green"){
             console.log("verticles api response",response);
@@ -55,6 +58,7 @@
         
         }
         else{
+            show_spinner = false;
             toast_text = "Unable to fetch Verticles";
         toast_type = "error";
 
@@ -95,15 +99,21 @@
         combined_list = combined_list;
         console.log("combined list",combined_list);
         }else{
+            show_spinner= false;
             toast_text = "Unable to fetch Verticles UI properties";
         toast_type = "error";
         }
+        show_spinner = false;
         
     })
 
     routeNext = "catagory";
 
 </script>
+{#if show_spinner}
+<Spinner />
+    
+{/if}
 
 <!-- Business Verticle -->
 <div class="mainContent ">
