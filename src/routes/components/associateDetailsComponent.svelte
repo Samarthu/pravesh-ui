@@ -7,7 +7,7 @@
             import {get_date_format} from "../../services/date_format_servives";
             import {bank_details,cheque_details,facility_document,show_fac_tags,get_loc_scope,
                 facility_data,facility_bgv_init,all_facility_tags,gst_details,client_details,add_gst_dets,
-                list_child_data,remove_child,reset_deact_status} from "../../services/onboardsummary_services";
+                list_child_data,remove_child,reset_deact_status,child_data} from "../../services/onboardsummary_services";
             import {img_url_name} from '../../stores/flags_store';
             import {facility_id} from "../../stores/facility_id_store"
             import {facility_data_store} from "../../stores/facility_store";
@@ -138,6 +138,7 @@
             let gst_img = "";
             let gst_uniq_name = "";
             let gst_data="";
+            let gst_file_data= "";
             let gst_checkbox = false;
             let gst_details_data=[];
         // ///////Document view Model/////////
@@ -330,6 +331,34 @@
     });
 
     const onFileSelected = (e,doctext) => {
+       if(doctext == "gst_edit_upload"){
+        console.log("in file reader gst")
+        let gst_url = "";
+           for(let i=0;i<gst_doc_arr.length;i++){
+            console.log("in file reader for loop",gst_doc_arr)
+               if(e == gst_doc_arr[i].doc_number){
+                            var request = new XMLHttpRequest();
+                            request.open('GET', gst_doc_arr[i].file_url, true);
+                            request.responseType = 'blob';
+                            request.onload = function() {
+                                var reader = new FileReader();
+                                reader.readAsDataURL(request.response);
+                                reader.onload =  function(e){
+                                    gst_url = e.target.result;
+                                    console.log('DataURL:', e.target.result);
+                                    console.log("in file reader if loop",gst_url)
+                                };
+                            };
+                            request.send();
+                console.log("in file reader if loop",gst_url)
+                gst_file_data = gst_url;
+                console.log("in file reader if loop",gst_file_data)
+               }
+           }
+            
+            
+       }
+       else{
         let img = e.target.files[0];
         if (img.size <= allowed_pdf_size) {
             console.log("img", img);
@@ -344,7 +373,7 @@
             var reader = new FileReader();
             reader.readAsDataURL(img);
             reader.onload = function () {
-            file_data = reader.result;
+            // file_data = reader.result;
             console.log("reader",reader.result);
             
             if(doctext == "gst_upload"){
@@ -372,6 +401,7 @@
                 "MB ."
         );
     };
+    }
         
     }
     function closeViewModel(){
@@ -410,8 +440,8 @@
         for(let i = 0;i<gst_doc_arr.length;i++){
             console.log("gst_doc_arr in view",gst_doc_arr)
             if(data == "mult_gsts"){
-                if(doc_number == gst_doc_arr[i].gst_doc_num){
-                document.getElementById("img_model_url").getAttribute('src',$page.url.origin+gst_doc_arr[i].gst_url);
+                if(doc_number == gst_doc_arr[i].doc_number){
+                document.getElementById("img_model_url").getAttribute('src',$page.url.origin+gst_doc_arr[i].file_url);
                 alt_image = "gst proof";
                 }
                 
@@ -437,9 +467,9 @@
                 
                 for(let i=0;i < gst_details_res.body.data.length;i++){
                             for(let j = 0;j<gst_doc_arr.length;j++){ 
-                                console.log("gst_doc_arr",gst_doc_arr)
+                                // console.log("gst_doc_arr",gst_doc_arr)
                                 gst_details_data.push(gst_details_res.body.data[i]);
-                                if(gst_details_res.body.data[i].gstn == gst_doc_arr[j].gst_doc_num){
+                                if(gst_details_res.body.data[i].gstn == gst_doc_arr[j].doc_number){
                                     show_gst_view_btn = true;
                                 } 
                                 else{
@@ -468,15 +498,26 @@
         gst_img = "";
 
     }
-    async function gst_edit_click(address,city,state,gstn,gst_url,gst_name,name){
+    async function gst_edit_click(new_gst,gst_url,gst_name){
+        console.log("new_gst",new_gst)
         gst_edit_btn = 1;
-        console.log("name",name)
-        if(gst_url == undefined)
-        gst_url = "";
-        else if(gst_name == undefined)
-        gst_name = "";
+        for(let i=0;i<gst_doc_arr.length;i++){
+            if(gst_doc_arr[i].doc_number == new_gst.gstn){
+                console.log("inside if")
+                onFileSelected(new_gst.gstn,"gst_edit_upload")
+                console.log("gst_file_datagst_file_data",gst_file_data)
+                gst_url = gst_file_data
+                gst_name = gst_doc_arr[i].file_name
+                console.log("gst_url",gst_url)
+
+            }else{
+                console.log("inside else")
+                gst_url = "";
+                gst_name = "";
+            }
+        }
         
-        console.log("gst_edit_click",address,city,state,gstn,gst_url,gst_name);
+        // console.log("gst_edit_click",address,city,state,gstn,gst_url,gst_name);
         if(temp2 != "gst2"){
             temp2 = "gst2";
         }
@@ -485,13 +526,13 @@
         }
         
 
-        gst_address = address;
-        gst_city_select = city;
-        gst_city_link_state = state;
-        gst_number = gstn;
+        gst_address = new_gst.address;
+        gst_city_select = new_gst.city;
+        gst_city_link_state = new_gst.state;
+        gst_number = new_gst.gstn;
         gst_file = gst_url;
         gst_img = gst_name;
-        gst_uniq_name = name;
+        gst_uniq_name = new_gst.name;
        
     }
 
@@ -604,7 +645,7 @@
                         console.log("gst_details_res ss",gst_details_res)
                         for(let i=0;i < gst_details_res.body.data.length;i++){
                             for(let i = 0;i<gst_doc_arr.length;i++){
-                                if(gst_details_res.body.data[i].gstn == gst_doc_arr[i].gst_doc_num){
+                                if(gst_details_res.body.data[i].gstn == gst_doc_arr[i].doc_number){
                                     gst_details_data.push(gst_details_res.body.data[i]);
                                 }  
                             }
@@ -730,7 +771,7 @@
                         // gst_details_data=[];
                         for(let i=0;i < gst_details_res.body.data.length;i++){
                             for(let i = 0;i<gst_doc_arr.length;i++){
-                                if(gst_details_res.body.data[i].gstn == gst_doc_arr[i].gst_doc_num){
+                                if(gst_details_res.body.data[i].gstn == gst_doc_arr[i].doc_number){
                                     gst_details_data.push(gst_details_res.body.data[i]);
                                 }  
                             }
@@ -759,8 +800,8 @@
                 childlink = "childlink2";
                 for (let i = 0; i < list_child_data_res.body.data[0].parent_child.length; i++) {
                     // console.log("list_child_data_temp", list_child_data_res.body.data[0].parent_child)
-                    // console.log("list_child_data_res", list_child_data_res.body.data[0].parent_child[i]["child_facility_id"])
-                    child_selected_arr.push({"facility_name":list_child_data_res.body.data[0].parent_child[i]["child_id"],"name":list_child_data_res.body.data[0].parent_child[i]["child_facility_id"],"unique_name":list_child_data_res.body.data[0].parent_child[i]["name"]});
+                    console.log("list_child_data_res", list_child_data_res.body.data[0])
+                    child_selected_arr.push(list_child_data_res.body.data[0].parent_child[i]);
                 }
                 console.log("child_selected_arr in link child", child_selected_arr)
             }
@@ -871,10 +912,7 @@
         }
     }
 
-    async function child_select_fun(facility_name,name,station_code,phone_number,check_selected){
-        childlink = "childlink2";
-        
-    }
+    
     function check_facility_status(message) {
     if (!$facility_data_store.status && $facility_data_store.status != undefined && ($facility_data_store.status.toLowerCase() == "deactive" || $facility_data_store.is_blacklisted == 1)) {
         if (message != undefined){
@@ -892,85 +930,97 @@
     async function checkbox_clicked(item){
         let new_object = {facility_name:item.facility_name, name:item.name , unique_name:""}
         child_check = document.getElementById("child_checkbox"+item.name).checked;
-        console.log("child check",child_check)
 
         if(child_check == true){
             if (!child_selected_arr.filter(e => e.name === item.name).length > 0) {
                    console.log("pushing")
                    child_selected_arr.push(new_object);
+                   new_child_selected_arr.push(new_object);
                 }
         
         }
         else if(child_check == false && child_selected_arr.length > 0){
-            //  console.log("inside popping else",item)
-            // for(let j = 0;j<child_selected_arr.length;j++){
-            //     console.log("inside popping else if",child_selected_arr.includes(new_object))
-            //     if(child_selected_arr.includes(new_object)){
-            //         console.log("popping")
-            //         const index = child_selected_arr.indexOf(child_selected_arr[j]);
-            //         if (index > -1) {
-            //             child_selected_arr.splice(index, 1);
-            //         }
-            //     }
-                
-            // }
+            
             for(let j = 0;j<child_selected_arr.length;j++){
                 var new_index = "";
                 if (child_selected_arr.filter(e => e.name === item.name).length > 0) {
                     // console.log("markde",item.name,child_selected_arr[j].name)
                     if(item.name == child_selected_arr[j].name){
-                        
                         new_index = child_selected_arr[j]
                     }
-                    console.log("popping",child_selected_arr.indexOf(new_index))
-                        
+                    // console.log("popping",child_selected_arr.indexOf(new_index))
                     const index = child_selected_arr.indexOf(new_index);
                     // console.log("INDEx",index)
                     if(index > -1) {
                         child_selected_arr.splice(index, 1);
+                        
+                    }
+                }
+               
+            }
+
+            for(let j = 0;j<new_child_selected_arr.length;j++){
+                var new_index = "";
+                if (new_child_selected_arr.filter(e => e.name === item.name).length > 0) {
+                    // console.log("markde",item.name,child_selected_arr[j].name)
+                    if(item.name == new_child_selected_arr[j].name){
+                        new_index = new_child_selected_arr[j]
+                    }
+                    // console.log("popping",new_child_selected_arr.indexOf(new_index))
+                    const index = new_child_selected_arr.indexOf(new_index);
+                    // console.log("INDEx",index)
+                    if(index > -1) {
+                        
+                        new_child_selected_arr.splice(index, 1);
                     }
                 }
                
             }
 
         }
-        
-        // for(let i = 0;i < child_selected_arr.length;i++){
-            // console.log("child_selected_arr",child_selected_arr)
-
-           
-        //     //     console.log("inside for loop")
-        //     if(new_child_selected_arr.length > 0){
-        //         for(let j = 0;j<new_child_selected_arr.length;j++){
-        //             if(new_child_selected_arr[j].name.includes(name)){
-        //                 console.log("popping")
-        //                 const index = new_child_selected_arr.indexOf(new_child_selected_arr[j]);
-        //                 if (index > -1) {
-        //                     new_child_selected_arr.splice(index, 1);
-        //             }
-                    
-        //         }
-                
-                    
-        //         }
-        //     }
-        //     else{
-        //     for(let i=0;i<new_child_selected_arr.length;i++){
-        //         if(new_child_selected_arr[i].name == name){
-                    // console.log("pushing")
-                    // new_child_selected_arr.push({"location":city_select,"facility_name":facility_name,"name":name});
-                    
-                
-        //         }
-       
-        //     }
-       
-            
-        
-       
-        console.log("child_selected_arr neww",child_selected_arr)
+        console.log("child_selected_arr neww",child_selected_arr,new_child_selected_arr)
 
     }
+
+    async function child_submit_fun(){
+        if(new_child_selected_arr.length == 0){
+            
+            toast_type = "error";
+            toast_text = "Please select atleast one child";
+        }
+        else{
+        console.log("new_child_selected_arrnew_child_selected_arr",new_child_selected_arr)
+        let new_child_obj = [];
+        childlink = "childlink2";
+        for(let i = 0;i<new_child_selected_arr.length;i++){
+            new_child_obj.push({"parent_facility_id":$facility_id.facility_id_number,
+            "status":"active",
+            "child_facility_id":new_child_selected_arr[i].name,
+            "child_id":new_child_selected_arr[i].facility_name,
+            "parent_name":$facility_data_store.facility_name,
+            "parent_id":$facility_data_store.facility_id})
+        }
+        // console.log("new_child_obj",new_child_obj)
+       let child_submit_res = await child_data(new_child_obj);
+       try{
+           if(child_submit_res.body.status == "green"){
+            toast_text = child_submit_res.body.message;
+            toast_type = "success";
+            // window.location.reload();
+           }
+           else{
+            toast_text = child_submit_res.body.message;
+            toast_type = "error";
+           }
+       }
+       catch(err){
+        toast_text = err;
+        toast_type = "error";
+       }
+    }
+        
+    }
+
     async function link_child(data){
         client_det_arr = [];
         if (!check_facility_status("Add Child Facilities not allowed for Deactive/Blacklisted Facility")) {
@@ -1055,6 +1105,7 @@
     function linkChildModelclose() {
         city_select = "-1";
         paginatedItems =  [];
+        child_selected_arr = [];
         linkChildModel.style.display = "none";
     }
     
@@ -1761,13 +1812,23 @@
                         </div>
 
                         <div class="gstCardContainer">
+                           
 
-
-
-                            
-
-                            <div class="gstInfoCard">
-
+                            <table class="table  w-full text-center mt-2 xs:hidden sm:hidden">
+                                <thead class="theadpopover h-10">
+                                    <tr>
+                                        <th>Address</th>
+                                        <th>City</th>
+                                        <th>
+                                            GST State
+                                        </th>
+                                        <th>GST Number    </th>
+                                        <th>GST Certificate    </th>
+                                        <th>Edit</th>
+                                        <th>Status</th>
+                                       
+                                    </tr>
+                                </thead>
                                 {#if !gst_details_data}
 
                                 <p>No GST Details found</p>
@@ -1775,113 +1836,51 @@
                                 {:else}
 
                                 {#each gst_details_data as new_gst}
+                                <tbody class="tbodypopover">
+                                    <tr class="border-b">
+                                        <td>{new_gst.address}</td>
+                                        <td>{new_gst.city}</td>
+                                        <td>{new_gst.state} </td>
+                                        <td>{new_gst.gstn}</td>
+                                        <td>{#if show_gst_view_btn == true}
+                                            <p class="verifyText">
 
-                                <div class="cardDocWrapper ">
+                                                <button class="smButton">
 
-                                    <div class="infoDivCard ">
+                                                    <img
 
-                                        <div class="infofSection  ">
+                                                        src="{$img_url_name.img_name}/view.png"
 
-                                            <div class="secFirstDoc ">
+                                                        alt=""
 
-                                                <div class="locationInformation">
+                                                        on:click="{openViewModel("mult_gsts",new_gst.gstn)}"
 
-                                                    <div class="">
+                                                    />
 
-                                                        <p class="detailLbalesm mr-3">Address</p>
+                                                </button>
 
-                                                        <p class="detailDatasm">{new_gst.address}</p>
-
-                                                    </div>
-
-                                                   
-
-                                                </div>
-                                                <div class="locationInformation">
-
-
-                                                    <div class="">
-
-                                                        <p class="detailLbalesm pr-3">City</p>
-
-                                                        <p class="detailDatasm">{new_gst.city}</p>
-
-                                                    </div>
-
-                                                    
-
-                                                </div>
-
-                                                <div class="locationInformation">
-
-                                                   
-                                                    <div class="">
-
-                                                        <p class="detailLbalesm pr-3">GST State</p>
-
-                                                        <p class="detailDatasm">{new_gst.state}</p>
-
-                                                    </div>
-
-                                                </div>
-
-
-
-                                                <div class="pl-2">
-
-                                                    <p class="detailLbale whitespace-nowrap mb-2">GST Number</p>
-
-                                                    <p class="detailData">{new_gst.gstn}</p>
-
-                                                </div>
-
-                                                <div class="pl-2">
-
-                                                    <p class="detailLbale whitespace-nowrap mb-2">GST Certificate
-
-                                                    </p>
-                                                    {#if show_gst_view_btn == true}
+                                            </p>
+                                            {/if}</td>
+                                        <td>
+                                            <p class="flex justify-center">
+                                                {#each gst_doc_arr as gst_doc}
                                                     <p class="verifyText">
 
                                                         <button class="smButton">
-
-                                                            <img
-
-                                                                src="{$img_url_name.img_name}/view.png"
-
-                                                                alt=""
-
-                                                                on:click="{openViewModel("mult_gsts",new_gst.gstn)}"
-
-                                                            />
-
-                                                        </button>
-
-                                                    </p>
-                                                    {/if}
-                                                </div>
-
-                                                <div class="pl-2">
-
-                                                    <p class="detailLbale mb-2">Edit</p>
-                                                    {#each gst_doc_arr as gst_doc}
-                                                    <p class="verifyText">
-
-                                                        <button class="smButton">
-                                                        {#if gst_doc.gst_doc_num == new_gst.gstn}
-                                                        <p>{new_gst.name}</p>
+                                                        <!-- {#if gst_doc.gst_doc_num == new_gst.gstn} -->
+                                                       
                                                             <img
 
                                                                 src="{$img_url_name.img_name}/edit.png"
 
-                                                                on:click="{()=>{gst_edit_click(new_gst,gst_doc.gst_url,gst_doc.gst_name)}}"
+                                                                on:click="{()=>{gst_edit_click(new_gst,gst_doc.file_url,gst_doc.file_name)}}"
 
                                                                 alt="gst edit"
 
                                                             />
                                                             
-                                                            {:else}
-                                                           <p>{new_gst.name}</p>
+                                                            <!-- {:else}
+                                                          
                                                             <img
 
                                                                 src="{$img_url_name.img_name}/edit.png"
@@ -1891,94 +1890,90 @@
                                                                 alt="gst edit"
 
                                                             />
-                                                            {/if}
+                                                            {/if} -->
                                                         </button>
 
                                                     </p>
                                                     {/each}
-                                                </div>
+                                            </p>
+                                        </td>
+                                        <td>
+                                            <div class="statusSecForDoc">
 
+                                                <p class="userStatusTick mr-8">
+        
+                                                    {#if gst_doc_obj.verified == "1"}
+        
+                                                <p
+        
+                                                    class="statusContentTag text-green font-normal xs:w-5/12"
+        
+                                                >
+        
+                                                    <img
+        
+                                                        src="{$img_url_name.img_name}/checked.png"
+        
+                                                        class="pr-2"
+        
+                                                        alt=""
+        
+                                                    />GST Verified
+        
+                                                </p>
+        
+                                                {:else if gst_doc_obj.rejected == "1"} 
+        
+                                                <p
+        
+                                                class="statusContentTag text-rejectcolor font-normal xs:w-5/12"
+        
+                                                >
+        
+                                                    <img
+        
+                                                        src="{$img_url_name.img_name}/reject.png"
+        
+                                                        class="pr-2"
+        
+                                                        alt=""
+        
+                                                    />GST Rejected
+        
+                                                </p>
+        
+                                                {:else if gst_doc_obj.verified == "0" && gst_doc_obj.rejected == "0"}
+        
+                                                <p class="statusContent font-normal xs:w-5/12">
+        
+                                                    <img
+        
+                                                        src="{$img_url_name.img_name}/timer.png"
+        
+                                                        class="pr-2"
+        
+                                                        alt=""
+        
+                                                    />GST Verification Pending
+        
+                                                </p>
+        
+                                                {/if}
+        
+                                                </p>
+        
+                                                
+        
                                             </div>
-
-                                        </div>
-
-                                    </div>
-
-                                    <div class="statusSecForDoc">
-
-                                        <p class="userStatusTick mr-8">
-
-                                            {#if gst_doc_obj.gst_verified == "1"}
-
-                                        <p
-
-                                            class="statusContentTag text-green font-normal xs:w-5/12"
-
-                                        >
-
-                                            <img
-
-                                                src="{$img_url_name.img_name}/checked.png"
-
-                                                class="pr-2"
-
-                                                alt=""
-
-                                            />GST Verified
-
-                                        </p>
-
-                                        {:else if gst_doc_obj.gst_rejected == "1"} 
-
-                                        <p
-
-                                        class="statusContentTag text-rejectcolor font-normal xs:w-5/12"
-
-                                        >
-
-                                            <img
-
-                                                src="{$img_url_name.img_name}/reject.png"
-
-                                                class="pr-2"
-
-                                                alt=""
-
-                                            />GST Rejected
-
-                                        </p>
-
-                                        {:else if gst_doc_obj.gst_verified == "0" && gst_doc_obj.gst_rejected == "0"}
-
-                                        <p class="statusContent font-normal xs:w-5/12">
-
-                                            <img
-
-                                                src="{$img_url_name.img_name}/timer.png"
-
-                                                class="pr-2"
-
-                                                alt=""
-
-                                            />GST Verification Pending
-
-                                        </p>
-
-                                        {/if}
-
-                                        </p>
-
-                                        
-
-                                    </div>
-
-                                </div>
-
+                                        </td>
+                                      
+                                    </tr>
+                                  
+                                </tbody>
                                 {/each}
-
                                 {/if}
-
-                            </div>
+                            </table>
+                            
                         </div>
 
                     </div>
@@ -2010,7 +2005,7 @@
 
         <div class="modalContainer">
 
-            <div class="modalHeadCon sticky top-0 bg-white z-index-99">
+            <div class="modalHeadCon sticky top-0 bg-white z-zindex99">
 
                 <div class="leftmodalInfo">
 
@@ -2142,7 +2137,7 @@
 
                                             <div class="w-2/3 ">
 
-                                                <div class="detailData"> {new_child.facility_name}</div>
+                                                <div class="detailData"> {new_child.child_facility_id}</div>
 
                                             </div>
 
@@ -2453,9 +2448,7 @@
 
                                 <div class="LinkchildAssociate">
 
-                                    <div class="text-right mt-3" on:click={() => {child_select_fun(item.facility_name,item.name,item.station_code,item.phone_number,check_selected)
-
-                                    }}>
+                                    <div class="text-right mt-3" on:click={() => {child_submit_fun()}}>
 
                                         <button class="ErBlueButton">Link Child Associate</button>
 

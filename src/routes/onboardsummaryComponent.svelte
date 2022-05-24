@@ -148,7 +148,7 @@ import { Router, Link, Route } from "svelte-routing";
     let file_data;
     let showbtn = 0;
     let selectTag,addRemark,selectsearch;
-    let city;
+    let city = "-";
     let facility_address,facility_postal,facility_password,location_id,status_name;
     let new_fac_remarks = [];
     let facility_created_date;
@@ -561,6 +561,8 @@ import { Router, Link, Route } from "svelte-routing";
                     facility_postal =$facility_data_store.addresess[j].postal;
                     city = $facility_data_store.addresess[j].city;
                     location_id = $facility_data_store.addresess[j].location_id;
+                    // console.log("location_id",location_id)
+                    // console.log("city",city)
 
                 }
             }
@@ -568,24 +570,15 @@ import { Router, Link, Route } from "svelte-routing";
             for (var i = 0; i < facility_document_data.length; i++) {
                 for(let j=0; j<gst_doc_type.length;j++){
                     if(facility_document_data[i].doc_type == gst_doc_type[j]){
-                        gst_doc_obj = {gst_name : facility_document_data[i].file_name,
-                            gst_url : facility_document_data[i].file_url,
-                            gst_doc_num : facility_document_data[i].doc_number,
-                            gst_verified : facility_document_data[i].verified,
-                            gst_rejected : facility_document_data[i].rejected};
+                        gst_doc_obj = facility_document_data[i];
                         
-                        
-                        // var gst_name = facility_document_data[i].file_name;
-                        // var gst_url = facility_document_data[i].file_url;
-                        // var gst_doc_num = facility_document_data[i].doc_number;
-                        // gst_verified = facility_document_data[i].verified;
-                        // gst_rejected = facility_document_data[i].rejected;
-                        gst_doc_arr.push({"gst_name":gst_doc_obj.gst_name,"gst_url":gst_doc_obj.gst_url,"gst_doc_num":gst_doc_obj.gst_doc_num});
+                        console.log("gst_doc_obj",gst_doc_obj)
+                        gst_doc_arr.push(gst_doc_obj);
                     }
                 }
             }
             gst_doc_arr=gst_doc_arr;
-            // console.log("gst_doc_arr onboard",gst_doc_arr)
+            console.log("gst_doc_arr onboard",gst_doc_arr)
         }
     }
     catch(err) {
