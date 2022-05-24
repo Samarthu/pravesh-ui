@@ -73,10 +73,12 @@ import { Router, Link, Route } from "svelte-routing";
     let check_val,query;
     let tags_for_ass_arr=[];
     var doc_type_name = [];
+    // let edit_document_link = null;
     let check_selected;
     let id_new_date='';
     let username;
     let all_tags_res;
+    let changed_pan_num= "-";
     let pancard_obj = {
         pan_num:null,
         pan_attach:null,
@@ -257,14 +259,16 @@ import { Router, Link, Route } from "svelte-routing";
                 toast_text = "Facility ID not found";
             }
         }
+        // console.log('$page.url.origin+',$page.url.origin)
+        // edit_document_link=$page.url.origin;
         // console.log("$facility_id",$facility_id.facility_id_number);
         ///////////////pravesh properties//////////////
         let get_pravesh_properties_response =
             await get_pravesh_properties_method();
-        console.log(
-            "get_pravesh_properties_response",
-            get_pravesh_properties_response
-        );
+        // console.log(
+        //     "get_pravesh_properties_response",
+        //     get_pravesh_properties_response
+        // );
         try{
         if (get_pravesh_properties_response.body.status == "green") {
             sorting_pravesh_properties(
@@ -301,20 +305,18 @@ import { Router, Link, Route } from "svelte-routing";
         try{
             if(userdetails.body.status == "green"){
                 for(let i=0;i<userdetails.body.data.user.roles.length;i++){
-                    console.log("user roles",userdetails.body.data.user.roles[i].role)
+                    // 
                         if(userdetails.body.data.user.roles[i].role == "ROLE_ITADMIN"
                     || userdetails.body.data.user.roles[i].role == "ROLE_VMT" 
                     || userdetails.body.data.user.roles[i].role == "ROLE_VMT_ADMIN"
                     || userdetails.body.data.user.roles[i].role == "ROLE_HR"){
                         admin = true
-                        console.log("inside admin = true",admin)
                     }
                     else if(userdetails.body.data.user.roles[i].role == "ROLE_ITADMIN"){
                         itadmin = true
                     }
                 }
 
-                console.log("user roles",admin);
             }
         }
         catch(err) {
@@ -327,7 +329,7 @@ import { Router, Link, Route } from "svelte-routing";
             
             if(!bank_details_res){
                 
-                console.log("No Data Found")
+                // console.log("No Data Found")
                 bank_values_from_store.modified_by="-";
                 bank_new_date="-";
                 bank_values_from_store.bank_name="-";
@@ -399,7 +401,7 @@ import { Router, Link, Route } from "svelte-routing";
                 let doc_creation_date = get_date_format(doc_date_format,"dd-mm-yyyy-hh-mm");
                 facility_document_data[i].creation = doc_creation_date
                 if(facility_document_data[i].doc_type == "pan-photo"){
-                    facility_document_data[i].doc_number = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, 'x');
+                    changed_pan_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, 'x');
                     pancard_obj = {pan_num : facility_document_data[i].doc_number,
                     pan_attach : facility_document_data[i].file_url,
                     pan_name : facility_document_data[i].file_name,
@@ -407,6 +409,7 @@ import { Router, Link, Route } from "svelte-routing";
                     pan_rejected : facility_document_data[i].rejected};
                     
                 }
+                
                 else if(facility_document_data[i].doc_type == "aadhar-id-proof"){
                     aadhar_obj = {aadhar_num : facility_document_data[i].doc_number,
                     aadhar_attach : facility_document_data[i].file_url,
@@ -454,6 +457,7 @@ import { Router, Link, Route } from "svelte-routing";
         toast_type = "error";
         toast_text = facility_document_res.body.message;
         }
+       
 
         let fac_tag_res = await show_fac_tags($facility_data_store.facility_type);
         
@@ -581,7 +585,7 @@ import { Router, Link, Route } from "svelte-routing";
                 }
             }
             gst_doc_arr=gst_doc_arr;
-            console.log("gst_doc_arr",gst_doc_arr)
+            // console.log("gst_doc_arr onboard",gst_doc_arr)
         }
     }
     catch(err) {
@@ -716,9 +720,12 @@ function check_facility_status(message) {
 
     function closeViewModel(){
         document.getElementById("img_model").style.display = "none";
-        document.getElementById("img_model_approve_rej").style.display = "none";
         document.getElementById("modalid").style.display = "none";
 
+    }
+    function closeApproveViewModel(){
+        img_model_approve_rej.style.display = "none";
+        document.getElementById("img_model").style.display = "none";
     }
     function openViewModel(data,doc_number){
         console.log("Inside functin")
@@ -731,7 +738,10 @@ function check_facility_status(message) {
                 // console.log("inside for view new_doc")
                 if(doc_number == facility_document_data[i].doc_category){
                     // console.log("inside if")
-                    document.getElementById("doc_img_model_url").getAttribute('src',facility_document_data[i].file_url);
+                    // console.log("file p[ath and image",$page.url.origin+facility_document_data[i].file_url)
+                    document.getElementById("doc_img_model_url").getAttribute('src',$page.url.origin+facility_document_data[i].file_url);
+                    // console.log("IMAGE path b4")
+                    // console.log("IMAGE PATH",facility_document_data[i].file_url)
                     alt_image = "uploaded document";
                     document_type = facility_document_data[i].doc_type;
                     document_number = facility_document_data[i].doc_number;
@@ -740,31 +750,31 @@ function check_facility_status(message) {
         }
         document.getElementById("img_model").style.display = "block";
         if(data == "aadhar"){
-            document.getElementById("img_model_url").getAttribute('src',aadhar_obj.aadhar_attach);
+            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+aadhar_obj.aadhar_attach);
             alt_image = "aadhar proof";
         }
         else if(data == "pan"){
-            document.getElementById("img_model_url").getAttribute('src',pancard_obj.pan_attach);
+            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+pancard_obj.pan_attach);
             alt_image = "pan-card proof";
         }
         else if(data == "address"){
-            document.getElementById("img_model_url").getAttribute('src',addproof_obj.address_url);
+            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+addproof_obj.address_url);
             alt_image = "address proof";
         }
         else if(data == "licence"){
-            document.getElementById("img_model_url").getAttribute('src',dl_lic_attach);
+            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+dl_lic_attach);
             alt_image = "driving licence proof";
         }
         else if(data == "offer"){
-            document.getElementById("img_model_url").getAttribute('src',new_off_file_obj.offer_url);
+            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+new_off_file_obj.offer_url);
             alt_image = "offer letter proof";
         }
         else if(data == "can_cheque"){
-            document.getElementById("img_model_url").getAttribute('src',can_cheque_obj.can_cheque_url);
+            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+can_cheque_obj.can_cheque_url);
             alt_image = "cancel cheque proof";
         }
         else if(data == "cheque_disp"){
-            document.getElementById("img_model_url").getAttribute('src',new_cheque.file_url);
+            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+new_cheque.file_url);
             alt_image = "cheque proof";
         }
         
@@ -1255,6 +1265,8 @@ function check_facility_status(message) {
                 let new_date =new Date(audit_details_array[i].creation)
                 let audit_creation_date = get_date_format(new_date,"dd-mm-yyyy-hh-mm")
                 audit_details_array[i].creation=audit_creation_date;
+                audit_details_array.reverse();
+                
                 }
             }
         } catch (err) {
@@ -1329,18 +1341,13 @@ function check_facility_status(message) {
             if(!erp_details_res.body.data[0]){
                 toast_type = "error";
                 toast_text = "No ERP Details Found";
-                erp_details_arr.creation="-";
-                erp_details_arr.erp_id="-";
-                erp_details_arr.erp_name="-";
-                erp_details_arr.address_id="-";
-                erp_details_arr.address_title="-";
-                erp_details_arr.contact_id="-";
+                erp_details_arr = [];
             }
             else{
                 erp_details_arr = erp_details_res.body.data[0];
                 let erp_creation_date_format = new Date(erp_details_arr.creation);
                 erp_details_res.body.data[0].creation= get_date_format(erp_creation_date_format,'dd-mm-yyyy-hh-mm');
-                // console.log("erp_details_arr",erp_details_arr)
+                console.log("erp_details_arr",erp_details_arr)
             }
         }
         catch(err){
@@ -1352,29 +1359,29 @@ function check_facility_status(message) {
         erpIdModel.style.display = "none";
     }
 
-    function workContract() {
-        workContractModel.style.display = "block";
-    }
+    // function workContract() {
+    //     workContractModel.style.display = "block";
+    // }
 
-    function closeWorkContract() {
-        workContractModel.style.display = "none";
-    }
+    // function closeWorkContract() {
+    //     workContractModel.style.display = "none";
+    // }
 
-    function workorganization() {
-        workorganizationModel.style.display = "block";
-    }
+    // function workorganization() {
+    //     workorganizationModel.style.display = "block";
+    // }
 
-    function closeWorkorganization() {
-        workorganizationModel.style.display = "none";
-    }
+    // function closeWorkorganization() {
+    //     workorganizationModel.style.display = "none";
+    // }
 
-    function chequeDetails() {
-        chequeModel.style.display = "block";
-    }
+    // function chequeDetails() {
+    //     chequeModel.style.display = "block";
+    // }
 
-    function closechequeDetails() {
-        chequeModel.style.display = "none";
-    }
+    // function closechequeDetails() {
+    //     chequeModel.style.display = "none";
+    // }
 
     async function linkChild() {
         let no_com = document.getElementById("comma");
@@ -1596,8 +1603,28 @@ function check_facility_status(message) {
         show_spinner = false;
         try{
             if(doc_res.body.status == "green"){
-                toast_text = "Document Approved";
+                toast_text = doc_res.body.message;
                 toast_type = "success";
+
+                let facility_document_res = await facility_document();
+                try{
+                    if(facility_document_res != "null"){
+                    facility_document_data = [];
+                    facility_document_data = facility_document_res.body.data;
+                        for(let i=0;i<facility_document_data.length;i++){
+                        let doc_date_format = new Date(facility_document_data[i].creation);
+                        let doc_creation_date = get_date_format(doc_date_format,"dd-mm-yyyy-hh-mm");
+                        facility_document_data[i].creation = doc_creation_date
+                        closeApproveViewModel();
+                        }
+                    
+                    }
+                }
+                catch(err){
+                    toast_type = "error";
+                    toast_text = err;
+                    closeApproveViewModel();
+                }
             }
         }
         catch(err){
@@ -1966,7 +1993,7 @@ function check_facility_status(message) {
                 {#if admin == false }
                 <p></p>
                 {:else}
-                    <div class="mt-4 mb-3  xsl:flex">
+                    <div class="xsl:flex">
                         <div class="vmtVerify " on:click="{goto_vmt_verify}">
                             <!-- <div class="vmtVerify " > -->
                             Verify <img src="{$img_url_name.img_name}/downarrowwhite.svg" class="pl-2" alt="arrow">
@@ -2009,6 +2036,7 @@ function check_facility_status(message) {
 
     {:else if change_to == "Identity_details"}
     <IdentityProof pancard_obj={pancard_obj}
+    changed_pan_num= {changed_pan_num}
     aadhar_obj ={aadhar_obj}
     dl_photo_obj={dl_photo_obj}
     id_new_date={id_new_date} admin = {admin}
@@ -2383,6 +2411,10 @@ function check_facility_status(message) {
                             <p class="text-lg text-erBlue font-medium  ">
                                 <span class=""> ERP Details</span>
                             </p>
+                            {#if erp_details_arr == ""}
+                            <p></p>
+                            <hr>
+                        {:else}
                             <p class="detailsUpdate">
                                 <span
                                     ><span class="font-medium"
@@ -2390,13 +2422,19 @@ function check_facility_status(message) {
                                     </span> - {erp_details_arr.creation}</span
                                 >
                             </p>
+                            {/if}
                         </div>
                         <button class="rightmodalclose" on:click={closeERP}>
                             <img src="{$img_url_name.img_name}/blackclose.svg" alt="" />
                         </button>
                     </div>
+                    {#if erp_details_arr == ""}
+                    <p>No ERP Details Found</p>
+                {:else}
                     <div class="innermodal">
+                      
                         <hr />
+                        
                         <div class="ERPDetails mt-4">
                             <div class="flex mb-3 xs:flex-col sm:flex-col">
                                 <p class="detailLbalesm pr-3">ERP ID</p>
@@ -2420,6 +2458,7 @@ function check_facility_status(message) {
                             </div>
                         </div>
                     </div>
+                    {/if}
                 </div>
             </div>
         </div>
@@ -2456,7 +2495,7 @@ function check_facility_status(message) {
                 <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium mr-2" on:click={()=>{docApproveRejected("reject")}}>Reject</button>
                 <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium mr-2" on:click={()=>{docApproveRejected("approve")}}>Approve</button>
        
-                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5  inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel()}}">
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5  inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeApproveViewModel()}}">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
                 </button>
             </div>
@@ -2466,7 +2505,7 @@ function check_facility_status(message) {
                 <img src="" id="doc_img_model_url" class="mx-auto" alt="{alt_image}">
                 
                 <div class="pt-3 flex justify-center">
-                    <button data-modal-toggle="popup-modal" type="button" class="dialogueNobutton"  on:click="{()=>{closeViewModel()}}">Close</button>
+                    <button data-modal-toggle="popup-modal" type="button" class="dialogueNobutton"  on:click="{()=>{closeApproveViewModel()}}">Close</button>
             </form>
         </div>
     </div>

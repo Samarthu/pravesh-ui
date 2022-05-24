@@ -8,7 +8,8 @@
     import {filter_status_data} from '../services/supplier_services';
     import {filter_vendortype_data} from '../services/supplier_services';
     import {audit_trail_data} from '../services/supplier_services';
-    import {logged_user} from '../services/supplier_services'
+    import {logged_user} from '../services/supplier_services';
+    import {get_client_org_mapping} from '../services/vmt_verify_services';
     import { page } from '$app/stores';
     import {img_url_name} from '../stores/flags_store';
     import Spinner from "./components/spinner.svelte";
@@ -44,6 +45,7 @@
     let new_associate_data;
     let logged_user_data;
     let new_new_associate_data;
+    let org_data_arr = [];
     // let pages= [];
 //pagination////////////
     $:new_pages = [];
@@ -286,7 +288,29 @@ else
             }
         }
         show_spinner = false; 
-    })
+
+        ///////////ORG LIST/////////////
+        let get_org_data_res =  await get_client_org_mapping();
+            try {
+            if(get_org_data_res.body.status == "green"){
+                for(let i=0;i<get_org_data_res.body.data.length;i++){
+                    org_data_arr.push({"org_id":get_org_data_res.body.data[i].org_id,"org_name":get_org_data_res.body.data[i].org_name})
+                }
+                org_data_arr = org_data_arr;
+                console.log("org_data_arr",org_data_arr)
+                
+            }
+            else{
+                toast_type = "error";
+                toast_text = "No client Data";
+            }
+            } catch(err) {
+                toast_type = "error";
+                toast_text = err;
+       
+            }
+            ///////////ORG LIST/////////////
+    });
     
    
 
@@ -837,13 +861,13 @@ else
                                                             <select
                                                                 class="selectInputbox"
                                                             >
+                                                            <option value="-1">Select</option>
+                                                            {#each org_data_arr as org}
                                                                 <option
                                                                     class="pt-6"
-                                                                    >Amazon</option
+                                                                    >{org.org_name}</option
                                                                 >
-                                                                <option
-                                                                    >Flipkart</option
-                                                                >
+                                                               {/each}
                                                             </select>
                                                             <div
                                                                 class="formSelectArrow "
@@ -1056,17 +1080,17 @@ else
                                                         <div
                                                             class="formInnerGroupSelect "
                                                         >
-                                                            <select
-                                                                class="selectInputbox"
+                                                        <select
+                                                        class="selectInputbox"
+                                                        >
+                                                        <option value="-1">Select</option>
+                                                        {#each org_data_arr as org}
+                                                            <option
+                                                                class="pt-6"
+                                                                >{org.org_name}</option
                                                             >
-                                                                <option
-                                                                    class="pt-6"
-                                                                    >Amazon</option
-                                                                >
-                                                                <option
-                                                                    >Flipkart</option
-                                                                >
-                                                            </select>
+                                                        {/each}
+                                                        </select>
                                                             <div
                                                                 class="formSelectArrow "
                                                             >
