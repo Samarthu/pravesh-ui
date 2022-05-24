@@ -84,7 +84,7 @@
         let facility_doc_date,facility_modified_date;
             let client_det_arr=[];
             export let gst_doc_arr;
-            // console.log("gst_doc_arr",gst_doc_arr)
+            
         //     // $: cheque_date = new Date();
             let file_data;
             let showbtn = 0;
@@ -163,12 +163,15 @@
             }
             $:new_pages = [];
             $:for(let i=0;i<scope_data.length;i++){
+                
+                console.log("gst_city_select 1",gst_city_select);
                 if(scope_data[i].location_name == gst_city_select){
                     gst_city_link_state = scope_data[i].location_state;
                     gst_city_loc_id = scope_data[i].location_id;
                     gst_state_code = scope_data[i].state_code;
                 }
-            }
+                }
+            
             $:if(gst_checkbox === true){
                 gst_checkbox = true;
             }
@@ -327,16 +330,17 @@
         goto(routeNext, { replaceState });
     }  
     async function gstModel() {
+        gst_city_link_state="";
         modalidgst.style.display = "block";
         let gst_details_res = await gst_details();
         try{
             if(gst_details_res != "null"){
-                
+                console.log("gst_details_res",gst_details_res)
                 gst_details_data=[];
                 for(let i=0;i < gst_details_res.body.data.length;i++){
                             for(let j = 0;j<gst_doc_arr.length;j++){ 
+                                console.log("gst_doc_arr",gst_doc_arr)
                                 if(gst_details_res.body.data[i].gstn == gst_doc_arr[j].gst_doc_num){
-                                    
                                     gst_details_data.push(gst_details_res.body.data[i]);
                                 }
                             }
@@ -432,17 +436,7 @@
                     toast_type = "success";
                     toast_text = "GST Details Added Successfully";
                     
-                }
-                else{
-                    toast_type = "error";
-                    toast_text = gst_add_res.body.message;
-                }
-                
-            } catch (err) {
-                toast_type = "error";
-                toast_text = "Error in Adding GST Details";
-            }
-            let new_doc_type = "gst-certificate-"+gst_state_code;
+                    let new_doc_type = "gst-certificate-"+gst_state_code;
                     console.log("new_doc_type",new_doc_type)
                     const gst_file_data = {"documents":[{"file_name":gst_img,"doc_category":"GST Certificate","status":"created","resource_id":$facility_id.facility_id_number,"user_id":username,"doc_number":"","pod":gst_data,"doc_type":new_doc_type,"facility_id":$facility_data_store.facility_id}]}
                     gst_doc_submit_res = await uploadDocs(gst_file_data);
@@ -460,6 +454,34 @@
                         toast_type = "error";
                         toast_text = "Error in Uploading GST Certificate";
                     }
+                }
+                else{
+                    toast_type = "error";
+                    toast_text = gst_add_res.body.message;
+                }
+                
+            } catch (err) {
+                toast_type = "error";
+                toast_text = "Error in Adding GST Details";
+            }
+            // let new_doc_type = "gst-certificate-"+gst_state_code;
+            //         console.log("new_doc_type",new_doc_type)
+            //         const gst_file_data = {"documents":[{"file_name":gst_img,"doc_category":"GST Certificate","status":"created","resource_id":$facility_id.facility_id_number,"user_id":username,"doc_number":"","pod":gst_data,"doc_type":new_doc_type,"facility_id":$facility_data_store.facility_id}]}
+            //         gst_doc_submit_res = await uploadDocs(gst_file_data);
+            //         try {
+            //             if(gst_doc_submit_res.body.status == "green"){
+                                    
+            //                         toast_type = "success";
+            //                         toast_text = "GST Document Added Successfully";
+            //             }
+            //             else if(gst_doc_submit_res.body.status == "red"){
+            //                 toast_type = "error";
+            //                 toast_text = gst_doc_submit_res.body.message;
+            //             }
+            //         } catch (err) {
+            //             toast_type = "error";
+            //             toast_text = "Error in Uploading GST Certificate";
+            //         }
             if(gst_doc_submit_res.body.status == "green" && gst_add_res.body.status=="green"){
                 let gst_details_res = await gst_details();
                 try{
@@ -1191,9 +1213,9 @@
                                 >
                             </p>
                         </div>
-                        <div class="rightmodalclose" on:click={closeGST}>
+                        <button class="rightmodalclose" on:click={closeGST}>
                             <img src="{$img_url_name.img_name}/blackclose.svg" alt="" />
-                        </div>
+                        </button>
                     </div>
                     <div class="innermodal">
                         <hr />
@@ -1213,7 +1235,7 @@
                                                     >
                                                         <div class="flex">
                                                             <p
-                                                                class="detailLbalesm pr-3"
+                                                                class="detailLbalesm pr-16"
                                                             >
                                                                 Address
                                                             </p>
@@ -1710,12 +1732,12 @@
                                 >
                             </p>
                         </div>
-                        <div
+                        <button
                             class="rightmodalclose"
                             on:click={linkChildModelclose}
                         >
                             <img src="{$img_url_name.img_name}/blackclose.svg" alt="" />
-                        </div>
+                    </button>
                     </div>
                     <div class="innermodal">
                         <hr />
@@ -1946,7 +1968,11 @@
                                                     </div>
                                                     <div class="w-2/3 ">
                                                         <div class="detailData">
+                                                            {#if !facility_address}
+                                                            <p>-</p>
+                                                            {:else}
                                                             {facility_address}
+                                                            {/if}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1961,7 +1987,11 @@
                                                     </div>
                                                     <div class="w-2/3 ">
                                                         <div class="detailData">
+                                                            {#if !new_child.facility_name}
+                                                            <p>-</p>
+                                                            {:else}
                                                            {new_child.facility_name}
+                                                           {/if}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1975,7 +2005,11 @@
                                                     </div>
                                                     <div class="w-2/3 ">
                                                         <div class="detailData">
+                                                            {#if !new_child.name}
+                                                            <p>-</p>
+                                                            {:else}
                                                             {new_child.name}
+                                                            {/if}
                                                         </div>
                                                     </div>
                                                 </div>

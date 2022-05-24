@@ -237,7 +237,7 @@ import { facility_id } from "../stores/facility_id_store";
 
     function routeToWorkforce() {
         let replaceState = false;
-        goto("workforce", { replaceState });
+        goto("catagory", { replaceState });
     }
     function select_vendor_name(sel) {
         // console.log(sel);

@@ -407,7 +407,7 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
         $facility_data_store.facility_email = "testing@nomail.com";
         $facility_data_store.facility_id = "tejas_bhosale_mhpd";
         $facility_data_store.facility_name = "tejas bhosale";
-        $facility_data_store.facility_type = "DA";
+        $facility_data_store.facility_type = "HDA";
         $facility_data_store.msme_registered = "1";
         $facility_data_store.org_id = "AN";
         $facility_data_store.owner_name = "tejas bhosale";
@@ -430,7 +430,7 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
             bank_section_required_associates: ["NDA", "Reseller", "SAG"],
         };
         //TODO: remove this
-        $facility_id.facility_id_number = "MHPD01325";
+       
     }
     // function set_user_id_to_document_store() {
     //     $msme_store.user_id = $current_user.email;
@@ -797,9 +797,10 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
                             success_text = "Onboarding Completed Successfully";
                             // await delay(2000);
                             // console.log("delay");
-                            setTimeout(() => {}, 2000);
                             let replaceState = false;
-                            goto("onboardsummary?unFacID="+$facility_id.facility_id_number, { replaceState });
+                           
+                            setTimeout( goto("onboardsummary?unFacID="+$facility_id.facility_id_number, { replaceState }), 2000);
+                            
                         }
                     } catch {
                         // alert("Error in saving facility!");
