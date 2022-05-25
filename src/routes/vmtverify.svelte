@@ -20,6 +20,7 @@
     // import axios from 'axios';
     import QRCode from "./components/qr-code.svelte";
     import {facility_id} from "../stores/facility_id_store";
+    import { page } from '$app/stores';
 
     let station_data_array=[];
     let org_name_array=[];
@@ -378,12 +379,12 @@
                             facility_docs_arr[i] = facility_document_data[i].doc_type;
 
                             if(!facility_docs_arr[i]){
-                                profile_url = facility_document_data[i].file_url;
+                                profile_url = $page.url.origin+facility_document_data[i].file_url;
                             }
                             
                             if(facility_docs_arr.includes("pan-photo")){
                                 // console.log("pan___",facility_document_data[i].file_url)
-                                pan_url = facility_document_data[i].file_url;
+                                pan_url = $page.url.origin+facility_document_data[i].file_url;
                                 pan_verified = facility_document_data[i].verified;
                                 pan_rejected = facility_document_data[i].rejected;
                                 // console.log("successfully fetched Pan")
@@ -398,7 +399,7 @@
                             
                             if(facility_docs_arr.includes("voter-id-proof")){
                                 // console.log("address___",facility_document_data[i].file_url)
-                                voter_url = facility_document_data[i].file_url;
+                                voter_url = $page.url.origin+facility_document_data[i].file_url;
                                 voter_verified = facility_document_data[i].verified;
                                 voter_rejected = facility_document_data[i].rejected;
                                 contains_voter = 1;
@@ -410,7 +411,7 @@
                             }
                             if(facility_docs_arr.includes("aadhar-id-proof")){
                                 // console.log("aadhar___",facility_document_data[i].file_url)
-                                aadhar_url = facility_document_data[i].file_url;
+                                aadhar_url = $page.url.origin+facility_document_data[i].file_url;
                                 aadhar_verified = facility_document_data[i].verified;
                                 aadhar_rejected = facility_document_data[i].rejected;
                                 contains_aadhar = 1;
@@ -422,7 +423,7 @@
                             }
                             if(facility_docs_arr.includes("addproof-photo")){
                                 // console.log("address___",facility_document_data[i].file_url)
-                                address_url = facility_document_data[i].file_url;
+                                address_url = $page.url.origin+facility_document_data[i].file_url;
                                 address_verified = facility_document_data[i].verified;
                                 address_rejected = facility_document_data[i].rejected;
                                 contains_address = 1;
@@ -434,7 +435,7 @@
                             }
                             if(facility_docs_arr.includes("newOffFile")){
                                 // console.log("address___",facility_document_data[i].file_url)
-                                offer_url = facility_document_data[i].file_url;
+                                offer_url = $page.url.origin+facility_document_data[i].file_url;
                                 offer_verified = facility_document_data[i].verified;
                                 offer_rejected = facility_document_data[i].rejected;
                                 contains_offer = 1;
@@ -447,7 +448,7 @@
                             }
                             if(facility_docs_arr.includes("dl-photo")){
                                 // console.log("address___",facility_document_data[i].file_url)
-                                dl_url = facility_document_data[i].file_url;
+                                dl_url = $page.url.origin+facility_document_data[i].file_url;
                                 dl_verified = facility_document_data[i].verified;
                                 dl_rejected = facility_document_data[i].rejected;
                                 contains_dl = 1;
@@ -460,7 +461,7 @@
                             }
                             if(facility_docs_arr.includes("pass_photo")){
                                 // console.log("aadhar___",facility_document_data[i].file_url)
-                                pass_photo_url = facility_document_data[i].file_url;
+                                pass_photo_url = $page.url.origin+facility_document_data[i].file_url;
                                 pass_photo_verified = facility_document_data[i].verified;
                                 pass_photo_rejected = facility_document_data[i].rejected;
                                 // contains_pass_photo = 1;
@@ -472,7 +473,7 @@
                             }
                             if(facility_docs_arr.includes("police_info_supp_file")){
                                 // console.log("address___",facility_document_data[i].file_url)
-                                police_url = facility_document_data[i].file_url;
+                                police_url = $page.url.origin+facility_document_data[i].file_url;
                                 police_verified = facility_document_data[i].verified;
                                 police_rejected = facility_document_data[i].rejected;
                                 // contains_police = 1;
@@ -483,17 +484,17 @@
                                 // console.log("successfully fetched addressproof")
                             }
                             if(facility_docs_arr.includes("can-cheque")){
-                                can_cheque_url = facility_document_data[i].file_url;
+                                can_cheque_url = $page.url.origin+facility_document_data[i].file_url;
                                 
                             }
                             if(facility_docs_arr.includes("blcheque")){
-                                blk_cheque_url = facility_document_data[i].file_url;
+                                blk_cheque_url = $page.url.origin+facility_document_data[i].file_url;
                             }
                             if(facility_docs_arr.includes("passbook")){
-                                passbook_url = facility_document_data[i].file_url;
+                                passbook_url = $page.url.origin+facility_document_data[i].file_url;
                             }
                             if(facility_docs_arr.includes("acc-stat")){
-                                acc_stmt_url = facility_document_data[i].file_url;
+                                acc_stmt_url = $page.url.origin+facility_document_data[i].file_url;
                                 
                             }
                             
@@ -1132,7 +1133,7 @@
                             
                             if(facility_docs_arr.includes("pan-photo")){
                                 // console.log("pan___",facility_document_data[i].file_url)
-                                pan_url = facility_document_data[i].file_url;
+                                pan_url = $page.url.origin+facility_document_data[i].file_url;
                                 pan_verified = facility_document_data[i].verified;
                                 pan_rejected = facility_document_data[i].rejected;
                                 // console.log("successfully fetched Pan")
@@ -1146,7 +1147,7 @@
                             
                             if(facility_docs_arr.includes("voter-id-proof")){
                                 // console.log("address___",facility_document_data[i].file_url)
-                                voter_url = facility_document_data[i].file_url;
+                                voter_url = $page.url.origin+facility_document_data[i].file_url;
                                 voter_verified = facility_document_data[i].verified;
                                 voter_rejected = facility_document_data[i].rejected;
                                 contains_voter = 1;
@@ -1158,7 +1159,7 @@
                             }
                             if(facility_docs_arr.includes("aadhar-id-proof")){
                                 // console.log("aadhar___",facility_document_data[i].file_url)
-                                aadhar_url = facility_document_data[i].file_url;
+                                aadhar_url = $page.url.origin+facility_document_data[i].file_url;
                                 aadhar_verified = facility_document_data[i].verified;
                                 aadhar_rejected = facility_document_data[i].rejected;
                                 contains_aadhar = 1;
@@ -1170,7 +1171,7 @@
                             }
                             if(facility_docs_arr.includes("addproof-photo")){
                                 // console.log("address___",facility_document_data[i].file_url)
-                                address_url = facility_document_data[i].file_url;
+                                address_url = $page.url.origin+facility_document_data[i].file_url;
                                 address_verified = facility_document_data[i].verified;
                                 address_rejected = facility_document_data[i].rejected;
                                 contains_address = 1;
@@ -1182,7 +1183,7 @@
                             }
                             if(facility_docs_arr.includes("newOffFile")){
                                 // console.log("address___",facility_document_data[i].file_url)
-                                offer_url = facility_document_data[i].file_url;
+                                offer_url = $page.url.origin+facility_document_data[i].file_url;
                                 offer_verified = facility_document_data[i].verified;
                                 offer_rejected = facility_document_data[i].rejected;
                                 contains_offer = 1;
@@ -1195,7 +1196,7 @@
                             }
                             if(facility_docs_arr.includes("dl-photo")){
                                 // console.log("address___",facility_document_data[i].file_url)
-                                dl_url = facility_document_data[i].file_url;
+                                dl_url = $page.url.origin+facility_document_data[i].file_url;
                                 dl_verified = facility_document_data[i].verified;
                                 dl_rejected = facility_document_data[i].rejected;
                                 contains_dl = 1;
@@ -1207,7 +1208,7 @@
                             }
                             if(facility_docs_arr.includes("pass_photo")){
                                 // console.log("aadhar___",facility_document_data[i].file_url)
-                                pass_photo_url = facility_document_data[i].file_url;
+                                pass_photo_url = $page.url.origin+facility_document_data[i].file_url;
                                 pass_photo_verified = facility_document_data[i].verified;
                                 pass_photo_rejected = facility_document_data[i].rejected;
                                 // contains_pass_photo = 1;
@@ -1219,7 +1220,7 @@
                             }
                             if(facility_docs_arr.includes("police_info_supp_file")){
                                 // console.log("address___",facility_document_data[i].file_url)
-                                police_url = facility_document_data[i].file_url;
+                                police_url = $page.url.origin+facility_document_data[i].file_url;
                                 police_verified = facility_document_data[i].verified;
                                 police_rejected = facility_document_data[i].rejected;
                                 // contains_police = 1;
@@ -1230,17 +1231,17 @@
                                 // console.log("successfully fetched addressproof")
                             }
                             if(facility_docs_arr.includes("can-cheque")){
-                                can_cheque_url = facility_document_data[i].file_url;
+                                can_cheque_url = $page.url.origin+facility_document_data[i].file_url;
                                 
                             }
                             if(facility_docs_arr.includes("blcheque")){
-                                blk_cheque_url = facility_document_data[i].file_url;
+                                blk_cheque_url = $page.url.origin+facility_document_data[i].file_url;
                             }
                             if(facility_docs_arr.includes("passbook")){
-                                passbook_url = facility_document_data[i].file_url;
+                                passbook_url = $page.url.origin+acility_document_data[i].file_url;
                             }
                             if(facility_docs_arr.includes("acc-stat")){
-                                acc_stmt_url = facility_document_data[i].file_url;
+                                acc_stmt_url = $page.url.origin+facility_document_data[i].file_url;
                                 
                             }
                             
@@ -1351,7 +1352,7 @@
                             
                             if(facility_docs_arr.includes("pan-photo")){
                                 // console.log("pan___",facility_document_data[i].file_url)
-                                pan_url = facility_document_data[i].file_url;
+                                pan_url = $page.url.origin+facility_document_data[i].file_url;
                                 pan_verified = facility_document_data[i].verified;
                                 pan_rejected = facility_document_data[i].rejected;
                                 // console.log("successfully fetched Pan")
@@ -1365,7 +1366,7 @@
                             
                             if(facility_docs_arr.includes("voter-id-proof")){
                                 // console.log("address___",facility_document_data[i].file_url)
-                                voter_url = facility_document_data[i].file_url;
+                                voter_url = $page.url.origin+facility_document_data[i].file_url;
                                 voter_verified = facility_document_data[i].verified;
                                 voter_rejected = facility_document_data[i].rejected;
                                 contains_voter = 1;
@@ -1377,7 +1378,7 @@
                             }
                             if(facility_docs_arr.includes("aadhar-id-proof")){
                                 // console.log("aadhar___",facility_document_data[i].file_url)
-                                aadhar_url = facility_document_data[i].file_url;
+                                aadhar_url = $page.url.origin+facility_document_data[i].file_url;
                                 aadhar_verified = facility_document_data[i].verified;
                                 aadhar_rejected = facility_document_data[i].rejected;
                                 contains_aadhar = 1;
@@ -1389,7 +1390,7 @@
                             }
                             if(facility_docs_arr.includes("addproof-photo")){
                                 // console.log("address___",facility_document_data[i].file_url)
-                                address_url = facility_document_data[i].file_url;
+                                address_url = $page.url.origin+facility_document_data[i].file_url;
                                 address_verified = facility_document_data[i].verified;
                                 address_rejected = facility_document_data[i].rejected;
                                 contains_address = 1;
@@ -1401,7 +1402,7 @@
                             }
                             if(facility_docs_arr.includes("newOffFile")){
                                 // console.log("address___",facility_document_data[i].file_url)
-                                offer_url = facility_document_data[i].file_url;
+                                offer_url = $page.url.origin+facility_document_data[i].file_url;
                                 offer_verified = facility_document_data[i].verified;
                                 offer_rejected = facility_document_data[i].rejected;
                                 contains_offer = 1;
@@ -1414,7 +1415,7 @@
                             }
                             if(facility_docs_arr.includes("dl-photo")){
                                 // console.log("address___",facility_document_data[i].file_url)
-                                dl_url = facility_document_data[i].file_url;
+                                dl_url = $page.url.origin+facility_document_data[i].file_url;
                                 dl_verified = facility_document_data[i].verified;
                                 dl_rejected = facility_document_data[i].rejected;
                                 contains_dl = 1;
@@ -1426,7 +1427,7 @@
                             }
                             if(facility_docs_arr.includes("pass_photo")){
                                 // console.log("aadhar___",facility_document_data[i].file_url)
-                                pass_photo_url = facility_document_data[i].file_url;
+                                pass_photo_url = $page.url.origin+facility_document_data[i].file_url;
                                 pass_photo_verified = facility_document_data[i].verified;
                                 pass_photo_rejected = facility_document_data[i].rejected;
                                 // contains_pass_photo = 1;
@@ -1438,7 +1439,7 @@
                             }
                             if(facility_docs_arr.includes("police_info_supp_file")){
                                 // console.log("address___",facility_document_data[i].file_url)
-                                police_url = facility_document_data[i].file_url;
+                                police_url = $page.url.origin+facility_document_data[i].file_url;
                                 police_verified = facility_document_data[i].verified;
                                 police_rejected = facility_document_data[i].rejected;
                                 // contains_police = 1;
@@ -1449,17 +1450,17 @@
                                 // console.log("successfully fetched addressproof")
                             }
                             if(facility_docs_arr.includes("can-cheque")){
-                                can_cheque_url = facility_document_data[i].file_url;
+                                can_cheque_url = $page.url.origin+facility_document_data[i].file_url;
                                 
                             }
                             if(facility_docs_arr.includes("blcheque")){
-                                blk_cheque_url = facility_document_data[i].file_url;
+                                blk_cheque_url = $page.url.origin+facility_document_data[i].file_url;
                             }
                             if(facility_docs_arr.includes("passbook")){
-                                passbook_url = facility_document_data[i].file_url;
+                                passbook_url = $page.url.origin+facility_document_data[i].file_url;
                             }
                             if(facility_docs_arr.includes("acc-stat")){
-                                acc_stmt_url = facility_document_data[i].file_url;
+                                acc_stmt_url = $page.url.origin+facility_document_data[i].file_url;
                                 
                             }
                             
