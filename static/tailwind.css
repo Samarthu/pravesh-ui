@@ -462,7 +462,7 @@
 }
 
 .statusbar{
-    @apply bg-lighterGrey flex p-p15 justify-between xs:flex-wrap sm:flex-wrap mdl:flex-wrap border-b border-t border-bordercolor
+    @apply bg-lighterGrey flex p-p15 justify-between items-center xs:flex-wrap sm:flex-wrap mdl:flex-wrap border-b border-t border-bordercolor
 }
 
 .statusBarSec{

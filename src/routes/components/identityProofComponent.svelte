@@ -83,6 +83,10 @@
         export let id_new_date;
         let username;
         let all_tags_res;
+        export let changed_pan_num;
+        export let changed_aadhar_num;
+        export let changed_dl_num;
+        export let changed_voter_num;
         export let pancard_obj = {
             pan_num:null,
             pan_attach:null,
@@ -99,11 +103,15 @@
         }
         
         export let dl_photo_obj = {
+            dl_lic_num:null,
             dl_lic_name:null,
             dl_lic_url:null,
             dl_verified:null,
             dl_rejected:null
         };
+        export let voter_id_object = {
+            voter_id_number:null
+        }
     
         let text_pattern = /^[a-zA-Z_ ]+$/;
         let recrun_pattern =  /^[^-\s](?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9 _-]+)$/;
@@ -205,37 +213,37 @@
     function openViewModel(data,doc_number){
         document.getElementById("img_model").style.display = "block";
         if(data == "aadhar"){
-            document.getElementById("img_model_url").getAttribute('src',aadhar_obj.aadhar_attach);
+            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+aadhar_obj.aadhar_attach);
             alt_image = "aadhar proof";
         }
         else if(data == "pan"){
-            document.getElementById("img_model_url").getAttribute('src',pancard_obj.pan_attach);
+            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+pancard_obj.pan_attach);
             alt_image = "pan-card proof";
         }
         else if(data == "address"){
-            document.getElementById("img_model_url").getAttribute('src',addproof_obj.address_url);
+            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+addproof_obj.address_url);
             alt_image = "address proof";
         }
         else if(data == "licence"){
-            document.getElementById("img_model_url").getAttribute('src',dl_lic_attach);
+            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+dl_lic_attach);
             alt_image = "driving licence proof";
         }
         else if(data == "offer"){
-            document.getElementById("img_model_url").getAttribute('src',new_off_file_obj.offer_url);
+            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+new_off_file_obj.offer_url);
             alt_image = "offer letter proof";
         }
         else if(data == "can_cheque"){
-            document.getElementById("img_model_url").getAttribute('src',can_cheque_obj.can_cheque_url);
+            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+can_cheque_obj.can_cheque_url);
             alt_image = "cancel cheque proof";
         }
         else if(data == "cheque_disp"){
-            document.getElementById("img_model_url").getAttribute('src',new_cheque.file_url);
+            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+new_cheque.file_url);
             alt_image = "cheque proof";
         }
         for(let i = 0;i<gst_doc_arr.length;i++){
             if(data == "mult_gsts"){
                 if(doc_number == gst_doc_arr[i].gst_doc_num)
-                document.getElementById("img_model_url").getAttribute('src',gst_url[i]);
+                document.getElementById("img_model_url").getAttribute('src',$page.url.origin+gst_url[i]);
                 alt_image = "gst proof";
             }
         }
@@ -354,10 +362,10 @@
                     <img src="{$img_url_name.img_name}/pan.png" alt="" class="w-5 h-5">
                     <div class="pl-4">
                         <p class="detailLbale">PAN Number</p>
-                        {#if !pancard_obj.pan_num}
+                        {#if !changed_pan_num}
                         <p>-</p>
                         {:else}
-                        <p class="detailData">{pancard_obj.pan_num}</p>
+                        <p class="detailData">{changed_pan_num}</p>
                         {/if}
                         
                     </div>
@@ -373,7 +381,7 @@
                         {#if !aadhar_obj.aadhar_num}
                         <p>-</p>
                         {:else}
-                        <p class="detailData">{aadhar_obj.aadhar_num}</p>
+                        <p class="detailData">{changed_aadhar_num}</p>
                         {/if}
                     </div>
                 </div>
@@ -382,11 +390,26 @@
                 <div class="flex items-start">
                     <img src="{$img_url_name.img_name}/warehouse.png" class="w-5 h-5" alt="">
                     <div class="pl-4">
-                        <p class="detailLbale">Driving License</p>
-                        {#if !dl_photo_obj.dl_lic_name}
+                        <p class="detailLbale">Driving License Number</p>
+                        {#if !dl_photo_obj.dl_lic_num}
                         <p>-</p>
                         {:else}
-                        <p class="detailData">{dl_photo_obj.dl_lic_name}</p>
+                        <p class="detailData">{changed_dl_num}</p>
+                        {/if}
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="userInfoSec3 ">
+                <div class="flex items-start">
+                    <img src="{$img_url_name.img_name}/pan.png" class="w-5 h-5" alt="">
+                    <div class="pl-4">
+                        <p class="detailLbale">Voter Id</p>
+                        {#if !voter_id_object.voter_id_number}
+                        <p>-</p>
+                        {:else}
+                        <p class="detailData">{changed_voter_num}</p>
                         {/if}
                     </div>
                 </div>
@@ -454,9 +477,11 @@
                     </div>
                     <div class="userStatus ">
                         <p class="verifyText">
+                            {#if pancard_obj.pan_attach}
                             <a href="" class="smButton">
                                 <img src="{$img_url_name.img_name}/view.png" alt="" on:click="{()=>{openViewModel("pan")}}">
                             </a>
+                            {/if}
                         </p>
                     </div>
                 </div>
@@ -514,9 +539,11 @@
                     </div>
                     <div class="userStatus ">
                         <p class="verifyText">
+                            {#if aadhar_obj.aadhar_attach}
                             <a href="" class="smButton">
                                 <img src="{$img_url_name.img_name}/view.png" alt="" on:click="{()=>{openViewModel("aadhar")}}">
                             </a>
+                            {/if}
                         </p>
                     </div>
                     
@@ -527,7 +554,7 @@
                     <div class="flex items-start">
                         <img src="{$img_url_name.img_name}/offerlatter.png" alt="" class="w-5 h-5">
                         <div class="pl-4">
-                            <p class="detailLbale">Driving Licence Attachment</p>
+                            <p class="detailLbale">Driving License Attachment</p>
                         </div>
                     </div>
                     {#if dl_photo_obj.dl_rejected == "1"}
@@ -575,9 +602,11 @@
                     </div>
                     <div class="userStatus ">
                         <p class="verifyText">
+                            {#if dl_photo_obj.dl_lic_url}
                             <a href="" class="smButton">
                                 <img src="{$img_url_name.img_name}/view.png" alt="" on:click="{()=>{openViewModel("licence")}}">
                             </a>
+                            {/if}
                         </p>
                     </div>
                 </div>

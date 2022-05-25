@@ -25,7 +25,7 @@
             import {img_url_name} from '../../stores/flags_store';
             // import {facility_id} from "../../stores/facility_id_store"
             import {facility_data_store} from "../../stores/facility_store"
-        //     import {bgv_config_store} from '../stores/bgv_config_store'
+            import {bgv_config_store} from '../../stores/bgv_config_store'
             import Toast from './toast.svelte';
         //     import AssociateDetails from './components/associateDetailsComponent.svelte';
         //     import BankDetails from './components/bankDetailsComponent.svelte';
@@ -742,7 +742,6 @@
                             work_contract_arr[i].updated_date = get_date_format(updated_date_format,"dd-mm-yyyy-hh-mm");
                             let creation_date_format = new Date(work_contract_arr[i].creation);
                             work_contract_arr[i].creation = get_date_format(creation_date_format,"dd-mm-yyyy-hh-mm");
-                            
                         }
                     }
                     else if(work_details_res.body.status == "red"){
@@ -792,6 +791,12 @@
                         toast_type = "success";
                         toast_text = all_accepted_contract_res.body.message;
                         all_accepted_contract_arr = all_accepted_contract_res.body.data;
+                        for(let i=0;i<all_accepted_contract_arr.length;i++){
+                            let updated_date_format = new Date(all_accepted_contract_arr[i].updated_date);
+                            all_accepted_contract_arr[i].updated_date = get_date_format(updated_date_format,"dd-mm-yyyy-hh-mm");
+                            
+                        }
+                        
                     }
                     else{
                         show_spinner = false;
@@ -1263,44 +1268,44 @@
             // function closeWorkorganization() {
             //     workorganizationModel.style.display = "none";
             // }
-            function closeViewModel(){
+    function closeViewModel(){
         document.getElementById("img_model").style.display = "none";
-        OfferLetterModel.style.display ="block";
+        OfferLetterModel.style.display = "none";
     }
     function openViewModel(data,doc_number){
         document.getElementById("img_model").style.display = "block";
         if(data == "aadhar"){
-            document.getElementById("img_model_url").getAttribute('src',aadhar_obj.aadhar_attach);
+            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+aadhar_obj.aadhar_attach);
             alt_image = "aadhar proof";
         }
         else if(data == "pan"){
-            document.getElementById("img_model_url").getAttribute('src',pancard_obj.pan_attach);
+            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+pancard_obj.pan_attach);
             alt_image = "pan-card proof";
         }
         else if(data == "address"){
-            document.getElementById("img_model_url").getAttribute('src',addproof_obj.address_url);
+            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+addproof_obj.address_url);
             alt_image = "address proof";
         }
         else if(data == "licence"){
-            document.getElementById("img_model_url").getAttribute('src',dl_lic_attach);
+            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+dl_lic_attach);
             alt_image = "driving licence proof";
         }
         else if(data == "offer"){
-            document.getElementById("img_model_url").getAttribute('src',new_off_file_obj.offer_url);
+            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+new_off_file_obj.offer_url);
             alt_image = "offer letter proof";
         }
         else if(data == "can_cheque"){
-            document.getElementById("img_model_url").getAttribute('src',can_cheque_obj.can_cheque_url);
+            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+can_cheque_obj.can_cheque_url);
             alt_image = "cancel cheque proof";
         }
         else if(data == "cheque_disp"){
-            document.getElementById("img_model_url").getAttribute('src',new_cheque.file_url);
+            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+new_cheque.file_url);
             alt_image = "cheque proof";
         }
         for(let i = 0;i<gst_doc_arr.length;i++){
             if(data == "mult_gsts"){
                 if(doc_number == gst_doc_arr[i].gst_doc_num)
-                document.getElementById("img_model_url").getAttribute('src',gst_url[i]);
+                document.getElementById("img_model_url").getAttribute('src',$page.url.origin+gst_url[i]);
                 alt_image = "gst proof";
             }
         }
@@ -1483,10 +1488,10 @@
                             <img src="{$img_url_name.img_name}/Subtract.png" alt="" class="w-5 h-auto">
                             <div class="pl-4">
                                 <p class="detailLbale">Associate Type</p>
-                                {#if !$facility_data_store.facility_type}
+                                {#if !$facility_data_store.facility_type_name}
                                 <p>-</p>
                                 {:else}
-                                <p class="detailData">{$facility_data_store.facility_type}</p>
+                                <p class="detailData">{$facility_data_store.facility_type_name}</p>
                                 {/if}
                             </div>
                         </div>
@@ -1521,10 +1526,10 @@
                             <img src="{$img_url_name.img_name}/organization.png" alt="" class="w-5 h-5">
                             <div class="pl-4">
                                 <p class="detailLbale">Organization</p>
-                                {#if !$facility_data_store.org_id}
+                                {#if !$bgv_config_store.org_name}
                                 <p>-</p>
                                 {:else}
-                                <p class="detailData">{$facility_data_store.org_id}</p>
+                                <p class="detailData">{$bgv_config_store.org_name}</p>
                                 {/if}
                                 
                             </div>
@@ -1634,6 +1639,7 @@
                                         </a>
                                     </p>
                                 {:else}
+                                {#if remove_upload_btn == false}
                                     {#if show_upload_btn == "true"}
                                         <p class="flex items-center smButtonText" on:click={uploadOfferLetter}>
                                             <a href="" class="smButton modal-open">
@@ -1643,6 +1649,7 @@
                                         {:else if remove_upload_btn == "true"}
                                         <p></p>
                                     {/if}
+                                {/if}
                                 {/if}
                                
 
@@ -2242,16 +2249,16 @@
 
 
                         <div class="tabwrapper flex justify-between text-center py-2 pb-3"> 
-                            <div class="changetype py-3 w-1/2 {e_bg_bglightgreye}" on:click={() => {contract_tab("e-cont")}}>
+                            <button class="changetype py-3 w-1/2 {e_bg_bglightgreye}" on:click={() => {contract_tab("e-cont")}}>
                                 <p>E-Contracts</p>
-                            </div>
-                            <div class="Historytab py-3 w-1/2	 {phy_bg_bglightgreye}"  on:click={() => {contract_tab("phy_cont")}} >
+                            </button>
+                            <button class="Historytab py-3 w-1/2	 {phy_bg_bglightgreye}"  on:click={() => {contract_tab("phy_cont")}} >
                                 <!-- on:click="{()=>contract_tab("phy_cont")} -->
                                 <p>Physical Contracts</p>
-                            </div>
-                            <div class="changetype py-3 w-1/2 {all_bg_bglightgreye}" on:click={() => {contract_tab("all-cont")}}>
+                            </button>
+                            <button class="changetype py-3 w-1/2 {all_bg_bglightgreye}" on:click={() => {contract_tab("all-cont")}}>
                                 <p>View All Accepted Contracts</p>
-                            </div>
+                            </button>
                         </div>
                         <div class="PhysicalCardContainer">
                            <div class="gridMain ">
@@ -2504,7 +2511,7 @@
                                                 {:else}
                                                 <p>-</p>
                                                 {/if}
-                                                <p>{contract.contract_accepted}</p>
+                                                <!-- <p>{contract.contract_accepted}</p> -->
                                                 <td style="text-align: -webkit-center;">
                                                     {#if contract.contract_accepted == 0}
                                                     <button

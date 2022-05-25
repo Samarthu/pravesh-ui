@@ -2,7 +2,8 @@
 
         import { DateInput, DatePicker } from "date-picker-svelte";
             import { onMount } from "svelte";
-            import { bank_data_to_store,cheque_data_to_store } from "../../stores/onboardsummary_store";
+            import { bank_data_to_store,cheque_data_to_store} from "../../stores/onboardsummary_store";
+            // import{bank_details_store} from "../../stores/bank_details_store"
             import { facility_data,facility_bgv_init,facility_bgv_check,all_facility_tags,
                     show_fac_tags,submit_fac_tag_data,remove_tag,tag_audit_trail,service_vendor,
                     get_loc_scope,client_details,erp_details,child_data,add_gst_dets,
@@ -38,6 +39,7 @@
         let id_active ="";
         let bank_active = "";
         export let bank_values_from_store;
+       
         let cheque_values_from_store = [];
         let audit_details_array = [];
         let facility_document_data = [];
@@ -186,6 +188,7 @@
         // }
 
         onMount(async () => {
+            console.log("bank values from stoer",bank_values_from_store)
         let cheque_details_res = await cheque_details();
         try{
             
@@ -221,37 +224,37 @@
     function openViewModel(data,doc_number){
         document.getElementById("img_model").style.display = "block";
         if(data == "aadhar"){
-            document.getElementById("img_model_url").getAttribute('src',aadhar_obj.aadhar_attach);
+            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+aadhar_obj.aadhar_attach);
             alt_image = "aadhar proof";
         }
         else if(data == "pan"){
-            document.getElementById("img_model_url").getAttribute('src',pancard_obj.pan_attach);
+            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+pancard_obj.pan_attach);
             alt_image = "pan-card proof";
         }
         else if(data == "address"){
-            document.getElementById("img_model_url").getAttribute('src',addproof_obj.address_url);
+            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+addproof_obj.address_url);
             alt_image = "address proof";
         }
         else if(data == "licence"){
-            document.getElementById("img_model_url").getAttribute('src',dl_lic_attach);
+            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+dl_lic_attach);
             alt_image = "driving licence proof";
         }
         else if(data == "offer"){
-            document.getElementById("img_model_url").getAttribute('src',new_off_file_obj.offer_url);
+            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+new_off_file_obj.offer_url);
             alt_image = "offer letter proof";
         }
         else if(data == "can_cheque"){
-            document.getElementById("img_model_url").getAttribute('src',can_cheque_obj.can_cheque_url);
+            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+can_cheque_obj.can_cheque_url);
             alt_image = "cancel cheque proof";
         }
         else if(data == "cheque_disp"){
-            document.getElementById("img_model_url").getAttribute('src',cheque_values_from_store.file_url);
+            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+cheque_values_from_store.file_url);
             alt_image = "cheque proof";
         }
         for(let i = 0;i<gst_doc_arr.length;i++){
             if(data == "mult_gsts"){
                 if(doc_number == gst_doc_arr[i].gst_doc_num)
-                document.getElementById("img_model_url").getAttribute('src',gst_url[i]);
+                document.getElementById("img_model_url").getAttribute('src',$page.url.origin+gst_url[i]);
                 alt_image = "gst proof";
             }
         }
@@ -453,6 +456,9 @@
                              {/if} 
                          {/if}  
              </div>
+             {#if bank_values_from_store.modified_by == "-" && bank_new_date =="-"}
+             <p></p>
+             {:else}
              <div class="flex">
                  <p class="detailsUpdate mr-4">
                      <span><span class="font-medium">Last updated -> </span>  {bank_new_date} <span
@@ -467,6 +473,7 @@
                      </button>
                  </p>
              </div>
+             {/if}
          </div>
      </div>
 
@@ -615,9 +622,11 @@
                      </div>
                      <div class="userStatus ">
                          <p class="verifyText">
+                             {#if can_cheque_obj.can_cheque_url}
                              <a href="" class="smButton">
                                  <img src="{$img_url_name.img_name}/view.png" alt="" on:click="{()=>{openViewModel("can_cheque")}}">
                              </a>
+                             {/if}
                          </p>
                      </div>
                  </div>
