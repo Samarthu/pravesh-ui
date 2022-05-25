@@ -25,7 +25,7 @@
             import {img_url_name} from '../../stores/flags_store';
             // import {facility_id} from "../../stores/facility_id_store"
             import {facility_data_store} from "../../stores/facility_store"
-        //     import {bgv_config_store} from '../stores/bgv_config_store'
+            import {bgv_config_store} from '../../stores/bgv_config_store'
             import Toast from './toast.svelte';
         //     import AssociateDetails from './components/associateDetailsComponent.svelte';
         //     import BankDetails from './components/bankDetailsComponent.svelte';
@@ -1488,10 +1488,10 @@
                             <img src="{$img_url_name.img_name}/Subtract.png" alt="" class="w-5 h-auto">
                             <div class="pl-4">
                                 <p class="detailLbale">Associate Type</p>
-                                {#if !$facility_data_store.facility_type}
+                                {#if !$facility_data_store.facility_type_name}
                                 <p>-</p>
                                 {:else}
-                                <p class="detailData">{$facility_data_store.facility_type}</p>
+                                <p class="detailData">{$facility_data_store.facility_type_name}</p>
                                 {/if}
                             </div>
                         </div>
@@ -1526,10 +1526,10 @@
                             <img src="{$img_url_name.img_name}/organization.png" alt="" class="w-5 h-5">
                             <div class="pl-4">
                                 <p class="detailLbale">Organization</p>
-                                {#if !$facility_data_store.org_id}
+                                {#if !$bgv_config_store.org_name}
                                 <p>-</p>
                                 {:else}
-                                <p class="detailData">{$facility_data_store.org_id}</p>
+                                <p class="detailData">{$bgv_config_store.org_name}</p>
                                 {/if}
                                 
                             </div>
