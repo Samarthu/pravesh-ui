@@ -19,7 +19,7 @@
     import {get_pravesh_properties_method} from "../services/workdetails_services";
     // import axios from 'axios';
     import QRCode from "./components/qr-code.svelte";
-    import {facility_id} from "../stores/facility_id_store"
+    import {facility_id} from "../stores/facility_id_store";
 
     let station_data_array=[];
     let org_name_array=[];
@@ -1058,6 +1058,50 @@
                             toast_text = final_approve_id_res.body.message;
                             toast_type = "success";
                             show_spinner = false;
+
+
+
+
+
+
+
+
+            let facility_data_res = await get_facility_details()
+            console.log("facility_data_res",facility_data_res.body.data[0])
+            try{
+                if(facility_data_res.body.status=="green"){
+                    if(facility_data_res!="null"){
+                        facility_data_store.set(
+                            facility_data_res.body.data[0]
+                        )
+                    }
+                }
+                for (var j = 0;j < $facility_data_store.addresess.length;j++) 
+            {
+                if (
+                    $facility_data_store.addresess[j].default_address == "1"
+                ) {
+                    facility_address =$facility_data_store.addresess[j].address;
+                    // facility_postal =$facility_data_store.addresess[j].postal;
+                    city = $facility_data_store.addresess[j].city;
+                    state = $facility_data_store.addresess[j].state;
+                    // location_id = $facility_data_store.addresess[j].location_id;
+                }
+            }
+            if ($facility_data_store.org_id == "FT"){
+                show_fields = 1
+            }
+            }
+            catch (err) {
+                console.log("error in facility data")
+            }
+
+
+
+
+
+
+
                             let facility_doc_data_res = await facility_document()
             try{
                 if (facility_doc_data_res != "null" ){
@@ -1227,6 +1271,56 @@
                             toast_text = final_reject_id_res.body.message;
                             toast_type = "success";
                             show_spinner = false;
+
+
+
+
+
+
+
+
+
+            let facility_data_res = await get_facility_details()
+            console.log("facility_data_res",facility_data_res.body.data[0])
+            try{
+                if(facility_data_res.body.status=="green"){
+                    if(facility_data_res!="null"){
+                        facility_data_store.set(
+                            facility_data_res.body.data[0]
+                        )
+                    }
+                }
+                for (var j = 0;j < $facility_data_store.addresess.length;j++) 
+            {
+                if (
+                    $facility_data_store.addresess[j].default_address == "1"
+                ) {
+                    facility_address =$facility_data_store.addresess[j].address;
+                    // facility_postal =$facility_data_store.addresess[j].postal;
+                    city = $facility_data_store.addresess[j].city;
+                    state = $facility_data_store.addresess[j].state;
+                    // location_id = $facility_data_store.addresess[j].location_id;
+                }
+            }
+            if ($facility_data_store.org_id == "FT"){
+                show_fields = 1
+            }
+            }
+            catch (err) {
+                console.log("error in facility data")
+            }
+
+
+
+
+
+
+
+
+
+
+
+
                             let facility_doc_data_res = await facility_document()
             try{
                 if (facility_doc_data_res != "null" ){
@@ -1394,9 +1488,36 @@
         }
             let bank_sub_res =await bank_approve_reject(document_load)
             show_spinner = false;
+
             try{
                 if(bank_sub_res.body.status == "green"){
                     bank_success_flag = 1
+
+
+
+
+
+                    let facility_bank_data_res = await get_bank_facility_details()
+            console.log("bank_details", facility_bank_data_res.body.data.length)
+            try{
+                if(facility_bank_data_res.body.data.length == "0"){
+                    bank_details_provided="no";
+                }
+                else if(facility_bank_data_res != "null"){
+                    bank_details.set(
+                        facility_bank_data_res.body.data[0]
+                    )
+                }
+                
+            }
+            catch (err){
+                console.log("Bank details error")
+            }
+
+
+
+
+
                 }
             }
             catch(err){
@@ -1421,6 +1542,28 @@
             try{
                 if(bank_sub_res.body.status == "green"){
                     bank_reject_flag = 1
+
+
+
+                    let facility_bank_data_res = await get_bank_facility_details()
+            console.log("bank_details", facility_bank_data_res.body.data.length)
+            try{
+                if(facility_bank_data_res.body.data.length == "0"){
+                    bank_details_provided="no";
+                }
+                else if(facility_bank_data_res != "null"){
+                    bank_details.set(
+                        facility_bank_data_res.body.data[0]
+                    )
+                }
+                
+            }
+            catch (err){
+                console.log("Bank details error")
+            }
+
+
+
                 }
             }
             catch(err){
@@ -1757,6 +1900,45 @@
                 console.log("TOAST OF BGV SUCCESSFUL")
                 toast_text = final_bgv_verify_res.body.message;
                 toast_type = "success";
+
+
+                // window.location.reload();
+                let facility_data_res = await get_facility_details()
+            console.log("facility_data_res",facility_data_res.body.data[0])
+            try{
+                if(facility_data_res.body.status=="green"){
+                    if(facility_data_res!="null"){
+                        facility_data_store.set(
+                            facility_data_res.body.data[0]
+                        )
+                    }
+                }
+                for (var j = 0;j < $facility_data_store.addresess.length;j++) 
+            {
+                if (
+                    $facility_data_store.addresess[j].default_address == "1"
+                ) {
+                    facility_address =$facility_data_store.addresess[j].address;
+                    // facility_postal =$facility_data_store.addresess[j].postal;
+                    city = $facility_data_store.addresess[j].city;
+                    state = $facility_data_store.addresess[j].state;
+                    // location_id = $facility_data_store.addresess[j].location_id;
+                }
+            }
+            if ($facility_data_store.org_id == "FT"){
+                show_fields = 1
+            }
+            }
+            catch (err) {
+                console.log("error in facility data")
+            }
+
+
+
+
+
+
+
                 show_spinner=false;
                 let facility_bgv_check_res = await facility_bgv_check();
         console.log("facility_bgv_check_res",facility_bgv_check_res)
@@ -1802,6 +1984,50 @@
                 console.log("TOAST OF BGV REJECTED")
                 toast_text = final_bgv_reject_res.body.message;
                 toast_type = "success";
+                // window.location.reload();
+
+
+
+
+
+
+
+            let facility_data_res = await get_facility_details()
+            console.log("facility_data_res",facility_data_res.body.data[0])
+            try{
+                if(facility_data_res.body.status=="green"){
+                    if(facility_data_res!="null"){
+                        facility_data_store.set(
+                            facility_data_res.body.data[0]
+                        )
+                    }
+                }
+                for (var j = 0;j < $facility_data_store.addresess.length;j++) 
+            {
+                if (
+                    $facility_data_store.addresess[j].default_address == "1"
+                ) {
+                    facility_address =$facility_data_store.addresess[j].address;
+                    // facility_postal =$facility_data_store.addresess[j].postal;
+                    city = $facility_data_store.addresess[j].city;
+                    state = $facility_data_store.addresess[j].state;
+                    // location_id = $facility_data_store.addresess[j].location_id;
+                }
+            }
+            if ($facility_data_store.org_id == "FT"){
+                show_fields = 1
+            }
+            }
+            catch (err) {
+                console.log("error in facility data")
+            }
+
+
+
+
+
+
+
                 show_spinner=false;
                 let facility_bgv_check_res = await facility_bgv_check();
         console.log("facility_bgv_check_res qwerty 2",facility_bgv_check_res)
@@ -3596,7 +3822,7 @@
                                 <img src="{$img_url_name.img_name}/puls.svg" >
                             
                             <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                            <img src="{$img_url_name.img_name}/minus.svg" >
+                            <img src="{$img_url_name.img_name}/minus.svg">
                            
                         </div>
                          </div>
@@ -5879,8 +6105,9 @@
     
                                                 </tr>
                                             </thead>
-                                            {#each get_change_associte_data as associate}
+                                            
                                             <tbody class="tbodypopover">
+                                                {#each get_change_associte_data as associate}
                                                 <tr class="border-b">
                                                     
                                                     <td>{associate.property_value}</td>
@@ -5894,8 +6121,9 @@
                                                     </td>
                                                     
                                                 </tr>
+                                                {/each}
                                             </tbody>
-                                            {/each}
+                                            
                                         </table>
                                     </div>
                                 </div>
