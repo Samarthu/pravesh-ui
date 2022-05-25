@@ -9,7 +9,7 @@ RUN npm install
 # Copy all local files into the image.
 COPY . /pravesh-ui
 
-RUN cd /pravesh-ui && npm run build
+RUN cd /pravesh-ui && npm run build --trace-warnings
 
 FROM nginx:alpine
 COPY ./ngnix.conf /etc/nginx/conf.d/default.conf
