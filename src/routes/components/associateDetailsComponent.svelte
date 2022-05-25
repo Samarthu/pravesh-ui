@@ -467,7 +467,6 @@
                 
                 for(let i=0;i < gst_details_res.body.data.length;i++){
                             for(let j = 0;j<gst_doc_arr.length;j++){ 
-                                // console.log("gst_doc_arr",gst_doc_arr)
                                 gst_details_data.push(gst_details_res.body.data[i]);
                                 if(gst_details_res.body.data[i].gstn == gst_doc_arr[j].doc_number){
                                     show_gst_view_btn = true;
@@ -502,7 +501,11 @@
         console.log("new_gst",new_gst)
         gst_edit_btn = 1;
         for(let i=0;i<gst_doc_arr.length;i++){
-            if(gst_doc_arr[i].doc_number == new_gst.gstn){
+
+             let gst_doc_type =  "gst-certificate-" + new_gst.gstn.substring(0, 2);
+             console.log("gst_doc_type",gst_doc_type)
+            
+            if(gst_doc_arr[i].doc_type == gst_doc_type){
                 console.log("inside if")
                 onFileSelected(new_gst.gstn,"gst_edit_upload")
                 console.log("gst_file_datagst_file_data",gst_file_data)
@@ -1254,7 +1257,7 @@
                                  alt=""
                                  class="pr-1"
                              />
-                             User activation pending
+                             Mobile number Verified
                          </p>
                     
                      {:else if $facility_data_store.phone_verified == "0"}

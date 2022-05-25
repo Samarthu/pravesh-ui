@@ -79,6 +79,9 @@ import { Router, Link, Route } from "svelte-routing";
     let username;
     let all_tags_res;
     let changed_pan_num= "-";
+    let changed_aadhar_num="-";
+    let changed_dl_num="-";
+    let changed_voter_num="-";
     let pancard_obj = {
         pan_num:null,
         pan_attach:null,
@@ -111,6 +114,7 @@ import { Router, Link, Route } from "svelte-routing";
         can_cheque_rejected:null
     };
     let dl_photo_obj = {
+        dl_lic_num:null,
         dl_lic_name:null,
         dl_lic_url:null,
         dl_verified:null,
@@ -129,6 +133,9 @@ import { Router, Link, Route } from "svelte-routing";
         gst_verified:null,
         gst_rejected:null
     };
+    let voter_id_object = {
+        voter_id_number:null
+    }
 
     let text_pattern = /^[a-zA-Z_ ]+$/;
     let recrun_pattern =  /^[^-\s](?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9 _-]+)$/;
@@ -150,6 +157,7 @@ import { Router, Link, Route } from "svelte-routing";
     let selectTag,addRemark,selectsearch;
     let city = "-";
     let facility_address,facility_postal,facility_password,location_id,status_name;
+    let bank_details_req_fac = [];
     let new_fac_remarks = [];
     let facility_created_date;
     let select_tag_data,serv_ch_data;
@@ -243,6 +251,7 @@ import { Router, Link, Route } from "svelte-routing";
     
     
     onMount(async () => {
+        
         show_spinner = true;
         query = $page.url;
 
@@ -271,10 +280,11 @@ import { Router, Link, Route } from "svelte-routing";
         // );
         try{
         if (get_pravesh_properties_response.body.status == "green") {
+            console.log("get_pravesh_properties_response",get_pravesh_properties_response)
             sorting_pravesh_properties(
                 get_pravesh_properties_response.body.data
             );
-        if($pravesh_properties.properties.offer_letter_required_associates.includes($facility_data_store.facility_type) && admin == true){
+            if($pravesh_properties.properties.offer_letter_required_associates.includes($facility_data_store.facility_type) && admin == true){
                    show_upload_btn = true;
                }
                for(let i=0;i < show_fac_array.length;i++){
@@ -287,8 +297,14 @@ import { Router, Link, Route } from "svelte-routing";
                    }
                }
             //    console.log("offer_letter_required_associates",$pravesh_properties.properties.offer_letter_required_associates)
+            facility_password = $pravesh_properties.properties.default_org_app_password[0]
             
-        } else {
+
+            bank_details_req_fac = $pravesh_properties.properties.bank_section_required_associates;
+            
+            console.log("facility_password",bank_details_req_fac)
+        } 
+        else {
             toast_type = "error";
             toast_text = "Error in fetching pravesh properties";
         }
@@ -411,6 +427,7 @@ import { Router, Link, Route } from "svelte-routing";
                 }
                 
                 else if(facility_document_data[i].doc_type == "aadhar-id-proof"){
+                    changed_aadhar_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, 'x');
                     aadhar_obj = {aadhar_num : facility_document_data[i].doc_number,
                     aadhar_attach : facility_document_data[i].file_url,
                     aadhar_name : facility_document_data[i].file_name,
@@ -436,7 +453,9 @@ import { Router, Link, Route } from "svelte-routing";
                     can_cheque_rejected : facility_document_data[i].rejected};
                 }
                 else if(facility_document_data[i].doc_type == "dl-photo"){
+                    changed_dl_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, 'x');
                     dl_photo_obj = {dl_lic_name : facility_document_data[i].file_name,
+                    dl_lic_num : facility_document_data[i].doc_number,
                     dl_lic_url : facility_document_data[i].file_url,
                     dl_verified : facility_document_data[i].verified,
                     dl_rejected : facility_document_data[i].rejected};
@@ -446,6 +465,12 @@ import { Router, Link, Route } from "svelte-routing";
                     offer_url : facility_document_data[i].file_url,
                     offer_verified : facility_document_data[i].verified,
                     offer_rejected : facility_document_data[i].rejected};
+                    
+                }
+                else if(facility_document_data[i].doc_type == "voter-id-proof"){
+                    changed_voter_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, 'x');
+                    voter_id_object = {voter_id_number : facility_document_data[i].doc_number,
+                    };
                     
                 }
             }
@@ -545,8 +570,8 @@ import { Router, Link, Route } from "svelte-routing";
                 $facility_data_store.status = "Rejected";
                 status_name = $facility_data_store.status;
             }
-            if ($facility_data_store.password == "") {
-                facility_password = "-";
+            if ($facility_data_store.password == "" || facility_password == "") {
+                facility_password = "ntex@123";
             }
             for (var j = 0;j < $facility_data_store.addresess.length;j++){
                 for(let k=0;k<scope_data.length;k++){
@@ -595,8 +620,16 @@ import { Router, Link, Route } from "svelte-routing";
 
     let bgv_init_res = await facility_bgv_init(bgv_pass_data);
     // console.log("bgv_inittt",bgv_init_res)
-    if (bgv_init_res.body.status == "green"){
-        showbtn = 1;
+    try{
+        if (bgv_init_res.body.status == "green"){
+            showbtn = 1;
+            $bgv_config_store = bgv_init_res.body.data
+        }
+        console.log("bgv_config_store here",$bgv_config_store)
+    }
+    catch(err){
+        toast_type = "error";
+        toast_text = err;
     }
 
     all_tags_res = await all_facility_tags($facility_data_store.name);
@@ -1227,7 +1260,8 @@ function check_facility_status(message) {
             if(get_pravesh_properties_res.body.status == "green"){
                 
                 doc_arr_from_res = get_pravesh_properties_res.body.data.document_types.split("\n")
-                
+                console.log("doc_arr_from_res",doc_arr_from_res)
+
 
             for (var k = 0; k < doc_arr_from_res.length; k++) {
                     var ele = doc_arr_from_res[k];
@@ -2007,7 +2041,11 @@ function check_facility_status(message) {
             <div class="{asso_active}" on:click={() => {change_to = "Associate_details",work_active="",asso_active="active",id_active="",bank_active=""}}>Associate Details</div>
             <div class="{work_active}" on:click={() => {change_to = "Work_details",work_active="active",asso_active="",id_active="",bank_active=""}}>Work Details</div>
             <div class="{id_active}" on:click={() => {change_to = "Identity_details",work_active="",asso_active="",id_active="active",bank_active=""}}>Identity Proof</div>
+            {#each bank_details_req_fac as req_fac}
+            {#if req_fac == $facility_data_store.facility_type}
             <div class="{bank_active}" on:click={() => {change_to = "Bank_details",work_active="",asso_active="",id_active="",bank_active="active"}}>Bank Details</div>
+            {/if}
+            {/each}
         </div> 
     {#if change_to == "Associate_details"}
    
@@ -2030,8 +2068,12 @@ function check_facility_status(message) {
     {:else if change_to == "Identity_details"}
     <IdentityProof pancard_obj={pancard_obj}
     changed_pan_num= {changed_pan_num}
+    changed_aadhar_num = {changed_aadhar_num}
+    changed_dl_num = {changed_dl_num}
+    changed_voter_num = {changed_voter_num}
     aadhar_obj ={aadhar_obj}
     dl_photo_obj={dl_photo_obj}
+    voter_id_object = {voter_id_object}
     id_new_date={id_new_date} admin = {admin}
     is_adhoc_facility = {is_adhoc_facility}/>
     
@@ -2039,7 +2081,8 @@ function check_facility_status(message) {
     <BankDetails bank_values_from_store = {bank_values_from_store}
      city={city} can_cheque_obj = {can_cheque_obj}
      bank_new_date={bank_new_date} admin = {admin}
-     is_adhoc_facility = {is_adhoc_facility}/>
+     is_adhoc_facility = {is_adhoc_facility}
+     bank_details_req_fac = {bank_details_req_fac}/>
     {/if}
 
     
@@ -2181,7 +2224,7 @@ function check_facility_status(message) {
     <div class=" modalMain  " id="modal-id">
         <div class="modalOverlay"></div>
         <div class="modalContainer rounded-lg">
-            <div class="modalHeadConmb-0 sticky top-0 bg-white z-99">
+            <div class="modalHeadConmb-0 sticky top-0 bg-white z-zindex99">
                 <div class="leftmodalInfo">
                     <p class="text-lg text-erBlue font-medium  ">
                         <span class=""> All Documents</span>

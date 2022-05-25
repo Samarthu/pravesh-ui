@@ -2,7 +2,8 @@
 
         import { DateInput, DatePicker } from "date-picker-svelte";
             import { onMount } from "svelte";
-            import { bank_data_to_store,cheque_data_to_store } from "../../stores/onboardsummary_store";
+            import { bank_data_to_store,cheque_data_to_store} from "../../stores/onboardsummary_store";
+            // import{bank_details_store} from "../../stores/bank_details_store"
             import { facility_data,facility_bgv_init,facility_bgv_check,all_facility_tags,
                     show_fac_tags,submit_fac_tag_data,remove_tag,tag_audit_trail,service_vendor,
                     get_loc_scope,client_details,erp_details,child_data,add_gst_dets,
@@ -38,6 +39,7 @@
         let id_active ="";
         let bank_active = "";
         export let bank_values_from_store;
+       
         let cheque_values_from_store = [];
         let audit_details_array = [];
         let facility_document_data = [];
@@ -186,6 +188,7 @@
         // }
 
         onMount(async () => {
+            console.log("bank values from stoer",bank_values_from_store)
         let cheque_details_res = await cheque_details();
         try{
             
@@ -453,6 +456,9 @@
                              {/if} 
                          {/if}  
              </div>
+             {#if bank_values_from_store.modified_by == "-" && bank_new_date =="-"}
+             <p></p>
+             {:else}
              <div class="flex">
                  <p class="detailsUpdate mr-4">
                      <span><span class="font-medium">Last updated -> </span>  {bank_new_date} <span
@@ -467,6 +473,7 @@
                      </button>
                  </p>
              </div>
+             {/if}
          </div>
      </div>
 
