@@ -19,7 +19,7 @@
     import {get_pravesh_properties_method} from "../services/workdetails_services";
     // import axios from 'axios';
     import QRCode from "./components/qr-code.svelte";
-    import {facility_id} from "../stores/facility_id_store"
+    import {facility_id} from "../stores/facility_id_store";
 
     let station_data_array=[];
     let org_name_array=[];
@@ -141,7 +141,7 @@
         final_address_approve,
         final_dl_approve,
         final_offer_approve,
-        final_approve;
+        final_approve = 0;
     let final_pan_reject,
         final_voter_reject,
         final_aadhar_reject,
@@ -719,7 +719,8 @@
         }
         
     if (doc_cat == "offer"){
-        if(off_Name != 0 && off_assoc_type != 0 && off_vend_name != 0 && vmt_offer != 0){
+        if(off_Name != 0 && off_assoc_type != 0 && off_vend_name != 0){
+            // && vmt_offer != 0
             show_spinner = true;
             let document_load = {
                 "resource_id":$facility_id.facility_id_number,
@@ -1024,6 +1025,7 @@
     }
 
     async function final_id_verify(){
+        console.log("got it")
             if(final_approve == "1"){
                 show_spinner = true;
                 console.log("final_approved successful data arr",facility_document_data);
@@ -1056,6 +1058,50 @@
                             toast_text = final_approve_id_res.body.message;
                             toast_type = "success";
                             show_spinner = false;
+
+
+
+
+
+
+
+
+            let facility_data_res = await get_facility_details()
+            console.log("facility_data_res",facility_data_res.body.data[0])
+            try{
+                if(facility_data_res.body.status=="green"){
+                    if(facility_data_res!="null"){
+                        facility_data_store.set(
+                            facility_data_res.body.data[0]
+                        )
+                    }
+                }
+                for (var j = 0;j < $facility_data_store.addresess.length;j++) 
+            {
+                if (
+                    $facility_data_store.addresess[j].default_address == "1"
+                ) {
+                    facility_address =$facility_data_store.addresess[j].address;
+                    // facility_postal =$facility_data_store.addresess[j].postal;
+                    city = $facility_data_store.addresess[j].city;
+                    state = $facility_data_store.addresess[j].state;
+                    // location_id = $facility_data_store.addresess[j].location_id;
+                }
+            }
+            if ($facility_data_store.org_id == "FT"){
+                show_fields = 1
+            }
+            }
+            catch (err) {
+                console.log("error in facility data")
+            }
+
+
+
+
+
+
+
                             let facility_doc_data_res = await facility_document()
             try{
                 if (facility_doc_data_res != "null" ){
@@ -1225,6 +1271,56 @@
                             toast_text = final_reject_id_res.body.message;
                             toast_type = "success";
                             show_spinner = false;
+
+
+
+
+
+
+
+
+
+            let facility_data_res = await get_facility_details()
+            console.log("facility_data_res",facility_data_res.body.data[0])
+            try{
+                if(facility_data_res.body.status=="green"){
+                    if(facility_data_res!="null"){
+                        facility_data_store.set(
+                            facility_data_res.body.data[0]
+                        )
+                    }
+                }
+                for (var j = 0;j < $facility_data_store.addresess.length;j++) 
+            {
+                if (
+                    $facility_data_store.addresess[j].default_address == "1"
+                ) {
+                    facility_address =$facility_data_store.addresess[j].address;
+                    // facility_postal =$facility_data_store.addresess[j].postal;
+                    city = $facility_data_store.addresess[j].city;
+                    state = $facility_data_store.addresess[j].state;
+                    // location_id = $facility_data_store.addresess[j].location_id;
+                }
+            }
+            if ($facility_data_store.org_id == "FT"){
+                show_fields = 1
+            }
+            }
+            catch (err) {
+                console.log("error in facility data")
+            }
+
+
+
+
+
+
+
+
+
+
+
+
                             let facility_doc_data_res = await facility_document()
             try{
                 if (facility_doc_data_res != "null" ){
@@ -1392,9 +1488,36 @@
         }
             let bank_sub_res =await bank_approve_reject(document_load)
             show_spinner = false;
+
             try{
                 if(bank_sub_res.body.status == "green"){
                     bank_success_flag = 1
+
+
+
+
+
+                    let facility_bank_data_res = await get_bank_facility_details()
+            console.log("bank_details", facility_bank_data_res.body.data.length)
+            try{
+                if(facility_bank_data_res.body.data.length == "0"){
+                    bank_details_provided="no";
+                }
+                else if(facility_bank_data_res != "null"){
+                    bank_details.set(
+                        facility_bank_data_res.body.data[0]
+                    )
+                }
+                
+            }
+            catch (err){
+                console.log("Bank details error")
+            }
+
+
+
+
+
                 }
             }
             catch(err){
@@ -1419,6 +1542,28 @@
             try{
                 if(bank_sub_res.body.status == "green"){
                     bank_reject_flag = 1
+
+
+
+                    let facility_bank_data_res = await get_bank_facility_details()
+            console.log("bank_details", facility_bank_data_res.body.data.length)
+            try{
+                if(facility_bank_data_res.body.data.length == "0"){
+                    bank_details_provided="no";
+                }
+                else if(facility_bank_data_res != "null"){
+                    bank_details.set(
+                        facility_bank_data_res.body.data[0]
+                    )
+                }
+                
+            }
+            catch (err){
+                console.log("Bank details error")
+            }
+
+
+
                 }
             }
             catch(err){
@@ -1685,7 +1830,7 @@
                 remarks:pan_info_res.trim(),
             }
             let pan_app_res = await bgv_approve_rej(pan_dets_data)
-            show_spinner = true;
+            show_spinner = false;
             console.log("pan_app_res",pan_app_res)
             if(pan_app_res.body.status == "green"){
                 pan_bgv_reject_flag = 1
@@ -1755,6 +1900,45 @@
                 console.log("TOAST OF BGV SUCCESSFUL")
                 toast_text = final_bgv_verify_res.body.message;
                 toast_type = "success";
+
+
+                // window.location.reload();
+                let facility_data_res = await get_facility_details()
+            console.log("facility_data_res",facility_data_res.body.data[0])
+            try{
+                if(facility_data_res.body.status=="green"){
+                    if(facility_data_res!="null"){
+                        facility_data_store.set(
+                            facility_data_res.body.data[0]
+                        )
+                    }
+                }
+                for (var j = 0;j < $facility_data_store.addresess.length;j++) 
+            {
+                if (
+                    $facility_data_store.addresess[j].default_address == "1"
+                ) {
+                    facility_address =$facility_data_store.addresess[j].address;
+                    // facility_postal =$facility_data_store.addresess[j].postal;
+                    city = $facility_data_store.addresess[j].city;
+                    state = $facility_data_store.addresess[j].state;
+                    // location_id = $facility_data_store.addresess[j].location_id;
+                }
+            }
+            if ($facility_data_store.org_id == "FT"){
+                show_fields = 1
+            }
+            }
+            catch (err) {
+                console.log("error in facility data")
+            }
+
+
+
+
+
+
+
                 show_spinner=false;
                 let facility_bgv_check_res = await facility_bgv_check();
         console.log("facility_bgv_check_res",facility_bgv_check_res)
@@ -1800,6 +1984,50 @@
                 console.log("TOAST OF BGV REJECTED")
                 toast_text = final_bgv_reject_res.body.message;
                 toast_type = "success";
+                // window.location.reload();
+
+
+
+
+
+
+
+            let facility_data_res = await get_facility_details()
+            console.log("facility_data_res",facility_data_res.body.data[0])
+            try{
+                if(facility_data_res.body.status=="green"){
+                    if(facility_data_res!="null"){
+                        facility_data_store.set(
+                            facility_data_res.body.data[0]
+                        )
+                    }
+                }
+                for (var j = 0;j < $facility_data_store.addresess.length;j++) 
+            {
+                if (
+                    $facility_data_store.addresess[j].default_address == "1"
+                ) {
+                    facility_address =$facility_data_store.addresess[j].address;
+                    // facility_postal =$facility_data_store.addresess[j].postal;
+                    city = $facility_data_store.addresess[j].city;
+                    state = $facility_data_store.addresess[j].state;
+                    // location_id = $facility_data_store.addresess[j].location_id;
+                }
+            }
+            if ($facility_data_store.org_id == "FT"){
+                show_fields = 1
+            }
+            }
+            catch (err) {
+                console.log("error in facility data")
+            }
+
+
+
+
+
+
+
                 show_spinner=false;
                 let facility_bgv_check_res = await facility_bgv_check();
         console.log("facility_bgv_check_res qwerty 2",facility_bgv_check_res)
@@ -2690,7 +2918,7 @@
                 </div>
                 {:else if final_bgv_ver_btn == "1"}
                 <div class="statusrightlink ">
-                    <div class="vmtRejected mr-4" on:click="{final_bgv_reject_func}">
+                    <div class="vmtRejected mr-4" on:click="{openFinalRejectModel}">
                         <!-- openFinalRejectModel -->
                         Reject 
                     </div>
@@ -3594,7 +3822,7 @@
                                 <img src="{$img_url_name.img_name}/puls.svg" >
                             
                             <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                            <img src="{$img_url_name.img_name}/minus.svg" >
+                            <img src="{$img_url_name.img_name}/minus.svg">
                            
                         </div>
                          </div>
@@ -5251,7 +5479,7 @@
             <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
                 <div class="modalHeadConmb-0">
                     <div class="leftmodalInfo">
-                        <p class=""> Reject Reason</p>
+                        <p class=""> Reject Remark</p>
                     </div>
                     <div class="rightmodalclose">
                         <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" on:click="{closeFinalRejectModel}">
@@ -5261,10 +5489,13 @@
     
                     <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0 mt-4">
                         <label class="block  tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-state">
-                          Select Reason
+                          Please enter the remark
                         </label>
-                        <div class="relative">
-                            <input type="text" bind:value="{bgv_remarks}">
+                        <div class="w-full ">
+                            <input type="text" class="inputboxVMT" bind:value={bgv_remarks}>
+                        </div>
+                        <!-- <div class="relative">
+                            <input type="text" bind:value="{bgv_remarks}"> -->
                           <!-- <select class="block appearance-none w-full  border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-state" bind:value="{pan_info_res}">
                             <option value="" selected disabled>Select</option>
                             {#each rejReasonMap.panInfo as pan_info_rej}
@@ -5281,14 +5512,14 @@
                                 {/each}
                                 
                         </select> -->
-                          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                          <!-- <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
                             <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-                          </div>
-                        </div>
+                          </div> -->
+                        <!-- </div> -->
                       </div>
                    
                       <div class="pt-3 flex justify-center">
-                        <button type="button" class="dialogueNobutton   " >Submit</button>
+                        <button type="button" class="dialogueNobutton   " on:click="{final_bgv_reject_func}">Submit</button>
                 </form>
             </div>
         </div>
@@ -5352,7 +5583,7 @@
                         <p class=""> Id Card</p>
                     </div>
                     <div class="rightmodalclose" on:click="{closeIDcard}">
-                        <img src="../src/img/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal">
+                        <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal">
                     </div>
                 </div>
                 <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 mt-5" action="#">
@@ -5874,8 +6105,9 @@
     
                                                 </tr>
                                             </thead>
-                                            {#each get_change_associte_data as associate}
+                                            
                                             <tbody class="tbodypopover">
+                                                {#each get_change_associte_data as associate}
                                                 <tr class="border-b">
                                                     
                                                     <td>{associate.property_value}</td>
@@ -5889,8 +6121,9 @@
                                                     </td>
                                                     
                                                 </tr>
+                                                {/each}
                                             </tbody>
-                                            {/each}
+                                            
                                         </table>
                                     </div>
                                 </div>
@@ -5908,7 +6141,7 @@
         </div>
 
 
-            <!-- ID Card View modal HTML-->
+            <!-- Cas View modal HTML-->
     
     <div  class="actionDialogueOnboard " id="showCasUser" hidden>
         <div class="pancardDialogueOnboardWrapper ">
@@ -5918,7 +6151,7 @@
                         <p class=""> Cas User Status</p>
                     </div>
                     <div class="rightmodalclose" on:click="{closeCasUser}">
-                        <img src="../src/img/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal">
+                        <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal">
                     </div>
                 </div>
                 <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 mt-5" action="#">
