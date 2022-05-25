@@ -777,7 +777,8 @@ function check_facility_status(message) {
                 if(doc_number == facility_document_data[i].doc_category){
                     // console.log("inside if")
                     // console.log("file p[ath and image",$page.url.origin+facility_document_data[i].file_url)
-                    document.getElementById("doc_img_model_url").getAttribute('src',$page.url.origin+facility_document_data[i].file_url);
+                    image_path = $page.url.origin+facility_document_data[i].file_url;
+                    // document.getElementById("doc_img_model_url").getAttribute('src',$page.url.origin+facility_document_data[i].file_url);
                     // console.log("IMAGE path b4")
                     // console.log("IMAGE PATH",facility_document_data[i].file_url)
                     alt_image = "uploaded document";
@@ -794,7 +795,7 @@ function check_facility_status(message) {
         }
         else if(data == "pan"){
             image_path = $page.url.origin+pancard_obj.pan_attach;
-            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+pancard_obj.pan_attach);
+            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+pancard_obj.pan_attach);
             alt_image = "pan-card proof";
         }
         else if(data == "address"){
