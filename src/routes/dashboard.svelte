@@ -19,17 +19,24 @@
     let toast_text = "";
     let toast_type = null;
 
-    let active;
+    let active =0;
     let show_spinner = false;
     // let background_verification_pending;
     // let bank_beneficiary_pending;
-    let id_proof_rejected, id_proof_rejected_display_name;
-    let bank_details_rejected, bank_details_rejected_display_name;
-    let bgv_pending, bgv_pending_display_name;
-    let id_verification_pending, id_verification_pending_display_name;
-    let bank_verification_pending, bank_verification_pending_display_name;
-    let pending_offer_letter, pending_offer_letter_display_name;
-    let bgv_rejected, bgv_rejected_display_name;
+    let id_proof_rejected = 0;
+    let  id_proof_rejected_display_name;
+    let bank_details_rejected = 0;
+    let bank_details_rejected_display_name;
+    let bgv_pending=0;
+    let bgv_pending_display_name;
+    let id_verification_pending = 0;
+    let id_verification_pending_display_name;
+    let bank_verification_pending = 0;
+    let bank_verification_pending_display_name;
+    let pending_offer_letter=0;
+    let pending_offer_letter_display_name;
+    let bgv_rejected = 0;
+    let bgv_rejected_display_name;
     let fac_count_array = [];
     let ven_type_arr = [];
     let workf_type_arr = [];
@@ -287,7 +294,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="cardActionsaved">
+                    <!-- <div class="cardActionsaved">
                         <div class="cardContentText flex">
                             <div class="cardimg mr-3">
                                 <img
@@ -305,7 +312,7 @@
                                 <span class="countcirclesaved  ">01</span>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
             <div class="myactionitems ">

@@ -1,5 +1,5 @@
 <script>
-import { Router, Link, Route } from "svelte-routing";
+// import { Router, Link, Route } from "svelte-routing";
     import Catagory from "./catagory.svelte";
     import { goto } from "$app/navigation";
     import Breadcrumb from "./breadcrumb.svelte";
@@ -200,6 +200,7 @@ import { Router, Link, Route } from "svelte-routing";
     let gst_details_data=[];
 ///////Document view Model/////////
     let alt_image="";
+    let image_path;
 /////////Document view Model//////
     let selected_document_type;
     let document_desc = "";
@@ -268,6 +269,9 @@ import { Router, Link, Route } from "svelte-routing";
                 toast_text = "Facility ID not found";
             }
         }
+
+        
+
         // console.log('$page.url.origin+',$page.url.origin)
         // edit_document_link=$page.url.origin;
         // console.log("$facility_id",$facility_id.facility_id_number);
@@ -563,6 +567,7 @@ import { Router, Link, Route } from "svelte-routing";
         let facility_date_format = new Date($facility_data_store.modified);
         facility_modified_date = get_date_format(facility_date_format,"dd-mm-yyyy-hh-mm");
         
+
         
 
             if($facility_data_store.status.includes("Rejected")){
@@ -617,6 +622,13 @@ import { Router, Link, Route } from "svelte-routing";
         $facility_data_store.station_code,
         $facility_data_store.facility_type,
     ]    
+
+    // facility_id char decrease for audit trail
+
+    $facility_data_store.facility_id = $facility_data_store.facility_id.slice(0, 30).concat('...');
+    $facility_data_store.facility_name = $facility_data_store.facility_name.slice(0, 30).concat('...');
+
+// facility_id char decrease for audit trail
 
     let bgv_init_res = await facility_bgv_init(bgv_pass_data);
     // console.log("bgv_inittt",bgv_init_res)
@@ -776,32 +788,47 @@ function check_facility_status(message) {
         }
         document.getElementById("img_model").style.display = "block";
         if(data == "aadhar"){
-            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+aadhar_obj.aadhar_attach);
+            image_path = $page.url.origin+aadhar_obj.aadhar_attach;
+            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+aadhar_obj.aadhar_attach);
             alt_image = "aadhar proof";
         }
         else if(data == "pan"){
+            image_path = $page.url.origin+pancard_obj.pan_attach;
             document.getElementById("img_model_url").getAttribute('src',$page.url.origin+pancard_obj.pan_attach);
             alt_image = "pan-card proof";
         }
         else if(data == "address"){
-            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+addproof_obj.address_url);
+            image_path = $page.url.origin+addproof_obj.address_url;
+            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+addproof_obj.address_url);
             alt_image = "address proof";
         }
         else if(data == "licence"){
-            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+dl_lic_attach);
+            image_path = $page.url.origin+dl_lic_attach;
+            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+dl_lic_attach);
             alt_image = "driving licence proof";
         }
         else if(data == "offer"){
-            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+new_off_file_obj.offer_url);
+            image_path = $page.url.origin+new_off_file_obj.offer_url;
+            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+new_off_file_obj.offer_url);
             alt_image = "offer letter proof";
         }
         else if(data == "can_cheque"){
-            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+can_cheque_obj.can_cheque_url);
+            image_path = $page.url.origin+can_cheque_obj.can_cheque_url;
+            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+can_cheque_obj.can_cheque_url);
             alt_image = "cancel cheque proof";
         }
         else if(data == "cheque_disp"){
-            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+new_cheque.file_url);
+            image_path = $page.url.origin+cheque_disp_obj.cheque_disp_url;
+            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+new_cheque.file_url);
             alt_image = "cheque proof";
+        }
+        for(let i = 0;i<gst_doc_arr.length;i++){
+            if(data == "mult_gsts"){
+                if(doc_number == gst_doc_arr[i].gst_doc_num)
+                image_path = $page.url.origin+gst_url[i];
+                // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+gst_url[i]);
+                alt_image = "gst proof";
+            }
         }
         
         
@@ -895,6 +922,7 @@ function check_facility_status(message) {
 /////////bank details//////;///////
 
     const onFileSelected = (e,doctext) => {
+        show_spinner = true;
         let img = e.target.files[0];
         if (img.size <= allowed_pdf_size) {
             console.log("img", img);
@@ -902,11 +930,14 @@ function check_facility_status(message) {
             if(doctext == "gst_upload"){
                 console.log("Photo log uploaded")  
                 gst_img = img.name;
+                show_spinner = false;
             }
             else if(doctext == "cheque_upload"){
+                show_spinner = false;
             cheque_img = img.name;
             }
             else if(doctext == "new_doc_upload"){
+                show_spinner = false;
             document_name = img.name;
             }
 
@@ -917,19 +948,22 @@ function check_facility_status(message) {
             console.log("reader",reader.result);
             
             if(doctext == "gst_upload"){
+                show_spinner = false;
                 gst_data = reader.result;
                 // console.log("photo_data",reader.result);
-                toast_text = "Photo Uploaded Successfully";
+                toast_text = "File Uploaded";
                 toast_type = "success";
             }
             else if(doctext == "cheque_upload"){
+                show_spinner = false;
                 cheque_data = reader.result;
-                toast_text = "Document Uploaded Successfully";
+                toast_text = "File Uploaded";
                 toast_type = "success";
             }
             else if(doctext == "new_doc_upload"){
                 document_url = reader.result;
-                toast_text = "Document Uploaded Successfully";
+                show_spinner = false;
+                toast_text = "File Uploaded";
                 toast_type = "success";
             }
             }
@@ -1966,7 +2000,7 @@ function check_facility_status(message) {
             
             <div class="statusrightlink">
                 
-                <div>
+                <div class="mr-5">
                     {#if is_adhoc_facility == false}
                     {#if showbtn == "1"}
                         {#if $facility_data_store.is_bgv_intiated == "0"}
@@ -2538,7 +2572,7 @@ function check_facility_status(message) {
 
             <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
                 
-                <img src="" id="doc_img_model_url" class="mx-auto" alt="{alt_image}">
+                <img src={image_path} id="doc_img_model_url" class="mx-auto" alt="{alt_image}">
                 
                 <div class="pt-3 flex justify-center">
                     <button data-modal-toggle="popup-modal" type="button" class="dialogueNobutton"  on:click="{()=>{closeApproveViewModel()}}">Close</button>

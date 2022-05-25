@@ -143,6 +143,7 @@
             let gst_details_data=[];
         // ///////Document view Model/////////
             let alt_image="";
+            let image_path;
         // /////////Document view Model//////
             $:{
                 for(let key in all_tags_obj){
@@ -410,41 +411,46 @@
     function openViewModel(data,doc_number){
         document.getElementById("img_model").style.display = "block";
         if(data == "aadhar"){
-            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+aadhar_obj.aadhar_attach);
+            image_path = $page.url.origin+aadhar_obj.aadhar_attach;
+            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+aadhar_obj.aadhar_attach);
             alt_image = "aadhar proof";
         }
         else if(data == "pan"){
+            image_path = $page.url.origin+pancard_obj.pan_attach;
             document.getElementById("img_model_url").getAttribute('src',$page.url.origin+pancard_obj.pan_attach);
             alt_image = "pan-card proof";
         }
         else if(data == "address"){
-            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+addproof_obj.address_url);
+            image_path = $page.url.origin+addproof_obj.address_url;
+            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+addproof_obj.address_url);
             alt_image = "address proof";
         }
         else if(data == "licence"){
-            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+dl_lic_attach);
+            image_path = $page.url.origin+dl_lic_attach;
+            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+dl_lic_attach);
             alt_image = "driving licence proof";
         }
         else if(data == "offer"){
-            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+new_off_file_obj.offer_url);
+            image_path = $page.url.origin+new_off_file_obj.offer_url;
+            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+new_off_file_obj.offer_url);
             alt_image = "offer letter proof";
         }
         else if(data == "can_cheque"){
-            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+can_cheque_obj.can_cheque_url);
+            image_path = $page.url.origin+can_cheque_obj.can_cheque_url;
+            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+can_cheque_obj.can_cheque_url);
             alt_image = "cancel cheque proof";
         }
         else if(data == "cheque_disp"){
-            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+new_cheque.file_url);
+            image_path = $page.url.origin+cheque_disp_obj.cheque_disp_url;
+            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+new_cheque.file_url);
             alt_image = "cheque proof";
         }
         for(let i = 0;i<gst_doc_arr.length;i++){
-            console.log("gst_doc_arr in view",gst_doc_arr)
             if(data == "mult_gsts"){
-                if(doc_number == gst_doc_arr[i].doc_number){
-                document.getElementById("img_model_url").getAttribute('src',$page.url.origin+gst_doc_arr[i].file_url);
+                if(doc_number == gst_doc_arr[i].gst_doc_num)
+                image_path = $page.url.origin+gst_url[i];
+                // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+gst_url[i]);
                 alt_image = "gst proof";
-                }
-                
             }
         }
         
@@ -1529,7 +1535,7 @@
 
                 <div class="rightmodalclose" on:click={closeGST}>
 
-                    <img src="../src/img/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal">
+                    <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal">
 
                 </div>
 
@@ -2139,9 +2145,11 @@
                                             </div>
 
                                             <div class="w-2/3 ">
-
+                                                {#if !new_child.child_facility_id}
+                                                <p>-</p>
+                                                {:else}
                                                 <div class="detailData"> {new_child.child_facility_id}</div>
-
+                                                {/if}
                                             </div>
 
                                         </div>
@@ -2551,7 +2559,7 @@
             </div>
             <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
                 
-                <img src="" id="img_model_url" class="mx-auto" alt="{alt_image}">
+                <img src={image_path} id="img_model_url" class="mx-auto" alt="{alt_image}">
                 
                 <div class="pt-3 flex justify-center">
                     <button data-modal-toggle="popup-modal" type="button" class="dialogueNobutton"  on:click="{()=>{closeViewModel()}}">Close</button>
