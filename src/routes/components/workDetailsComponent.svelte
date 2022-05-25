@@ -1282,7 +1282,7 @@
         }
         else if(data == "pan"){
             image_path = $page.url.origin+pancard_obj.pan_attach;
-            document.getElementById("img_model_url").getAttribute('src',$page.url.origin+pancard_obj.pan_attach);
+            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+pancard_obj.pan_attach);
             alt_image = "pan-card proof";
         }
         else if(data == "address"){
