@@ -247,6 +247,25 @@
 
     // }
 
+
+    function zoomin() {
+        var myImg = document.getElementById("map");
+        var currWidth = myImg.clientWidth;
+        if (currWidth == 2500) return false;
+        else {
+            myImg.style.width = (currWidth + 100) + "px";
+        }
+        }
+
+        function zoomout() {
+        var myImg = document.getElementById("map");
+        var currWidth = myImg.clientWidth;
+        if (currWidth == 100) return false;
+        else {
+            myImg.style.width = (currWidth - 100) + "px";
+        }
+        }
+
     onMount(async () => {
         console.log("$facility_id.facility_id_number",$facility_id.facility_id_number)
 
@@ -3819,10 +3838,10 @@
                             </div>
 
                             <div class="flex items-center justify-center gap-4 py-4">
-                                <img src="{$img_url_name.img_name}/puls.svg" >
+                                <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
                             
                             <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                            <img src="{$img_url_name.img_name}/minus.svg">
+                            <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
                            
                         </div>
                          </div>
@@ -3883,10 +3902,10 @@
                             </div>
 
                             <div class="flex items-center justify-center gap-4 py-4">
-                                <img src="{$img_url_name.img_name}/puls.svg" >
+                                <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
                             
                             <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                            <img src="{$img_url_name.img_name}/minus.svg" >
+                            <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
                            
                         </div>
                          </div>
@@ -3985,10 +4004,10 @@
                                 </div>
 
                                 <div class="flex items-center justify-center gap-4 py-4">
-                                    <img src="{$img_url_name.img_name}/puls.svg"> 
+                                    <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}"> 
                                 
                                 <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                                <img src="{$img_url_name.img_name}/minus.svg" >
+                                <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
                                
                             </div>
                              </div>
@@ -4023,10 +4042,10 @@
                             </div>
 
                             <div class="flex items-center justify-center gap-4 py-4">
-                                <img src="{$img_url_name.img_name}/puls.svg" >
+                                <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
                             
                             <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                            <img src="{$img_url_name.img_name}/minus.svg" >
+                            <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
                            
                         </div>
                          </div>
@@ -4063,10 +4082,10 @@
                             </div>
 
                             <div class="flex items-center justify-center gap-4 py-4">
-                                <img src="{$img_url_name.img_name}/puls.svg" >
+                                <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
                             
                             <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                            <img src="{$img_url_name.img_name}/minus.svg" >
+                            <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
                            
                         </div>
                          </div>
@@ -4105,10 +4124,10 @@
                             </div>
 
                             <div class="flex items-center justify-center gap-4 py-4">
-                                <img src="{$img_url_name.img_name}/puls.svg" >
+                                <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
                             
                                 <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                                <img src="{$img_url_name.img_name}/minus.svg" >
+                                <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
                            
                             </div>
                          </div>
@@ -4221,10 +4240,10 @@
                         </div>
 
                         <div class="flex items-center justify-center gap-4 py-4">
-                            <img src="{$img_url_name.img_name}/puls.svg" >
+                            <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
                         
                         <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                        <img src="{$img_url_name.img_name}/minus.svg" >
+                        <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
                        
                     </div>
                      </div>
@@ -4235,10 +4254,10 @@
                         </div>
 
                         <div class="flex items-center justify-center gap-4 py-4">
-                            <img src="{$img_url_name.img_name}/puls.svg" >
+                            <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
                         
                         <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                        <img src="{$img_url_name.img_name}/minus.svg" >
+                        <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
                        
                     </div>
                      </div>
@@ -4249,10 +4268,10 @@
                         </div>
 
                         <div class="flex items-center justify-center gap-4 py-4">
-                            <img src="{$img_url_name.img_name}/puls.svg" >
+                            <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
                         
                         <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                        <img src="{$img_url_name.img_name}/minus.svg" >
+                        <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
                        
                     </div>
                      </div>
@@ -4263,10 +4282,10 @@
                         </div>
 
                         <div class="flex items-center justify-center gap-4 py-4">
-                            <img src="{$img_url_name.img_name}/puls.svg" >
+                            <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
                         
                         <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                        <img src="{$img_url_name.img_name}/minus.svg" >
+                        <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
                        
                     </div>
                      </div>
@@ -4518,10 +4537,10 @@
                         </div>
 
                         <div class="flex items-center justify-center gap-4 py-4">
-                            <img src="{$img_url_name.img_name}/puls.svg" >
+                            <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
                         
                         <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                        <img src="{$img_url_name.img_name}/minus.svg" >
+                        <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
                        
                     </div>
                      </div>
@@ -4532,10 +4551,10 @@
                         </div>
 
                         <div class="flex items-center justify-center gap-4 py-4">
-                            <img src="{$img_url_name.img_name}/puls.svg" >
+                            <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
                         
                         <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                        <img src="{$img_url_name.img_name}/minus.svg" >
+                        <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
                        
                     </div>
                      </div>
@@ -4546,10 +4565,10 @@
                         </div>
 
                         <div class="flex items-center justify-center gap-4 py-4">
-                            <img src="{$img_url_name.img_name}/puls.svg" >
+                            <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
                         
                         <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                        <img src="{$img_url_name.img_name}/minus.svg" >
+                        <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
                        
                     </div>
                      </div>
@@ -4710,10 +4729,10 @@
                         </div>
 
                         <div class="flex items-center justify-center gap-4 py-4">
-                            <img src="{$img_url_name.img_name}/puls.svg" >
+                            <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
                         
                         <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                        <img src="{$img_url_name.img_name}/minus.svg" >
+                        <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
                        
                     </div>
                      </div>
@@ -4908,10 +4927,10 @@
                             </div>
 
                             <div class="flex items-center justify-center gap-4 py-4">
-                                <img src="{$img_url_name.img_name}/puls.svg" >
+                                <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
                             
                             <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                            <img src="{$img_url_name.img_name}/minus.svg" >
+                            <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
                            
                         </div>
                          </div>
@@ -5023,10 +5042,10 @@
                             </div>
 
                             <div class="flex items-center justify-center gap-4 py-4">
-                                <img src="{$img_url_name.img_name}/puls.svg" >
+                                <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
                             
                                 <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                                <img src="{$img_url_name.img_name}/minus.svg" >
+                                <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
                             
                             </div>
                         </div>
@@ -5124,10 +5143,10 @@
                                 </div>
     
                                 <div class="flex items-center justify-center gap-4 py-4">
-                                    <img src="{$img_url_name.img_name}/puls.svg" >
+                                    <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
                                 
                                     <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                                    <img src="{$img_url_name.img_name}/minus.svg" >
+                                    <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
                                 
                                 </div>
                             </div>
