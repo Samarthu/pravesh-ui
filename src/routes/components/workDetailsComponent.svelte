@@ -192,6 +192,7 @@
             export let city;
             export let show_upload_btn;
             export let remove_upload_btn;
+            let org_name;
             console.log("city data new",city);
             let facility_address,facility_postal,facility_password,location_id,status_name;
             let new_fac_remarks = [];
@@ -689,6 +690,14 @@
             try {
             if(get_org_data_res.body.status == "green"){
                 for(let i=0;i<get_org_data_res.body.data.length;i++){
+                    console.log("matching",$facility_data_store.facility_type,get_org_data_res.body.data[i].org_id)
+
+                    
+                    if($facility_data_store.org_id == get_org_data_res.body.data[i].org_id){
+                        org_name = get_org_data_res.body.data[i].org_name;
+                    }
+                   
+
                     org_data_arr.push({"org_id":get_org_data_res.body.data[i].org_id,"org_name":get_org_data_res.body.data[i].org_name})
                 }
                 org_data_arr = org_data_arr;
@@ -1535,10 +1544,10 @@
                             <img src="{$img_url_name.img_name}/organization.png" alt="" class="w-5 h-5">
                             <div class="pl-4">
                                 <p class="detailLbale">Organization</p>
-                                {#if !$bgv_config_store.org_name}
+                                {#if !org_name}
                                 <p>-</p>
                                 {:else}
-                                <p class="detailData">{$bgv_config_store.org_name}</p>
+                                <p class="detailData">{org_name}</p>
                                 {/if}
                                 
                             </div>

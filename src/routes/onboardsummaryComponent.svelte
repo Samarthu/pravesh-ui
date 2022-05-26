@@ -82,6 +82,7 @@
     let changed_aadhar_num="-";
     let changed_dl_num="-";
     let changed_voter_num="-";
+    let document_dropdown="";
     let pancard_obj = {
         pan_num:null,
         pan_attach:null,
@@ -206,6 +207,8 @@
     let document_desc = "";
     let document_url = "";
     let new_doc_upload_message = "";
+    let doc_cat_sel_msg=""
+    let doc_det_msg=""
     let document_name = "";
     let document_type,document_number;
     let admin = false;
@@ -440,7 +443,8 @@
                     
                 }
                 else if(facility_document_data[i].doc_type == "fac-photo"){
-                    fac_photo_obj={profile_url : facility_document_data[i].file_url,
+                    fac_photo_obj={
+                    profile_url : facility_document_data[i].file_url,
                     profile_verified : facility_document_data[i].verified,
                     profile_rejected : facility_document_data[i].rejected};
                 }
@@ -477,7 +481,9 @@
                     };
                     
                 }
+                
             }
+            
         }
         // console.log("pancard_obj",pancard_obj,"aadhar_obj",aadhar_obj,"fac_photo_obj",fac_photo_obj,"addproof_obj",addproof_obj,"can_cheque_obj",can_cheque_obj,"dl_photo_obj",dl_photo_obj,"new_off_file_obj",new_off_file_obj);
         }
@@ -596,6 +602,7 @@
 
                 }
             }
+            console.log("facility_document_data",facility_document_data)
             
             for (var i = 0; i < facility_document_data.length; i++) {
                 for(let j=0; j<gst_doc_type.length;j++){
@@ -624,10 +631,13 @@
     ]    
 
     // facility_id char decrease for audit trail
-
-    $facility_data_store.facility_id = $facility_data_store.facility_id.slice(0, 30).concat('...');
-    $facility_data_store.facility_name = $facility_data_store.facility_name.slice(0, 30).concat('...');
-
+    
+    // if($facility_data_store.facility_id.length > 30){
+    //     $facility_data_store.facility_id = $facility_data_store.facility_id.slice(0, 30).concat('...');
+    // }
+    // else if($facility_data_store.facility_name.length > 30){
+    //     $facility_data_store.facility_name = $facility_data_store.facility_name.slice(0, 30).concat('...');
+    // }
 // facility_id char decrease for audit trail
 
     let bgv_init_res = await facility_bgv_init(bgv_pass_data);
@@ -662,13 +672,12 @@
     // show_spinner = false;
 
     let tag_res = await show_fac_tags($facility_data_store.facility_type);
-        console.log("tag_res",tag_res);
+        
         try {
             show_spinner = true;
             if(tag_res.body.data.length != 0){
                 show_spinner = false;
                 show_fac_array = tag_res.body.data;
-                console.log("show_fac_array",show_fac_array)
                 for(let i=0;i < show_fac_array.length;i++){
                     
                     let new_date =new Date(show_fac_array[i].creation)
@@ -757,7 +766,18 @@ function check_facility_status(message) {
     }
 
     function closeViewModel(){
+       
+        ////for new doc model//////
         document.getElementById("img_model").style.display = "none";
+        document_desc ="";
+        document.getElementById("selected_doc_type").selectedIndex = "-1";
+        document.getElementById("document_url").value = "";
+        document_name = ""
+        doc_cat_sel_msg = ""
+        doc_det_msg = ""
+        new_doc_upload_message = ""
+        ////for new doc model//////
+
         document.getElementById("modalid").style.display = "none";
 
     }
@@ -1323,11 +1343,11 @@ function check_facility_status(message) {
         try {
             if (audit_res.body.status == "green") {
                 audit_details_array = audit_res.body.data;
-                for(let i=0;i < audit_details_array.length;i++){
-                let new_date =new Date(audit_details_array[i].creation)
-                let audit_creation_date = get_date_format(new_date,"dd-mm-yyyy-hh-mm")
-                audit_details_array[i].creation=audit_creation_date;
                 audit_details_array.reverse();
+                for(let i=0;i < audit_details_array.length;i++){
+                let new_date = new Date(audit_details_array[i].creation)
+                
+                audit_details_array[i].creation = get_date_format(new_date,"dd-mm-yyyy-hh-mm")
                 
                 }
             }
@@ -1401,8 +1421,6 @@ function check_facility_status(message) {
         // console.log("erp_details_res",erp_details_res.body.data[0])
         try{
             if(!erp_details_res.body.data[0]){
-                toast_type = "error";
-                toast_text = "No ERP Details Found";
                 erp_details_arr = [];
             }
             else{
@@ -1572,17 +1590,23 @@ function check_facility_status(message) {
     // return arr
     // }
     async function save_document(){
+        show_spinner = true;
         let new_doc_type_name
         
         let e = document.getElementById("selected_doc_type");
        
         if(!e.selectedIndex || e.selectedIndex == "-1"){
-            toast_type = "error"
-            toast_text = "Please Select DocType"
+            show_spinner = false;
+            // toast_type = "error"
+            // toast_text = "Please Select Document Type"
+            doc_cat_sel_msg = "Please Select Document Type"
             return 
         }
+        else{
+            doc_cat_sel_msg = ""
+        }
         var selected_doc_type_name = e.options[e.selectedIndex].text;
-        
+        console.log("selected_doc_type_name",selected_doc_type_name)
         for (let i = 0; i < doc_type_name.length; i++) {
             if(selected_doc_type_name == doc_type_name[i].doc_value){
                 new_doc_type_name  = doc_type_name[i].doc_name
@@ -1590,15 +1614,27 @@ function check_facility_status(message) {
             
         }
         if(!selected_doc_type_name || selected_doc_type_name =="-1"){
-            toast_type = "error"
-            toast_text = "Please Select DocType 1"
+            show_spinner = false;
             return
         }
-        else if(!document_url){
-            toast_type = "error"
-            toast_text = "Please Upload Document"
+         if(!document_desc){
+            doc_det_msg = "Please Select Document Type"
+            return
+        }
+        else{
+            doc_det_msg = ""
+        }
+        if(!document_url){
+            show_spinner = false;
+            
+            new_doc_upload_message = "Please Select Document";
             return 
         }
+        else{
+            new_doc_upload_message = ""
+        }
+        
+        console.log("document_url",document_url)
 
         let new_doc_payload = {"documents":[{
         "file_name":document_name,
@@ -1617,10 +1653,17 @@ function check_facility_status(message) {
             if(save_doc_res.body.status == "green"){
                 
                 toast_type = "success"
-                toast_text = save_doc_res.body.message
+                toast_text = save_doc_res.body.message;
+                document_desc ="";
+                document.getElementById("selected_doc_type").selectedIndex = "-1";
+                document.getElementById("document_url").value = "";
+                document_name = ""
+
+
                 let facility_document_res = await facility_document();
                 try{
                     if(facility_document_res != "null"){
+                    show_spinner = false;
                     facility_document_data = [];
                     facility_document_data = facility_document_res.body.data;
                         for(let i=0;i<facility_document_data.length;i++){
@@ -1633,18 +1676,21 @@ function check_facility_status(message) {
                     }
                 }
                 catch(err){
+                    show_spinner = false;
                     toast_type = "error";
                     toast_text = err;
                 }
             }
         } 
         catch (err) {
+            show_spinner = false;
             toast_type = "error";
             toast_text = err;
         }
     }
 
     async function docApproveRejected(doc_cat){
+
         let document_load,new_status
         console.log("doc_cat",doc_cat)
         show_spinner = true;
@@ -1662,9 +1708,10 @@ function check_facility_status(message) {
         "doc_type":document_type
         }
         let doc_res = await approve_reject_status(document_load)
-        show_spinner = false;
+        
         try{
             if(doc_res.body.status == "green"){
+                show_spinner = false;
                 toast_text = doc_res.body.message;
                 toast_type = "success";
 
@@ -1683,6 +1730,7 @@ function check_facility_status(message) {
                     }
                 }
                 catch(err){
+                    show_spinner = false;
                     toast_type = "error";
                     toast_text = err;
                     closeApproveViewModel();
@@ -1690,6 +1738,7 @@ function check_facility_status(message) {
             }
         }
         catch(err){
+            show_spinner = false;
             toast_text = err;
             toast_type = "error";
         }
@@ -1712,7 +1761,7 @@ function check_facility_status(message) {
         <div class="breadcrumb-section xsl:px-p10">
             <div class="breadcrumbtextDetails breadcrumbmedia">
                 <p class="flex items-center">
-                    <span class="text-textgrey pr-1 text-base xs:text-xs">Home / Workforce</span>
+                    <!-- <span class="text-textgrey pr-1 text-base xs:text-xs">Home / Workforce</span> -->
                     <span class="Username ">
                         <img src="{$img_url_name.img_name}/delivery.png" class="userIconMedia" alt="">
                         <span class="xs:hidden sm:hidden">{$facility_data_store.facility_name}</span>
@@ -2087,7 +2136,7 @@ function check_facility_status(message) {
     <AssociateDetails gst_doc_arr = {gst_doc_arr} facility_created_date = {facility_created_date}
     city = {city} facility_postal={facility_postal}
     gst_doc_obj={gst_doc_obj} addproof_obj={addproof_obj} 
-    fac_photo_objfac_photo_obj={fac_photo_obj} 
+    fac_photo_obj={fac_photo_obj} 
     facility_password={facility_password}
     facility_address = {facility_address}
     pancard_obj={pancard_obj} admin = {admin}
@@ -2141,6 +2190,10 @@ function check_facility_status(message) {
                     <div class="detailsInfoSection">
                         <div class="tdfirstDetailsformodal">
                             <div class="itemList ">
+                                <div class="smallText w-w115px">Facility ID</div>
+                                <div class="smLable">{$facility_data_store.name}</div>
+                            </div>
+                            <div class="itemList ">
                                 <div class="smallText w-w115px">
                                     Facility Name
                                 </div>
@@ -2152,10 +2205,7 @@ function check_facility_status(message) {
                                 </div>
                                 <div class="smLable">{$facility_data_store.facility_type}</div>
                             </div>
-                            <div class="itemList ">
-                                <div class="smallText w-w115px">Facility ID</div>
-                                <div class="smLable">{$facility_data_store.facility_id}</div>
-                            </div>
+                            
                             <div class="itemList">
                                 <div class="smallText w-w115px">Location</div>
                                 <div class="smLable">{city}</div>
@@ -2302,24 +2352,10 @@ function check_facility_status(message) {
                                                             value = "-1">Select</option>
                                                         {#each doc_type_name as doc_name}
                                                         <option value="abc">{doc_name.doc_value} </option>
-                                                        
-                                                        <!-- <option value="work_order_annexure_1">Code of Business Annexure 2 </option>
-                                                        <option value="master_service_agreement">Master Service Agreement </option>
-                                                        <option value="general_information_NEFT">General Information - NEFT </option>
-                                                        <option value="shop_act_license">Shop Act License </option>
-                                                        <option value="service_tax_declaration">Service Tax Declaration </option>
-                                                        <option value="vendor_onboarding">Vendor Onboarding </option>
-                                                        <option value="NDA">NDA </option><option value="bgv_details_collection">BGV Details Collection </option>
-                                                        <option value="photo_of_the_store_owner">Photo of the store owner </option>
-                                                        <option value="photo_of_the_store ">Photo of the store </option>
-                                                        <option value="FnF">Termination / F&amp;F </option>
-                                                        <option value="addproof-photo"> Address Proof </option>
-                                                        <option value="other">Other </option>
-                                                        <option value="newOffFile">3P Variable Associate Agreement </option> -->
                                                         {/each}
                                                    
                                                     </select>
-                                                   
+                                                    <div class="text-red-500">{doc_cat_sel_msg}</div>
                                                     <div class="formSelectArrow ">
                                                         <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto"
                                                             alt="">
@@ -2338,6 +2374,7 @@ function check_facility_status(message) {
                                                         type="text"
                                                         bind:value="{document_desc}"
                                                     />
+                                                    <div class="text-red-500">{doc_det_msg}</div>
                                                 </div>
                                             </div>
                                             <div
@@ -2356,6 +2393,7 @@ function check_facility_status(message) {
                                                         Select File
                                                     </div>
                                                     <input
+                                                        id="document_url"
                                                         type="file"
                                                         class="hidden"
                                                                 on:change={(
@@ -2408,10 +2446,10 @@ function check_facility_status(message) {
                                         <tbody class="tbodypopover">
                                             <tr class="border-b">
                                                 <td>
-                                                    <img src="{$img_url_name.img_name}/pancard.png" alt="">
+                                                    <p class="detailData">{new_doc_data.file_name}</p>
                                                 </td>
                                                 <td>  
-                                                    <p class="detailData">{new_doc_data.doc_category}</p>
+                                                    <p class="detailData">{new_doc_data.doc_category}({new_doc_data.doc_type})</p>
                                                 </td>
                                                 <td>
                                                     <p class="detailData">{new_doc_data.owner}</p>
@@ -2500,7 +2538,7 @@ function check_facility_status(message) {
                         </button>
                     </div>
                     {#if erp_details_arr == ""}
-                    <p>No ERP Details Found</p>
+                    <p style="text-align: center;">No ERP Details Found</p>
                 {:else}
                     <div class="innermodal">
                       
