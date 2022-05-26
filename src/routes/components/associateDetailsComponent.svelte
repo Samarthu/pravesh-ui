@@ -936,6 +936,48 @@
     }
         return true;
     }
+
+    async function link_child(data){
+        client_det_arr = [];
+        if (!check_facility_status("Add Child Facilities not allowed for Deactive/Blacklisted Facility")) {
+        return;
+        }
+        show_spinner = true;
+        let client_det_res = await client_details(data);
+        // console.log("client_det_res",client_det_res)
+        try{
+           
+            if(client_det_res.body.status == "green"){
+                
+                show_spinner = false;
+                
+                for(let i=0;i<client_det_res.body.data.length;i++){
+                    // for(let j=0;j<client_det_res.body.data.length;j++){
+                   
+                    client_det_arr.push(client_det_res.body.data[i]);
+                    // }
+                }
+                console.log("client_det_arr here",client_det_arr)
+                client_det_arr=client_det_arr;
+                items = client_det_arr;
+                
+                
+                paginatedItems = paginate({ items, pageSize, currentPage })
+                
+            }
+            else{
+                paginatedItems = [];
+                show_spinner = false;
+            }
+        }
+        catch(err){
+            show_spinner = false;
+            toast_type = "error";
+            toast_text = err;
+        }
+        
+    }
+
     async function checkbox_clicked(item){
         let new_object = {facility_name:item.facility_name, name:item.name , unique_name:""}
         child_check = document.getElementById("child_checkbox"+item.name).checked;
@@ -992,8 +1034,10 @@
     }
 
     async function child_submit_fun(){
+        
+        console.log("Spinner")
         if(new_child_selected_arr.length == 0){
-            
+            show_spinner = false;
             toast_type = "error";
             toast_text = "Please select atleast one child";
         }
@@ -1009,20 +1053,42 @@
             "parent_name":$facility_data_store.facility_name,
             "parent_id":$facility_data_store.facility_id})
         }
+        
         // console.log("new_child_obj",new_child_obj)
        let child_submit_res = await child_data(new_child_obj);
+
        try{
            if(child_submit_res.body.status == "green"){
             toast_text = child_submit_res.body.message;
             toast_type = "success";
-            // window.location.reload();
-           }
+            let list_child_data_res = await list_child_data();
+                try {
+                    if (list_child_data_res.body.status == "green") {
+                        child_selected_arr = [];
+                        for (let i = 0; i < list_child_data_res.body.data[0].parent_child.length; i++) {
+                            // console.log("list_child_data_temp", list_child_data_res.body.data[0].parent_child)
+                            child_selected_arr.push(list_child_data_res.body.data[0].parent_child[i]);
+                        }
+                        city = city;
+                        console.log("child_selected_arr in link child", child_selected_arr)
+                    }
+                } catch (err) {
+                    toast_type = "error";
+                    toast_text = err;
+                }
+                link_child(city_select);
+                console.log("child_check",child_check)
+                show_spinner = false;
+                
+            }
            else{
-            toast_text = child_submit_res.body.message;
+            show_spinner = false;
+            toast_text = "Child Adding Failed";
             toast_type = "error";
            }
        }
        catch(err){
+        show_spinner = false;
         toast_text = err;
         toast_type = "error";
        }
@@ -1030,47 +1096,9 @@
         
     }
 
-    async function link_child(data){
-        client_det_arr = [];
-        if (!check_facility_status("Add Child Facilities not allowed for Deactive/Blacklisted Facility")) {
-        return;
-        }
-        show_spinner = true;
-        let client_det_res = await client_details(data);
-        // console.log("client_det_res",client_det_res)
-        try{
-           
-            if(client_det_res.body.status == "green"){
-                
-                show_spinner = false;
-                
-                for(let i=0;i<client_det_res.body.data.length;i++){
-                    // for(let j=0;j<client_det_res.body.data.length;j++){
-                   
-                    client_det_arr.push(client_det_res.body.data[i]);
-                    // }
-                }
-                console.log("client_det_arr here",client_det_arr)
-                client_det_arr=client_det_arr;
-                items = client_det_arr;
-                
-                
-                paginatedItems = paginate({ items, pageSize, currentPage })
-                
-            }
-            else{
-                paginatedItems = [];
-                show_spinner = false;
-            }
-        }
-        catch(err){
-            show_spinner = false;
-            toast_type = "error";
-            toast_text = err;
-        }
-        
-    }
+    
     async function delete_child(child_id){
+
         console.log("child_id",child_id)
         let delete_child_res =await remove_child(child_id);
         console.log("delete_child_res",delete_child_res)
@@ -1078,30 +1106,24 @@
             if(delete_child_res.body.status == "green"){
                 toast_type = "success";
                 toast_text = delete_child_res.body.message;
-                let client_det_res = await client_details(data);
-        try{
-            if(client_det_res.body.status == "green"){
-                show_spinner = false;
-                for(let i=0;i<client_det_res.body.data.length;i++){
-                    for(let j=0;j<client_det_res.body.data.length;j++){
-                    client_det_arr = [];
-                    client_det_arr.push(client_det_res.body.data[j]);
+                let list_child_data_res = await list_child_data();
+                try {
+                    if (list_child_data_res.body.status == "green") {
+                        child_selected_arr = [];
+                        for (let i = 0; i < list_child_data_res.body.data[0].parent_child.length; i++) {
+                            // console.log("list_child_data_temp", list_child_data_res.body.data[0].parent_child)
+                            child_selected_arr.push(list_child_data_res.body.data[0].parent_child[i]);
+                        }
+                        city = city;
+                        console.log("child_selected_arr in link child", child_selected_arr)
                     }
+                } catch (err) {
+                    toast_type = "error";
+                    toast_text = err;
                 }
-                client_det_arr=client_det_arr;
-                items = client_det_arr;
-                
-                paginatedItems = paginate({ items, pageSize, currentPage })
-            }
-            else{
+                link_child(city_select);
+                console.log("child_check",child_check)
                 show_spinner = false;
-            }
-        }
-        catch(err){
-            show_spinner = false;
-            toast_type = "error";
-            toast_text = err;
-        }
             }
         } catch (error) {
             toast_type = "error";
@@ -1113,8 +1135,6 @@
 
     function linkChildModelclose() {
         city_select = "-1";
-        paginatedItems =  [];
-        child_selected_arr = [];
         linkChildModel.style.display = "none";
     }
     
@@ -1211,9 +1231,18 @@
 
          <div class="grid grid-cols-3 gap-4  xsl:grid-cols-1" >
              <div class=" grid grid-cols-3 w-full px-5 mt-5  gap-4">
-                 {#if !fac_photo_obj.profile_url}
+                 
+                 {#if fac_photo_obj.profile_url == null}
                  <div class="">
-                     <img src="{fac_photo_obj.profile_url}" class="w-28 h-28 xsl:h-auto" alt="">
+                    <img src="{$img_url_name.img_name}/delivery.png" class="w-28 h-28 xsl:h-auto" alt="">
+                </div>
+                <div class="w-auto col-span-2 mt-6 xsl:mt-3">
+                <div class="text-2xl xsl:text-xl">{$facility_data_store.facility_name}</div>
+                <p class="imgName">{$facility_data_store.facility_name}</p>
+                </div>
+                {:else}
+                 <div class="">
+                     <img src="{$page.url.origin+fac_photo_obj.profile_url}" class="w-28 h-28 xsl:h-auto" alt="">
                  </div>
                  <div class="w-auto col-span-2 mt-6 xsl:mt-3">
                  <div class="text-2xl xsl:text-xl">{$facility_data_store.facility_name}</div>
@@ -2068,8 +2097,8 @@
 
                                     </div>
 
-                                    {#if childlink == "childlink"}
-
+                                    {#each child_selected_arr as new_child}
+                                    {#if !child_selected_arr}
                                     <div
 
                                         class="light14greylong w-full mb-1 text-center"
@@ -2080,11 +2109,11 @@
 
                                     </div>
 
-                                    {/if}
+                                {:else}
 
                                     <!-- <div class="light14greylong w-full mb-1 text-center"> No child assosiates are linked</div> -->
 
-                                    {#each child_selected_arr as new_child}
+                                    
 
                                     {#if childlink == "childlink2"}
 
@@ -2096,13 +2125,7 @@
 
                                             class="detailData"
 
-                                            on:click={() => {
-
-                                                childlink =
-
-                                                    "childlink";
-
-                                            }}
+                                            on:click={() => {delete_child(new_child.name)}}
 
                                         >
 
@@ -2173,7 +2196,7 @@
                                     </div>
 
                                     {/if}
-
+                                    {/if}
                                     {/each}
 
 
