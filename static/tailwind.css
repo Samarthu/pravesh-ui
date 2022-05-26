@@ -980,7 +980,7 @@
 }
 
 .supplierInfoModalSection{
-    @apply w-full bg-black bg-opacity-80 hidden fixed z-zindex99 right-0 top-0 h-screen overflow-hidden
+    @apply w-full bg-black bg-opacity-80 hidden fixed z-zindex88 right-0 top-0 h-screen overflow-hidden
 }
 .mainSupInfo{
     @apply bg-white   w-w450px xs:w-full xs:ml-0 sm:ml-0  ml-auto  h-screen
@@ -2238,13 +2238,17 @@ ul.menuList li a.active span{
         @apply relative bg-white rounded-lg shadow  py-10
     }
 
-.leaderWrapper {
+    .leaderWrapper {
         position: fixed;
-        z-index: 9999;
+        z-index: 99999;
+        left: 0;
+        top: 0;
+        right: 0;
         display: flex;
         justify-content: center;
         width: 100%;
         align-items: center;
+        bottom: 0;
         height: 100%;
         background: #000000d9;
     }
@@ -2261,7 +2265,7 @@ ul.menuList li a.active span{
       }
 .praveshlogo{
         position: absolute;
-        z-index: 9999;
+        z-index: 999999;
         width: 30px;
       }
       
@@ -2284,7 +2288,7 @@ ul.menuList li a.active span{
       /* full width modal */
 
 .modalMain{
-    @apply fixed w-full h-screen top-0 left-0 right-0 flex items-center justify-center z-zindex99 mx-auto
+    @apply fixed w-full h-screen top-0 left-0 right-0 flex items-center justify-center z-zindex88 mx-auto
 }
 
 .modalOverlay{

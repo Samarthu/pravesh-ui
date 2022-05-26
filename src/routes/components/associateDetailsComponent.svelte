@@ -66,6 +66,7 @@
         let child_selected_arr=[];
         let new_child_selected_arr = [];
         let child_check = false;
+        let unique_id;
         let show_gst_view_btn = false;
         
             let text_pattern = /^[a-zA-Z_ ]+$/;
@@ -458,10 +459,10 @@
     }
     
             
-        function editWorkDetail() {
-        let replaceState = false;
-        goto(routeNext, { replaceState });
-    }  
+    //     function editWorkDetail() {
+    //     let replaceState = false;
+    //     goto(routeNext, { replaceState });
+    // }  
     async function gstModel() {
         gst_details_data=[];
         gst_city_link_state="";
@@ -473,17 +474,22 @@
                 
                 for(let i=0;i < gst_details_res.body.data.length;i++){
                             for(let j = 0;j<gst_doc_arr.length;j++){ 
-                                gst_details_data.push(gst_details_res.body.data[i]);
+                                
+                                console.log("matching",gst_details_res.body.data[i].gstn,gst_doc_arr[j].doc_number)
                                 if(gst_details_res.body.data[i].gstn == gst_doc_arr[j].doc_number){
+                                    console.log("Matched")
                                     show_gst_view_btn = true;
                                 } 
-                                else{
-                                    show_gst_view_btn = false;
-                                }  
+                                // else{ 
+                                //     console.log("Inside else")
+                                //     show_gst_view_btn = false;
+                                // }  
+                                gst_details_data.push(gst_details_res.body.data[i]);
                             }
                 }
+
                 gst_details_data=gst_details_data;
-                console.log("gst_details_data here",gst_details_data)
+                console.log("gst_details_data here",gst_details_data,show_gst_view_btn)
             }
             
         }
@@ -550,7 +556,7 @@
         let gst_doc_submit_res;
         let gst_add_res;
         let def_add = 0;
-        // show_spinner = true;
+        show_spinner = true;
         if(!gst_address.match(text_pattern)){
             gst_add_message = "Enter Valid Address";
             return  
@@ -677,7 +683,7 @@
         let gst_doc_submit_res;
         let gst_add_res;
         let def_add = 0;
-        // show_spinner = true;
+        show_spinner = true;
         if(!gst_address.match(text_pattern)){
             gst_add_message = "Enter Valid Address";
             return  
@@ -980,6 +986,7 @@
 
     async function checkbox_clicked(item){
         let new_object = {facility_name:item.facility_name, name:item.name , unique_name:""}
+        unique_id = item.name
         child_check = document.getElementById("child_checkbox"+item.name).checked;
 
         if(child_check == true){
@@ -1034,7 +1041,7 @@
     }
 
     async function child_submit_fun(){
-        
+        show_spinner = true;
         console.log("Spinner")
         if(new_child_selected_arr.length == 0){
             show_spinner = false;
@@ -1064,11 +1071,13 @@
             let list_child_data_res = await list_child_data();
                 try {
                     if (list_child_data_res.body.status == "green") {
+                       
                         child_selected_arr = [];
                         for (let i = 0; i < list_child_data_res.body.data[0].parent_child.length; i++) {
                             // console.log("list_child_data_temp", list_child_data_res.body.data[0].parent_child)
                             child_selected_arr.push(list_child_data_res.body.data[0].parent_child[i]);
                         }
+                        child_selected_arr=child_selected_arr
                         city = city;
                         console.log("child_selected_arr in link child", child_selected_arr)
                     }
@@ -1076,8 +1085,8 @@
                     toast_type = "error";
                     toast_text = err;
                 }
+                // document.getElementById("child_checkbox"+unique_id).checked = false;
                 link_child(city_select);
-                console.log("child_check",child_check)
                 show_spinner = false;
                 
             }
@@ -1098,7 +1107,7 @@
 
     
     async function delete_child(child_id){
-
+        show_spinner = true;
         console.log("child_id",child_id)
         let delete_child_res =await remove_child(child_id);
         console.log("delete_child_res",delete_child_res)
@@ -1118,6 +1127,7 @@
                         console.log("child_selected_arr in link child", child_selected_arr)
                     }
                 } catch (err) {
+                    show_spinner = false;
                     toast_type = "error";
                     toast_text = err;
                 }
@@ -1126,6 +1136,7 @@
                 show_spinner = false;
             }
         } catch (error) {
+            show_spinner = false;
             toast_type = "error";
             toast_text = delete_child_res.body.message;
         }

@@ -217,6 +217,7 @@
 
         function closechequeDetails() {
             chequeModel.style.display = "none";
+            
         }
         
         function closeViewModel(){
@@ -401,6 +402,11 @@
                         
                     }
 
+                }
+                else if(cheque_add_res.body.status == "red"){
+                    show_spinner = false;
+                    toast_type = "error";
+                    toast_text = cheque_add_res.body.message;
                 }
                 else{
                     show_spinner = false;
