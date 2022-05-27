@@ -951,7 +951,6 @@ function check_facility_status(message) {
             console.log("img", img);
             
             if(doctext == "gst_upload"){
-                console.log("Photo log uploaded")  
                 gst_img = img.name;
                 show_spinner = false;
             }
@@ -974,19 +973,19 @@ function check_facility_status(message) {
                 show_spinner = false;
                 gst_data = reader.result;
                 // console.log("photo_data",reader.result);
-                toast_text = "File Uploaded";
+                toast_text = "File selected";
                 toast_type = "success";
             }
             else if(doctext == "cheque_upload"){
                 show_spinner = false;
                 cheque_data = reader.result;
-                toast_text = "File Uploaded";
+                toast_text = "File selected";
                 toast_type = "success";
             }
             else if(doctext == "new_doc_upload"){
                 document_url = reader.result;
                 show_spinner = false;
-                toast_text = "File Uploaded";
+                toast_text = "File selected";
                 toast_type = "success";
             }
             }
