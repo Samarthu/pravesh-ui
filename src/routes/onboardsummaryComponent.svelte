@@ -372,7 +372,7 @@
                 });
                 let bank_date_format = new Date(bank_values_from_store.modified);
                 bank_new_date = get_date_format(bank_date_format,"dd-mm-yyyy-hh-mm");
-                bank_values_from_store.account_number= bank_values_from_store.account_number.replace(/.(?=.{4})/g, 'x');;
+                bank_values_from_store.account_number= bank_values_from_store.account_number.replace(/.(?=.{4})/g, '*');;
                 
                 }
             }
@@ -424,7 +424,7 @@
                 let doc_creation_date = get_date_format(doc_date_format,"dd-mm-yyyy-hh-mm");
                 facility_document_data[i].creation = doc_creation_date
                 if(facility_document_data[i].doc_type == "pan-photo"){
-                    changed_pan_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, 'x');
+                    changed_pan_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, '*');
                     pancard_obj = {pan_num : facility_document_data[i].doc_number,
                     pan_attach : facility_document_data[i].file_url,
                     pan_name : facility_document_data[i].file_name,
@@ -434,7 +434,7 @@
                 }
                 
                 else if(facility_document_data[i].doc_type == "aadhar-id-proof"){
-                    changed_aadhar_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, 'x');
+                    changed_aadhar_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, '*');
                     aadhar_obj = {aadhar_num : facility_document_data[i].doc_number,
                     aadhar_attach : facility_document_data[i].file_url,
                     aadhar_name : facility_document_data[i].file_name,
@@ -461,7 +461,7 @@
                     can_cheque_rejected : facility_document_data[i].rejected};
                 }
                 else if(facility_document_data[i].doc_type == "dl-photo"){
-                    changed_dl_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, 'x');
+                    changed_dl_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, '*');
                     dl_photo_obj = {dl_lic_name : facility_document_data[i].file_name,
                     dl_lic_num : facility_document_data[i].doc_number,
                     dl_lic_url : facility_document_data[i].file_url,
@@ -476,7 +476,7 @@
                     
                 }
                 else if(facility_document_data[i].doc_type == "voter-id-proof"){
-                    changed_voter_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, 'x');
+                    changed_voter_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, '*');
                     voter_id_object = {voter_id_number : facility_document_data[i].doc_number,
                     };
                     
@@ -738,6 +738,8 @@ function check_facility_status(message) {
         return;
         }
         show_spinner = true;
+        console.log("here inside child")
+        console.log("sjhow spin ner",show_spinner)
         let client_det_res = await client_details(data);
         try{
             if(client_det_res.body.status == "green"){
@@ -949,7 +951,6 @@ function check_facility_status(message) {
             console.log("img", img);
             
             if(doctext == "gst_upload"){
-                console.log("Photo log uploaded")  
                 gst_img = img.name;
                 show_spinner = false;
             }
@@ -972,19 +973,19 @@ function check_facility_status(message) {
                 show_spinner = false;
                 gst_data = reader.result;
                 // console.log("photo_data",reader.result);
-                toast_text = "File Uploaded";
+                toast_text = "File selected";
                 toast_type = "success";
             }
             else if(doctext == "cheque_upload"){
                 show_spinner = false;
                 cheque_data = reader.result;
-                toast_text = "File Uploaded";
+                toast_text = "File selected";
                 toast_type = "success";
             }
             else if(doctext == "new_doc_upload"){
                 document_url = reader.result;
                 show_spinner = false;
-                toast_text = "File Uploaded";
+                toast_text = "File selected";
                 toast_type = "success";
             }
             }
@@ -1097,12 +1098,14 @@ function check_facility_status(message) {
         let replaceState = false;
         goto(routeNext, { replaceState });
     }
-
+    
     async function routeToBgv() {
         let replaceState = false;
         goto(routeBgv, { replaceState });
         
     }
+    
+   
 
     function myBtn() {
         associateModal.style.display = "block";
@@ -1334,8 +1337,8 @@ function check_facility_status(message) {
     }
 
     routeBgv = "bgv";
-
     routeNext = "workdetails";
+   
 
     async function auditTrial() {
        
@@ -1591,6 +1594,7 @@ function check_facility_status(message) {
     // }
     async function save_document(){
         show_spinner = true;
+        console.log("showspinner",show_spinner)
         let new_doc_type_name
         
         let e = document.getElementById("selected_doc_type");
@@ -1806,7 +1810,7 @@ function check_facility_status(message) {
                 <p class="text-sm"><span class="font-light text-grey text-sm">Onboarded By - </span>Hemant Kumar, Mulsi SP, eCommerce</p>
                 <p class="xsl:flex justify-end hidden"><a class="cursor-pointer">
                     <span class="breadRightIconsvmt" >
-                        <img src="{$img_url_name.img_name}/img/audittrail.png" class="pr-2" alt=""> Audit Trial (12)
+                        <img src="{$img_url_name.img_name}/audittrail.png" class="pr-2" alt=""> Audit Trial (12)
                     </span>
                 </a></p>
             </div>
@@ -2056,42 +2060,42 @@ function check_facility_status(message) {
                         {#if $facility_data_store.is_bgv_intiated == "0"}
                         
                         <p on:click={routeToBgv} class="initiateText">
-                            <a href="" class="flex">
+                            <button href="" class="flex">
                                 <img
                                     src="{$img_url_name.img_name}/InitiateBGVerification.png"
                                     class=" pr-2"
                                     alt=""
-                                /> Initiate BGV Verification</a
+                                /> Initiate BGV Verification</button
                             >
                         </p>
                         {:else if $facility_data_store.is_bgv_rejected == "1"}
                         <p on:click={routeToBgv} class="initiateText">
-                            <a href="" class="flex" style="color: rgba(255, 0, 0, var(--tw-text-opacity));">
+                            <button href="" class="flex" style="color: rgba(255, 0, 0, var(--tw-text-opacity));">
                                 <img
                                     src="{$img_url_name.img_name}/InitiateBGVerification.png"
                                     class=" pr-2"
                                     alt=""
-                                />BGV Rejected</a
+                                />BGV Rejected</button
                             >
                         </p>
                         {:else if $facility_data_store.is_bgv_verified == "1"}
                         <p on:click={routeToBgv} class="initiateText">
-                            <a href="" class="flex" style="color:rgba(106, 194, 89, var(--tw-text-opacity));">
+                            <button href="" class="flex" style="color:rgba(106, 194, 89, var(--tw-text-opacity));">
                                 <img
                                     src="{$img_url_name.img_name}/InitiateBGVerification.png"
                                     class=" pr-2"
                                     alt=""
-                                />BGV Verified</a
+                                />BGV Verified</button
                             >
                         </p>
                         {:else}
                         <p on:click={routeToBgv} class="initiateText">
-                            <a href="" class="flex" style="color: color: rgba(255, 134, 46, var(--tw-text-opacity));">
+                            <button href="" class="flex" style="color: color: rgba(255, 134, 46, var(--tw-text-opacity));">
                                 <img
                                     src="{$img_url_name.img_name}/InitiateBGVerification.png"
                                     class=" pr-2"
                                     alt=""
-                                />BGV Pending</a
+                                />BGV Pending</button
                             >
                         </p>
                         {/if}

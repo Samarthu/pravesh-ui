@@ -14,7 +14,7 @@
     import Toast from './components/toast.svelte';
     import { img_url_name } from "../stores/flags_store";
     import Spinner from "./components/spinner.svelte";
-    
+    import {get_date_format} from "../services/date_format_servives";
 
     let temp;
     let routePrev = "";
@@ -26,7 +26,9 @@
     let get_state_data;
     let city_data=[];
     let new_selected_state;
-    $:new_selected_state;
+    
+    
+    
     var NorthEStates = ["Arunachal Pradesh", "Assam", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Sikkim", "Tripura"];
     var pan_card_pattern = /^[A-Z]{3}[ABCFGHLJPTF]{1}[A-Z]{1}[0-9]{4}[A-Z]{1}/gm;
     var aadhar_card_pattern = /^[0-9]{12}$/gm;
@@ -50,24 +52,24 @@
     let delivery_msg="";
     let station_message="";
     let casper_message="";
-    let photo_upload="-";
-    let aadhar_upload="-";
-    let address_upload="-"
-    let pancard_upload="-";
-    let license_upload="-";
-    let police_upload = "-";
+    // let photo_upload="-";
+    // let aadhar_upload="-";
+    // let address_upload="-"
+    // let pancard_upload="-";
+    // let license_upload="-";
+    // let police_upload = "-";
     let photo_data=""
     let aadhar_data=""
     let pan_data=""
     let police_data=""
     let dl_data=""
     let address_data=""
-    $:photo_img ="";
-    $:aadhar_img="";
-    $:pan_img="";
-    $:police_img="";
-    $:dl_img="";
-    $:address_img="";
+    $:fac_photo_obj.profile_name ="";
+    $:aadhar_obj.aadhar_name="";
+    $:pancard_obj.pan_name="";
+    $:pol_photo_obj.pol_doc_name="";
+    $:dl_photo_obj.dl_lic_name="";
+    $:aadhar_obj.aadhar_name="";
     let file_data;
     // let basicInfo="basicInfo";
     $:is_basic_visible = "";
@@ -82,10 +84,44 @@
     let is_pol_active = "";
     let casper_id_arr = [];
     let delivery_select,station_mod_select,casper_select;
+
+
+    let pancard_obj = {
+        pan_num:null,
+        pan_attach:null,
+        pan_name:null,
+    }
+    let aadhar_obj = {
+        aadhar_num:null,
+        aadhar_attach:null,
+        aadhar_name:null,
+    }
+    let fac_photo_obj = {
+        profile_url:null,
+        profile_name:null
+    }
+    let addproof_obj = {
+        address_name:null,
+        address_url:null,
+    };
+    let dl_photo_obj = {
+        dl_lic_num:null,
+        dl_lic_name:null,
+        dl_lic_url:null,
+    };
+    let pol_photo_obj = {
+        pol_doc_name:null,
+        pol_doc_url:null,
+       
+    };
     
+    $:if(new_selected_state){
+        state_dep_city();
+    }
 
     
     onMount(async () => {
+        
         let userdetails = await logged_user();
         
         try{
@@ -140,6 +176,56 @@
         }
     }
 
+    /////DOcument Data/////////
+    for (var i = 0; i < $documents_store.length; i++) {
+                let doc_date_format = new Date($documents_store[i].creation);
+                let doc_creation_date = get_date_format(doc_date_format,"dd-mm-yyyy-hh-mm");
+                $documents_store[i].creation = doc_creation_date
+                if($documents_store[i].doc_type == "pan-photo"){
+                    
+                    pancard_obj = {pan_num : $documents_store[i].doc_number,
+                    pan_attach : $documents_store[i].file_url,
+                    pan_name : $documents_store[i].file_name,
+                    };
+                    
+                }
+                
+                else if($documents_store[i].doc_type == "aadhar-id-proof"){
+                    aadhar_obj = {
+                    aadhar_num : $documents_store[i].doc_number,
+                    aadhar_attach : $documents_store[i].file_url,
+                    aadhar_name : $documents_store[i].file_name,
+                    };
+                    
+                }
+                else if($documents_store[i].doc_type == "fac-photo"){
+                    fac_photo_obj={
+                    profile_name : $documents_store[i].file_name,
+                    profile_url : $documents_store[i].file_url,
+                   };
+                }
+                else if($documents_store[i].doc_type == "addproof-photo"){
+                    addproof_obj = {address_name : $documents_store[i].file_name,   
+                    address_url : $documents_store[i].file_url,
+                    };
+                }
+                else if($documents_store[i].doc_type == "dl-photo"){
+                    dl_photo_obj = {dl_lic_name : $documents_store[i].file_name,
+                    dl_lic_num : $documents_store[i].doc_number,
+                    dl_lic_url : $documents_store[i].file_url,
+                    };
+                }
+                else if($documents_store[i].doc_type == "police_info_supp_file"){
+                    pol_photo_obj = {pol_doc_name : $documents_store[i].file_name,
+                    pol_doc_num : $documents_store[i].doc_number,
+                    pol_doc_url : $documents_store[i].file_url,
+                    };
+                }
+            }
+
+
+            ///Document Data////////
+
 
     let bgv_init_res = await facility_bgv_init(bgv_pass_data);   
     
@@ -166,9 +252,10 @@
                 console.log("DAte 18 yrs before",$bgv_data_store.basic_info_dob)
                 console.log("No BGV Data OF This User")
 
+                console.log("$bgv_data_store",$bgv_data_store.state)
+
         }
         else{
-            console.log("$bgv_data_store in facility_bgv_check_res",$bgv_data_store)
             $bgv_data_store = facility_bgv_check_res.body.data[0];
             gend_selected = $bgv_data_store.gender;
             add_is_perm = $bgv_data_store.address_type;
@@ -178,7 +265,7 @@
                 $bgv_data_store.basic_info_dob = eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear()-18);
             }
             console.log("DAte 18 yrs before",$bgv_data_store.basic_info_dob)
-           
+            console.log("$bgv_data_store",$bgv_data_store.state)
         }
         
     } catch(err) {
@@ -186,40 +273,40 @@
         // message.innerHTML = "Error is " + err;
     }
     
-    let get_docs_res = await get_all_docs();
-    try{    
-    if(get_docs_res.body.status == "green"){
-        console.log("get_docs_res",get_docs_res);
-        for(let i=0;i<get_docs_res.body.data.length;i++){
-            // console.log("get_docs_i",get_docs_res.body.data[i].file_name);
-            if(get_docs_res.body.data[i].doc_type == "fac-photo"){
-                photo_img = get_docs_res.body.data[i].file_name;
-                // console.log("photo_img",photo_img)
-            }
-            if(get_docs_res.body.data[i].doc_type == "aadhar-id-proof"){
-                aadhar_img = get_docs_res.body.data[i].file_name;
-                // console.log("aadhar_img",aadhar_img)
-            }
-            if(get_docs_res.body.data[i].doc_type == "pan-photo"){
-                pan_img = get_docs_res.body.data[i].file_name;
-                // console.log("pan_img",pan_img)
-            }
-            if(get_docs_res.body.data[i].doc_type == "police_info_supp_file"){
-                police_img = get_docs_res.body.data[i].file_name;
-                // console.log("police_img",police_img)
-            }
-            if(get_docs_res.body.data[i].doc_type == "dl-photo"){
-                dl_img = get_docs_res.body.data[i].file_name;
-                // console.log("dl_img",dl_img)
-            }
+    // let get_docs_res = await get_all_docs();
+    // try{    
+    // if(get_docs_res.body.status == "green"){
+    //     console.log("get_docs_res",get_docs_res);
+    //     for(let i=0;i<get_docs_res.body.data.length;i++){
+    //         // console.log("get_docs_i",get_docs_res.body.data[i].file_name);
+    //         if(get_docs_res.body.data[i].doc_type == "fac-photo"){
+    //             fac_photo_obj.profile_name = get_docs_res.body.data[i].file_name;
+    //             // console.log("fac_photo_obj.profile_name",fac_photo_obj.profile_name)
+    //         }
+    //         if(get_docs_res.body.data[i].doc_type == "aadhar-id-proof"){
+    //             aadhar_obj.aadhar_name = get_docs_res.body.data[i].file_name;
+    //             // console.log("aadhar_obj.aadhar_name",aadhar_obj.aadhar_name)
+    //         }
+    //         if(get_docs_res.body.data[i].doc_type == "pan-photo"){
+    //             pancard_obj.pan_name = get_docs_res.body.data[i].file_name;
+    //             // console.log("pancard_obj.pan_name",pancard_obj.pan_name)
+    //         }
+    //         if(get_docs_res.body.data[i].doc_type == "police_info_supp_file"){
+    //             pol_photo_obj.pol_doc_name = get_docs_res.body.data[i].file_name;
+    //             // console.log("pol_photo_obj.pol_doc_name",pol_photo_obj.pol_doc_name)
+    //         }
+    //         if(get_docs_res.body.data[i].doc_type == "dl-photo"){
+    //             dl_photo_obj.dl_lic_name = get_docs_res.body.data[i].file_name;
+    //             // console.log("dl_photo_obj.dl_lic_name",dl_photo_obj.dl_lic_name)
+    //         }
 
-        }
-    }
-    }
-    catch(err) {
-        console.log("Error")
+    //     }
+    // }
+    // }
+    // catch(err) {
+    //     console.log("Error")
        
-    }
+    // }
 
     let get_states_res = await get_states();
     try {
@@ -227,8 +314,6 @@
            
             get_state_data = get_states_res.body.data;
             // console.log("get_state_data",get_state_data[0].state_name)
-            new_selected_state = $bgv_data_store.state;
-            // console.log("new_selected_state",new_selected_state)
             if($bgv_config_store.is_basic_info_mandatory == "1"){
                 temp = "a";
                 is_pol_active="";
@@ -277,11 +362,20 @@
        
     }
     
-    let city_data_res =  await get_cities(new_selected_state);
-       try {
+    
+    show_spinner = false;
+    });
+
+
+    async function state_dep_city(){
+        let city_data_res;
+        if(!$bgv_data_store.state){
+        console.log("INside no state from api")
+         city_data_res =  await get_cities(new_selected_state);
+        }
+        try {
         if(!city_data_res){
             console.log("No Data")
-           
         }
         else{
             city_data = city_data_res.body.data;
@@ -292,69 +386,68 @@
         console.log("Error")
        
     }
-    show_spinner = false;
-    });
+    }
 
     const onFileSelected = (e,doctext) => {
-        // console.log("photoUplaodd",photo_upload)
-        // console.log("aadhar_upload",aadhar_upload)
-        console.log("doctext",doctext)
+
         let img = e.target.files[0];
         if (img.size <= allowed_pdf_size) {
-        console.log("img", img);
+       
         if(doctext == "photo_upload"){
           console.log("Photo log uploaded")  
-            photo_img = img.name;
-            // console.log("photo_img",photo_img)
+            fac_photo_obj.profile_name = img.name;
+            // console.log("fac_photo_obj.profile_name",fac_photo_obj.profile_name)
         }
         else if(doctext == "aadhar_upload"){
-        aadhar_img = img.name;}
+        aadhar_obj.aadhar_name = img.name;}
         else if(doctext == "address_upload"){
-        address_img = img.name;}
+            console.log("address inside")
+        addproof_obj.address_name = img.name;
+        console.log("aadhar_obj.aadhar_name",aadhar_obj.aadhar_name)}
         else if(doctext == "pancard_upload")
-        pan_img = img.name;
+        pancard_obj.pan_name = img.name;
         else if(doctext == "police_upload")
-        police_img = img.name;
+        pol_photo_obj.pol_doc_name = img.name;
         else if(doctext == "license_upload")
-        dl_img = img.name;
+        dl_photo_obj.dl_lic_name = img.name;
 
         var reader = new FileReader();
         reader.readAsDataURL(img);
         reader.onload = function () {
-        file_data = reader.result;
-        console.log("reader",reader.result);
+        // file_data = reader.result;
+        // console.log("reader",reader.result);
         if(doctext == "photo_upload"){
-            photo_data = reader.result;
+            fac_photo_obj.profile_url = reader.result;
             // console.log("photo_data",reader.result);
             toast_text = "Photo Uploaded Successfully";
             toast_type = "success";
         }
         else if(doctext == "aadhar_upload"){
-            aadhar_data = reader.result;
+            aadhar_obj.aadhar_attach = reader.result;
             // console.log("aadhar_data",reader.result);
             toast_text = "Document Uploaded Successfully";
             toast_type = "success";
         }
         else if(doctext == "address_upload"){
-            address_data = reader.result;
+            addproof_obj.address_url = reader.result;
             console.log("address_data",reader.result);
             toast_text = "Address Document Uploaded Successfully";
             toast_type = "success";
         }
         else if(doctext == "pancard_upload"){
-            pan_data= reader.result;
+            pancard_obj.pan_attach= reader.result;
             console.log("pan_data",reader.result);
             toast_text = "Pan Card Uploaded Successfully";
             toast_type = "success";
         }
         else if(doctext == "police_upload"){
-            police_data = reader.result;
+            pol_photo_obj.pol_doc_url = reader.result;
             console.log("police_data",reader.result);
             toast_text = "Document Uploaded Successfully";
             toast_type = "success";
         }
         else if(doctext == "license_upload"){
-            dl_data = reader.result;
+            dl_photo_obj.dl_lic_url = reader.result;
             console.log("dl_data",reader.result);
             toast_text = "Licence Uploaded Successfully";
             toast_type = "success";
@@ -365,13 +458,6 @@
         };
     }
     else {
-            // toast_type = "danger";
-            // toast_text = "File size is greater than " +
-            //         Number(allowed_pdf_size / 1048576) +
-            //         "MB. Please upload a file less than " +
-            //         Number(allowed_pdf_size / 1048576) +
-            //         "MB .";
-            
             alert(
                 "File size is greater than " +
                     Number(allowed_pdf_size / 1048576) +
@@ -384,39 +470,38 @@
     function delete_files(doctext){
         
         if(doctext == "photo_upload"){
-            photo_img = null;
-            photo_data = null;
+            fac_photo_obj.profile_name = null;
+            fac_photo_obj.profile_url = null;
 
         }
         else if(doctext == "aadhar_upload"){
-            aadhar_img=null;
-            aadhar_data=null;
+            aadhar_obj.aadhar_name=null;
+            aadhar_obj.aadhar_attach=null;
         }
         else if(doctext == "address_upload"){
-           address_img=null;
-           address_data=null;
+           addproof_obj.address_name=null;
+           addproof_obj.address_url=null;
         }
         else if(doctext == "pancard_upload"){
-            pan_img = null;
-            pan_data=null;
+            pancard_obj.pan_name = null;
+            pancard_obj.pan_attach=null;
         }
         else if(doctext == "license_upload"){
-           dl_img=null;
-           dl_data=null; 
+           dl_photo_obj.dl_lic_name=null;
+           dl_photo_obj.dl_lic_url=null; 
         }
         else if(doctext == "police_upload"){
-            police_img=null;
-            police_data=null;  
+            pol_photo_obj.pol_doc_name=null;
+            pol_photo_obj.pol_doc_url=null;  
         }
     }
 
-    async function submit_photo(){
-        if(!photo_img && !photo_data){
-            // throwError("photo_up_msg","Upload Profile Photo")
-        }
-        else{
+    async function submit_photo(){ 
+        if(!fac_photo_obj.profile_name && !fac_photo_obj.profile_url){
+        
             let photo_load = {
-                file_name:photo_img,
+                resource_id:$bgv_data_store.facility_id,
+                file_name:fac_photo_obj.profile_name,
                 pod:photo_data,
                 doc_category:"pass_photo",
                 doc_type:"pass_photo"
@@ -425,12 +510,11 @@
             }
         }
     async function submit_aadhar(){
-        if(!aadhar_img && !aadhar_data){
-            // throwError("aadhar_up_msg","Upload Aadhar Photo")
-        }
-        else{
+        if(!aadhar_obj.aadhar_name && !aadhar_obj.aadhar_attach){
+        
             let aadhar_load = {
-            file_name:aadhar_img,
+            resource_id:$bgv_data_store.facility_id,
+            file_name:aadhar_obj.aadhar_name,
             pod:aadhar_data,
             doc_category:"aadhar-id-proof",
             doc_type:"aadhar-id-proof"
@@ -439,12 +523,12 @@
             }
         }
     async function submit_address(){
-        if(!address_img && !address_data){
-            // throwError("aadhar_up_msg","Upload Aadhar Photo")
-        }
-        else{
+        console.log("inside submit address")
+        if(!addproof_obj.address_name && !addproof_obj.address_url){
+        
             let address_load = {
-            file_name:address_img,
+            resource_id:$bgv_data_store.facility_id,
+            file_name:aadhar_obj.aadhar_name,
             pod:address_data,
             doc_category:"addproof-photo",
             doc_type:"addproof-photo"
@@ -453,12 +537,11 @@
         }
         }   
     async function submit_pancard(){
-        if(!pan_img && !pan_data){
-            // throwError("aadhar_up_msg","Upload Aadhar Photo")
-        }
-        else{
+        if(!pancard_obj.pan_name && !pancard_obj.pan_attach){
+        
             let pan_load = {
-            file_name:pan_img,
+            resource_id:$bgv_data_store.facility_id,
+            file_name:pancard_obj.pan_name,
             pod:pan_data,
             doc_category:"pan-photo",
             doc_type:"pan-photo"
@@ -467,12 +550,11 @@
         }
     }
     async function submit_licence(){
-        if(!dl_img && !dl_data){
-            // throwError("aadhar_up_msg","Upload Aadhar Photo")
-        }
-        else{
+        if(!dl_photo_obj.dl_lic_name && !dl_photo_obj.dl_lic_url){
+        
             let dl_load = {
-            file_name:dl_img,
+            resource_id:$bgv_data_store.facility_id,
+            file_name:dl_photo_obj.dl_lic_name,
             pod:dl_data,
             doc_category:dl-photo,
             doc_type:dl-photo
@@ -481,12 +563,11 @@
         }
     }
     async function submit_police(){
-        if(!police_img && !police_data){
-            throwError("aadhar_up_msg","Upload Aadhar Photo")
-        }
-        else{
+        if(!pol_photo_obj.pol_doc_name && !pol_photo_obj.pol_doc_url){
+        
             let pol_load = {
-            file_name:police_img,
+            resource_id:$bgv_data_store.facility_id,
+            file_name:pol_photo_obj.pol_doc_name,
             pod:police_data,
             doc_category:"police_info_supp_file",
             doc_type:"police_info_supp_file"
@@ -500,32 +581,32 @@
     }
 
     async function submitBasicDets(){
-            if(!photo_img && !photo_data){
+            if(!fac_photo_obj.profile_name && !fac_photo_obj.profile_url){
                 throwError("photo_up_msg","Upload Profile Photo")
-                if(!aadhar_img && !aadhar_data){
-                throwError("aadhar_up_msg","Upload Aadhar Photo")
+                if(!aadhar_obj.aadhar_name && !aadhar_obj.aadhar_attach){
+                throwError("aadhar_up_msg","Upload Profile Photo")
                 return
             }
             }
-            if(!aadhar_img && !aadhar_data){
+            if(!aadhar_obj.aadhar_name && !aadhar_data){
                 throwError("aadhar_up_msg","Upload Aadhar Photo")
                 return
             }
 
-        // console.log("$bgv_data_store.adhar_card_number",$bgv_data_store.adhar_card_number)
-            if(!$bgv_data_store.adhar_card_number){
+        // console.log("aadhar_obj.aadhar_num",aadhar_obj.aadhar_num)
+            if(!aadhar_obj.aadhar_num){
                 throwError("aadharmsg","Enter valid Aadhar Number")
                 return 
             }
-            else if(!$bgv_data_store.adhar_card_number.match(aadhar_card_pattern)){  
-                if($bgv_data_store.pancard_number == $bgv_data_store.adhar_card_number || 
-                    $bgv_data_store.license_number == $bgv_data_store.adhar_card_number){
-                    let check_doc_res =await check_doc_exist($bgv_data_store.adhar_card_number);  
+            else if(!aadhar_obj.aadhar_num.match(aadhar_card_pattern)){  
+                if(pancard_obj.pan_num == aadhar_obj.aadhar_num || 
+                    dl_photo_obj.dl_lic_num == aadhar_obj.aadhar_num){
+                    let check_doc_res =await check_doc_exist(aadhar_obj.aadhar_num);  
                     // console.log("check_doc_res",check_doc_res)
                     if(check_doc_res == "red"){
                         check_doc_res.body.message;   
                     }
-                    // throwError("aadharmsg","Document No is Already Linked With Other Facility")
+                    throwError("aadharmsg","Document No is Already Linked With Other Facility")
                  
                 } 
                 throwError("aadharmsg","Invalid Aadhar Number")
@@ -624,7 +705,7 @@
                 
             let basic_sub_data = {
             fir_name : $bgv_data_store.first_name,
-            aadhar_num :$bgv_data_store.adhar_card_number,
+            aadhar_num :aadhar_obj.aadhar_num,
             last_name : $bgv_data_store.last_name,
             father_name : $bgv_data_store.father_name,
             email : $bgv_data_store.email_id,
@@ -642,8 +723,9 @@
         }    
   
     async function submitAddDets(){
-            if(!address_img && !address_data){
-                throwError("add_up_msg","Upload Aadhar Photo")
+        console.log("here in submitAddDets")
+            if(!addproof_obj.address_name && !addproof_obj.address_url){
+                throwError("add_up_msg","Upload Address Document Photo")
                 return
             }
 
@@ -661,7 +743,7 @@
             else{
                 throwError("full_add_msg","")
             }
-            if(!$bgv_data_store.state){
+            if(!$bgv_data_store.state && !new_selected_state){
                 throwError("state_msg","Invalid State")
                 return  
             }
@@ -752,22 +834,24 @@
         stay_from : $bgv_data_store.stay_from,
         stay_till : $bgv_data_store.stay_till,
     }
+    console.log("addr_data",addr_data)
         return await  submit_address_details(addr_data);
     }
     async function submitPanDets(){
-            if(!pan_img && !pan_data){
-                throwError("pan_up_msg","Upload Aadhar Photo")
+            if(!pancard_obj.pan_name && !pancard_obj.pan_url){
+                throwError("pan_up_msg","Upload Pancard Photo")
             }
-            if(!$bgv_data_store.pancard_number.length < 12){
-                if($bgv_data_store.adhar_card_number == $bgv_data_store.pancard_number || 
-                $bgv_data_store.license_number == $bgv_data_store.pancard_number){
-                    let check_doc_res =await check_doc_exist($bgv_data_store.pancard_number);  
-                    // console.log("check_doc_res",check_doc_res)
+
+            else if(!pancard_obj.pan_num.match(pan_card_pattern)){  
+                if(aadhar_obj.aadhar_num == pancard_obj.pan_num || 
+                dl_photo_obj.dl_lic_num == pancard_obj.pan_num){
+                    let check_doc_res =await check_doc_exist(pancard_obj.pan_num);
                     if(check_doc_res == "red"){
                         check_doc_res.body.message;   
                     }
-                    // throwError("pan_num_msg","Document No is Already Linked With Other Facility")
-                }
+                    throwError("pan_num_msg","Document No is Already Linked With Other Facility")
+                    
+                } 
                 throwError("pan_num_msg","Invalid Pancard Number")
                 return
             }
@@ -801,23 +885,24 @@
         pan_dob: $bgv_data_store.pan_dob,
         pan_father_name: $bgv_data_store.pan_father_name,
         pan_full_name: $bgv_data_store.pan_full_name,
-        pancard_number: $bgv_data_store.pancard_number
+        pancard_number: pancard_obj.pan_num
         }
         return await submit_pancard_details(pan_data);
     }
 
     async function submitDlDets(){
-        if(!dl_img && !dl_data){
-            throwError("dl_up_msg","Upload Aadhar Photo")
+        if(!dl_photo_obj.dl_lic_name && !dl_photo_obj.dl_lic_url){
+            throwError("dl_up_msg","Upload Driving Licence Photo")
         }
-            if(!$bgv_data_store.license_number){
+            if(!dl_photo_obj.dl_lic_num){
             throwError("lic_num_msg","Enter Valid Driving Licence Number")
                 return
             }
-            else if(!$bgv_data_store.license_number.match(driving_license_pattern)){
-                if($bgv_data_store.adhar_card_number == $bgv_data_store.license_number || 
-                $bgv_data_store.pancard_number == $bgv_data_store.license_number){
-                    let check_doc_res =await check_doc_exist($bgv_data_store.license_number);  
+            else if(!dl_photo_obj.dl_lic_num.match(driving_license_pattern)){
+                console.log("Inside else if")
+                if(aadhar_obj.aadhar_num == dl_photo_obj.dl_lic_num || 
+                pancard_obj.pan_num == dl_photo_obj.dl_lic_num){
+                    let check_doc_res =await check_doc_exist(dl_photo_obj.dl_lic_num);  
                     // console.log("check_doc_res",check_doc_res)
                     if(check_doc_res == "red"){
                         check_doc_res.body.message;   
@@ -866,20 +951,20 @@
             else{
                 throwError("dl_issue_st_msg","")
             }
-        let dl_data = {
-        dl_dob: $bgv_data_store.dl_dob,
-        dl_expiry_date: $bgv_data_store.dl_expiry_date,
-        dl_issue_date: $bgv_data_store.dl_issue_date,
-        dl_state: $bgv_data_store.dl_state,
-        license_number: $bgv_data_store.license_number,
-        name_license: $bgv_data_store.name_license,
-        }
-        return await submit_dl_details(dl_data);
+            let dl_data = {
+            dl_dob: $bgv_data_store.dl_dob,
+            dl_expiry_date: $bgv_data_store.dl_expiry_date,
+            dl_issue_date: $bgv_data_store.dl_issue_date,
+            dl_state: $bgv_data_store.dl_state,
+            license_number: dl_photo_obj.dl_lic_num,
+            name_license: $bgv_data_store.name_license,
+            }
+            return await submit_dl_details(dl_data);
         
     }
     async function submitPolDets(){
-        if(!police_img && !police_data){
-            throwError("pol_up_msg","Upload Aadhar Photo")
+        if(!pol_photo_obj.pol_doc_name && !pol_photo_obj.pol_doc_url){
+            throwError("pol_up_msg","Upload Police Document Photo")
         }
             if(!$bgv_data_store.police_address_type){
                 throwError("pol_add_type","Select Address Type")
@@ -932,12 +1017,12 @@
             show_spinner = true;
         if(new_type=="basicInfo"){
             let sub_bas_res = await submitBasicDets();
-            if(photo_upload == "photo_upload"){}
-            else{let photo_res = await submit_photo();}
-            if(aadhar_upload == "-"){}
-            else{let aadhar_res = await submit_aadhar();}
             try{
-                if(sub_bas_res.body.status =="green"){
+                if(sub_bas_res.body.status == "green"){
+                    if(fac_photo_obj.profile_url == "photo_upload"){}
+                    else{let photo_res = await submit_photo();}
+                    if(aadhar_obj.aadhar_attach == "-"){}
+                    else{let aadhar_res = await submit_aadhar();}
                     show_spinner = false;
                     toast_text = "Basic Details Submitted Successfully";
                     toast_type = "success";
@@ -968,57 +1053,57 @@
                     is_dl_active="";
                     } 
                 }
-            
             }
             catch(err){
-                console.log("ERROR in sub_bas_res next")
+                toast_type = "error";
+                toast_text = err;
             }
             
         }
         else if(new_type == "addressInfo"){
             let sub_add_res = await submitAddDets();
-            if(address_upload=="address_upload"){}
-            else{let address = await submit_address();}
-            console.log("sub_add_res",sub_add_res)
             try{
                 if(sub_add_res.body.status == "green"){
+                    if(addproof_obj.address_url=="address_upload"){}
+                    else{let address = await submit_address();}
                     show_spinner = false;
-                toast_text = "Address Details Submitted Successfully";
-                toast_type = "success";
-                if($bgv_config_store.is_pan_info_mandatory =="1"){
-                temp="c";
-                is_pan_active = "active";
-                is_add_active = "";
-                is_basic_active = "";
-                }
-                else if($bgv_config_store.is_driving_license_mandatory =="1"){
-                temp="d"
-                is_dl_active="active";
-                is_pan_active = "";
-                is_add_active = "";
-                is_basic_active = "";
-                }
-                else if($bgv_config_store.is_police_verification_mandatory =="1"){
-                temp="e"
-                is_pol_active="active";
-                is_pan_active = "";
-                is_add_active = "";
-                is_basic_active = "";
-                is_dl_active="";
-                }
+                    toast_text = "Address Details Submitted Successfully";
+                    toast_type = "success";
+                    if($bgv_config_store.is_pan_info_mandatory =="1"){
+                    temp="c";
+                    is_pan_active = "active";
+                    is_add_active = "";
+                    is_basic_active = "";
+                    }
+                    else if($bgv_config_store.is_driving_license_mandatory =="1"){
+                    temp="d"
+                    is_dl_active="active";
+                    is_pan_active = "";
+                    is_add_active = "";
+                    is_basic_active = "";
+                    }
+                    else if($bgv_config_store.is_police_verification_mandatory =="1"){
+                    temp="e"
+                    is_pol_active="active";
+                    is_pan_active = "";
+                    is_add_active = "";
+                    is_basic_active = "";
+                    is_dl_active="";
+                    }
                 }
             }
             catch(err){
-                console.log("ERROR in sub_add_res next") 
+                toast_type = "error";
+                toast_text = err;
             }
+            
         }
         else if(new_type == "panInfo"){
             let sub_pan_res = await submitPanDets();
-            if(pancard_upload=="pancard_upload"){}
-            else{let pancard = await submit_pancard();}
-            
             try{
                 if(sub_pan_res.body.status =="green"){
+                    if(pancard_obj.pan_attach=="pancard_upload"){}
+                    else{let pancard = await submit_pancard();}
                     show_spinner = false;
                 toast_text = "Pan Card Details Submitted Successfully";
                 toast_type = "success";
@@ -1040,15 +1125,16 @@
                 }
             }
             catch(err){
-                console.log("ERROR in sub_pan_res next")  
+                toast_type = "error";
+                toast_text = err;
             } 
         }
         else if(new_type == "dlInfo"){
             let sub_dl_res = await submitDlDets();
             try{  
-                if(license_upload == "license_upload"){}
-                else{let licence = await submit_licence();}
                 if(sub_dl_res.body.status =="green"){
+                    if(dl_photo_obj.dl_lic_url == "license_upload"){}
+                    else{let licence = await submit_licence();}
                     show_spinner = false;
                 toast_text = "Licence Details Submitted Successfully";
                 toast_type = "success";
@@ -1063,15 +1149,16 @@
                 }
             }
             catch(err){
-                console.log("ERROR in sub_dl_res next")  
-            }    
+                toast_type = "error";
+                toast_text = err;
+            }   
         }
         else if(new_type == "policeInfo"){
             let sub_pol_res = await submitPolDets();
-            if(police_upload == "police_upload"){}
-            else{let police = await submit_police();}
             try{    
                 if(sub_pol_res.body.status =="green"){
+                if(pol_photo_obj.pol_doc_url == "police_upload"){}
+                else{let police = await submit_police();}
                 show_spinner = false;
                 toast_text = "Police Verification Details Submitted Successfully";
                 toast_type = "success";
@@ -1079,7 +1166,8 @@
                 }
             }
             catch(err){
-                console.log("ERROR in sub_pol_res next")   
+                toast_type = "error";
+                toast_text = err;
             }    
         }
     }
@@ -1121,7 +1209,8 @@
                 }
             }
             catch(err){
-                console.log("ERROR in sub_pol_res back")    
+                toast_type = "error";
+                toast_text = err;
             }
         }
         else if(new_type == "dlInfo"){
@@ -1155,7 +1244,8 @@
                 }
             }
             catch(err){
-                console.log("ERROR in sub_dl_res back")    
+                toast_type = "error";
+                toast_text = err;
             }
         }
         else if(new_type == "panInfo"){
@@ -1183,7 +1273,8 @@
                 }
             }
             catch(err){
-                console.log("ERROR in sub_pan_res back")  
+                toast_type = "error";
+                toast_text = err; 
             }
         }
         else if(new_type == "addressInfo"){
@@ -1192,17 +1283,18 @@
                 if(sub_add_res.body.status =="green"){
                     show_spinner = false;
                 if($bgv_config_store.is_basic_info_mandatory =="1"){
-                temp="a";
-                is_pol_active="";
-                is_dl_active="";
-                is_pan_active = "";
-                is_add_active = "";
-                is_basic_active = "active";
+                    temp="a";
+                    is_pol_active="";
+                    is_dl_active="";
+                    is_pan_active = "";
+                    is_add_active = "";
+                    is_basic_active = "active";
                 } 
                 }
             }
             catch(err){
-                console.log("ERROR in sub_add_res back") 
+                toast_type = "error";
+                toast_text = err;
             }    
         }
         else if(new_type == "basicInfo"){
@@ -1215,7 +1307,8 @@
                 }
             }
             catch(err){
-                console.log("ERROR in sub_bas_res back")
+                toast_type = "error";
+                toast_text = err;
             }
         }
     }
@@ -1519,7 +1612,7 @@
                                                 <input
                                                                     type="file"
                                                                     class="hidden"
-                                                                    bind:value = "{photo_upload}"
+                                                                    bind:value = "{fac_photo_obj.profile_url}"
                                                                     on:change={(
                                                                         e
                                                                     ) =>
@@ -1532,8 +1625,8 @@
 
                                             </label>
                                             <div class="flex">
-                                                {#if photo_img}
-                                                <p>{photo_img}</p>
+                                                {#if fac_photo_obj.profile_name}
+                                                <p>{fac_photo_obj.profile_name}</p>
                                                <img
                                                on:click={() => delete_files("photo_upload")}
                                                class="pl-2 cursor-pointer"
@@ -1563,37 +1656,7 @@
                             <div class="formGroup py-1">
                                 <label class="formLable ">Aadhar Card Copy <span
                                         class="mandatoryIcon">*</span></label>
-                                <!-- <div class="formInnerGroup ">
-
-                                    <span class="profileimage">
-                                        <img src="{$img_url_name.img_name}/pancard.png" class="uploadedImage" alt="">
-                                        <span>aadhar copy.jpeg</span>
-                                        <span><img src="{$img_url_name.img_name}/closeblue.png" alt=""></span>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex">
-                            <div class="formGroupbgv items-center ">
-                                <label class="formLable ">Aadhar Number <span
-                                        class="mandatoryIcon">*</span></label>
-                                <div class="xs:w-full sm:w-full">
-                                    <div class="flex  items-center">
-                                        <div class="formInnerGroup ">
-                                            <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.adhar_card_number}">
-                                            
-                                            <div class="text-red-500">{adhar_card_message}</div>
-                                        </div>
-                                        <div>
-                                            <img src="{$img_url_name.img_name}/edit.png" class="editbgv" alt="">
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <p class="smNotebgv"><span class="font-medium">Note:</span> Voter ID
-                                            only for North East
-                                        </p>
-                                    </div>
-                                </div> -->
+                                
                                 <div class="xs:w-full sm:w-full">
                                     <div class="flex  items-center">
                                         <div class="formInnerGroup ">
@@ -1603,7 +1666,7 @@
                                                 <input
                                                 type="file"
                                                 class="hidden"
-                                                bind:value = "{aadhar_upload}"
+                                                bind:value = "{aadhar_obj.aadhar_attach}"
                                                 on:change={(
                                                     e
                                                 ) =>
@@ -1615,8 +1678,8 @@
                                             <!-- <div class="text-red-500">{adhar_card_message}</div> -->
                                             </label>
                                             <div class="flex">
-                                                {#if aadhar_img}
-                                                <p>{aadhar_img}</p>
+                                                {#if aadhar_obj.aadhar_num}
+                                                <p>{aadhar_obj.aadhar_num}</p>
                                                <img
                                                on:click={() => delete_files("aadhar_upload")}
                                                class="pl-2 cursor-pointer"
@@ -1650,7 +1713,7 @@
                                 <div class="xs:w-full sm:w-full">
                                     <div class="flex  items-center">
                                         <div class="formInnerGroup ">
-                                            <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.adhar_card_number}">
+                                            <input type="text" class="inputboxbgv" bind:value="{aadhar_obj.aadhar_num}">
                                             <!-- {#if aadhar_num_c == "1"} -->
                                             <div class="text-red-500" id="aadharmsg"></div>
                                             <!-- {/if} -->
@@ -1938,42 +2001,7 @@
                             <div class="formGroup py-1">
                                 <label class="formLable ">Address Proof Copy <span
                                         class="mandatoryIcon">*</span></label>
-                                <!-- <div class="formInnerGroup ">
-
-                                    <span class="profileimage">
-                                        <img src="{$img_url_name.img_name}/pancard.png" class="uploadedImage" alt="">
-                                        <span>aadhar copy.jpeg</span>
-                                        <span><img src="{$img_url_name.img_name}/closeblue.png" alt=""></span>
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex mt-2">
-                            <div class="formGroupBaseLine ">
-                                <label class="formLable">Address Type<span
-                                        class="mandatoryIcon">*</span></label>
-                                <div class="formInnerGroup ">
-
-                                    <div class="text-center items-center flex ">
-
-                                        <div class="flex items-center mr-4">
-                                           
-                                            <input id="radio11" type="radio" name="radio2" class="hidden"
-                                            bind:group="{add_is_perm}" value="Permanant"/>
-                                            <label for="radio11" class="radioLable">
-                                                <span class="radioCirle"></span>
-                                                Permanant</label>
-                                        </div>
-
-                                        <div class="flex items-center ">
-                                            <input id="radio22" type="radio" name="radio2" class="hidden" bind:group="{add_is_perm}" value="Temporary"/>
-                                            <label for="radio22" class="radioLable">
-                                                <span class="radioCirle"></span>
-                                                Temporary</label>
-                                        </div>
-                                    </div>
-
-                                </div> -->
+                                
                                 <div class="xs:w-full sm:w-full">
                                     <div class="flex  items-center">
                                         <div class="formInnerGroup ">
@@ -1987,15 +2015,15 @@
                                                                         e
                                                                     ) =>
                                                                         onFileSelected(
-                                                                            e,address_upload
+                                                                            e,"address_upload"
                                                                         )}
-                                                                        bind:value = "{address_upload}"
+                                                                        bind:value = "{addproof_obj.address_url}"
                                                                 />
 
                                             </label>
                                             <div class="flex">
-                                                {#if address_img}
-                                                <p>{address_img}</p>
+                                                {#if addproof_obj.address_name}
+                                                <p>{addproof_obj.address_name}</p>
                                                <img
                                                on:click={() => delete_files("address_upload")}
                                                class="pl-2 cursor-pointer"
@@ -2083,16 +2111,26 @@
                             <div class="formGroup ">
                                 <label class="formLable ">State<span class="mandatoryIcon">*</span></label>
                                 <div class="formInnerGroup ">
-                                <select class="inputboxbgv" bind:value="{$bgv_data_store.state}">
+                                    {#if !$bgv_data_store.state}
+                                    <select class="inputboxbgv" bind:value="{new_selected_state}">
+                                        <option class="pt-6">Select</option>
+                                        {#each get_state_data as state_data}
+                                        <option>{state_data.state_name}</option>
+                                        {/each}
+                                        </select>
+                                        {:else}
+                                    <select class="inputboxbgv" bind:value="{$bgv_data_store.state}">
                                         <option class="pt-6">Select</option>
                                         {#each get_state_data as state_data}
                                         <option>{state_data.state_name}</option>
                                         {/each}
                                     </select>
+                                    {/if}
                                     <div class="formSelectArrow ">
                                         <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
                                     </div>
                                     <div class="text-red-500" id="state_msg"></div>
+                                   
                                 </div>
                             </div>
                         </div>
@@ -2134,16 +2172,19 @@
                                 <label class="formLable ">City / Taluka / Town<span
                                         class="mandatoryIcon">*</span></label>
                                 <div class="formInnerGroup ">
-
+                                    {#if !$bgv_data_store.state}
                                     <select class="inputboxbgv" bind:value="{$bgv_data_store.city}">
                                         <!-- <option class="pt-6" value = "">Select</option> -->
                                         <option class="pt-6">Select</option>
                                         {#each city_data as new_city}
                                         <option>{new_city.location_name}</option> 
                                         {/each} 
-                                        
-                                        <!-- <option>Mulshi</option> -->
                                     </select>
+                                    {:else}
+                                    <p></p>
+                                    <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.city}">
+                                    {/if}
+
                                     <div class="formSelectArrow ">
                                         <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
                                     </div>
@@ -2311,7 +2352,7 @@
                                                         <input
                                                                     type="file"
                                                                     class="hidden"
-                                                                    bind:value = "{pancard_upload}"
+                                                                    bind:value = "{pancard_obj.pan_attach}"
                                                                     on:change={(
                                                                         e
                                                                     ) =>
@@ -2323,8 +2364,8 @@
 
                                                     </label>
                                                 <div class="flex">
-                                                    {#if pan_img}
-                                                    <p>{pan_img}</p>
+                                                    {#if pancard_obj.pan_name}
+                                                    <p>{pancard_obj.pan_name}</p>
                                                    <img
                                                    on:click={() => delete_files("pancard_upload")}
                                                    class="pl-2 cursor-pointer"
@@ -2358,7 +2399,7 @@
                                 <div class="xs:w-full sm:w-full">
                                     <div class="flex  items-center">
                                         <div class="formInnerGroup ">
-                                            <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.pancard_number}">
+                                            <input type="text" class="inputboxbgv" bind:value="{pancard_obj.pan_num}">
                                             <div class="text-red-500" id="pan_num_msg"></div>
 
                                         </div>
@@ -2489,20 +2530,20 @@
                                                         <input
                                                                     type="file"
                                                                     class="hidden"
-                                                                    bind:value = "{license_upload}"
+                                                                    bind:value = "{dl_photo_obj.dl_lic_url}"
                                                                     on:change={(
                                                                         e
                                                                     ) =>
                                                                         onFileSelected(
-                                                                            e,license_upload
+                                                                            e,"license_upload"
                                                                         )}
                                                                         
                                                                 />
 
                                                     </label>
                                                     <div class="flex">
-                                                        {#if dl_img}
-                                                        <p>{dl_img}</p>
+                                                        {#if dl_photo_obj.dl_lic_name}
+                                                        <p>{dl_photo_obj.dl_lic_name}</p>
                                                        <img
                                                        on:click={() => delete_files("license_upload")}
                                                        class="pl-2 cursor-pointer"
@@ -2536,7 +2577,7 @@
                                 <div class="xs:w-full sm:w-full">
                                     <div class="flex  items-center">
                                         <div class="formInnerGroup ">
-                                            <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.license_number}">
+                                            <input type="text" class="inputboxbgv" bind:value="{dl_photo_obj.dl_lic_num}">
                                             <div class="text-red-500" id="lic_num_msg"></div>
                                         </div>
                                         <div>
@@ -2701,19 +2742,19 @@
                                                 <input
                                                                     type="file"
                                                                     class="hidden"
-                                                                    bind:value = "{police_upload}"
+                                                                    bind:value = "{pol_photo_obj.pol_doc_url}"
                                                                     on:change={(
                                                                         e
                                                                     ) =>
                                                                         onFileSelected(
-                                                                            e,police_upload
+                                                                            e,"police_upload"
                                                                         )}
                                                                         
                                                                 />
                                             </label>
                                             <div class="flex">
-                                                {#if police_img}
-                                                <p>{police_img}</p>
+                                                {#if pol_photo_obj.pol_doc_name}
+                                                <p>{pol_photo_obj.pol_doc_name}</p>
                                                <img
                                                on:click={() => delete_files("police_upload")}
                                                class="pl-2 cursor-pointer"

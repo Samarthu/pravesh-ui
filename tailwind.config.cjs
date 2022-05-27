@@ -58,7 +58,8 @@ module.exports = {
        }),
        zIndex: {
         'zindex999': 100000,
-        'zindex99': 99999
+        'zindex99': 99999,
+        'zindex88': 8888,
        },
 
       colors: {
