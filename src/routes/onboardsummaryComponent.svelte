@@ -442,7 +442,7 @@
                     aadhar_rejected : facility_document_data[i].rejected};
                     
                 }
-                else if(facility_document_data[i].doc_type == "fac-photo"){
+                else if(facility_document_data[i].doc_type == "pass_photo"){
                     fac_photo_obj={
                     profile_url : facility_document_data[i].file_url,
                     profile_verified : facility_document_data[i].verified,

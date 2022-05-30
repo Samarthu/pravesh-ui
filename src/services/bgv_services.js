@@ -3,13 +3,10 @@ import {bank_data_to_store} from '../stores/onboardsummary_store'
 import {facility_id} from '../stores/facility_id_store';
 import {facility_data} from '../services/onboardsummary_services';
 
-
-// let new_facility_id = "CRUN00374";
-let new_facility_id = "NAOD00048";
-
-// facility_id.subscribe(value => {
-//    new_facility_id = value.facility_id_number;
-// });
+let new_facility_id
+facility_id.subscribe(value => {
+   new_facility_id = value.facility_id_number;
+});
     
 const get_states = () =>{
     let get_states_url = '/api/method/pravesh.facility.routes.organisation.get_states?_=1647243494831'
