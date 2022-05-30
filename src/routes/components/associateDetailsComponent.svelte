@@ -122,7 +122,7 @@
         //     /////////////////////svelte plugin pagiantion//////////
             let items=[];
             let currentPage = 1;
-            let pageSize = 4;
+            let pageSize = 10;
             let paginatedItems=[];
             let push_pop = false;
         //     let change_to = "Associate_details";
@@ -467,12 +467,13 @@
     //     goto(routeNext, { replaceState });
     // }  
     async function gstModel() {
-        gst_details_data=[];
+        
         gst_city_link_state="";
         modalidgst.style.display = "block";
         let gst_details_res = await gst_details();
         try{
             if(gst_details_res != "null"){
+                gst_details_data=[];
                 console.log("gst_details_res",gst_details_res)
                 
                 for(let i=0;i < gst_details_res.body.data.length;i++){
@@ -487,8 +488,9 @@
                                 //     console.log("Inside else")
                                 //     show_gst_view_btn = false;
                                 // }  
-                                gst_details_data.push(gst_details_res.body.data[i]);
+                               
                             }
+                            gst_details_data.push(gst_details_res.body.data[i]);
                 }
 
                 gst_details_data=gst_details_data;
@@ -994,7 +996,7 @@
         
         // child_check = document.getElementById("child_checkbox"+item.name).checked;
         
-        child_check = !item["checked"];
+        child_check = !item["checked"];   
 
         console.log("item and check value",item,child_check)
         if(child_check == true){
@@ -1184,29 +1186,64 @@
     async function clearedSearchFunc(){
         client_det_arr = [];
         let client_det_res=await client_details(city_select);
+        // try{
+        //     show_spinner = true;
+        //     if(client_det_res.body.status == "green"){
+        //         paginatedItems = [];
+        //         show_spinner = false;
+        //         for(let i=0;i<client_det_res.body.data.length;i++){
+                    
+        //                 client_det_arr.push(client_det_res.body.data[i]);
+                    
+        //         }
+                
+        //         items=client_det_arr;
+      
+        //         paginatedItems = paginate({ items, pageSize, currentPage })
+        //         console.log("safter search",paginatedItems)
+        //         result = true;
+                
+                
+        //     }
+        //     else{
+        //         show_spinner = false;
+        //     }
+        // }
+        // catch(err) {
+        //     show_spinner = false;
+        //     toast_type = "error";
+        //     toast_text = err;
+        // }
         try{
-            show_spinner = true;
-            if(client_det_res.body.status == "green"){
-                show_spinner = false;
-                for(let i=0;i<client_det_res.body.data.length;i++){
-                    
-                        client_det_arr.push(client_det_res.body.data[i]);
-                    
-                }
-                paginatedItems=client_det_arr;
-                result = true;
-                
-                
-            }
-            else{
-                show_spinner = false;
-            }
-        }
-        catch(err) {
-            show_spinner = false;
-            toast_type = "error";
-            toast_text = err;
-        }
+           
+           if(client_det_res.body.status == "green"){
+               
+               show_spinner = false;
+               
+               for(let i=0;i<client_det_res.body.data.length;i++){
+                   // for(let j=0;j<client_det_res.body.data.length;j++){
+                   client_det_res.body.data[i]["checked"] = false;
+                   client_det_arr.push(client_det_res.body.data[i]);
+                   // }
+               }
+               console.log("client_det_arr here",client_det_arr)
+               client_det_arr=client_det_arr;
+               items = client_det_arr;
+               
+               
+               paginatedItems = paginate({ items, pageSize, currentPage })
+               
+           }
+           else{
+               paginatedItems = [];
+               show_spinner = false;
+           }
+       }
+       catch(err){
+           show_spinner = false;
+           toast_type = "error";
+           toast_text = err;
+       }
     }
     async function filterResults(){
 
@@ -1219,7 +1256,10 @@
             searchArray = [...searchArray,searchK]
             }
         }
-        paginatedItems = searchArray;
+        items = searchArray;
+        console.log("searchArray",items)
+        paginatedItems = paginate({ items, pageSize, currentPage })
+        console.log("paginated search",paginatedItems)
     }
    
     
