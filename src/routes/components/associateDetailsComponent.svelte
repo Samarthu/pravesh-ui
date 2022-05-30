@@ -962,7 +962,7 @@
                 
                 for(let i=0;i<client_det_res.body.data.length;i++){
                     // for(let j=0;j<client_det_res.body.data.length;j++){
-                   
+                    client_det_res.body.data[i]["checked"] = false;
                     client_det_arr.push(client_det_res.body.data[i]);
                     // }
                 }
@@ -987,11 +987,16 @@
         
     }
 
+
     async function checkbox_clicked(item){
         let new_object = {facility_name:item.facility_name, name:item.name , unique_name:""}
         unique_id = item.name
-        child_check = document.getElementById("child_checkbox"+item.name).checked;
+        
+        // child_check = document.getElementById("child_checkbox"+item.name).checked;
+        
+        child_check = !item["checked"];
 
+        console.log("item and check value",item,child_check)
         if(child_check == true){
             if (!child_selected_arr.filter(e => e.name === item.name).length > 0) {
                    console.log("pushing")
@@ -1056,14 +1061,15 @@
         let new_child_obj = [];
         childlink = "childlink2";
         for(let i = 0;i<new_child_selected_arr.length;i++){
-            new_child_obj.push({"parent_facility_id":$facility_id.facility_id_number,
+            new_child_obj.push(
+            {"parent_facility_id":$facility_id.facility_id_number,
             "status":"active",
             "child_facility_id":new_child_selected_arr[i].name,
             "child_id":new_child_selected_arr[i].facility_name,
             "parent_name":$facility_data_store.facility_name,
             "parent_id":$facility_data_store.facility_id})
         }
-        
+       
         // console.log("new_child_obj",new_child_obj)
        let child_submit_res = await child_data(new_child_obj);
 
@@ -1076,6 +1082,8 @@
                     if (list_child_data_res.body.status == "green") {
                        
                         child_selected_arr = [];
+                        new_child_selected_arr = [];
+                        
                         for (let i = 0; i < list_child_data_res.body.data[0].parent_child.length; i++) {
                             // console.log("list_child_data_temp", list_child_data_res.body.data[0].parent_child)
                             child_selected_arr.push(list_child_data_res.body.data[0].parent_child[i]);
@@ -2435,12 +2443,14 @@
                                                     <td>{item.station_code}</td>
 
                                                     <td>{item.phone_number}</td>
-
+                                                    
                                                     <td
                                                             ><input
                                                                 type="checkbox"
                                                                 class=" checked:bg-blue-500 ..."
                                                                 id={"child_checkbox"+item.name}
+                                                                name={"child_checkbox"+item.name}
+                                                                bind:checked="{item.checked}"
                                                                on:click={checkbox_clicked(item)}
                                                             /></td
                                                         > 
