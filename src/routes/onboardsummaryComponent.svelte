@@ -13,9 +13,10 @@
     import { facility_data,facility_bgv_init,facility_bgv_check,all_facility_tags,
             show_fac_tags,submit_fac_tag_data,remove_tag,tag_audit_trail,service_vendor,
             get_loc_scope,client_details,erp_details,child_data,add_gst_dets,
-            facility_document,addnew_cheque_details,bank_details,cheque_details,gst_details,blacklist_vendor} from "../services/onboardsummary_services";
+            facility_document,addnew_cheque_details,bank_details,cheque_details,gst_details,blacklist_vendor,
+            initiateBGV} from "../services/onboardsummary_services";
     import {get_pravesh_properties_method,} from '../services/workdetails_services';
-    import {approve_reject_status} from '../services/vmt_verify_services';
+    import {approve_reject_status,get_client_org_mapping} from '../services/vmt_verify_services';
     import {uploadDocs} from '../services/bgv_services'
     import {get_date_format} from "../services/date_format_servives";
     import {img_url_name} from '../stores/flags_store';
@@ -178,6 +179,7 @@
     let gst_city_link_state="";
     let gst_state_code = "";
     let gst_city_loc_id="";
+    let org_name="-";
     export let url = "";
     let blacklist_remark = "";
     /////////////////////svelte plugin pagiantion//////////
@@ -381,6 +383,37 @@
             toast_type = "error";
             toast_text = err;
         }
+
+        ///Org Details
+        let get_org_data_res =  await get_client_org_mapping();
+            try {
+            if(get_org_data_res.body.status == "green"){
+                for(let i=0;i<get_org_data_res.body.data.length;i++){
+                    console.log("matching",$facility_data_store.facility_type,get_org_data_res.body.data[i].org_id)
+
+                    
+                    if($facility_data_store.org_id == get_org_data_res.body.data[i].org_id){
+                        org_name = get_org_data_res.body.data[i].org_name;
+                    }
+                   
+
+                    // org_data_arr.push({"org_id":get_org_data_res.body.data[i].org_id,"org_name":get_org_data_res.body.data[i].org_name})
+                }
+                // org_data_arr = org_data_arr;
+                
+            }
+            else{
+                toast_type = "error";
+                toast_text = "No client Data";
+            }
+            } catch(err) {
+                toast_type = "error";
+                toast_text = err;
+       
+            }
+            ///////Org details ends here
+
+
         // let cheque_details_res = await cheque_details();
         // try{
             
@@ -773,6 +806,7 @@ function check_facility_status(message) {
         document.getElementById("img_model").style.display = "none";
         document_desc ="";
         document.getElementById("selected_doc_type").selectedIndex = "-1";
+        
         document.getElementById("document_url").value = "";
         document_name = ""
         doc_cat_sel_msg = ""
@@ -782,6 +816,9 @@ function check_facility_status(message) {
 
         document.getElementById("modalid").style.display = "none";
 
+    }
+    function close_docs(){
+        modalid.style.display = "none";
     }
     function closeApproveViewModel(){
         img_model_approve_rej.style.display = "none";
@@ -1104,6 +1141,25 @@ function check_facility_status(message) {
         goto(routeBgv, { replaceState });
         
     }
+    async function initiate_popup(){
+        initiateBgv.style.display = "block";
+    }
+    async function confirm_initiate_bgv(){
+        let confirm_initiate_bgv_res = await initiateBGV();
+        try {
+            if(confirm_initiate_bgv_res.body.status == "green"){
+                toast_type = "success";
+                toast_text = confirm_initiate_bgv_res.body.message;
+                let replaceState = false;
+                goto(routeBgv, { replaceState });
+
+            }
+            
+        } catch (error) {
+            toast_type = "error";
+            toast_text = error;
+        }
+    }
     
    
 
@@ -1370,6 +1426,7 @@ function check_facility_status(message) {
     function close_blacklist_remark(){
         Blacklist_confirmation_modal.style.display = "none";
         Basic_Reject_modal.style.display = "none";
+        initiateBgv.style.display = "none";
     }
     function confirm_blacklist(){
         Basic_Reject_modal.style.display = "block";
@@ -2057,9 +2114,9 @@ function check_facility_status(message) {
                 <div class="mr-5">
                     {#if is_adhoc_facility == false}
                     {#if showbtn == "1"}
-                        {#if $facility_data_store.is_bgv_intiated == "0"}
+                        {#if $facility_data_store.is_bgv_intiated == "0" && $facility_data_store.status != "Deactive"}
                         
-                        <p on:click={routeToBgv} class="initiateText">
+                        <p on:click={initiate_popup} class="initiateText">
                             <button href="" class="flex">
                                 <img
                                     src="{$img_url_name.img_name}/InitiateBGVerification.png"
@@ -2323,7 +2380,7 @@ function check_facility_status(message) {
                         <span class="userDesignation"> - Associate- {$facility_data_store.facility_type} - {$facility_data_store.name}</span>
                     </p>
                 </div>
-                <button class="rightmodalclose" on:click="{closeViewModel}">
+                <button class="rightmodalclose" on:click="{close_docs}">
                     <img src="{$img_url_name.img_name}/blackclose.svg" alt="">
                 </button>
             </div>
@@ -2335,7 +2392,7 @@ function check_facility_status(message) {
                             <div class=" ">
                                 <div class=" ">
                                     <div class="addSecform ">
-
+                                        {#if $facility_data_store.status != "Deactive"}
                                         <div class="addButtonSection my-3 py-16 text-center hidden">
                                             <div class="updateAction">
                                                 <button class="ErBlueButton">Add New Document</button>
@@ -2430,6 +2487,7 @@ function check_facility_status(message) {
                                     </div>
 
                                         </div>
+                                        {/if}
                                     </div>
                                 </div>
                                 <div class=" ">
@@ -2449,11 +2507,15 @@ function check_facility_status(message) {
                                         {#each facility_document_data as new_doc_data}
                                         <tbody class="tbodypopover">
                                             <tr class="border-b">
+                                                {#if !new_doc_data.file_name}
+                                                <p>-</p>
+                                                {:else}
                                                 <td>
                                                     <p class="detailData">{new_doc_data.file_name}</p>
                                                 </td>
+                                                {/if}
                                                 <td>  
-                                                    <p class="detailData">{new_doc_data.doc_category}({new_doc_data.doc_type})</p>
+                                                    <p class="detailData">{new_doc_data.doc_category}<br>({new_doc_data.doc_type})</p>
                                                 </td>
                                                 <td>
                                                     <p class="detailData">{new_doc_data.owner}</p>
@@ -2642,13 +2704,13 @@ function check_facility_status(message) {
                 <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
     
                     <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0 mt-4">
-                        <label class="block  tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-state">
+                        <label class="block  tracking-wide text-gray-700 font-bold mb-2" for="grid-state">
                         Do you want to Blacklist+{$facility_id.facility_id_number}-{$facility_data_store.facility_type}?
                         </label>
                         <div class="relative">
                          
                           <br>
-                          <br>
+                          
                           <div
                                 class="flex  py-1 items-center flex-wrap"
                             >
@@ -2668,6 +2730,52 @@ function check_facility_status(message) {
 </div>
 
 <!--blacklist Confirmation modal -->
+
+
+<!--Initiate Module -->
+
+
+<div id="initiateBgv" class="hidden">
+    <div  class="actionDialogueOnboard ">
+        <div class="pancardDialogueOnboardWrapper ">
+            <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+                <div class="modalHeadConmb-0">
+                    <div class="leftmodalInfo">
+                        <!-- <p class=""> Reject Reason</p> -->
+                    </div>
+                    <div class="rightmodalclose">
+                        <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" on:click="{close_blacklist_remark}">
+                    </div>
+                </div>
+                <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+    
+                    <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0 mt-4">
+                        <label class="block  tracking-wide text-gray-700 font-bold mb-2" for="grid-state" >
+                        Do you want to initiate Background verification for {org_name} - {$facility_data_store.station_code}{city} {$facility_id.facility_id_number} : {$facility_data_store.facility_name}?
+                        </label>
+                        <div class="relative">
+                         
+                         
+                          <br>
+                          <div
+                                class="flex  py-1 items-center flex-wrap"
+                            >
+                                <div class="formInnerGroup">
+                                   
+                                    <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium mr-2" on:click="{close_blacklist_remark}">Cancel</button>
+                                    <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium mr-2" on:click="{confirm_initiate_bgv}">Ok</button>
+                                </div>
+                            </div>
+                          
+                        </div>
+                      </div>
+                </form>
+            </div>
+        </div>
+    </div> 
+</div>
+
+<!--Initiate Module -->
 
 <!--blacklist  Reject modal -->
 <div id="Basic_Reject_modal" class="hidden">
