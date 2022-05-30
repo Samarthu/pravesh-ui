@@ -20,6 +20,9 @@ const get_date_format = (date,format) =>{
             return String(day+"-"+month+"-"+year);
 
         }
+        else if(format == 'dd/mm/yyyy'){
+            return String(day+"/"+month+"/"+year);
+        }
         else if(format == 'yyyy-mm-dd'){
             return String(year+"-"+month+"-"+day);
 

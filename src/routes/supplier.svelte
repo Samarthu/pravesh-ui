@@ -13,6 +13,7 @@
     import { page } from '$app/stores';
     import {img_url_name} from '../stores/flags_store';
     import Spinner from "./components/spinner.svelte";
+import { goto } from '$app/navigation';
     
     let show_spinner = false;
     let total_count;
@@ -226,6 +227,7 @@ else
             // supplier_data_from_service = []
             supplier_data_from_service = res.body.data.data_list;
             total_count_associates = res.body.data.total_records;
+            
             }
         }
         catch(err) {
@@ -490,6 +492,20 @@ else
         supplierInfoModal.style.display = "none";
     };
 
+
+    function update_associate(fac_name){
+        let associate_id;
+        console.log("supplier_data_from_service",supplier_data_from_service)
+        for(let i=0;i<supplier_data_from_service.length;i++){
+            if(fac_name == supplier_data_from_service[i].name){
+                associate_id = supplier_data_from_service[i].name
+            }
+            goto("onboardsummary?unFacID="+associate_id);
+                
+        }
+    }
+
+
     // window.onclick = function (event) {
     //     if (event.target == supplierInfoMsupplierInfoModalodalId) {
     //         supplierInfoModal.style.display = "none";
@@ -539,6 +555,10 @@ else
                 if(filter_res.body.status == "green"){
                     supplier_data_from_service = filter_res.body.data.data_list;
                     total_count_associates = filter_res.body.data.total_records; 
+                    for(let i=0;i<supplier_data_from_service.length;i++){
+                        supplier_data_from_service[i].expand = false;
+                    }
+                    console.log("supplier_data_from_service here",supplier_data_from_service)
                 }
             }
             catch(err) {
@@ -645,8 +665,16 @@ else
 
     // // supplier table collaps
 
-    function collapse() {
-        
+    function collapse(fac_name) {
+        let is_expanded = false;
+        console.log(fac_name)
+        for(let i=0;i<supplier_data_from_service.length;i++){
+            if(supplier_data_from_service[i].name == fac_name){
+                console.log("inside if")
+               is_expanded = supplier_data_from_service[i].expand;
+            }
+        }
+           
         var shortInfo = document.querySelectorAll(".shortInfo");
         var elems = document.querySelectorAll(".detailsInfo");
         var trow = document.querySelector(".trow");
@@ -661,6 +689,9 @@ else
         elems.forEach.call(elems, function (el) {
             el.classList.remove("hidden");
         });
+        
+        
+        
     };
 
  
@@ -1193,7 +1224,7 @@ else
                                                                     <!-- DESKTOP VIEW -->
                                                         <select
                                                         class="selectInputbox" id= "select_status"> 
-                                                    <!-- <option class="pt-6">All</option> -->
+                                                        <!-- <option class="pt-6" value="-1">All</option> -->
                                                         {#each filter_status_array as data_status}   
                                                         {#if data_status.display_name != undefined}
                                                         <option class="pt-6"> {data_status.display_name}
@@ -1804,10 +1835,10 @@ else
                                                         </li>
                                                     </ul>
                                                     <div class="actionBtn mt-3">
-                                                        <a
+                                                        <button on:click="{update_associate(facility_data.name)}"
                                                             href="#"
                                                             class="ErBlueButton"
-                                                            >Update</a
+                                                            >Update</button
                                                         >
                                                     </div>
                                                 </div>
@@ -1832,7 +1863,7 @@ else
                                                 <!-- <p class="mtextaudit">11 M</p> -->
                                                 <div class="shortInfo">
                                                     <p
-                                                        on:click="{collapse}"
+                                                        on:click="{collapse(facility_data.name)}"
                                                         class="arrowCollaps"
                                                     >
                                                         <img

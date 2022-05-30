@@ -12,6 +12,7 @@
             import {facility_id} from "../../stores/facility_id_store"
             import {facility_data_store} from "../../stores/facility_store";
             import { paginate, LightPaginationNav } from "svelte-paginate";
+            // const { paginate,LightPaginationNav } = require('svelte-paginate');
             import Spinner from "./spinner.svelte";
             import {logged_user} from '../../services/supplier_services';
             // import  {  page } from '$app/stores';
@@ -119,9 +120,9 @@
             let gst_city_loc_id="";
         //     export let url = "";
         //     /////////////////////svelte plugin pagiantion//////////
-            let items;
+            let items=[];
             let currentPage = 1;
-            let pageSize = 10;
+            let pageSize = 4;
             let paginatedItems=[];
             let push_pop = false;
         //     let change_to = "Associate_details";
@@ -186,6 +187,8 @@
             $:if(check_selected === true){
                 check_selected =true;
             }
+            $:paginatedItems = paginate({ items, pageSize, currentPage })
+
 
     onMount(async () => {
        
@@ -519,8 +522,8 @@
             
             if(gst_doc_arr[i].doc_type == gst_doc_type){
                 console.log("inside if")
-                onFileSelected(new_gst.gstn,"gst_edit_upload")
-                console.log("gst_file_datagst_file_data",gst_file_data)
+                // onFileSelected(new_gst.gstn,"gst_edit_upload")
+                // console.log("gst_file_datagst_file_data",gst_file_data)
                 gst_url = gst_file_data
                 gst_name = gst_doc_arr[i].file_name
                 console.log("gst_url",gst_url)
@@ -559,21 +562,21 @@
         show_spinner = true;
         if(!gst_address.match(text_pattern)){
             gst_add_message = "Enter Valid Address";
+            show_spinner = false;
             return  
         }
         if(!gst_city_select){
             gst_city_message = "Select Valid City";
+            show_spinner = false;
             return;
         }
         console.log("gst details for gst number",gst_number,gst_state_code,pancard_obj.pan_num,gst_number.trim().length,gst_number.substring(0, 2),gst_number.substring(2, 12),gst_number.substring(13,14))
         if (gst_number == undefined) {
             gst_number_message = "Invalid GST Number";
+            show_spinner = false;
         return;
         }
-        if(!gst_file){
-            gst_upload_message = "Invalid File Upload"
-            return;
-        }
+        
         if(gst_checkbox == true){
             def_add = 1;
         }
@@ -606,71 +609,65 @@
                     toast_type = "success";
                     toast_text = "GST Details Added Successfully";
                     
-                    let new_doc_type = "gst-certificate-"+gst_state_code;
-                    console.log("new_doc_type",new_doc_type)
-                    const gst_file_data = {"documents":[{"file_name":gst_img,"doc_category":"GST Certificate","status":"created","resource_id":$facility_id.facility_id_number,"user_id":username,"doc_number":gst_number,"pod":gst_file,"doc_type":new_doc_type,"facility_id":$facility_data_store.facility_id}]}
-                    gst_doc_submit_res = await uploadDocs(gst_file_data);
-                    try {
-                        if(gst_doc_submit_res.body.status == "green"){
-                                    
-                                    toast_type = "success";
-                                    toast_text = "GST Document Added Successfully";
-                        }
-                        else if(gst_doc_submit_res.body.status == "red"){
-                            toast_type = "error";
-                            toast_text = gst_doc_submit_res.body.message;
-                        }
-                    } catch (err) {
-                        toast_type = "error";
-                        toast_text = "Error in Uploading GST Certificate";
-                    }
+                    // let new_doc_type = "gst-certificate-"+gst_state_code;
+                    // console.log("new_doc_type",new_doc_type)
+                    // const gst_file_data = {"documents":[{"file_name":gst_img,"doc_category":"GST Certificate","status":"created","resource_id":$facility_id.facility_id_number,"user_id":username,"doc_number":gst_number,"pod":gst_file,"doc_type":new_doc_type,"facility_id":$facility_data_store.facility_id}]}
+                    // gst_doc_submit_res = await uploadDocs(gst_file_data);
+                    // try {
+                    //     if(gst_doc_submit_res.body.status == "green"){
+                    //                 show_spinner = false;
+                    //                 toast_type = "success";
+                    //                 toast_text = "GST Document Added Successfully";
+                    //     }
+                    //     else if(gst_doc_submit_res.body.status == "red"){
+                    //         toast_type = "error";
+                    //         toast_text = gst_doc_submit_res.body.message;
+                    //         show_spinner = false;
+                    //     }
+                    // } catch (err) {
+                    //     show_spinner = false;
+                    //     toast_type = "error";
+                    //     toast_text = "Error in Uploading GST Certificate";
+                    // }
                 }
                 else{
+                    show_spinner = false;
                     toast_type = "error";
                     toast_text = gst_add_res.body.message;
                 }
                 
             } catch (err) {
+                show_spinner = false;
                 toast_type = "error";
                 toast_text = "Error in Adding GST Details";
             }
-            // let new_doc_type = "gst-certificate-"+gst_state_code;
-            //         console.log("new_doc_type",new_doc_type)
-            //         const gst_file_data = {"documents":[{"file_name":gst_img,"doc_category":"GST Certificate","status":"created","resource_id":$facility_id.facility_id_number,"user_id":username,"doc_number":"","pod":gst_data,"doc_type":new_doc_type,"facility_id":$facility_data_store.facility_id}]}
-            //         gst_doc_submit_res = await uploadDocs(gst_file_data);
-            //         try {
-            //             if(gst_doc_submit_res.body.status == "green"){
-                                    
-            //                         toast_type = "success";
-            //                         toast_text = "GST Document Added Successfully";
-            //             }
-            //             else if(gst_doc_submit_res.body.status == "red"){
-            //                 toast_type = "error";
-            //                 toast_text = gst_doc_submit_res.body.message;
-            //             }
-            //         } catch (err) {
-            //             toast_type = "error";
-            //             toast_text = "Error in Uploading GST Certificate";
-            //         }
-            if(gst_doc_submit_res.body.status == "green" && gst_add_res.body.status=="green"){
+            
+            if(gst_add_res.body.status=="green"){
                 let gst_details_res = await gst_details();
                 try{
+                    
                     if(gst_details_res != "null"){
-                        // gst_details_data=[];
+                        gst_details_data=[];
                         console.log("gst_details_res ss",gst_details_res)
                         for(let i=0;i < gst_details_res.body.data.length;i++){
-                            for(let i = 0;i<gst_doc_arr.length;i++){
-                                if(gst_details_res.body.data[i].gstn == gst_doc_arr[i].doc_number){
+                            console.log("inside for")
+                            
+                            // for(let i = 0;i<gst_doc_arr.length;i++){
+                            //     console.log("inside an for")
+                                // if(gst_details_res.body.data[i].gstn == gst_doc_arr[i].doc_number){
+                                    
                                     gst_details_data.push(gst_details_res.body.data[i]);
-                                }  
-                            }
+                                    console.log("gst_details_data b4",gst_details_data)
+                                // }  
+                            // }
                         }
                         gst_details_data=gst_details_data;
                         console.log("gst_details_data here",gst_details_data)
                     }
-                    
+                    show_spinner = false;
                 }
                 catch(err) {
+                    show_spinner = false;
                     toast_type = "error";
                     toast_text = gst_details_res.body.message;
                     
@@ -690,6 +687,7 @@
         }
         if(!gst_city_select){
             gst_city_message = "Select Valid City";
+            show_spinner = false;
             return;
         }
         console.log("gst details for gst number",gst_number,gst_state_code,pancard_obj.pan_num,gst_number.trim().length,gst_number.substring(0, 2),gst_number.substring(2, 12),gst_number.substring(13,14))
@@ -699,6 +697,7 @@
         }
         if(!gst_file){
             gst_upload_message = "Invalid File Upload"
+            show_spinner = false;
             return;
         }
         if(gst_checkbox == true){
@@ -747,17 +746,21 @@
                             toast_type = "error";
                             toast_text = gst_doc_submit_res.body.message;
                         }
+                        show_spinner = false;
                     } catch (err) {
+                        show_spinner = false;
                         toast_type = "error";
                         toast_text = "Error in Uploading GST Certificate";
                     }
                 }
                 else{
+                    show_spinner = false;
                     toast_type = "error";
                     toast_text = gst_add_res.body.message;
                 }
                 
             } catch (err) {
+                show_spinner = false;
                 toast_type = "error";
                 toast_text = "Error in Adding GST Details";
             }
@@ -1871,8 +1874,8 @@
                                         <th>
                                             GST State
                                         </th>
-                                        <th>GST Number    </th>
-                                        <th>GST Certificate    </th>
+                                        <th>GST Number</th>
+                                        <th>GST Certificate</th>
                                         <th>Edit</th>
                                         <th>Status</th>
                                        
@@ -1892,8 +1895,7 @@
                                         <td>{new_gst.state} </td>
                                         <td>{new_gst.gstn}</td>
                                         <td>{#if show_gst_view_btn == true}
-                                            <p class="verifyText">
-
+                                            <!-- <p class="verifyText"> -->
                                                 <button class="smButton">
 
                                                     <img
@@ -1908,7 +1910,7 @@
 
                                                 </button>
 
-                                            </p>
+                                            <!-- </p> -->
                                             {/if}</td>
                                         <td>
                                             <p class="flex justify-center">
@@ -2421,6 +2423,7 @@
                                                 {/if}
 
                                                 {#if child == "linkchild2"}
+                                                
                                                 {#each paginatedItems as item}
 
                                                 <tr class="border-b">
@@ -2443,6 +2446,7 @@
                                                         > 
                                                 </tr>
                                                 {/each}
+                                               
                                                 {/if}
 
 

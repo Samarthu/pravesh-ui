@@ -15,11 +15,12 @@
     import { img_url_name } from "../stores/flags_store";
     import Spinner from "./components/spinner.svelte";
     import {get_date_format} from "../services/date_format_servives";
+    // import DateInput from './DateInput.svelte';
 
     let temp;
     let routePrev = "";
     let routeNext = "";
-    let gend_selected,curr_same,police_add_per ;
+    let gend_selected,curr_same,police_add_per,add_is_perm ;
     let state,fac_name,fac_type;
     let show_spinner = false;
     // let fir_name_c,last_name_c,father_name_c,email_c,phone_c,dob_c,spouse_c,gend_c,aadhar_num_c;
@@ -27,7 +28,7 @@
     let city_data=[];
     let new_selected_state;
     
-    
+    let basic_date;
     
     var NorthEStates = ["Arunachal Pradesh", "Assam", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Sikkim", "Tripura"];
     var pan_card_pattern = /^[A-Z]{3}[ABCFGHLJPTF]{1}[A-Z]{1}[0-9]{4}[A-Z]{1}/gm;
@@ -118,19 +119,20 @@
     $:if(new_selected_state){
         state_dep_city();
     }
-
     
     onMount(async () => {
+       show_spinner = true;
         
         let userdetails = await logged_user();
         
         try{
             if(userdetails.body.status == "green"){
-                username = userdetails.body.data.user.email;
-                userid = userdetails.body.data.user.username;
+                let username = userdetails.body.data.user.email;
+                let userid = userdetails.body.data.user.username;
             }
         }
         catch(err) {
+            
             toast_type = "error";
             toast_text = "User Not Found";
         }
@@ -172,7 +174,8 @@
             }
         }
         catch(err){
-            console.log("CASPER ERROR")
+           toast_type = "error";
+           toast_text = err;
         }
     }
 
@@ -198,7 +201,7 @@
                     };
                     
                 }
-                else if($documents_store[i].doc_type == "fac-photo"){
+                else if($documents_store[i].doc_type == "pass_photo"){
                     fac_photo_obj={
                     profile_name : $documents_store[i].file_name,
                     profile_url : $documents_store[i].file_url,
@@ -244,32 +247,41 @@
     console.log("facility_bgv_check_res",facility_bgv_check_res)
     try {
         if(!facility_bgv_check_res || facility_bgv_check_res.body.data.length == "0"){
-            console.log("BEFORE")
-            var eighteenYearsAgo =  new Date();
-                eighteenYearsAgo.setFullYear( eighteenYearsAgo.getFullYear() - 18);
-                console.log("eighteenYearsAgo",eighteenYearsAgo)
-                $bgv_data_store.basic_info_dob = eighteenYearsAgo;
-                console.log("DAte 18 yrs before",$bgv_data_store.basic_info_dob)
-                console.log("No BGV Data OF This User")
-
-                console.log("$bgv_data_store",$bgv_data_store.state)
-
+            toast_type = "error";
+            toast_text = "No BGV Data Found";
+            // console.log("BEFORE")
+            if(!$bgv_data_store.basic_info_dob){
+                var eighteenYearsAgo = new Date();
+                $bgv_data_store.basic_info_dob = get_date_format(new Date(eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear()-18)),"yyyy-mm-dd");
+               
+            }
+            console.log("$bgv_data_store", $bgv_data_store.basic_info_dob)
         }
+        
         else{
             $bgv_data_store = facility_bgv_check_res.body.data[0];
             gend_selected = $bgv_data_store.gender;
             add_is_perm = $bgv_data_store.address_type;
             curr_same = $bgv_data_store.current_address_is_same;
             police_add_per = $bgv_data_store.police_address_type;
+            let new_updated_date 
             if(!$bgv_data_store.basic_info_dob){
-                $bgv_data_store.basic_info_dob = eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear()-18);
+                // $bgv_data_store.basic_info_dob = new Date(0);
+                // $bgv_data_store.basic_info_dob = new Date(now.getTime() - (now.getTimezoneOffset() * 60000 )).toISOString().split("T")[0];
+                // basic_date = new Date(now.getTime() - (now.getTimezoneOffset() * 60000 )).toISOString().split("T")[0];
+                var eighteenYearsAgo = new Date();
+                $bgv_data_store.basic_info_dob = get_date_format(new Date(eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear()-18)),"yyyy-mm-dd");
+               
             }
-            console.log("DAte 18 yrs before",$bgv_data_store.basic_info_dob)
-            console.log("$bgv_data_store",$bgv_data_store.state)
-        }
+            
+                console.log("new date",$bgv_data_store.basic_info_dob)
         
-    } catch(err) {
-        console.log("Error")
+        
+    }
+    }
+     catch(err) {
+        toast_type = "error";
+        toast_text = err;
         // message.innerHTML = "Error is " + err;
     }
     
@@ -358,11 +370,10 @@
         }
         
     } catch(err) {
-        console.log("Error")
+        toast_text = err;
+        toast_type = "error";
        
     }
-    
-    
     show_spinner = false;
     });
 
@@ -468,7 +479,6 @@
         };
     }
     function delete_files(doctext){
-        
         if(doctext == "photo_upload"){
             fac_photo_obj.profile_name = null;
             fac_photo_obj.profile_url = null;
@@ -496,84 +506,88 @@
         }
     }
 
-    async function submit_photo(){ 
-        if(!fac_photo_obj.profile_name && !fac_photo_obj.profile_url){
+    async function submit_photo(){
+        console.log("inside submit photo")
+        console.log("submit_photo",fac_photo_obj.profile_name,fac_photo_obj.profile_url) 
+        console.log("inside submit photo after")
+        // if(fac_photo_obj.profile_name == "" && fac_photo_obj.profile_url == ""){
+            console.log("ibnside submit not ")
         
             let photo_load = {
                 resource_id:$bgv_data_store.facility_id,
                 file_name:fac_photo_obj.profile_name,
-                pod:photo_data,
+                pod:fac_photo_obj.profile_url,
                 doc_category:"pass_photo",
                 doc_type:"pass_photo"
                 }
                 return await uploadDocs(photo_load);
-            }
+            // }
         }
     async function submit_aadhar(){
-        if(!aadhar_obj.aadhar_name && !aadhar_obj.aadhar_attach){
+        // if(!aadhar_obj.aadhar_name && !aadhar_obj.aadhar_attach){
         
             let aadhar_load = {
             resource_id:$bgv_data_store.facility_id,
             file_name:aadhar_obj.aadhar_name,
-            pod:aadhar_data,
+            pod:aadhar_obj.aadhar_attach,
             doc_category:"aadhar-id-proof",
             doc_type:"aadhar-id-proof"
             }
             return await uploadDocs(aadhar_load); 
-            }
+            // }
         }
     async function submit_address(){
         console.log("inside submit address")
-        if(!addproof_obj.address_name && !addproof_obj.address_url){
+        // if(!addproof_obj.address_name && !addproof_obj.address_url){
         
             let address_load = {
             resource_id:$bgv_data_store.facility_id,
             file_name:aadhar_obj.aadhar_name,
-            pod:address_data,
+            pod:addproof_obj.address_url,
             doc_category:"addproof-photo",
             doc_type:"addproof-photo"
             }
             return await uploadDocs(address_load); 
-        }
+        // }
         }   
     async function submit_pancard(){
-        if(!pancard_obj.pan_name && !pancard_obj.pan_attach){
+        // if(!pancard_obj.pan_name && !pancard_obj.pan_attach){
         
             let pan_load = {
             resource_id:$bgv_data_store.facility_id,
             file_name:pancard_obj.pan_name,
-            pod:pan_data,
+            pod:pancard_obj.pan_attach,
             doc_category:"pan-photo",
             doc_type:"pan-photo"
             }
             return await uploadDocs(pan_load); 
-        }
+        // }
     }
     async function submit_licence(){
-        if(!dl_photo_obj.dl_lic_name && !dl_photo_obj.dl_lic_url){
+        // if(!dl_photo_obj.dl_lic_name && !dl_photo_obj.dl_lic_url){
         
             let dl_load = {
             resource_id:$bgv_data_store.facility_id,
             file_name:dl_photo_obj.dl_lic_name,
-            pod:dl_data,
+            pod:dl_photo_obj.dl_lic_url,
             doc_category:dl-photo,
             doc_type:dl-photo
             }
             return await uploadDocs(dl_load); 
-        }
+        // }
     }
     async function submit_police(){
-        if(!pol_photo_obj.pol_doc_name && !pol_photo_obj.pol_doc_url){
+        // if(!pol_photo_obj.pol_doc_name && !pol_photo_obj.pol_doc_url){
         
             let pol_load = {
             resource_id:$bgv_data_store.facility_id,
             file_name:pol_photo_obj.pol_doc_name,
-            pod:police_data,
+            pod:pol_photo_obj.pol_doc_url,
             doc_category:"police_info_supp_file",
             doc_type:"police_info_supp_file"
             }
             return await uploadDocs(pol_load); 
-        }
+        // }
     }
 ////////////////////////////////////////////////////////////////////////////////////
     function throwError(id,msg){
@@ -581,21 +595,25 @@
     }
 
     async function submitBasicDets(){
+        show_spinner = true;
             if(!fac_photo_obj.profile_name && !fac_photo_obj.profile_url){
                 throwError("photo_up_msg","Upload Profile Photo")
                 if(!aadhar_obj.aadhar_name && !aadhar_obj.aadhar_attach){
                 throwError("aadhar_up_msg","Upload Profile Photo")
+                show_spinner = false
                 return
             }
             }
             if(!aadhar_obj.aadhar_name && !aadhar_data){
                 throwError("aadhar_up_msg","Upload Aadhar Photo")
+                show_spinner = false
                 return
             }
 
         // console.log("aadhar_obj.aadhar_num",aadhar_obj.aadhar_num)
             if(!aadhar_obj.aadhar_num){
                 throwError("aadharmsg","Enter valid Aadhar Number")
+                show_spinner = false
                 return 
             }
             else if(!aadhar_obj.aadhar_num.match(aadhar_card_pattern)){  
@@ -606,10 +624,12 @@
                     if(check_doc_res == "red"){
                         check_doc_res.body.message;   
                     }
+                    show_spinner = false
                     throwError("aadharmsg","Document No is Already Linked With Other Facility")
                  
                 } 
                 throwError("aadharmsg","Invalid Aadhar Number")
+                show_spinner = false
                 return 
             }
             else{
@@ -617,6 +637,7 @@
             }
             if(!$bgv_data_store.first_name){    
                 throwError("fir_name_msg","Invalid First Name")
+                show_spinner = false
                 return    
             }
             else{
@@ -624,6 +645,7 @@
             }
             if(!$bgv_data_store.last_name){   
                 throwError("last_name_msg","Invalid Last Name")
+                show_spinner = false
                 return 
             }
             else{
@@ -631,6 +653,7 @@
             }
             if(!$bgv_data_store.father_name){
                 throwError("fat_name_msg","Invalid Father Name")
+                show_spinner = false
                 return
             }
             else{
@@ -638,17 +661,21 @@
             }
             if(!$bgv_data_store.email_id){
             throwError("email_msg","Invalid Email Id")
+            show_spinner = false
             return
             }
             else if(!$bgv_data_store.email_id.match(email_pattern)){
             throwError("email_msg","Invalid Email Id")
+            show_spinner = false
             return
             }
             else{
                 throwError("email_msg","")
+                show_spinner = false
             }
             if(!$bgv_data_store.phone_number){
                 throwError("phone_msg","Invalid Phone Number")
+                show_spinner = false
                 return
             }
             else if(!$bgv_data_store.phone_number.match(phone_num_pattern)){
@@ -660,6 +687,7 @@
             }
             if(!$bgv_data_store.basic_info_dob){
                 throwError("dob_msg","Select Date Of Birth")
+                show_spinner = false
                 return  
             }
             else{
@@ -667,6 +695,7 @@
             }
             if(!$bgv_data_store.spouse_name){
                 throwError("spo_msg","Enter Spouse Name")
+                show_spinner = false
                 return  
             }
             else{
@@ -674,14 +703,17 @@
             }
             if(!gend_selected){
                 throwError("gend_msg","Select Gender")
+                show_spinner = false
                 return  
             }
             else{
                 throwError("gend_msg","")
+                show_spinner = false
             }
             if($facility_data_store.org_id =="FT"){
                 if(!$bgv_data_store.delivery_model){
                     throwError("del_msg","Select Delivery Model")
+                    show_spinner = false
                     return 
                 }
                 else{
@@ -689,6 +721,7 @@
                 }
                 if(!$bgv_data_store.station_model){
                 throwError("stat_msg","Select Station Model")
+                show_spinner = false
                 return
                 }
                 else{
@@ -696,9 +729,11 @@
                 }
                 if(!$bgv_data_store.hub_name){
                     throwError("hub_msg","Select Hub Name")
+                    show_spinner = false
                     return 
                 }
                 else{
+                    show_spinner = false
                     throwError("hub_msg","")
                 }
             }
@@ -718,70 +753,89 @@
             casper_id : $bgv_data_store.hub_name
 
         }
+        show_spinner = false
             return await submit_basic_details(basic_sub_data);
+            
 
         }    
   
     async function submitAddDets(){
+        show_spinner = true
         console.log("here in submitAddDets")
             if(!addproof_obj.address_name && !addproof_obj.address_url){
                 throwError("add_up_msg","Upload Address Document Photo")
+                show_spinner = false
                 return
             }
 
             if(!curr_same){
                 throwError("curr_msg","Select Is Current Address Same")
+                show_spinner = false
                 return
             }
             else{
+                show_spinner = false
                 throwError("curr_msg","")
             }
             if(!$bgv_data_store.full_address){
                 throwError("full_add_msg","Invalid Address")
+                show_spinner = false
                 return
             }
             else{
+                show_spinner = false
                 throwError("full_add_msg","")
             }
             if(!$bgv_data_store.state && !new_selected_state){
                 throwError("state_msg","Invalid State")
+                show_spinner = false
                 return  
             }
             else{
                 throwError("state_msg","")
+                show_spinner = false
             }
 
             if(!$bgv_data_store.district){   
                 throwError("dist_msg","Invalid District Name")
+                show_spinner = false
                 return 
             }
             else{
                 throwError("dist_msg","")
+                show_spinner = false
             }
             if(!$bgv_data_store.city){   
                 throwError("citymsg","Select City")
+                show_spinner = false
                 return 
             }
             else{
                 throwError("citymsg","")
+                show_spinner = false
             }
 
             if(!$bgv_data_store.pin_code){
                 throwError("pin_msg","Invalid Pincode")
+                show_spinner = false
                 return  
             }
             else{
                 throwError("pin_msg","")
+                show_spinner = false
             }
             if(!$bgv_data_store.landmark){
             throwError("land_msg","Invalid Landmark")
+            show_spinner = false
             return
             }
             else{
                 throwError("land_msg","")
+                show_spinner = false
             }
             if(!$bgv_data_store.residence_type){
                 throwError("resid_msg","Select Residence Type")
+                show_spinner = false
                 return  
             }
             else{
@@ -789,13 +843,16 @@
             }
             if(!$bgv_data_store.period_of_stay){
                 throwError("stay_per_msg","Enter Period Of Stay")
+                show_spinner = false
                 return
             }
             else{
                 throwError("stay_per_msg","")
+                show_spinner = false
             }
             if(!$bgv_data_store.stay_from){
                 throwError("st_from_msg","Select Stay from Date")
+                show_spinner = false
                 return  
             }
             else{
@@ -803,17 +860,21 @@
             }
             if(!$bgv_data_store.stay_till){
                 throwError("st_till_msg","Select Stay till Date")
+                show_spinner = false
                 return  
             }
             else{
                 throwError("st_till_msg","")
+                show_spinner = false
             }
             if(!$bgv_data_store.contact_number){    
                 throwError("contact_msg","Invalid Contact Number")
+                show_spinner = false
                 return    
             }
             else{
                 throwError("contact_msg","")
+                show_spinner = false
             }
 
         let addr_data = {
@@ -835,11 +896,14 @@
         stay_till : $bgv_data_store.stay_till,
     }
     console.log("addr_data",addr_data)
+    show_spinner = false
         return await  submit_address_details(addr_data);
     }
     async function submitPanDets(){
+        show_spinner = true
             if(!pancard_obj.pan_name && !pancard_obj.pan_url){
                 throwError("pan_up_msg","Upload Pancard Photo")
+                show_spinner = false
             }
 
             else if(!pancard_obj.pan_num.match(pan_card_pattern)){  
@@ -850,35 +914,43 @@
                         check_doc_res.body.message;   
                     }
                     throwError("pan_num_msg","Document No is Already Linked With Other Facility")
-                    
+                    show_spinner = false
                 } 
                 throwError("pan_num_msg","Invalid Pancard Number")
+                show_spinner = false
                 return
             }
             else{
                 throwError("pan_num_msg","")
+                show_spinner = false
             }
             if(!$bgv_data_store.pan_full_name){
                 throwError("pan_full_name","Invalid Pan Full Name")
+                show_spinner = false
                 return  
             }
             else{
                 throwError("pan_full_name","")
+                show_spinner = false
             }
 
             if(!$bgv_data_store.pan_dob){   
                 throwError("pan_dob_msg","Select Date Of Birth")
+                show_spinner = false
                 return 
             }
             else{
                 throwError("pan_dob_msg","")
+                show_spinner = false
             }
             if(!$bgv_data_store.pan_father_name){   
                 throwError("pan_fat_msg","Enter Father Name ")
+                show_spinner = false
                 return 
             }
             else{
                 throwError("pan_fat_msg","")
+                show_spinner = false
             }
 
         let pan_data = {
@@ -887,19 +959,24 @@
         pan_full_name: $bgv_data_store.pan_full_name,
         pancard_number: pancard_obj.pan_num
         }
+        show_spinner = false
         return await submit_pancard_details(pan_data);
+        
     }
 
     async function submitDlDets(){
+        show_spinner = true
         if(!dl_photo_obj.dl_lic_name && !dl_photo_obj.dl_lic_url){
             throwError("dl_up_msg","Upload Driving Licence Photo")
+            show_spinner = false
         }
             if(!dl_photo_obj.dl_lic_num){
             throwError("lic_num_msg","Enter Valid Driving Licence Number")
+            show_spinner = false
                 return
             }
             else if(!dl_photo_obj.dl_lic_num.match(driving_license_pattern)){
-                console.log("Inside else if")
+                
                 if(aadhar_obj.aadhar_num == dl_photo_obj.dl_lic_num || 
                 pancard_obj.pan_num == dl_photo_obj.dl_lic_num){
                     let check_doc_res =await check_doc_exist(dl_photo_obj.dl_lic_num);  
@@ -908,48 +985,61 @@
                         check_doc_res.body.message;   
                     }
                     throwError("lic_num_msg","Document No is Already Linked With Other Facility")
+                    show_spinner = false
                 }
                 throwError("lic_num_msg","Enter Valid Driving Licence Number")
+                show_spinner = false
                 return
             }
             else{
                 throwError("lic_num_msg","")
+                show_spinner = false
             }
             if(!$bgv_data_store.name_license){
                 throwError("lic_name_msg","Enter Valid Name As On Driving Licence")
+                show_spinner = false
                 return  
             }
             else{
                 throwError("lic_name_msg","")
+                show_spinner = false
             }
 
             if(!$bgv_data_store.dl_dob){   
                 throwError("lic_dob_msg","Select Date Of Birth As On Driving Licence")
+                show_spinner = false
                 return 
             }
             else{
                 throwError("lic_dob_msg","")
+                show_spinner = false
             }
             if(!$bgv_data_store.dl_issue_date){   
                 throwError("dl_issue_msg","Select Licence Issue Date")
+                show_spinner = false
                 return 
             }
             else{
                 throwError("dl_issue_msg","")
+                show_spinner = false
             }
             if(!$bgv_data_store.dl_expiry_date){   
                 throwError("dl_expiry_msg","Select Licence Expiry Date")
+                show_spinner = false
                 return 
             }
             else{
                 throwError("dl_expiry_msg","")
+                show_spinner = false
             }
             if(!$bgv_data_store.dl_issue_date){   
                 throwError("dl_issue_st_msg","Select Licence Issue State")
+                show_spinner = false
                 return 
             }
             else{
                 throwError("dl_issue_st_msg","")
+                show_spinner = false
             }
             let dl_data = {
             dl_dob: $bgv_data_store.dl_dob,
@@ -959,46 +1049,59 @@
             license_number: dl_photo_obj.dl_lic_num,
             name_license: $bgv_data_store.name_license,
             }
+            show_spinner = false
             return await submit_dl_details(dl_data);
         
     }
     async function submitPolDets(){
+        show_spinner = true
+        console.log("Inside submitPolDets",$bgv_data_store.police_address_type,"pol_add_per",police_add_per)
         if(!pol_photo_obj.pol_doc_name && !pol_photo_obj.pol_doc_url){
             throwError("pol_up_msg","Upload Police Document Photo")
+            show_spinner = false
         }
-            if(!$bgv_data_store.police_address_type){
+            if(!$bgv_data_store.police_address_type && !police_add_per){
                 throwError("pol_add_type","Select Address Type")
+                show_spinner = false
                 return
             }
             else{
                 throwError("pol_add_type","")
+                show_spinner = false
             }
             if(!$bgv_data_store.candidate_name){
                 throwError("pol_name_msg","Enter Valid Name")
                 return }
             else if(!$bgv_data_store.candidate_name.match(cand_and_guard_pattern)){
                 throwError("pol_name_msg","Enter Valid Name")
+                show_spinner = false
                 return  
             }
             else{
                 throwError("pol_name_msg","")
+                show_spinner = false
             }
             if(!$bgv_data_store.guardian_name){
                 throwError("guard_msg","Select Guardian's Name")
+                show_spinner = false
                 return }
             else if(!$bgv_data_store.guardian_name.match(cand_and_guard_pattern)){   
                 throwError("guard_msg","Select Guardian's Name")
+                show_spinner = false
                 return 
             }
             else{
                 throwError("guard_msg","")
+                show_spinner = false
             }
             if(!$bgv_data_store.police_verified_address){   
                 throwError("pol_ver_add","Enter Police Verified Address")
+                show_spinner = false
                 return 
             }
             else{
                 throwError("pol_ver_add","")
+                show_spinner = false
             }
             
         
@@ -1008,13 +1111,14 @@
         police_address_type: $bgv_data_store.police_address_type,
         police_verified_address: $bgv_data_store.police_verified_address,
         }
+        show_spinner = false
         return await submit_police_details(police_data);
         
     }
     
-        
-        async function next_clicked(new_type){
+    async function next_clicked(new_type){
             show_spinner = true;
+            console.log("show spiiner true")
         if(new_type=="basicInfo"){
             let sub_bas_res = await submitBasicDets();
             try{
@@ -1053,14 +1157,18 @@
                     is_dl_active="";
                     } 
                 }
+                show_spinner = false
             }
             catch(err){
-                toast_type = "error";
-                toast_text = err;
+                show_spinner = false
+                // toast_type = "error";
+                // toast_text = err;
             }
             
         }
         else if(new_type == "addressInfo"){
+            show_spinner = true;
+            console.log("show spiiner true")
             let sub_add_res = await submitAddDets();
             try{
                 if(sub_add_res.body.status == "green"){
@@ -1091,14 +1199,17 @@
                     is_dl_active="";
                     }
                 }
+                show_spinner = false
             }
             catch(err){
-                toast_type = "error";
-                toast_text = err;
+                show_spinner = false
+                // toast_type = "error";
+                // toast_text = err;
             }
             
         }
         else if(new_type == "panInfo"){
+            show_spinner = true;
             let sub_pan_res = await submitPanDets();
             try{
                 if(sub_pan_res.body.status =="green"){
@@ -1123,13 +1234,16 @@
                 is_dl_active="";
                 }
                 }
+                show_spinner = false
             }
             catch(err){
-                toast_type = "error";
-                toast_text = err;
+                show_spinner = false
+                // toast_type = "error";
+                // toast_text = err;
             } 
         }
         else if(new_type == "dlInfo"){
+            show_spinner = true;
             let sub_dl_res = await submitDlDets();
             try{  
                 if(sub_dl_res.body.status =="green"){
@@ -1147,13 +1261,16 @@
                 is_dl_active="";
                 }
                 }
+                show_spinner = false
             }
             catch(err){
-                toast_type = "error";
-                toast_text = err;
+                show_spinner = false
+                // toast_type = "error";
+                // toast_text = err;
             }   
         }
         else if(new_type == "policeInfo"){
+            show_spinner = true;
             let sub_pol_res = await submitPolDets();
             try{    
                 if(sub_pol_res.body.status =="green"){
@@ -1164,10 +1281,12 @@
                 toast_type = "success";
                 temp="f";
                 }
+                show_spinner = false
             }
             catch(err){
-                toast_type = "error";
-                toast_text = err;
+                show_spinner = false
+                // toast_type = "error";
+                // toast_text = err;
             }    
         }
     }
@@ -1207,13 +1326,16 @@
                 is_basic_active = "active";
                 }
                 }
+                show_spinner = false
             }
             catch(err){
+                show_spinner = false
                 toast_type = "error";
                 toast_text = err;
             }
         }
         else if(new_type == "dlInfo"){
+            show_spinner = true;
             let sub_dl_res = await submitDlDets();
             try{    
                 if(sub_dl_res.body.status =="green"){
@@ -1242,18 +1364,21 @@
                 is_basic_active = "active";
                 }
                 }
+                show_spinner = false
             }
             catch(err){
+                show_spinner = false
                 toast_type = "error";
                 toast_text = err;
             }
         }
         else if(new_type == "panInfo"){
+            show_spinner = true;
             let sub_pan_res = await submitPanDets();
             
             try{
                 if(sub_pan_res.body.status =="green"){
-                    show_spinner = false;
+                
                 if($bgv_config_store.is_address_info_mandatory =="1"){
                 temp="b";
                 is_pol_active="";
@@ -1271,17 +1396,20 @@
                 is_basic_active = "active";
                 }
                 }
+                show_spinner = false
             }
             catch(err){
+                show_spinner = false
                 toast_type = "error";
                 toast_text = err; 
             }
         }
         else if(new_type == "addressInfo"){
+            show_spinner = true;
             let sub_add_res = await submitAddDets();
             try{
                 if(sub_add_res.body.status =="green"){
-                    show_spinner = false;
+                    
                 if($bgv_config_store.is_basic_info_mandatory =="1"){
                     temp="a";
                     is_pol_active="";
@@ -1291,13 +1419,16 @@
                     is_basic_active = "active";
                 } 
                 }
+                show_spinner = false
             }
             catch(err){
+                show_spinner = false
                 toast_type = "error";
                 toast_text = err;
             }    
         }
         else if(new_type == "basicInfo"){
+            show_spinner = true
         let sub_bas_res = await submitBasicDets();
             try{
                 if(sub_bas_res.body.status =="green"){
@@ -1305,8 +1436,10 @@
                     let replaceState = false;
                     goto(routePrev, { replaceState });
                 }
+                show_spinner = false
             }
             catch(err){
+                show_spinner = false
                 toast_type = "error";
                 toast_text = err;
             }
@@ -1325,11 +1458,15 @@
 
     routeNext = "bgvsuccesspopup";
 
-    routePrev = "onboardsummary";
+    routePrev = "onboardsummary?unFacID="+$bgv_data_store.facility_id;
 
 
     
 </script>
+
+{#if show_spinner}
+    <Spinner />
+{/if}
 
 <div class="mainContent ">
     <div class="breadcrumb ">
@@ -1678,8 +1815,8 @@
                                             <!-- <div class="text-red-500">{adhar_card_message}</div> -->
                                             </label>
                                             <div class="flex">
-                                                {#if aadhar_obj.aadhar_num}
-                                                <p>{aadhar_obj.aadhar_num}</p>
+                                                {#if aadhar_obj.aadhar_name}
+                                                <p>{aadhar_obj.aadhar_name}</p>
                                                <img
                                                on:click={() => delete_files("aadhar_upload")}
                                                class="pl-2 cursor-pointer"
@@ -1838,15 +1975,15 @@
 
                         <div class="flex">
                             <div class="formGroupbgv items-center ">
-                                <label class="formLable ">Date of Birth<span
+                                <label class="formLable ">DOB<span
                                         class="mandatoryIcon">*</span></label>
                                 <div class="xs:w-full sm:w-full">
                                     <div class="flex  items-center">
                                         <div class="formInnerGroup ">
-                                            <input type="date" class="inputboxbgv" bind:value="{$bgv_data_store.basic_info_dob}"
+                                            <input type="date" id = "dob" class="inputboxbgv" bind:value="{$bgv_data_store.basic_info_dob}"
                                             max={new Date().toISOString().split('T')[0]}>
                                             
-                                            <div class="text-red-500" id="dob_msg"></div>
+                                        <div class="text-red-500" id="dob_msg"></div>
                                         </div>
                                         <div>
                                             <img src="{$img_url_name.img_name}/edit.png" class="editbgv" alt="">
@@ -1858,6 +1995,29 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- <div class="flex">
+                            <div class="formGroupbgv items-center ">
+                                <label class="formLable ">Date of Birth<span
+                                        class="mandatoryIcon">*</span></label>
+                                <div class="xs:w-full sm:w-full">
+                                    <div class="flex  items-center">
+                                        <div class="formInnerGroup ">
+                                            <input type="date" id = "dob" class="inputboxbgv" bind:value="{$}"
+                                           >
+                                            
+                                        <div class="text-red-500" id="dob_msg"></div>
+                                        </div>
+                                        <div>
+                                            <img src="{$img_url_name.img_name}/edit.png" class="editbgv" alt="">
+                                        </div>
+                                    </div>
+                                    <div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div> -->
                         
 
                         <div class="flex">
