@@ -40,6 +40,7 @@
         sorting_pravesh_properties,
     } from "../services/pravesh_config";
     import {pravesh_properties} from '../stores/pravesh_properties_store';
+// import { bgv_data_store } from "src/stores/bgv_store";
 
     let show_spinner = false;
     let toast_text;
@@ -1150,7 +1151,7 @@ function check_facility_status(message) {
     
     async function routeToBgv() {
         let replaceState = false;
-        goto(routeBgv, { replaceState });
+        goto("bgv?unFacID="+$facility_id.facility_id_number, { replaceState });
         
     }
     async function initiate_popup(){
@@ -1167,7 +1168,7 @@ function check_facility_status(message) {
                 toast_type = "success";
                 toast_text = confirm_initiate_bgv_res.body.message;
                 let replaceState = false;
-                goto(routeBgv, { replaceState });
+                goto("bgv?unFacID="+$facility_id.facility_id_number, { replaceState });
 
             }
             
@@ -1408,7 +1409,7 @@ function check_facility_status(message) {
         }
     }
 
-    routeBgv = "bgv";
+    // routeBgv = "bgv?unFacID="+$facility_id.facility_id_number;
     routeNext = "workdetails";
    
 
@@ -2536,8 +2537,8 @@ function check_facility_status(message) {
                                                 {#if !new_doc_data.file_name}
                                                 <p>-</p>
                                                 {:else}
-                                                <td>
-                                                    <p class="detailData">{new_doc_data.file_name}</p>
+                                                <td >
+                                                    <p class="detailData text-left pl-4">{new_doc_data.file_name}</p>
                                                 </td>
                                                 {/if}
                                                 <td>  
