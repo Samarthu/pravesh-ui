@@ -75,24 +75,13 @@
             let city_select;
             let city_select_flag=0;
             let cheque_data;
-        //     let img_name="",bank_name="-",type ="",cheque_date,cheque_number="-",amount="",
-        //     recrun_number="",file_number = "";
-        //     let bank_name_message ="",type_message="",cheque_date_message="",cheque_number_message=""
-        //     ,amount_message="",recrun_number_message="",file_number_message="",cheque_upload_message="";
-        //     let child_box;
         export let facility_created_date;
         let bank_details_res;
-        //     let bank_details_res,bank_new_date,
-        //     facility_modified_date,facility_created_date,facility_doc_date;
-        //     // let client_det_res;
         let facility_doc_date,facility_modified_date;
             let client_det_arr=[];
             export let gst_doc_arr;
-            
-        //     // $: cheque_date = new Date();
             let file_data;
-            let showbtn = 0;
-        //     let selectTag,addRemark,selectsearch;
+            // let showbtn = 0;
         export let facility_address;
         export let facility_password;
         export let city;
@@ -101,24 +90,13 @@
         let gst_edit_btn = 0;
         //     let facility_address,facility_postal,facility_password,city,location_id,status_name;
             let new_fac_remarks = [];
-        //     let select_tag_data,serv_ch_data;
-        //     let total_pages;
-        //     let pages=[];
-        //     let tag_date,tag_remark;
-        //     let tag_data_obj=[];
+
             let city_data=[];
             let scope_data=[];
-        //     let gst_doc_type=[];
-        //     let erp_details_arr = [];
-        //     let cheque_img="";
-        //     let checkupload,dl_lic_attach = "-";
             let result;
-        //     let mapped_pages = [];
-        //     let hidden_field ="hidden";
             let gst_city_link_state="";
             let gst_state_code = "";
             let gst_city_loc_id="";
-        //     export let url = "";
         //     /////////////////////svelte plugin pagiantion//////////
             let items=[];
             let currentPage = 1;
@@ -451,10 +429,10 @@
         }
         for(let i = 0;i<gst_doc_arr.length;i++){
             if(data == "mult_gsts"){
-                if(doc_number == gst_doc_arr[i].gst_doc_num)
-                image_path = $page.url.origin+gst_url[i];
-                // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+gst_url[i]);
+                if(doc_number == gst_doc_arr[i].doc_number){
+                image_path = $page.url.origin+gst_doc_arr[i].file_url;
                 alt_image = "gst proof";
+            }
             }
         }
         
@@ -477,21 +455,38 @@
                 console.log("gst_details_res",gst_details_res)
                 
                 for(let i=0;i < gst_details_res.body.data.length;i++){
-                            for(let j = 0;j<gst_doc_arr.length;j++){ 
+                            // for(let j = 0;j<gst_doc_arr.length;j++){ 
                                 
-                                console.log("matching",gst_details_res.body.data[i].gstn,gst_doc_arr[j].doc_number)
-                                if(gst_details_res.body.data[i].gstn == gst_doc_arr[j].doc_number){
-                                    console.log("Matched")
-                                    show_gst_view_btn = true;
-                                } 
-                                // else{ 
-                                //     console.log("Inside else")
-                                //     show_gst_view_btn = false;
-                                // }  
+                            //     console.log("matching",gst_details_res.body.data[i].gstn,gst_doc_arr[j].doc_number)
+                            //     if(gst_details_res.body.data[i].gstn == gst_doc_arr[j].doc_number){
+                            //         console.log("Matched")
+                            //         show_gst_view_btn = true;
+                            //     } 
+                            //     // else{ 
+                            //     //     console.log("Inside else")
+                            //     //     show_gst_view_btn = false;
+                            //     // }  
                                
-                            }
+                            // }
                             gst_details_data.push(gst_details_res.body.data[i]);
+
+                            
                 }
+                for(let i=0;i<gst_details_data.length;i++){
+                    console.log("gst_details_data",gst_details_data[i])
+                    gst_details_data[i].show_view_btn = false;
+                    for(let j = 0;j<gst_doc_arr.length;j++){ 
+                                
+                    //     console.log("matching",gst_details_res.body.data[i].gstn,gst_doc_arr[j].doc_number)
+                        if(gst_details_data[i].gstn == gst_doc_arr[j].doc_number){
+                            // console.log("Matched")
+                            gst_details_data[i].show_view_btn = true;
+                    } 
+                              
+                }
+            }
+                
+
 
                 gst_details_data=gst_details_data;
                 console.log("gst_details_data here",gst_details_data,show_gst_view_btn)
@@ -514,7 +509,7 @@
         gst_img = "";
 
     }
-    async function gst_edit_click(new_gst,gst_url,gst_name){
+    async function gst_edit_click(new_gst){
         console.log("new_gst",new_gst)
         gst_edit_btn = 1;
         for(let i=0;i<gst_doc_arr.length;i++){
@@ -526,14 +521,13 @@
                 console.log("inside if")
                 // onFileSelected(new_gst.gstn,"gst_edit_upload")
                 // console.log("gst_file_datagst_file_data",gst_file_data)
-                gst_url = gst_file_data
-                gst_name = gst_doc_arr[i].file_name
-                console.log("gst_url",gst_url)
+                gst_file = gst_doc_arr[i].file_url
+                gst_img = gst_doc_arr[i].file_name
 
             }else{
                 console.log("inside else")
-                gst_url = "";
-                gst_name = "";
+                gst_file = "";
+                gst_img = "";
             }
         }
         
@@ -550,8 +544,8 @@
         gst_city_select = new_gst.city;
         gst_city_link_state = new_gst.state;
         gst_number = new_gst.gstn;
-        gst_file = gst_url;
-        gst_img = gst_name;
+        gst_file = gst_file;
+        gst_img = gst_img;
         gst_uniq_name = new_gst.name;
        
     }
@@ -1942,7 +1936,7 @@
                                         <td>{new_gst.city}</td>
                                         <td>{new_gst.state} </td>
                                         <td>{new_gst.gstn}</td>
-                                        <td>{#if show_gst_view_btn == true}
+                                        <td>{#if new_gst.show_view_btn == true}
                                             <!-- <p class="verifyText"> -->
                                                 <button class="smButton">
 
@@ -1962,7 +1956,6 @@
                                             {/if}</td>
                                         <td>
                                             <p class="flex justify-center">
-                                                {#each gst_doc_arr as gst_doc}
                                                     <p class="verifyText">
 
                                                         <button class="smButton">
@@ -1972,7 +1965,7 @@
 
                                                                 src="{$img_url_name.img_name}/edit.png"
 
-                                                                on:click="{()=>{gst_edit_click(new_gst,gst_doc.file_url,gst_doc.file_name)}}"
+                                                                on:click="{()=>{gst_edit_click(new_gst)}}"
 
                                                                 alt="gst edit"
 
@@ -1991,9 +1984,6 @@
                                                             />
                                                             {/if} -->
                                                         </button>
-
-                                                    </p>
-                                                    {/each}
                                             </p>
                                         </td>
                                         <td>

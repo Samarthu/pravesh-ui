@@ -386,7 +386,7 @@
                 <div class="flex items-start">
                     <img src="{$img_url_name.img_name}/pan.png" class="w-6 h-6" alt="">
                     <div class="pl-4">
-                        <p class="detailLbale">Aadhar Number</p>
+                        <p class="detailLbale">Aadhaar Number</p>
                         {#if !aadhar_obj.aadhar_num}
                         <p>-</p>
                         {:else}
@@ -500,7 +500,7 @@
                     <div class="flex items-start">
                         <img src="{$img_url_name.img_name}/offerlatter.png" alt="" class="w-5 h-5">
                         <div class="pl-4">
-                            <p class="detailLbale">Aadhar Card Attachment</p>
+                            <p class="detailLbale">Aadhaar Card Attachment</p>
                         </div>
                     </div>
                     {#if aadhar_obj.aadhar_rejected == "1"}

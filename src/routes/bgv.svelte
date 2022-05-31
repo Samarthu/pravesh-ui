@@ -27,7 +27,7 @@
     let get_state_data;
     let city_data=[];
     let new_selected_state;
-    
+    var today = new Date();
     let basic_date;
     
     var NorthEStates = ["Arunachal Pradesh", "Assam", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Sikkim", "Tripura"];
@@ -86,7 +86,8 @@
     let casper_id_arr = [];
     let delivery_select,station_mod_select,casper_select;
 
-
+    let new_profile_url = "";
+    let new_profile_name = "";
     let pancard_obj = {
         pan_num:null,
         pan_attach:null,
@@ -202,6 +203,8 @@
                     
                 }
                 else if($documents_store[i].doc_type == "pass_photo"){
+                    new_profile_name = $documents_store[i].file_name;
+                    new_profile_url = $documents_store[i].file_url;
                     fac_photo_obj={
                     profile_name : $documents_store[i].file_name,
                     profile_url : $documents_store[i].file_url,
@@ -247,9 +250,6 @@
     console.log("facility_bgv_check_res",facility_bgv_check_res)
     try {
         if(!facility_bgv_check_res || facility_bgv_check_res.body.data.length == "0"){
-            toast_type = "error";
-            toast_text = "No BGV Data Found";
-            // console.log("BEFORE")
             if(!$bgv_data_store.basic_info_dob){
                 var eighteenYearsAgo = new Date();
                 $bgv_data_store.basic_info_dob = get_date_format(new Date(eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear()-18)),"yyyy-mm-dd");
@@ -374,7 +374,19 @@
         toast_type = "error";
        
     }
+    ////Get current Date///
+    
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var yyyy = today.getFullYear();
+
+    today = mm + '/' + dd + '/' + yyyy;
+    console.log("today",today);
+
     show_spinner = false;
+    ///Get current Date///
+
+    
     });
 
 
@@ -406,7 +418,13 @@
        
         if(doctext == "photo_upload"){
           console.log("Photo log uploaded")  
-            fac_photo_obj.profile_name = img.name;
+        if(!fac_photo_obj.profile_url){
+               new_profile_name = img.name;
+        }
+        else{
+            new_profile_name = fac_photo_obj.profile_name;
+        }
+            // fac_photo_obj.profile_name = img.name;
             // console.log("fac_photo_obj.profile_name",fac_photo_obj.profile_name)
         }
         else if(doctext == "aadhar_upload"){
@@ -428,7 +446,13 @@
         // file_data = reader.result;
         // console.log("reader",reader.result);
         if(doctext == "photo_upload"){
-            fac_photo_obj.profile_url = reader.result;
+            if(!fac_photo_obj.profile_url){
+               new_profile_url = reader.result;
+            }
+            else{
+                new_profile_url =fac_photo_obj.profile_url;
+            }
+            // fac_photo_obj.profile_url = reader.result;
             // console.log("photo_data",reader.result);
             toast_text = "Photo Uploaded Successfully";
             toast_type = "success";
@@ -513,6 +537,10 @@
         // if(fac_photo_obj.profile_name == "" && fac_photo_obj.profile_url == ""){
             console.log("ibnside submit not ")
         
+            // if(fac_photo_obj.profile_url == ""){
+
+            // }
+            console.log("inside submit photo after",)
             let photo_load = {
                 resource_id:$bgv_data_store.facility_id,
                 file_name:fac_photo_obj.profile_name,
@@ -570,8 +598,8 @@
             resource_id:$bgv_data_store.facility_id,
             file_name:dl_photo_obj.dl_lic_name,
             pod:dl_photo_obj.dl_lic_url,
-            doc_category:dl-photo,
-            doc_type:dl-photo
+            doc_category:"dl-photo",
+            doc_type:"dl-photo"
             }
             return await uploadDocs(dl_load); 
         // }
@@ -616,22 +644,22 @@
                 show_spinner = false
                 return 
             }
-            else if(!aadhar_obj.aadhar_num.match(aadhar_card_pattern)){  
-                if(pancard_obj.pan_num == aadhar_obj.aadhar_num || 
-                    dl_photo_obj.dl_lic_num == aadhar_obj.aadhar_num){
-                    let check_doc_res =await check_doc_exist(aadhar_obj.aadhar_num);  
-                    // console.log("check_doc_res",check_doc_res)
-                    if(check_doc_res == "red"){
-                        check_doc_res.body.message;   
-                    }
-                    show_spinner = false
-                    throwError("aadharmsg","Document No is Already Linked With Other Facility")
+            // else if(!aadhar_obj.aadhar_num.match(aadhar_card_pattern)){  
+            //     if(pancard_obj.pan_num == aadhar_obj.aadhar_num || 
+            //         dl_photo_obj.dl_lic_num == aadhar_obj.aadhar_num){
+            //         let check_doc_res =await check_doc_exist(aadhar_obj.aadhar_num);  
+            //         // console.log("check_doc_res",check_doc_res)
+            //         if(check_doc_res == "red"){
+            //             check_doc_res.body.message;   
+            //         }
+            //         show_spinner = false
+            //         throwError("aadharmsg","Document No is Already Linked With Other Facility")
                  
-                } 
-                throwError("aadharmsg","Invalid Aadhar Number")
-                show_spinner = false
-                return 
-            }
+            //     } 
+            //     throwError("aadharmsg","Invalid Aadhar Number")
+            //     show_spinner = false
+            //     return 
+            // }
             else{
                 throwError("aadharmsg","")
             }
@@ -841,11 +869,15 @@
             else{
                 throwError("resid_msg","")
             }
-            if(!$bgv_data_store.period_of_stay){
+            console.log("$bgv_data_store.period_of_stay",$bgv_data_store.period_of_stay)
+            if(!$bgv_data_store.period_of_stay ){
                 throwError("stay_per_msg","Enter Period Of Stay")
                 show_spinner = false
                 return
             }
+            // else if(){
+                    
+            // }
             else{
                 throwError("stay_per_msg","")
                 show_spinner = false
@@ -1119,14 +1151,13 @@
     async function next_clicked(new_type){
             show_spinner = true;
             console.log("show spiiner true")
-        if(new_type=="basicInfo"){
+        if(new_type == "basicInfo"){
             let sub_bas_res = await submitBasicDets();
             try{
                 if(sub_bas_res.body.status == "green"){
-                    if(fac_photo_obj.profile_url == "photo_upload"){}
-                    else{let photo_res = await submit_photo();}
-                    if(aadhar_obj.aadhar_attach == "-"){}
-                    else{let aadhar_res = await submit_aadhar();}
+                    if(!fac_photo_obj.profile_url){let photo_res = await submit_photo();}
+                    
+                    if(!aadhar_obj.aadhar_attach){let aadhar_res = await submit_aadhar();}
                     show_spinner = false;
                     toast_text = "Basic Details Submitted Successfully";
                     toast_type = "success";
@@ -1749,7 +1780,7 @@
                                                 <input
                                                                     type="file"
                                                                     class="hidden"
-                                                                    bind:value = "{fac_photo_obj.profile_url}"
+                                                                    bind:value = "{new_profile_url}"
                                                                     on:change={(
                                                                         e
                                                                     ) =>
@@ -1762,8 +1793,8 @@
 
                                             </label>
                                             <div class="flex">
-                                                {#if fac_photo_obj.profile_name}
-                                                <p>{fac_photo_obj.profile_name}</p>
+                                                {#if new_profile_name}
+                                                <p>{new_profile_name}</p>
                                                <img
                                                on:click={() => delete_files("photo_upload")}
                                                class="pl-2 cursor-pointer"
@@ -1850,7 +1881,7 @@
                                 <div class="xs:w-full sm:w-full">
                                     <div class="flex  items-center">
                                         <div class="formInnerGroup ">
-                                            <input type="text" class="inputboxbgv" bind:value="{aadhar_obj.aadhar_num}">
+                                            <input type="number" class="inputboxbgv" bind:value="{aadhar_obj.aadhar_num}">
                                             <!-- {#if aadhar_num_c == "1"} -->
                                             <div class="text-red-500" id="aadharmsg"></div>
                                             <!-- {/if} -->
@@ -1966,7 +1997,7 @@
                                 <label class="formLable">Phone Number<span
                                         class="mandatoryIcon">*</span></label>
                                 <div class="formInnerGroup ">
-                                    <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.phone_number}">
+                                    <input type="number" class="inputboxbgv" bind:value="{$bgv_data_store.phone_number}">
                                     
                                             <div class="text-red-500" id="phone_msg"></div>
                                 </div>
@@ -2421,7 +2452,7 @@
                                 <label class="formLable ">Period of Stay<span
                                         class="mandatoryIcon">*</span></label>
                                 <div class="formInnerGroup ">
-                                    <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.period_of_stay}">
+                                    <input type="number" class="inputboxbgv" bind:value="{$bgv_data_store.period_of_stay}">
                                     <div class="text-red-500" id="stay_per_msg"></div>
                                 </div>
                             </div>
@@ -2460,7 +2491,7 @@
                                 <label class="formLable ">Family Contact Number<span
                                         class="mandatoryIcon">*</span></label>
                                 <div class="formInnerGroup ">
-                                    <input type="text" class="inputboxbgv"   bind:value="{$bgv_data_store.contact_number}">
+                                    <input type="number" class="inputboxbgv"   bind:value="{$bgv_data_store.contact_number}">
                                     <div class="text-red-500" id="contact_msg"></div>
                                 </div>
                             </div>

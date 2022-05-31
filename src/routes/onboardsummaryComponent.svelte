@@ -389,8 +389,6 @@
             try {
             if(get_org_data_res.body.status == "green"){
                 for(let i=0;i<get_org_data_res.body.data.length;i++){
-                    console.log("matching",$facility_data_store.facility_type,get_org_data_res.body.data[i].org_id)
-
                     
                     if($facility_data_store.org_id == get_org_data_res.body.data[i].org_id){
                         org_name = get_org_data_res.body.data[i].org_name;
@@ -456,6 +454,7 @@
                 let doc_date_format = new Date(facility_document_data[i].creation);
                 let doc_creation_date = get_date_format(doc_date_format,"dd-mm-yyyy-hh-mm");
                 facility_document_data[i].creation = doc_creation_date
+                
                 if(facility_document_data[i].doc_type == "pan-photo"){
                     changed_pan_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, '*');
                     pancard_obj = {pan_num : facility_document_data[i].doc_number,
@@ -467,7 +466,10 @@
                 }
                 
                 else if(facility_document_data[i].doc_type == "aadhar-id-proof"){
-                    changed_aadhar_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, '*');
+                    console.log("Inside aadhar id proof")
+                    if(facility_document_data[i].doc_number){
+                        changed_aadhar_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, '*');
+                    }
                     aadhar_obj = {aadhar_num : facility_document_data[i].doc_number,
                     aadhar_attach : facility_document_data[i].file_url,
                     aadhar_name : facility_document_data[i].file_name,
@@ -476,24 +478,28 @@
                     
                 }
                 else if(facility_document_data[i].doc_type == "pass_photo"){
+                    console.log("Inside pass photo")
                     fac_photo_obj={
                     profile_url : facility_document_data[i].file_url,
                     profile_verified : facility_document_data[i].verified,
                     profile_rejected : facility_document_data[i].rejected};
                 }
                 else if(facility_document_data[i].doc_type == "addproof-photo"){
+                    console.log("Inside addproof photo")
                     addproof_obj = {address_name : facility_document_data[i].file_name,   
                     address_url : facility_document_data[i].file_url,
                     address_verified : facility_document_data[i].verified,
                     address_rejected : facility_document_data[i].rejected};
                 }
                 else if(facility_document_data[i].doc_type == "can-cheque"){
+                    console.log("Inside can cheque")
                     can_cheque_obj.push = {can_cheque_name : facility_document_data[i].file_name,
                     can_cheque_url : facility_document_data[i].file_url,
                     can_cheque_verified : facility_document_data[i].verified,
                     can_cheque_rejected : facility_document_data[i].rejected};
                 }
                 else if(facility_document_data[i].doc_type == "dl-photo"){
+                    console.log("Inside dl photo")
                     changed_dl_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, '*');
                     dl_photo_obj = {dl_lic_name : facility_document_data[i].file_name,
                     dl_lic_num : facility_document_data[i].doc_number,
@@ -502,6 +508,7 @@
                     dl_rejected : facility_document_data[i].rejected};
                 }
                 else if(facility_document_data[i].doc_type == "newOffFile"){
+                    console.log("Inside newOffFile")
                     new_off_file_obj = {offer_name : facility_document_data[i].file_name,
                     offer_url : facility_document_data[i].file_url,
                     offer_verified : facility_document_data[i].verified,
@@ -509,21 +516,27 @@
                     
                 }
                 else if(facility_document_data[i].doc_type == "voter-id-proof"){
+                    console.log("Inside voter id proof")
                     changed_voter_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, '*');
                     voter_id_object = {voter_id_number : facility_document_data[i].doc_number,
                     };
                     
                 }
+                else{
+                    console.log("here Inside else")
+                }
                 
+               console.log("here at 517") 
             }
+            console.log("Here at 520")
             
         }
-        // console.log("pancard_obj",pancard_obj,"aadhar_obj",aadhar_obj,"fac_photo_obj",fac_photo_obj,"addproof_obj",addproof_obj,"can_cheque_obj",can_cheque_obj,"dl_photo_obj",dl_photo_obj,"new_off_file_obj",new_off_file_obj);
+        console.log("pancard_obj",pancard_obj,"aadhar_obj",aadhar_obj,"fac_photo_obj",fac_photo_obj,"addproof_obj",addproof_obj,"can_cheque_obj",can_cheque_obj,"dl_photo_obj",dl_photo_obj,"new_off_file_obj",new_off_file_obj);
         }
         catch(err) {
        
         toast_type = "error";
-        toast_text = facility_document_res.body.message;
+        toast_text = err;
         }
        
 
@@ -731,8 +744,7 @@
             }
             else{
                 show_spinner = false;
-                toast_type = "error";
-                toast_text = "No Tags Found";
+               
             }
         } 
         catch(err) {
@@ -1143,6 +1155,10 @@ function check_facility_status(message) {
     }
     async function initiate_popup(){
         initiateBgv.style.display = "block";
+    }
+    function initiate_deact_popup(){
+        toast_type = "error";
+        toast_text = "Deactive Facility cannot Initiate Background Verification";
     }
     async function confirm_initiate_bgv(){
         let confirm_initiate_bgv_res = await initiateBGV();
@@ -2114,9 +2130,19 @@ function check_facility_status(message) {
                 <div class="mr-5">
                     {#if is_adhoc_facility == false}
                     {#if showbtn == "1"}
-                        {#if $facility_data_store.is_bgv_intiated == "0" && $facility_data_store.status != "Deactive"}
+                        {#if $facility_data_store.is_bgv_intiated == "0"}
                         
                         <p on:click={initiate_popup} class="initiateText">
+                            <button href="" class="flex">
+                                <img
+                                    src="{$img_url_name.img_name}/InitiateBGVerification.png"
+                                    class=" pr-2"
+                                    alt=""
+                                /> Initiate BGV Verification</button
+                            >
+                        </p>
+                        {:else if $facility_data_store.status == "Deactive"}
+                        <p on:click={initiate_deact_popup} class="initiateText">
                             <button href="" class="flex">
                                 <img
                                     src="{$img_url_name.img_name}/InitiateBGVerification.png"
@@ -2518,10 +2544,10 @@ function check_facility_status(message) {
                                                     <p class="detailData">{new_doc_data.doc_category}<br>({new_doc_data.doc_type})</p>
                                                 </td>
                                                 <td>
-                                                    <p class="detailData">{new_doc_data.owner}</p>
+                                                    <p class="detailData">{new_doc_data.modified_by}</p>
                                                 </td>
                                                 <td>
-                                                    <p class="detailData"> {new_doc_data.creation}</p>
+                                                    <p class="detailData"> {new_doc_data.modified}</p>
                                                 </td>
                                                
                                                 <td> 
@@ -2676,9 +2702,9 @@ function check_facility_status(message) {
             </div>
 
             <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
-                
-                <img src={image_path} id="doc_img_model_url" class="mx-auto" alt="{alt_image}">
-                
+                <div class = "overflow-y-auto h-96">
+                    <img src={image_path} id="doc_img_model_url" class="mx-auto w-56" alt="{alt_image}">
+                </div>
                 <div class="pt-3 flex justify-center">
                     <button data-modal-toggle="popup-modal" type="button" class="dialogueNobutton"  on:click="{()=>{closeApproveViewModel()}}">Close</button>
             </form>
