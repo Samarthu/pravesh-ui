@@ -226,9 +226,6 @@
                 $facility_data_store.status = "Rejected";
                 status_name = $facility_data_store.status;
             }
-            if ($facility_data_store.password == "" || facility_password == "") {
-                // facility_password = "ntex@123";
-            }
             for (var j = 0;j < $facility_data_store.addresess.length;j++){
                 for(let k=0;k<scope_data.length;k++){
                     if($facility_data_store.addresess[j].state == scope_data[k].location_state){
@@ -1782,10 +1779,15 @@
     routePrev = "onboardsummary?unFacID="+$facility_data_store.name;
 
 
-    async function verify_otp(){
+    function verify_new_otp(){
         console.log("verify otp clicked")
-        otp_model.style.display = "block";
+        otp_model_new.style.display = "block";
     }
+    function close_otp_model(){
+        otp_model_new.style.display = "none";
+    }
+    
+
     async function send_otp_func(){
         let sent_otp_res = await send_otp($bgv_data_store.email_id);
         try {
@@ -1864,6 +1866,7 @@
         
             
         <div class="tablinksForm w100xs">
+           
             <!-- {#each copy_mandatory_arr as mandatory_details,i} -->
             <ul class="bgtablinks ">
                 
@@ -2083,6 +2086,7 @@
                     <p class="formRequiredtext "><span class="text-mandatorysign">* </span>marked fields are
                         required </p>
                 </div>
+                
                 <form action="#">
                     <div class="formElements">
 
@@ -2299,14 +2303,18 @@
                                 </div>
                             </div>
                         </div>
+                       
 
                         <div class="flex">
                             <div class="formGroup ">
                                 <div class="text-right">
+                                    
+                                    
                                     <label class="formLable">Personal Email ID<span
                                         class="mandatoryIcon">*</span></label>
                                     <p class="smNotebgv formLable">(for Rabbit ID Creation) </p>
                                 </div>
+                                
                                 <div class="flex justify-between formInnerGroup">
                                     <!-- <p class="text-greycolor text-base">dhiraj.shah@gmail.com</p> -->
                                     <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.email_id}">
@@ -2316,14 +2324,17 @@
                                     {#if $bgv_data_store.is_email_verified =="1"}
                                     <p class="veriTextEmail "><img src="{$img_url_name.img_name}/checked.png"
                                             class="mr-1 object-contain" alt=""> Verified</p>
-                                            {:else}<p></p>
+                                        {:else}<p></p>
                                     {/if}
                                 </div>
-                                <div>
-                                    <label class="cursor-pointer pl-2">
-                                        <button class="ErBlueButton w-auto mt-3 " on:click="{verify_otp}">Verify</button>
-                                    </label>
+                                
+                                <div class="ml-2">
+                                   
+                                        <div class="ErBlueButton w-auto mt-3 cursor-pointer" on:click={verify_new_otp}>Verify</div>
+                                    
                                 </div>
+                                
+
                             </div>
                             
                         </div>
@@ -3424,8 +3435,8 @@
 
 
 <!--Email OTP Modal-->
-<div class="hidden">
-    <div class="viewDocmodal " id="otp_model">
+<div class="hidden" id="otp_model_new">
+    <div class="viewDocmodal " >
         <div class="absolute bg-black opacity-80 inset-0 z-0"></div>
         <div class=" w-full  max-w-2xl  relative mx-auto my-auto  shadow-lg rounded-lg bg-white xs:mx-2">
             <div class="">
@@ -3437,7 +3448,13 @@
                             </p>
                         </div>
                         <div class="rightmodalclose">
-                            <img src="../src/img/blackclose.svg" alt="">
+                            <img 
+                            on:click={close_otp_model}
+                            class="pl-2 cursor-pointer"
+                            src="{$img_url_name.img_name}/blackclose.svg"
+                            alt=""
+                            
+                        />
                         </div>
                     </div>
                     <hr>
