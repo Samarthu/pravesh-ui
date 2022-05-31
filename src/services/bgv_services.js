@@ -178,6 +178,21 @@ const check_doc_exist = (doc_number) => {
         method: "GET",
         }, true)
 }
+const send_otp = (email_id) => {
+    let send_otp_url = '/api/method/pravesh.facility.routes.otp.send_email_verification_otp?email='+email_id+'&facility_id='+new_facility_id+'';
+    return request(
+        send_otp_url, {
+        method: "GET",
+        }, true)
+}
+const verify_email = (otp_num,email_id) => {
+    let verify_email_url = '/api/method/pravesh.facility.routes.otp.verify_otp?otp='+otp_num+'&mobile_no='+email_id+'&facility_id='+new_facility_id+'';
+    return request(
+        verify_email_url, {
+        method: "GET",
+        }, true)
+}
+
   
 export {
     get_states,
@@ -190,5 +205,7 @@ export {
     get_all_docs,
     uploadDocs,
     get_casper_id,
-    check_doc_exist
+    check_doc_exist,
+    send_otp,
+    verify_email
 }
