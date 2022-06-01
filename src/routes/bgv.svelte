@@ -1141,7 +1141,8 @@
   
     async function submitAddDets(){
         show_spinner = true
-        console.log("here in submitAddDets")
+        console.log("doc display",doc_present)
+        console.log("here in submitAddDets",addproof_obj.address_name,addproof_obj.address_url)
             if(!addproof_obj.address_name && !addproof_obj.address_url){
                 throwError("add_up_msg","Upload Address Document Photo")
                 show_spinner = false
@@ -1667,6 +1668,23 @@
                         // }
                         
                     }
+                    else if(doc_present.includes("address_present")){
+                        address_res = await submit_aadhar();
+                            try{
+                                    if(address_res.body.status == "green"){
+                                        address_res = "green"
+                                    }
+                                    else{
+                                        toast_type = "error"
+                                        toast_msg = "Photo Upload Failed"
+                                    }
+                            }
+                            catch(err){
+                                toast_type = "error"
+                                toast_msg = err;
+                            } 
+                    }
+                    
                     if(doc_present.length == "0" || address_res =="green"){
                     show_spinner = false;
                     toast_text = "Address Details Submitted Successfully";
@@ -1708,7 +1726,7 @@
             let sub_pan_res = await submitPanDets();
             try{
                 if(sub_pan_res.body.status =="green"){
-
+                    if(!pancard_obj.pan_attach){
                     pan_res = await submit_pancard();
                         
                             try{
@@ -1724,9 +1742,26 @@
                                 toast_type = "error"
                                 toast_msg = err;
                             }
-                        // }
-                        
-                    }
+                }
+                else if(doc_present.includes("pan_present")){
+                    pan_res = await submit_aadhar();
+                            try{
+                                    if(pan_res.body.status == "green"){
+                                        pan_res = "green"
+                                    }
+                                    else{
+                                        toast_type = "error"
+                                        toast_msg = "Photo Upload Failed"
+                                    }
+                            }
+                            catch(err){
+                                toast_type = "error"
+                                toast_msg = err;
+                            } 
+                }
+
+                    
+                }
                 if(doc_present.length == "0" || pan_res =="green"){
                 
                 show_spinner = false;
@@ -1762,7 +1797,7 @@
             let sub_dl_res = await submitDlDets();
             try{  
                 if(sub_dl_res.body.status =="green"){
-
+                    if(!dl_photo_obj.dl_lic_url){
                     dl_res = await submit_licence();
                         
                             try{
@@ -1778,7 +1813,23 @@
                                 toast_type = "error"
                                 toast_msg = err;
                             }
-                        // }
+                        }
+                    else if(doc_present.includes("dl_present")){
+                        dl_res = await submit_aadhar();
+                        try{
+                                if(dl_res.body.status == "green"){
+                                    dl_res = "green"
+                                }
+                                else{
+                                    toast_type = "error"
+                                    toast_msg = "Photo Upload Failed"
+                                }
+                        }
+                        catch(err){
+                            toast_type = "error"
+                            toast_msg = err;
+                        } 
+                    }
                         
                     }
                 if(doc_present.length == "0" || dl_res =="green"){
@@ -1808,6 +1859,7 @@
             let sub_pol_res = await submitPolDets();
             try{    
                 if(sub_pol_res.body.status =="green"){
+                    if(!pol_photo_obj.pol_doc_url){
                 
                     pol_res = await submit_police();
                         
@@ -1824,7 +1876,23 @@
                             toast_type = "error"
                             toast_msg = err;
                         }
-                    // }
+                    }
+                    else if(doc_present.includes("pol_present")){
+                        pol_res = await submit_aadhar();
+                        try{
+                                if(pol_res.body.status == "green"){
+                                    pol_res = "green"
+                                }
+                                else{
+                                    toast_type = "error"
+                                    toast_msg = "Photo Upload Failed"
+                                }
+                        }
+                        catch(err){
+                            toast_type = "error"
+                            toast_msg = err;
+                        } 
+                    }
                     
                 }
             if(doc_present.length == "0" || pol_res =="green"){
