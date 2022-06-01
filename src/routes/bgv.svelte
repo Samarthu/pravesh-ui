@@ -276,7 +276,7 @@
             if(facility_document_res != "null"){
                 
             
-            $documents_store = facility_document_res.body.data
+                $documents_store.documents = facility_document_res.body.data
             // console.log("duplicate document store",$duplicate_documents_store)
 
             // console.log("documents_store",$documents_store)
@@ -400,68 +400,68 @@
     }
 
     /////DOcument Data/////////
-    for (var i = 0; i < $documents_store.length; i++) {
-                let doc_date_format = new Date($documents_store[i].creation);
+    for (var i = 0; i < $documents_store.documents.length; i++) {
+                let doc_date_format = new Date($documents_store.documents[i].creation);
                 let doc_creation_date = get_date_format(doc_date_format,"dd-mm-yyyy-hh-mm");
-                $documents_store[i].creation = doc_creation_date
-                if($documents_store[i].doc_type == "pan-photo"){
-                    new_pan_name = $documents_store[i].doc_name;
-                    new_pan_url = $documents_store[i].doc_url;
-                    pancard_obj = {pan_num : $documents_store[i].doc_number,
-                    pan_attach : $documents_store[i].file_url,
-                    pan_name : $documents_store[i].file_name,
+                $documents_store.documents[i].creation = doc_creation_date
+                if($documents_store.documents[i].doc_type == "pan-photo"){
+                    new_pan_name = $documents_store.documents[i].doc_name;
+                    new_pan_url = $documents_store.documents[i].doc_url;
+                    pancard_obj = {pan_num : $documents_store.documents[i].doc_number,
+                    pan_attach : $documents_store.documents[i].file_url,
+                    pan_name : $documents_store.documents[i].file_name,
                     };
                     // if(pancard_obj.pan_attach)
                     // doc_present.push("pan_present")
                 }
                 
-                else if($documents_store[i].doc_type == "aadhar-id-proof"){
-                    new_aadhar_name = $documents_store[i].file_name;
-                    new_aadhar_url = $documents_store[i].file_url;
+                else if($documents_store.documents[i].doc_type == "aadhar-id-proof"){
+                    new_aadhar_name = $documents_store.documents[i].file_name;
+                    new_aadhar_url = $documents_store.documents[i].file_url;
                     aadhar_obj = {
-                    aadhar_num : $documents_store[i].doc_number,
-                    aadhar_attach : $documents_store[i].file_url,
-                    aadhar_name : $documents_store[i].file_name,
+                    aadhar_num : $documents_store.documents[i].doc_number,
+                    aadhar_attach : $documents_store.documents[i].file_url,
+                    aadhar_name : $documents_store.documents[i].file_name,
                     };
                     // if(aadhar_obj.aadhar_attach)
                     // doc_present.push("aadhar_present")
                 }
-                else if($documents_store[i].doc_type == "pass_photo"){
-                    new_profile_name = $documents_store[i].file_name;
-                    new_profile_url = $documents_store[i].file_url;
+                else if($documents_store.documents[i].doc_type == "pass_photo"){
+                    new_profile_name = $documents_store.documents[i].file_name;
+                    new_profile_url = $documents_store.documents[i].file_url;
                     fac_photo_obj={
-                    profile_name : $documents_store[i].file_name,
-                    profile_url : $documents_store[i].file_url,
+                    profile_name : $documents_store.documents[i].file_name,
+                    profile_url : $documents_store.documents[i].file_url,
                    };
                     //  if(fac_photo_obj.profile_url)
                     // doc_present.push("profile_present")
                 }
-                else if($documents_store[i].doc_type == "addproof-photo"){
-                    new_address_name = $documents_store[i].file_name;
-                    new_address_url = $documents_store[i].file_url;
-                    addproof_obj = {address_name : $documents_store[i].file_name,   
-                    address_url : $documents_store[i].file_url,
+                else if($documents_store.documents[i].doc_type == "addproof-photo"){
+                    new_address_name = $documents_store.documents[i].file_name;
+                    new_address_url = $documents_store.documents[i].file_url;
+                    addproof_obj = {address_name : $documents_store.documents[i].file_name,   
+                    address_url : $documents_store.documents[i].file_url,
                     };
                     // if(addproof_obj.address_url)
                     // doc_present.push("address_present")
                 }
-                else if($documents_store[i].doc_type == "dl-photo"){
-                    new_dl_name = $documents_store[i].file_name;
-                    new_dl_url = $documents_store[i].file_url;
+                else if($documents_store.documents[i].doc_type == "dl-photo"){
+                    new_dl_name = $documents_store.documents[i].file_name;
+                    new_dl_url = $documents_store.documents[i].file_url;
 
-                    dl_photo_obj = {dl_lic_name : $documents_store[i].file_name,
-                    dl_lic_num : $documents_store[i].doc_number,
-                    dl_lic_url : $documents_store[i].file_url,
+                    dl_photo_obj = {dl_lic_name : $documents_store.documents[i].file_name,
+                    dl_lic_num : $documents_store.documents[i].doc_number,
+                    dl_lic_url : $documents_store.documents[i].file_url,
                     };
                     // if(dl_photo_obj.dl_lic_url)
                     // doc_present.push("dl_present")
                 }
-                else if($documents_store[i].doc_type == "police_info_supp_file"){
-                    new_pol_name = $documents_store[i].file_name;
-                    new_pol_url = $documents_store[i].file_url;
-                    pol_photo_obj = {pol_doc_name : $documents_store[i].file_name,
-                    pol_doc_num : $documents_store[i].doc_number,
-                    pol_doc_url : $documents_store[i].file_url,
+                else if($documents_store.documents[i].doc_type == "police_info_supp_file"){
+                    new_pol_name = $documents_store.documents[i].file_name;
+                    new_pol_url = $documents_store.documents[i].file_url;
+                    pol_photo_obj = {pol_doc_name : $documents_store.documents[i].file_name,
+                    pol_doc_num : $documents_store.documents[i].doc_number,
+                    pol_doc_url : $documents_store.documents[i].file_url,
                     };
                     // if(pol_photo_obj.pol_doc_url)
                     // doc_present.push("police_present")
@@ -996,7 +996,7 @@
                 show_spinner = false
                 return 
             }
-            else if(!$bgv_data_store.adhar_card_number.match(aadhar_card_pattern)){  
+            else if(!$bgv_data_store.adhar_card_number.toString().match(aadhar_card_pattern)){  
                 if(pancard_obj.pan_num == $bgv_data_store.adhar_card_number || 
                     dl_photo_obj.dl_lic_num == $bgv_data_store.adhar_card_number){
                     let check_doc_res =await check_doc_exist($bgv_data_store.adhar_card_number);  
