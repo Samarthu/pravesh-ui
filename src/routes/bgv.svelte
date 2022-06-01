@@ -116,6 +116,7 @@
     let new_dl_name = "";
     let new_pol_name = "";
     let new_address_name = "";
+    let doc_present = [];
 
     
 
@@ -336,13 +337,10 @@
                     };
                     
                 }
-                else{
-                    console.log("here Inside else")
-                }
-                
-               console.log("here at 517") 
+                // else{
+                // }
+              
             }
-            console.log("Here at 520")
             
         }
         // console.log("pancard_obj",pancard_obj,"aadhar_obj",aadhar_obj,"fac_photo_obj",fac_photo_obj,"addproof_obj",addproof_obj,"can_cheque_obj",can_cheque_obj,"dl_photo_obj",dl_photo_obj,"new_off_file_obj",new_off_file_obj);
@@ -413,7 +411,8 @@
                     pan_attach : $documents_store[i].file_url,
                     pan_name : $documents_store[i].file_name,
                     };
-                    
+                    // if(pancard_obj.pan_attach)
+                    // doc_present.push("pan_present")
                 }
                 
                 else if($documents_store[i].doc_type == "aadhar-id-proof"){
@@ -424,7 +423,8 @@
                     aadhar_attach : $documents_store[i].file_url,
                     aadhar_name : $documents_store[i].file_name,
                     };
-                    
+                    // if(aadhar_obj.aadhar_attach)
+                    // doc_present.push("aadhar_present")
                 }
                 else if($documents_store[i].doc_type == "pass_photo"){
                     new_profile_name = $documents_store[i].file_name;
@@ -433,6 +433,8 @@
                     profile_name : $documents_store[i].file_name,
                     profile_url : $documents_store[i].file_url,
                    };
+                    //  if(fac_photo_obj.profile_url)
+                    // doc_present.push("profile_present")
                 }
                 else if($documents_store[i].doc_type == "addproof-photo"){
                     new_address_name = $documents_store[i].file_name;
@@ -440,6 +442,8 @@
                     addproof_obj = {address_name : $documents_store[i].file_name,   
                     address_url : $documents_store[i].file_url,
                     };
+                    // if(addproof_obj.address_url)
+                    // doc_present.push("address_present")
                 }
                 else if($documents_store[i].doc_type == "dl-photo"){
                     new_dl_name = $documents_store[i].file_name;
@@ -449,6 +453,8 @@
                     dl_lic_num : $documents_store[i].doc_number,
                     dl_lic_url : $documents_store[i].file_url,
                     };
+                    // if(dl_photo_obj.dl_lic_url)
+                    // doc_present.push("dl_present")
                 }
                 else if($documents_store[i].doc_type == "police_info_supp_file"){
                     new_pol_name = $documents_store[i].file_name;
@@ -457,8 +463,14 @@
                     pol_doc_num : $documents_store[i].doc_number,
                     pol_doc_url : $documents_store[i].file_url,
                     };
+                    // if(pol_photo_obj.pol_doc_url)
+                    // doc_present.push("police_present")
                 }
-            }
+
+                
+            } 
+
+                // console.log("doc_present",doc_present)
 
 
             ///Document Data////////
@@ -715,69 +727,80 @@
         if(doctext == "photo_upload"){
             // if(!fac_photo_obj.profile_url){
                new_profile_url = reader.result;
+               doc_present.push("profile_present")
             // }
             // else{
             //     new_profile_url =fac_photo_obj.profile_url;
             // }
             // fac_photo_obj.profile_url = reader.result;
-            // console.log("photo_data",reader.result);
-            toast_text = "Photo Uploaded Successfully";
+            console.log("photo_data",new_profile_url);
+            toast_text = "Photo Added Successfully";
             toast_type = "success";
         }
         else if(doctext == "aadhar_upload"){
             // if(!fac_photo_obj.profile_url){
-               new_aadhar_url = reader.result;
+                new_aadhar_url = reader.result;
+                doc_present.push("aadhar_present")
+
             // }
             // else{
             //     new_aadhar_url =fac_photo_obj.profile_url;
             // }
             // aadhar_obj.aadhar_attach = reader.result;
-            // console.log("aadhar_data",reader.result);
-            toast_text = "Document Uploaded Successfully";
+            console.log("aadhar_data",reader.result);
+            toast_text = "Document Added Successfully";
             toast_type = "success";
         }
         else if(doctext == "address_upload"){
             // if(!fac_photo_obj.address_url){
                new_address_url = reader.result;
+                doc_present.push("address_present")
+
+
             // }
             // else{
             //     new_address_url =fac_photo_obj.address_url;
             // }
             // addproof_obj.address_url = reader.result;
-            // console.log("address_data",reader.result);
-            toast_text = "Address Document Uploaded Successfully";
+            console.log("address_data",reader.result);
+            toast_text = "Address Document Added Successfully";
             toast_type = "success";
         }
         else if(doctext == "pancard_upload"){
             // if(!fac_photo_obj.pan_attach){
                new_pan_url = reader.result;
+            doc_present.push("pan_present")
+
             // }
             // else{
             //     new_pan_url =fac_photo_obj.pan_attach;
             // }
             // pancard_obj.pan_attach= reader.result;
-            // console.log("pan_data",reader.result);
+            console.log("pan_data",reader.result);
             toast_text = "Pan Card Uploaded Successfully";
             toast_type = "success";
         }
         else if(doctext == "police_upload"){
             // if(!fac_photo_obj.pol_doc_url){
                new_pol_url = reader.result;
+               
+            doc_present.push("police_present")
             // }
             // pol_photo_obj.pol_doc_url = reader.result;
-            // console.log("police_data",reader.result);
+            console.log("police_data",reader.result);
             toast_text = "Document Uploaded Successfully";
             toast_type = "success";
         }
         else if(doctext == "license_upload"){
             // if(!fac_photo_obj.dl_lic_url){
                new_dl_url = reader.result;
+            doc_present.push("dl_present")
             // }
             // else{
             //     new_dl_url =fac_photo_obj.dl_lic_url;
             // }
             // dl_photo_obj.dl_lic_url = reader.result;
-            // console.log("dl_data",reader.result);
+            console.log("dl_data",reader.result);
             toast_text = "Licence Uploaded Successfully";
             toast_type = "success";
         }
@@ -801,33 +824,51 @@
         if(doctext == "photo_upload"){
             new_profile_name = null;
             new_profile_url = null;
-            profile_delete = true;
+            if(doc_present.includes("profile_present")){
+            doc_present.splice(doc_present.indexOf("profile_present"), 1);
+            console.log("delte ted file array",doc_present)
+            }
 
         }
         else if(doctext == "aadhar_upload"){
             new_aadhar_name = null;
             new_aadhar_url = null;
-            aadhar_delete = true;
+            if(doc_present.includes("aadhar_present")){
+                doc_present.splice(doc_present.indexOf("aadhar_present"), 1);
+            console.log("delte ted file array",doc_present)
+            }
         }
         else if(doctext == "address_upload"){
            new_address_name=null;
            new_address_url=null;
-            address_delete = true;
+           if(doc_present.includes("address_present")){
+                doc_present.splice(doc_present.indexOf("address_present"), 1);
+            console.log("delte ted file array",doc_present)
+           }
         }
         else if(doctext == "pancard_upload"){
             new_pan_name = null;
             new_pan_url=null;
-            pancard_delete = true;
+            if(doc_present.includes("pan_present")){
+                doc_present.splice(doc_present.indexOf("pan_present"), 1);
+            }
+            console.log("delte ted file array",doc_present)
         }
         else if(doctext == "license_upload"){
            new_dl_name=null;
            new_dl_url=null; 
-            dl_delete = true;
+           if(doc_present.includes("dl_present")){
+                doc_present.splice(doc_present.indexOf("dl_present"), 1);
+            console.log("delte ted file array",doc_present)
+           }
         }
         else if(doctext == "police_upload"){
             new_pol_name=null;
             new_pol_url=null;  
-            pol_delete = true;
+            if(doc_present.includes("police_present")){
+                doc_present.splice(doc_present.indexOf("police_present"), 1);
+            console.log("delte ted file array",doc_present)
+            }
         }
     }
 
@@ -838,7 +879,7 @@
         // if(fac_photo_obj.profile_name == "" && fac_photo_obj.profile_url == ""){
             console.log("ibnside submit not ")
         
-            if(!fac_photo_obj.profile_url && !fac_photo_obj.profile_name){
+            // if(!fac_photo_obj.profile_url && !fac_photo_obj.profile_name){
                 console.log("Photo not submitted")
             let photo_load = {
                 resource_id:$bgv_data_store.facility_id,
@@ -848,13 +889,13 @@
                 doc_type:"pass_photo"
                 }
                 return await uploadDocs(photo_load);
-            }
+            // }
             
             // }
         }
     async function submit_aadhar(){
         // if(!aadhar_obj.aadhar_name && !aadhar_obj.aadhar_attach){
-            if(!aadhar_obj.aadhar_name && !aadhar_obj.aadhar_attach){
+            // if(!aadhar_obj.aadhar_name && !aadhar_obj.aadhar_attach){
             let aadhar_load = {
             resource_id:$bgv_data_store.facility_id,
             file_name:new_aadhar_name,
@@ -863,7 +904,7 @@
             doc_type:"aadhar-id-proof"
             }
             return await uploadDocs(aadhar_load); 
-            }
+            // }
         }
     async function submit_address(){
         console.log("inside submit address")
@@ -1100,7 +1141,8 @@
   
     async function submitAddDets(){
         show_spinner = true
-        console.log("here in submitAddDets")
+        console.log("doc display",doc_present)
+        console.log("here in submitAddDets",addproof_obj.address_name,addproof_obj.address_url)
             if(!addproof_obj.address_name && !addproof_obj.address_url){
                 throwError("add_up_msg","Upload Address Document Photo")
                 show_spinner = false
@@ -1224,6 +1266,13 @@
                 show_spinner = false
             }
             console.log("new_selected_state",new_selected_state);
+            if($bgv_data_store.state){
+                new_selected_state = $bgv_data_store.state;
+            }
+            else{
+                new_selected_state = new_selected_state;
+            }
+
         let addr_data = {
         // address_type : curr_same,
         // area = 
@@ -1464,23 +1513,90 @@
     }
     
     async function next_clicked(new_type){
+        let photo_res,aadhar_res,address_res,pol_res,dl_res,pan_res;
         show_spinner = true;
         if(new_type == "basicInfo"){
-            
+            console.log("Decoding aadhar_obj.aadhar_attach",fac_photo_obj.profile_url,aadhar_obj.aadhar_attach)
             let sub_bas_res = await submitBasicDets();
             try{
                 if(sub_bas_res.body.status == "green"){
-                    // if(profile_delete == true && !fac_photo_obj.profile_url){
-                    //     let photo_res = await submit_photo();
-                    // }
-                    // else if(profile_delete == false){
-
-                    // }
-
-                    if(!fac_photo_obj.profile_url && profile_delete == true){let photo_res = await submit_photo();}
+                   console.log("doc_present",doc_present)
                     
-
-                    if(!aadhar_obj.aadhar_attach){let aadhar_res = await submit_aadhar();}
+                    if(!fac_photo_obj.profile_url){
+                        // if(doc_present.includes("profile_present")){
+                        photo_res = await submit_photo();
+                        
+                            try{
+                                if(photo_res.body.status == "green"){
+                                    photo_res = "green"
+                                }
+                                else{
+                                    toast_type = "error"
+                                    toast_msg = "Photo Upload Failed"
+                                }
+                            }
+                            catch(err){
+                                toast_type = "error"
+                                toast_msg = err;
+                            }
+                        // }
+                        
+                    }
+                    else if(doc_present.includes("profile_present")){
+                        photo_res = await submit_photo();
+                        
+                            try{
+                                if(photo_res.body.status == "green"){
+                                    photo_res = "green"
+                                }
+                                else{
+                                    toast_type = "error"
+                                    toast_msg = "Photo Upload Failed"
+                                }
+                            }
+                            catch(err){
+                                toast_type = "error"
+                                toast_msg = err;
+                            }
+                        }
+                    if(!aadhar_obj.aadhar_attach){
+                        // if(doc_present.includes("aadhar_present")){
+                        aadhar_res = await submit_aadhar();
+                            try{
+                                    if(aadhar_res.body.status == "green"){
+                                        aadhar_res = "green"
+                                    }
+                                    else{
+                                        toast_type = "error"
+                                        toast_msg = "Photo Upload Failed"
+                                    }
+                            }
+                            catch(err){
+                                toast_type = "error"
+                                toast_msg = err;
+                            }
+                        // }
+                        
+                    }
+                    else if(doc_present.includes("aadhar_present")){
+                        aadhar_res = await submit_aadhar();
+                            try{
+                                    if(aadhar_res.body.status == "green"){
+                                        aadhar_res = "green"
+                                    }
+                                    else{
+                                        toast_type = "error"
+                                        toast_msg = "Photo Upload Failed"
+                                    }
+                            }
+                            catch(err){
+                                toast_type = "error"
+                                toast_msg = err;
+                            } 
+                    }
+                    
+                    if(doc_present.length == "0" || (aadhar_res =="green" && photo_res == "green") || aadhar_res == "green" || photo_res == "green"){
+                    console.log("Inside Successs")
                     show_spinner = false;
                     toast_text = "Basic Details Submitted Successfully";
                     toast_type = "success";
@@ -1512,6 +1628,12 @@
                     } 
                 }
                 show_spinner = false
+                }
+                else{
+                    show_spinner = false
+                    toast_text = "Document submission failed";
+                    toast_type = "error";
+                }
             }
             catch(err){
                 show_spinner = false
@@ -1526,9 +1648,44 @@
             let sub_add_res = await submitAddDets();
             try{
                 if(sub_add_res.body.status == "green"){
-                    if(!addproof_obj.address_url){
-                    let address = await submit_address();
-                }
+                    if(!fac_photo_obj.profile_url){
+                        // if(doc_present.includes("profile_present")){
+                            address_res = await submit_address();
+                        
+                            try{
+                                if(address_res.body.status == "green"){
+                                    address_res = "green"
+                                }
+                                else{
+                                    toast_type = "error"
+                                    toast_msg = "Photo Upload Failed"
+                                }
+                            }
+                            catch(err){
+                                toast_type = "error"
+                                toast_msg = err;
+                            }
+                        // }
+                        
+                    }
+                    else if(doc_present.includes("address_present")){
+                        address_res = await submit_aadhar();
+                            try{
+                                    if(address_res.body.status == "green"){
+                                        address_res = "green"
+                                    }
+                                    else{
+                                        toast_type = "error"
+                                        toast_msg = "Photo Upload Failed"
+                                    }
+                            }
+                            catch(err){
+                                toast_type = "error"
+                                toast_msg = err;
+                            } 
+                    }
+                    
+                    if(doc_present.length == "0" || address_res =="green"){
                     show_spinner = false;
                     toast_text = "Address Details Submitted Successfully";
                     toast_type = "success";
@@ -1554,6 +1711,7 @@
                     is_dl_active="";
                     }
                 }
+            }
                 show_spinner = false
             }
             catch(err){
@@ -1569,9 +1727,44 @@
             try{
                 if(sub_pan_res.body.status =="green"){
                     if(!pancard_obj.pan_attach){
-                        let pancard = await submit_pancard();
-                    }
-                    show_spinner = false;
+                    pan_res = await submit_pancard();
+                        
+                            try{
+                                if(pan_res.body.status == "green"){
+                                    pan_res = "green"
+                                }
+                                else{
+                                    toast_type = "error"
+                                    toast_msg = "Photo Upload Failed"
+                                }
+                            }
+                            catch(err){
+                                toast_type = "error"
+                                toast_msg = err;
+                            }
+                }
+                else if(doc_present.includes("pan_present")){
+                    pan_res = await submit_aadhar();
+                            try{
+                                    if(pan_res.body.status == "green"){
+                                        pan_res = "green"
+                                    }
+                                    else{
+                                        toast_type = "error"
+                                        toast_msg = "Photo Upload Failed"
+                                    }
+                            }
+                            catch(err){
+                                toast_type = "error"
+                                toast_msg = err;
+                            } 
+                }
+
+                    
+                }
+                if(doc_present.length == "0" || pan_res =="green"){
+                
+                show_spinner = false;
                 toast_text = "Pan Card Details Submitted Successfully";
                 toast_type = "success";
                 if($bgv_config_store.is_driving_license_mandatory =="1"){
@@ -1590,6 +1783,7 @@
                 is_dl_active="";
                 }
                 }
+                
                 show_spinner = false
             }
             catch(err){
@@ -1604,8 +1798,42 @@
             try{  
                 if(sub_dl_res.body.status =="green"){
                     if(!dl_photo_obj.dl_lic_url){
-                        let licence = await submit_licence();
+                    dl_res = await submit_licence();
+                        
+                            try{
+                                if(dl_res.body.status == "green"){
+                                    dl_res = "green"
+                                }
+                                else{
+                                    toast_type = "error"
+                                    toast_msg = "Photo Upload Failed"
+                                }
+                            }
+                            catch(err){
+                                toast_type = "error"
+                                toast_msg = err;
+                            }
+                        }
+                    else if(doc_present.includes("dl_present")){
+                        dl_res = await submit_aadhar();
+                        try{
+                                if(dl_res.body.status == "green"){
+                                    dl_res = "green"
+                                }
+                                else{
+                                    toast_type = "error"
+                                    toast_msg = "Photo Upload Failed"
+                                }
+                        }
+                        catch(err){
+                            toast_type = "error"
+                            toast_msg = err;
+                        } 
                     }
+                        
+                    }
+                if(doc_present.length == "0" || dl_res =="green"){
+
                     show_spinner = false;
                 toast_text = "Licence Details Submitted Successfully";
                 toast_type = "success";
@@ -1631,8 +1859,43 @@
             let sub_pol_res = await submitPolDets();
             try{    
                 if(sub_pol_res.body.status =="green"){
-                if(!pol_photo_obj.pol_doc_url){
-                    let police = await submit_police();}
+                    if(!pol_photo_obj.pol_doc_url){
+                
+                    pol_res = await submit_police();
+                        
+                        try{
+                            if(pol_res.body.status == "green"){
+                                pol_res = "green"
+                            }
+                            else{
+                                toast_type = "error"
+                                toast_msg = "Photo Upload Failed"
+                            }
+                        }
+                        catch(err){
+                            toast_type = "error"
+                            toast_msg = err;
+                        }
+                    }
+                    else if(doc_present.includes("pol_present")){
+                        pol_res = await submit_aadhar();
+                        try{
+                                if(pol_res.body.status == "green"){
+                                    pol_res = "green"
+                                }
+                                else{
+                                    toast_type = "error"
+                                    toast_msg = "Photo Upload Failed"
+                                }
+                        }
+                        catch(err){
+                            toast_type = "error"
+                            toast_msg = err;
+                        } 
+                    }
+                    
+                }
+            if(doc_present.length == "0" || pol_res =="green"){
                 show_spinner = false;
                 toast_text = "Police Verification Details Submitted Successfully";
                 toast_type = "success";
