@@ -118,9 +118,6 @@
     let new_address_name = "";
     let doc_present = [];
 
-    
-
-
 
 
     let pancard_obj = {
@@ -331,12 +328,12 @@
                     dl_verified : facility_document_data[i].verified,
                     dl_rejected : facility_document_data[i].rejected};
                 }
-                else if(facility_document_data[i].doc_type == "voter-id-proof"){
-                    console.log("Inside voter id proof")
-                    voter_id_object = {voter_id_number : facility_document_data[i].doc_number,
-                    };
+                // else if(facility_document_data[i].doc_type == "voter-id-proof"){
+                //     console.log("Inside voter id proof")
+                //     voter_id_object = {voter_id_number : facility_document_data[i].doc_number,
+                //     };
                     
-                }
+                // }
                 // else{
                 // }
               
@@ -370,15 +367,11 @@
         // }
     // console.log("$facility_data_store.first_name",$facility_data_store);    
         
-        let bgv_pass_data=[
-        // $facility_data_store.org_id,
-        // $facility_data_store.station_code,
-        // $facility_data_store.facility_type, /////All these are commented bcoz they only show values when traversed
-        //  through button click and not on page reload.uncomment when code on this page is fully done
-        "ER",
-        "CRUN",
-        "Reseller"
-    ]
+    let bgv_pass_data=[
+            $facility_data_store.org_id,
+            $facility_data_store.station_code,
+            $facility_data_store.facility_type,
+        ]  
     if($facility_data_store.org_id =="FT"){
         let casper_id_res = await get_casper_id();
         try{
