@@ -441,7 +441,7 @@
                 if(facility_document_res != "null"){
                     
                 
-                $documents_store = facility_document_res.body.data
+                $documents_store.documents = facility_document_res.body.data
                 $duplicate_documents_store.documents = facility_document_res.body.data;
                 // console.log("duplicate document store",$duplicate_documents_store)
     

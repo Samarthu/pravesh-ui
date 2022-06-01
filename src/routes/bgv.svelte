@@ -1053,12 +1053,13 @@
                 throwError("email_msg","")
                 show_spinner = false
             }
+            console.log("$bgv_data_store phone",$bgv_data_store.phone_number.toString())
             if(!$bgv_data_store.phone_number){
                 throwError("phone_msg","Invalid Phone Number")
                 show_spinner = false
                 return
             }
-            else if(!$bgv_data_store.phone_number.match(phone_num_pattern)){
+            else if(!$bgv_data_store.phone_number.toString().match(phone_num_pattern)){
                 throwError("phone_msg","Invalid Phone Number")
                 return
             }
@@ -1143,7 +1144,7 @@
         show_spinner = true
         console.log("doc display",doc_present)
         console.log("here in submitAddDets",addproof_obj.address_name,addproof_obj.address_url)
-            if(!addproof_obj.address_name && !addproof_obj.address_url){
+            if(!new_address_name && !new_address_url){
                 throwError("add_up_msg","Upload Address Document Photo")
                 show_spinner = false
                 return
@@ -1257,7 +1258,7 @@
                 show_spinner = false
                 return    
             }
-            else if(!$bgv_data_store.contact_number.match(phone_num_pattern)){
+            else if(!$bgv_data_store.contact_number.toString().match(phone_num_pattern)){
                 throwError("contact_msg","Invalid Family Contact Number")
                 return
             }
@@ -1297,7 +1298,7 @@
     }
     async function submitPanDets(){
         show_spinner = true
-            if(!pancard_obj.pan_name && !pancard_obj.pan_url){
+            if(!new_pan_url && !new_pan_name){
                 throwError("pan_up_msg","Upload Pancard Photo")
                 show_spinner = false
             }
@@ -1362,7 +1363,7 @@
 
     async function submitDlDets(){
         show_spinner = true
-        if(!dl_photo_obj.dl_lic_name && !dl_photo_obj.dl_lic_url){
+        if(!new_dl_name && !new_dl_url){
             throwError("dl_up_msg","Upload Driving Licence Photo")
             show_spinner = false
         }
@@ -1452,7 +1453,7 @@
     async function submitPolDets(){
         show_spinner = true
         console.log("Inside submitPolDets",$bgv_data_store.police_address_type,"pol_add_per",police_add_per)
-        if(!pol_photo_obj.pol_doc_name && !pol_photo_obj.pol_doc_url){
+        if(!new_pol_name && !new_pol_url){
             throwError("pol_up_msg","Upload Police Document Photo")
             show_spinner = false
         }
@@ -2590,13 +2591,11 @@
                                         {:else}<p></p>
                                     {/if}
                                 </div>
-                                
-                                <div class="ml-2">
-                                   
-                                        <div class="ErBlueButton w-auto mt-3 cursor-pointer" on:click={verify_new_otp}>Verify</div>
-                                    
+                                {#if $bgv_config_store.is_email_verification_mandatory =="1"}
+                                <div class="ml-2">   
+                                    <div class="ErBlueButton w-auto mt-3 cursor-pointer" on:click={verify_new_otp}>Verify</div>
                                 </div>
-                                
+                                {/if}
 
                             </div>
                             
@@ -3246,7 +3245,7 @@
                                 <div class="xs:w-full sm:w-full">
                                     <div class="flex  items-center">
                                         <div class="formInnerGroup ">
-                                            <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.pan_dob}">
+                                            <input type="date" class="inputboxbgv" bind:value="{$bgv_data_store.pan_dob}">
                                             <div class="text-red-500" id="pan_dob_msg"></div>
                                         </div>
                                         <div>
