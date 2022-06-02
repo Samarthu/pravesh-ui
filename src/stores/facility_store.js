@@ -2,7 +2,8 @@ import { writable, derived } from 'svelte/store';
 import {category_store_name} from './category_store';
 
 export var facility_data_store = writable({
-        address:"",
+        address:"-",
+        addresess:"-",
         user_type: "FieldAuditor",
         dob:null,
         station_code:null,
