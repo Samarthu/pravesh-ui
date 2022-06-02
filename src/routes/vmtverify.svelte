@@ -3,7 +3,7 @@
     import {facility_data_store} from "../stores/facility_store";
     import { bank_details } from "../stores/bank_details_store";
     import {get_facility_details,facility_bgv_check,get_bank_facility_details,facility_document,
-         approve_reject_status,bank_approve_reject,bgv_approve_rej,final_id_ver_rej,final_bgv_app_rej,get_client_details,get_client_org_mapping,get_specific_name,save_mapping,get_change_associte,get_assoc_types,send_associate_req,get_cas_user} from "../services/vmt_verify_services";
+         approve_reject_status,bank_approve_reject,bgv_approve_rej,final_id_ver_rej,final_bgv_app_rej,get_client_details,get_client_org_mapping,get_specific_name,save_mapping,get_change_associte,get_assoc_types,send_associate_req,get_cas_user, activate_cas_user , create_cas_user} from "../services/vmt_verify_services";
     import {facility_bgv_init} from "../services/onboardsummary_services";
     import {bgv_config_store} from '../stores/bgv_config_store';
     import { goto } from "$app/navigation";
@@ -81,13 +81,14 @@
     let final_id_ver_btn = 1;
     let final_bank_ver_btn = 0;
     let final_bgv_ver_btn = 0;
-    let pan_bg_white = "";
+    // let pan_bg_white = "";
+    let pan_bg_white="bg-white";
     let voter_bg_white="";
     let aadhar_bg_white="";
     let dl_bg_white="";
     let offer_bg_white="";
     let address_bg_white="";
-    let basic_bg_white="";
+    let basic_bg_white="bg-white";
     let police_bg_white="";
     let final_approve_data_arr=[];
     let final_reject_data_arr=[];
@@ -207,6 +208,7 @@
     let fromDate;
     let profile_url = "";
     let cas_flag = 0;
+    let window;
     $:if(stat_select != null){
         console.log("station_select",stat_select)
         station_code_select(stat_select);
@@ -220,6 +222,9 @@
     $:{
         attendenceType = newType;
     }
+
+    $:pan_reject_flag
+    $:pan_success_flag
     
 
     let minDate = new Date(); 
@@ -227,27 +232,6 @@
         console.log("minDate", minDate)
         minDate =  get_date_format(minDate,"dd-mm-yyyy")
         console.log("mindate", minDate)
-    // $:if(newType != null){
-    //     newType = attendenceType;
-    // }
-   
-    // $:if(station_id != null){
-    //     station_id_select(station_id)
-    // }
-    // async function get_resourceid(){
-    //     let response = await station_code_select(stat_select);
-    //     console.log("response station code select",response);
-
-    // }
-    // $:{
-    //     let dummy = stat_select;
-    // // //     // get_resourceid();
-
-    //     console.log("state select",stat_select);
-    //     get_resourceid();
-
-    // }
-
 
     function zoomin() {
         var myImg = document.getElementById("map");
@@ -269,7 +253,12 @@
 
     onMount(async () => {
         console.log("$facility_id.facility_id_number",$facility_id.facility_id_number)
-
+        if(!$facility_id.facility_id_number){
+            toast_text = "facility not selected";
+            toast_type = "error";
+            // goto("onboardsummary")
+            setTimeout(goto("onboardsummary?unFacID="+$facility_id.facility_id_number, { replaceState:true }), 5000);
+        }
         // let bgv_pass_data=[
         // // $facility_data_store.org_id,
         // // $facility_data_store.station_code,
@@ -515,6 +504,9 @@
                 var eighteenYearsAgo =  new Date();
                 eighteenYearsAgo.setFullYear( eighteenYearsAgo.getFullYear() - 18);
                 $bgv_data_store.basic_info_dob = eighteenYearsAgo;
+                // $bgv_data_store.basic_info_updated_on = $bgv_data_store.basic_info_updated_on.get_date_format(bgv_date_format,"dd-mm-yyyy-hh-mm");
+                let bgv_date_format = new Date($bgv_data_store.basic_info_updated_on);
+                $bgv_data_store.basic_info_updated_on =get_date_format(bgv_date_format,"dd-mm-yyyy-hh-mm");
         }
         else{
             $bgv_data_store = facility_bgv_check_res.body.data[0];
@@ -526,6 +518,9 @@
                 var eighteenYearsAgo =  new Date();
                 $bgv_data_store.basic_info_dob = eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear()-18);
             }
+                // $bgv_data_store.basic_info_updated_on = $bgv_data_store.basic_info_updated_on.get_date_format(bgv_date_format,"dd-mm-yyyy-hh-mm");
+                let bgv_date_format = new Date($bgv_data_store.basic_info_updated_on);
+                $bgv_data_store.basic_info_updated_on =get_date_format(bgv_date_format,"dd-mm-yyyy-hh-mm");
             
         }
     }
@@ -617,9 +612,12 @@
                 let pan_sub_res = await approve_reject_status(document_load)
                 show_spinner = false;
                 try{
+                    console.log("inside pan_sub_res.body.status",pan_sub_res.body.status)
+                    console.log(" inside condition ", pan_verified=="1")
                     if(pan_sub_res.body.status == "green"){
-                        pan_success_flag = 1
-                        console.log("pan_success_flag",pan_success_flag)
+                        pan_success_flag = "1";
+                        pan_verified="1"
+                        console.log("pan_success_flag",pan_success_flag)    
                     }
                 }
                 catch(err){
@@ -632,37 +630,37 @@
             }
             
         }
-        if (doc_cat == "voter"){
-        
-        console.log("payload", $facility_data_store)
-        if(vmt_voter!=0){
-            show_spinner = true;
-            let document_load = {
-            "resource_id":$facility_id.facility_id_number,
-            "doc_number":vmt_voter,
-            "status_type":"DV",
-            "status":"true",
-            "doc_type":"voter-id-proof"
-        }
-        let voter_sub_res =await approve_reject_status(document_load)
-        show_spinner = false;
-        try{
-            console.log("voter_sub_res",voter_sub_res.body.status)
-                if(voter_sub_res.body.status == "green"){
-                    voter_success_flag = 1
+
+        if (doc_cat == "voter"){   
+            console.log("payload", $facility_data_store)
+            if(vmt_voter!=0){
+                show_spinner = true;
+                let document_load = {
+                "resource_id":$facility_id.facility_id_number,
+                "doc_number":vmt_voter,
+                "status_type":"DV",
+                "status":"true",
+                "doc_type":"voter-id-proof"
+            }
+            let voter_sub_res =await approve_reject_status(document_load)
+            show_spinner = false;
+            try{
+                console.log("voter_sub_res",voter_sub_res.body.status)
+                    if(voter_sub_res.body.status == "green"){
+                        voter_success_flag = 1;
+                        voter_verified="1"
+                    }
+            }
+                catch(err){
+                    console.log("Error in pan_sub_res",err)
+                }
+            }
+            else{
+                    toast_text = "Please enter the Voter Number";
+                    toast_type = "error";
                 }
         }
-            catch(err){
-                console.log("Error in pan_sub_res",err)
-            }
-        }
-        else{
-                toast_text = "Please enter the Voter Number";
-                toast_type = "error";
-            }
-        
-        
-    }
+
         if (doc_cat == "aadhar"){
             if (vmt_aadhar != 0){
                 show_spinner = true;
@@ -677,7 +675,8 @@
             show_spinner = false;
             try{
                 if(aadhar_sub_res.body.status == "green"){
-                    aadhar_success_flag = 1
+                    aadhar_success_flag = 1;
+                    aadhar_verified="1"
                 }
             }
             catch(err){
@@ -690,33 +689,36 @@
             }
             
         }
+        
         if (doc_cat == "dl"){
-        if (vmt_dl != 0){
-            show_spinner = true;
-            let document_load = {
-            "resource_id":$facility_id.facility_id_number,
-            "doc_number":vmt_dl,
-            "status_type":"DV",
-            "status":"true",
-            "doc_type":"dl-photo"
-        }
-        let dl_sub_res =await approve_reject_status(document_load)
-        show_spinner = false;
-        try{
-                if(dl_sub_res.body.status == "green"){
-                    dl_success_flag = 1
+            if (vmt_dl != 0){
+                show_spinner = true;
+                let document_load = {
+                "resource_id":$facility_id.facility_id_number,
+                "doc_number":vmt_dl,
+                "status_type":"DV",
+                "status":"true",
+                "doc_type":"dl-photo"
+            }
+            let dl_sub_res =await approve_reject_status(document_load)
+            show_spinner = false;
+            try{
+                    if(dl_sub_res.body.status == "green"){
+                        dl_success_flag = 1;
+                        dl_verified="1"
+                    }
+                }
+                catch(err){
+                    console.log("Error in pan_sub_res",err)
                 }
             }
-            catch(err){
-                console.log("Error in pan_sub_res",err)
-            }
-        }
-        else{
-                toast_text = "Please enter the dl Number";
-                toast_type = "error";
-            }
+            else{
+                    toast_text = "Please enter the dl Number";
+                    toast_type = "error";
+                }
         
         }
+        
         if (doc_cat == "address"){
             show_spinner = true;
                 let document_load = {
@@ -731,6 +733,7 @@
             try{
                 if(address_sub_res.body.status == "green"){
                     address_success_flag = 1
+                    address_verified="1"
                 }
             }
             catch(err){
@@ -738,35 +741,36 @@
             } 
         }
         
-    if (doc_cat == "offer"){
-        if(off_Name != 0 && off_assoc_type != 0 && off_vend_name != 0){
-            // && vmt_offer != 0
-            show_spinner = true;
-            let document_load = {
-                "resource_id":$facility_id.facility_id_number,
-                "facility_name":off_Name,
-                "facility_type":off_assoc_type,
-                "vendor_name":off_vend_name,
-                "doc_number":vmt_offer,
-                "status_type":"DV",
-                "status":"true",
-                "doc_type":"newOffFile"
-            }
-            let offer_sub_res =await approve_reject_status(document_load)
-            show_spinner = false;
-            try{
-                if(offer_sub_res.body.status == "green"){
-                    offer_success_flag = 1
+        if (doc_cat == "offer"){
+            if(off_Name != 0 && off_assoc_type != 0 && off_vend_name != 0){
+                // && vmt_offer != 0
+                show_spinner = true;
+                let document_load = {
+                    "resource_id":$facility_id.facility_id_number,
+                    "facility_name":off_Name,
+                    "facility_type":off_assoc_type,
+                    "vendor_name":off_vend_name,
+                    "doc_number":vmt_offer,
+                    "status_type":"DV",
+                    "status":"true",
+                    "doc_type":"newOffFile"
+                }
+                let offer_sub_res =await approve_reject_status(document_load)
+                show_spinner = false;
+                try{
+                    if(offer_sub_res.body.status == "green"){
+                        offer_success_flag = 1;
+                        offer_verified="1"
+                    }
+                }
+                catch(err){
+                    console.log("Error in pan_sub_res",err)
                 }
             }
-            catch(err){
-                console.log("Error in pan_sub_res",err)
-            }
-        }
-        else{
-                toast_text = "Please enter all the fields";
-                toast_type = "error";
-            }
+            else{
+                    toast_text = "Please enter all the fields";
+                    toast_type = "error";
+                }
         }
             
 
@@ -843,10 +847,7 @@
         // else{
         //     console.log("Toast here that all the documents need to be verified and approved")
         // }
-    // // if(
-    // // aadhar_success_flag == 1){
-    // //     is_verify_hidden = "";
-    // // }
+
 
     }
 
@@ -866,7 +867,9 @@
             show_spinner = false;
             try{
                 if(pan_sub_res.body.status == "green"){
-                    pan_reject_flag = 1
+                    pan_reject_flag = 1;
+                    pan_rejected == "1"
+
                 }
             }
             catch(err){
@@ -874,29 +877,31 @@
             }
             
         }
+
         if (doc_cat == "voter"){
-        
-        console.log("payload", $facility_data_store)
-        show_spinner = true;
-        let document_load = {
-            "resource_id":$facility_id.facility_id_number,
-            "doc_number":vmt_voter,
-            "status_type":"RJ",
-            "status":"true",
-            "doc_type":"voter-id-proof"
-        }
-        let voter_sub_res =await approve_reject_status(document_load)
-        show_spinner = false;
-        try{
-            console.log("voter_sub_res",voter_sub_res.body.status)
-                if(voter_sub_res.body.status == "green"){
-                    voter_reject_flag = 1
+            console.log("payload", $facility_data_store)
+            show_spinner = true;
+            let document_load = {
+                "resource_id":$facility_id.facility_id_number,
+                "doc_number":vmt_voter,
+                "status_type":"RJ",
+                "status":"true",
+                "doc_type":"voter-id-proof"
+            }
+            let voter_sub_res =await approve_reject_status(document_load)
+            show_spinner = false;
+            try{
+                console.log("voter_sub_res",voter_sub_res.body.status)
+                    if(voter_sub_res.body.status == "green"){
+                        voter_reject_flag = 1;
+                        voter_rejected == "1"
+                    }
+            }
+                catch(err){
+                    console.log("Error in pan_sub_res",err)
                 }
         }
-            catch(err){
-                console.log("Error in pan_sub_res",err)
-            }
-    }
+
         if (doc_cat == "aadhar"){
             show_spinner = true;
             let document_load = {
@@ -910,34 +915,39 @@
             show_spinner = false;
             try{
                 if(aadhar_sub_res.body.status == "green"){
-                    aadhar_reject_flag = 1
+                    aadhar_reject_flag = 1;
+                    aadhar_rejected == "1"
                 }
             }
             catch(err){
                 console.log("Error in pan_sub_res",err)
             }
         }
+        
         if (doc_cat == "dl"){
             show_spinner = true;
-        let document_load = {
-            "resource_id":$facility_id.facility_id_number,
-            "doc_number":vmt_dl,
-            "status_type":"RJ",
-            "status":"true",
-            "doc_type":"dl-photo"
-        }
-        let dl_sub_res =await approve_reject_status(document_load)
-        show_spinner = false;
-        try{
-                if(dl_sub_res.body.status == "green"){
-                    dl_reject_flag = 1
+            let document_load = {
+                "resource_id":$facility_id.facility_id_number,
+                "doc_number":vmt_dl,
+                "status_type":"RJ",
+                "status":"true",
+                "doc_type":"dl-photo"
+            }
+            let dl_sub_res =await approve_reject_status(document_load)
+            show_spinner = false;
+            try{
+                    if(dl_sub_res.body.status == "green"){
+                        dl_reject_flag = 1;
+                        dl_rejected == "1"
+                    }
                 }
-            }
-            catch(err){
-                console.log("Error in pan_sub_res",err)
-            }
+                catch(err){
+                    console.log("Error in pan_sub_res",err)
+                }
         }
+        
         if (doc_cat == "address"){
+            console.log("inside address")
             show_spinner = true;
             let document_load = {
                 "resource_id":$facility_id.facility_id_number,
@@ -950,7 +960,8 @@
             show_spinner = false;
             try{
                 if(address_sub_res.body.status == "green"){
-                    address_reject_flag = 1
+                    address_reject_flag = 1;
+                    address_rejected == "1"
                 }
             }
             catch(err){
@@ -958,26 +969,27 @@
             } 
         }
         
-    if (doc_cat == "offer"){
-        show_spinner = true;
-            let document_load = {
-                "resource_id":$facility_id.facility_id_number,
-                "doc_number":vmt_offer,
-                "status_type":"RJ",
-                "status":"true",
-                "doc_type":"newOffFile",
-                "address":"address"
-            }
-            let offer_sub_res =await approve_reject_status(document_load)
-            show_spinner = false;
-            try{
-                if(offer_sub_res.body.status == "green"){
-                    offer_reject_flag = 1
+        if (doc_cat == "offer"){
+            show_spinner = true;
+                let document_load = {
+                    "resource_id":$facility_id.facility_id_number,
+                    "doc_number":vmt_offer,
+                    "status_type":"RJ",
+                    "status":"true",
+                    "doc_type":"newOffFile",
+                    "address":"address"
                 }
-            }
-            catch(err){
-                console.log("Error in pan_sub_res",err)
-            }
+                let offer_sub_res =await approve_reject_status(document_load)
+                show_spinner = false;
+                try{
+                    if(offer_sub_res.body.status == "green"){
+                        offer_reject_flag = 1;
+                        offer_rejected == "1"
+                    }
+                }
+                catch(err){
+                    console.log("Error in pan_sub_res",err)
+                }
         }
 
         if(contains_pan == 0){   
@@ -1041,6 +1053,139 @@
             }
             console.log("FLAGS",final_pan_approve,final_voter_approve,final_aadhar_approve,final_address_approve,final_dl_approve,final_offer_approve,final_approve)
             console.log("FLAGS",final_pan_reject,final_voter_reject,final_aadhar_reject,final_address_reject,final_dl_reject,final_offer_reject,final_reject)
+
+
+            let facility_doc_data_res = await facility_document()
+            try{
+                if (facility_doc_data_res != "null" ){
+                    facility_document_data = facility_doc_data_res.body.data;
+                    
+                    for (var i = 0; i < facility_document_data.length; i++){
+
+                            facility_docs_arr[i] = facility_document_data[i].doc_type;
+                            
+                            if(facility_docs_arr.includes("pan-photo")){
+                                // console.log("pan___",facility_document_data[i].file_url)
+                                pan_url = $page.url.origin+facility_document_data[i].file_url;
+                                pan_verified = facility_document_data[i].verified;
+                                pan_rejected = facility_document_data[i].rejected;
+                                // console.log("successfully fetched Pan")
+                                contains_pan = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "pan-photo")
+                                //     temp_switchto = "pan_tab";
+                                // }
+
+                            }
+                            
+                            if(facility_docs_arr.includes("voter-id-proof")){
+                                // console.log("address___",facility_document_data[i].file_url)
+                                voter_url = $page.url.origin+facility_document_data[i].file_url;
+                                voter_verified = facility_document_data[i].verified;
+                                voter_rejected = facility_document_data[i].rejected;
+                                contains_voter = 1;
+                                // console.log("successfully fetched Offer letter")
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "voter-id-proof")
+                                //     temp_switchto = "voter_tab";
+                                // } 
+                            }
+                            if(facility_docs_arr.includes("aadhar-id-proof")){
+                                // console.log("aadhar___",facility_document_data[i].file_url)
+                                aadhar_url = $page.url.origin+facility_document_data[i].file_url;
+                                aadhar_verified = facility_document_data[i].verified;
+                                aadhar_rejected = facility_document_data[i].rejected;
+                                contains_aadhar = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "aadhar-id-proof")
+                                //     temp_switchto = "aadhar_tab";
+                                // } 
+                                // console.log("successfully fetched aadhar")
+                            }
+                            if(facility_docs_arr.includes("addproof-photo")){
+                                // console.log("address___",facility_document_data[i].file_url)
+                                address_url = $page.url.origin+facility_document_data[i].file_url;
+                                address_verified = facility_document_data[i].verified;
+                                address_rejected = facility_document_data[i].rejected;
+                                contains_address = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "addproof-photo")
+                                //     temp_switchto = "address_tab";
+                                // } 
+                                // console.log("successfully fetched addressproof")
+                            }
+                            if(facility_docs_arr.includes("newOffFile")){
+                                // console.log("address___",facility_document_data[i].file_url)
+                                offer_url = $page.url.origin+facility_document_data[i].file_url;
+                                offer_verified = facility_document_data[i].verified;
+                                offer_rejected = facility_document_data[i].rejected;
+                                contains_offer = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "newOffFile")
+                                //     temp_switchto = "offerletter_tab";
+                                // } 
+                                
+                                // console.log("successfully fetched Offer letter")
+                            }
+                            if(facility_docs_arr.includes("dl-photo")){
+                                // console.log("address___",facility_document_data[i].file_url)
+                                dl_url = $page.url.origin+facility_document_data[i].file_url;
+                                dl_verified = facility_document_data[i].verified;
+                                dl_rejected = facility_document_data[i].rejected;
+                                contains_dl = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "dl-photo")
+                                //     temp_switchto = "DL_tab";
+                                // } 
+                                // console.log("successfully fetched Offer letter")
+                            }
+                            if(facility_docs_arr.includes("pass_photo")){
+                                // console.log("aadhar___",facility_document_data[i].file_url)
+                                pass_photo_url = $page.url.origin+facility_document_data[i].file_url;
+                                pass_photo_verified = facility_document_data[i].verified;
+                                pass_photo_rejected = facility_document_data[i].rejected;
+                                // contains_pass_photo = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "aadhar-id-proof")
+                                //     temp_switchto = "aadhar_tab";
+                                // } 
+                                // console.log("successfully fetched aadhar")
+                            }
+                            if(facility_docs_arr.includes("police_info_supp_file")){
+                                // console.log("address___",facility_document_data[i].file_url)
+                                police_url = $page.url.origin+facility_document_data[i].file_url;
+                                police_verified = facility_document_data[i].verified;
+                                police_rejected = facility_document_data[i].rejected;
+                                // contains_police = 1;
+                                // for (var i = 0; i < doctype_array.length; i++){
+                                //     if(doctype_array[i] == "addproof-photo")
+                                //     temp_switchto = "address_tab";
+                                // } 
+                                // console.log("successfully fetched addressproof")
+                            }
+                            if(facility_docs_arr.includes("can-cheque")){
+                                can_cheque_url = $page.url.origin+facility_document_data[i].file_url;
+                                
+                            }
+                            if(facility_docs_arr.includes("blcheque")){
+                                blk_cheque_url = $page.url.origin+facility_document_data[i].file_url;
+                            }
+                            if(facility_docs_arr.includes("passbook")){
+                                passbook_url = $page.url.origin+facility_document_data[i].file_url;
+                            }
+                            if(facility_docs_arr.includes("acc-stat")){
+                                acc_stmt_url = $page.url.origin+facility_document_data[i].file_url;
+                                
+                            }
+                            
+                            
+                        } 
+                        
+                        }
+                    }
+            catch (err){
+                console.log("error in finding Pan image",err)
+            }
 
     }
 
@@ -1122,7 +1267,7 @@
 
 
 
-                            let facility_doc_data_res = await facility_document()
+            let facility_doc_data_res = await facility_document()
             try{
                 if (facility_doc_data_res != "null" ){
                     facility_document_data = facility_doc_data_res.body.data;
@@ -1259,11 +1404,14 @@
                         console.log("Error in pan_sub_res",err)
                     }
             }
-        }
-        async function final_id_reject(){
+    }
+    
+    
+    async function final_id_reject(){
             if(final_reject == "1"){
                 show_spinner = true;
-                console.log("final_rejected successful");
+                console.log("final_rejected successful")
+                console.log("inside pan_reject_flag",pan_reject_flag)
                 for(let i=0;i<facility_document_data.length;i++){
                     if(pan_reject_flag == "1" && facility_document_data[i].doc_type == "pan-photo"){
                         final_reject_data_arr.push({"name":facility_document_data[i].name,"resource_id":$facility_id.facility_id_number,"verified":0,"rejected":1,"remarks":"TEsting","result":"false"})
@@ -1331,17 +1479,8 @@
             }
 
 
-
-
-
-
-
-
-
-
-
-
-                            let facility_doc_data_res = await facility_document()
+            
+            let facility_doc_data_res = await facility_document()
             try{
                 if (facility_doc_data_res != "null" ){
                     facility_document_data = facility_doc_data_res.body.data;
@@ -1481,10 +1620,7 @@
 
             }
     }
-
-
-
-        
+ 
     async function bank_approve(){
         console.log("Inside bank approve")
         show_spinner = true;
@@ -1547,9 +1683,10 @@
                 }
             }
         }
+        }
     }
-    }
-        async function bank_reject(){
+
+    async function bank_reject(){
             show_spinner = true;
             let document_load = {
             "facility_id": $facility_id.facility_id_number,
@@ -1594,18 +1731,20 @@
         
         
 
-    function routeToOnboardsummary() {
+    
+        function routeToOnboardsummary() {
         let replaceState = false;
         goto(routePrev, { replaceState });
         }
 
-        routePrev = "onboardsummary";
+        routePrev = "onboardsummary?unFacID="+$facility_id.facility_id_number;
 
 
-    function menu_click(data){
+    
+        function menu_click(data){
         if(data == "id"){is_id_active ="MenuActive",is_bgv_active="",is_bank_active="",final_id_ver_btn="1",final_bank_ver_btn="0",final_bgv_ver_btn="0"}
         else if(data =="bank"){is_bank_active="MenuActive",is_id_active="",is_bgv_active="",final_bank_ver_btn="1",final_id_ver_btn="0",final_bgv_ver_btn="0"}
-        else if(data == "bgv"){is_bgv_active="MenuActive",is_id_active="",is_bank_active="",final_bgv_ver_btn="1",final_id_ver_btn="0",final_bank_ver_btn="0"}
+        else if(data == "bgv"){is_bgv_active="MenuActive",is_id_active="",is_bank_active="",final_bgv_ver_btn="1",final_id_ver_btn="0",final_bank_ver_btn="0",pan_bg_white=""}
     }
 
     function white_bg(data){
@@ -1645,7 +1784,9 @@
             show_spinner = false;
             console.log("basic_app_res",basic_app_res)
             if(basic_app_res.body.status == "green"){
-                basic_bgv_success_flag = 1
+                basic_bgv_success_flag = 1;
+                let facility_bgv_check_res = await facility_bgv_check();
+        console.log("facility_bgv_check_res qwerty 2",facility_bgv_check_res)
             }
         }
         if(bgv_data=="address_approve"){
@@ -1660,11 +1801,11 @@
             show_spinner = false;
             console.log("address_app_res",address_app_res)
             if(address_app_res.body.status == "green"){
-                address_bgv_success_flag = 1
+                address_bgv_success_flag = 1;
             }
         }
         if(bgv_data=="pan_approve"){
-            show_spinner = false;
+            show_spinner = true;
             console.log("pan_approve")
             let pan_dets_data = {
                 action_type:"Verified",
@@ -1905,7 +2046,10 @@
             }
            }
 
-    async function final_bgv_verify_func(){
+    
+    
+    
+           async function final_bgv_verify_func(){
         if(final_bgv_approve == 1){
             console.log("final_bgv_verify_func")
             show_spinner=true;
@@ -1981,14 +2125,15 @@
             }
             
         }
-    }
-    catch(err) {
-        console.log("Error",err)
-        // message.innerHTML = "Error is " + err;
-    }
-            }
         }
+        catch(err) {
+            console.log("Error",err)
+            // message.innerHTML = "Error is " + err;
+        }
+                }
+            }
     }
+    
     async function final_bgv_reject_func(){
         if(final_bgv_reject == 1){
             // show_spinner=true;
@@ -2071,13 +2216,13 @@
             }
             // $facility_data_store.is_id_prof_rejected.reload()
         }
-    }
-    catch(err) {
-        console.log("Error qwerty 3",err)
-        // message.innerHTML = "Error is " + err;
-    }
-            }
         }
+        catch(err) {
+            console.log("Error qwerty 3",err)
+            // message.innerHTML = "Error is " + err;
+        }
+                }
+            }
     } 
 
     function img_change(data){
@@ -2224,11 +2369,6 @@
         Final_bg_Reject_modal.style.display = "none";
     }
 
-    // function errorID(){
-    //     toast_text = "User is not Active";
-    //     toast_type = "error"
-    // }
-
     async function openIDcard(){
         if($facility_data_store.status == "Deactive" ){
             toast_text = "User is not active ";
@@ -2269,7 +2409,6 @@
         showIDCard.style.display = "none";
     }
 
-
     async function openCasUser(){
         let get_cas_user_res = await get_cas_user()
         console.log("get_cas_user_res",get_cas_user_res)
@@ -2290,22 +2429,17 @@
         }
     }
 
+    async function activate_cas(){
+        activate_cas_res = await activate_cas_user()
+    }
+
+    async function create_cas(){
+        create_cas_user_res = await create_cas_user()
+    }
+
     function closeCasUser(){
         showCasUser.style.display = "none";
     }
-
-    // async function idCard(){
-
-    // }
-
-
-    // function workContract() {
-    //     workContractModel.style.display = "block";
-    // }
-
-    // function closeWorkContract() {
-    //     workContractModel.style.display = "none";
-    // }
 
 
     async function workorganization() {
@@ -2404,40 +2538,11 @@
             toast_text = "No client Data";
         }
         
-    } catch(err) {
-        toast_type = "error";
-        toast_text = err;
-       
-    }
-//     async function station_code_select(stat_select){
-//         console.log("stat_select inside station_code_select",stat_select)
-//     let get_specific_name_res = await get_specific_name(stat_code)
-//     console.log("get_specific_name_res",get_specific_name_res)
-//     try {
-//         if(get_specific_name_res.stat_code != "null"){
-//             // for(i=0;i<get_specific_name_res.body.data.length;i++)
-//             // console.log("get_specific_name_res",get_specific_name_data)
-//             // get_specific_name_data.push({"resouce_id":get_specific_name_res.body.data[i].resource_id})
-//             // console.log("get_specific_name_res",get_specific_name_data)
-//             for(let i=0; i< get_specific_name_res.body.data.length;i++){
-//                 get_specific_name_data.push(get_specific_name_res.body.data[i]);
-//                 }
-//                 get_specific_name_data = get_specific_name_data;
-//                 // console.log("get_client_details_data",get_specific_name_data)
-//         }
-//     } catch (error) {
-//         toast_type = "error";
-//         toast_text = get_specific_name_res.body.message;
-//     }
-    
-// }
-
-
-
-
-
-
-
+        } catch(err) {
+            toast_type = "error";
+            toast_text = err;
+        
+        }
 
     }
 
@@ -2722,9 +2827,10 @@
                 toast_type = "error";
             }
             console.log("final_req_load",final_req_load)
-        }
+    }
 
 
+    
     function printID(){
         document.getElementById("nonPrintable").className += "noPrint";
         window.print();
@@ -2759,30 +2865,30 @@
                     </a>
                   
                 </p> -->
-                <button on:click="{openIDcard}" type="button" class="px-p15 text-sm text-white font-medium py-p10 rounded bg-erBlue ml-3">
+                <!-- <button on:click="{openIDcard}" type="button" class="px-p15 text-sm text-white font-medium py-p10 rounded bg-erBlue ml-3">
                     ID Card
-                </button>
+                </button> -->
 
-                <button on:click="{openCasUser}" type="button" class="px-p15 text-sm text-white font-medium py-p10 rounded bg-erBlue ml-3">
+                <!-- <button on:click="{openCasUser}" type="button" class="px-p15 text-sm text-white font-medium py-p10 rounded bg-erBlue ml-3">
                     cas user
-                </button>
+                </button> -->
 
-                <div class="userStatus ">
+                <!-- <div class="userStatus ">
                     <p class="flex items-center smButtonText" on:click={workorganization}>
                         <a href="" class="smButton modal-open">
                             View/Client edit
                         </a>
                     </p>
-                </div>
+                </div> -->
 
 
-                <div class="userStatus ">
+                <!-- <div class="userStatus ">
                     <p class="flex items-center smButtonText" on:click="{openassociateTypeMOdal}">
                         <a href="" class="smButton modal-open">
                             Associate Type
                         </a>
                     </p>
-                </div>
+                </div> -->
 
                 <button on:click={routeToOnboardsummary} type="button"
                         class="px-p15 text-sm text-white font-medium py-p10 rounded bg-erBlue ml-3">Back</button>
@@ -2957,584 +3063,6 @@
             </div> -->
         </div>
     </div>
-    <div class="hidden" id="userDetailsSection">
-    <div class="contentsectionDetailview ">
-        <div class="associateDetails ">
-            <div class="detailsHeader ">
-                <div class="left">
-                    <p class="detailsTitle">Associate Details</p>
-                    <p class="detailsUpdate">
-                        <span><span class="font-medium">Last updated -</span>> 27-Apr-2021 03:28 pm. <span
-                                class="font-medium">By-</span> Admin</span>
-                    </p>
-                </div>
-                <div class="right flex">
-                    <a href="" class="smButton">
-                        <img src="{$img_url_name.img_name}/edit.png" alt="">
-                    </a>
-                </div>
-
-            </div>
-
-            <div class="profilepic">
-                <img src="{$img_url_name.img_name}/profilepic.png" alt="">
-                <p class="imgName">dhiraj-shah.jpeg</p>
-            </div>
-
-            <div class="userInfoSec px-5  flex items-start ">
-                <img src="{$img_url_name.img_name}/location1.png" alt="">
-                <div class="pl-4">
-                    <p class="detailLbale">Address & Pincode</p>
-                    <p class="detailData ">r/no-9, jiwheshwar kripa chawl, penkarpada,
-                        chimaji Nagar, Thane - 401104</p>
-                </div>
-            </div>
-
-            <div class="userInfoSec3 ">
-                <div class="flex items-start">
-                    <img src="{$img_url_name.img_name}/mobilephone.png" alt="">
-                    <div class="pl-4">
-                        <p class="detailLbale">Mobile Number</p>
-                        <p class="detailData">88560 22890</p>
-                    </div>
-                </div>
-                <div class="userStatus ">
-                    <p class="userStatusTick"><img src="{$img_url_name.img_name}/checked.png" alt="" class="pr-1"> Verified
-                    </p>
-                </div>
-            </div>
-
-            <div class="userInfoSec3">
-                <div class="flex items-start">
-                    <img src="{$img_url_name.img_name}/email.png" alt="">
-                    <div class="pl-4">
-                        <p class="detailLbale">Email</p>
-                        <p class="detailData">dhiraj.shah@gmail.com</p>
-                    </div>
-                </div>
-
-            </div>
-
-            <div class="userInfoSecPadding">
-
-                <div class="wrapperInfoFirst">
-                    <div class="flex items-start">
-                        <img src="{$img_url_name.img_name}/addressproof.png" alt="">
-                        <div class="pl-4">
-                            <p class="detailLbale">Address proof</p>
-                        </div>
-                    </div>
-                    <div class="userStatus ">
-                        <p class="verifyText"><img src="{$img_url_name.img_name}/timer.png" alt="" class="pr-1"> Verification
-                            Pending</p>
-                    </div>
-
-                </div>
-                <div class="wrapperInfo ">
-                    <div class="flex items-start">
-                        <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
-                        <div class="pl-4 flex items-center">
-                            <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
-
-                            <p class="detailLbale">ration-card-copy.jpeg</p>
-                        </div>
-                    </div>
-                    <div class="userStatus ">
-                        <p class="verifyText">
-                            <a href="" class="smButton">
-                                <img src="{$img_url_name.img_name}/view.png" alt="">
-                            </a>
-                        </p>
-                    </div>
-
-                </div>
-
-
-            </div>
-
-            <div class="userInfoSec3">
-                <div class="flex items-start">
-                    <img src="{$img_url_name.img_name}/gst.png" alt="">
-                    <div class="pl-4">
-                        <p class="detailLbale">GST Details</p>
-                        <p class="detailData">Not added</p>
-                    </div>
-                </div>
-                <div class="userStatus ">
-                    
-                </div>
-            </div>
-
-            <div class="border-gray-200 px-5">
-                <hr>
-            </div>
-
-            <div class="appcredentials">
-                <div class="headingWithIcon">
-                    <img src="{$img_url_name.img_name}/mobileblue.png" alt="">
-                    <p class="detailsTitle">Libear App Credentials</p>
-                </div>
-            </div>
-
-            <div class="userInfoSec3 ">
-                <div class="flex items-start">
-                    <img src="{$img_url_name.img_name}/pan.png" alt="">
-                    <div class="pl-4">
-                        <p class="detailLbale">User ID</p>
-                        <p class="detailData">dhiraj.shah@elastic.run</p>
-                    </div>
-                </div>
-
-            </div>
-            <div class="userInfoSec3 ">
-                <div class="flex items-start">
-                    <img src="{$img_url_name.img_name}/password.png" alt="">
-                    <div class="pl-4">
-                        <p class="detailLbale">Password</p>
-                        <p class="detailData">test123</p>
-                    </div>
-                </div>
-
-            </div>
-            <div class="border-gray-200 px-5">
-                <hr>
-            </div>
-
-            <div class="userInfoSec px-5 py-5 flex justify-end">
-
-                <div class="addOwner ">
-                    <p class="flex items-center smButtonText">
-                        <a href="" class="smButton">
-                            Add Owner
-                        </a>
-                    </p>
-                </div>
-            </div>
-
-        </div>
-        <div class="fullsection w-widthforWorkDetailSection">
-            <div class="WorkDetailSection bg-white rounded-lg mb-5">
-                <div class="detailsHeader xsl:flex-wrap ">
-                    <div class="left">
-                        <p class="detailsTitle">Work Details</p>
-                        <p class="detailsUpdate">
-                            <span><span class="font-medium">Last updated -</span>> 27-Apr-2021 03:28 pm. <span
-                                    class="font-medium">By-</span> Admin</span>
-                        </p>
-                    </div>
-                    <div class="right flex">
-                        <p class="flex items-center smButtonText pr-3 ">
-                            <a href="" class="smButton">
-                                Work Contract
-                            </a>
-                        </p>
-                    </div>
-
-                </div>
-                <div class="detailsrow ">
-                    <div class="workDetailSection w-full">
-                        <div class="userInfoSec3">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/Subtract.png" alt="" class="w-5 h-auto">
-                                <div class="pl-4">
-                                    <p class="detailLbale">Associate Type</p>
-                                    <p class="detailData">NDA</p>
-                                </div>
-                            </div>
-                            <div class="userStatus ">
-
-                            </div>
-                        </div>
-                        <div class="userInfoSec3 ">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/pan.png" alt="" class="w-5 h-5">
-                                <div class="pl-4">
-                                    <p class="detailLbale">Associate ID</p>
-                                    <p class="detailData">BOMG00538</p>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="userInfoSec3">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/organization.png" alt="" class="w-5 h-5">
-                                <div class="pl-4">
-                                    <p class="detailLbale">Organization</p>
-                                    <p class="detailData">Amazon Transportation</p>
-                                </div>
-                            </div>
-                           
-                        </div>
-                        <div class="userInfoSecPadding">
-                            <div class="wrapperInfoFirst">
-                                <div class="flex items-start">
-                                    <img src="{$img_url_name.img_name}/offerlatter.png" alt="" class="w-5 h-5">
-                                    <div class="pl-4">
-                                        <p class="detailLbale">Offer Letter</p>
-                                    </div>
-                                </div>
-                                <div class="userStatus ">
-                                    <p class="verifyText"><img src="{$img_url_name.img_name}/timer.png" alt="" class="pr-1">
-                                        Verification Pending</p>
-                                </div>
-
-                            </div>
-                            <div class="wrapperInfo ">
-                                <div class="flex items-start">
-                                    <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
-                                    <div class="pl-4 flex items-center">
-                                        <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
-
-                                        <p class="detailLbale">dhiraj-shah-offer-letter.pdf</p>
-                                    </div>
-                                </div>
-                                <div class="userStatus ">
-                                    <p class="verifyText">
-                                        <a href="" class="smButton">
-                                            <img src="{$img_url_name.img_name}/view.png" alt="">
-                                        </a>
-                                    </p>
-                                </div>
-
-                            </div>
-
-
-                        </div>
-                    </div>
-                    <div class="workDetailSection w-full">
-                        <div class="userInfoSec3 ">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/location.png" class="w-6 h-6" alt="">
-                                <div class="pl-4">
-                                    <p class="detailLbale">City</p>
-                                    <p class="detailData">Pune</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="userInfoSec3 ">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/warehouse.png" class="w-5 h-5" alt="">
-                                <div class="pl-4">
-                                    <p class="detailLbale">Station</p>
-                                    <p class="detailData">MHPD - Mulsi SP</p>
-                                </div>
-                            </div>
-
-                        </div>
-
-                        <div class="userInfoSec3 ">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/managerVendor.png" class="w-5 h-5" alt="">
-                                <div class="pl-4">
-                                    <p class="detailLbale">Vendor</p>
-                                    <p class="detailData">Vitthal Sutar - MHPD00012</p>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="WorkDetailSection bg-white rounded-br5 mb-5">
-                <div class="detailsHeader xsl:flex-wrap">
-                    <div class="left">
-                        <p class="detailsTitle">Identity Proof</p>
-                        <p class="detailsUpdate">
-                            <span><span class="font-medium">Last updated -</span>> 27-Apr-2021 03:28 pm. <span
-                                    class="font-medium">By-</span> Admin</span>
-                        </p>
-                    </div>
-                    <div class="right flex">
-                        <p class="rejectText pr-3"><img src="{$img_url_name.img_name}/reject.png" alt="" class="pr-2"> Reject
-                        </p>
-                        <div class="hidden">
-                            <p class="verifiedTextGreen pr-3"><img src="{$img_url_name.img_name}/checked.png" alt=""
-                                    class="pr-1">
-                                Verified</p>
-                        </div>
-                        <div class="hidden">
-                            <p class="verifyText pr-3"><img src="{$img_url_name.img_name}/timer.png" alt="" class="pr-2">
-                                Verification Pending</p>
-                        </div>
-                        <a href="" class="smButton">
-                            <img src="{$img_url_name.img_name}/edit.png" alt="">
-                        </a>
-                    </div>
-
-                </div>
-                <div class="userInfoSecPadding ">
-                    <div class="innercardSection">
-                        <div class="remark">
-                            <p class="text-base text-greycolor font-medium mb-2">Remarks</p>
-                            <ul class="text-sm text-greycolor list-disc	ml-m15">
-                                <li>Pancard number mismatch</li>
-                                <li>Voter ID not clear</li>
-                            </ul>
-                        </div>
-                        <div class="requiredaction">
-                            <p class="text-base text-redRequired font-medium mb-2">Required Action</p>
-                            <ul class="text-sm text-greycolor list-disc ml-m15	">
-                                <li>Update correct pan number
-                                </li>
-                                <li>Re-submit voter ID</li>
-                            </ul>
-                        </div>
-                        <div class="updateAction xs:w-full">
-                            <button class="ErBlueButton">Update</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="detailsrow">
-                    <div class="workDetailSection w-full">
-                        <div class="userInfoSecPadding">
-
-                            <div class="wrapperInfoFirst">
-                                <div class="flex items-start">
-                                    <img src="{$img_url_name.img_name}/pan.png" alt="">
-                                    <div class="pl-4">
-                                        <p class="detailLbale">PAN Number</p>
-                                        <p class="detailData">CZHPS3225C</p>
-
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="attachment mt-5">
-                                <div class="flex items-start">
-                                    <img src="{$img_url_name.img_name}/pan.png" class="invisible" alt="">
-                                    <div class="pl-4 flex items-center">
-                                        <p class="detailLbale">PAN Card Attachment</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="wrapperInfo ">
-                                <div class="flex items-start">
-                                    <img src="{$img_url_name.img_name}/pan.png" class="invisible" alt="">
-                                    <div class="pl-4 flex items-center">
-                                        <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
-
-                                        <p class="detailLbale">Pan-card-copy.jpeg</p>
-                                        <!-- <p class="detailLbale">{pan_attach}</p> -->
-
-                                    </div>
-                                </div>
-                                <div class="userStatus ">
-                                    <p class="verifyText">
-                                        <a href="" class="smButton">
-                                            <img src="{$img_url_name.img_name}/view.png" alt="">
-                                        </a>
-                                    </p>
-                                </div>
-
-                            </div>
-
-
-                        </div>
-                        <div class="userInfoSec3 ">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/pan.png" alt="">
-                                <div class="pl-4">
-                                    <p class="detailLbale">Driving License</p>
-                                    <p class="detailData">Not Submitted</p>
-                                </div>
-                            </div>
-
-                        </div>
-
-                    </div>
-                    <div class="workDetailSection w-full">
-                        <div class="userInfoSecPadding">
-
-                            <div class="wrapperInfoFirst">
-                                <div class="flex items-start">
-                                    <img src="{$img_url_name.img_name}/pan.png" alt="">
-                                    <div class="pl-4">
-                                        <p class="detailLbale">Aadhar Number</p>
-                                        <p class="detailData">9714 1358 8022</p>
-
-                                    </div>
-                                </div>
-
-                            </div>
-                            <div class="attachment mt-5">
-                                <div class="flex items-start">
-                                    <img src="{$img_url_name.img_name}/pan.png" class="invisible" alt="">
-                                    <div class="pl-4 flex items-center">
-                                        <p class="detailLbale">Aadhar Card Attachment</p>
-
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="wrapperInfo ">
-                                <div class="flex items-start">
-                                    <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
-                                    <div class="pl-4 flex items-center">
-                                        <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
-
-                                        <p class="detailLbale">aadhar-card-copy.jpeg</p>
-                                    </div>
-                                </div>
-                                <div class="userStatus ">
-                                    <p class="verifyText">
-                                        <a href="" class="smButton">
-                                            <img src="{$img_url_name.img_name}/view.png" alt="">
-                                        </a>
-                                    </p>
-                                </div>
-
-                            </div>
-
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="WorkDetailSection bg-white rounded-lg">
-                <div class="detailsHeader  xsl:flex-wrap">
-                    <div class="left">
-                        <p class="detailsTitle">Bank Details
-                        </p>
-                        <p class="detailsUpdate">
-                            <span><span class="font-medium text-greycolor">Last updated -</span>> 27-Apr-2021
-                                03:28 pm. <span class="font-medium text-greycolor">By-</span> Admin</span>
-                        </p>
-                    </div>
-                    <div class="right flex">
-                        <p class="verifyText pr-3"><img src="{$img_url_name.img_name}/timer.png" alt="" class="pr-1">
-                            Verification Pending</p>
-                        <a href="" class="smButton">
-                            <img src="{$img_url_name.img_name}/edit.png" alt="">
-                        </a>
-                    </div>
-
-                </div>
-
-                <div class="userInfoSecPadding ">
-                    <div class="innercardSection">
-                        <div class="remark">
-                            <p class="text-base text-greycolor font-medium mb-2">Remarks</p>
-                            <ul class="text-sm text-greycolor list-disc	ml-m15">
-                                <li>IFSC Code missing/not clear on document</li>
-                            </ul>
-                        </div>
-                        <div class="requiredaction">
-                            <p class="text-base text-redRequired font-medium mb-2">Required Action</p>
-                            <ul class="text-sm text-greycolor list-disc ml-m15	">
-                                <li>Resubmit bank documents
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="updateAction xs:w-full">
-                            <button class="ErBlueButton">Update</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="detailsrow">
-                    <div class="workDetailSection w-full">
-                        <div class="userInfoSec3 ">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/bank.png" alt="">
-                                <div class="pl-4">
-                                    <p class="detailLbale">Bank Name</p>
-                                    <p class="detailData">HDFC</p>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="userInfoSec3 ">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/account.png" alt="">
-                                <div class="pl-4">
-                                    <p class="detailLbale">Account Number</p>
-                                    <p class="detailData">483792018849327</p>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="userInfoSec3 ">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/account.png" alt="">
-                                <div class="pl-4">
-                                    <p class="detailLbale">IFSC Code</p>
-                                    <p class="detailData">HDFC0000148</p>
-                                </div>
-                            </div>
-
-                        </div>
-
-                    </div>
-                    <div class="workDetailSection w-full">
-                        <div class="userInfoSec3 ">
-                            <div class="flex items-start">
-                                <img src="{$img_url_name.img_name}/pincode.png" alt="">
-                                <div class="pl-4">
-                                    <p class="detailLbale">Branch</p>
-                                    <p class="detailData">Pune - East, 400190</p>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="userInfoSecPadding">
-
-                            <div class="wrapperInfoFirst">
-                                <div class="flex items-start justify-between">
-                                    <div class="flex">
-                                        <img src="{$img_url_name.img_name}/bankdoc.png" alt="">
-                                        <div class="pl-4">
-                                            <p class="detailLbale">Aadhar Number</p>
-                                        </div>
-                                    </div>
-                                    <div class="pl-4">
-                                        <p class="flex items-center smButtonText">
-                                            <a href="" class="smButton">
-                                                Cheque Details
-                                            </a>
-                                        </p>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-                            <div class="attachment mt-5">
-                                <div class="flex items-start">
-                                    <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
-                                    <div class="pl-4 flex items-center">
-                                        <p class="detailLbale">Cancel Cheque Attachment</p>
-
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="wrapperInfo ">
-                                <div class="flex items-start">
-                                    <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
-                                    <div class="pl-4 flex items-center">
-                                        <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
-
-                                        <p class="detailLbale">cancel-cheque-copy.jpeg</p>
-                                    </div>
-                                </div>
-                                <div class="userStatus ">
-                                    <p class="verifyText">
-                                        <a href="" class="smButton">
-                                            <img src="{$img_url_name.img_name}/view.png" alt="">
-                                        </a>
-                                    </p>
-                                </div>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-
-        </div>
-    </div>
-</div>
 
 <div class="verifyIdSection ">
     <div class="mobileMenuForVerifyID hidden xsl:block">
@@ -3570,9 +3098,11 @@
         <div class="m-4 col-span-4 xsl:col-span-5 ">
             <div class="flex w-full justify-between xsl:flex-wrap">
                 <h4 class="text-xl font-medium ">Verify ID Proof</h4>
+                {#if final_approve == "1"}
                 <p class="detailsUpdate">
                     <span><span class="font-medium">Verified by - </span> {$facility_data_store.document_updated_by} <span class="font-medium">On-</span>{verified_date}</span>
                 </p>
+                {/if}
             </div> 
             <div class="mobileVerifyIDMenus hidden xsl:block">
                 <div class="w-full mt-2">
@@ -3780,51 +3310,6 @@
             
                 <!--  Pan Number  -->
                 {#if temp_switchto == "pan_tab"}
-                <!-- <div class="grid grid-cols-7 gap-4 mt-3 xsl:grid-cols-1 ">
-                    Attachment section
-                    <div class="m-4 col-span-4">
-                        <div class="attachment-text">
-                            <p class="text-sm font-light">Attachment </p>
-                        </div>   
-
-                        <div class="imageZoom border rounded mt-2">
-                            <div id="hubble-container">
-                            <img src=""  id="pan_photo">
-                            <p >{pan_attach}</p>commwnt 
-                            
-                            </div>
-
-                            <div class="flex items-center justify-center gap-4 py-4">
-                                <img src="{$img_url_name.img_name}/puls.svg" >
-                            
-                            <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                            <img src="{$img_url_name.img_name}/minus.svg" >
-                        
-                            </div>
-                        </div>
-
-                    </div>  
-
-
-                    PAN Number
-                    <div class="m-4 col-span-3 " >
-                            <div class="formField mb-2">
-                                <label class="text-greycolor font-light text-sm text-left ">Enter PAN Number </label>
-                                <div class="w-full ">
-                                    <input type="text" class="inputboxVMT" bind:value={vmt_pan}> 
-                                    <div style="color: green;">{pan_success_msg}</div>
-                                    <div class="text-red-500">{pan_reject_msg}</div>
-                                </div>
-                            </div>
-
-
-                            <div class="ActionButtonsReject text-right mt-3">
-                                <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium">Reject</button>
-                                <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium" on:click={() => doc_approve("pan")}>Approve</button>
-                                
-                            </div>    
-                    </div>  
-                </div>  -->
                 <div class="grid grid-cols-7 gap-4 mt-3 xsl:grid-cols-1 ">
                     <!-- Attachment section -->
                     <div class="m-4 col-span-4">
@@ -3855,30 +3340,6 @@
                                     <input type="text" class="inputboxVMT" bind:value={vmt_pan}>
                                 </div>
                             </div>
-
-                            <!-- <select class="selectInputbox" bind:value="{basic_info_rej}">
-                                <option class="pt-6" >All</option>
-                                <option value="" selected disabled>Select</option>
-                                {#each rejReasonMap.basicInfo as basic_info_rej}
-                                    <option
-                                        class="pt-6">
-                                        {basic_info_rej}
-                                        </option>
-                                    {/each}
-                                    
-                                </select> -->
-
-
-
-                            <!-- <div class="formField">
-                                <label class="text-greycolor font-light text-sm  text-left ">Enter PAN Card Application Receipt </label>
-                                <div class="w-full ">
-                                    <input type="text" class="inputboxVMT" bind:value={vmt_pan}>
-                                    <div style="color: green;">{pan_success_msg}</div>
-                                    <div class="text-red-500">{pan_reject_msg}</div>
-                                </div>
-                            </div> -->
-
 
                             <div class="ActionButtonsReject text-right mt-3">
                                 <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium" on:click={()=>doc_reject("pan")}>Reject</button>
@@ -4171,14 +3632,16 @@
          
          {#if temp_display == "display_bank_details"}
          {#if bank_details_provided == "no"}
-         <p>NA</p>
+         <p>Bank Details is not available</p>
          {:else}
          <div class="m-4 col-span-4 xsl:col-span-5  ">
             <div class="flex w-full justify-between xsl:flex-wrap">
                 <h4 class="text-xl font-medium ">Verify Bank Details</h4>
+                {#if $bank_details.approved == "1"}
                 <p class="detailsUpdate">
-                    <span><span class="font-medium">Verified by - </span> {$facility_data_store.document_updated_by} <span class="font-medium">On-</span>{verified_date}</span>
+                    <span><span class="font-medium">updated by - </span> {$facility_data_store.document_updated_by} <span class="font-medium">On-</span>{verified_date}</span>
                 </p>
+                {/if}
             </div> 
             <div class="w-full bg-white rounded-sm mt-4 ">
               <div class="grid grid-cols-7 gap-4 mt-3 xsl:grid-cols-1 ">
@@ -4300,9 +3763,11 @@
                             <!-- <label class="Stext-greycolor font-light text-sm text-left ">Enter Bank Account Number</label> -->
                             <div>
                                 <!-- <span><span class="font-medium">Verified by - </span> {$bank_details.validated_by} <span class="font-medium">On-</span>{$bank_details.validated_on}</span> -->
+                                {#if $bank_details.approved == "1"}
                                 <p class="detailsUpdate">
-                                    <span><span class="font-medium">Verified by - </span> {$bank_details.updated_by} <span class="font-medium">On-</span>{$bank_details.updated_on}</span>
+                                    <span><span class="font-medium">updated by - </span> {$bank_details.updated_by} <span class="font-medium">On-</span>{$bank_details.updated_on}</span>
                                 </p>
+                                {/if}
                             </div>
                         </div>
                         <div class="formField mb-2">
@@ -4361,9 +3826,11 @@
           <div class="m-4 col-span-4 xsl:col-span-5 ">
             <div class="flex w-full justify-between xsl:flex-wrap">
                 <h4 class="text-xl font-medium ">Verify Background</h4>
+                {#if $facility_data_store.is_bgv_verified == "1"}
                 <p class="detailsUpdate">
                     <span><span class="font-medium">Verified by - </span>{$facility_data_store.document_updated_by} <span class="font-medium">On-</span>{verified_date}</span>
                 </p>
+                {/if}
             </div> 
             <div class="mobileVerifyMenus hidden xsl:block">
                 <div class="w-full mt-2">
@@ -4587,9 +4054,11 @@
                                 <!-- <div>
                                     <span><span class="font-medium">Verified by - </span> {$bgv_data_store.basic_info_updated_by} <span class="font-medium">On-</span>{$bgv_data_store.basic_info_updated_on}</span>
                                 </div> -->
+                                {#if $facility_data_store.is_bgv_verified == "1"}
                                 <p class="detailsUpdate">
                                     <span><span class="font-medium">Verified by - </span> {$bgv_data_store.basic_info_updated_by}<span class="font-medium">On-</span>{$bgv_data_store.basic_info_updated_on}</span>
                                 </p>
+                                {/if}
                             </div>
                             <div class=" grid-cols-2 grid items-center">
                                 <div class="">
@@ -4749,9 +4218,11 @@
                                 <div class="">
                                     
                                 </div>
-                                <div>
-                                    <span><span class="font-medium">Verified by - </span> {$bgv_data_store.address_updated_by} <span class="font-medium">On-</span>{$bgv_data_store.address_updated_date}</span>
-                                </div>
+                                {#if $facility_data_store.is_bgv_verified == "1"}
+                                <p class="detailsUpdate">
+                                    <span><span class="font-medium">Verified by - </span> {$bgv_data_store.basic_info_updated_by}<span class="font-medium">On-</span>{$bgv_data_store.basic_info_updated_on}</span>
+                                </p>
+                                {/if}
                             </div>
                             <div class=" grid-cols-2 grid items-center">
                                 <div class="">
@@ -4947,9 +4418,11 @@
                                     <div class="">
                                         
                                     </div>
-                                    <div>
-                                        <span><span class="font-medium">Verified by - </span> {$bgv_data_store.license_updated_by} <span class="font-medium">On-</span>{$bgv_data_store.license_updated_on}</span>
-                                    </div>
+                                    {#if $facility_data_store.is_bgv_verified == "1"}
+                                    <p class="detailsUpdate">
+                                        <span><span class="font-medium">Verified by - </span> {$bgv_data_store.basic_info_updated_by}<span class="font-medium">On-</span>{$bgv_data_store.basic_info_updated_on}</span>
+                                    </p>
+                                    {/if}
                                 </div>
                                 <div class=" grid-cols-2 grid items-center">
                                     <div class="">
@@ -5057,14 +4530,16 @@
                         
 
                         <div class="grid grid-cols-1 gap-2">
-                            <div class=" grid-cols-2 grid items-center">
-                                <div class="">
-                                    
+                                <div class=" grid-cols-2 grid items-center">
+                                    <div class="">
+                                        
+                                    </div>
+                                    {#if $facility_data_store.is_bgv_verified == "1"}
+                                    <p class="detailsUpdate">
+                                        <span><span class="font-medium">Verified by - </span> {$bgv_data_store.basic_info_updated_by}<span class="font-medium">On-</span>{$bgv_data_store.basic_info_updated_on}</span>
+                                    </p>
+                                    {/if}
                                 </div>
-                                <div>
-                                    <span><span class="font-medium">Verified by - </span> {$bgv_data_store.police_verification_updated_by} <span class="font-medium">On-</span>{$bgv_data_store.police_verification_updated_on}</span>
-                                </div>
-                            </div>
                             <div class=" grid-cols-2 grid items-center">
                                 <div class="">
                                     <p class="namelable ">Address Type</p>
@@ -5094,7 +4569,11 @@
                                     <p class="namelable ">Address Verified</p>
                                 </div>
                                 <div>
+                                    {#if !$bgv_data_store.police_verified_address}
+                                    <p>-</p>
+                                    {:else}
                                     <p class="namevalue  ">{$bgv_data_store.police_verified_address}</p>
+                                    {/if}
                                 </div>
                             </div>
                             <!-- <div class=" grid-cols-2 grid items-center">
@@ -5162,9 +4641,11 @@
                             <div class="">
                                 
                             </div>
-                            <div>
-                                <span><span class="font-medium">Verified by - </span> {$bgv_data_store.pan_updated_by} <span class="font-medium">On-</span>{$bgv_data_store.pan_updated_on}</span>
-                            </div>
+                            {#if $facility_data_store.is_bgv_verified == "1"}
+                            <p class="detailsUpdate">
+                                <span><span class="font-medium">Verified by - </span> {$bgv_data_store.basic_info_updated_by}<span class="font-medium">On-</span>{$bgv_data_store.basic_info_updated_on}</span>
+                            </p>
+                            {/if}
                         </div>
                         <div class=" grid-cols-2 grid items-center">
                             <div class="">
@@ -6182,7 +5663,7 @@
                             User is not Active
                         </p>
                     </div>
-                    <div class="pt-3 flex justify-center" on:click="{closeCasUser}">
+                    <div class="pt-3 flex justify-center" on:click="{activate_cas}">
                         <button type="button" class="dialogueSingleButton">Activate User</button>
                     </div>
                     {:else if cas_flag == 2}
@@ -6191,7 +5672,7 @@
                             User is not in the cas
                         </p>
                     </div>
-                    <div class="pt-3 flex justify-center" on:click="{closeCasUser}">
+                    <div class="pt-3 flex justify-center" on:click="{create_cas}">
                         <button type="button" class="dialogueSingleButton">Create User</button>
                     </div>
                     {/if}
