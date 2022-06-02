@@ -155,7 +155,7 @@
         state_dep_city();
     }
 
-    let rotue_back_fac_id = $facility_id.facility_id_number;
+    let route_back_fac_id = $facility_id.facility_id_number;
     
     onMount(async () => {
 
@@ -2013,7 +2013,7 @@
 
     routeNext = "bgvsuccesspopup";
 
-    routePrev = "onboardsummary?unFacID="+rotue_back_fac_id;
+    routePrev = "onboardsummary?unFacID="+$facility_id.facility_id_number;
 
 
     function verify_new_otp(){

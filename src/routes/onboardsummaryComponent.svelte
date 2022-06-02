@@ -271,9 +271,15 @@
                     $facility_id.facility_id_number = temp;
                 }
                 else{
+                    goto("dashboard")
                     toast_type = "error";
                     toast_text = "Facility ID not found";
                 }
+            }
+            else{
+                toast_type = "error";
+                toast_text = "Facility ID not found";
+                goto("dashboard")
             }
     
             
@@ -307,7 +313,9 @@
                        }
                    }
                 //    console.log("offer_letter_required_associates",$pravesh_properties.properties.offer_letter_required_associates)
-                facility_password = $pravesh_properties.properties.default_org_app_password[0]
+                if($pravesh_properties){
+                    facility_password = $pravesh_properties.properties.default_org_app_password[0]
+                }
                 
                 let bank_details_req_fac = [];
                 bank_details_req_fac = ($pravesh_properties.properties.bank_section_required_associates);
@@ -2739,7 +2747,7 @@
         
                         <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0 mt-4">
                             <label class="block  tracking-wide text-gray-700 font-bold mb-2" for="grid-state">
-                            Do you want to Blacklist+{$facility_id.facility_id_number}-{$facility_data_store.facility_type}?
+                            Do you want to Blacklist {$facility_id.facility_id_number}-{$facility_data_store.facility_type}?
                             </label>
                             <div class="relative">
                              
