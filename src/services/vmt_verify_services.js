@@ -111,7 +111,7 @@ const final_bgv_app_rej=(bgv_data)=>{
         }, true)
 }
 
-const get_client_details=(facility_id)=>{
+const get_client_details=()=>{
     let get_client_details_url = "/api/resource/Facility%20Org%20Config?filters=[[%22facility_id%22,%22=%22,%22"+new_facility_id+"%22]]&fields=[%22*%22]";
     return request(
         get_client_details_url,{
@@ -188,6 +188,22 @@ const get_cas_user = () =>{
         }, true)
 }
 
+const activate_cas_user = () =>{
+    let activate_cas_user_url = '/api/method/pravesh.facility.routes.facility.activate_cas_user?facility_id='+new_facility_id+''
+    return request(
+        activate_cas_user_url, {
+        method: "GET",
+        }, true)
+}
+
+const create_cas_user = () =>{
+    let create_cas_user_url = '/api/method/pravesh.facility.routes.facility.create_cas_user?facility_id='+new_facility_id+''
+    return request(
+        create_cas_user_url, {
+        method: "GET",
+        }, true)
+}
+
 
 
 export {
@@ -207,5 +223,7 @@ export {
     get_change_associte,
     send_associate_req,
     get_assoc_types,
-    get_cas_user
+    get_cas_user,
+    activate_cas_user,
+    create_cas_user
 }
