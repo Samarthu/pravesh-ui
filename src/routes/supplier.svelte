@@ -13,6 +13,7 @@
     import { page } from '$app/stores';
     import {img_url_name} from '../stores/flags_store';
     import Spinner from "./components/spinner.svelte";
+import { goto } from '$app/navigation';
     
     let show_spinner = false;
     let total_count;
@@ -226,6 +227,7 @@ else
             // supplier_data_from_service = []
             supplier_data_from_service = res.body.data.data_list;
             total_count_associates = res.body.data.total_records;
+            
             }
         }
         catch(err) {
@@ -490,6 +492,20 @@ else
         supplierInfoModal.style.display = "none";
     };
 
+
+    function update_associate(fac_name){
+        let associate_id;
+        console.log("supplier_data_from_service",supplier_data_from_service)
+        for(let i=0;i<supplier_data_from_service.length;i++){
+            if(fac_name == supplier_data_from_service[i].name){
+                associate_id = supplier_data_from_service[i].name
+            }
+            goto("onboardsummary?unFacID="+associate_id);
+                
+        }
+    }
+
+
     // window.onclick = function (event) {
     //     if (event.target == supplierInfoMsupplierInfoModalodalId) {
     //         supplierInfoModal.style.display = "none";
@@ -497,6 +513,8 @@ else
     // };
 
     async function filterButton(){
+
+
         vendor_type_select = document.getElementById("select_vendor_type").value.trim();
         console.log("vendor_type_select",vendor_type_select)
         for(let vendorData  of filter_vendortype_array){
@@ -539,11 +557,19 @@ else
                 if(filter_res.body.status == "green"){
                     supplier_data_from_service = filter_res.body.data.data_list;
                     total_count_associates = filter_res.body.data.total_records; 
+                    for(let i=0;i<supplier_data_from_service.length;i++){
+                        supplier_data_from_service[i].expand = false;
+                    }
+                    console.log("supplier_data_from_service here",supplier_data_from_service)
                 }
             }
             catch(err) {
         message.innerHTML = "Error is  " + err;
         }   
+        select_vendor_type = "-1";
+        city = "-1";
+        status = "-1";
+
     }
 
 
@@ -645,8 +671,16 @@ else
 
     // // supplier table collaps
 
-    function collapse() {
-        
+    function collapse(fac_name) {
+        let is_expanded = false;
+        console.log(fac_name)
+        for(let i=0;i<supplier_data_from_service.length;i++){
+            if(supplier_data_from_service[i].name == fac_name){
+                console.log("inside if")
+               is_expanded = supplier_data_from_service[i].expand;
+            }
+        }
+           
         var shortInfo = document.querySelectorAll(".shortInfo");
         var elems = document.querySelectorAll(".detailsInfo");
         var trow = document.querySelector(".trow");
@@ -661,6 +695,9 @@ else
         elems.forEach.call(elems, function (el) {
             el.classList.remove("hidden");
         });
+        
+        
+        
     };
 
  
@@ -892,7 +929,9 @@ else
                                                                 class="selectInputbox"
                                                             >
                                                             <!-- <option class="pt-6">All</option> -->
+                                                            
                                                             {#each filter_city_array as data_city}
+                                                            <option value="-1">Select</option>
                                                                 <option
                                                                     class="pt-6">
                                                                     {data_city.location_name}
@@ -922,9 +961,11 @@ else
                                                             <select
                                                                 class="selectInputbox"
                                                             >
+                                                            
                                                             {#if workforce_checkbox == true}
                                                             {#each filter_vendortype_array as vendor_type}
                                                             {#if vendor_type.category == "Workforce"}
+                                                            <option value="-1">Select</option>
                                                             <option
                                                                     class="pt-6"
                                                                     >{vendor_type.facility_type_name}</option
@@ -937,6 +978,7 @@ else
                                                            {#if vendor_checkbox == true}
                                                             {#each filter_vendortype_array as vendor_type}
                                                             {#if vendor_type.category == "Vendor"}
+                                                            <option value="-1">Select</option>
                                                             <option
                                                                     class="pt-6"
                                                                     >{vendor_type.facility_type_name}</option
@@ -971,6 +1013,7 @@ else
                                                             <!-- <option class="pt-6">All</option> -->
                                                             {#each filter_status_array as data_status}   
                                                                 {#if data_status.display_name != undefined}
+                                                                <option value="-1">Select</option>
                                                                 <option class="pt-6"> {data_status.display_name}
                                                                 </option>
         
@@ -1083,6 +1126,7 @@ else
                                                         <select
                                                         class="selectInputbox"
                                                         >
+                                                        
                                                         <option value="-1">Select</option>
                                                         {#each org_data_arr as org}
                                                             <option
@@ -1114,6 +1158,7 @@ else
                                                                 class="selectInputbox"
                                                                 id= "select_city"
                                                                 >
+                                                                
                                                                 <option class="pt-6" 
                                                                 >All</option>
                                                             {#each filter_city_array as data_city}
@@ -1146,9 +1191,11 @@ else
                                                                 class="selectInputbox"
                                                                 id= "select_vendor_type"
                                                             >
+                                                            <option value="-1">Select</option>
                                                            {#if workforce_checkbox == true}
                                                             {#each filter_vendortype_array as vendor_type}
                                                             {#if vendor_type.category == "Workforce"}
+                                                            
                                                             <option
                                                                     class="pt-6"
                                                                     >{vendor_type.facility_type_name}</option
@@ -1193,9 +1240,10 @@ else
                                                                     <!-- DESKTOP VIEW -->
                                                         <select
                                                         class="selectInputbox" id= "select_status"> 
-                                                    <!-- <option class="pt-6">All</option> -->
+                                                        <!-- <option class="pt-6" value="-1">All</option> -->
                                                         {#each filter_status_array as data_status}   
                                                         {#if data_status.display_name != undefined}
+                                                        <option value="-1">Select</option>
                                                         <option class="pt-6"> {data_status.display_name}
                                                         </option>
    
@@ -1804,10 +1852,10 @@ else
                                                         </li>
                                                     </ul>
                                                     <div class="actionBtn mt-3">
-                                                        <a
+                                                        <button on:click="{update_associate(facility_data.name)}"
                                                             href="#"
                                                             class="ErBlueButton"
-                                                            >Update</a
+                                                            >Update</button
                                                         >
                                                     </div>
                                                 </div>
@@ -1832,7 +1880,7 @@ else
                                                 <!-- <p class="mtextaudit">11 M</p> -->
                                                 <div class="shortInfo">
                                                     <p
-                                                        on:click="{collapse}"
+                                                        on:click="{collapse(facility_data.name)}"
                                                         class="arrowCollaps"
                                                     >
                                                         <img

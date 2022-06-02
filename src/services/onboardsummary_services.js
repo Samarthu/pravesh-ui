@@ -293,6 +293,17 @@ const reset_deact_status = () => {
 }
 
 
+const initiateBGV = () => {
+    let initiate_bgv_url = "/api/method/pravesh.facility.routes.facility.initiate_bgv?facility_id="+new_facility_id+"&_=1653922788629";
+    return request(
+        initiate_bgv_url,{
+    method: "GET"
+    },true)
+
+}
+
+
+
 
 export {
     bank_details,
@@ -326,5 +337,6 @@ export {
     get_station_details,
     get_all_accepted_contracts,
     blacklist_vendor,
-    reset_deact_status
+    reset_deact_status,
+    initiateBGV
 }

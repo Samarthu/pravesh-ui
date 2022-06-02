@@ -12,6 +12,7 @@
             import {facility_id} from "../../stores/facility_id_store"
             import {facility_data_store} from "../../stores/facility_store";
             import { paginate, LightPaginationNav } from "svelte-paginate";
+            // const { paginate,LightPaginationNav } = require('svelte-paginate');
             import Spinner from "./spinner.svelte";
             import {logged_user} from '../../services/supplier_services';
             // import  {  page } from '$app/stores';
@@ -66,6 +67,7 @@
         let child_selected_arr=[];
         let new_child_selected_arr = [];
         let child_check = false;
+        let unique_id;
         let show_gst_view_btn = false;
         
             let text_pattern = /^[a-zA-Z_ ]+$/;
@@ -73,24 +75,13 @@
             let city_select;
             let city_select_flag=0;
             let cheque_data;
-        //     let img_name="",bank_name="-",type ="",cheque_date,cheque_number="-",amount="",
-        //     recrun_number="",file_number = "";
-        //     let bank_name_message ="",type_message="",cheque_date_message="",cheque_number_message=""
-        //     ,amount_message="",recrun_number_message="",file_number_message="",cheque_upload_message="";
-        //     let child_box;
         export let facility_created_date;
         let bank_details_res;
-        //     let bank_details_res,bank_new_date,
-        //     facility_modified_date,facility_created_date,facility_doc_date;
-        //     // let client_det_res;
         let facility_doc_date,facility_modified_date;
             let client_det_arr=[];
             export let gst_doc_arr;
-            
-        //     // $: cheque_date = new Date();
             let file_data;
-            let showbtn = 0;
-        //     let selectTag,addRemark,selectsearch;
+            // let showbtn = 0;
         export let facility_address;
         export let facility_password;
         export let city;
@@ -99,26 +90,15 @@
         let gst_edit_btn = 0;
         //     let facility_address,facility_postal,facility_password,city,location_id,status_name;
             let new_fac_remarks = [];
-        //     let select_tag_data,serv_ch_data;
-        //     let total_pages;
-        //     let pages=[];
-        //     let tag_date,tag_remark;
-        //     let tag_data_obj=[];
+
             let city_data=[];
             let scope_data=[];
-        //     let gst_doc_type=[];
-        //     let erp_details_arr = [];
-        //     let cheque_img="";
-        //     let checkupload,dl_lic_attach = "-";
             let result;
-        //     let mapped_pages = [];
-        //     let hidden_field ="hidden";
             let gst_city_link_state="";
             let gst_state_code = "";
             let gst_city_loc_id="";
-        //     export let url = "";
         //     /////////////////////svelte plugin pagiantion//////////
-            let items;
+            let items=[];
             let currentPage = 1;
             let pageSize = 10;
             let paginatedItems=[];
@@ -185,6 +165,8 @@
             $:if(check_selected === true){
                 check_selected =true;
             }
+            $:paginatedItems = paginate({ items, pageSize, currentPage })
+
 
     onMount(async () => {
        
@@ -447,10 +429,10 @@
         }
         for(let i = 0;i<gst_doc_arr.length;i++){
             if(data == "mult_gsts"){
-                if(doc_number == gst_doc_arr[i].gst_doc_num)
-                image_path = $page.url.origin+gst_url[i];
-                // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+gst_url[i]);
+                if(doc_number == gst_doc_arr[i].doc_number){
+                image_path = $page.url.origin+gst_doc_arr[i].file_url;
                 alt_image = "gst proof";
+            }
             }
         }
         
@@ -458,32 +440,56 @@
     }
     
             
-        function editWorkDetail() {
-        let replaceState = false;
-        goto(routeNext, { replaceState });
-    }  
+    //     function editWorkDetail() {
+    //     let replaceState = false;
+    //     goto(routeNext, { replaceState });
+    // }  
     async function gstModel() {
-        gst_details_data=[];
+        
         gst_city_link_state="";
         modalidgst.style.display = "block";
         let gst_details_res = await gst_details();
         try{
             if(gst_details_res != "null"){
+                gst_details_data=[];
                 console.log("gst_details_res",gst_details_res)
                 
                 for(let i=0;i < gst_details_res.body.data.length;i++){
-                            for(let j = 0;j<gst_doc_arr.length;j++){ 
-                                gst_details_data.push(gst_details_res.body.data[i]);
-                                if(gst_details_res.body.data[i].gstn == gst_doc_arr[j].doc_number){
-                                    show_gst_view_btn = true;
-                                } 
-                                else{
-                                    show_gst_view_btn = false;
-                                }  
-                            }
+                            // for(let j = 0;j<gst_doc_arr.length;j++){ 
+                                
+                            //     console.log("matching",gst_details_res.body.data[i].gstn,gst_doc_arr[j].doc_number)
+                            //     if(gst_details_res.body.data[i].gstn == gst_doc_arr[j].doc_number){
+                            //         console.log("Matched")
+                            //         show_gst_view_btn = true;
+                            //     } 
+                            //     // else{ 
+                            //     //     console.log("Inside else")
+                            //     //     show_gst_view_btn = false;
+                            //     // }  
+                               
+                            // }
+                            gst_details_data.push(gst_details_res.body.data[i]);
+
+                            
                 }
+                for(let i=0;i<gst_details_data.length;i++){
+                    console.log("gst_details_data",gst_details_data[i])
+                    gst_details_data[i].show_view_btn = false;
+                    for(let j = 0;j<gst_doc_arr.length;j++){ 
+                                
+                    //     console.log("matching",gst_details_res.body.data[i].gstn,gst_doc_arr[j].doc_number)
+                        if(gst_details_data[i].gstn == gst_doc_arr[j].doc_number){
+                            // console.log("Matched")
+                            gst_details_data[i].show_view_btn = true;
+                    } 
+                              
+                }
+            }
+                
+
+
                 gst_details_data=gst_details_data;
-                console.log("gst_details_data here",gst_details_data)
+                console.log("gst_details_data here",gst_details_data,show_gst_view_btn)
             }
             
         }
@@ -503,7 +509,7 @@
         gst_img = "";
 
     }
-    async function gst_edit_click(new_gst,gst_url,gst_name){
+    async function gst_edit_click(new_gst){
         console.log("new_gst",new_gst)
         gst_edit_btn = 1;
         for(let i=0;i<gst_doc_arr.length;i++){
@@ -513,16 +519,15 @@
             
             if(gst_doc_arr[i].doc_type == gst_doc_type){
                 console.log("inside if")
-                onFileSelected(new_gst.gstn,"gst_edit_upload")
-                console.log("gst_file_datagst_file_data",gst_file_data)
-                gst_url = gst_file_data
-                gst_name = gst_doc_arr[i].file_name
-                console.log("gst_url",gst_url)
+                // onFileSelected(new_gst.gstn,"gst_edit_upload")
+                // console.log("gst_file_datagst_file_data",gst_file_data)
+                gst_file = gst_doc_arr[i].file_url
+                gst_img = gst_doc_arr[i].file_name
 
             }else{
                 console.log("inside else")
-                gst_url = "";
-                gst_name = "";
+                gst_file = "";
+                gst_img = "";
             }
         }
         
@@ -539,8 +544,8 @@
         gst_city_select = new_gst.city;
         gst_city_link_state = new_gst.state;
         gst_number = new_gst.gstn;
-        gst_file = gst_url;
-        gst_img = gst_name;
+        gst_file = gst_file;
+        gst_img = gst_img;
         gst_uniq_name = new_gst.name;
        
     }
@@ -550,24 +555,24 @@
         let gst_doc_submit_res;
         let gst_add_res;
         let def_add = 0;
-        // show_spinner = true;
+        show_spinner = true;
         if(!gst_address.match(text_pattern)){
             gst_add_message = "Enter Valid Address";
+            show_spinner = false;
             return  
         }
         if(!gst_city_select){
             gst_city_message = "Select Valid City";
+            show_spinner = false;
             return;
         }
         console.log("gst details for gst number",gst_number,gst_state_code,pancard_obj.pan_num,gst_number.trim().length,gst_number.substring(0, 2),gst_number.substring(2, 12),gst_number.substring(13,14))
         if (gst_number == undefined) {
             gst_number_message = "Invalid GST Number";
+            show_spinner = false;
         return;
         }
-        if(!gst_file){
-            gst_upload_message = "Invalid File Upload"
-            return;
-        }
+        
         if(gst_checkbox == true){
             def_add = 1;
         }
@@ -600,71 +605,65 @@
                     toast_type = "success";
                     toast_text = "GST Details Added Successfully";
                     
-                    let new_doc_type = "gst-certificate-"+gst_state_code;
-                    console.log("new_doc_type",new_doc_type)
-                    const gst_file_data = {"documents":[{"file_name":gst_img,"doc_category":"GST Certificate","status":"created","resource_id":$facility_id.facility_id_number,"user_id":username,"doc_number":gst_number,"pod":gst_file,"doc_type":new_doc_type,"facility_id":$facility_data_store.facility_id}]}
-                    gst_doc_submit_res = await uploadDocs(gst_file_data);
-                    try {
-                        if(gst_doc_submit_res.body.status == "green"){
-                                    
-                                    toast_type = "success";
-                                    toast_text = "GST Document Added Successfully";
-                        }
-                        else if(gst_doc_submit_res.body.status == "red"){
-                            toast_type = "error";
-                            toast_text = gst_doc_submit_res.body.message;
-                        }
-                    } catch (err) {
-                        toast_type = "error";
-                        toast_text = "Error in Uploading GST Certificate";
-                    }
+                    // let new_doc_type = "gst-certificate-"+gst_state_code;
+                    // console.log("new_doc_type",new_doc_type)
+                    // const gst_file_data = {"documents":[{"file_name":gst_img,"doc_category":"GST Certificate","status":"created","resource_id":$facility_id.facility_id_number,"user_id":username,"doc_number":gst_number,"pod":gst_file,"doc_type":new_doc_type,"facility_id":$facility_data_store.facility_id}]}
+                    // gst_doc_submit_res = await uploadDocs(gst_file_data);
+                    // try {
+                    //     if(gst_doc_submit_res.body.status == "green"){
+                    //                 show_spinner = false;
+                    //                 toast_type = "success";
+                    //                 toast_text = "GST Document Added Successfully";
+                    //     }
+                    //     else if(gst_doc_submit_res.body.status == "red"){
+                    //         toast_type = "error";
+                    //         toast_text = gst_doc_submit_res.body.message;
+                    //         show_spinner = false;
+                    //     }
+                    // } catch (err) {
+                    //     show_spinner = false;
+                    //     toast_type = "error";
+                    //     toast_text = "Error in Uploading GST Certificate";
+                    // }
                 }
                 else{
+                    show_spinner = false;
                     toast_type = "error";
                     toast_text = gst_add_res.body.message;
                 }
                 
             } catch (err) {
+                show_spinner = false;
                 toast_type = "error";
                 toast_text = "Error in Adding GST Details";
             }
-            // let new_doc_type = "gst-certificate-"+gst_state_code;
-            //         console.log("new_doc_type",new_doc_type)
-            //         const gst_file_data = {"documents":[{"file_name":gst_img,"doc_category":"GST Certificate","status":"created","resource_id":$facility_id.facility_id_number,"user_id":username,"doc_number":"","pod":gst_data,"doc_type":new_doc_type,"facility_id":$facility_data_store.facility_id}]}
-            //         gst_doc_submit_res = await uploadDocs(gst_file_data);
-            //         try {
-            //             if(gst_doc_submit_res.body.status == "green"){
-                                    
-            //                         toast_type = "success";
-            //                         toast_text = "GST Document Added Successfully";
-            //             }
-            //             else if(gst_doc_submit_res.body.status == "red"){
-            //                 toast_type = "error";
-            //                 toast_text = gst_doc_submit_res.body.message;
-            //             }
-            //         } catch (err) {
-            //             toast_type = "error";
-            //             toast_text = "Error in Uploading GST Certificate";
-            //         }
-            if(gst_doc_submit_res.body.status == "green" && gst_add_res.body.status=="green"){
+            
+            if(gst_add_res.body.status=="green"){
                 let gst_details_res = await gst_details();
                 try{
+                    
                     if(gst_details_res != "null"){
-                        // gst_details_data=[];
+                        gst_details_data=[];
                         console.log("gst_details_res ss",gst_details_res)
                         for(let i=0;i < gst_details_res.body.data.length;i++){
-                            for(let i = 0;i<gst_doc_arr.length;i++){
-                                if(gst_details_res.body.data[i].gstn == gst_doc_arr[i].doc_number){
+                            console.log("inside for")
+                            
+                            // for(let i = 0;i<gst_doc_arr.length;i++){
+                            //     console.log("inside an for")
+                                // if(gst_details_res.body.data[i].gstn == gst_doc_arr[i].doc_number){
+                                    
                                     gst_details_data.push(gst_details_res.body.data[i]);
-                                }  
-                            }
+                                    console.log("gst_details_data b4",gst_details_data)
+                                // }  
+                            // }
                         }
                         gst_details_data=gst_details_data;
                         console.log("gst_details_data here",gst_details_data)
                     }
-                    
+                    show_spinner = false;
                 }
                 catch(err) {
+                    show_spinner = false;
                     toast_type = "error";
                     toast_text = gst_details_res.body.message;
                     
@@ -677,13 +676,14 @@
         let gst_doc_submit_res;
         let gst_add_res;
         let def_add = 0;
-        // show_spinner = true;
+        show_spinner = true;
         if(!gst_address.match(text_pattern)){
             gst_add_message = "Enter Valid Address";
             return  
         }
         if(!gst_city_select){
             gst_city_message = "Select Valid City";
+            show_spinner = false;
             return;
         }
         console.log("gst details for gst number",gst_number,gst_state_code,pancard_obj.pan_num,gst_number.trim().length,gst_number.substring(0, 2),gst_number.substring(2, 12),gst_number.substring(13,14))
@@ -693,6 +693,7 @@
         }
         if(!gst_file){
             gst_upload_message = "Invalid File Upload"
+            show_spinner = false;
             return;
         }
         if(gst_checkbox == true){
@@ -741,17 +742,21 @@
                             toast_type = "error";
                             toast_text = gst_doc_submit_res.body.message;
                         }
+                        show_spinner = false;
                     } catch (err) {
+                        show_spinner = false;
                         toast_type = "error";
                         toast_text = "Error in Uploading GST Certificate";
                     }
                 }
                 else{
+                    show_spinner = false;
                     toast_type = "error";
                     toast_text = gst_add_res.body.message;
                 }
                 
             } catch (err) {
+                show_spinner = false;
                 toast_type = "error";
                 toast_text = "Error in Adding GST Details";
             }
@@ -953,7 +958,7 @@
                 
                 for(let i=0;i<client_det_res.body.data.length;i++){
                     // for(let j=0;j<client_det_res.body.data.length;j++){
-                   
+                    client_det_res.body.data[i]["checked"] = false;
                     client_det_arr.push(client_det_res.body.data[i]);
                     // }
                 }
@@ -978,10 +983,16 @@
         
     }
 
+
     async function checkbox_clicked(item){
         let new_object = {facility_name:item.facility_name, name:item.name , unique_name:""}
-        child_check = document.getElementById("child_checkbox"+item.name).checked;
+        unique_id = item.name
+        
+        // child_check = document.getElementById("child_checkbox"+item.name).checked;
+        
+        child_check = !item["checked"];   
 
+        console.log("item and check value",item,child_check)
         if(child_check == true){
             if (!child_selected_arr.filter(e => e.name === item.name).length > 0) {
                    console.log("pushing")
@@ -1034,7 +1045,7 @@
     }
 
     async function child_submit_fun(){
-        
+        show_spinner = true;
         console.log("Spinner")
         if(new_child_selected_arr.length == 0){
             show_spinner = false;
@@ -1046,14 +1057,15 @@
         let new_child_obj = [];
         childlink = "childlink2";
         for(let i = 0;i<new_child_selected_arr.length;i++){
-            new_child_obj.push({"parent_facility_id":$facility_id.facility_id_number,
+            new_child_obj.push(
+            {"parent_facility_id":$facility_id.facility_id_number,
             "status":"active",
             "child_facility_id":new_child_selected_arr[i].name,
             "child_id":new_child_selected_arr[i].facility_name,
             "parent_name":$facility_data_store.facility_name,
             "parent_id":$facility_data_store.facility_id})
         }
-        
+       
         // console.log("new_child_obj",new_child_obj)
        let child_submit_res = await child_data(new_child_obj);
 
@@ -1064,11 +1076,15 @@
             let list_child_data_res = await list_child_data();
                 try {
                     if (list_child_data_res.body.status == "green") {
+                       
                         child_selected_arr = [];
+                        new_child_selected_arr = [];
+                        
                         for (let i = 0; i < list_child_data_res.body.data[0].parent_child.length; i++) {
                             // console.log("list_child_data_temp", list_child_data_res.body.data[0].parent_child)
                             child_selected_arr.push(list_child_data_res.body.data[0].parent_child[i]);
                         }
+                        child_selected_arr=child_selected_arr
                         city = city;
                         console.log("child_selected_arr in link child", child_selected_arr)
                     }
@@ -1076,8 +1092,8 @@
                     toast_type = "error";
                     toast_text = err;
                 }
+                // document.getElementById("child_checkbox"+unique_id).checked = false;
                 link_child(city_select);
-                console.log("child_check",child_check)
                 show_spinner = false;
                 
             }
@@ -1098,7 +1114,7 @@
 
     
     async function delete_child(child_id){
-
+        show_spinner = true;
         console.log("child_id",child_id)
         let delete_child_res =await remove_child(child_id);
         console.log("delete_child_res",delete_child_res)
@@ -1118,6 +1134,7 @@
                         console.log("child_selected_arr in link child", child_selected_arr)
                     }
                 } catch (err) {
+                    show_spinner = false;
                     toast_type = "error";
                     toast_text = err;
                 }
@@ -1126,6 +1143,7 @@
                 show_spinner = false;
             }
         } catch (error) {
+            show_spinner = false;
             toast_type = "error";
             toast_text = delete_child_res.body.message;
         }
@@ -1162,29 +1180,64 @@
     async function clearedSearchFunc(){
         client_det_arr = [];
         let client_det_res=await client_details(city_select);
+        // try{
+        //     show_spinner = true;
+        //     if(client_det_res.body.status == "green"){
+        //         paginatedItems = [];
+        //         show_spinner = false;
+        //         for(let i=0;i<client_det_res.body.data.length;i++){
+                    
+        //                 client_det_arr.push(client_det_res.body.data[i]);
+                    
+        //         }
+                
+        //         items=client_det_arr;
+      
+        //         paginatedItems = paginate({ items, pageSize, currentPage })
+        //         console.log("safter search",paginatedItems)
+        //         result = true;
+                
+                
+        //     }
+        //     else{
+        //         show_spinner = false;
+        //     }
+        // }
+        // catch(err) {
+        //     show_spinner = false;
+        //     toast_type = "error";
+        //     toast_text = err;
+        // }
         try{
-            show_spinner = true;
-            if(client_det_res.body.status == "green"){
-                show_spinner = false;
-                for(let i=0;i<client_det_res.body.data.length;i++){
-                    
-                        client_det_arr.push(client_det_res.body.data[i]);
-                    
-                }
-                paginatedItems=client_det_arr;
-                result = true;
-                
-                
-            }
-            else{
-                show_spinner = false;
-            }
-        }
-        catch(err) {
-            show_spinner = false;
-            toast_type = "error";
-            toast_text = err;
-        }
+           
+           if(client_det_res.body.status == "green"){
+               
+               show_spinner = false;
+               
+               for(let i=0;i<client_det_res.body.data.length;i++){
+                   // for(let j=0;j<client_det_res.body.data.length;j++){
+                   client_det_res.body.data[i]["checked"] = false;
+                   client_det_arr.push(client_det_res.body.data[i]);
+                   // }
+               }
+               console.log("client_det_arr here",client_det_arr)
+               client_det_arr=client_det_arr;
+               items = client_det_arr;
+               
+               
+               paginatedItems = paginate({ items, pageSize, currentPage })
+               
+           }
+           else{
+               paginatedItems = [];
+               show_spinner = false;
+           }
+       }
+       catch(err){
+           show_spinner = false;
+           toast_type = "error";
+           toast_text = err;
+       }
     }
     async function filterResults(){
 
@@ -1197,7 +1250,10 @@
             searchArray = [...searchArray,searchK]
             }
         }
-        paginatedItems = searchArray;
+        items = searchArray;
+        console.log("searchArray",items)
+        paginatedItems = paginate({ items, pageSize, currentPage })
+        console.log("paginated search",paginatedItems)
     }
    
     
@@ -1237,7 +1293,7 @@
                     <img src="{$img_url_name.img_name}/delivery.png" class="w-28 h-28 xsl:h-auto" alt="">
                 </div>
                 <div class="w-auto col-span-2 mt-6 xsl:mt-3">
-                <div class="text-2xl xsl:text-xl">{$facility_data_store.facility_name}</div>
+                <div class="text-2xl xsl:text-xl break-all">{$facility_data_store.facility_name}</div>
                 <p class="imgName">{$facility_data_store.facility_name}</p>
                 </div>
                 {:else}
@@ -1245,7 +1301,7 @@
                      <img src="{$page.url.origin+fac_photo_obj.profile_url}" class="w-28 h-28 xsl:h-auto" alt="">
                  </div>
                  <div class="w-auto col-span-2 mt-6 xsl:mt-3">
-                 <div class="text-2xl xsl:text-xl">{$facility_data_store.facility_name}</div>
+                 <div class="text-2xl xsl:text-xl break-all">{$facility_data_store.facility_name}</div>
                  <p class="imgName">{$facility_data_store.facility_name}</p>
                  </div>
                  {/if}
@@ -1860,8 +1916,8 @@
                                         <th>
                                             GST State
                                         </th>
-                                        <th>GST Number    </th>
-                                        <th>GST Certificate    </th>
+                                        <th>GST Number</th>
+                                        <th>GST Certificate</th>
                                         <th>Edit</th>
                                         <th>Status</th>
                                        
@@ -1880,9 +1936,8 @@
                                         <td>{new_gst.city}</td>
                                         <td>{new_gst.state} </td>
                                         <td>{new_gst.gstn}</td>
-                                        <td>{#if show_gst_view_btn == true}
-                                            <p class="verifyText">
-
+                                        <td>{#if new_gst.show_view_btn == true}
+                                            <!-- <p class="verifyText"> -->
                                                 <button class="smButton">
 
                                                     <img
@@ -1897,11 +1952,10 @@
 
                                                 </button>
 
-                                            </p>
+                                            <!-- </p> -->
                                             {/if}</td>
                                         <td>
                                             <p class="flex justify-center">
-                                                {#each gst_doc_arr as gst_doc}
                                                     <p class="verifyText">
 
                                                         <button class="smButton">
@@ -1911,7 +1965,7 @@
 
                                                                 src="{$img_url_name.img_name}/edit.png"
 
-                                                                on:click="{()=>{gst_edit_click(new_gst,gst_doc.file_url,gst_doc.file_name)}}"
+                                                                on:click="{()=>{gst_edit_click(new_gst)}}"
 
                                                                 alt="gst edit"
 
@@ -1930,9 +1984,6 @@
                                                             />
                                                             {/if} -->
                                                         </button>
-
-                                                    </p>
-                                                    {/each}
                                             </p>
                                         </td>
                                         <td>
@@ -2410,6 +2461,7 @@
                                                 {/if}
 
                                                 {#if child == "linkchild2"}
+                                                
                                                 {#each paginatedItems as item}
 
                                                 <tr class="border-b">
@@ -2421,17 +2473,20 @@
                                                     <td>{item.station_code}</td>
 
                                                     <td>{item.phone_number}</td>
-
+                                                    
                                                     <td
                                                             ><input
                                                                 type="checkbox"
                                                                 class=" checked:bg-blue-500 ..."
                                                                 id={"child_checkbox"+item.name}
+                                                                name={"child_checkbox"+item.name}
+                                                                bind:checked="{item.checked}"
                                                                on:click={checkbox_clicked(item)}
                                                             /></td
                                                         > 
                                                 </tr>
                                                 {/each}
+                                               
                                                 {/if}
 
 

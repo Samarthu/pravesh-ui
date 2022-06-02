@@ -9,12 +9,11 @@ function sorting_pravesh_properties(pravesh_properties_data){
        
        
         let keys= Object.keys(pravesh_properties_data);
-        console.log("keys", keys);
+        // console.log("keys", keys);
         for(let i=0;i<keys.length;i++){
             let temp_array =[];
             if(pravesh_properties_data[keys[i]]){
                 
-                console.log("pravesh property",keys[i]);
                 if(keys[i] == "id_proof_rejection_reasons" ||keys[i] ==  "bank_rejection_reasons"){
                     // console.log("inside iffffff");
                     // console.log("inside ifffff",pravesh_properties_data[keys[i]]);
@@ -28,7 +27,7 @@ function sorting_pravesh_properties(pravesh_properties_data){
                     // console.log("inside else if");
                     // console.log("inside else keysi ",pravesh_properties_data[keys[i]]);
                     let doc_array = pravesh_properties_data[keys[i]].split("\n");
-                    console.log("temp array",doc_array);
+                    // console.log("temp array",doc_array);
                     for (var j = 0; j < doc_array.length-1; j++) {
                         var ele = doc_array[j];
                         var doc_name = ele.split("=")[0]
@@ -55,7 +54,7 @@ function sorting_pravesh_properties(pravesh_properties_data){
 
 
         }
-        console.log("final_object",final_object);
+        // console.log("final_object",final_object);
         pravesh_properties.set({
             properties : final_object
         });
@@ -64,7 +63,7 @@ function sorting_pravesh_properties(pravesh_properties_data){
             temp = value.properties;
             
         })
-console.log("pravesh properties values",temp);
+// console.log("pravesh properties values",temp);
 
 
 }

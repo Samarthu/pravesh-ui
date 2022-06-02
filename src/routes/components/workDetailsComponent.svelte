@@ -2228,7 +2228,7 @@
                                         </div>
                                         <div class="w-full">
                                             <div class="  py-3 ">
-                                                <div class="light14greylong  mb-1">Upload GST Certificate</div>
+                                                <div class="light14greylong  mb-1">Upload Work Contract Certificate</div>
                                                 <div class="w-full">
                                                     <label class="cursor-pointer flex">
                                                         <div class="ErBlueButton">Select File</div>

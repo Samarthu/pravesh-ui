@@ -24,6 +24,7 @@ export var facility_data_store = writable({
         non_msme_confirmed_on:null,
         msme_registered:null,        
         facility_email:null,
+        details_updated_by:"-",
         
 });
 
