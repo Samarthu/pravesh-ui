@@ -152,12 +152,12 @@
     $:if(new_selected_state){
         state_dep_city();
     }
+
+    let rotue_back_fac_id = $facility_data_store.name;
     
     onMount(async () => {
 
-
-
-       show_spinner = true;
+        show_spinner = true;
 
        query = $page.url;
 
@@ -368,9 +368,13 @@
     // console.log("$facility_data_store.first_name",$facility_data_store);    
         
     let bgv_pass_data=[
-            $facility_data_store.org_id,
-            $facility_data_store.station_code,
-            $facility_data_store.facility_type,
+        "ER",
+        "CRUN",
+        "Reseller"
+            // $facility_data_store.org_id,
+            // $facility_data_store.station_code,
+            // $facility_data_store.facility_type,
+
         ]  
     if($facility_data_store.org_id =="FT"){
         let casper_id_res = await get_casper_id();
@@ -721,6 +725,8 @@
             // if(!fac_photo_obj.profile_url){
                new_profile_url = reader.result;
                doc_present.push("profile_present")
+               throwError("photo_up_msg","");
+
             // }
             // else{
             //     new_profile_url =fac_photo_obj.profile_url;
@@ -734,6 +740,8 @@
             // if(!fac_photo_obj.profile_url){
                 new_aadhar_url = reader.result;
                 doc_present.push("aadhar_present")
+                throwError("aadhar_up_msg","")
+
 
             // }
             // else{
@@ -748,6 +756,7 @@
             // if(!fac_photo_obj.address_url){
                new_address_url = reader.result;
                 doc_present.push("address_present")
+                throwError("add_up_msg","")
 
 
             // }
@@ -763,6 +772,8 @@
             // if(!fac_photo_obj.pan_attach){
                new_pan_url = reader.result;
             doc_present.push("pan_present")
+            throwError("pan_up_msg","")
+
 
             // }
             // else{
@@ -777,6 +788,7 @@
             // if(!fac_photo_obj.pol_doc_url){
                new_pol_url = reader.result;
                
+                throwError("pol_up_msg","")
             doc_present.push("police_present")
             // }
             // pol_photo_obj.pol_doc_url = reader.result;
@@ -788,6 +800,7 @@
             // if(!fac_photo_obj.dl_lic_url){
                new_dl_url = reader.result;
             doc_present.push("dl_present")
+            throwError("dl_up_msg","");
             // }
             // else{
             //     new_dl_url =fac_photo_obj.dl_lic_url;
@@ -1498,7 +1511,7 @@
         let police_data = {
         candidate_name: $bgv_data_store.candidate_name,
         guardian_name: $bgv_data_store.guardian_name,
-        police_address_type: $bgv_data_store.police_address_type,
+        police_address_type: police_add_per,
         police_verified_address: $bgv_data_store.police_verified_address,
         }
         show_spinner = false
@@ -1663,7 +1676,7 @@
                         
                     }
                     else if(doc_present.includes("address_present")){
-                        address_res = await submit_aadhar();
+                        address_res = await submit_address();
                             try{
                                     if(address_res.body.status == "green"){
                                         address_res = "green"
@@ -1738,7 +1751,7 @@
                             }
                 }
                 else if(doc_present.includes("pan_present")){
-                    pan_res = await submit_aadhar();
+                    pan_res = await submit_pancard();
                             try{
                                     if(pan_res.body.status == "green"){
                                         pan_res = "green"
@@ -1809,7 +1822,7 @@
                             }
                         }
                     else if(doc_present.includes("dl_present")){
-                        dl_res = await submit_aadhar();
+                        dl_res = await submit_licence();
                         try{
                                 if(dl_res.body.status == "green"){
                                     dl_res = "green"
@@ -1872,7 +1885,7 @@
                         }
                     }
                     else if(doc_present.includes("pol_present")){
-                        pol_res = await submit_aadhar();
+                        pol_res = await submit_police();
                         try{
                                 if(pol_res.body.status == "green"){
                                     pol_res = "green"
@@ -2033,7 +2046,7 @@
 
     routeNext = "bgvsuccesspopup";
 
-    routePrev = "onboardsummary?unFacID="+$facility_data_store.name;
+    routePrev = "onboardsummary?unFacID="+rotue_back_fac_id;
 
 
     function verify_new_otp(){
@@ -3679,7 +3692,7 @@
                     </svg>
 
                     <h2 class="successTextgreen ">Details Submitted Successfully</h2>
-                        <p class="successDes">Now Intiate for background verification</p>
+                        <!-- <p class="successDes">Now Intiate for background verification</p> -->
                 </div>
 
             </div>

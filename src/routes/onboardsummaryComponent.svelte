@@ -149,8 +149,8 @@
         let bank_name_message ="",type_message="",cheque_date_message="",cheque_number_message=""
         ,amount_message="",recrun_number_message="",file_number_message="",cheque_upload_message="";
         let child_box;
-        let bank_details_res,bank_new_date,
-        facility_modified_date,facility_doc_date;
+        let bank_new_date;
+        let facility_modified_date,facility_doc_date;
         // let client_det_res;
         let client_det_arr=[];
         let gst_doc_arr=[];
@@ -290,7 +290,7 @@
             // );
             try{
             if (get_pravesh_properties_response.body.status == "green") {
-                console.log("get_pravesh_properties_response",get_pravesh_properties_response)
+                // console.log("get_pravesh_properties_response",get_pravesh_properties_response)
                 sorting_pravesh_properties(
                     get_pravesh_properties_response.body.data
                 );
@@ -312,7 +312,7 @@
     
                 bank_details_req_fac = $pravesh_properties.properties.bank_section_required_associates;
                 
-                console.log("facility_password",bank_details_req_fac)
+                // console.log("facility_password",bank_details_req_fac)
             } 
             else {
                 toast_type = "error";
@@ -350,9 +350,9 @@
                 toast_text = "Cannot get user details";
             }
     
-            bank_details_res = await bank_details();
+            let bank_details_res = await bank_details();
             try{
-                
+               
                 if(!bank_details_res){
                     
                     // console.log("No Data Found")
@@ -453,11 +453,16 @@
                 facility_document_data = facility_document_res.body.data;
                 for (var i = 0; i < facility_document_data.length; i++) {
                     let doc_date_format = new Date(facility_document_data[i].creation);
+                    let doc_modified_format = new Date(facility_document_data[i].modified);
                     let doc_creation_date = get_date_format(doc_date_format,"dd-mm-yyyy-hh-mm");
+                    let doc_modified_date = get_date_format(doc_modified_format,"dd-mm-yyyy-hh-mm");
                     facility_document_data[i].creation = doc_creation_date
+                    facility_document_data[i].modified = doc_modified_date
                     
                     if(facility_document_data[i].doc_type == "pan-photo"){
-                        changed_pan_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, '*');
+                        if(facility_document_data[i].doc_number){
+                            changed_pan_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, '*');
+                        }
                         pancard_obj = {pan_num : facility_document_data[i].doc_number,
                         pan_attach : facility_document_data[i].file_url,
                         pan_name : facility_document_data[i].file_name,
@@ -467,7 +472,7 @@
                     }
                     
                     else if(facility_document_data[i].doc_type == "aadhar-id-proof"){
-                        console.log("Inside aadhar id proof")
+                        // console.log("Inside aadhar id proof")
                         if(facility_document_data[i].doc_number){
                             changed_aadhar_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, '*');
                         }
@@ -479,29 +484,31 @@
                         
                     }
                     else if(facility_document_data[i].doc_type == "pass_photo"){
-                        console.log("Inside pass photo")
+                        // console.log("Inside pass photo")
                         fac_photo_obj={
                         profile_url : facility_document_data[i].file_url,
                         profile_verified : facility_document_data[i].verified,
                         profile_rejected : facility_document_data[i].rejected};
                     }
                     else if(facility_document_data[i].doc_type == "addproof-photo"){
-                        console.log("Inside addproof photo")
+                        // console.log("Inside addproof photo")
                         addproof_obj = {address_name : facility_document_data[i].file_name,   
                         address_url : facility_document_data[i].file_url,
                         address_verified : facility_document_data[i].verified,
                         address_rejected : facility_document_data[i].rejected};
                     }
                     else if(facility_document_data[i].doc_type == "can-cheque"){
-                        console.log("Inside can cheque")
+                        // console.log("Inside can cheque")
                         can_cheque_obj.push = {can_cheque_name : facility_document_data[i].file_name,
                         can_cheque_url : facility_document_data[i].file_url,
                         can_cheque_verified : facility_document_data[i].verified,
                         can_cheque_rejected : facility_document_data[i].rejected};
                     }
                     else if(facility_document_data[i].doc_type == "dl-photo"){
-                        console.log("Inside dl photo")
-                        changed_dl_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, '*');
+                        // console.log("Inside dl photo")
+                        if(facility_document_data[i].doc_number){
+                            changed_dl_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, '*');
+                        }
                         dl_photo_obj = {dl_lic_name : facility_document_data[i].file_name,
                         dl_lic_num : facility_document_data[i].doc_number,
                         dl_lic_url : facility_document_data[i].file_url,
@@ -509,7 +516,7 @@
                         dl_rejected : facility_document_data[i].rejected};
                     }
                     else if(facility_document_data[i].doc_type == "newOffFile"){
-                        console.log("Inside newOffFile")
+                        // console.log("Inside newOffFile")
                         new_off_file_obj = {offer_name : facility_document_data[i].file_name,
                         offer_url : facility_document_data[i].file_url,
                         offer_verified : facility_document_data[i].verified,
@@ -517,22 +524,20 @@
                         
                     }
                     else if(facility_document_data[i].doc_type == "voter-id-proof"){
-                        console.log("Inside voter id proof")
-                        changed_voter_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, '*');
+                        // console.log("Inside voter id proof")
+                        if(facility_document_data[i].doc_number){
+                            changed_voter_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, '*');
+                        }
                         voter_id_object = {voter_id_number : facility_document_data[i].doc_number,
                         };
                         
                     }
-                    else{
-                        console.log("here Inside else")
-                    }
-                    
-                   console.log("here at 517") 
+                    // else{
+                    //     toast_type = "error";
+                    //     toast_text = "No Document Found";
+                    // }
                 }
-                console.log("Here at 520")
-                
             }
-            console.log("pancard_obj",pancard_obj,"aadhar_obj",aadhar_obj,"fac_photo_obj",fac_photo_obj,"addproof_obj",addproof_obj,"can_cheque_obj",can_cheque_obj,"dl_photo_obj",dl_photo_obj,"new_off_file_obj",new_off_file_obj);
             }
             catch(err) {
            
@@ -2539,7 +2544,7 @@
                                                     <p>-</p>
                                                     {:else}
                                                     <td >
-                                                        <p class="detailData text-left pl-4">{new_doc_data.file_name}</p>
+                                                        <p class="detailData text-left pl-4 wordwrap">{new_doc_data.file_name}</p>
                                                     </td>
                                                     {/if}
                                                     <td>  
