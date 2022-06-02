@@ -209,6 +209,7 @@
     let profile_url = "";
     let cas_flag = 0;
     let window;
+    let bgv_pass_data;
     $:if(stat_select != null){
         console.log("station_select",stat_select)
         station_code_select(stat_select);
@@ -233,23 +234,23 @@
         minDate =  get_date_format(minDate,"dd-mm-yyyy")
         console.log("mindate", minDate)
 
-    function zoomin() {
-        var myImg = document.getElementById("map");
-        var currWidth = myImg.clientWidth;
-        if (currWidth == 2500) return false;
-        else {
-            myImg.style.width = (currWidth + 100) + "px";
-        }
-        }
+    // function zoomin() {
+    //     var myImg = document.getElementById("map");
+    //     var currWidth = myImg.clientWidth;
+    //     if (currWidth == 2500) return false;
+    //     else {
+    //         myImg.style.width = (currWidth + 100) + "px";
+    //     }
+    //     }
 
-        function zoomout() {
-        var myImg = document.getElementById("map");
-        var currWidth = myImg.clientWidth;
-        if (currWidth == 100) return false;
-        else {
-            myImg.style.width = (currWidth - 100) + "px";
-        }
-        }
+    //     function zoomout() {
+    //     var myImg = document.getElementById("map");
+    //     var currWidth = myImg.clientWidth;
+    //     if (currWidth == 100) return false;
+    //     else {
+    //         myImg.style.width = (currWidth - 100) + "px";
+    //     }
+    // }
 
     onMount(async () => {
         console.log("$facility_id.facility_id_number",$facility_id.facility_id_number)
@@ -320,7 +321,7 @@
             let new_date = new Date($facility_data_store.document_updated_on)
             verified_date = get_date_format(new_date,"dd-mm-yyyy-hh-mm")   
             
-            let bgv_pass_data=[
+            bgv_pass_data=[
             $facility_data_store.org_id,
             $facility_data_store.station_code,
             $facility_data_store.facility_type, /////All these are commented bcoz they only show values when traversed
@@ -501,9 +502,8 @@
         console.log("facility_bgv_check_res",facility_bgv_check_res)
         try {
             if(!facility_bgv_check_res || facility_bgv_check_res.body.data.length == "0"){
-                var eighteenYearsAgo =  new Date();
-                eighteenYearsAgo.setFullYear( eighteenYearsAgo.getFullYear() - 18);
-                $bgv_data_store.basic_info_dob = eighteenYearsAgo;
+                var eighteenYearsAgo = new Date();
+                $bgv_data_store.basic_info_dob = get_date_format(new Date(eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear()-18)),"yyyy-mm-dd");
                 // $bgv_data_store.basic_info_updated_on = $bgv_data_store.basic_info_updated_on.get_date_format(bgv_date_format,"dd-mm-yyyy-hh-mm");
                 let bgv_date_format = new Date($bgv_data_store.basic_info_updated_on);
                 $bgv_data_store.basic_info_updated_on =get_date_format(bgv_date_format,"dd-mm-yyyy-hh-mm");
@@ -515,8 +515,8 @@
             curr_same = $bgv_data_store.current_address_is_same;
             police_add_per = $bgv_data_store.police_address_type;
             if(!$bgv_data_store.basic_info_dob){
-                var eighteenYearsAgo =  new Date();
-                $bgv_data_store.basic_info_dob = eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear()-18);
+                var eighteenYearsAgo = new Date();
+                $bgv_data_store.basic_info_dob = get_date_format(new Date(eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear()-18)),"yyyy-mm-dd");
             }
                 // $bgv_data_store.basic_info_updated_on = $bgv_data_store.basic_info_updated_on.get_date_format(bgv_date_format,"dd-mm-yyyy-hh-mm");
                 let bgv_date_format = new Date($bgv_data_store.basic_info_updated_on);
@@ -1771,17 +1771,10 @@
                 hub_name:$bgv_data_store.hub_name,
                 delivery_model:$bgv_data_store.delivery_model
             }
-            // }
-            // else{
-            //     let basic_dets_data = {
-            //     action_type:"Verified",
-            //     facility_id:facility_id,
-            //     field_type:"basicInfo"
-            // }
-            // }
-            
             let basic_app_res = await bgv_approve_rej(basic_dets_data)
             show_spinner = false;
+            let facility_bgv_check_res = await facility_bgv_check();
+            $bgv_data_store = facility_bgv_check_res.body.data[0];
             console.log("basic_app_res",basic_app_res)
             if(basic_app_res.body.status == "green"){
                 basic_bgv_success_flag = 1;
@@ -1799,6 +1792,8 @@
             }
             let address_app_res = await bgv_approve_rej(address_dets_data)
             show_spinner = false;
+            let facility_bgv_check_res = await facility_bgv_check();
+            $bgv_data_store = facility_bgv_check_res.body.data[0];
             console.log("address_app_res",address_app_res)
             if(address_app_res.body.status == "green"){
                 address_bgv_success_flag = 1;
@@ -1814,6 +1809,8 @@
             }
             let pan_app_res = await bgv_approve_rej(pan_dets_data)
             show_spinner = false;
+            let facility_bgv_check_res = await facility_bgv_check();
+            $bgv_data_store = facility_bgv_check_res.body.data[0];
             console.log("pan_app_res",pan_app_res)
             if(pan_app_res.body.status == "green"){
                 pan_bgv_success_flag = 1
@@ -1830,6 +1827,8 @@
             }
             let dl_app_res = await bgv_approve_rej(dl_dets_data)
             show_spinner = false;
+            let facility_bgv_check_res = await facility_bgv_check();
+            $bgv_data_store = facility_bgv_check_res.body.data[0];
             console.log("dl_app_res",dl_app_res)
             if(dl_app_res.body.status == "green"){
                 dl_bgv_success_flag = 1
@@ -1846,6 +1845,8 @@
             }
             let pol_app_res = await bgv_approve_rej(pol_dets_data)
             show_spinner = false;
+            let facility_bgv_check_res = await facility_bgv_check();
+            $bgv_data_store = facility_bgv_check_res.body.data[0];
             console.log("pol_app_res",pol_app_res)
             if(pol_app_res.body.status == "green"){
                 police_bgv_success_flag = 1
@@ -1913,7 +1914,7 @@
             // console.log("FLAGS in bgv final_bgv_approve",final_bgv_approve)
             
             if(bgv_data == "basic_reject"){
-                show_spinner = true;
+            show_spinner = true;
             console.log("basic_reject")
             // if(basic_info_rej != null)
             // {
@@ -1928,7 +1929,12 @@
             
             let basic_app_res = await bgv_approve_rej(basic_dets_data)
             show_spinner = false;
+            let facility_bgv_check_res = await facility_bgv_check();
+       
+       $bgv_data_store = facility_bgv_check_res.body.data[0];
             console.log("basic_app_res",basic_app_res)
+
+
             if(basic_app_res.body.status == "green"){
                 basic_bgv_reject_flag = 1;
             }
@@ -1944,6 +1950,10 @@
             }
             let address_app_res = await bgv_approve_rej(address_dets_data)
             show_spinner = false;
+
+            let facility_bgv_check_res = await facility_bgv_check();     
+            $bgv_data_store = facility_bgv_check_res.body.data[0];
+
             if(address_app_res.body.status == "green"){
                 address_bgv_reject_flag = 1;
             }
@@ -1960,6 +1970,8 @@
             }
             let dl_app_res = await bgv_approve_rej(dl_dets_data)
             show_spinner = false;
+            let facility_bgv_check_res = await facility_bgv_check();
+            $bgv_data_store = facility_bgv_check_res.body.data[0];
             console.log("dl_app_res",dl_app_res)
             if(dl_app_res.body.status == "green"){
                 dl_bgv_reject_flag = 1
@@ -1976,6 +1988,8 @@
             }
             let pol_app_res = await bgv_approve_rej(pol_dets_data)
             show_spinner = false;
+            let facility_bgv_check_res = await facility_bgv_check();
+            $bgv_data_store = facility_bgv_check_res.body.data[0];
             console.log("pol_app_res",pol_app_res)
             if(pol_app_res.body.status == "green"){
                 police_bgv_reject_flag = 1
@@ -1992,6 +2006,8 @@
             }
             let pan_app_res = await bgv_approve_rej(pan_dets_data)
             show_spinner = false;
+            let facility_bgv_check_res = await facility_bgv_check();
+            $bgv_data_store = facility_bgv_check_res.body.data[0];
             console.log("pan_app_res",pan_app_res)
             if(pan_app_res.body.status == "green"){
                 pan_bgv_reject_flag = 1
@@ -2044,12 +2060,9 @@
                 // console.log("final_bgv_ver_btn",final_bgv_ver_btn)
                 // console.log("final_id_ver_btn",final_id_ver_btn);
             }
-           }
-
+    }
     
-    
-    
-           async function final_bgv_verify_func(){
+    async function final_bgv_verify_func(){
         if(final_bgv_approve == 1){
             console.log("final_bgv_verify_func")
             show_spinner=true;
@@ -3324,10 +3337,10 @@
                             </div>
 
                             <div class="flex items-center justify-center gap-4 py-4">
-                                <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
+                                <!-- <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
                             
                             <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                            <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
+                            <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
                            
                         </div>
                          </div>
@@ -3364,10 +3377,10 @@
                             </div>
 
                             <div class="flex items-center justify-center gap-4 py-4">
-                                <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
+                                <!-- <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
                             
                             <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                            <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
+                            <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
                            
                         </div>
                          </div>
@@ -3466,10 +3479,10 @@
                                 </div>
 
                                 <div class="flex items-center justify-center gap-4 py-4">
-                                    <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}"> 
+                                    <!-- <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}"> 
                                 
                                 <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                                <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
+                                <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
                                
                             </div>
                              </div>
@@ -3504,10 +3517,10 @@
                             </div>
 
                             <div class="flex items-center justify-center gap-4 py-4">
-                                <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
+                                <!-- <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
                             
                             <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                            <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
+                            <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
                            
                         </div>
                          </div>
@@ -3544,10 +3557,10 @@
                             </div>
 
                             <div class="flex items-center justify-center gap-4 py-4">
-                                <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
+                                <!-- <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
                             
                             <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                            <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
+                            <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
                            
                         </div>
                          </div>
@@ -3586,10 +3599,10 @@
                             </div>
 
                             <div class="flex items-center justify-center gap-4 py-4">
-                                <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
+                                <!-- <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
                             
                                 <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                                <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
+                                <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
                            
                             </div>
                          </div>
@@ -3704,10 +3717,10 @@
                         </div>
 
                         <div class="flex items-center justify-center gap-4 py-4">
-                            <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
+                            <!-- <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
                         
                         <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                        <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
+                        <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
                        
                     </div>
                      </div>
@@ -3718,10 +3731,10 @@
                         </div>
 
                         <div class="flex items-center justify-center gap-4 py-4">
-                            <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
+                            <!-- <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
                         
                         <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                        <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
+                        <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
                        
                     </div>
                      </div>
@@ -3732,10 +3745,10 @@
                         </div>
 
                         <div class="flex items-center justify-center gap-4 py-4">
-                            <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
+                            <!-- <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
                         
                         <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                        <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
+                        <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
                        
                     </div>
                      </div>
@@ -3746,10 +3759,10 @@
                         </div>
 
                         <div class="flex items-center justify-center gap-4 py-4">
-                            <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
+                            <!-- <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
                         
                         <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                        <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
+                        <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
                        
                     </div>
                      </div>
@@ -4005,10 +4018,10 @@
                         </div>
 
                         <div class="flex items-center justify-center gap-4 py-4">
-                            <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
+                            <!-- <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
                         
                         <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                        <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
+                        <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
                        
                     </div>
                      </div>
@@ -4019,10 +4032,10 @@
                         </div>
 
                         <div class="flex items-center justify-center gap-4 py-4">
-                            <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
+                            <!-- <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
                         
                         <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                        <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
+                        <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
                        
                     </div>
                      </div>
@@ -4032,13 +4045,13 @@
                           <img src="{pass_photo_url}"  id="hubblepic">
                         </div>
 
-                        <div class="flex items-center justify-center gap-4 py-4">
+                        <!-- <div class="flex items-center justify-center gap-4 py-4">
                             <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
                         
                         <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
                         <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
                        
-                    </div>
+                    </div> -->
                      </div>
                      {/if}
                  </div>  
@@ -4199,10 +4212,10 @@
                         </div>
 
                         <div class="flex items-center justify-center gap-4 py-4">
-                            <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
+                            <!-- <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
                         
                         <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                        <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
+                        <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
                        
                     </div>
                      </div>
@@ -4399,10 +4412,10 @@
                             </div>
 
                             <div class="flex items-center justify-center gap-4 py-4">
-                                <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
+                                <!-- <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
                             
                             <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                            <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
+                            <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
                            
                         </div>
                          </div>
@@ -4516,10 +4529,10 @@
                             </div>
 
                             <div class="flex items-center justify-center gap-4 py-4">
-                                <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
+                                <!-- <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
                             
                                 <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                                <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
+                                <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
                             
                             </div>
                         </div>
@@ -4623,10 +4636,10 @@
                                 </div>
     
                                 <div class="flex items-center justify-center gap-4 py-4">
-                                    <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
+                                    <!-- <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
                                 
                                     <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                                    <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
+                                    <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
                                 
                                 </div>
                             </div>
