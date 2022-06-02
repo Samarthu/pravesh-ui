@@ -4045,13 +4045,13 @@
                           <img src="{pass_photo_url}"  id="hubblepic">
                         </div>
 
-                        <!-- <div class="flex items-center justify-center gap-4 py-4">
-                            <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
+                        <div class="flex items-center justify-center gap-4 py-4">
+                            <!-- <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
                         
                         <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                        <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}">
+                        <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
                        
-                    </div> -->
+                    </div>
                      </div>
                      {/if}
                  </div>  
