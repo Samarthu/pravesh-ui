@@ -75,6 +75,7 @@
         let check_val,query;
         let tags_for_ass_arr=[];
         var doc_type_name = [];
+        let new_arr = []
         // let edit_document_link = null;
         let check_selected;
         let id_new_date='';
@@ -160,7 +161,6 @@
         let selectTag,addRemark,selectsearch;
         let city = "-";
         let facility_address,facility_postal,facility_password,location_id,status_name;
-        let bank_details_req_fac = [];
         let new_fac_remarks = [];
         let facility_created_date;
         let select_tag_data,serv_ch_data;
@@ -309,10 +309,11 @@
                 //    console.log("offer_letter_required_associates",$pravesh_properties.properties.offer_letter_required_associates)
                 facility_password = $pravesh_properties.properties.default_org_app_password[0]
                 
-    
-                bank_details_req_fac = $pravesh_properties.properties.bank_section_required_associates;
-                
-                // console.log("facility_password",bank_details_req_fac)
+                let bank_details_req_fac = [];
+                bank_details_req_fac = ($pravesh_properties.properties.bank_section_required_associates);
+                new_arr = bank_details_req_fac.concat($pravesh_properties.properties.pan_required_associates);
+                   
+                new_arr =[...new Set(new_arr)];
             } 
             else {
                 toast_type = "error";
@@ -1869,7 +1870,7 @@
                         {/if}
                         <a class="cursor-pointer">
                             <span class="breadRightIcons" id="SupplerModalbuttonClick" on:click={auditTrial}>
-                                <img src="{$img_url_name.img_name}/audittrail.png" class="pr-2" alt=""> Audit Trial (12)
+                                <img src="{$img_url_name.img_name}/audittrail.png" class="pr-2" alt=""> Audit Trial 
                             </span>
                         </a>
                         {#if admin == false}
@@ -1890,7 +1891,7 @@
                     <p class="text-sm"><span class="font-light text-grey text-sm">Onboarded By - </span>Hemant Kumar, Mulsi SP, eCommerce</p>
                     <p class="xsl:flex justify-end hidden"><a class="cursor-pointer">
                         <span class="breadRightIconsvmt" >
-                            <img src="{$img_url_name.img_name}/audittrail.png" class="pr-2" alt=""> Audit Trial (12)
+                            <img src="{$img_url_name.img_name}/audittrail.png" class="pr-2" alt=""> Audit Trial 
                         </span>
                     </a></p>
                 </div>
@@ -2219,7 +2220,7 @@
                 <div class="{asso_active}" on:click={() => {change_to = "Associate_details",work_active="",asso_active="active",id_active="",bank_active=""}}>Associate Details</div>
                 <div class="{work_active}" on:click={() => {change_to = "Work_details",work_active="active",asso_active="",id_active="",bank_active=""}}>Work Details</div>
                 <div class="{id_active}" on:click={() => {change_to = "Identity_details",work_active="",asso_active="",id_active="active",bank_active=""}}>Identity Proof</div>
-                {#each bank_details_req_fac as req_fac}
+                {#each new_arr as req_fac}
                 {#if req_fac == $facility_data_store.facility_type}
                 <div class="{bank_active}" on:click={() => {change_to = "Bank_details",work_active="",asso_active="",id_active="",bank_active="active"}}>Bank Details</div>
                 {/if}
@@ -2260,7 +2261,7 @@
          city={city} can_cheque_obj = {can_cheque_obj}
          bank_new_date={bank_new_date} admin = {admin}
          is_adhoc_facility = {is_adhoc_facility}
-         bank_details_req_fac = {bank_details_req_fac}/>
+         bank_details_req_fac = {new_arr}/>
         {/if}
     
         
@@ -2291,7 +2292,7 @@
                                     <div class="smallText w-w115px">
                                         Facility Name
                                     </div>
-                                    <div class="smLable">{$facility_data_store.facility_name}</div>
+                                    <div class="smLable break-all">{$facility_data_store.facility_name}</div>
                                 </div>
                                 <div class="itemList ">
                                     <div class="smallText w-w115px">
@@ -2301,7 +2302,7 @@
                                 </div>
                                 
                                 <div class="itemList">
-                                    <div class="smallText w-w115px">Location</div>
+                                    <div class="smallText w-w115px break-all">Location</div>
                                     <div class="smLable">{city}</div>
                                 </div>
                                 <div class="itemList">
@@ -2533,7 +2534,7 @@
                                                     <th> Uploaded By  </th>
                                                     <th>Uploaded On    </th>
                                                     <th> View</th>
-                                                    <th> Remarks</th>
+                                                    <th> Status</th>
     
                                                 </tr>
                                             </thead>

@@ -55,6 +55,7 @@
     let dob_message = "";
     let spouse_message = "";
     let gender_message ="";
+    let personal_email = "";
     // let last_name_message = "";
     // let father_name_message ="";
     let pan_card_message = "";
@@ -102,6 +103,7 @@
     let is_pol_active = "";
     let casper_id_arr = [];
     let delivery_select,station_mod_select,casper_select;
+    let verification_success = false;
 
     let new_profile_url = "";
     let new_aadhar_url = "";
@@ -153,7 +155,7 @@
         state_dep_city();
     }
 
-    let rotue_back_fac_id = $facility_data_store.name;
+    let rotue_back_fac_id = $facility_id.facility_id_number;
     
     onMount(async () => {
 
@@ -368,12 +370,12 @@
     // console.log("$facility_data_store.first_name",$facility_data_store);    
         
     let bgv_pass_data=[
-        "ER",
-        "CRUN",
-        "Reseller"
-            // $facility_data_store.org_id,
-            // $facility_data_store.station_code,
-            // $facility_data_store.facility_type,
+        // "ER",
+        // "CRUN",
+        // "Reseller"
+            $facility_data_store.org_id,
+            $facility_data_store.station_code,
+            $facility_data_store.facility_type,
 
         ]  
     if($facility_data_store.org_id =="FT"){
@@ -402,14 +404,13 @@
                 let doc_creation_date = get_date_format(doc_date_format,"dd-mm-yyyy-hh-mm");
                 $documents_store.documents[i].creation = doc_creation_date
                 if($documents_store.documents[i].doc_type == "pan-photo"){
-                    new_pan_name = $documents_store.documents[i].doc_name;
-                    new_pan_url = $documents_store.documents[i].doc_url;
+                    new_pan_name = $documents_store.documents[i].file_name;
+                    new_pan_url = $documents_store.documents[i].file_url;
                     pancard_obj = {pan_num : $documents_store.documents[i].doc_number,
                     pan_attach : $documents_store.documents[i].file_url,
                     pan_name : $documents_store.documents[i].file_name,
                     };
-                    // if(pancard_obj.pan_attach)
-                    // doc_present.push("pan_present")
+                    
                 }
                 
                 else if($documents_store.documents[i].doc_type == "aadhar-id-proof"){
@@ -420,8 +421,7 @@
                     aadhar_attach : $documents_store.documents[i].file_url,
                     aadhar_name : $documents_store.documents[i].file_name,
                     };
-                    // if(aadhar_obj.aadhar_attach)
-                    // doc_present.push("aadhar_present")
+                   
                 }
                 else if($documents_store.documents[i].doc_type == "pass_photo"){
                     new_profile_name = $documents_store.documents[i].file_name;
@@ -430,8 +430,7 @@
                     profile_name : $documents_store.documents[i].file_name,
                     profile_url : $documents_store.documents[i].file_url,
                    };
-                    //  if(fac_photo_obj.profile_url)
-                    // doc_present.push("profile_present")
+                   
                 }
                 else if($documents_store.documents[i].doc_type == "addproof-photo"){
                     new_address_name = $documents_store.documents[i].file_name;
@@ -439,8 +438,7 @@
                     addproof_obj = {address_name : $documents_store.documents[i].file_name,   
                     address_url : $documents_store.documents[i].file_url,
                     };
-                    // if(addproof_obj.address_url)
-                    // doc_present.push("address_present")
+                    
                 }
                 else if($documents_store.documents[i].doc_type == "dl-photo"){
                     new_dl_name = $documents_store.documents[i].file_name;
@@ -450,8 +448,7 @@
                     dl_lic_num : $documents_store.documents[i].doc_number,
                     dl_lic_url : $documents_store.documents[i].file_url,
                     };
-                    // if(dl_photo_obj.dl_lic_url)
-                    // doc_present.push("dl_present")
+                    
                 }
                 else if($documents_store.documents[i].doc_type == "police_info_supp_file"){
                     new_pol_name = $documents_store.documents[i].file_name;
@@ -460,19 +457,8 @@
                     pol_doc_num : $documents_store.documents[i].doc_number,
                     pol_doc_url : $documents_store.documents[i].file_url,
                     };
-                    // if(pol_photo_obj.pol_doc_url)
-                    // doc_present.push("police_present")
                 }
-
-                
             } 
-
-                // console.log("doc_present",doc_present)
-
-
-            ///Document Data////////
-
-
     let bgv_init_res = await facility_bgv_init(bgv_pass_data);   
     
     if (bgv_init_res.body.status == "green"){
@@ -481,7 +467,6 @@
         bgv_config_store.set(
         bgv_init_res.body.data
         )
-        // console.log("bgv_config_store",$bgv_config_store) 
 
     }
 
@@ -493,7 +478,7 @@
             if(!$bgv_data_store.basic_info_dob){
                 var eighteenYearsAgo = new Date();
                 $bgv_data_store.basic_info_dob = get_date_format(new Date(eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear()-18)),"yyyy-mm-dd");
-               
+                
             }
             console.log("$bgv_data_store", $bgv_data_store.basic_info_dob)
         }
@@ -504,61 +489,23 @@
             add_is_perm = $bgv_data_store.address_type;
             curr_same = $bgv_data_store.current_address_is_same;
             police_add_per = $bgv_data_store.police_address_type;
-            let new_updated_date 
+            personal_email = $bgv_data_store.email_id;
             if(!$bgv_data_store.basic_info_dob){
-                // $bgv_data_store.basic_info_dob = new Date(0);
-                // $bgv_data_store.basic_info_dob = new Date(now.getTime() - (now.getTimezoneOffset() * 60000 )).toISOString().split("T")[0];
-                // basic_date = new Date(now.getTime() - (now.getTimezoneOffset() * 60000 )).toISOString().split("T")[0];
+                
                 var eighteenYearsAgo = new Date();
                 $bgv_data_store.basic_info_dob = get_date_format(new Date(eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear()-18)),"yyyy-mm-dd");
                
             }
             
                 console.log("new date",$bgv_data_store.basic_info_dob)
-        
-        
     }
     }
      catch(err) {
         toast_type = "error";
         toast_text = err;
-        // message.innerHTML = "Error is " + err;
+        
     }
     
-    // let get_docs_res = await get_all_docs();
-    // try{    
-    // if(get_docs_res.body.status == "green"){
-    //     console.log("get_docs_res",get_docs_res);
-    //     for(let i=0;i<get_docs_res.body.data.length;i++){
-    //         // console.log("get_docs_i",get_docs_res.body.data[i].file_name);
-    //         if(get_docs_res.body.data[i].doc_type == "fac-photo"){
-    //             fac_photo_obj.profile_name = get_docs_res.body.data[i].file_name;
-    //             // console.log("fac_photo_obj.profile_name",fac_photo_obj.profile_name)
-    //         }
-    //         if(get_docs_res.body.data[i].doc_type == "aadhar-id-proof"){
-    //             aadhar_obj.aadhar_name = get_docs_res.body.data[i].file_name;
-    //             // console.log("aadhar_obj.aadhar_name",aadhar_obj.aadhar_name)
-    //         }
-    //         if(get_docs_res.body.data[i].doc_type == "pan-photo"){
-    //             pancard_obj.pan_name = get_docs_res.body.data[i].file_name;
-    //             // console.log("pancard_obj.pan_name",pancard_obj.pan_name)
-    //         }
-    //         if(get_docs_res.body.data[i].doc_type == "police_info_supp_file"){
-    //             pol_photo_obj.pol_doc_name = get_docs_res.body.data[i].file_name;
-    //             // console.log("pol_photo_obj.pol_doc_name",pol_photo_obj.pol_doc_name)
-    //         }
-    //         if(get_docs_res.body.data[i].doc_type == "dl-photo"){
-    //             dl_photo_obj.dl_lic_name = get_docs_res.body.data[i].file_name;
-    //             // console.log("dl_photo_obj.dl_lic_name",dl_photo_obj.dl_lic_name)
-    //         }
-
-    //     }
-    // }
-    // }
-    // catch(err) {
-    //     console.log("Error")
-       
-    // }
 
     let get_states_res = await get_states();
     try {
@@ -888,7 +835,7 @@
             // if(!fac_photo_obj.profile_url && !fac_photo_obj.profile_name){
                 console.log("Photo not submitted")
             let photo_load = {
-                resource_id:$bgv_data_store.facility_id,
+                resource_id:$facility_id.facility_id_number,
                 file_name:new_profile_name,
                 pod:new_profile_url,
                 doc_category:"pass_photo",
@@ -903,7 +850,7 @@
         // if(!aadhar_obj.aadhar_name && !aadhar_obj.aadhar_attach){
             // if(!aadhar_obj.aadhar_name && !aadhar_obj.aadhar_attach){
             let aadhar_load = {
-            resource_id:$bgv_data_store.facility_id,
+            resource_id:$facility_id.facility_id_number,
             file_name:new_aadhar_name,
             pod:new_aadhar_url,
             doc_category:"aadhar-id-proof",
@@ -917,7 +864,7 @@
         // if(!addproof_obj.address_name && !addproof_obj.address_url){
         
             let address_load = {
-            resource_id:$bgv_data_store.facility_id,
+            resource_id:$facility_id.facility_id_number,
             file_name:new_address_name,
             pod:new_address_url,
             doc_category:"addproof-photo",
@@ -930,7 +877,7 @@
         // if(!pancard_obj.pan_name && !pancard_obj.pan_attach){
         
             let pan_load = {
-            resource_id:$bgv_data_store.facility_id,
+            resource_id:$facility_id.facility_id_number,
             file_name:new_pan_name,
             pod:new_pan_url,
             doc_category:"pan-photo",
@@ -943,7 +890,7 @@
         // if(!dl_photo_obj.dl_lic_name && !dl_photo_obj.dl_lic_url){
         
             let dl_load = {
-            resource_id:$bgv_data_store.facility_id,
+            resource_id:$facility_id.facility_id_number,
             file_name:new_dl_name,
             pod:new_dl_url,
             doc_category:"dl-photo",
@@ -956,7 +903,7 @@
         // if(!pol_photo_obj.pol_doc_name && !pol_photo_obj.pol_doc_url){
         
             let pol_load = {
-            resource_id:$bgv_data_store.facility_id,
+            resource_id:$facility_id.facility_id_number,
             file_name:new_pol_name,
             pod:new_pol_url,
             doc_category:"police_info_supp_file",
@@ -996,15 +943,15 @@
                 throwError("aadhar_up_msg","")
             }
 
-        // console.log("aadhar_obj.aadhar_num",aadhar_obj.aadhar_num)
+        // console.log("$bgv_data_store.adhar_card_number",$bgv_data_store.adhar_card_number)
             if(!$bgv_data_store.adhar_card_number){
                 throwError("aadharmsg","Enter valid Aadhar Number")
                 show_spinner = false
                 return 
             }
             else if(!$bgv_data_store.adhar_card_number.toString().match(aadhar_card_pattern)){  
-                if(pancard_obj.pan_num == $bgv_data_store.adhar_card_number || 
-                    dl_photo_obj.dl_lic_num == $bgv_data_store.adhar_card_number){
+                if($bgv_data_store.pancard_number == $bgv_data_store.adhar_card_number || 
+                    $bgv_data_store.license_number == $bgv_data_store.adhar_card_number){
                     let check_doc_res =await check_doc_exist($bgv_data_store.adhar_card_number);  
                     // console.log("check_doc_res",check_doc_res)
                     if(check_doc_res == "red"){
@@ -1045,16 +992,21 @@
             else{
                 throwError("fat_name_msg","")
             }
-            if(!$bgv_data_store.email_id){
+            if(!personal_email){
             throwError("email_msg","Invalid Email Id")
             show_spinner = false
             return
             }
-            else if(!$bgv_data_store.email_id.match(email_pattern)){
+            else if(!personal_email.match(email_pattern)){
             throwError("email_msg","Invalid Email Id")
             show_spinner = false
             return
             }
+            // else if($bgv_config_store.is_email_verification_mandatory == "1" && verification_success == false){
+            //     throwError("email_msg","Verify Email Id")
+            //     show_spinner = false
+            // return
+            // }
             else{
                 throwError("email_msg","")
                 show_spinner = false
@@ -1130,7 +1082,7 @@
             aadhar_num : $bgv_data_store.adhar_card_number,
             last_name : $bgv_data_store.last_name,
             father_name : $bgv_data_store.father_name,
-            email : $bgv_data_store.email_id,
+            email : personal_email,
             phone : $bgv_data_store.phone_number,
             dob : $bgv_data_store.basic_info_dob,
             spouse : $bgv_data_store.spouse_name,
@@ -1310,8 +1262,8 @@
             }
 
             else if(!$bgv_data_store.pancard_number.match(pan_card_pattern)){  
-                if(aadhar_obj.aadhar_num == $bgv_data_store.pancard_number || 
-                dl_photo_obj.dl_lic_num == $bgv_data_store.pancard_number){
+                if($bgv_data_store.adhar_card_number == $bgv_data_store.pancard_number || 
+                $bgv_data_store.license_number == $bgv_data_store.pancard_number){
                     let check_doc_res =await check_doc_exist($bgv_data_store.pancard_number);
                     if(check_doc_res == "red"){
                         check_doc_res.body.message;   
@@ -1360,7 +1312,7 @@
         pan_dob: $bgv_data_store.pan_dob,
         pan_father_name: $bgv_data_store.pan_father_name,
         pan_full_name: $bgv_data_store.pan_full_name,
-        pancard_number: pancard_obj.pan_num
+        pancard_number: $bgv_data_store.pancard_number
         }
         show_spinner = false
         return await submit_pancard_details(pan_data);
@@ -1373,16 +1325,16 @@
             throwError("dl_up_msg","Upload Driving Licence Photo")
             show_spinner = false
         }
-            if(!dl_photo_obj.dl_lic_num){
+            if(!$bgv_data_store.license_number){
             throwError("lic_num_msg","Enter Valid Driving Licence Number")
             show_spinner = false
                 return
             }
-            else if(!dl_photo_obj.dl_lic_num.match(driving_license_pattern)){
+            else if(!$bgv_data_store.license_number.match(driving_license_pattern)){
                 
-                if(aadhar_obj.aadhar_num == dl_photo_obj.dl_lic_num || 
-                pancard_obj.pan_num == dl_photo_obj.dl_lic_num){
-                    let check_doc_res =await check_doc_exist(dl_photo_obj.dl_lic_num);  
+                if($bgv_data_store.adhar_card_number == $bgv_data_store.license_number || 
+                pancard_obj.pan_num == $bgv_data_store.license_number){
+                    let check_doc_res =await check_doc_exist($bgv_data_store.license_number);  
                     // console.log("check_doc_res",check_doc_res)
                     if(check_doc_res == "red"){
                         check_doc_res.body.message;   
@@ -1449,7 +1401,7 @@
             dl_expiry_date: $bgv_data_store.dl_expiry_date,
             dl_issue_date: $bgv_data_store.dl_issue_date,
             dl_state: $bgv_data_store.dl_state,
-            license_number: dl_photo_obj.dl_lic_num,
+            license_number: $bgv_data_store.license_number,
             name_license: $bgv_data_store.name_license,
             }
             show_spinner = false
@@ -1520,8 +1472,11 @@
     }
     
     async function next_clicked(new_type){
-        let photo_res,aadhar_res,address_res,pol_res,dl_res,pan_res;
         show_spinner = true;
+        show_spinner = show_spinner;
+        console.log("SHo spinner",show_spinner)
+        let photo_res,aadhar_res,address_res,pol_res,dl_res,pan_res;
+        
         if(new_type == "basicInfo"){
             console.log("Decoding aadhar_obj.aadhar_attach",fac_photo_obj.profile_url,aadhar_obj.aadhar_attach)
             let sub_bas_res = await submitBasicDets();
@@ -1633,6 +1588,9 @@
                     is_basic_active = "";
                     is_dl_active="";
                     } 
+                    else{
+                        temp="f";
+                    }
                 }
                 show_spinner = false
                 }
@@ -1717,6 +1675,9 @@
                     is_basic_active = "";
                     is_dl_active="";
                     }
+                    else{
+                        temp="f";
+                    }
                 }
             }
                 show_spinner = false
@@ -1789,6 +1750,9 @@
                 is_basic_active = "";
                 is_dl_active="";
                 }
+                else{
+                        temp="f";
+                    }
                 }
                 
                 show_spinner = false
@@ -1851,6 +1815,9 @@
                 is_add_active = "";
                 is_basic_active = "";
                 is_dl_active="";
+                }
+                else{
+                        temp="f";
                 }
                 }
                 show_spinner = false
@@ -2050,7 +2017,6 @@
 
 
     function verify_new_otp(){
-        console.log("verify otp clicked")
         otp_model_new.style.display = "block";
     }
     function close_otp_model(){
@@ -2059,11 +2025,14 @@
     
 
     async function send_otp_func(){
-        let sent_otp_res = await send_otp($bgv_data_store.email_id);
+        console.log("otp")
+        if(!personal_email || $bgv_data_store.email_id != personal_email){
+        let sent_otp_res = await send_otp(personal_email);
         try {
             if(sent_otp_res.body.status == "green"){
                 toast_text = "OTP Sent Successfully";
                 toast_type = "success";
+                verification_success = true;
             }
             else{
                 toast_text = "OTP Sending Failed";
@@ -2074,9 +2043,11 @@
             toast_type = "error";
             toast_text = error;
         }
+        }
+        
     }
     async function verify_email_otp(){
-        let verify_email_res =  await verify_email(otp_num,$bgv_data_store.email_id)
+        let verify_email_res =  await verify_email(otp_num,personal_email)
         try {
             if(verify_email_res == "green"){
                 toast_text = verify_email_res.body.message;
@@ -2587,12 +2558,12 @@
                                 
                                 <div class="flex justify-between formInnerGroup">
                                     <!-- <p class="text-greycolor text-base">dhiraj.shah@gmail.com</p> -->
-                                    <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.email_id}">
+                                    <input type="text" class="inputboxbgv" bind:value="{personal_email}">
                                     
-                                    <div class="text-red-500" id="email_msg"></div>
+                                    
                                     
                                     {#if $bgv_data_store.is_email_verified =="1"}
-                                    <p class="veriTextEmail "><img src="{$img_url_name.img_name}/checked.png"
+                                    <p class="veriTextEmail ml-2"><img src="{$img_url_name.img_name}/checked.png"
                                             class="mr-1 object-contain" alt=""> Verified</p>
                                         {:else}<p></p>
                                     {/if}
@@ -2605,7 +2576,9 @@
 
                             </div>
                             
+                            <div class="text-red-500" id="email_msg"></div>
                         </div>
+                        
 
                         <div class="flex">
                             <div class="formGroup ">
@@ -3383,7 +3356,7 @@
                                 <div class="xs:w-full sm:w-full">
                                     <div class="flex  items-center">
                                         <div class="formInnerGroup ">
-                                            <input type="text" class="inputboxbgv" bind:value="{dl_photo_obj.dl_lic_num}">
+                                            <input type="text" class="inputboxbgv" bind:value="{$bgv_data_store.license_number}">
                                             <div class="text-red-500" id="lic_num_msg"></div>
                                         </div>
                                         <div>

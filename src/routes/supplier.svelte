@@ -513,6 +513,8 @@ else
     // };
 
     async function filterButton(){
+
+
         vendor_type_select = document.getElementById("select_vendor_type").value.trim();
         console.log("vendor_type_select",vendor_type_select)
         for(let vendorData  of filter_vendortype_array){
@@ -564,6 +566,10 @@ else
             catch(err) {
         message.innerHTML = "Error is  " + err;
         }   
+        select_vendor_type = "-1";
+        city = "-1";
+        status = "-1";
+
     }
 
 
@@ -923,7 +929,9 @@ else
                                                                 class="selectInputbox"
                                                             >
                                                             <!-- <option class="pt-6">All</option> -->
+                                                            
                                                             {#each filter_city_array as data_city}
+                                                            <option value="-1">Select</option>
                                                                 <option
                                                                     class="pt-6">
                                                                     {data_city.location_name}
@@ -953,9 +961,11 @@ else
                                                             <select
                                                                 class="selectInputbox"
                                                             >
+                                                            
                                                             {#if workforce_checkbox == true}
                                                             {#each filter_vendortype_array as vendor_type}
                                                             {#if vendor_type.category == "Workforce"}
+                                                            <option value="-1">Select</option>
                                                             <option
                                                                     class="pt-6"
                                                                     >{vendor_type.facility_type_name}</option
@@ -968,6 +978,7 @@ else
                                                            {#if vendor_checkbox == true}
                                                             {#each filter_vendortype_array as vendor_type}
                                                             {#if vendor_type.category == "Vendor"}
+                                                            <option value="-1">Select</option>
                                                             <option
                                                                     class="pt-6"
                                                                     >{vendor_type.facility_type_name}</option
@@ -1002,6 +1013,7 @@ else
                                                             <!-- <option class="pt-6">All</option> -->
                                                             {#each filter_status_array as data_status}   
                                                                 {#if data_status.display_name != undefined}
+                                                                <option value="-1">Select</option>
                                                                 <option class="pt-6"> {data_status.display_name}
                                                                 </option>
         
@@ -1114,6 +1126,7 @@ else
                                                         <select
                                                         class="selectInputbox"
                                                         >
+                                                        
                                                         <option value="-1">Select</option>
                                                         {#each org_data_arr as org}
                                                             <option
@@ -1145,6 +1158,7 @@ else
                                                                 class="selectInputbox"
                                                                 id= "select_city"
                                                                 >
+                                                                
                                                                 <option class="pt-6" 
                                                                 >All</option>
                                                             {#each filter_city_array as data_city}
@@ -1177,9 +1191,11 @@ else
                                                                 class="selectInputbox"
                                                                 id= "select_vendor_type"
                                                             >
+                                                            <option value="-1">Select</option>
                                                            {#if workforce_checkbox == true}
                                                             {#each filter_vendortype_array as vendor_type}
                                                             {#if vendor_type.category == "Workforce"}
+                                                            
                                                             <option
                                                                     class="pt-6"
                                                                     >{vendor_type.facility_type_name}</option
@@ -1227,6 +1243,7 @@ else
                                                         <!-- <option class="pt-6" value="-1">All</option> -->
                                                         {#each filter_status_array as data_status}   
                                                         {#if data_status.display_name != undefined}
+                                                        <option value="-1">Select</option>
                                                         <option class="pt-6"> {data_status.display_name}
                                                         </option>
    
