@@ -155,11 +155,6 @@
         state_dep_city();
     }
 
-    $:if(personal_email == ""){
-        personal_email_flag = true;
-    }
-
-    let route_back_fac_id = $facility_id.facility_id_number;
     
     onMount(async () => {
 
