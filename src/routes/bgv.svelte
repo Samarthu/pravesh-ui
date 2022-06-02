@@ -119,7 +119,7 @@
     let new_pol_name = "";
     let new_address_name = "";
     let doc_present = [];
-
+    let personal_email_flag = false;
 
 
     let pancard_obj = {
@@ -153,6 +153,10 @@
     
     $:if(new_selected_state){
         state_dep_city();
+    }
+
+    $:if(personal_email == ""){
+        personal_email_flag = true;
     }
 
     let route_back_fac_id = $facility_id.facility_id_number;
@@ -1002,11 +1006,11 @@
             show_spinner = false
             return
             }
-            // else if($bgv_config_store.is_email_verification_mandatory == "1" && verification_success == false){
-            //     throwError("email_msg","Verify Email Id")
-            //     show_spinner = false
-            // return
-            // }
+            else if($bgv_config_store.is_email_verification_mandatory == "1" && verification_success == false){
+                throwError("email_msg","Verify Email Id")
+                show_spinner = false
+            return
+            }
             else{
                 throwError("email_msg","")
                 show_spinner = false
@@ -1259,6 +1263,7 @@
             if(!new_pan_url && !new_pan_name){
                 throwError("pan_up_msg","Upload Pancard Photo")
                 show_spinner = false
+                return
             }
 
             else if(!$bgv_data_store.pancard_number.match(pan_card_pattern)){  
@@ -2017,7 +2022,14 @@
 
 
     function verify_new_otp(){
+        if(!personal_email.match(email_pattern)){
+            toast_type = "error"
+            toast_text = "Please Enter Email Id and then click on verify button";
+            return
+        }
+        else{
         otp_model_new.style.display = "block";
+        }
     }
     function close_otp_model(){
         otp_model_new.style.display = "none";
@@ -2568,6 +2580,7 @@
                                         {:else}<p></p>
                                     {/if}
                                 </div>
+                               
                                 {#if $bgv_config_store.is_email_verification_mandatory =="1"}
                                 <div class="ml-2">   
                                     <div class="ErBlueButton w-auto mt-3 cursor-pointer" on:click={verify_new_otp}>Verify</div>
