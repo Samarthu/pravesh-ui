@@ -40,6 +40,7 @@
             sorting_pravesh_properties,
         } from "../services/pravesh_config";
         import {pravesh_properties} from '../stores/pravesh_properties_store';
+// import { bgv_data_store } from "src/stores/bgv_store";
     // import { bgv_data_store } from "src/stores/bgv_store";
     
         let show_spinner = false;
@@ -313,7 +314,9 @@
                        }
                    }
                 //    console.log("offer_letter_required_associates",$pravesh_properties.properties.offer_letter_required_associates)
-                facility_password = $pravesh_properties.properties.default_org_app_password[0]
+                if($pravesh_properties){
+                    facility_password = $pravesh_properties.properties.default_org_app_password[0]
+                }
                 
                 let bank_details_req_fac = [];
                 bank_details_req_fac = ($pravesh_properties.properties.bank_section_required_associates);
@@ -768,20 +771,21 @@
         
     }); 
     function check_facility_status(message) {
-        if (!$facility_data_store.status && $facility_data_store.status != undefined && ($facility_data_store.status.toLowerCase() == "deactive" || $facility_data_store.is_blacklisted == 1)) {
+        if (!$facility_data_store.status && $facility_data_store.status != undefined && $facility_data_store.is_blacklisted == 1) {
+            
             if (message != undefined){
                 toast_text = message;
                 toast_type = "error";
             }
             else{
-                toast_text = "Request not allowed for Deactive/Blacklisted Facility";
+                toast_text = "Request not allowed for Blacklisted Facility";
                 toast_type = "error";
                 return false;
             }
         }
-            toast_text = message;
-            toast_type = "error";
-            return true;
+            // toast_text = message;
+            // toast_type = "error";
+            // return true;
             
         }
     // async function child_select_fun(){
@@ -1463,6 +1467,7 @@
         }
     
         async function blacklist_click(){
+            console.log("inside blacklist_click")
             if (check_facility_status("Facility is already Blacklisted")) {
                 return;
             }
@@ -1860,7 +1865,6 @@
                         </span>
                     </p>
                    
-                    
                     <p class="breadcrumbRight">
                         {#if is_adhoc_facility == false}
                         <a href=""> 
@@ -1874,17 +1878,20 @@
                             </span> 
                         </a>
                         {/if}
+                        
                         <a class="cursor-pointer">
                             <span class="breadRightIcons" id="SupplerModalbuttonClick" on:click={auditTrial}>
                                 <img src="{$img_url_name.img_name}/audittrail.png" class="pr-2" alt=""> Audit Trial 
                             </span>
                         </a>
+                        
+                        
                         {#if admin == false}
                         <p></p>
                         {:else}
-                        {#if is_adhoc_facility == false}
+                        {#if is_adhoc_facility == false && $facility_data_store.status != "deactive"}
                         <span class="backlistText cursor-pointer" on:click="{blacklist_remark_select}">
-                            <img src="{$img_url_name.img_name}/backlist.png" class="pr-2" alt=""> Backlist Vendor
+                            <img src="{$img_url_name.img_name}/backlist.png" class="pr-2" alt=""> Blacklist Facility
                         </span>
                         {/if}
                         {/if}
@@ -2745,7 +2752,7 @@
         
                         <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0 mt-4">
                             <label class="block  tracking-wide text-gray-700 font-bold mb-2" for="grid-state">
-                            Do you want to Blacklist {$facility_id.facility_id_number}-{$facility_data_store.facility_type}?
+                            Do you want to Blacklist {$facility_id.facility_id_number} - {$facility_data_store.facility_type}?
                             </label>
                             <div class="relative">
                              
