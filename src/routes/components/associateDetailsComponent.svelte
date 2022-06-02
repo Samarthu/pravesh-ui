@@ -1293,7 +1293,7 @@
                     <img src="{$img_url_name.img_name}/delivery.png" class="w-28 h-28 xsl:h-auto" alt="">
                 </div>
                 <div class="w-auto col-span-2 mt-6 xsl:mt-3">
-                <div class="text-2xl xsl:text-xl">{$facility_data_store.facility_name}</div>
+                <div class="text-2xl xsl:text-xl break-all">{$facility_data_store.facility_name}</div>
                 <p class="imgName">{$facility_data_store.facility_name}</p>
                 </div>
                 {:else}
@@ -1301,7 +1301,7 @@
                      <img src="{$page.url.origin+fac_photo_obj.profile_url}" class="w-28 h-28 xsl:h-auto" alt="">
                  </div>
                  <div class="w-auto col-span-2 mt-6 xsl:mt-3">
-                 <div class="text-2xl xsl:text-xl">{$facility_data_store.facility_name}</div>
+                 <div class="text-2xl xsl:text-xl break-all">{$facility_data_store.facility_name}</div>
                  <p class="imgName">{$facility_data_store.facility_name}</p>
                  </div>
                  {/if}

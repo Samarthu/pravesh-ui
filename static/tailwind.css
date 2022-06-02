@@ -1189,7 +1189,7 @@
     color: #575757;
     font-size: 13px;
     font-weight: 400;
-    white-space: nowrap;
+    /* white-space: nowrap; */
     text-align: center;
     padding: 10px 0px;
 }
@@ -2382,3 +2382,10 @@ ul.menuList li a.active span{
         visibility: hidden;
     }
 }
+
+/* Word Break */
+.wordwrap{
+    width: 140px; 
+    word-break: break-all;
+}
+/* Word break */
