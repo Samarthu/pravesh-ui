@@ -2013,7 +2013,7 @@
 
     routeNext = "bgvsuccesspopup";
 
-    routePrev = "onboardsummary?unFacID="+route_back_fac_id;
+    routePrev = "onboardsummary?unFacID="+$facility_id.facility_id_number;
 
 
     function verify_new_otp(){
