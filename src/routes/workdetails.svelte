@@ -274,6 +274,9 @@ import { facility_id } from "../stores/facility_id_store";
         console.log("page info",$page.url);
         console.log("page pic",$page.url.origin+"/files/"+edit_msme_data['file_name']);
         console.log("window location", window.location.href);
+
+        console.log("facility_data_store", $facility_data_store);
+        console.log("facility id",$facility_id.facility_id_number);
         
         
 
@@ -435,7 +438,9 @@ import { facility_id } from "../stores/facility_id_store";
                     });
                 }
             }
+            city_list.sort((a, b) => (a.city_name > b.city_name) ? 1 : (a.city_name === b.city_name) ? ((a.location_id > b.location_id) ? 1 : -1) : -1 )
             city_list = city_list;
+            
             console.log("city_list", city_list);
 
             scope_list = scope_list;
