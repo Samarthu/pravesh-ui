@@ -2,8 +2,8 @@ import { writable, derived } from 'svelte/store';
 import {category_store_name} from './category_store';
 
 export var facility_data_store = writable({
-        address:"-",
-        addresess:"-",
+        address:null,
+        addresess:null,
         user_type: "FieldAuditor",
         dob:null,
         station_code:null,
@@ -11,12 +11,12 @@ export var facility_data_store = writable({
         owner_name:null,
         status:"Onboarding in Progress",
         phone_number:null,
-        facility_id:"-",
+        facility_id:null,
         store_id:null,
-        facility_name:"-",
+        facility_name:null,
         org_id:null,
         node_type:"Distributor",
-        facility_type:"-",
+        facility_type:null,
         store_name:null,
         vendor_code:null,
         vendor_name:null,
@@ -24,7 +24,7 @@ export var facility_data_store = writable({
         non_msme_confirmed_on:null,
         msme_registered:null,        
         facility_email:null,
-        details_updated_by:"-",
+        details_updated_by:null,
         
 });
 

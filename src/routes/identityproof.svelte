@@ -151,6 +151,8 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
         console.log("duplicate documents length",$duplicate_documents_store.documents.length);
 
         if($facility_id.facility_id_number){
+            $documents_store.documents = [];
+            
             for(let i=0;i<$duplicate_documents_store.documents.length;i++){
                 if($duplicate_documents_store.documents[i].doc_category == "Pancard"){
                     edit_pan_card_data = $duplicate_documents_store.documents[i];
@@ -570,8 +572,107 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
     // }
     function check_validity() {
         valid = true;
+        console.log("DOCUMNET STORE",$documents_store);
+        if($facility_id.facility_id_number){
+            if(pan_card_data.doc_number){
+                if(pan_card_data.doc_number != edit_pan_card_data.doc_number){
+                    pan_card_data.status = null;
+                    pan_card_data.resource_id = $facility_id.facility_id_number;
+                    for(let i=0;i<$documents_store.documents.length;i++){
+                        if($documents_store.documents[i].doc_category == "Pancard"){
+                            $documents_store.documents.splice(i, 1);
 
-        if (pan_check && adhar_check && voter_id_check && dl_check) {
+                        }
+                    }
+                    $documents_store.documents.push(pan_card_data);
+                }
+            }
+
+            if(adhar_card_data.doc_number){
+                if(adhar_card_data.doc_number != edit_adhar_card_data.doc_number){
+                    
+                    for(let i=0;i<$documents_store.documents.length;i++){
+                        if($documents_store.documents[i].doc_category == "Aadhar Id proof"){
+                            $documents_store.documents.splice(i, 1);
+                        }
+                    }
+                    $documents_store.documents.push(adhar_card_data);
+                }
+            }
+
+            if(voter_id_card_data.doc_number){
+                if(voter_id_card_data.doc_number != edit_voter_id_card_data.doc_number){
+                    for(let i=0;i<$documents_store.documents.length;i++){
+                        if($documents_store.documents[i].doc_category == "Voter Id proof"){
+                            $documents_store.documents.splice(i, 1);
+                        }
+                    }
+                    $documents_store.documents.push(voter_id_card_data);
+                }
+            }
+
+            if(driving_license_data.doc_number){
+                if(driving_license_data.doc_number != edit_driving_license_data.doc_number){
+                    for(let i=0;i<$documents_store.documents.length;i++){
+                        if($documents_store.documents[i].doc_category == "Driving License"){
+                            $documents_store.documents.splice(i, 1);
+                        }
+                    }
+                    $documents_store.documents.push(driving_license_data);
+                }
+            }
+
+            if (
+                !pan_card_data.doc_number &&
+                
+                !adhar_card_data.doc_number &&
+                
+                !voter_id_card_data.doc_number &&
+                
+                !driving_license_data.doc_number 
+                
+            ) {
+                valid = false;
+                // console.log("condition works");
+                // form_message = "Please Upload Atleast One Document";
+                // console.log("form_message", form_message);
+                toast_type = "warning";
+                toast_text = "Please Upload Atleast One Document";
+                console.log("Please Upload Atleast One Document");
+            } else {
+                form_message = "";
+                console.log(
+                    "pan facilities",
+                    $pravesh_properties.properties["pan_required_associates"]
+                );
+                if (
+                    $pravesh_properties.properties[
+                        "pan_required_associates"
+                    ].includes($facility_data_store.facility_type)
+                ) {
+                    if (!pan_card_data.doc_number ) {
+                        form_message = "Please upload Pan card details";
+                        toast_type = "warning";
+                        toast_text = "Please upload Pan card details";
+                        valid = false;
+                    } else {
+                        form_message = "";
+                    }
+                } else {
+                }
+            }
+
+
+            // toast_type = "error";
+            // toast_text = "Facility already exists";
+            console.log("$documents_store.documents",$documents_store.documents);
+            show_spinner = false;
+
+
+
+        }
+        else{
+            if (pan_check && adhar_check && voter_id_check && dl_check) {
             if (
                 pan_card_data.doc_number != null &&
                 pan_card_data.file_name != null
@@ -678,6 +779,13 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
         } else {
             valid = false;
         }
+
+        }
+
+       
+    }
+    function edit_facility(){
+
     }
     async function save_facility() {
         show_spinner = true;
@@ -831,34 +939,7 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
             }
         }
         else{
-            if(pan_card_data.doc_number){
-                if(pan_card_data.doc_number != edit_pan_card_data.doc_number){
-                    for(let i=0;i<$documents_store.documents.length;i++){
-                        if($documents_store.documents[i].doc_category == "Pancard"){
-                            $documents_store.documents.splice(i, 1);
-
-                        }
-                    }
-                    $documents_store.documents.push(pan_card_data);
-                }
-            }
-
-            if(adhar_card_data.doc_number){
-                if(adhar_card_data.doc_number != edit_adhar_card_data.doc_number){
-                    for(let i=0;i<$documents_store.documents.length;i++){
-                        if($documents_store.documents[i].doc_category == "Aadhar Id proof"){
-                            $documents_store.documents.splice(i, 1);
-                        }
-                    }
-                    $documents_store.documents.push(adhar_card_data);
-                }
-            }
-
-
-            // toast_type = "error";
-            // toast_text = "Facility already exists";
-            console.log("$documents_store.documents",$documents_store.documents);
-            show_spinner = false;
+           
             
         }
 

@@ -533,22 +533,14 @@ else
         
         
         status = document.getElementById("select_status").value.trim();
-        // console.log("in filter new drop limit",new_drop_limit)
-        // if(city.value == All && status.value == All)    ------We dont have any API returning values for all statuses
         
-        // if(new_city == "All"){
-        //     new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}
-        // }
-        // else{
-        //     new_associate_data = {city:new_city,limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
-        // }
         if(new_city == "All" && onboarded_by_me_checkbox == true){
             
-            new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:"username",userid:"userid"}
+            new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:"Bank Details Pending",username:"username",userid:"userid"}
         }
         else
         {
-            new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status} 
+            new_associate_data = {city:new_city,limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:"Bank Details Pending"} 
         }
 
         json_associate_new_data=JSON.stringify(new_associate_data);
@@ -566,7 +558,7 @@ else
             catch(err) {
         message.innerHTML = "Error is  " + err;
         }   
-        select_vendor_type = "-1";
+        vendor_type_select = "-1";
         city = "-1";
         status = "-1";
 
@@ -677,27 +669,32 @@ else
         for(let i=0;i<supplier_data_from_service.length;i++){
             if(supplier_data_from_service[i].name == fac_name){
                 console.log("inside if")
-               is_expanded = supplier_data_from_service[i].expand;
+               supplier_data_from_service[i].expand = true;
             }
         }
+        console.log("supplier_data_from_service AFt",supplier_data_from_service)
            
         var shortInfo = document.querySelectorAll(".shortInfo");
         var elems = document.querySelectorAll(".detailsInfo");
         var trow = document.querySelector(".trow");
-
+    
         document.querySelector(".trow").classList.add("valgin");
 
-        shortInfo.forEach.call(shortInfo, function (el) {
-            el.classList.add("hidden");
-
-
-        });
-        elems.forEach.call(elems, function (el) {
-            el.classList.remove("hidden");
-        });
-        
-        
-        
+        for(let i=0;i<supplier_data_from_service.length;i++){
+            if(supplier_data_from_service[i].expand == true){
+                console.log("Showing")
+                elems.forEach.call(elems, function (el) {
+                el.classList.remove("hidden");
+                });
+               
+                shortInfo.forEach.call(shortInfo, function (el) {
+                el.classList.add("hidden");
+                });
+            }
+            else{
+                console.log("Hiding")
+            }
+        }
     };
 
  
@@ -929,9 +926,9 @@ else
                                                                 class="selectInputbox"
                                                             >
                                                             <!-- <option class="pt-6">All</option> -->
-                                                            
-                                                            {#each filter_city_array as data_city}
                                                             <option value="-1">Select</option>
+                                                            {#each filter_city_array as data_city}
+                                                           
                                                                 <option
                                                                     class="pt-6">
                                                                     {data_city.location_name}
@@ -1011,9 +1008,10 @@ else
                                                                 class="selectInputbox"
                                                             >
                                                             <!-- <option class="pt-6">All</option> -->
+                                                            <option value="-1">Select</option>
                                                             {#each filter_status_array as data_status}   
                                                                 {#if data_status.display_name != undefined}
-                                                                <option value="-1">Select</option>
+                                                              
                                                                 <option class="pt-6"> {data_status.display_name}
                                                                 </option>
         
@@ -1039,10 +1037,10 @@ else
                                                         class="filterCancelbtn close"
                                                         >Cancel</a
                                                     >
-                                                    <a
+                                                    <button
                                                         href="#"
-                                                        class="filterApplybtn "
-                                                        >Apply</a
+                                                        class="filterApplybtn" on:click={filterButton}
+                                                        >Apply</button
                                                     >
                                                 </div>
                                             </div>
@@ -1241,9 +1239,10 @@ else
                                                         <select
                                                         class="selectInputbox" id= "select_status"> 
                                                         <!-- <option class="pt-6" value="-1">All</option> -->
+                                                        <option value="-1">Select</option>
                                                         {#each filter_status_array as data_status}   
                                                         {#if data_status.display_name != undefined}
-                                                        <option value="-1">Select</option>
+                                                       
                                                         <option class="pt-6"> {data_status.display_name}
                                                         </option>
    
@@ -1661,6 +1660,7 @@ else
                                 </thead>
 
                                 <tbody class="bg-white ">
+                                    
                                     {#each supplier_data_from_service as facility_data} 
                                     <tr class="border-b-2 trow ">
                                         <td>
@@ -1893,7 +1893,7 @@ else
 
                                                 <div class="detailsInfo hidden">
                                                     <p
-                                                        on:click="{collapsedown}"
+                                                        on:click="{collapsedown(facility_data.name)}"
                                                         class="detailsarrowCollaps "
                                                     >
                                                         <img
