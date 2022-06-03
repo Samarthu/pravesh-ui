@@ -695,8 +695,12 @@
     @apply text-xs text-grey
 }
 
-.smLable{
+/* .smLable{
     @apply text-base text-blackshade font-normal whitespace-nowrap
+} */
+
+.smLable{
+    @apply text-base text-blackshade font-normal 
 }
 
 .smLableAddress{
@@ -2516,7 +2520,7 @@ p.tempText {
 
 /* Word Break */
 .wordwrap{
-    width: 140px; 
+    width: 200px; 
     word-break: break-all;
 }
 /* Word break */

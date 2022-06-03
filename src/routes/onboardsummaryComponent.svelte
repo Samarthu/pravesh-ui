@@ -1715,6 +1715,7 @@
             }
              if(!document_desc){
                 doc_det_msg = "Please Select Document Type"
+                show_spinner = false;
                 return
             }
             else{
@@ -1727,6 +1728,7 @@
                 return 
             }
             else{
+                show_spinner = false;
                 new_doc_upload_message = ""
             }
             
@@ -1747,7 +1749,7 @@
             let save_doc_res = await uploadDocs(new_doc_payload);
             try {
                 if(save_doc_res.body.status == "green"){
-                    
+                    show_spinner = false;
                     toast_type = "success"
                     toast_text = save_doc_res.body.message;
                     document_desc ="";
@@ -1763,9 +1765,12 @@
                         facility_document_data = [];
                         facility_document_data = facility_document_res.body.data;
                             for(let i=0;i<facility_document_data.length;i++){
-                            let doc_date_format = new Date(facility_document_data[i].creation);
-                            let doc_creation_date = get_date_format(doc_date_format,"dd-mm-yyyy-hh-mm");
-                            facility_document_data[i].creation = doc_creation_date
+                                let doc_date_format = new Date(facility_document_data[i].creation);
+                                let doc_modified_format = new Date(facility_document_data[i].modified);
+                                let doc_creation_date = get_date_format(doc_date_format,"dd-mm-yyyy-hh-mm");
+                                let doc_modified_date = get_date_format(doc_modified_format,"dd-mm-yyyy-hh-mm");
+                                facility_document_data[i].creation = doc_creation_date
+                                facility_document_data[i].modified = doc_modified_date
                             
                         }
                         

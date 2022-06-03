@@ -1280,8 +1280,17 @@
                         Edit
 
                      </button>
+                     {#if $facility_data_store.status == "Deactive"}
+             
+                        <button
+                            class="flex smButton bg-erBlue text-white ml-5"
+                            on:click="{reset_deact_func}">Reset Deactivation Status</button
+                        >
+             {/if}
                  </p>
+                 
              </div>
+             
 
          </div>
 
@@ -1562,23 +1571,6 @@
                      </div>
                  </div>
                  <br>
-                 {#if $facility_data_store.status == "Deactive"}
-                 <div class="userInfoSec3 ">
-                     <div class="flex items-start">
-                         <div class="pl-4">
-                            <div
-                            class="updateAction ml-5"
-                        >
-                            <button
-                                class="ErBlueButton"
-                                on:click="{reset_deact_func}">Reset Deactivation Status</button
-                            >
-                        </div>
-                         </div>
-                     </div>
-
-                 </div>
-                 {/if}
              </div>
              {/if}
          </div> 
