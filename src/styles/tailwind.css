@@ -2152,7 +2152,7 @@ ul.menuList li a.active span{
 
 .leaderWrapper {
     position: fixed;
-    z-index: 99999;
+    z-index: 999999;
     left: 0;
     top: 0;
     right: 0;
