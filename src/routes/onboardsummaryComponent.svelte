@@ -731,7 +731,7 @@
             toast_type = "error";
             toast_text = all_tags_res.body.message;
         }
-        // show_spinner = false;
+    
     
         let tag_res = await show_fac_tags($facility_data_store.facility_type);
             
@@ -768,6 +768,7 @@
                 toast_text = err;
             
              }
+        show_spinner = false;
         
     }); 
     function check_facility_status(message) {
@@ -2665,23 +2666,33 @@
                             <div class="ERPDetails mt-4">
                                 <div class="flex mb-3 xs:flex-col sm:flex-col">
                                     <p class="detailLbalesm pr-3">ERP ID</p>
+                                    {#if !erp_details_arr.erp_id}<p>-</p>
                                     <p class="detailDatasm">{erp_details_arr.erp_id}</p>
+                                    {/if}
                                 </div>
                                 <div class="flex mb-3 xs:flex-col sm:flex-col">
                                     <p class="detailLbalesm pr-3">ERP Name</p>
+                                    {#if !erp_details_arr.erp_name}<p>-</p>
                                     <p class="detailDatasm">{erp_details_arr.erp_name}</p>
+                                    {/if}
                                 </div>
                                 <div class="flex mb-3 xs:flex-col sm:flex-col">
                                     <p class="detailLbalesm pr-3">Address ID</p>
+                                    {#if !erp_details_arr.address_id}<p>-</p>
                                     <p class="detailDatasm">{erp_details_arr.address_id}</p>
+                                    {/if}
                                 </div>
                                 <div class="flex mb-3 xs:flex-col sm:flex-col">
                                     <p class="detailLbalesm pr-3">Address Title</p>
+                                    {#if !erp_details_arr.address_title}<p>-</p>
                                     <p class="detailDatasm">{erp_details_arr.address_title}</p>
+                                    {/if}
                                 </div>
                                 <div class="flex mb-3 xs:flex-col sm:flex-col">
                                     <p class="detailLbalesm pr-3">Contact ID</p>
+                                    {#if !erp_details_arr.contact_id}<p>-</p>
                                     <p class="detailDatasm">{erp_details_arr.contact_id}</p>
+                                    {/if}
                                 </div>
                             </div>
                         </div>
