@@ -314,7 +314,7 @@
                        }
                    }
                 //    console.log("offer_letter_required_associates",$pravesh_properties.properties.offer_letter_required_associates)
-                if($pravesh_properties){
+                if($pravesh_properties.properties.default_org_app_password[0]){
                     facility_password = $pravesh_properties.properties.default_org_app_password[0]
                 }
                 

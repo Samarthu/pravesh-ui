@@ -1660,6 +1660,7 @@ else
                                 </thead>
 
                                 <tbody class="bg-white ">
+                                    
                                     {#each supplier_data_from_service as facility_data} 
                                     <tr class="border-b-2 trow ">
                                         <td>

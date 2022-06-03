@@ -690,14 +690,10 @@
             try {
             if(get_org_data_res.body.status == "green"){
                 for(let i=0;i<get_org_data_res.body.data.length;i++){
-                    console.log("matching",$facility_data_store.facility_type,get_org_data_res.body.data[i].org_id)
 
-                    
                     if($facility_data_store.org_id == get_org_data_res.body.data[i].org_id){
                         org_name = get_org_data_res.body.data[i].org_name;
                     }
-                   
-
                     org_data_arr.push({"org_id":get_org_data_res.body.data[i].org_id,"org_name":get_org_data_res.body.data[i].org_name})
                 }
                 org_data_arr = org_data_arr;
@@ -1156,9 +1152,11 @@
 
     }
     async function handleTagClick(){
+        show_spinner = true;
         console.log("handle tag clicked")
-    let new_tag_id
-    try {   
+        let new_tag_id
+        try {   
+            show_spinner = false;
     //     if(all_tags_res.body.status == "green"){
         
         for(let i=0; i < all_tags_res.body.data.length; i++){
@@ -1179,14 +1177,20 @@
 
         }
         else{
-            console.log("select_tag_data",select_tag_data)
+           
+            // console.log("select_tag_data",select_tag_data)
             show_fac_array = [];
-            console.log("serv_ch_data",serv_ch_data)
+            // console.log("serv_ch_data",serv_ch_data)
             let submit_fac_res = await submit_fac_tag_data(new_tag_id,select_tag_data,tag_date,tag_remark,serv_ch_data)
             try {
-                show_spinner = true;
+                
+                console.log("Show spinner inadding new tag ",show_spinner)
                 if(submit_fac_res.body.status == "green"){
+
+                    toast_type = "success";
+                    toast_text = submit_fac_res.body.message;
                     show_spinner = false;
+
                     let temp_res = await show_fac_tags($facility_data_store.facility_type);
                     show_fac_array = temp_res.body.data;
                     for(let i=0;i < show_fac_array.length;i++){
@@ -1198,8 +1202,9 @@
                 }
                 // console.log("submit_fac_res.body",submit_fac_res.body)
                 else if(submit_fac_res.body.message == "Tag already exist..!"){
+                    toast_type = "error";
+                    toast_text = "Cannot Add Tag already exist..!";
                     show_spinner = false;
-                    console.log("Cannot Add Tag already exist..!")
                 }
             }
                 catch(err) {
@@ -1211,6 +1216,7 @@
 
     }
     catch(err) {
+        show_spinner = false;
         toast_type = "error";
         toast_text = err;
     }
@@ -1218,6 +1224,7 @@
 }
 
     async function removeTag(tag_id,tag_name,owner,tag_status){
+        show_spinner = true;
         show_fac_array = [];
         let fac_id
         if(owner == $facility_data_store.owner){
@@ -1227,22 +1234,25 @@
         let remove_tag_res = await remove_tag(fac_id,tag_id,tag_name);
         if(remove_tag_res.body.status == "green")
         {
-        let temp_res = await show_fac_tags($facility_data_store.facility_type);
+            toast_type = "success";
+            toast_text = remove_tag_res.body.message;
+        
+            let temp_res = await show_fac_tags($facility_data_store.facility_type);
         try {
                 show_fac_array = temp_res.body.data;
-                
-                // console.log("show_fac_array IN remove",show_fac_array)
                 for(let i=0;i < show_fac_array.length;i++){
                     
                     let new_date =new Date(show_fac_array[i].creation)
                     show_creation_date = get_date_format(new_date,"yyyy-mm-dd")
                     show_fac_array[i].creation=show_creation_date;
-                   
-        }
+                }
+                show_spinner = false;
        
-    }
+        }
         catch(err) {
-        console.log("ERROR")
+            show_spinner = false;
+        toast_type = "error";
+        toast_text = err;
         
          }
 
@@ -1271,6 +1281,11 @@
          }
        
     }
+
+    async function add_tag_tab_disp(){
+        temp = "Add";
+    }
+
      function uploadOfferLetter(){
          OfferLetterModel.style.display ="block";
      }
@@ -1872,21 +1887,35 @@
                             <!-- <div class="changetype py-3 w-2/4   ">
                                 <p>Add Tags</p>
                             </div> -->
+                            {#if temp == "Add"}
                             <div
-                                class="changetype py-3 w-2/4 "
-                                on:click={() => {
-                                    temp = "Add";
-                                }}
+                                class="changetype py-3 w-2/4 bg-bglightgreye"
+                                on:click={add_tag_tab_disp}
                             >
                                 <p>Add Tags</p>
                             </div>
+                            {:else}
+                            <div
+                                class="changetype py-3 w-2/4 "
+                                on:click={add_tag_tab_disp}
+                            >
+                                <p>Add Tags</p>
+                            </div>
+                            {/if}
 
-                            <div class="Historytab py-3 w-2/4    bg-bglightgreye"  on:click={tagAuditFunc}
+                            {#if temp == "tag"}
+                            <div class="Historytab py-3 w-2/4 bg-bglightgreye"  on:click={tagAuditFunc}
                             >
                                 <p>Tag Audit Trail</p>
                             </div>
+                            {:else}
+                            <div class="Historytab py-3 w-2/4"  on:click={tagAuditFunc}
+                            >
+                                <p>Tag Audit Trail</p>
+                            </div>
+                            {/if}
                         </div>
-
+                        {#if temp == "Add"}
                         <div class="PhysicalCardContainer">
                             <p class="font-medium">Other Applied Tags</p>
                             <div class="">
@@ -1948,6 +1977,7 @@
                                 </table>
                             </div>
                         </div>
+                        {/if}
                         {#if temp == "tag"}
                             <div class="PhysicalCardContainer mb-3 ">
                                 <div class="">

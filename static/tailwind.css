@@ -2311,7 +2311,7 @@ ul.menuList li a.active span{
     @apply text-lg text-erBlue font-medium
 }
 .modalContent{
-    @apply text-left px-5
+    @apply text-left px-5 py-5
 }
 .gridCon{
     @apply grid grid-cols-2 xsl:grid-cols-1 gap-4
