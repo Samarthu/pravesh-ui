@@ -37,6 +37,14 @@ const save_facility_function = () =>{
         
     },true)
 }
+const edit_facility_function = (facility_edit_data) =>{
+    return request(save_facility_api_url,{
+        method: "POST",
+        body:JSON.stringify(facility_edit_data)
+        
+    },true)
+
+}
 const check_bgv_config_function = () =>{
     // console.log(check_bgv_config_api_url);
     return request(check_bgv_config_api_url,{mode: 'no-cors',method:"GET"},true)
@@ -86,6 +94,7 @@ export{
     check_bgv_config_function,
     BGV_function,
     save_or_update_documents_function,
-    save_or_update_documents_function_1
+    save_or_update_documents_function_1,
+    edit_facility_function
 
 }

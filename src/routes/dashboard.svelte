@@ -12,6 +12,9 @@
     import { current_user } from "../stores/current_user_store";
     import { img_url_name } from "../stores/flags_store";
     import Spinner from "./components/spinner.svelte";
+
+    import { facility_data_store } from "../stores/facility_store";
+    import { facility_id } from "../stores/facility_id_store";
     // import {dashboard_details} from '../stores/dashboard_store';
     import Supplier from "./supplier.svelte";
     import { goto_wrapper } from "../services/goto_wrapper";
@@ -43,6 +46,9 @@
 
     // console.log(dashboard)
     onMount(async () => {
+        console.log("facility data store",$facility_data_store);
+        console.log("facility id store",$facility_id);
+
         show_spinner = true;
         console.log("href", window.location);
         if (window.location.pathname == "/pravesh-ui") {
