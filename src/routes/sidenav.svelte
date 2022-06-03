@@ -2,6 +2,7 @@
     import Main from "./main.svelte";
 
     import { goto } from "$app/navigation";
+    import {reset_all_stores} from '../services/pravesh_config';
 
     let routeOnboard = "";
     let routeDashboard = "";
@@ -11,14 +12,31 @@
 
     export let url = "";
 
+    function reset_stores(){
+       return reset_all_stores();
+    }
+
     function routeToPageOnboard() {
+
+        let a = reset_stores();
+        // console.log("a",a);
+        if(a){
         let replaceState = false;
         goto(routeOnboard, { replaceState });
+        }
+        // alert("clicked")
+        
     }
 
     function routeToPageDashboard() {
-        let replaceState = false;
-        goto(routeDashboard, { replaceState });
+        // alert("clicked")
+        
+        // let a = reset_stores();
+        // if(a){
+        //     let replaceState = false;
+        // goto(routeDashboard, { replaceState });
+        // }
+       
     }
 
     function routeToPageSupplier() {
@@ -48,7 +66,7 @@
     <div class="sidenav xshidden" id="mobilemenu">
         <ul class="menuList mt-mt19px">
             <li class="listItem hidden xs:block">
-                <a on:click={routeToPageDashboard} href="javascript:void(0)">
+                <button on:click={() => routeToPageDashboard()} >
                     <svg
                         class="svgIcon"
                         width="22"
@@ -72,14 +90,17 @@
                         />
                     </svg>
                     <span  class="menuname">Home</span>
-                </a>
+                </button>
             </li>
-            <li on:click={routeToPageOnboard}  class="listItem">
-                <a href="javascript:void(0)" 
+            <li   class="listItem">
+                <!-- <a href="javascript:void(0)" 
              class="{current === 'routeToPageOnboard' ? 'active' : ''}"
                 on:click="{() => current = 'routeToPageOnboard'}"
-                >
+                > -->
                     <!-- class="active" -->
+                    <button on:click={() =>routeToPageOnboard()}>
+
+                    
                     <svg
                         class="svgIcon"
                         width="22"
@@ -117,7 +138,8 @@
                         />
                     </svg>
                     <span class="menuname">Onboard New</span>
-                </a>
+                    </button>
+                <!-- </a> -->
             </li>
             <li on:click={routeToPageSupplier} class="listItem">
                 <a  href="javascript:void(0)"
