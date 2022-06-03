@@ -27,6 +27,8 @@
         org_list = response.body.data;
         console.log("org_list", org_list);
         console.log("org_list_number", org_list.length);
+        org_list.sort((a, b) => (a.org_name > b.org_name) ? 1 : (a.org_name === b.org_name) ? ((a.org_id > b.org_id) ? 1 : -1) : -1 )
+        console.log("org_list_sorted", org_list);
 
         }else{
             show_spinner = false;
