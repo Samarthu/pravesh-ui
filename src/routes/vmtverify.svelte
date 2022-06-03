@@ -76,7 +76,13 @@
     let pan_verified,pan_rejected,voter_verified,voter_rejected,aadhar_verified,aadhar_rejected,address_verified,
     address_rejected,offer_verified,offer_rejected,dl_verified,dl_rejected,pass_photo_verified,pass_photo_rejected,police_verified,police_rejected;
     let pan_number = "";
+    let voter_number = "";
+    let aadhar_number = "";
+    let address_number = "";
     let dl_number = "";
+    let off_number ="";
+    let pass_number = "";
+    let police_number = "";
     let temp = "";
     let final_id_ver_btn = 1;
     let final_bank_ver_btn = 0;
@@ -365,14 +371,15 @@
                     facility_document_data = facility_doc_data_res.body.data;
                     
                     for (var i = 0; i < facility_document_data.length; i++){
+                        console.log("inside 2 2 2 facility_document_data.length",facility_document_data.length)
 
                             facility_docs_arr[i] = facility_document_data[i].doc_type;
-
+                            
                             if(!facility_docs_arr[i]){
                                 profile_url = $page.url.origin+facility_document_data[i].file_url;
                             }
                             
-                            if(facility_docs_arr.includes("pan-photo")){
+                            if(facility_document_data[i].doc_type == "pan-photo"){
                                 // console.log("pan___",facility_document_data[i].file_url)
                                 pan_url = $page.url.origin+facility_document_data[i].file_url;
                                 pan_verified = facility_document_data[i].verified;
@@ -380,6 +387,7 @@
                                 // console.log("successfully fetched Pan")
                                 contains_pan = 1;
                                 pan_number = facility_document_data[i].doc_number;
+                                console.log("pan number 22",pan_number)
                                 // for (var i = 0; i < doctype_array.length; i++){
                                 //     if(doctype_array[i] == "pan-photo")
                                 //     temp_switchto = "pan_tab";
@@ -387,48 +395,59 @@
 
                             }
                             
-                            if(facility_docs_arr.includes("voter-id-proof")){
+                            if(facility_document_data[i].doc_type == "voter-id-proof"){
                                 // console.log("address___",facility_document_data[i].file_url)
                                 voter_url = $page.url.origin+facility_document_data[i].file_url;
                                 voter_verified = facility_document_data[i].verified;
                                 voter_rejected = facility_document_data[i].rejected;
                                 contains_voter = 1;
+                                voter_number = facility_document_data[i].doc_number;
+                                console.log("voter_number 22",voter_number)
                                 // console.log("successfully fetched Offer letter")
                                 // for (var i = 0; i < doctype_array.length; i++){
                                 //     if(doctype_array[i] == "voter-id-proof")
                                 //     temp_switchto = "voter_tab";
                                 // } 
                             }
-                            if(facility_docs_arr.includes("aadhar-id-proof")){
+
+                            if(facility_document_data[i].doc_type == "aadhar-id-proof"){
                                 // console.log("aadhar___",facility_document_data[i].file_url)
                                 aadhar_url = $page.url.origin+facility_document_data[i].file_url;
                                 aadhar_verified = facility_document_data[i].verified;
                                 aadhar_rejected = facility_document_data[i].rejected;
                                 contains_aadhar = 1;
+                                aadhar_number = facility_document_data[i].doc_number;
+                                console.log("aadhar_number 22",aadhar_number)
                                 // for (var i = 0; i < doctype_array.length; i++){
                                 //     if(doctype_array[i] == "aadhar-id-proof")
                                 //     temp_switchto = "aadhar_tab";
                                 // } 
                                 // console.log("successfully fetched aadhar")
                             }
-                            if(facility_docs_arr.includes("addproof-photo")){
+
+					        if(facility_document_data[i].doc_type == "addproof-photo"){
                                 // console.log("address___",facility_document_data[i].file_url)
                                 address_url = $page.url.origin+facility_document_data[i].file_url;
                                 address_verified = facility_document_data[i].verified;
                                 address_rejected = facility_document_data[i].rejected;
                                 contains_address = 1;
+                                address_number = facility_document_data[i].doc_number;
+                                console.log("address_number 22",address_number)
                                 // for (var i = 0; i < doctype_array.length; i++){
                                 //     if(doctype_array[i] == "addproof-photo")
                                 //     temp_switchto = "address_tab";
                                 // } 
                                 // console.log("successfully fetched addressproof")
                             }
-                            if(facility_docs_arr.includes("newOffFile")){
+
+                            if(facility_document_data[i].doc_type == "newOffFile"){
                                 // console.log("address___",facility_document_data[i].file_url)
                                 offer_url = $page.url.origin+facility_document_data[i].file_url;
                                 offer_verified = facility_document_data[i].verified;
                                 offer_rejected = facility_document_data[i].rejected;
                                 contains_offer = 1;
+                                off_number = facility_document_data[i].doc_number;
+                                console.log("off_number 22",off_number)
                                 // for (var i = 0; i < doctype_array.length; i++){
                                 //     if(doctype_array[i] == "newOffFile")
                                 //     temp_switchto = "offerletter_tab";
@@ -436,43 +455,52 @@
                                 
                                 // console.log("successfully fetched Offer letter")
                             }
-                            if(facility_docs_arr.includes("dl-photo")){
+
+                            if(facility_document_data[i].doc_type == "dl-photo"){
                                 // console.log("address___",facility_document_data[i].file_url)
                                 dl_url = $page.url.origin+facility_document_data[i].file_url;
                                 dl_verified = facility_document_data[i].verified;
                                 dl_rejected = facility_document_data[i].rejected;
                                 contains_dl = 1;
                                 dl_number  = facility_document_data[i].doc_number;
+                                console.log("dl_number 22",dl_number)
                                 // for (var i = 0; i < doctype_array.length; i++){
                                 //     if(doctype_array[i] == "dl-photo")
                                 //     temp_switchto = "DL_tab";
                                 // } 
                                 // console.log("successfully fetched Offer letter")
                             }
-                            if(facility_docs_arr.includes("pass_photo")){
+
+                            if(facility_document_data[i].doc_type == "pass_photo"){
                                 // console.log("aadhar___",facility_document_data[i].file_url)
                                 pass_photo_url = $page.url.origin+facility_document_data[i].file_url;
                                 pass_photo_verified = facility_document_data[i].verified;
                                 pass_photo_rejected = facility_document_data[i].rejected;
                                 // contains_pass_photo = 1;
+                                pass_number  = facility_document_data[i].doc_number;
+                                console.log("pass_number 22",pass_number)
                                 // for (var i = 0; i < doctype_array.length; i++){
                                 //     if(doctype_array[i] == "aadhar-id-proof")
                                 //     temp_switchto = "aadhar_tab";
                                 // } 
                                 // console.log("successfully fetched aadhar")
                             }
-                            if(facility_docs_arr.includes("police_info_supp_file")){
+
+                            if(facility_document_data[i].doc_type == "police_info_supp_file"){
                                 // console.log("address___",facility_document_data[i].file_url)
                                 police_url = $page.url.origin+facility_document_data[i].file_url;
                                 police_verified = facility_document_data[i].verified;
                                 police_rejected = facility_document_data[i].rejected;
                                 // contains_police = 1;
+                                police_number  = facility_document_data[i].doc_number;
+                                console.log("police_number 22",police_number)
                                 // for (var i = 0; i < doctype_array.length; i++){
                                 //     if(doctype_array[i] == "addproof-photo")
                                 //     temp_switchto = "address_tab";
                                 // } 
                                 // console.log("successfully fetched addressproof")
                             }
+
                             if(facility_docs_arr.includes("can-cheque")){
                                 can_cheque_url = $page.url.origin+facility_document_data[i].file_url;
                                 
@@ -489,10 +517,14 @@
                             }
                             
                             
-                        } 
+                        }
                         
                         }
                     }
+
+
+
+                    
             catch (err){
                 console.log("error in finding Pan image",err)
             }
@@ -599,7 +631,15 @@
 
     async function doc_approve(doc_cat){
         if (doc_cat == "pan"){
-            console.log("payload", $facility_data_store)
+            // console.log("inside facility_document_data.pan_number",facility_document_data.pan_number)
+
+            console.log("inside 1 facility_document_data", vmt_pan,pan_number)
+            if(vmt_pan != pan_number){
+                toast_type = "error"
+                toast_text = "Enter valid Pan Number"
+                return
+            }
+            console.log("vmt-pan")
             if(vmt_pan != 0){
                 show_spinner = true;
                 let document_load = {
@@ -609,8 +649,11 @@
                 "status":"true",
                 "doc_type":"pan-photo"
             }
+
                 let pan_sub_res = await approve_reject_status(document_load)
                 show_spinner = false;
+                toast_text = "Pancard Approved";
+                toast_type = "success"
                 try{
                     console.log("inside pan_sub_res.body.status",pan_sub_res.body.status)
                     console.log(" inside condition ", pan_verified=="1")
@@ -633,6 +676,11 @@
 
         if (doc_cat == "voter"){   
             console.log("payload", $facility_data_store)
+            if(vmt_voter != voter_number){
+                toast_type = "error"
+                toast_text = "Enter valid Voter ID"
+                return
+            }
             if(vmt_voter!=0){
                 show_spinner = true;
                 let document_load = {
@@ -644,6 +692,8 @@
             }
             let voter_sub_res =await approve_reject_status(document_load)
             show_spinner = false;
+            toast_text = "VoterID Approved";
+            toast_type = "success"
             try{
                 console.log("voter_sub_res",voter_sub_res.body.status)
                     if(voter_sub_res.body.status == "green"){
@@ -662,6 +712,11 @@
         }
 
         if (doc_cat == "aadhar"){
+            if(vmt_aadhar != aadhar_number){
+                toast_type = "error"
+                toast_text = "Enter valid Aadhar Number"
+                return
+            }
             if (vmt_aadhar != 0){
                 show_spinner = true;
                 let document_load = {
@@ -673,6 +728,8 @@
             }
             let aadhar_sub_res =await approve_reject_status(document_load)
             show_spinner = false;
+            toast_text = "Aadhar Approved";
+            toast_type = "success"
             try{
                 if(aadhar_sub_res.body.status == "green"){
                     aadhar_success_flag = 1;
@@ -691,6 +748,11 @@
         }
         
         if (doc_cat == "dl"){
+            if(vmt_dl != dl_number){
+                toast_type = "error"
+                toast_text = "Enter valid DL Number"
+                return
+            }
             if (vmt_dl != 0){
                 show_spinner = true;
                 let document_load = {
@@ -702,6 +764,8 @@
             }
             let dl_sub_res =await approve_reject_status(document_load)
             show_spinner = false;
+            toast_text = "DL Approved";
+            toast_type = "success"
             try{
                     if(dl_sub_res.body.status == "green"){
                         dl_success_flag = 1;
@@ -730,6 +794,8 @@
             }
             let address_sub_res =await approve_reject_status(document_load)
             show_spinner = false;
+            toast_text = "Address Approved";
+            toast_type = "success"
             try{
                 if(address_sub_res.body.status == "green"){
                     address_success_flag = 1
@@ -742,7 +808,16 @@
         }
         
         if (doc_cat == "offer"){
-            if(off_Name != 0 && off_assoc_type != 0 && off_vend_name != 0){
+            console.log("123 $facility_data_store.vendor_name",$facility_data_store.vendor_name,off_vend_name)
+            console.log("123 $facility_data_store.facility_type",$facility_data_store.facility_type , off_assoc_type)
+            console.log("123 $facility_data_store.facility_name",$facility_data_store.facility_name , off_Name)
+            if(off_Name != $facility_data_store.facility_name && off_assoc_type != $facility_data_store.facility_type && off_vend_name != $facility_data_store.vendor_name){
+                console.log("inside not matched")
+                toast_text = "Please enter the valid details";
+                toast_type = "error";
+                return
+            }
+            if(off_Name != 0 && off_assoc_type != 0 && off_vend_name != 0 ){
                 // && vmt_offer != 0
                 show_spinner = true;
                 let document_load = {
@@ -757,6 +832,8 @@
                 }
                 let offer_sub_res =await approve_reject_status(document_load)
                 show_spinner = false;
+                toast_text = "Offer Letter Approved";
+                toast_type = "success"
                 try{
                     if(offer_sub_res.body.status == "green"){
                         offer_success_flag = 1;
@@ -865,6 +942,8 @@
             }
             let pan_sub_res = await approve_reject_status(document_load)
             show_spinner = false;
+            toast_text = "Pan Card rejected";
+            toast_type = "error"
             try{
                 if(pan_sub_res.body.status == "green"){
                     pan_reject_flag = 1;
@@ -890,6 +969,8 @@
             }
             let voter_sub_res =await approve_reject_status(document_load)
             show_spinner = false;
+            toast_text = "Voter ID Rejected";
+            toast_type = "error";
             try{
                 console.log("voter_sub_res",voter_sub_res.body.status)
                     if(voter_sub_res.body.status == "green"){
@@ -913,6 +994,8 @@
             }
             let aadhar_sub_res =await approve_reject_status(document_load)
             show_spinner = false;
+            toast_text = "Aadhar Rejected";
+            toast_type = "error"
             try{
                 if(aadhar_sub_res.body.status == "green"){
                     aadhar_reject_flag = 1;
@@ -935,6 +1018,8 @@
             }
             let dl_sub_res =await approve_reject_status(document_load)
             show_spinner = false;
+            toast_text = "DL Rejected";
+            toast_type = "error"
             try{
                     if(dl_sub_res.body.status == "green"){
                         dl_reject_flag = 1;
@@ -958,6 +1043,8 @@
             }
             let address_sub_res =await approve_reject_status(document_load)
             show_spinner = false;
+            toast_text = "Address Rejected";
+            toast_type = "error"
             try{
                 if(address_sub_res.body.status == "green"){
                     address_reject_flag = 1;
@@ -981,6 +1068,8 @@
                 }
                 let offer_sub_res =await approve_reject_status(document_load)
                 show_spinner = false;
+                toast_text = "Offer Letter Rejected";
+                toast_type = "error"
                 try{
                     if(offer_sub_res.body.status == "green"){
                         offer_reject_flag = 1;
@@ -1059,12 +1148,13 @@
             try{
                 if (facility_doc_data_res != "null" ){
                     facility_document_data = facility_doc_data_res.body.data;
+                    console.log("inside 2 facility_document_data".facility_document_data)
                     
                     for (var i = 0; i < facility_document_data.length; i++){
 
                             facility_docs_arr[i] = facility_document_data[i].doc_type;
                             
-                            if(facility_docs_arr.includes("pan-photo")){
+                            if(facility_document_data[i].doc_type == "pan-photo"){
                                 // console.log("pan___",facility_document_data[i].file_url)
                                 pan_url = $page.url.origin+facility_document_data[i].file_url;
                                 pan_verified = facility_document_data[i].verified;
@@ -1078,7 +1168,7 @@
 
                             }
                             
-                            if(facility_docs_arr.includes("voter-id-proof")){
+                            if(facility_document_data[i].doc_type == "voter-id-proof"){
                                 // console.log("address___",facility_document_data[i].file_url)
                                 voter_url = $page.url.origin+facility_document_data[i].file_url;
                                 voter_verified = facility_document_data[i].verified;
@@ -1090,7 +1180,7 @@
                                 //     temp_switchto = "voter_tab";
                                 // } 
                             }
-                            if(facility_docs_arr.includes("aadhar-id-proof")){
+                            if(facility_document_data[i].doc_type == "aadhar-id-proof"){
                                 // console.log("aadhar___",facility_document_data[i].file_url)
                                 aadhar_url = $page.url.origin+facility_document_data[i].file_url;
                                 aadhar_verified = facility_document_data[i].verified;
@@ -1102,7 +1192,7 @@
                                 // } 
                                 // console.log("successfully fetched aadhar")
                             }
-                            if(facility_docs_arr.includes("addproof-photo")){
+                            if(facility_document_data[i].doc_type == "addproof-photo"){
                                 // console.log("address___",facility_document_data[i].file_url)
                                 address_url = $page.url.origin+facility_document_data[i].file_url;
                                 address_verified = facility_document_data[i].verified;
@@ -1114,7 +1204,7 @@
                                 // } 
                                 // console.log("successfully fetched addressproof")
                             }
-                            if(facility_docs_arr.includes("newOffFile")){
+                            if(facility_document_data[i].doc_type == "newOffFile"){
                                 // console.log("address___",facility_document_data[i].file_url)
                                 offer_url = $page.url.origin+facility_document_data[i].file_url;
                                 offer_verified = facility_document_data[i].verified;
@@ -1127,7 +1217,7 @@
                                 
                                 // console.log("successfully fetched Offer letter")
                             }
-                            if(facility_docs_arr.includes("dl-photo")){
+                            if(facility_document_data[i].doc_type == "dl-photo"){
                                 // console.log("address___",facility_document_data[i].file_url)
                                 dl_url = $page.url.origin+facility_document_data[i].file_url;
                                 dl_verified = facility_document_data[i].verified;
@@ -1139,7 +1229,7 @@
                                 // } 
                                 // console.log("successfully fetched Offer letter")
                             }
-                            if(facility_docs_arr.includes("pass_photo")){
+                            if(facility_document_data[i].doc_type == "pass_photo"){
                                 // console.log("aadhar___",facility_document_data[i].file_url)
                                 pass_photo_url = $page.url.origin+facility_document_data[i].file_url;
                                 pass_photo_verified = facility_document_data[i].verified;
@@ -1151,7 +1241,7 @@
                                 // } 
                                 // console.log("successfully fetched aadhar")
                             }
-                            if(facility_docs_arr.includes("police_info_supp_file")){
+                            if(facility_document_data[i].doc_type == "police_info_supp_file"){
                                 // console.log("address___",facility_document_data[i].file_url)
                                 police_url = $page.url.origin+facility_document_data[i].file_url;
                                 police_verified = facility_document_data[i].verified;
@@ -1276,7 +1366,7 @@
 
                             facility_docs_arr[i] = facility_document_data[i].doc_type;
                             
-                            if(facility_docs_arr.includes("pan-photo")){
+                            if(facility_document_data[i].doc_type == "pan-photo"){
                                 // console.log("pan___",facility_document_data[i].file_url)
                                 pan_url = $page.url.origin+facility_document_data[i].file_url;
                                 pan_verified = facility_document_data[i].verified;
@@ -1290,7 +1380,7 @@
 
                             }
                             
-                            if(facility_docs_arr.includes("voter-id-proof")){
+                            if(facility_document_data[i].doc_type == "voter-id-proof"){
                                 // console.log("address___",facility_document_data[i].file_url)
                                 voter_url = $page.url.origin+facility_document_data[i].file_url;
                                 voter_verified = facility_document_data[i].verified;
@@ -1302,7 +1392,7 @@
                                 //     temp_switchto = "voter_tab";
                                 // } 
                             }
-                            if(facility_docs_arr.includes("aadhar-id-proof")){
+                            if(facility_document_data[i].doc_type == "aadhar-id-proof"){
                                 // console.log("aadhar___",facility_document_data[i].file_url)
                                 aadhar_url = $page.url.origin+facility_document_data[i].file_url;
                                 aadhar_verified = facility_document_data[i].verified;
@@ -1314,7 +1404,7 @@
                                 // } 
                                 // console.log("successfully fetched aadhar")
                             }
-                            if(facility_docs_arr.includes("addproof-photo")){
+                            if(facility_document_data[i].doc_type == "addproof-photo"){
                                 // console.log("address___",facility_document_data[i].file_url)
                                 address_url = $page.url.origin+facility_document_data[i].file_url;
                                 address_verified = facility_document_data[i].verified;
@@ -1326,7 +1416,7 @@
                                 // } 
                                 // console.log("successfully fetched addressproof")
                             }
-                            if(facility_docs_arr.includes("newOffFile")){
+                            if(facility_document_data[i].doc_type == "newOffFile"){
                                 // console.log("address___",facility_document_data[i].file_url)
                                 offer_url = $page.url.origin+facility_document_data[i].file_url;
                                 offer_verified = facility_document_data[i].verified;
@@ -1339,7 +1429,7 @@
                                 
                                 // console.log("successfully fetched Offer letter")
                             }
-                            if(facility_docs_arr.includes("dl-photo")){
+                            if(facility_document_data[i].doc_type == "dl-photo"){
                                 // console.log("address___",facility_document_data[i].file_url)
                                 dl_url = $page.url.origin+facility_document_data[i].file_url;
                                 dl_verified = facility_document_data[i].verified;
@@ -1351,7 +1441,7 @@
                                 // } 
                                 // console.log("successfully fetched Offer letter")
                             }
-                            if(facility_docs_arr.includes("pass_photo")){
+                            if(facility_document_data[i].doc_type == "pass_photo"){
                                 // console.log("aadhar___",facility_document_data[i].file_url)
                                 pass_photo_url = $page.url.origin+facility_document_data[i].file_url;
                                 pass_photo_verified = facility_document_data[i].verified;
@@ -1363,7 +1453,7 @@
                                 // } 
                                 // console.log("successfully fetched aadhar")
                             }
-                            if(facility_docs_arr.includes("police_info_supp_file")){
+                            if(facility_document_data[i].doc_type == "police_info_supp_file"){
                                 // console.log("address___",facility_document_data[i].file_url)
                                 police_url = $page.url.origin+facility_document_data[i].file_url;
                                 police_verified = facility_document_data[i].verified;
@@ -1489,7 +1579,7 @@
 
                             facility_docs_arr[i] = facility_document_data[i].doc_type;
                             
-                            if(facility_docs_arr.includes("pan-photo")){
+                            if(facility_document_data[i].doc_type == "pan-photo"){
                                 // console.log("pan___",facility_document_data[i].file_url)
                                 pan_url = $page.url.origin+facility_document_data[i].file_url;
                                 pan_verified = facility_document_data[i].verified;
@@ -1503,7 +1593,7 @@
 
                             }
                             
-                            if(facility_docs_arr.includes("voter-id-proof")){
+                            if(facility_document_data[i].doc_type == "voter-id-proof"){
                                 // console.log("address___",facility_document_data[i].file_url)
                                 voter_url = $page.url.origin+facility_document_data[i].file_url;
                                 voter_verified = facility_document_data[i].verified;
@@ -1515,7 +1605,7 @@
                                 //     temp_switchto = "voter_tab";
                                 // } 
                             }
-                            if(facility_docs_arr.includes("aadhar-id-proof")){
+                            if(facility_document_data[i].doc_type == "aadhar-id-proof"){
                                 // console.log("aadhar___",facility_document_data[i].file_url)
                                 aadhar_url = $page.url.origin+facility_document_data[i].file_url;
                                 aadhar_verified = facility_document_data[i].verified;
@@ -1527,7 +1617,7 @@
                                 // } 
                                 // console.log("successfully fetched aadhar")
                             }
-                            if(facility_docs_arr.includes("addproof-photo")){
+                            if(facility_document_data[i].doc_type == "addproof-photo"){
                                 // console.log("address___",facility_document_data[i].file_url)
                                 address_url = $page.url.origin+facility_document_data[i].file_url;
                                 address_verified = facility_document_data[i].verified;
@@ -1539,7 +1629,7 @@
                                 // } 
                                 // console.log("successfully fetched addressproof")
                             }
-                            if(facility_docs_arr.includes("newOffFile")){
+                            if(facility_document_data[i].doc_type == "newOffFile"){
                                 // console.log("address___",facility_document_data[i].file_url)
                                 offer_url = $page.url.origin+facility_document_data[i].file_url;
                                 offer_verified = facility_document_data[i].verified;
@@ -1552,7 +1642,7 @@
                                 
                                 // console.log("successfully fetched Offer letter")
                             }
-                            if(facility_docs_arr.includes("dl-photo")){
+                            if(facility_document_data[i].doc_type == "dl-photo"){
                                 // console.log("address___",facility_document_data[i].file_url)
                                 dl_url = $page.url.origin+facility_document_data[i].file_url;
                                 dl_verified = facility_document_data[i].verified;
@@ -1564,7 +1654,7 @@
                                 // } 
                                 // console.log("successfully fetched Offer letter")
                             }
-                            if(facility_docs_arr.includes("pass_photo")){
+                            if(facility_document_data[i].doc_type == "pass_photo"){
                                 // console.log("aadhar___",facility_document_data[i].file_url)
                                 pass_photo_url = $page.url.origin+facility_document_data[i].file_url;
                                 pass_photo_verified = facility_document_data[i].verified;
@@ -1576,7 +1666,7 @@
                                 // } 
                                 // console.log("successfully fetched aadhar")
                             }
-                            if(facility_docs_arr.includes("police_info_supp_file")){
+                            if(facility_document_data[i].doc_type == "police_info_supp_file"){
                                 // console.log("address___",facility_document_data[i].file_url)
                                 police_url = $page.url.origin+facility_document_data[i].file_url;
                                 police_verified = facility_document_data[i].verified;
@@ -3645,7 +3735,7 @@
          
          {#if temp_display == "display_bank_details"}
          {#if bank_details_provided == "no"}
-         <p>Bank Details is not available</p>
+         <p class="mt-20">Bank Details is not available</p>
          {:else}
          <div class="m-4 col-span-4 xsl:col-span-5  ">
             <div class="flex w-full justify-between xsl:flex-wrap">
@@ -3983,7 +4073,14 @@
                 <!-- Attachment section -->
                 <div class="m-4 col-span-4 xsl:m-2 ">
                     <div class="tabforDoc">
-                        {#if !aadhar_url}<p></p>
+                        {#if !aadhar_url}
+                        <div class="text-center font-light">
+                            <p class="text-sm mb-2 xsl:text-xs">Aadhar Card</p>
+                             <div class="tabforDocItem">
+                                  <img src="{$img_url_name.img_name}/aadharicon.png" alt="" class="w-16 xsl:w-14 p-1" >
+                            </div>  
+                        </div>
+                        <p>Aadhar document not Submitted</p>
                         {:else}
                             <div class="text-center font-light">
                                 <p class="text-sm mb-2 xsl:text-xs">Aadhar Card</p>
@@ -3992,7 +4089,14 @@
                                 </div>  
                             </div>
                         {/if}
-                        {#if !voter_url}<p></p>
+                        {#if !voter_url}
+                        <div class="text-center font-light">
+                            <p class="text-sm mb-2 xsl:text-xs">Voter ID</p>
+                            <div class="tabforDocItem">
+                                <img src="{$img_url_name.img_name}/voterid.png" alt="" class="w-16 xsl:w-14 p-1">
+                            </div>  
+                       </div>  
+                        <p>Voter ID not Submitted</p>
                         {:else}
                             <div class="text-center font-light">
                                 <p class="text-sm mb-2 xsl:text-xs">Voter ID</p>
@@ -4001,14 +4105,22 @@
                                 </div>  
                            </div>  
                         {/if}
-                        {#if !pass_photo_url}<p></p>
+                        {#if !pass_photo_url}
+                        <div class="text-center font-light">
+                            <p class="text-sm mb-2 xsl:text-xs">Passport Photo</p>
+                            <div class="tabforDocItem">
+                                <img src="{$img_url_name.img_name}/passportpic.png" alt="" class="w-16 xsl:w-14 p-1">
+                            </div>    
+                        </div> 
+                        <p>Pass Photo document not Submitted</p>
                         {:else}
                             <div class="text-center font-light">
                                 <p class="text-sm mb-2 xsl:text-xs">Passport Photo</p>
                                 <div class="tabforDocItem {pass_photo_act}">
                                     <img src="{$img_url_name.img_name}/passportpic.png" alt="" class="w-16 xsl:w-14 p-1" on:click="{()=>img_change("pass_photo")}">
-                                </div>    
-                        </div>    
+                                </div>
+                                <p>Pass Photo document not Submitted</p>    
+                            </div>    
                         {/if}
                     </div>    
                     {#if show_aadhar == 1}
