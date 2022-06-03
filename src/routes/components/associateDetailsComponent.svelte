@@ -1268,8 +1268,8 @@
             
              <div class="right flex justify-end">
                  <p class="detailsUpdate mr-4">
-                     <span><span class="font-medium">Last updated -> </span>{facility_created_date} <span
-                             class="font-medium"> By -> </span> {$facility_data_store.owner}</span>
+                     <span><span class="font-medium">Last updated -> </span>{#if !facility_created_date}<p>-</p>{:else}{facility_created_date}{/if} <span
+                             class="font-medium"> By -> </span> {#if !$facility_data_store.owner} <p>-</p> {:else}{$facility_data_store.owner}{/if}</span>
                  </p>
                  <p class="flex items-center smButtonText">
                      <!-- TODO -->

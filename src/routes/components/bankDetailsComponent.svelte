@@ -476,8 +476,8 @@
              {:else}
              <div class="flex">
                  <p class="detailsUpdate mr-4">
-                     <span><span class="font-medium">Last updated -> </span>  {bank_new_date} <span
-                             class="font-medium"> By -> </span> {bank_values_from_store.modified_by}</span>
+                     <span><span class="font-medium">Last updated -> </span> {#if !bank_new_date} <p>-</p> {:else}{bank_new_date}{/if} <span
+                             class="font-medium"> By -> </span> {#if !bank_values_from_store.modified_by}<p>-</p>{:else}{bank_values_from_store.modified_by}{/if}</span>
                  </p>
                  <p class="flex items-center smButtonText">
                      <!-- <a href="" class="smButton bg-erBlue text-white" on:click={()=>{goto("bankdetails")}}>

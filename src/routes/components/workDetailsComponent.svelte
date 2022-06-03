@@ -1153,7 +1153,7 @@
     }
     async function handleTagClick(){
         show_spinner = true;
-        console.log("handle tag clicked")
+        console.log("handle tag clicked",show_spinner)
         let new_tag_id
         try {   
             show_spinner = false;
@@ -1180,6 +1180,8 @@
            
             // console.log("select_tag_data",select_tag_data)
             show_fac_array = [];
+            if(serv_ch_data=="-1")
+            serv_ch_data="";
             // console.log("serv_ch_data",serv_ch_data)
             let submit_fac_res = await submit_fac_tag_data(new_tag_id,select_tag_data,tag_date,tag_remark,serv_ch_data)
             try {
@@ -1190,6 +1192,11 @@
                     toast_type = "success";
                     toast_text = submit_fac_res.body.message;
                     show_spinner = false;
+                    select_tag_data = "-1"
+                    serv_ch_data="-1"
+                    tag_date=""
+                    tag_remark=""
+                    // console.log("Blsnk values",select_tag_data,serv_ch_data,tag_date,tag_remark)
 
                     let temp_res = await show_fac_tags($facility_data_store.facility_type);
                     show_fac_array = temp_res.body.data;
@@ -1223,19 +1230,40 @@
       
 }
 
-    async function removeTag(tag_id,tag_name,owner,tag_status){
+    function remove_tag_con_model(){
+        remove_tag_confirmation_model.style.display = "block";
+    }
+    function remove_tag_con_model_close(){
+        remove_tag_confirmation_model.style.display = "none";
+    }
+
+    async function confirm_delete_tag(){
+        let tag_name,tag_id;
+        console.log("show_fac_array",show_fac_array)
+        console.log("tag_id",document.getElementById("remove_tag_id").innerHTML)
+
+        for(let i=0;i<show_fac_array.length;i++){
+            if(show_fac_array[i].tag_name == document.getElementById("remove_tag_id").innerHTML){
+               tag_name = show_fac_array[i].tag_name;
+               tag_id = show_fac_array[i].name;
+            }
+        }
         show_spinner = true;
         show_fac_array = [];
-        let fac_id
-        if(owner == $facility_data_store.owner){
-                fac_id = $facility_data_store.name
-                console.log("fac_id",fac_id)
-        }
+        // console.log("tag_id tag_name",tag_id,tag_name,owner)
+        let fac_id = facility_id;
+        // if(owner == $facility_data_store.owner){
+        //         fac_id = $facility_data_store.name
+        //         console.log("fac_id",fac_id)
+        // }
         let remove_tag_res = await remove_tag(fac_id,tag_id,tag_name);
         if(remove_tag_res.body.status == "green")
         {
+            remove_tag_con_model_close()
             toast_type = "success";
             toast_text = remove_tag_res.body.message;
+            
+
         
             let temp_res = await show_fac_tags($facility_data_store.facility_type);
         try {
@@ -1249,13 +1277,19 @@
                 show_spinner = false;
        
         }
+        
         catch(err) {
-            show_spinner = false;
+        show_spinner = false;
         toast_type = "error";
         toast_text = err;
         
          }
 
+    }
+    else{
+        show_spinner = false;
+        toast_type = "error";
+        toast_text = remove_tag_res.body.message;
     }
 }
 
@@ -1273,7 +1307,7 @@
                 tag_data_arr[i].creation=show_creation_date;
             }
             // console.log("TAG DATA ARRA",tag_data_arr)
-            tag_data_arr = tag_data_arr;
+            tag_data_arr = tag_data_arr.reverse();
                
         }} catch(err) {
         console.log("ERROR")
@@ -1470,18 +1504,19 @@
    
 
     </script>
-        {#if show_spinner}
-            <Spinner />
-        {/if}
+      
     
          <!-- Work Details -->
         <div class="bg-white w-full Work_Details_Section ">
             <div class="detailsHeader_summary ">
+                {#if show_spinner}
+                <Spinner />
+                {/if}
                
                 <div class="right flex justify-end">
                     <p class="detailsUpdate mr-4">
-                        <span><span class="font-medium">Last updated -> </span> {facility_modified_date} <span
-                                class="font-medium"> By -> </span> {$facility_data_store.modified_by}</span>
+                        <span><span class="font-medium">Last updated -> </span> {#if !facility_modified_date} <p>-</p> {:else}{facility_modified_date} {/if}<span
+                                class="font-medium"> By -> </span> {#if !$facility_data_store.modified_by}<p>-</p>{:else}{$facility_data_store.modified_by}{/if}</span>
                     </p>
                     <p class="flex items-center smButtonText">
                         
@@ -1747,7 +1782,7 @@
                                             <select
                                                    class="inputboxpopover"
                                                bind:value="{select_tag_data}">
-                                               <option value="">Select</option>
+                                               <option value="-1">Select</option>
                                                {#if !all_tags_data}
                                                <p></p>
                                                {:else}
@@ -1786,7 +1821,7 @@
                                                    class="pt-6"
                                                    >Select</option
                                                > -->
-                                           <option value="">Select</option>
+                                           <option value="-1">Select</option>
                                            {#if !tag_data_obj}
                                            <p></p>
                                            {:else}
@@ -1936,7 +1971,7 @@
                                                    <tr
                                                        class="border-b"
                                                    >
-                                                       <td
+                                                       <td id="remove_tag_id"
                                                            >{show_fac.tag_name}</td
                                                        >
                                                        <td
@@ -1966,7 +2001,7 @@
                                                                <img
                                                                    src="{$img_url_name.img_name}/reject.png"
                                                                    alt=""
-                                                                   on:click="{removeTag(show_fac.name,show_fac.tag_name,show_fac.owner)}"
+                                                                   on:click={remove_tag_con_model}
                                                                />
                                                            </div>
                                                        </td>
@@ -2015,7 +2050,7 @@
                                            
                                        
                                             <td
-                                                >{new_tag_audit.parenttype}</td
+                                                >{new_tag_audit.remarks}</td
                                             >
                                             <td
                                                 >{new_tag_audit.creation}</td
@@ -3241,6 +3276,50 @@
             </div>
         </div>
     </div>
+
+ <!--Remove Tag Confirmation modal -->
+    
+  <div id="remove_tag_confirmation_model" class="hidden">
+    <div  class="actionDialogueOnboard ">
+        <div class="pancardDialogueOnboardWrapper ">
+            <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+                <div class="modalHeadConmb-0">
+                    <div class="leftmodalInfo">
+                        <!-- <p class=""> Reject Reason</p> -->
+                    </div>
+                    <div class="rightmodalclose">
+                        <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" on:click="{remove_tag_con_model_close}">
+                    </div>
+                </div>
+                <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+    
+                    <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0 mt-4">
+                        <label class="block  tracking-wide text-gray-700 font-bold mb-2" for="grid-state">
+                            Confirm Delete Tag ?
+                        </label>
+                        <div class="relative">
+                         
+                          <br>
+                          
+                          <div
+                                class="flex  py-1 items-center flex-wrap"
+                            >
+                                <div class="formInnerGroup">
+                                   
+                                    <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium mr-2" on:click="{remove_tag_con_model_close}">Cancel</button>
+                                    <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium mr-2" on:click="{confirm_delete_tag}">Ok</button>
+                                </div>
+                            </div>
+                          
+                        </div>
+                      </div>
+                </form>
+            </div>
+        </div>
+    </div> 
+</div>
+
+<!--Remove Tag Confirmation modal -->
 
 
 
