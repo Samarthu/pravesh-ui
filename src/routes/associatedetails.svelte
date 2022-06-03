@@ -20,6 +20,8 @@
 import { facility_id } from "../stores/facility_id_store";
 import {duplicate_documents_store} from "../stores/duplicate_document_store";
 import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_store";
+import {sorting_facility_details_for_edit} from '../services/pravesh_config';
+import {edit_facility_function} from '../services/identity_proof_services';
  
     
     let toast_text = "";
@@ -203,6 +205,9 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
                         });
                     }
                 }
+
+                city_data.sort((a, b) => (a.city_name > b.city_name) ? 1 : (a.city_name === b.city_name) ? ((a.city_id > b.city_id) ? 1 : -1) : -1 )
+                
                 // console.log("city data",city_data);
 
             }
@@ -294,7 +299,7 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
     //     console.log("inside work address reactive block", work_address.city);
     // }
 
-    function gotoidentityproof() {
+   async function gotoidentityproof() {
         valid = true;
         save_address_to_store();
         if ($facility_data_store.facility_name == null) {
@@ -455,8 +460,20 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
             }
             console.log("document store", $documents_store);
 
-            let replaceState = false;
+            if($facility_id.facility_id_number){
+                let sorting_data_result = sorting_facility_details_for_edit($facility_data_store)
+                console.log("sorting_data_result", sorting_data_result)
+                let edit_facility_response = await edit_facility_function(sorting_data_result)
+                console.log("edit_facility_response", edit_facility_response);
+                
+
+            }else{
+                let replaceState = false;
             goto(routeTo, { replaceState });
+
+            }
+
+            
         }
 
         // $documents_store.documents.push(address_proof_data);

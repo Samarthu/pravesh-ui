@@ -928,7 +928,7 @@
                                         />
                                     </span>
                                     <input
-                                        type="text"
+                                        type="password"
                                         class="inputbox"
                                         bind:value={$bank_details.re_enter_account_number}
                                         on:blur={() =>
@@ -1074,6 +1074,16 @@
                                         {pincode_message}
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="flex">
+                            <div class="formGroup ">
+                                <div class="formInnerGroup mt-1">
+                                <p class="noteDescription mt-2 ">
+                                    <span class="font-medium">Note:</span>
+                                    Only one document is required to upload.
+                                </p>
+                            </div>
                             </div>
                         </div>
 
