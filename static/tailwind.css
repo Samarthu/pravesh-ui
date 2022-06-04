@@ -2345,23 +2345,24 @@ ul.menuList li a.active span{
 
 
 @media print {
-    .noPrint{
-        display: none;
-    }
 
     button {
         display: none;
     }    
 
-    .mainContent {
-        display: none;
-    }
-
     .verifyIdSection{
         display: none;
     }
 
-    .sidenav{
+    .statusbar{
+        display: none;
+    }
+
+    .tabsforsummary{
+        display: none;
+    }
+
+    .breadcrumb{
         display: none;
     }
 
@@ -2374,8 +2375,8 @@ ul.menuList li a.active span{
     }
 
     body {
-        visibility: hidden;
-    }
+        visibility: hidden ;
+    } 
 
     .idCardWrapper{
         visibility: visible;
@@ -2383,6 +2384,22 @@ ul.menuList li a.active span{
 
     .actionDialogueOnboard{
         visibility: hidden;
+    }
+
+    .Identity_proof_Section{
+        visibility: hidden;
+    }
+
+    .IdentityProofColSec{
+        visibility: hidden;
+    }
+
+    .IdentityProofColFirst{
+        visibility: hidden;
+    }
+
+    .idCardWrapper{
+        visibility: visible;
     }
 }
 
