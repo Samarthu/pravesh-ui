@@ -1367,7 +1367,26 @@
             image_path = $page.url.origin+cheque_disp_obj.cheque_disp_url;
             // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+new_cheque.file_url);
             alt_image = "cheque proof";
+        } 
+        else if(data == "view_physical_contract"){
+            for(let i=0;i<work_contract_arr.length;i++){
+                if(work_contract_arr[i].assigned_id == doc_number){
+                    if(work_contract_arr[i].contract_accepted == 1){
+                        image_path = $page.url.origin+work_contract_arr[i].file_url;
+                        alt_image = "physical contract";
+                    }
+                    else{
+                        document.getElementById("img_model").style.display = "none";
+                        toast_type = "error";
+                        toast_text = "Contract not accepted";
+                    }
+                    
+                }
+            }
+
+            // image_path = $page.url.origin+cheque_disp_obj.cheque_disp_url;
         }
+
         for(let i = 0;i<gst_doc_arr.length;i++){
             if(data == "mult_gsts"){
                 if(doc_number == gst_doc_arr[i].gst_doc_num)
@@ -1376,6 +1395,7 @@
                 alt_image = "gst proof";
             }
         }
+       
         
     }
     const onFileSelected = (e,doctext) => {
@@ -1432,7 +1452,7 @@
         view_contract = 0;
     }
     async function view_print_doc(assigned_id,type){
-        
+        console.log("Inside view print doc")
         console.log("view btn clicked",assigned_id,type)
         view_contract = 1;
         let pass_contract_id
@@ -1453,7 +1473,7 @@
                 esign_data_arr = print_data_res.body.data.esign
                
                 for(let i = 0;i<work_contract_arr.length;i++){
-                if(assigned_id == work_contract_arr[i].assigned_id){
+                if(assigned_id == work_contract_arr[i].assigned_id && work_contract_arr[i].contract_accepted == 1){
                     
                     if(type == "view"){
 
@@ -1474,6 +1494,11 @@
                         new_contract_data = document.getElementById("user_details").innerHTML+print_data_arr.accepted_contract;
                         window.frames["print_frame"].window.print();
                     }
+                }
+                else{
+                    show_spinner = false;
+                    toast_type = "error";
+                    toast_text = "Contract not accepted";
                 }
         }
             }
@@ -1923,31 +1948,31 @@
                                 <p>Add Tags</p>
                             </div> -->
                             {#if temp == "Add"}
-                            <div
+                            <button
                                 class="changetype py-3 w-2/4 bg-bglightgreye"
                                 on:click={add_tag_tab_disp}
                             >
                                 <p>Add Tags</p>
-                            </div>
+                            </button>
                             {:else}
-                            <div
+                            <button
                                 class="changetype py-3 w-2/4 "
                                 on:click={add_tag_tab_disp}
                             >
                                 <p>Add Tags</p>
-                            </div>
+                            </button>
                             {/if}
 
                             {#if temp == "tag"}
-                            <div class="Historytab py-3 w-2/4 bg-bglightgreye"  on:click={tagAuditFunc}
+                            <button class="Historytab py-3 w-2/4 bg-bglightgreye"  on:click={tagAuditFunc}
                             >
                                 <p>Tag Audit Trail</p>
-                            </div>
+                            </button>
                             {:else}
-                            <div class="Historytab py-3 w-2/4"  on:click={tagAuditFunc}
+                            <button class="Historytab py-3 w-2/4"  on:click={tagAuditFunc}
                             >
                                 <p>Tag Audit Trail</p>
-                            </div>
+                            </button>
                             {/if}
                         </div>
                         {#if temp == "Add"}
@@ -2400,7 +2425,7 @@
                                                 <p>-</p>
                                                 {/if}
                                                 <td style="text-align: -webkit-center;">
-                                                    {#if contract.contract_accepted == 0}
+                                                    <!-- {#if contract.contract_accepted == 0}
                                                     <button
                                                         class="flex justify-center"
                                                     >
@@ -2414,33 +2439,33 @@
                                                             />
                                                         </a>
                                                     </button>
-                                                    {:else}
-                                                    <button on:click="{view_print_doc(contract.assigned_id,"view")}"
+                                                    {:else} -->
+                                                    <div
                                                         class="flex justify-center"
                                                     >
-                                                        <a href = "" class="smButton">
+                                                        <button on:click={view_print_doc(contract.assigned_id,"view")} class="smButton">
                                                             <img
                                                                 src="{$img_url_name.img_name}/view.png"
                                                                 alt=""
                                                             />
-                                                        </a>
-                                                    </button>
-                                                    {/if}
+                                                        </button>
+                                                    </div>
+                                                    <!-- {/if} -->
                                                 </td>
                                                 <td style="text-align: -webkit-center;"> 
-                                                    <button on:click="{view_print_doc(contract.assigned_id,"print")}"
+                                                    <div
                                                         class="flex justify-center"
                                                     >
-                                                        <a
-                                                            href=""
+                                                        <button on:click={view_print_doc(contract.assigned_id,"print")}
+                                                            
                                                             class="smButton"
                                                         >
                                                             <img
                                                                 src="{$img_url_name.img_name}/printer.svg"
                                                                 alt=""
                                                             />
-                                                        </a>
-                                                    </button>
+                                                </button>
+                                            </div>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -2473,11 +2498,11 @@
                                                 <td>{contract.end_date}</td>
                                                 <td>{contract.cost_center}</td>
                                                 <td style="text-align: -webkit-center;">
-                                                    {#if contract.contract_accepted == "0"}
+                                                    <!-- {#if contract.contract_accepted == "0"}
                                                     <button 
                                                     class="flex justify-center disabled"
                                                 >
-                                                    <a
+                                                    <div
                                                         href=""
                                                         class="smButton"
                                                     >
@@ -2485,25 +2510,20 @@
                                                             src="{$img_url_name.img_name}/view.png"
                                                             alt=""
                                                         />
-                                                    </a>
+                                                </div>
                                                 </button>
-                                                    {:else}
-                                                    <p class="flex justify-center">
-                                                        <button on:click="{view_print_doc(contract.assigned_id,"view")}"
-                                                                class="flex justify-center"
+                                                    {:else} -->
+                                                        <div class="flex justify-center">
+                                                            <button on:click={openViewModel("view_physical_contract",contract.assigned_id)}
+                                                                class="smButton"
                                                             >
-                                                                <a
-                                                                    href=""
-                                                                    class="smButton"
-                                                                >
-                                                                    <img
-                                                                        src="{$img_url_name.img_name}/view.png"
-                                                                        alt=""
-                                                                    />
-                                                                </a>
-                                                            </button>
-                                                    </p>
-                                                    {/if}
+                                                                <img
+                                                                    src="{$img_url_name.img_name}/view.png"
+                                                                    alt=""
+                                                                />
+                                                    </button>
+                                                </div>
+                                                    <!-- {/if} -->
                                                 </td>
                                                 {/if}
                                             </tr>
@@ -2611,32 +2631,31 @@
                                                         </a>
                                                     </button>
                                                     {:else}
-                                                    <button on:click="{view_print_doc(contract.assigned_id,"view")}"
+                                                    <div
                                                         class="flex justify-center"
                                                     >
-                                                        <a href = "" class="smButton">
+                                                        <button on:click={view_print_doc(contract.assigned_id,"view")} class="smButton">
                                                             <img
                                                                 src="{$img_url_name.img_name}/view.png"
                                                                 alt=""
                                                             />
-                                                        </a>
-                                                    </button>
+                                                        </button>
+                                                    </div>
                                                     {/if}
                                                 </td>
                                                 <td style="text-align: -webkit-center;">
-                                                    <button on:click="{view_print_doc(contract.assigned_id,"print")}"
+                                                    <div
                                                         class="flex justify-center"
                                                     >
-                                                        <a
-                                                            href=""
+                                                        <button on:click={view_print_doc(contract.assigned_id,"print")}
                                                             class="smButton"
                                                         >
                                                             <img
                                                                 src="{$img_url_name.img_name}/printer.svg"
                                                                 alt=""
                                                             />
-                                                        </a>
-                                                    </button>
+                                                </button>
+                                            </div>
                                                 </td>
                                             </tr>
                                         </tbody>
