@@ -1713,19 +1713,31 @@
  
     async function bank_approve(){
         console.log("Inside bank approve")
-        show_spinner = true;
-        if(!$bank_details){
+        if(acc_num == null && ifsc_code == null && acc_hold_name == null){
+            toast_text = "Please enter all the fields";
+            toast_type = "error"
+            return
+        }
+        // if(!$bank_details){
+        //     toast_text = "data not found";
+        //     toast_type = "error"
+        //     return
+        // }
+        if(acc_num != $bank_details.account_number && ifsc_code != $bank_details.ifsc_code && acc_hold_name != $bank_details.account_holder){
+            toast_text = "Details Mismatch";
+            toast_type = "error"
             return
         }
         else{
-            if(acc_num == $bank_details.account_number){
+            if(acc_num == $bank_details.account_number && ifsc_code == $bank_details.ifsc_code && acc_hold_name == $bank_details.account_holder){
             console.log("acc match")
-            if(ifsc_code == $bank_details.ifsc_code){
-                console.log("ifsc match")
-                if(acc_hold_name == $bank_details.account_holder){
-                    console.log("acc_hold_name match")
+            // if(ifsc_code == $bank_details.ifsc_code){
+            //     console.log("ifsc match")
+                // if(acc_hold_name == $bank_details.account_holder){
+                //     console.log("acc_hold_name match")
                     // if(remark == $bank_details.remark){
                     //     console.log("remark match")
+                        show_spinner = true;
                         let document_load = {
                         "facility_id": $facility_id.facility_id_number,
                         "approved": true,
@@ -1740,25 +1752,23 @@
                     bank_success_flag = 1
 
 
-
-
-
-                    let facility_bank_data_res = await get_bank_facility_details()
-            console.log("bank_details", facility_bank_data_res.body.data.length)
-            try{
-                if(facility_bank_data_res.body.data.length == "0"){
-                    bank_details_provided="no";
+                let facility_bank_data_res = await get_bank_facility_details()
+                console.log("bank_details", facility_bank_data_res.body.data.length)
+                try{
+                    if(facility_bank_data_res.body.data.length == "0"){
+                        bank_details_provided="no";
+                    }
+                    else if(facility_bank_data_res != "null"){
+                        bank_details.set(
+                            facility_bank_data_res.body.data[0]
+                        )
+                    }
+                    
                 }
-                else if(facility_bank_data_res != "null"){
-                    bank_details.set(
-                        facility_bank_data_res.body.data[0]
-                    )
+            
+                catch (err){
+                    console.log("Bank details error")
                 }
-                
-            }
-            catch (err){
-                console.log("Bank details error")
-            }
 
 
 
@@ -1770,8 +1780,8 @@
                 console.log("Error in pan_sub_res",err)
             }
                     // }
-                }
-            }
+                // }
+            // }
         }
         }
     }

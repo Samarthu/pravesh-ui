@@ -2476,23 +2476,24 @@ p.tempText {
 
 
 @media print {
-    .noPrint{
-        display: none;
-    }
 
     button {
         display: none;
     }    
 
-    .mainContent {
-        display: none;
-    }
-
     .verifyIdSection{
         display: none;
     }
 
-    .sidenav{
+    .statusbar{
+        display: none;
+    }
+
+    .tabsforsummary{
+        display: none;
+    }
+
+    .breadcrumb{
         display: none;
     }
 
@@ -2505,8 +2506,8 @@ p.tempText {
     }
 
     body {
-        visibility: hidden;
-    }
+        visibility: hidden ;
+    } 
 
     .idCardWrapper{
         visibility: visible;
@@ -2515,6 +2516,23 @@ p.tempText {
     .actionDialogueOnboard{
         visibility: hidden;
     }
+
+    .Identity_proof_Section{
+        visibility: hidden;
+    }
+
+    .IdentityProofColSec{
+        visibility: hidden;
+    }
+
+    .IdentityProofColFirst{
+        visibility: hidden;
+    }
+
+    .idCardWrapper{
+        visibility: visible;
+    }
+
 }
 
 
