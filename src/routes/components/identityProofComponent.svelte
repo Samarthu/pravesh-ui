@@ -46,8 +46,13 @@
             import {documents_store} from '../../stores/document_store';
             import { goto } from "$app/navigation";
             import Toast from './toast.svelte';
+            import QRCode from "./qr-code.svelte";
+            import {get_pravesh_properties_method} from "../../services/workdetails_services";
+            import {get_date_format} from "../../services/date_format_servives";
             // import {onFileSelected} from '../onboardsummaryComponent.svelte'
     
+        let id_card_data = [];
+        let profile_url = "";
         let show_spinner = false;
         let toast_text;
         let toast_type;
@@ -173,6 +178,7 @@
     ///////Document view Model/////////
         let alt_image="";
         let image_path;
+        // let facility_docs_arr = [];
     /////////Document view Model//////
         // $:{
         //     for(let key in all_tags_obj){
@@ -208,6 +214,15 @@
         // $:if(gst_checkbox === true){
         //     gst_checkbox = true;
         // }
+
+        let minDate = new Date(); 
+            minDate.setMonth(minDate.getMonth() + 1);
+            console.log("minDate", minDate)
+            minDate =  get_date_format(minDate,"dd-mm-yyyy")
+            console.log("mindate", minDate)
+
+
+
         function closeViewModel(){
         document.getElementById("img_model").style.display = "none";
     }
@@ -303,6 +318,73 @@
     };
         
     }
+
+    async function openIDcard(){
+        if($facility_data_store.status == "Deactive" ){
+            toast_text = "User is not active ";
+            toast_type = "error"
+        }
+        else{
+            if(!profile_url){
+                showIDCard.style.display = "block";
+                let response = await get_pravesh_properties_method();
+                
+                console.log("respo",JSON.parse(response.body.data.id_card_config))
+
+                // let new_respo = JSON.parse(response.body.data.id_card_config)
+
+                // console.log("new respo",new_respo.id_label_1)
+
+                if(response.body.status == "green"){
+                    // id_card_data = response.body.data.id_card_config;
+
+                    id_card_data = JSON.parse(response.body.data.id_card_config)
+
+                    id_card_data = id_card_data
+                    console.log("id_card_data respo",id_card_data.info_id_card)
+                }
+                else{
+                    console.log("err in side",response.body.message)
+                }
+            }
+            else{
+                toast_text = "Upload Profile Pic ";
+                toast_type = "error"
+            }
+                let facility_doc_data_res = await facility_document()
+                try{
+                    if (facility_doc_data_res != "null" ){
+                        facility_document_data = facility_doc_data_res.body.data;
+                        
+                        for (var i = 0; i < facility_document_data.length; i++){
+                            console.log("inside 2 2 2 facility_document_data.length",facility_document_data.length)
+
+                                facility_docs_arr[i] = facility_document_data[i].doc_type;
+                                
+                                if(!facility_docs_arr[i]){
+                                    profile_url = $page.url.origin+facility_document_data[i].file_url;
+                                }
+                                
+                            }
+                            
+                            }
+                        }       
+                catch (err){
+                    console.log("error in finding Pan image",err)
+            }
+        }
+
+    }
+
+    function closeIDcard(){
+        showIDCard.style.display = "none";
+    }
+
+    function printID(){
+        document.getElementById("nonPrintable").className += "";
+        window.print();
+    }
+   
     
        
     </script>
@@ -354,10 +436,22 @@
                     <!-- <a href="" class="smButton bg-erBlue text-white" on:click={()=>{goto("identityproof")}}>
                         Edit
                     </a> -->
-                    <button class="smButton bg-erBlue text-white" on:click={()=>{goto("identityproof")}}>
+                    <button class="smButton bg-erBlue text-white mr-1" on:click={()=>{goto("identityproof")}}>
                         Edit
                     </button>
+                    <!-- <button class="smButton bg-erBlue text-white" on:click="{openIDcard}">
+                        Generate ID 
+ 
+                    </button> -->
+
                 </p>
+                <div class="userStatus ml-4">
+                    <p class="flex items-center smButtonText" on:click="{openIDcard}">
+                        <a href="" class="smButton modal-open">
+                            Generate ID Card
+                        </a>
+                    </p>
+                </div>
             </div>
         </div>
     </div>
@@ -645,4 +739,128 @@
     </div>
 </div> 
 <!-- Document view Model -->
+
+
+<!-- ID Card View modal HTML-->
+
+<div  class="actionDialogueOnboard " id="showIDCard" hidden>
+    <div class="pancardDialogueOnboardWrapper ">
+        <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+            <div class="modalHeadConmb-0">
+                <div class="leftmodalInfo">
+                    <p class=""> Id Card</p>
+                </div>
+                <div class="rightmodalclose" on:click="{closeIDcard}">
+                    <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal">
+                </div>
+            </div>
+            <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 mt-5" action="#" >
+
+                <div  id="nonPrintable">
+                    <div class="idCardWrapper ">
+                        <div class="ErAndEmp flex">
+                            <div class="leftborder"></div>
+                            <div class="rightLogoSection flex-auto">
+                            <div class="erlogo">
+                                <p>Valid till {minDate}</p>
+                            </div>
+                            <div class="profilePhoto">
+                                <img src="{{profile_url}}" class="profilePic">
+                                <!-- {$img_url_name.img_name}/profilepic.png -->
+                            </div>
+                            <div class="bloodgroup">
+                                Blood Group
+                            </div>   
+                            <input class=" w-12 mx-auto ml-9 rounded-md text-center font-mono text-base" type="text">
+                                <!-- border -->
+                            <!-- </div>  -->
+                            </div>
+
+                        </div>
+                        <div class="empInfoSection bg-white">
+                            <div>
+                                <p class="tempText">TEMP</p>
+                            </div>
+                            <!-- {#each id_res_data as id_res_data} -->
+                            <div class="UserName">
+                                <div class="infoGroupName">
+                                    <label>{id_card_data.id_label_1}</label>
+                                    <p>{$facility_data_store.owner_name} </p>
+                                </div>
+                            </div>
+                            <div class="otherInfo flex mt-2">
+                                
+                                <div class="">
+                                    <!-- {#each id_card_data as id} -->
+                                    <div class="infoGroupName">
+                                        <label>{id_card_data.id_label_2}</label>
+                                        <p>{$facility_data_store.name}</p>
+                                    </div>
+                                    <div class="infoGroupName">
+                                        <label> {id_card_data.id_label_3}</label>
+                                        <p>{$facility_data_store.phone_number}</p>
+                                    </div>
+                                    <div class="infoGroupName">
+                                        <label>{id_card_data.id_label_4}</label>
+                                        <p>{$facility_data_store.vendor_name}</p>
+                                    </div>
+                                    <!-- {/each} -->
+                                </div>  
+                                <div class="flex-auto">
+                                    <div class="text-right">
+                                    <div class="barcode flex justify-end mb-2 ml-3">
+                                    <!-- <img src="{$img_url_name.img_name}/qrcode.png"> -->
+                                    <QRCode codeValue={$facility_data_store.facility_id} squareSize=200/>
+                                    </div>
+                                    <div class="partner mr-1">
+                                            <p>{id_card_data.info_id_card}</p>
+                                    </div>
+                                    </div>
+
+                                </div>    
+                                
+                            </div>
+                            
+                            
+                        </div>
+
+                    </div>    
+                </div>
+                
+                
+                
+                    <div class="pt-3 flex justify-center" on:click="{closeIDcard}">
+                    <button type="button" class="dialogueSingleButton">Close</button>
+                    <button type="button" class="dialogueSingleButton ml-1 " on:click="{printID}">Print
+                        <!-- <a href="" class="smButton">
+                            <img src="{$img_url_name.img_name}/printer.svg" alt=""/> 
+                        </a> -->
+                    </button>
+                    <!-- <button on:click="{view_print_doc(contract.assigned_id,"print")}" class="flex justify-center">
+                    <a href="" class="smButton">
+                        <img src="{$img_url_name.img_name}/printer.svg" alt=""/>
+                    </a>
+                </button> -->
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 <Toast type={toast_type}  text={toast_text}/>
+
+
+<!-- <style type="text/css" media="print">
+    .noPrint{
+        display: none;
+        background: none;
+    }
+
+
+
+
+    @media print{
+        .idCardWrapper{
+        visibility: visible;
+    }
+    }
+</style> -->
