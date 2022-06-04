@@ -16,19 +16,21 @@
 import { goto } from '$app/navigation';
     
     let show_spinner = false;
-    let total_count;
+    let total_count = 0;
+    let toast_type = "";
+    let toast_text = "";
     let offset=0;
     let limit=20;
     let userdetails,username,userid;
     let supplier_data_from_service = [];
-    let total_count_associates;
+    let total_count_associates = 0;
     let audit_details_array= [];
     let filter_status_res;
     let filter_city_res;
     let filter_status_array= [];
     let filter_city_array = [];
     let filter_vendortype_array = [];
-    let status,city;
+    let city;
     let searchTerm;
     let new_city;
     let total_pages = null;
@@ -50,11 +52,14 @@ import { goto } from '$app/navigation';
     // let pages= [];
 //pagination////////////
     $:new_pages = [];
+    $:pages = pages;
     let mapped_pages = [];
+
     
     $:if(searchTerm == ''){
         clearedSearchFunc();
     }
+    $:status = '';
 
     // $:if(vendor_checkbox === true){
        
@@ -84,29 +89,36 @@ import { goto } from '$app/navigation';
             if(cleared_search_res.body.status == "green"){
                 supplier_data_from_service = cleared_search_res.body.data.data_list;
                 total_count_associates = cleared_search_res.body.data.total_records;
+                
+                for(let i=0;i<supplier_data_from_service.length;i++){
+                    supplier_data_from_service[i].expand = false;
+                }
+
                 // console.log("RESULT",result)
                 result = true;
                 // console.log("RESULT",result)
                 // filter_vendortype_res = await filter_vendortype_data();
                 var new_drop_limit=parseInt(drop_limit)
+                if(total_count_associates>20){
                 var total_pages=Math.ceil(total_count_associates/new_drop_limit)
                 pages = createPagesArray(total_pages)
                 // console.log("pagesRESULT",pages)
                 for(let pagination in pages){
-                    if(pagination <= 3 && pagination>0){
-                        console.log("PAGES") 
-                        // new_pages.push(pagination)
+                    if(pagination>0 && pagination <= 3){
+                        // console.log("PAGES") 
+                        new_pages.push(pagination)
                         mapped_pages=new_pages.map(Number)  
-                        console.log("mappedpagesRESULT inside",mapped_pages)
-                        
+                        // console.log("mappedpagesRESULT inside",mapped_pages)
                     }
             
                 }
+            }
 
             }
         }
         catch(err) {
-        message.innerHTML = "Error is " + err;
+            toast_type = "error";
+            toast_text = err;
         }
         }
         // async function user_data () {
@@ -119,7 +131,14 @@ import { goto } from '$app/navigation';
     // user_data();
     
 
-    let id_proof_rejected,bank_details_rejected,id_verification_pending,bank_verification_pending,pending_offer_letter,bgv_rejected,active,deactive,
+    let id_proof_rejected = 0;
+    let bank_details_rejected = 0;
+    let id_verification_pending=0;
+    let bank_verification_pending=0;
+    let pending_offer_letter=0;
+     let bgv_rejected = 0;
+     let active=0
+     let deactive=0,
     bank_details_pending,bank_beneficiary_pending,background_verification_pending,onboarding_in_progress;
     let json_associate_data,json_associate_new_data;
     
@@ -190,9 +209,10 @@ import { goto } from '$app/navigation';
     let urlString = window.location.href;	
     let paramString = urlString.split('=')[1];
     if(paramString == undefined){
+      
     var new_drop_limit=parseInt(drop_limit)
    
-    new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:"Bank Details Pending"}
+    new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}
     json_associate_new_data=JSON.stringify(new_associate_data);
     let filter_res_from_dash =await supplier_data(json_associate_new_data);
     
@@ -200,19 +220,20 @@ import { goto } from '$app/navigation';
             if(filter_res_from_dash.body.status == "green"){
                 supplier_data_from_service = []
                 // supplier_data_from_service = filter_res_from_dash.body.data.data_list;
-                total_count_associates = filter_res_from_dash.body.data.total_records; 
-                total_count_associates = filter_res_from_dash.body.data.total_records;
-                total_pages = Math.ceil(total_count_associates/new_drop_limit)
-                pages = createPagesArray(total_pages)
+                // total_count_associates = filter_res_from_dash.body.data.total_records;
+                    for(let i=0;i<supplier_data_from_service.length;i++){
+                        supplier_data_from_service[i].expand = false;
+                    } 
+                if(total_count_associates>20){
+                    total_pages = Math.ceil(total_count_associates/new_drop_limit)
+                    pages = createPagesArray(total_pages)
+                }
             }
         }
         catch(err) {
         message.innerHTML = "Error is  " + err;
         }
     }
-
-
-    /////////from dashboard redirect with filter on///////////////
 else
     {
     // console.log("INside if blcok of paramString",paramString)
@@ -227,11 +248,14 @@ else
             // supplier_data_from_service = []
             supplier_data_from_service = res.body.data.data_list;
             total_count_associates = res.body.data.total_records;
-            
+                for(let i=0;i<supplier_data_from_service.length;i++){
+                    supplier_data_from_service[i].expand = false;
+                }
             }
         }
         catch(err) {
-        message.innerHTML = "Error is " + err;
+            toast_type = "error";
+            toast_text = err;
         }
 
          userdetails = await logged_user();
@@ -243,15 +267,16 @@ else
             }
         }
         catch(err) {
-        message.innerHTML = "Error is " + err;
+            toast_type = "error";
+            toast_text = err;
         }
         
         // var new_drop_limit=parseInt(drop_limit)
         total_count_associates = res.body.data.total_records;
-        
-        total_pages = Math.ceil(total_count_associates/new_drop_limit)
-        pages = createPagesArray(total_pages)
-        
+        if(total_count_associates >20){
+            total_pages = Math.ceil(total_count_associates/new_drop_limit)
+            pages = createPagesArray(total_pages)
+        }
         }
 ////////////filter city status -data///////////
     filter_city_res = await filter_city_data();
@@ -261,8 +286,9 @@ else
             }
         }
         catch(err) {
-        message.innerHTML = "Error is " + err;
-        }      
+            toast_type = "error";
+            toast_text = err;
+        }  
     
     filter_status_res = await filter_status_data();
         try{
@@ -271,7 +297,8 @@ else
             }
         }
         catch(err) {
-        message.innerHTML = "Error is " + err;
+            toast_type = "error";
+            toast_text = err;
         }
    
 
@@ -280,7 +307,8 @@ else
             filter_vendortype_array = filter_vendortype_res.body.data;
         }
         catch(err) {
-        message.innerHTML = "Error is  " + err;
+            toast_type = "error";
+            toast_text = err;
         }
         for(let pagination in pages){   
             
@@ -311,6 +339,7 @@ else
                 toast_text = err;
        
             }
+            show_spinner = false;
             ///////////ORG LIST/////////////
     });
     
@@ -347,18 +376,22 @@ else
                 
                     supplier_data_from_service = onboarded_check_res.body.data.data_list;
                     total_count_associates = onboarded_check_res.body.data.total_records;
+                    for(let i=0;i<supplier_data_from_service.length;i++){
+                        supplier_data_from_service[i].expand = false;
+                    }
                     }
                     
             catch(err) {
-                message.innerHTML = "Error is  " + err;
-                } 
+                toast_type = "error";
+                toast_text = err;
+            }
             }
           
     if(onboarded_by_me_checkbox == true){    
-    new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending",username:username,userid:userid}
+    new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: status,username:username,userid:userid}
     }
     else{
-    new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending"}  
+    new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
     }
 
     function next_function(){
@@ -397,31 +430,37 @@ else
        
        if(pagenumber == 1){
         if(onboarded_by_me_checkbox == true){    
-        new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending",username:"username",userid:"userid"}
+        new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:"username",userid:"userid"}
         }
         else{
-        new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending"}  
+        new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
         }  
         // new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending"}
         json_associate_new_data=JSON.stringify(new_associate_data);
         let page_res =await supplier_data(json_associate_new_data);
         supplier_data_from_service = page_res.body.data.data_list;
+        for(let i=0;i<supplier_data_from_service.length;i++){
+                supplier_data_from_service[i].expand = false;
+            }
        }
        else{
         //    console.log("pagenumberrrr",pagenumber - 1)
            let new_offset = (pagenumber-1)*drop_limit
         //    console.log(new_offset)
         if(onboarded_by_me_checkbox == true){    
-            new_associate_data = {city: "-1",limit:new_drop_limit,offset:new_offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending",username:username,userid:userid}
+            new_associate_data = {city: "-1",limit:new_drop_limit,offset:new_offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}
         }
         else{
-            new_associate_data = {city: "-1",limit:new_drop_limit,offset:new_offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending"}  
+            new_associate_data = {city: "-1",limit:new_drop_limit,offset:new_offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
         }
         //    new_associate_data = {city: "-1",limit:new_drop_limit,offset:new_offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending"}
             json_associate_new_data=JSON.stringify(new_associate_data);
             let page_res =await supplier_data(json_associate_new_data);
             // console.log("page_res",page_res)
             supplier_data_from_service = page_res.body.data.data_list;
+            for(let i=0;i<supplier_data_from_service.length;i++){
+                supplier_data_from_service[i].expand = false;
+            }
        }
    }
 
@@ -483,8 +522,9 @@ else
             }
         }
         catch(err) {
-        message.innerHTML = "Error is  " + err;
-        }
+                toast_type = "error";
+                toast_text = err;
+            }
         supplierInfoModal.style.display = "block";
     };
     
@@ -513,7 +553,7 @@ else
     // };
 
     async function filterButton(){
-
+        
 
         vendor_type_select = document.getElementById("select_vendor_type").value.trim();
         console.log("vendor_type_select",vendor_type_select)
@@ -536,11 +576,11 @@ else
         
         if(new_city == "All" && onboarded_by_me_checkbox == true){
             
-            new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:"Bank Details Pending",username:"username",userid:"userid"}
+            new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:"username",userid:"userid"}
         }
         else
         {
-            new_associate_data = {city:new_city,limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:"Bank Details Pending"} 
+            new_associate_data = {city:new_city,limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status} 
         }
 
         json_associate_new_data=JSON.stringify(new_associate_data);
@@ -556,14 +596,101 @@ else
                 }
             }
             catch(err) {
-        message.innerHTML = "Error is  " + err;
-        }   
-        vendor_type_select = "-1";
-        city = "-1";
-        status = "-1";
+                toast_type = "error";
+                toast_text = err;
+            } 
+            
 
     }
 
+    async function status_pill_clicked(status_selected){
+        status = status_selected;
+
+        var new_drop_limit=parseInt(drop_limit)
+   
+    new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status_selected}
+    json_associate_new_data=JSON.stringify(new_associate_data);
+    let filter_res_from_dash =await supplier_data(json_associate_new_data);
+    
+    try{
+            if(filter_res_from_dash.body.status == "green"){
+                supplier_data_from_service = []
+                supplier_data_from_service = filter_res_from_dash.body.data.data_list;
+                total_count_associates = filter_res_from_dash.body.data.total_records; 
+                for(let i=0;i<supplier_data_from_service.length;i++){
+                    supplier_data_from_service[i].expand = false;
+                }
+                if(total_count_associates > 20){
+                total_pages = Math.ceil(total_count_associates/new_drop_limit)
+                pages = createPagesArray(total_pages)
+                    if(paramString == undefined){
+                        for(let pagination in pages){
+                            if(pagination>0 && pagination <= 3){
+                                // console.log("PAGES") 
+                                new_pages.push(pagination)
+                                mapped_pages=new_pages.map(Number)  
+                                // console.log("mappedpagesRESULT inside",mapped_pages)
+                                
+                            }
+                    
+                        }
+                    }
+                }
+            }
+        }
+        catch(err) {
+            toast_type = "error";
+            toast_text = err;
+        }
+        
+    }
+
+
+    /////////from dashboard redirect with filter on///////////////
+// else
+//     {
+//     // console.log("INside if blcok of paramString",paramString)
+//     let new_paramString = decodeURI(paramString)
+//     // console.log("drop_limit inside urlString",drop_limit)
+//     var new_drop_limit=parseInt(drop_limit)
+//     new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:new_paramString}
+//     json_associate_data=JSON.stringify(new_associate_data);
+//     let res=await supplier_data(json_associate_data);
+//         try{
+//             if(res.body.status == "green"){
+//             // supplier_data_from_service = []
+//             supplier_data_from_service = res.body.data.data_list;
+//             total_count_associates = res.body.data.total_records;
+//             for(let i=0;i<supplier_data_from_service.length;i++){
+//                 supplier_data_from_service[i].expand = false;
+//             }
+            
+//             }
+//         }
+//         catch(err) {
+//         message.innerHTML = "Error is " + err;
+//         }
+
+//          userdetails = await logged_user();
+        
+//         try{
+//             if(userdetails.body.status == "green"){
+//                 username = userdetails.body.data.user.email;
+//         userid = userdetails.body.data.user.username;
+//             }
+//         }
+//         catch(err) {
+//         message.innerHTML = "Error is " + err;
+//         }
+        
+//         // var new_drop_limit=parseInt(drop_limit)
+//         total_count_associates = res.body.data.total_records;
+        
+//         total_pages = Math.ceil(total_count_associates/new_drop_limit)
+//         pages = createPagesArray(total_pages)
+        
+//         }
+//     }
 
 
     // // modal for filter desktop                  {{{{{Done}}}}}
@@ -608,18 +735,24 @@ else
   };
 
     async function filterResults(){
+       
         let searchArray= [];
         for(let searchK  of supplier_data_from_service){
-            const search_supplier = searchK.facility_name
-             result=search_supplier.toLowerCase().includes(searchTerm.toLowerCase());
+            console.log("supplier_data_from_service",searchK)
+            const seacrh_keyword = searchK.facility_name;
+            const search_supplier = searchK.name
+            console.log("seacrh_keyword",seacrh_keyword.includes(searchTerm))
+             let name_result = seacrh_keyword.toLowerCase().includes(searchTerm.toLowerCase());
+             let id_result = search_supplier.toLowerCase().includes(searchTerm.toLowerCase());
             // newsearchK = result.append(...result);
             // console.log("newsearchKn",newsearchK)
-            if(result === true){
-            console.log("pages in search array",pages)
+            if(id_result === true || name_result === true){
+            
+            console.log("result = true")
             mapped_pages.length=0
             searchArray = [...searchArray,searchK]
             total_count_associates = searchArray.length;
-            console.log("searchK-----",total_count_associates)
+            // console.log("searchK-----",total_count_associates)
             }
         
         }
@@ -627,34 +760,44 @@ else
             // console.log("supplier_data_from_service inside filterresult",supplier_data_from_service)
     }
     async function dropdown_function(){
-    // console.log("new_lllliiimmmiitttt",drop_limit)
+        
+    console.log("new_lllliiimmmiitttt",status)
     var new_drop_limit=parseInt(drop_limit)
 
     if(onboarded_by_me_checkbox == true){    
-        new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending",username:"username",userid:"userid"}
+        new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:"username",userid:"userid"}
         }
         else{
-            new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending"}  
+            new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
         }
     // new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending",onboarded_by_me:true}
     json_associate_new_data=JSON.stringify(new_associate_data);
     let dropdown_res =await supplier_data(json_associate_new_data);
     
     total_count_associates = dropdown_res.body.data.total_records;
+    if(total_count_associates >20){
     total_pages = Math.ceil(total_count_associates/new_drop_limit)
     // console.log("page_count_______",total_pages)
     pages = createPagesArray(total_pages)
+    }
     // console.log("pages,,,,,",pages)
 
 
     try{
         if(dropdown_res.body.status == "green"){
         supplier_data_from_service = dropdown_res.body.data.data_list;
+        for(let i=0;i<supplier_data_from_service.length;i++){
+        supplier_data_from_service[i].expand = false;
+    }
+        // for(let i=0;i<supplier_data_from_service.length;i++){
+        //         supplier_data_from_service[i].expand = false;
+        //     }
         }
     }
     catch(err) {
-        message.innerHTML = "Error is " + err;
-        }
+        toast_type = "error";
+        toast_text = err;
+    }
     
     // new_associate_data = {city:new_city,limit:drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}
     // console.log("dropdown_function",supplier_data_from_service)
@@ -664,55 +807,60 @@ else
     // // supplier table collaps
 
     function collapse(fac_name) {
-        let is_expanded = false;
-        console.log(fac_name)
+        // let is_expanded = false;
+       
         for(let i=0;i<supplier_data_from_service.length;i++){
             if(supplier_data_from_service[i].name == fac_name){
-                console.log("inside if")
                supplier_data_from_service[i].expand = true;
             }
         }
-        console.log("supplier_data_from_service AFt",supplier_data_from_service)
+        // console.log("supplier_data_from_service AFt",supplier_data_from_service)
            
-        var shortInfo = document.querySelectorAll(".shortInfo");
-        var elems = document.querySelectorAll(".detailsInfo");
-        var trow = document.querySelector(".trow");
+        // var shortInfo = document.querySelectorAll(".shortInfo");
+        // var elems = document.querySelectorAll(".detailsInfo");
+        // var trow = document.querySelector(".trow");
     
-        document.querySelector(".trow").classList.add("valgin");
+        // document.querySelector(".trow").classList.add("valgin");
 
-        for(let i=0;i<supplier_data_from_service.length;i++){
-            if(supplier_data_from_service[i].expand == true){
-                console.log("Showing")
-                elems.forEach.call(elems, function (el) {
-                el.classList.remove("hidden");
-                });
+        // for(let i=0;i<supplier_data_from_service.length;i++){
+        //     if(supplier_data_from_service[i].expand == true){
+        //         console.log("Showing")
+        //         elems.forEach.call(elems, function (el) {
+        //         el.classList.remove("hidden");
+        //         });
                
-                shortInfo.forEach.call(shortInfo, function (el) {
-                el.classList.add("hidden");
-                });
-            }
-            else{
-                console.log("Hiding")
-            }
-        }
+        //         shortInfo.forEach.call(shortInfo, function (el) {
+        //         el.classList.add("hidden");
+        //         });
+        //     }
+        //     else{
+        //         console.log("Hiding")
+        //     }
+        // }
     };
 
  
 
-    function collapsedown() {
-        var shortInfo = document.querySelectorAll(".shortInfo");
-        var elems = document.querySelectorAll(".detailsInfo");
-        var trow = document.querySelector(".trow");
+    function collapsedown(fac_name) {
+        
+        for(let i=0;i<supplier_data_from_service.length;i++){
+            if(supplier_data_from_service[i].name == fac_name){
+               supplier_data_from_service[i].expand = false;
+            }
+        }
+        // var shortInfo = document.querySelectorAll(".shortInfo");
+        // var elems = document.querySelectorAll(".detailsInfo");
+        // var trow = document.querySelector(".trow");
 
-        document.querySelector(".trow").classList.remove("valgin");
+        // document.querySelector(".trow").classList.remove("valgin");
 
-        shortInfo.forEach.call(shortInfo, function (el) {
-            el.classList.remove("hidden");
-        });
+        // shortInfo.forEach.call(shortInfo, function (el) {
+        //     el.classList.remove("hidden");
+        // });
 
-        elems.forEach.call(elems, function (el) {
-            el.classList.add("hidden");
-        });
+        // elems.forEach.call(elems, function (el) {
+        //     el.classList.add("hidden");
+        // });
     };
  // supplier mobile collaps
 
@@ -781,6 +929,9 @@ else
 
     // document.getElementById("default-tab").click();
 </script>
+    {#if show_spinner}
+    <Spinner />
+    {/if}
 <div class="mainContent ">
     <div class="breadcrumb">
         <div class="breadcrumb-section">
@@ -1288,49 +1439,49 @@ else
                 <div class="SectionsCounts ">
                     <p class="docReject">Documents Rejected</p>
                     <div class="docRejctedCon flex gap-2">
-                        <div class="idproof flex-grow">
-                            <p class="countHeading">
+                        <button class="idproof flex-grow">
+                            <div class="countHeading" on:click={()=>status_pill_clicked("ID Proof Rejected")}>
                                 ID Proof <span class="idproofcount">{id_proof_rejected}</span>
-                            </p>
-                        </div>
-                        <div class="idproof flex-grow">
-                            <p class="countHeading">
+                            </div>
+                        </button>
+                        <button class="idproof flex-grow">
+                            <div class="countHeading" on:click={()=>status_pill_clicked("Bank Details Rejected")}>
                                 Bank Details <span class="idproofcount"
                                     >{bank_details_rejected}</span
                                 >
-                            </p>
-                        </div>
-                        <div class="idproof flex-grow">
-                            <p class="countHeading">
+                            </div>
+                        </button>
+                        <button class="idproof flex-grow">
+                            <div class="countHeading" on:click={()=>status_pill_clicked("BGV Rejected")}>
                                 BGV Pending <span class="idproofcount">{bgv_rejected}</span
                                 >
-                            </p>
-                        </div>
+                                </div>
+                        </button>
                     </div>
                 </div>
                 <div class="SectionsCounts ">
                     <p class="PendingVeri">Pending Verification</p>
                     <div class="docRejctedCon flex gap-2">
-                        <div class="bgdocreject flex-grow">
-                            <p class="countHeading">
+                        <button class="bgdocreject flex-grow">
+                            <div class="countHeading" on:click={()=>status_pill_clicked("ID Verification Pending")}>
                                 ID Proof <span class="docRejectCount">{id_verification_pending}</span
                                 >
-                            </p>
-                        </div>
-                        <div class="bgdocreject flex-grow">
-                            <p class="countHeading">
+                                </div>
+                        </button>
+                        <button class="bgdocreject flex-grow">
+                            <div class="countHeading" on:click={()=>status_pill_clicked("Bank Verification Pending")}>
                                 Bank Details <span class="docRejectCount"
                                     >{bank_verification_pending}</span
                                 >
-                            </p>
-                        </div>
-                        <div class="bgdocreject flex-grow">
-                            <p class="countHeading">
+                            </div>
+                        </button>
+                        <button class="bgdocreject flex-grow">
+                            <div class="countHeading" on:click={()=>status_pill_clicked("Pending Offer Letter")}>
                                 Offer Letter <span class="docRejectCount"
                                     >{pending_offer_letter}</span
                                 >
-                            </p>
-                        </div>
+                            </div>
+                        </button>
                     </div>
                 </div>
                 <div class="SectionsCountsSaved ">
@@ -1340,24 +1491,30 @@ else
                             <p class="otherCountNumbers">05</p>
                         </div>
                     </div> -->
-                    <div class="savedcount">
+                    <button class="savedcount">
                         <p class="otherCounts">Active</p>
-                        <div class="bgActiveCount flex-grow">
+                        <div class="bgActiveCount flex-grow" on:click={()=>status_pill_clicked("Active")}>
                             <p class="otherCountNumbers">{active}</p>
                         </div>
-                    </div>
-                    <div class="savedcount">
+                    </button>
+                    <button class="savedcount">
                         <p class="otherCounts">Deactive</p>
-                        <div class="bgDeactiveCount flex-grow">
+                        <div class="bgDeactiveCount flex-grow" on:click={()=>status_pill_clicked("Deactive")}>
                             <p class="otherCountNumbers">{deactive}</p>
                         </div>
-                    </div>
-                    <div class="savedcount">
+                    </button>
+                    <button class="savedcount">
                         <p class="otherCounts">All</p>
                         <div class="bgAllCount flex-grow">
                             <p class="otherCountNumbers">{total_count}</p>
                         </div>
-                    </div>
+                    </button>
+                    <!-- <div class="savedcount">
+                        <p class="otherCounts">All</p>
+                        <button class="bgAllCount flex-grow" on:click={()=>status_pill_clicked("-1")}>
+                            <p class="otherCountNumbers">{total_count}</p>
+                        </button>
+                    </div> -->
                 </div>
             </div>
 
@@ -1662,8 +1819,11 @@ else
                                 <tbody class="bg-white ">
                                     
                                     {#each supplier_data_from_service as facility_data} 
+                                    
                                     <tr class="border-b-2 trow ">
+                                        
                                         <td>
+                                            {#if facility_data.expand == false}
                                             <div
                                                 class="tdfirstshortInfo shortInfo"
                                                 id="shortInfo"> 
@@ -1673,7 +1833,9 @@ else
                                                 
                                                 </p>
                                             </div>
-                                            <div class="detailsInfo hidden">
+                                            {/if}
+                                            {#if facility_data.expand == true}
+                                            <div class="detailsInfo">
                                                 <div class="tdfirstDetails">
                                                     <div class="itemList ">
                                                         <div
@@ -1719,8 +1881,10 @@ else
                                                     </div>
                                                 </div>
                                             </div>
+                                       {/if}
                                         </td>
                                         <td>
+                                            {#if facility_data.expand == false}
                                             <div
                                                 class="paddingrt shortInfo"
                                                 id="shortInfo"
@@ -1734,11 +1898,12 @@ else
                                                 <p
                                                     class="text-xs text-grey ml-4"
                                                 >
-                                                    (ID Proof)
+                                                    ({facility_data.status})
                                                 </p>
                                             </div>
-
-                                            <div class="detailsInfo hidden">
+                                            {/if}
+                                            {#if facility_data.expand == true}
+                                            <div class="detailsInfo">
                                                 <div class="paddingrt">
                                                     <div class="statusWrapper">
                                                         <div
@@ -1778,8 +1943,10 @@ else
                                                     </div> -->
                                                 </div>
                                             </div>
+                                            {/if}
                                         </td>
                                         <td>
+                                            {#if facility_data.expand == false}
                                             <div class="shortInfo">
                                                 <div class="paddingrt">{#if facility_data.remarks.length == ""} 
                                                     <p class="smallText">-</p>
@@ -1788,8 +1955,9 @@ else
                                                     {/if}
                                                 </div>
                                             </div>
-
-                                            <div class="detailsInfo hidden">
+                                            {/if}
+                                            {#if facility_data.expand == true}
+                                            <div class="detailsInfo">
                                                 <div
                                                     class="remarklist ml-5 paddingrt"
                                                 >
@@ -1802,8 +1970,10 @@ else
                                                     </ul>
                                                 </div>
                                             </div>
+                                            {/if}
                                         </td>
                                         <td>
+                                            {#if facility_data.expand == false}
                                             <div class="shortInfo">
                                                 <div class="paddingrt">{#if facility_data.message == ""} 
                                                     <p class="smallText">-</p>
@@ -1812,8 +1982,9 @@ else
                                                     {/if}
                                                 </div>
                                             </div>
-
-                                            <div class="detailsInfo hidden">
+                                            {/if}
+                                            {#if facility_data.expand == true}
+                                            <div class="detailsInfo">
                                                 <div
                                                     class="remarklist ml-5 paddingrt"
                                                 >
@@ -1828,8 +1999,10 @@ else
                                                     </ul>
                                                 </div>
                                             </div>
+                                            {/if}
                                         </td>
                                         <td>
+                                            {#if facility_data.expand == false}
                                             <div class="shortInfo">
                                                 <div class="paddingrt">
                                                     <p class="smallText">
@@ -1841,8 +2014,9 @@ else
                                                         </p>
                                                 </div>
                                             </div>
-
-                                            <div class="detailsInfo hidden">
+                                            {/if}
+                                            {#if facility_data.expand == true}
+                                            <div class="detailsInfo">
                                                 <div
                                                     class="remarklist ml-5 paddingrt"
                                                 >
@@ -1860,6 +2034,7 @@ else
                                                     </div>
                                                 </div>
                                             </div>
+                                            {/if}
                                         </td>
                                         <td>
                                             <div
@@ -1878,6 +2053,7 @@ else
                                                         ></span>
                                                 </button>
                                                 <!-- <p class="mtextaudit">11 M</p> -->
+                                                {#if facility_data.expand == false}
                                                 <div class="shortInfo">
                                                     <p
                                                         on:click="{collapse(facility_data.name)}"
@@ -1890,8 +2066,9 @@ else
                                                         />
                                                     </p>
                                                 </div>
-
-                                                <div class="detailsInfo hidden">
+                                                {/if}
+                                                {#if facility_data.expand == true}
+                                                <div class="detailsInfo">
                                                     <p
                                                         on:click="{collapsedown(facility_data.name)}"
                                                         class="detailsarrowCollaps "
@@ -1903,10 +2080,12 @@ else
                                                         />
                                                     </p>
                                                 </div>
+                                                {/if}
                                             </div>
                                         </td>
+                                       
                                     </tr>
-
+                                   
                                     <!-- <tr class="border-b-2">
                                         <td>
                                             <div
@@ -2532,6 +2711,7 @@ else
                                             </div>
                                         </td>
                                     </tr> -->
+                                    
                                     {/each}
                                 </tbody>
                             </table>
