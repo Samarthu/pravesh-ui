@@ -2342,6 +2342,17 @@ ul.menuList li a.active span{
     @apply  relative w-full  xs:w-full sm:w-full border-none
 }
 
+.infoGroupName label {
+    font-size: 11px;
+    font-weight: 300;
+    margin-bottom: 0px;
+    white-space: nowrap;
+}
+.infoGroupName p {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 12px;
+}
 
 
 @media print {

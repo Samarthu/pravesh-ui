@@ -22,6 +22,7 @@
             import { allowed_pdf_size } from "../../services/pravesh_config";
             import {uploadDocs} from "../../services/bgv_services";
             import Toast from './toast.svelte';
+            import {get_cas_user, activate_cas_user , create_cas_user} from "../../services/vmt_verify_services"
             // import {check_facility_status} from '.././onboardsummaryComponent.svelte';
 
             let show_spinner = false;
@@ -124,6 +125,9 @@
         // ///////Document view Model/////////
             let alt_image="";
             let image_path;
+            let cas_flag = 0;
+            let active_flag = 0;
+            let create_cas_flag = 0;
         // /////////Document view Model//////
             $:{
                 for(let key in all_tags_obj){
@@ -806,7 +810,7 @@
                     
                 }
             }  
-            }
+    }
             
     async function linkChild() {
         let no_com = document.getElementById("comma");
@@ -933,17 +937,17 @@
 
     
     function check_facility_status(message) {
-    if (!$facility_data_store.status && $facility_data_store.status != undefined && ($facility_data_store.status.toLowerCase() == "deactive" || $facility_data_store.is_blacklisted == 1)) {
-        if (message != undefined){
-            toast_text = message;
-            toast_type = "error";
+        if (!$facility_data_store.status && $facility_data_store.status != undefined && ($facility_data_store.status.toLowerCase() == "deactive" || $facility_data_store.is_blacklisted == 1)) {
+            if (message != undefined){
+                toast_text = message;
+                toast_type = "error";
+            }
+            else{
+                toast_text = "Request not allowed for Deactive/Blacklisted Facility";
+                toast_type = "error";
+            return false;
+            }
         }
-        else{
-            toast_text = "Request not allowed for Deactive/Blacklisted Facility";
-            toast_type = "error";
-        return false;
-        }
-    }
         return true;
     }
 
@@ -1261,6 +1265,66 @@
         console.log("paginated search",paginatedItems)
     }
    
+
+    async function openCasUser(){
+        let get_cas_user_res = await get_cas_user()
+        show_spinner = true;
+        console.log("get_cas_user_res",get_cas_user_res)
+
+        if(get_cas_user_res.body.status == "green"){
+            show_spinner = false;
+            toast_text = "User is active";
+            toast_type = "success";
+        }
+        else{
+            showCasUser.style.display = "block";
+            show_spinner = false;
+            if(get_cas_user_res.message = "User is Deactive in CAS" || get_cas_user_res.status == "red"){
+                cas_flag = 1;
+                toast_text = "user is deactive"
+                toast_type = "error"
+            }
+            else{
+                cas_flag = 2;
+            }
+        }
+    }
+
+    async function activate_cas(){
+        let activate_cas_res = await activate_cas_user()
+        show_spinner = true;
+        try {
+            if(activate_cas_res.body.status == "green"){
+                show_spinner = false;
+                active_flag = 1;
+                toast_text = "CAS is Active"
+                toast_type = "success"
+            }
+        } catch (error) {
+            toast_text = "Error occured while CAS Activation"
+            toast_type = "error"
+        }
+    }
+
+    async function create_cas(){
+        let create_cas_user_res = await create_cas_user()
+        show_spinner = true;
+        try {
+            if(create_cas_user_res.body.status == "green"){
+                show_spinner = false;
+                create_cas_flag = 1;
+                toast_text = "CAS User is Created"
+                toast_type = "success"
+            }
+        } catch (error) {
+            toast_text = "Error occured while CAS creation"
+            toast_type = "error"
+        }
+    }
+
+    function closeCasUser(){
+        showCasUser.style.display = "none";
+    }
     
     </script>
         {#if show_spinner}
@@ -1293,6 +1357,13 @@
                         >
              {/if}
                  </p>
+                 <div class="userStatus ml-4">
+                    <p class="flex items-center smButtonText" on:click="{openCasUser}">
+                        <a href="" class="smButton modal-open">
+                            CAS User Status
+                        </a>
+                    </p>
+                </div>
                  
              </div>
              
@@ -1307,17 +1378,20 @@
                     <img src="{$img_url_name.img_name}/delivery.png" class="w-28 h-28 xsl:h-auto" alt="">
                 </div>
                 <div class="w-auto col-span-2 mt-6 xsl:mt-3">
-                <div class="text-2xl xsl:text-xl break-all">{$facility_data_store.facility_name}</div>
-                <p class="imgName">{$facility_data_store.facility_name}</p>
+                <div class="text-2xl xsl:text-xl break-all">{#if $facility_data_store.facility_name}{$facility_data_store.facility_name}{:else}<p>-</p>{/if}</div>
+                <p class="imgName">{#if $facility_data_store.facility_name}{$facility_data_store.facility_name}{:else}<p>-</p>{/if}
                 </div>
                 {:else}
                  <div class="">
                      <img src="{$page.url.origin+fac_photo_obj.profile_url}" class="w-28 h-28 xsl:h-auto" alt="">
                  </div>
                  <div class="w-auto col-span-2 mt-6 xsl:mt-3">
-                 <div class="text-2xl xsl:text-xl break-all">{$facility_data_store.facility_name}</div>
+                 <!-- <div class="text-2xl xsl:text-xl break-all">{$facility_data_store.facility_name}</div>
                  <p class="imgName">{$facility_data_store.facility_name}</p>
-                 </div>
+                 </div> -->
+                 <div class="text-2xl xsl:text-xl break-all">{#if $facility_data_store.facility_name}{$facility_data_store.facility_name}{:else}<p>-</p>{/if}</div>
+                <p class="imgName">{#if $facility_data_store.facility_name}{$facility_data_store.facility_name}{:else}<p>-</p>{/if}
+                </div>
                  {/if}
              </div>
 
@@ -2643,4 +2717,66 @@
     </div>
 </div> 
 <!-- Document view Model -->
+
+
+<!-- Cas View modal HTML-->
+
+<div  class="actionDialogueOnboard " id="showCasUser" hidden>
+    <div class="pancardDialogueOnboardWrapper ">
+        <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+            <div class="modalHeadConmb-0">
+                <div class="leftmodalInfo">
+                    <p class=""> Cas User Status</p>
+                </div>
+                <div class="rightmodalclose" on:click="{closeCasUser}">
+                    <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal">
+                </div>
+            </div>
+            <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 mt-5" action="#">
+
+                {#if cas_flag == 1}
+                <div class="justify-center">
+                    <p>
+                        User is not Active
+                    </p>
+                </div>
+                <div class="pt-3 flex justify-center" on:click="{activate_cas}">
+                    <button type="button" class="dialogueSingleButton">Activate User</button>
+                </div>
+                {:else if cas_flag == 2}
+                <div class="justify-center">
+                    <p>
+                        User is Deactivated
+                    </p>
+                </div>
+                <div class="pt-3 flex justify-center" on:click="{create_cas}">
+                    <button type="button" class="dialogueSingleButton">Create User</button>
+                </div>
+                {:else if active_flag == 1}
+                <div class="justify-center">
+                    <p>
+                        User is Activated
+                    </p>
+                </div>
+                <div class="pt-3 flex justify-center" on:click="{create_cas}">
+                    <button type="button" class="dialogueSingleButton">Create User</button>
+                </div>
+                {:else if create_cas_flag == 1}
+                <div class="justify-center">
+                    <p>
+                        User is created
+                    </p>
+                </div>
+                <div class="pt-3 flex justify-center" on:click="{create_cas}">
+                    <button type="button" class="dialogueSingleButton">Create User</button>
+                </div>
+                {/if}
+                
+                    <!-- <div class="pt-3 flex justify-center" on:click="{closeCasUser}">
+                    <button type="button" class="dialogueSingleButton">Activate User</button>
+                </div> -->
+            </form>
+        </div>
+    </div>
+</div>
 <Toast type={toast_type}  text={toast_text}/>
