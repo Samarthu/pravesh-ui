@@ -577,7 +577,7 @@
                         <div class="pl-4 flex items-center">
                             <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
                             {#if !pancard_obj.pan_name}
-                            <p>-</p>
+                            <p>Not Provided</p>
                             {:else}
                             <p class="detailLbale">{pancard_obj.pan_name}</p>
                             {/if}
@@ -639,7 +639,7 @@
                         <div class="pl-4 flex items-center">
                             <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
                             {#if !aadhar_obj.aadhar_name}
-                            <p>-</p>
+                            <p>Not Provided</p>
                             {:else}
                             <p class="detailLbale">{aadhar_obj.aadhar_name}</p>
                             {/if}
@@ -702,7 +702,7 @@
                         <div class="pl-4 flex items-center">
                             <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
                             {#if !dl_photo_obj.dl_lic_name}
-                            <p>-</p>
+                            <p>Not Provided</p>
                             {:else}
                             <p class="detailLbale">{dl_photo_obj.dl_lic_name}</p>
                             {/if}

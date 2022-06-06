@@ -493,7 +493,7 @@
                         aadhar_rejected : facility_document_data[i].rejected};
                         
                     }
-                    else if(facility_document_data[i].doc_type == "pass_photo"){
+                    else if(facility_document_data[i].doc_type == "fac-photo"){
                         // console.log("Inside pass photo")
                         fac_photo_obj={
                         profile_url : facility_document_data[i].file_url,
@@ -2261,7 +2261,10 @@
         facility_name = {$facility_data_store.facility_name} facility_id = {$facility_id.facility_id_number} admin = {admin} 
         show_upload_btn = {show_upload_btn}
         remove_upload_btn = {remove_upload_btn}
-        is_adhoc_facility = {is_adhoc_facility}/>
+        is_adhoc_facility = {is_adhoc_facility}
+        aadhar_obj ={aadhar_obj}
+        dl_photo_obj={dl_photo_obj}
+        pancard_obj={pancard_obj}/>
     
         {:else if change_to == "Identity_details"}
         <IdentityProof pancard_obj={pancard_obj}
@@ -2272,6 +2275,7 @@
         aadhar_obj ={aadhar_obj}
         dl_photo_obj={dl_photo_obj}
         voter_id_object = {voter_id_object}
+        fac_photo_obj={fac_photo_obj}
         id_new_date={id_new_date} admin = {admin}
         is_adhoc_facility = {is_adhoc_facility}/>
         
