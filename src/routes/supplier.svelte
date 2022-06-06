@@ -367,10 +367,10 @@ else
             
                     if(onboarded_by_me_checkbox == true){ 
                         console.log("inside if block onboarded_by_me_checkbox",username,userid)
-                        new_new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending",username:username,userid:userid}  }
+                        new_new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}  }
                     else{
                         console.log("inside else block ")
-                        new_new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending"}
+                        new_new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status}
                     }
                 // }
                 console.log("onboarded_check_func checked")
@@ -557,7 +557,7 @@ else
 
     async function filterButton(){
         
-
+        mapped_pages = [];
         vendor_type_select = document.getElementById("select_vendor_type").value.trim();
         console.log("vendor_type_select",vendor_type_select)
         for(let vendorData  of filter_vendortype_array){
@@ -595,6 +595,23 @@ else
                     for(let i=0;i<supplier_data_from_service.length;i++){
                         supplier_data_from_service[i].expand = false;
                     }
+                    if(total_count_associates > 20 && status_pill_flag == false){
+                  
+                total_pages = Math.ceil(total_count_associates/new_drop_limit)
+                pages = createPagesArray(total_pages)
+                
+                    if(show_pagination == true){
+                        for(let pagination in pages){
+                            
+                            if(pagination>0 && pagination <= 3){
+                                // console.log("PAGES") 
+                                new_pages.push(pagination)
+                                mapped_pages=new_pages.map(Number)  
+                            }
+                    
+                        }
+                    }
+                }
                     console.log("supplier_data_from_service here",supplier_data_from_service)
                 }
             }
