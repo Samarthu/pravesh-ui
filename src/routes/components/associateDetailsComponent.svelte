@@ -2201,7 +2201,7 @@
 
                                             <div class="w-2/3 ">
 
-                                                <div class="detailData"> {city}</div>
+                                                <div class="detailData"> {city_select}</div>
 
                                             </div>
 
