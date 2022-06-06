@@ -22,6 +22,7 @@
             import { allowed_pdf_size } from "../../services/pravesh_config";
             import {uploadDocs} from "../../services/bgv_services";
             import Toast from './toast.svelte';
+            import {get_cas_user, activate_cas_user , create_cas_user} from "../../services/vmt_verify_services"
             // import {check_facility_status} from '.././onboardsummaryComponent.svelte';
 
             let show_spinner = false;
@@ -124,6 +125,7 @@
         // ///////Document view Model/////////
             let alt_image="";
             let image_path;
+            let cas_flag = 0;
         // /////////Document view Model//////
             $:{
                 for(let key in all_tags_obj){
@@ -806,7 +808,7 @@
                     
                 }
             }  
-            }
+    }
             
     async function linkChild() {
         let no_com = document.getElementById("comma");
@@ -933,17 +935,17 @@
 
     
     function check_facility_status(message) {
-    if (!$facility_data_store.status && $facility_data_store.status != undefined && ($facility_data_store.status.toLowerCase() == "deactive" || $facility_data_store.is_blacklisted == 1)) {
-        if (message != undefined){
-            toast_text = message;
-            toast_type = "error";
+        if (!$facility_data_store.status && $facility_data_store.status != undefined && ($facility_data_store.status.toLowerCase() == "deactive" || $facility_data_store.is_blacklisted == 1)) {
+            if (message != undefined){
+                toast_text = message;
+                toast_type = "error";
+            }
+            else{
+                toast_text = "Request not allowed for Deactive/Blacklisted Facility";
+                toast_type = "error";
+            return false;
+            }
         }
-        else{
-            toast_text = "Request not allowed for Deactive/Blacklisted Facility";
-            toast_type = "error";
-        return false;
-        }
-    }
         return true;
     }
 
@@ -1261,6 +1263,38 @@
         console.log("paginated search",paginatedItems)
     }
    
+
+    async function openCasUser(){
+        let get_cas_user_res = await get_cas_user()
+        console.log("get_cas_user_res",get_cas_user_res)
+
+        if(get_cas_user_res.status == "green"){
+            toast_text = "User is active";
+            toast_type = "success";
+        }
+        else{
+            showCasUser.style.display = "block";
+            if(get_cas_user_res.message = "User is Deactive in CAS" || get_cas_user_res.status == "red"){
+                cas_flag = 1
+            }
+            else {
+                cas_flag = 2
+            }
+
+        }
+    }
+
+    async function activate_cas(){
+        activate_cas_res = await activate_cas_user()
+    }
+
+    async function create_cas(){
+        create_cas_user_res = await create_cas_user()
+    }
+
+    function closeCasUser(){
+        showCasUser.style.display = "none";
+    }
     
     </script>
         {#if show_spinner}
@@ -1293,6 +1327,13 @@
                         >
              {/if}
                  </p>
+                 <div class="userStatus ml-4">
+                    <p class="flex items-center smButtonText" on:click="{openCasUser}">
+                        <a href="" class="smButton modal-open">
+                            CAS User Status
+                        </a>
+                    </p>
+                </div>
                  
              </div>
              
@@ -2201,7 +2242,7 @@
 
                                             <div class="w-2/3 ">
 
-                                                <div class="detailData"> {city}</div>
+                                                <div class="detailData"> {city_select}</div>
 
                                             </div>
 
@@ -2643,4 +2684,48 @@
     </div>
 </div> 
 <!-- Document view Model -->
+
+
+<!-- Cas View modal HTML-->
+
+<div  class="actionDialogueOnboard " id="showCasUser" hidden>
+    <div class="pancardDialogueOnboardWrapper ">
+        <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+            <div class="modalHeadConmb-0">
+                <div class="leftmodalInfo">
+                    <p class=""> Cas User Status</p>
+                </div>
+                <div class="rightmodalclose" on:click="{closeCasUser}">
+                    <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal">
+                </div>
+            </div>
+            <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 mt-5" action="#">
+
+                {#if cas_flag == 1}
+                <div class="justify-center">
+                    <p>
+                        User is not Active
+                    </p>
+                </div>
+                <div class="pt-3 flex justify-center" on:click="{activate_cas}">
+                    <button type="button" class="dialogueSingleButton">Activate User</button>
+                </div>
+                {:else if cas_flag == 2}
+                <div class="justify-center">
+                    <p>
+                        User is not in the cas
+                    </p>
+                </div>
+                <div class="pt-3 flex justify-center" on:click="{create_cas}">
+                    <button type="button" class="dialogueSingleButton">Create User</button>
+                </div>
+                {/if}
+                
+                    <!-- <div class="pt-3 flex justify-center" on:click="{closeCasUser}">
+                    <button type="button" class="dialogueSingleButton">Activate User</button>
+                </div> -->
+            </form>
+        </div>
+    </div>
+</div>
 <Toast type={toast_type}  text={toast_text}/>

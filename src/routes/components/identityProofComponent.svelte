@@ -88,6 +88,11 @@
         export let id_new_date;
         let username;
         let all_tags_res;
+        export let fac_photo_obj = {
+            profile_url:null,
+            profile_verified:null,
+            profile_rejected:null
+        }
         export let changed_pan_num;
         export let changed_aadhar_num;
         export let changed_dl_num;
@@ -178,7 +183,7 @@
     ///////Document view Model/////////
         let alt_image="";
         let image_path;
-        // let facility_docs_arr = [];
+        let facility_docs_arr = [];
     /////////Document view Model//////
         // $:{
         //     for(let key in all_tags_obj){
@@ -325,7 +330,7 @@
             toast_type = "error"
         }
         else{
-            if(!profile_url){
+            if(fac_photo_obj.profile_url){
                 showIDCard.style.display = "block";
                 let response = await get_pravesh_properties_method();
                 
@@ -351,27 +356,27 @@
                 toast_text = "Upload Profile Pic ";
                 toast_type = "error"
             }
-                let facility_doc_data_res = await facility_document()
-                try{
-                    if (facility_doc_data_res != "null" ){
-                        facility_document_data = facility_doc_data_res.body.data;
+                // let facility_doc_data_res = await facility_document()
+                // try{
+                //     if (facility_doc_data_res != "null" ){
+                //         facility_document_data = facility_doc_data_res.body.data;
                         
-                        for (var i = 0; i < facility_document_data.length; i++){
-                            console.log("inside 2 2 2 facility_document_data.length",facility_document_data.length)
+                //         for (var i = 0; i < facility_document_data.length; i++){
+                //             console.log("inside 2 2 2 facility_document_data.length",facility_document_data.length)
 
-                                facility_docs_arr[i] = facility_document_data[i].doc_type;
+                //                 facility_docs_arr[i] = facility_document_data[i].doc_type;
                                 
-                                if(!facility_docs_arr[i]){
-                                    profile_url = $page.url.origin+facility_document_data[i].file_url;
-                                }
+                //                 if(!facility_docs_arr[i]){
+                //                     profile_url = $page.url.origin+facility_document_data[i].file_url;
+                //                 }
                                 
-                            }
+                //             }
                             
-                            }
-                        }       
-                catch (err){
-                    console.log("error in finding Pan image",err)
-            }
+                //             }
+                //         }       
+                // catch (err){
+                //     console.log("error in finding Pan image",err)
+            // }
         }
 
     }

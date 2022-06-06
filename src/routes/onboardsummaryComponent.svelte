@@ -2275,6 +2275,7 @@
         aadhar_obj ={aadhar_obj}
         dl_photo_obj={dl_photo_obj}
         voter_id_object = {voter_id_object}
+        fac_photo_obj={fac_photo_obj}
         id_new_date={id_new_date} admin = {admin}
         is_adhoc_facility = {is_adhoc_facility}/>
         
