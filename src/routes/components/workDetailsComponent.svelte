@@ -1012,6 +1012,8 @@
     }
 
     async function openassociateTypeMOdal() {
+        get_change_associte_data = [];
+        get_assoc_types_data = [];
         associateTypeMOdal.style.display = "block";
 
         let get_change_associte_res = await get_change_associte();
@@ -1032,7 +1034,7 @@
             console.log("inside error with associate")
         }
 
-        let get_assoc_types_res = await get_assoc_types();
+        let get_assoc_types_res = await get_assoc_types($facility_data_store.org_id,$facility_data_store.station_code);
         console.log("testing get_assoc_types_res",get_assoc_types_res)
         try {
             if (get_assoc_types_res.body.status == "green"){
@@ -1051,6 +1053,8 @@
     }
 
     function closeassociateTypeMOdal() {
+        get_change_associte_data = [];
+        get_assoc_types_data = [];
         associateTypeMOdal.style.display = "none";
     }
 
@@ -1062,7 +1066,7 @@
         let new_start_date = new Date(fromDate);
         let updated_start_date = get_date_format(new_start_date,"yyyy-mm-dd");
         let get_change_associte_res = await get_change_associte();
-        let get_assoc_types_res = await get_assoc_types();
+        let get_assoc_types_res = await get_assoc_types($facility_data_store.org_id,$facility_data_store.station_code);
 
         for(let i=0;i<get_change_associte_data.length;i++){
             update_date_arr.push(get_change_associte_data[i].from_date)

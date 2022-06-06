@@ -588,6 +588,7 @@
         }
         else{
             city_data = city_data_res.body.data;
+            city_data.sort((a, b) => (a > b) ? 1 : -1);
             // console.log("city_data_res",city_data)
         }
         

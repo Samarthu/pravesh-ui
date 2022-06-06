@@ -463,11 +463,17 @@
                 facility_document_data = facility_document_res.body.data;
                 for (var i = 0; i < facility_document_data.length; i++) {
                     let doc_date_format = new Date(facility_document_data[i].creation);
+
+                    
+
                     let doc_modified_format = new Date(facility_document_data[i].modified);
                     let doc_creation_date = get_date_format(doc_date_format,"dd-mm-yyyy-hh-mm");
                     let doc_modified_date = get_date_format(doc_modified_format,"dd-mm-yyyy-hh-mm");
                     facility_document_data[i].creation = doc_creation_date
                     facility_document_data[i].modified = doc_modified_date
+                    facility_document_data = facility_document_data.sort((a, b) => new Date(b.modified) - new Date(a.modified));
+                    console.log("after facility_document_data",facility_document_data);
+                   
                     
                     if(facility_document_data[i].doc_type == "pan-photo"){
                         if(facility_document_data[i].doc_number){
@@ -547,6 +553,14 @@
                     //     toast_text = "No Document Found";
                     // }
                 }
+                console.log("b4 facility_document_data",facility_document_data);
+                // facility_document_data.sort(function(a,b){
+                //     console.log("a",a.modified,"b",b.modified);
+                // return new Date(b.modified) - new Date(a.modified);
+                
+                // });
+               
+                
             }
             }
             catch(err) {
@@ -1766,12 +1780,11 @@
                         facility_document_data = [];
                         facility_document_data = facility_document_res.body.data;
                             for(let i=0;i<facility_document_data.length;i++){
-                                let doc_date_format = new Date(facility_document_data[i].creation);
                                 let doc_modified_format = new Date(facility_document_data[i].modified);
-                                let doc_creation_date = get_date_format(doc_date_format,"dd-mm-yyyy-hh-mm");
                                 let doc_modified_date = get_date_format(doc_modified_format,"dd-mm-yyyy-hh-mm");
-                                facility_document_data[i].creation = doc_creation_date
                                 facility_document_data[i].modified = doc_modified_date
+                                facility_document_data = facility_document_data.sort((a, b) => new Date(b.modified) - new Date(a.modified));
+                                
                             
                         }
                         
@@ -1823,9 +1836,12 @@
                         facility_document_data = [];
                         facility_document_data = facility_document_res.body.data;
                             for(let i=0;i<facility_document_data.length;i++){
-                            let doc_date_format = new Date(facility_document_data[i].creation);
-                            let doc_creation_date = get_date_format(doc_date_format,"dd-mm-yyyy-hh-mm");
-                            facility_document_data[i].creation = doc_creation_date
+                            let doc_modified_format = new Date(facility_document_data[i].modified);
+                            let doc_modified_date = get_date_format(doc_modified_format,"dd-mm-yyyy-hh-mm");
+                            
+                            facility_document_data[i].modified = doc_modified_date
+                                facility_document_data = facility_document_data.sort((a, b) => new Date(b.modified) - new Date(a.modified));
+                            
                             closeApproveViewModel();
                             }
                         
@@ -2671,30 +2687,35 @@
                                 <div class="flex mb-3 xs:flex-col sm:flex-col">
                                     <p class="detailLbalesm pr-3">ERP ID</p>
                                     {#if !erp_details_arr.erp_id}<p>-</p>
+                                    {:else}
                                     <p class="detailDatasm">{erp_details_arr.erp_id}</p>
                                     {/if}
                                 </div>
                                 <div class="flex mb-3 xs:flex-col sm:flex-col">
                                     <p class="detailLbalesm pr-3">ERP Name</p>
                                     {#if !erp_details_arr.erp_name}<p>-</p>
+                                    {:else}
                                     <p class="detailDatasm">{erp_details_arr.erp_name}</p>
                                     {/if}
                                 </div>
                                 <div class="flex mb-3 xs:flex-col sm:flex-col">
                                     <p class="detailLbalesm pr-3">Address ID</p>
                                     {#if !erp_details_arr.address_id}<p>-</p>
+                                    {:else}
                                     <p class="detailDatasm">{erp_details_arr.address_id}</p>
                                     {/if}
                                 </div>
                                 <div class="flex mb-3 xs:flex-col sm:flex-col">
                                     <p class="detailLbalesm pr-3">Address Title</p>
                                     {#if !erp_details_arr.address_title}<p>-</p>
+                                    {:else}
                                     <p class="detailDatasm">{erp_details_arr.address_title}</p>
                                     {/if}
                                 </div>
                                 <div class="flex mb-3 xs:flex-col sm:flex-col">
                                     <p class="detailLbalesm pr-3">Contact ID</p>
                                     {#if !erp_details_arr.contact_id}<p>-</p>
+                                    {:else}
                                     <p class="detailDatasm">{erp_details_arr.contact_id}</p>
                                     {/if}
                                 </div>
