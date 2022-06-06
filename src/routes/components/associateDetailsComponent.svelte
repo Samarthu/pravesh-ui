@@ -126,6 +126,8 @@
             let alt_image="";
             let image_path;
             let cas_flag = 0;
+            let active_flag = 0;
+            let create_cas_flag = 0;
         // /////////Document view Model//////
             $:{
                 for(let key in all_tags_obj){
@@ -1266,30 +1268,58 @@
 
     async function openCasUser(){
         let get_cas_user_res = await get_cas_user()
+        show_spinner = true;
         console.log("get_cas_user_res",get_cas_user_res)
 
-        if(get_cas_user_res.status == "green"){
+        if(get_cas_user_res.body.status == "green"){
+            show_spinner = false;
             toast_text = "User is active";
             toast_type = "success";
         }
         else{
             showCasUser.style.display = "block";
+            show_spinner = false;
             if(get_cas_user_res.message = "User is Deactive in CAS" || get_cas_user_res.status == "red"){
-                cas_flag = 1
+                cas_flag = 1;
+                toast_text = "user is deactive"
+                toast_type = "error"
             }
-            else {
-                cas_flag = 2
+            else{
+                cas_flag = 2;
             }
-
         }
     }
 
     async function activate_cas(){
-        activate_cas_res = await activate_cas_user()
+        let activate_cas_res = await activate_cas_user()
+        show_spinner = true;
+        try {
+            if(activate_cas_res.body.status == "green"){
+                show_spinner = false;
+                active_flag = 1;
+                toast_text = "CAS is Active"
+                toast_type = "success"
+            }
+        } catch (error) {
+            toast_text = "Error occured while CAS Activation"
+            toast_type = "error"
+        }
     }
 
     async function create_cas(){
-        create_cas_user_res = await create_cas_user()
+        let create_cas_user_res = await create_cas_user()
+        show_spinner = true;
+        try {
+            if(create_cas_user_res.body.status == "green"){
+                show_spinner = false;
+                create_cas_flag = 1;
+                toast_text = "CAS User is Created"
+                toast_type = "success"
+            }
+        } catch (error) {
+            toast_text = "Error occured while CAS creation"
+            toast_type = "error"
+        }
     }
 
     function closeCasUser(){
@@ -2713,7 +2743,25 @@
                 {:else if cas_flag == 2}
                 <div class="justify-center">
                     <p>
-                        User is not in the cas
+                        User is Deactivated
+                    </p>
+                </div>
+                <div class="pt-3 flex justify-center" on:click="{create_cas}">
+                    <button type="button" class="dialogueSingleButton">Create User</button>
+                </div>
+                {:else if active_flag == 1}
+                <div class="justify-center">
+                    <p>
+                        User is Activated
+                    </p>
+                </div>
+                <div class="pt-3 flex justify-center" on:click="{create_cas}">
+                    <button type="button" class="dialogueSingleButton">Create User</button>
+                </div>
+                {:else if create_cas_flag == 1}
+                <div class="justify-center">
+                    <p>
+                        User is created
                     </p>
                 </div>
                 <div class="pt-3 flex justify-center" on:click="{create_cas}">
