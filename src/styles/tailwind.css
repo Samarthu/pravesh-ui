@@ -2383,6 +2383,7 @@ border: 2px solid #B5B5B5;
     font-size: 11px;
     font-weight: 300;
     margin-bottom: 0px;
+    white-space: nowrap;
 }
 .infoGroupName p {
     font-size: 14px;
