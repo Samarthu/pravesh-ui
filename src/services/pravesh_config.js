@@ -83,12 +83,12 @@ function reset_all_stores(){
         owner_name:null,
         status:"Onboarding in Progress",
         phone_number:null,
-        facility_id:"-",
+        facility_id:null,
         store_id:null,
-        facility_name:"-",
+        facility_name:null,
         org_id:null,
         node_type:"Distributor",
-        facility_type:"-",
+        facility_type:null,
         store_name:null,
         vendor_code:null,
         vendor_name:null,
@@ -96,7 +96,7 @@ function reset_all_stores(){
         non_msme_confirmed_on:null,
         msme_registered:null,        
         facility_email:null,
-        details_updated_by:"-",
+        details_updated_by:null,
         
 }
 facility_data_store.set(facility_data);
