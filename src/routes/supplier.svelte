@@ -21,6 +21,7 @@ import { goto } from '$app/navigation';
     let toast_text = "";
     let offset=0;
     let limit=20;
+    let show_pagination = false;
     let userdetails,username,userid;
     let supplier_data_from_service = [];
     let total_count_associates = 0;
@@ -45,6 +46,7 @@ import { goto } from '$app/navigation';
     let vendor_checkbox = false;
     let onboarded_by_me_checkbox = false;
     let workforce_checkbox = true;
+    let status_pill_flag = false;
     let new_associate_data;
     let logged_user_data;
     let new_new_associate_data;
@@ -209,7 +211,8 @@ import { goto } from '$app/navigation';
     let urlString = window.location.href;	
     let paramString = urlString.split('=')[1];
     if(paramString == undefined){
-      
+      show_pagination = true;
+      console.log("show_pagination",show_pagination)
     var new_drop_limit=parseInt(drop_limit)
    
     new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}
@@ -604,6 +607,7 @@ else
     }
 
     async function status_pill_clicked(status_selected){
+        
         status = status_selected;
 
         var new_drop_limit=parseInt(drop_limit)
@@ -614,28 +618,35 @@ else
     
     try{
             if(filter_res_from_dash.body.status == "green"){
-                supplier_data_from_service = []
+                mapped_pages = [];
+                supplier_data_from_service = [];
+                
                 supplier_data_from_service = filter_res_from_dash.body.data.data_list;
                 total_count_associates = filter_res_from_dash.body.data.total_records; 
                 for(let i=0;i<supplier_data_from_service.length;i++){
                     supplier_data_from_service[i].expand = false;
                 }
-                if(total_count_associates > 20){
+                
+                if(total_count_associates > 20 && status_pill_flag == false){
+                  
                 total_pages = Math.ceil(total_count_associates/new_drop_limit)
                 pages = createPagesArray(total_pages)
-                    if(paramString == undefined){
+                
+                    if(show_pagination == true){
                         for(let pagination in pages){
+                            
                             if(pagination>0 && pagination <= 3){
                                 // console.log("PAGES") 
                                 new_pages.push(pagination)
                                 mapped_pages=new_pages.map(Number)  
-                                // console.log("mappedpagesRESULT inside",mapped_pages)
+                               
                                 
                             }
                     
                         }
                     }
                 }
+                status_pill_flag = true;
             }
         }
         catch(err) {

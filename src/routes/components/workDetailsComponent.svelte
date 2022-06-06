@@ -1526,34 +1526,34 @@
                 esign_data_arr = print_data_res.body.data.esign
                
                 for(let i = 0;i<work_contract_arr.length;i++){
-                if(assigned_id == work_contract_arr[i].assigned_id && work_contract_arr[i].contract_accepted == 1){
-                    
-                    if(type == "view"){
+                    if(assigned_id == work_contract_arr[i].assigned_id && work_contract_arr[i].contract_accepted == 1){
+                        
+                            if(type == "view"){
 
-                     
-                        var demo = window.open()
-                        new_contract_data = print_data_arr.accepted_contract+document.getElementById("user_details").innerHTML;
-                        demo.document.write(String(new_contract_data));
-                        
-                        // document.getElementById("workContractDetails").style.display = "none";
-                        // document.getElementById("viewContractDetails").style.display = "block";
-                        
-                        // document.getElementById("viewContractDetails").innerHTML = '<iframe name="view_frame" width="0" height="0" frameborder="0" src="about:blank" srcdoc='+{new_contract_data}+'></iframe>';
-                        // new_contract_data = print_data_arr.accepted_contract+document.getElementById("user_details").innerHTML;
-                        // window.frames["view_frame"].window.focus();
-                        // window.open(new_contract_data,'popUpWindow','height=500,width=400,left=100,top=100,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes');
-                    }   
-                    else if(type == "print"){
-                        new_contract_data = document.getElementById("user_details").innerHTML+print_data_arr.accepted_contract;
-                        window.frames["print_frame"].window.print();
+                            
+                                var demo = window.open()
+                                new_contract_data = print_data_arr.accepted_contract+document.getElementById("user_details").innerHTML;
+                                demo.document.write(String(new_contract_data));
+                                
+                                // document.getElementById("workContractDetails").style.display = "none";
+                                // document.getElementById("viewContractDetails").style.display = "block";
+                                
+                                // document.getElementById("viewContractDetails").innerHTML = '<iframe name="view_frame" width="0" height="0" frameborder="0" src="about:blank" srcdoc='+{new_contract_data}+'></iframe>';
+                                // new_contract_data = print_data_arr.accepted_contract+document.getElementById("user_details").innerHTML;
+                                // window.frames["view_frame"].window.focus();
+                                // window.open(new_contract_data,'popUpWindow','height=500,width=400,left=100,top=100,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes');
+                            }   
+                            else if(type == "print"){
+                                new_contract_data = document.getElementById("user_details").innerHTML+print_data_arr.accepted_contract;
+                                window.frames["print_frame"].window.print();
+                            }
+                    }
+                    else if(work_contract_arr[i].contract_accepted == 0){
+                        show_spinner = false;
+                        toast_type = "error";
+                        toast_text = "Contract not accepted";
                     }
                 }
-                else{
-                    show_spinner = false;
-                    toast_type = "error";
-                    toast_text = "Contract not accepted";
-                }
-        }
             }
             else if(print_data_res.body.status == "red"){
                 show_spinner = false;

@@ -256,9 +256,14 @@
             alt_image = "cancel cheque proof";
         }
         else if(data == "cheque_disp"){
-            image_path = $page.url.origin+cheque_disp_obj.cheque_disp_url;
-            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+new_cheque.file_url);
-            alt_image = "cheque proof";
+            for(let i=0;i<cheque_values_from_store.length;i++){
+                if(cheque_values_from_store[i].cheque_number == doc_number){
+                    image_path = $page.url.origin+cheque_values_from_store[i].file_url;
+                    // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+cheque_values_from_store[i].cheque_url);
+                    alt_image = "cheque proof";
+                }
+            }
+           
         }
         for(let i = 0;i<gst_doc_arr.length;i++){
             if(data == "mult_gsts"){
@@ -794,7 +799,7 @@
                                                                 >
                                                                     <img
                                                                         src="{$img_url_name.img_name}/view.png"
-                                                                        alt="cheque img" on:click="{()=>{openViewModel("cheque_disp")}}"
+                                                                        alt="cheque img" on:click="{()=>{openViewModel("cheque_disp",new_cheque.cheque_number)}}"
                                                                     />
                                                                 </a>
                                                                 
