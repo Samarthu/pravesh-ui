@@ -52,7 +52,7 @@
             // import {onFileSelected} from '../onboardsummaryComponent.svelte'
     
         let id_card_data = [];
-        // let profile_url = "";
+        let profile_url = "";
         let show_spinner = false;
         let toast_text;
         let toast_type;
