@@ -288,6 +288,7 @@
                 scope_data.push(loc_data_res.body.data[i]);
                 
             }
+            city_data.sort((a, b) => (a > b) ? 1 : -1);
             city_data = city_data;
             scope_data = scope_data;
             
