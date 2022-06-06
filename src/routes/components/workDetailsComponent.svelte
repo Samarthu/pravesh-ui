@@ -39,7 +39,7 @@
             import {documents_store} from '../../stores/document_store';
             import { goto } from "$app/navigation";
             import {get_pravesh_properties_method} from "../../services/workdetails_services";
-            import {get_client_org_mapping,get_client_details,get_specific_name,get_change_associte,get_assoc_types,send_associate_req} from '../../services/vmt_verify_services'
+            import {get_client_org_mapping,get_client_details,get_specific_name,get_change_associte,get_assoc_types,send_associate_req,save_mapping} from '../../services/vmt_verify_services'
             
             // import {onFileSelected} from '../onboardsummaryComponent.svelte'
         
@@ -110,50 +110,60 @@
             let station_data_array = [];
             let table_head = "";
             let mapping_blocked_data = [];
+            let crClient = "no";
 
         //    ASSOCIATE TYPE VARS
         let fromDate;
         let assocRemarks = "";
         let get_assoc_types_data = [];
         let get_change_associte_data =[];
+        let pan_number = "";
+        // let voter_number = "";
+        // let aadhar_number = "";
+        // let address_number = "";
+        let dl_number = "";
+        // let off_number ="";
+        // let pass_number = "";
+        // let police_number = "";
 
-            // let pancard_obj = {
-            //     pan_num:null,
-            //     pan_attach:null,
-            //     pan_name:null,
-            //     pan_verified:null,
-            //     pan_rejected:null
-            // }
-            // let aadhar_obj = {
-            //     aadhar_num:null,
-            //     aadhar_attach:null,
-            //     aadhar_name:null,
-            //     aadhar_verified:null,
-            //     aadhar_rejected:null
-            // }
-            // let fac_photo_obj = {
+            export let pancard_obj = {
+                pan_num:null,
+                pan_attach:null,
+                pan_name:null,
+                pan_verified:null,
+                pan_rejected:null
+            }
+            export let aadhar_obj = {
+                aadhar_num:null,
+                aadhar_attach:null,
+                aadhar_name:null,
+                aadhar_verified:null,
+                aadhar_rejected:null
+            }
+            // export let fac_photo_obj = {
             //     profile_url:null,
             //     profile_verified:null,
             //     profile_rejected:null
             // }
-            // let addproof_obj = {
-            //     address_name:null,
-            //     address_url:null,
-            //     address_verified:null,
-            //     address_rejected:null
-            // };
-            // export let can_cheque_obj = {
-            //     can_cheque_name:null,
-            //     can_cheque_url:null,
-            //     can_cheque_verified:null,
-            //     can_cheque_rejected:null
-            // };
-            // let dl_photo_obj = {
-            //     dl_lic_name:null,
-            //     dl_lic_url:null,
-            //     dl_verified:null,
-            //     dl_rejected:null
-            // };
+            export let addproof_obj = {
+                address_name:null,
+                address_url:null,
+                address_verified:null,
+                address_rejected:null
+            };
+            export let can_cheque_obj = {
+                can_cheque_name:null,
+                can_cheque_url:null,
+                can_cheque_verified:null,
+                can_cheque_rejected:null
+            };
+            export let dl_photo_obj = {
+                dl_lic_num:null,
+                dl_lic_name:null,
+                dl_lic_url:null,
+                dl_verified:null,
+                dl_rejected:null
+            };
             export let new_off_file_obj = {
                 offer_name:null,
                 offer_url:null,
@@ -483,11 +493,19 @@
         station_code_arr = [];
         console.log("station_code",station_code.toLowerCase())
         let get_specific_name_res = await get_specific_name(station_code.toLowerCase())
+        try{
+            if(get_specific_name_res.body.status == "green"){
         station_code_arr.push(get_specific_name_res.body.data[0].resource_id)
         console.log("get_specific_name_res",get_specific_name_res)
 
         station_code_arr = station_code_arr;
         console.log("station_code_arr",station_code_arr)
+        }
+        }
+        catch(err){
+            toast_type = "error";
+            toast_text = err;
+        }
 
     }
 
@@ -564,10 +582,11 @@
                 return
             }
             var profileIncom = false;
-            if (dl_number == undefined || dl_number.length < 7) {
+            console.log("dl_numer and pancard_numebr")
+            if (dl_photo_obj.dl_lic_num == undefined || dl_photo_obj.dl_lic_num.length < 7) {
                 profileIncom = true;
             }
-            if (pan_number == undefined || pan_number.length < 7) {
+            if (pancard_obj.pan_num == undefined || pancard_obj.pan_num.length < 7) {
                 profileIncom = true;
             }
             if (profileIncom) {
@@ -728,6 +747,40 @@
                 toast_text = all_tags_res.body.message;
             }
             show_spinner = false;
+
+
+            ////////////// BGV/////////////////
+           let facility_bgv_check_res = await facility_bgv_check();
+        console.log("facility_bgv_check_res",facility_bgv_check_res)
+        try {
+            if(!facility_bgv_check_res || facility_bgv_check_res.body.data.length == "0"){
+                var eighteenYearsAgo = new Date();
+                $bgv_data_store.basic_info_dob = get_date_format(new Date(eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear()-18)),"yyyy-mm-dd");
+                // $bgv_data_store.basic_info_updated_on = $bgv_data_store.basic_info_updated_on.get_date_format(bgv_date_format,"dd-mm-yyyy-hh-mm");
+                let bgv_date_format = new Date($bgv_data_store.basic_info_updated_on);
+                $bgv_data_store.basic_info_updated_on =get_date_format(bgv_date_format,"dd-mm-yyyy-hh-mm");
+        }
+        else{
+            $bgv_data_store = facility_bgv_check_res.body.data[0];
+            gend_selected = $bgv_data_store.gender;
+            add_is_perm = $bgv_data_store.address_type;
+            curr_same = $bgv_data_store.current_address_is_same;
+            police_add_per = $bgv_data_store.police_address_type;
+            if(!$bgv_data_store.basic_info_dob){
+                var eighteenYearsAgo = new Date();
+                $bgv_data_store.basic_info_dob = get_date_format(new Date(eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear()-18)),"yyyy-mm-dd");
+            }
+                // $bgv_data_store.basic_info_updated_on = $bgv_data_store.basic_info_updated_on.get_date_format(bgv_date_format,"dd-mm-yyyy-hh-mm");
+                let bgv_date_format = new Date($bgv_data_store.basic_info_updated_on);
+                $bgv_data_store.basic_info_updated_on =get_date_format(bgv_date_format,"dd-mm-yyyy-hh-mm");
+            
+        }
+    }
+    catch(err) {
+        console.log("Error",err)
+        // message.innerHTML = "Error is " + err;
+    }
+
         });
 
             function myBtn() {
@@ -1631,7 +1684,7 @@
                         <div class="userStatus ">
                             <p class="flex items-center smButtonText" on:click={view_add_client}>
                                 <a href="" class="smButton">
-                                    Add/Edit
+                                    View/Edit
                                 </a>
                             </p>
                         </div>

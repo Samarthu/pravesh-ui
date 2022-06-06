@@ -689,7 +689,8 @@
         console.log("gst details for gst number",gst_number,gst_state_code,pancard_obj.pan_num,gst_number.trim().length,gst_number.substring(0, 2),gst_number.substring(2, 12),gst_number.substring(13,14))
         if (gst_number == undefined || gst_number.trim().length < 15 || gst_number.substring(0, 2) != gst_state_code || gst_number.substring(2, 12) != pancard_obj.pan_num || gst_number.substring(13,14) != "Z") {
             gst_number_message = "Invalid GST Number";
-        return;
+            show_spinner = false;
+            return;
         }
         if(!gst_file){
             gst_upload_message = "Invalid File Upload"
@@ -730,7 +731,7 @@
                     
                     let new_doc_type = "gst-certificate-"+gst_state_code;
                     console.log("new_doc_type",new_doc_type)
-                    const gst_file_data = {"documents":[{"file_name":gst_img,"doc_category":"GST Certificate","status":"created","resource_id":$facility_id.facility_id_number,"user_id":username,"doc_number":"","pod":gst_data,"doc_type":new_doc_type,"facility_id":$facility_data_store.facility_id}]}
+                    const gst_file_data = {"documents":[{"file_name":gst_img,"doc_category":"GST Certificate","status":"created","resource_id":$facility_id.facility_id_number,"user_id":username,"doc_number":gst_number,"pod":gst_data,"doc_type":new_doc_type,"facility_id":$facility_data_store.facility_id}]}
                     gst_doc_submit_res = await uploadDocs(gst_file_data);
                     try {
                         if(gst_doc_submit_res.body.status == "green"){
@@ -779,13 +780,17 @@
             //             toast_text = "Error in Uploading GST Certificate";
             //         }
             if(gst_doc_submit_res.body.status == "green" && gst_add_res.body.status=="green"){
+                // gst_details_data=[];
                 let gst_details_res = await gst_details();
                 try{
                     if(gst_details_res != "null"){
-                        // gst_details_data=[];
+                        
                         for(let i=0;i < gst_details_res.body.data.length;i++){
+                            console.log("gst_details_res",gst_details_res.body.data[i].gstn)
+                            console.log("gst_doc_arr",gst_doc_arr[i].doc_number)
                             for(let i = 0;i<gst_doc_arr.length;i++){
                                 if(gst_details_res.body.data[i].gstn == gst_doc_arr[i].doc_number){
+                                    // console.log("gst_details_res.body.data[i].gstn",gst_details_res.body.data)
                                     gst_details_data.push(gst_details_res.body.data[i]);
                                 }  
                             }
@@ -1461,7 +1466,7 @@
                              <div class="pl-4 flex items-center">
                                  <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
                                  {#if !addproof_obj.address_name}
-                                 <p>-</p>
+                                 <p>Not Provided</p>
                                  {:else}
                                  <p class="detailLbale">{addproof_obj.address_name}</p>
                                  {/if}

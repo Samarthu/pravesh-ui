@@ -599,7 +599,7 @@
                          src="{$img_url_name.img_name}/reject.png"
                          alt=""
                          class="pr-2"
-                     /> Reject
+                     /> Rejected
                  </p>
                  {:else if can_cheque_obj.can_cheque_verified == "1"}
                  
@@ -629,7 +629,7 @@
                          <div class="pl-4 flex items-center">
                              <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
                             {#if can_cheque_obj.can_cheque_name == null}
-                            <p>-</p>
+                            <p>Not Provided</p>
                             {:else}
                              <p class="detailLbale">{can_cheque_obj.can_cheque_name}</p>
                              {/if}
