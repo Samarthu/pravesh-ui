@@ -1356,7 +1356,7 @@
 
          <div class="grid grid-cols-3 gap-4  xsl:grid-cols-1" >
              <div class=" grid grid-cols-3 w-full px-5 mt-5  gap-4">
-                 {#if !fac_photo_obj.profile_url}
+                 <!-- {#if !fac_photo_obj.profile_url}
                  <div class="">
                     <img src="{$img_url_name.img_name}/delivery.png" class="w-28 h-28 xsl:h-auto" alt="">
                 </div>
@@ -1364,7 +1364,7 @@
                 <div class="text-2xl xsl:text-xl break-all">{#if $facility_data_store.facility_name}{$facility_data_store.facility_name}{:else}<p>-</p>{/if}</div>
                 <p class="imgName">{#if $facility_data_store.facility_name}{$facility_data_store.facility_name}{:else}<p>-</p>{/if}
                 </div>
-                {:else}
+                {:else} -->
                  <div class="">
                      <img src="{$page.url.origin+fac_photo_obj.profile_url}" class="w-28 h-28 xsl:h-auto" alt="">
                  </div>
@@ -1375,7 +1375,7 @@
                  <div class="text-2xl xsl:text-xl break-all">{#if $facility_data_store.facility_name}{$facility_data_store.facility_name}{:else}<p>-</p>{/if}</div>
                 <p class="imgName">{#if $facility_data_store.facility_name}{$facility_data_store.facility_name}{:else}<p>-</p>{/if}
                 </div>
-                 {/if}
+                 <!-- {/if} -->
              </div>
 
              <div class="contact_details">
