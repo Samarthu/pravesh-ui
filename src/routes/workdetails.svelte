@@ -656,7 +656,9 @@ import { facility_id } from "../stores/facility_id_store";
                     break;
                 }
             }
+            station_list.sort((a, b) => (a.station_name > b.station_name) ? 1 : (a.station_name === b.station_name) ? ((a.station_code > b.station_code) ? 1 : -1) : -1 )
             station_list = station_list;
+            
 
             console.log("station_list", station_list);
         }

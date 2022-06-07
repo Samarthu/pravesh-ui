@@ -544,7 +544,7 @@
                     } else {
                         // alert("Something went wrong!");
                         toast_type = "error";
-                        toast_text = "Something went wrong!";
+                        toast_text = save_bank_details.body.message;
                     }
 
                     console.log("inside valid");
@@ -568,7 +568,7 @@
                 } else {
                     // alert("Something went wrong!");
                     toast_type = "error";
-                    toast_text = "Bank Details not Saved";
+                    toast_text = save_bank_details.body.message;
                 }
             }
         }

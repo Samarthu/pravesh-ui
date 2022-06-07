@@ -2,6 +2,8 @@ import {pravesh_properties} from '../stores/pravesh_properties_store';
 // import {facility_data_store} from '../stores/facility_store';
 import {facility_data_store} from '../stores/facility_store';
 import { facility_id } from '../stores/facility_id_store';
+import {documents_store} from '../stores/document_store';
+import {bank_details} from '../stores/bank_details_store';
 
 //make sure you put correct binary format of allowed MB. eg 1MB = 1048576, 2MB = 2097152 and so on.
 export const allowed_pdf_size = Number(2097152); 
@@ -104,11 +106,32 @@ facility_data_store.set(facility_data);
 facility_id.set({
     facility_id_number : null
 })
+
 let temp ;
 facility_data_store.subscribe(value => {
     temp = value;
     
 })
+documents_store.set({
+    documents : []
+})
+
+bank_details.set({
+    account_holder: null,
+account_number: null,
+bank_name: null,
+bank_type: null,
+branch_city: null,
+branch_name: null,
+branch_pin_code: null,
+document_details: [],
+facility_id: null,
+ifsc_code: null,
+re_enter_account_number: null
+
+})
+
+
 console.log("facility data",temp);
 
 console.log("inside reset all stores");
