@@ -1002,11 +1002,11 @@
             show_spinner = false
             return
             }
-            // else if($bgv_config_store.is_email_verification_mandatory == "1" && verification_success == false){
-            //     throwError("email_msg","Verify Email Id")
-            //     show_spinner = false
-            // return
-            // }
+            else if($bgv_config_store.is_email_verification_mandatory == "1" && verification_success == false){
+                throwError("email_msg","Verify Email Id")
+                show_spinner = false
+            return
+            }
             else{
                 throwError("email_msg","")
                 show_spinner = false
