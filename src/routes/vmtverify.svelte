@@ -3041,13 +3041,13 @@
                     cas user
                 </button> -->
 
-                <div class="userStatus ">
+                <!-- <div class="userStatus ">
                     <p class="flex items-center smButtonText" on:click={workorganization}>
                         <a href="" class="smButton modal-open">
                             View/Client edit
                         </a>
                     </p>
-                </div>
+                </div> -->
 
 
                 <!-- <div class="userStatus ">

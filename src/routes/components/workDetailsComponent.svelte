@@ -783,100 +783,106 @@
 
         });
 
-            function myBtn() {
-            associateModal.style.display = "block";
-            }
-           async function workorganization() {
-               show_spinner = true;
-               workContractModel.style.display = "block";
-                let work_details_res = await work_details_data();
-                try {
-                    if(work_details_res.body.status == "green"){
-                        show_spinner = false;
-                        toast_type = "success";
-                        toast_text = work_details_res.body.message;
-                        work_contract_arr = work_details_res.body.data;
-                        for(let i=0;i<work_contract_arr.length;i++){
-                            let updated_date_format = new Date(work_contract_arr[i].updated_date);
-                            work_contract_arr[i].updated_date = get_date_format(updated_date_format,"dd-mm-yyyy-hh-mm");
-                            let creation_date_format = new Date(work_contract_arr[i].creation);
-                            work_contract_arr[i].creation = get_date_format(creation_date_format,"dd-mm-yyyy-hh-mm");
-                        }
-                    }
-                    else if(work_details_res.body.status == "red"){
-                        show_spinner = false;
-                        toast_type = "error";
-                        toast_text = work_details_res.body.message;
-                    }
-                    else{
-                        show_spinner = false;
-                        toast_type = "error";
-                        toast_text = "Something went wrong";
-                    }
-                    work_contract_arr = work_contract_arr;
-                    console.log("work_contract_arr",work_contract_arr);
-                }
-                catch (error) {
-                    show_spinner = false;
-                    toast_type = "error";
-                    toast_text = error;   
-                }
-                
-                let physical_contract_res =await get_physical_contracts();
-                try {
-                    if(physical_contract_res.body.status == "green"){
-                        show_spinner = false;
-                        toast_type = "success";
-                        toast_text = physical_contract_res.body.message;
-                        physical_contract_arr = physical_contract_res.body.data;
-                    }
-                    else{
-                        show_spinner = false;
-                        toast_type = "error";
-                        toast_text = "Something went wrong";
-                    }  
-                    physical_contract_arr = physical_contract_arr;
-                }
-                catch (error) {
-                    show_spinner = false;
-                    toast_type = "error";
-                    toast_text = error;
-                }
+    function myBtn() {
+        associateModal.style.display = "block";
+    }
 
-                let all_accepted_contract_res =await get_all_accepted_contracts();
-                try {
-                    if(all_accepted_contract_res.body.status == "green"){
-                        show_spinner = false;
-                        toast_type = "success";
-                        toast_text = all_accepted_contract_res.body.message;
-                        all_accepted_contract_arr = all_accepted_contract_res.body.data;
-                        for(let i=0;i<all_accepted_contract_arr.length;i++){
-                            let updated_date_format = new Date(all_accepted_contract_arr[i].updated_date);
-                            all_accepted_contract_arr[i].updated_date = get_date_format(updated_date_format,"dd-mm-yyyy-hh-mm");
-                            
-                        }
-                        
-                    }
-                    else{
-                        show_spinner = false;
-                        toast_type = "error";
-                        toast_text = "Something went wrong";
-                    }  
-                    all_accepted_contract_arr = all_accepted_contract_arr;
-                    console.log("all_accepted_contract_arr",all_accepted_contract_arr);
+    async function workorganization() {
+        get_client_details_data = [];
+        get_client_data_mapping_data = [];
+        show_spinner = true;
+        workContractModel.style.display = "block";
+        let work_details_res = await work_details_data();
+        try {
+            if(work_details_res.body.status == "green"){
+                show_spinner = false;
+                toast_type = "success";
+                toast_text = work_details_res.body.message;
+                work_contract_arr = work_details_res.body.data;
+                for(let i=0;i<work_contract_arr.length;i++){
+                    let updated_date_format = new Date(work_contract_arr[i].updated_date);
+                    work_contract_arr[i].updated_date = get_date_format(updated_date_format,"dd-mm-yyyy-hh-mm");
+                    let creation_date_format = new Date(work_contract_arr[i].creation);
+                    work_contract_arr[i].creation = get_date_format(creation_date_format,"dd-mm-yyyy-hh-mm");
                 }
-                catch (error) {
-                    show_spinner = false;
-                    toast_type = "error";
-                    toast_text = error;
-                }
-
             }
-        function clear() {
-            addRemoveModal.style.display = "none";
+            else if(work_details_res.body.status == "red"){
+                show_spinner = false;
+                toast_type = "error";
+                toast_text = work_details_res.body.message;
+            }
+            else{
+                show_spinner = false;
+                toast_type = "error";
+                toast_text = "Something went wrong";
+            }
+            work_contract_arr = work_contract_arr;
+            console.log("work_contract_arr",work_contract_arr);
+        }
+        catch (error) {
+            show_spinner = false;
+            toast_type = "error";
+            toast_text = error;   
+        }
+        
+        let physical_contract_res =await get_physical_contracts();
+        try {
+            if(physical_contract_res.body.status == "green"){
+                show_spinner = false;
+                toast_type = "success";
+                toast_text = physical_contract_res.body.message;
+                physical_contract_arr = physical_contract_res.body.data;
+            }
+            else{
+                show_spinner = false;
+                toast_type = "error";
+                toast_text = "Something went wrong";
+            }  
+            physical_contract_arr = physical_contract_arr;
+        }
+        catch (error) {
+            show_spinner = false;
+            toast_type = "error";
+            toast_text = error;
         }
 
-        async function view_add_client() {
+        let all_accepted_contract_res =await get_all_accepted_contracts();
+        try {
+            if(all_accepted_contract_res.body.status == "green"){
+                show_spinner = false;
+                toast_type = "success";
+                toast_text = all_accepted_contract_res.body.message;
+                all_accepted_contract_arr = all_accepted_contract_res.body.data;
+                for(let i=0;i<all_accepted_contract_arr.length;i++){
+                    let updated_date_format = new Date(all_accepted_contract_arr[i].updated_date);
+                    all_accepted_contract_arr[i].updated_date = get_date_format(updated_date_format,"dd-mm-yyyy-hh-mm");
+                    
+                }
+                
+            }
+            else{
+                show_spinner = false;
+                toast_type = "error";
+                toast_text = "Something went wrong";
+            }  
+            all_accepted_contract_arr = all_accepted_contract_arr;
+            console.log("all_accepted_contract_arr",all_accepted_contract_arr);
+        }
+        catch (error) {
+            show_spinner = false;
+            toast_type = "error";
+            toast_text = error;
+        }
+
+    }
+    
+    function clear() {
+        addRemoveModal.style.display = "none";
+    }
+
+    async function view_add_client() {
+        get_client_details_data = [];
+        get_client_data_mapping_data = [];
         workorganizationModel.style.display = "block";
         if($facility_data_store.status == "Deactive"){
             status_display = -1;
@@ -970,33 +976,33 @@
             toast_text = "No client Data";
         }
         
-    } catch(err) {
-        toast_type = "error";
-        toast_text = get_client_data_mapping_res.body.message;
-       
-    }
-//     async function station_code_select(stat_select){
-//         console.log("stat_select inside station_code_select",stat_select)
-//     let get_specific_name_res = await get_specific_name(stat_code)
-//     console.log("get_specific_name_res",get_specific_name_res)
-//     try {
-//         if(get_specific_name_res.stat_code != "null"){
-//             // for(i=0;i<get_specific_name_res.body.data.length;i++)
-//             // console.log("get_specific_name_res",get_specific_name_data)
-//             // get_specific_name_data.push({"resouce_id":get_specific_name_res.body.data[i].resource_id})
-//             // console.log("get_specific_name_res",get_specific_name_data)
-//             for(let i=0; i< get_specific_name_res.body.data.length;i++){
-//                 get_specific_name_data.push(get_specific_name_res.body.data[i]);
-//                 }
-//                 get_specific_name_data = get_specific_name_data;
-//                 // console.log("get_client_details_data",get_specific_name_data)
-//         }
-//     } catch (error) {
-//         toast_type = "error";
-//         toast_text = get_specific_name_res.body.message;
-//     }
-    
-// }
+        } catch(err) {
+            toast_type = "error";
+            toast_text = get_client_data_mapping_res.body.message;
+        
+        }
+        //     async function station_code_select(stat_select){
+        //         console.log("stat_select inside station_code_select",stat_select)
+        //     let get_specific_name_res = await get_specific_name(stat_code)
+        //     console.log("get_specific_name_res",get_specific_name_res)
+        //     try {
+        //         if(get_specific_name_res.stat_code != "null"){
+        //             // for(i=0;i<get_specific_name_res.body.data.length;i++)
+        //             // console.log("get_specific_name_res",get_specific_name_data)
+        //             // get_specific_name_data.push({"resouce_id":get_specific_name_res.body.data[i].resource_id})
+        //             // console.log("get_specific_name_res",get_specific_name_data)
+        //             for(let i=0; i< get_specific_name_res.body.data.length;i++){
+        //                 get_specific_name_data.push(get_specific_name_res.body.data[i]);
+        //                 }
+        //                 get_specific_name_data = get_specific_name_data;
+        //                 // console.log("get_client_details_data",get_specific_name_data)
+        //         }
+        //     } catch (error) {
+        //         toast_type = "error";
+        //         toast_text = get_specific_name_res.body.message;
+        //     }
+            
+        // }
 
 
 
@@ -1008,6 +1014,8 @@
     }
 
     function closeWorkorganization() {
+        get_client_details_data = [];
+        get_client_data_mapping_data = [];
         workorganizationModel.style.display = "none";
     }
 
@@ -1208,13 +1216,14 @@
 
 
     }
+
     async function handleTagClick(){
         show_spinner = true;
         console.log("handle tag clicked",show_spinner)
         let new_tag_id
         try {   
             show_spinner = false;
-    //     if(all_tags_res.body.status == "green"){
+        //     if(all_tags_res.body.status == "green"){
         
         for(let i=0; i < all_tags_res.body.data.length; i++){
             // console.log("INDISDE FOR LOOPform_data from html",select_tag_data,all_tags_res.body.data[i].tag_name)
@@ -1278,14 +1287,14 @@
                 }
         }
 
-    }
-    catch(err) {
-        show_spinner = false;
-        toast_type = "error";
-        toast_text = err;
-    }
+        }
+        catch(err) {
+            show_spinner = false;
+            toast_type = "error";
+            toast_text = err;
+        }
       
-}
+    }
 
     function remove_tag_con_model(){
         remove_tag_confirmation_model.style.display = "block";
@@ -1342,16 +1351,16 @@
         
          }
 
+        }
+        else{
+            show_spinner = false;
+            toast_type = "error";
+            toast_text = remove_tag_res.body.message;
+        }
     }
-    else{
-        show_spinner = false;
-        toast_type = "error";
-        toast_text = remove_tag_res.body.message;
-    }
-}
 
 
-   async function tagAuditFunc(){
+    async function tagAuditFunc(){
         temp = "tag";
         let tag_audit_res =await tag_audit_trail();
         try {
@@ -1377,9 +1386,9 @@
         temp = "Add";
     }
 
-     function uploadOfferLetter(){
+    function uploadOfferLetter(){
          OfferLetterModel.style.display ="block";
-     }
+    }
 
             // function closeWorkorganization() {
             //     workorganizationModel.style.display = "none";
@@ -1388,6 +1397,7 @@
         document.getElementById("img_model").style.display = "none";
         OfferLetterModel.style.display = "none";
     }
+
     function openViewModel(data,doc_number){
         document.getElementById("img_model").style.display = "block";
         if(data == "aadhar"){
@@ -1455,6 +1465,7 @@
        
         
     }
+
     const onFileSelected = (e,doctext) => {
         let img = e.target.files[0];
         if (img.size <= allowed_pdf_size) {
@@ -1580,7 +1591,8 @@
         
         // console.log("print_data_arr",print_data_arr);
         }
-    function closeContractView(){
+    
+        function closeContractView(){
         document.getElementById("viewContractDetails").style.display = "none";
     }  
    
