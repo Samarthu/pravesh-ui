@@ -1281,6 +1281,7 @@
         show_spinner = true;
         try {
             if(activate_cas_res.body.status == "green"){
+                closeCasUser();
                 show_spinner = false;
                 active_flag = 1;
                 toast_text = "CAS is Active"
@@ -1299,6 +1300,7 @@
         try {
             if(create_cas_user_res.body.status == "green"){
                 show_spinner = false;
+                closeCasUser();
                 create_cas_flag = 1;
                 toast_text = "CAS User is Created"
                 toast_type = "success"
