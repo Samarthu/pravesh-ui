@@ -2226,7 +2226,7 @@
 
                                         <div class="flex justify-end">
 
-                                            <div
+                                            <button
 
                                             class="detailData"
 
@@ -2244,7 +2244,7 @@
 
                                             />
 
-                                        </div>
+                                        </button>
 
                                         </div>
 
