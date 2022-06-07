@@ -1262,14 +1262,16 @@
         }
         else{
             showCasUser.style.display = "block";
-            show_spinner = false;
+            
             if(get_cas_user_res.message = "User is Deactive in CAS" || get_cas_user_res.status == "red"){
+                show_spinner = false;
                 cas_flag = 1;
                 toast_text = "user is deactive"
                 toast_type = "error"
             }
             else{
                 cas_flag = 2;
+                show_spinner = false;
             }
         }
     }
@@ -1279,12 +1281,14 @@
         show_spinner = true;
         try {
             if(activate_cas_res.body.status == "green"){
+                closeCasUser();
                 show_spinner = false;
                 active_flag = 1;
                 toast_text = "CAS is Active"
                 toast_type = "success"
             }
         } catch (error) {
+            show_spinner = false;
             toast_text = "Error occured while CAS Activation"
             toast_type = "error"
         }
@@ -1296,11 +1300,13 @@
         try {
             if(create_cas_user_res.body.status == "green"){
                 show_spinner = false;
+                closeCasUser();
                 create_cas_flag = 1;
                 toast_text = "CAS User is Created"
                 toast_type = "success"
             }
         } catch (error) {
+            show_spinner = false;
             toast_text = "Error occured while CAS creation"
             toast_type = "error"
         }
@@ -1356,8 +1362,7 @@
 
          <div class="grid grid-cols-3 gap-4  xsl:grid-cols-1" >
              <div class=" grid grid-cols-3 w-full px-5 mt-5  gap-4">
-                 
-                 {#if fac_photo_obj.profile_url == null}
+                 <!-- {#if !fac_photo_obj.profile_url}
                  <div class="">
                     <img src="{$img_url_name.img_name}/delivery.png" class="w-28 h-28 xsl:h-auto" alt="">
                 </div>
@@ -1365,7 +1370,7 @@
                 <div class="text-2xl xsl:text-xl break-all">{#if $facility_data_store.facility_name}{$facility_data_store.facility_name}{:else}<p>-</p>{/if}</div>
                 <p class="imgName">{#if $facility_data_store.facility_name}{$facility_data_store.facility_name}{:else}<p>-</p>{/if}
                 </div>
-                {:else}
+                {:else} -->
                  <div class="">
                      <img src="{$page.url.origin+fac_photo_obj.profile_url}" class="w-28 h-28 xsl:h-auto" alt="">
                  </div>
@@ -1376,7 +1381,7 @@
                  <div class="text-2xl xsl:text-xl break-all">{#if $facility_data_store.facility_name}{$facility_data_store.facility_name}{:else}<p>-</p>{/if}</div>
                 <p class="imgName">{#if $facility_data_store.facility_name}{$facility_data_store.facility_name}{:else}<p>-</p>{/if}
                 </div>
-                 {/if}
+                 <!-- {/if} -->
              </div>
 
              <div class="contact_details">
@@ -2227,7 +2232,7 @@
 
                                         <div class="flex justify-end">
 
-                                            <div
+                                            <button
 
                                             class="detailData"
 
@@ -2245,7 +2250,7 @@
 
                                             />
 
-                                        </div>
+                                        </button>
 
                                         </div>
 
