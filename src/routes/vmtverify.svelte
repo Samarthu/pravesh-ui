@@ -2853,6 +2853,57 @@
                 if(final_save_mapping_res.body.status == "green"){
                     toast_text = final_save_mapping_res.body.message;
                     toast_type = "green";
+
+
+
+
+
+
+
+                    let get_client_data_mapping_res =  await get_client_org_mapping();
+        try {
+        if(get_client_data_mapping_res.body.status == "green"){
+            console.log("GREEN")
+             for(let i=0;i<get_client_data_mapping_res.body.data.length;i++){
+                 console.log("inside /api/method/pravesh.facility.routes.organisation.get_org_list?org_field=[%22*%22]")
+                // station_code.push(get_client_data_mapping_res.body.data[i].station_code);
+                // org_name_array.push(get_client_data_mapping_res.body.data[i].org_name)
+                // get_client_data_mapping_data.push(get_client_data_mapping_res.body.data[i]);
+                get_client_data_mapping_data.push({"org_id":get_client_data_mapping_res.body.data[i].org_id,"org_name":get_client_data_mapping_res.body.data[i].org_name})
+
+                
+            }
+            // station_code = station_code;
+            // org_name_array=org_name_array;
+            get_client_data_mapping_data = get_client_data_mapping_data;
+            console.log("get_client_data_mapping_data",get_client_data_mapping_data)
+            // for(let i=0;i<get_client_data_mapping_data.length;i++){
+               
+            //     org_name = get_client_data_mapping_data[i].org_name;
+            //     // gst_city_loc_id = get_client_data_mapping_data[i].location_id;
+            //     // gst_state_code = get_client_data_mapping_data[i].state_code;
+            //     console.log("org_name",org_name)
+            // }
+        }
+        else{
+            toast_type = "error";
+            toast_text = "No client Data";
+        }
+        
+        } catch(err) {
+            toast_type = "error";
+            toast_text = err;
+        
+        }
+
+
+
+
+
+
+
+
+
                 }
             // }
              else {
@@ -2860,6 +2911,10 @@
                 toast_type = "error";
             }
         console.log("final_map_load",final_map_load)
+
+
+
+
 
     }
 
@@ -2986,13 +3041,13 @@
                     cas user
                 </button> -->
 
-                <div class="userStatus ">
+                <!-- <div class="userStatus ">
                     <p class="flex items-center smButtonText" on:click={workorganization}>
                         <a href="" class="smButton modal-open">
                             View/Client edit
                         </a>
                     </p>
-                </div>
+                </div> -->
 
 
                 <!-- <div class="userStatus ">

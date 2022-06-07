@@ -39,7 +39,7 @@
         text = null;
         timer = null;
         duration = null;
-        // console.log("inside reactive");
+        console.log("inside reactive");
       }
     }
   }

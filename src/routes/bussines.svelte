@@ -127,7 +127,7 @@
             <div class="cardsectio">
                 <div class="cardWrapper">
                     {#each combined_list as item }
-                    <nav>
+                    <nav class="cursor-pointer">
                         <div
                             on:click={()=>org_page_routing(item.verticle_name)}
                             class= {item.carditem_class}
