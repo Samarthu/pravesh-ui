@@ -696,6 +696,35 @@
                 if(final_save_mapping_res.body.status == "green"){
                     toast_text = final_save_mapping_res.body.message;
                     toast_type = "green";
+                    id_select = "";
+
+
+
+
+
+                    let get_client_details_res = await get_client_details(facility_id)
+        try {
+            if (get_client_details_res != "null"){
+                for(let i=0; i< get_client_details_res.body.data.length;i++){
+                    get_client_details_data.push(get_client_details_res.body.data[i]);
+                }
+                get_client_details_data = get_client_details_data;
+                console.log("get_client_details_data",get_client_details_data)
+            }
+        } catch (err) {
+            toast_type = "error";
+            toast_text = get_client_details_res.body.message;
+        }
+
+
+
+
+
+
+
+
+
+
                 }
             // }
              else {
