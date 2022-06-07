@@ -14,16 +14,17 @@
     import { documents_store } from "../stores/document_store";
     import { allowed_pdf_size } from "../services/pravesh_config";
     import Side_content_component from "./side_content_scetion.svelte";
-    import {img_url_name} from '../stores/flags_store';
+    import { img_url_name } from "../stores/flags_store";
     import { page } from "$app/stores";
     import Toast from "./components/toast.svelte";
-import { facility_id } from "../stores/facility_id_store";
-import {duplicate_documents_store} from "../stores/duplicate_document_store";
-import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_store";
-import {sorting_facility_details_for_edit} from '../services/pravesh_config';
-import {edit_facility_function} from '../services/identity_proof_services';
- 
-    
+    import { facility_id } from "../stores/facility_id_store";
+    import { duplicate_documents_store } from "../stores/duplicate_document_store";
+    import { duplicate_facility_data_store } from "../stores/duplicate_facility_data_store";
+    import { sorting_facility_details_for_edit } from "../services/pravesh_config";
+    import { edit_facility_function } from "../services/identity_proof_services";
+    import Spinner from "./components/spinner.svelte";
+    let show_spinner = false;
+
     let toast_text = "";
     let toast_type = null;
     let test_date;
@@ -32,7 +33,7 @@ import {edit_facility_function} from '../services/identity_proof_services';
 
     // import { facility_data } from "src/services/onboardsummary_services";
 
-    let date = new Date();
+    let date;
     let valid = true;
     let page_name = null;
     const d = new Date("2015-03-25");
@@ -48,7 +49,7 @@ import {edit_facility_function} from '../services/identity_proof_services';
     let profile_pic_name;
     let address_check;
     let final_address = [];
-    let selected_present_address ;
+    let selected_present_address;
     let temp_max_date;
 
     let work_address = {
@@ -146,9 +147,10 @@ import {edit_facility_function} from '../services/identity_proof_services';
     let work_address_address_message = "";
     let work_address_postal_message = "";
     onMount(async () => {
+        show_spinner = true;
         page_name = $page.url["pathname"].split("/").pop();
         console.log("page_name", page_name);
-        console.log("date",date);
+        console.log("date", date);
         function get_max_date() {
             let current_date = new Date();
             console.log("current date", current_date);
@@ -167,23 +169,31 @@ import {edit_facility_function} from '../services/identity_proof_services';
                 )
             );
             console.log("max date", max_date);
-          
+
             // date = get_date_format(max_date,'yyyy-mm-dd');
-            date = get_date_format(max_date,'yyyy-mm-dd');
+            if (!$facility_data_store.dob) {
+                date = get_date_format(max_date, "yyyy-mm-dd");
+            } else {
+                let temp_date = $facility_data_store.dob;
+                console.log("dob", $facility_data_store.dob);
+                console.log("temp date date of birth", temp_date);
+                let temp = new Date(temp_date);
+                console.log("temp", temp);
+                date = get_date_format(temp, "yyyy-mm-dd");
+            }
+
             console.log("date format", date);
             // if($facility_data_store.dob){
             //     date = $facility_data_store.dob;
             //     console.log("inside if date ");
-                
 
             // }
             // else{
             //     date = get_date_format(max_date,'yyyy-mm-dd');
             // }
-            
-            temp_max_date = get_date_format(max_date,'yyyy-mm-dd');
+
+            temp_max_date = get_date_format(max_date, "yyyy-mm-dd");
             console.log("temp_max_date", temp_max_date);
-                
         }
         get_max_date();
         let user_scope_response = await get_user_scope_function();
@@ -201,17 +211,26 @@ import {edit_facility_function} from '../services/identity_proof_services';
                             city_id: user_scope_data[i]["location_id"],
                             state_name: user_scope_data[i]["location_state"],
                             tier: user_scope_data[i]["tier"],
-                            location_state : user_scope_data[i]["location_state"],
+                            location_state:
+                                user_scope_data[i]["location_state"],
                         });
                     }
                 }
 
-                city_data.sort((a, b) => (a.city_name > b.city_name) ? 1 : (a.city_name === b.city_name) ? ((a.city_id > b.city_id) ? 1 : -1) : -1 )
-                
-                // console.log("city data",city_data);
+                city_data.sort((a, b) =>
+                    a.city_name > b.city_name
+                        ? 1
+                        : a.city_name === b.city_name
+                        ? a.city_id > b.city_id
+                            ? 1
+                            : -1
+                        : -1
+                );
 
+                // console.log("city data",city_data);
             }
         } catch {
+            show_spinner = false;
             toast_text = "Unable to fetch user scope data";
             toast_type = "error";
         }
@@ -219,61 +238,171 @@ import {edit_facility_function} from '../services/identity_proof_services';
         console.log("date_formatter", date_formatter);
         console.log("dob ", $facility_data_store.dob);
 
-        if($facility_id.facility_id_number){
-            console.log("facility store",$facility_data_store);
-            console.log("duplicate facility data store",$duplicate_facility_data_store);
-            console.log("duplicate document store",$duplicate_documents_store);
+        if ($facility_id.facility_id_number) {
+            console.log("facility store", $facility_data_store);
+            console.log(
+                "duplicate facility data store",
+                $duplicate_facility_data_store
+            );
+            console.log("duplicate document store", $duplicate_documents_store);
             let temp_date = $facility_data_store.date_of_birth;
-            console.log("temp date date of birth",temp_date);
+            console.log("temp date date of birth", temp_date);
             let temp = new Date(temp_date);
-            console.log("temp",temp);
-            date = get_date_format(temp,'yyyy-mm-dd');
+            console.log("temp", temp);
+            date = get_date_format(temp, "yyyy-mm-dd");
             let temp_address_array = $facility_data_store.address;
-            console.log("temp address",temp_address_array);
-            for(let i=0;i<temp_address_array.length;i++){
-                if(temp_address_array[i].address_type == "Work Address" || temp_address_array[i].address_type == "Facility Address"){
+            console.log("temp address", temp_address_array);
+            for (let i = 0; i < temp_address_array.length; i++) {
+                if (
+                    temp_address_array[i].address_type == "Work Address" ||
+                    temp_address_array[i].address_type == "Facility Address"
+                ) {
                     work_address.city = temp_address_array[i].city;
                     work_address.address = temp_address_array[i].address;
                     work_address.postal = temp_address_array[i].postal;
-                }
-                else if(temp_address_array[i].address_type == "Present Address"){
+                } else if (
+                    temp_address_array[i].address_type == "Present Address"
+                ) {
                     address_check = "No";
                     present_address.postal = temp_address_array[i].postal;
                     present_address.address = temp_address_array[i].address;
-                    present_address.location_id = temp_address_array[i].location_id;
-                    console.log("present address",present_address);
-
-
-                } 
-            }
-            for(let i=0;i<$duplicate_documents_store.documents.length;i++){
-                if($duplicate_documents_store.documents[i].doc_category == "Profile Pic"){
-                console.log("profile pic",$duplicate_documents_store.documents[i]);
-                edit_profile_pic_data = $duplicate_documents_store.documents[i];
-                console.log("edit profile pic data",edit_profile_pic_data);
+                    present_address.location_id =
+                        temp_address_array[i].location_id;
+                    console.log("present address", present_address);
                 }
-                else if($duplicate_documents_store.documents[i].doc_category == "Present Address Proof"){
-                    
-                    edit_present_address_proof_data = $duplicate_documents_store.documents[i];
-                    console.log("present address proof",$duplicate_documents_store.documents[i]);
+            }
+            for (
+                let i = 0;
+                i < $duplicate_documents_store.documents.length;
+                i++
+            ) {
+                if (
+                    $duplicate_documents_store.documents[i].doc_category ==
+                    "Profile Pic"
+                ) {
+                    console.log(
+                        "profile pic",
+                        $duplicate_documents_store.documents[i]
+                    );
+                    edit_profile_pic_data =
+                        $duplicate_documents_store.documents[i];
+                    console.log("edit profile pic data", edit_profile_pic_data);
+                } else if (
+                    $duplicate_documents_store.documents[i].doc_category ==
+                    "Present Address Proof"
+                ) {
+                    edit_present_address_proof_data =
+                        $duplicate_documents_store.documents[i];
+                    console.log(
+                        "present address proof",
+                        $duplicate_documents_store.documents[i]
+                    );
                     // console.log("edit present address proof data",edit_present_address_proof_data);
+                } else if (
+                    $duplicate_documents_store.documents[i].doc_category ==
+                    "Address Proof"
+                ) {
+                    edit_address_proof_data =
+                        $duplicate_documents_store.documents[i];
+                    console.log(
+                        "edit address proof data",
+                        edit_address_proof_data
+                    );
                 }
-                else if($duplicate_documents_store.documents[i].doc_category == "Address Proof"){
-                    edit_address_proof_data = $duplicate_documents_store.documents[i];
-                    console.log("edit address proof data",edit_address_proof_data);
+            }
+        } else {
+            show_spinner = false;
+            console.log("facility store", $facility_data_store);
+            // console.log("duplicate facility data store",$duplicate_facility_data_store);
+            // console.log("duplicate document store",$duplicate_documents_store);
+            let temp_date = $facility_data_store.dob;
+            console.log("temp date date of birth", temp_date);
+            if (temp_date) {
+                let temp = new Date(temp_date);
+                console.log("temp", temp);
+                date = get_date_format(temp, "yyyy-mm-dd");
+                console.log("formated date", date);
+            }
 
+            let temp_address_array = $facility_data_store.address;
+            console.log("temp address", temp_address_array);
+            for (let i = 0; i < temp_address_array.length; i++) {
+                if (
+                    temp_address_array[i].address_type == "Work Address" ||
+                    temp_address_array[i].address_type == "Facility Address"
+                ) {
+                    work_address.city = temp_address_array[i].city;
+                    work_address.address = temp_address_array[i].address;
+                    work_address.postal = temp_address_array[i].postal;
+                } else if (
+                    temp_address_array[i].address_type == "Present Address"
+                ) {
+                    address_check = "No";
+                    present_address.postal = temp_address_array[i].postal;
+                    present_address.address = temp_address_array[i].address;
+                    present_address.location_id =
+                        temp_address_array[i].location_id;
+                    console.log("present address", present_address);
+                }
+            }
+            if(address_check != "No"){
+                address_check = "Yes";
+            }
+
+            for (
+                let i = 0;
+                i < $documents_store.documents.length;
+                i++
+            ) {
+                if (
+                    $documents_store.documents[i].doc_category ==
+                    "Profile Pic"
+                ) {
+                    console.log(
+                        "profile pic",
+                        $documents_store.documents[i]
+                    );
+                    // edit_profile_pic_data =
+                    //     $documents_store.documents[i];
+                    // console.log("edit profile pic data", edit_profile_pic_data);
+                    profile_pic_data.file_name = $documents_store.documents[i]['file_name'];
+                    profile_pic_data.pod = $documents_store.documents[i]['pod'];
+
+                } else if (
+                    $documents_store.documents[i].doc_category ==
+                    "Present Address Proof"
+                ) {
+                    // edit_present_address_proof_data =
+                    //     $documents_store.documents[i];
+                    present_address_proof_data.file_name = $documents_store.documents[i]['file_name'];
+                    present_address_proof_data.pod = $documents_store.documents[i]['pod'];
+                    console.log(
+                        "present address proof",
+                        $documents_store.documents[i]
+                    );
+                    // console.log("edit present address proof data",edit_present_address_proof_data);
+                } else if (
+                    $documents_store.documents[i].doc_category ==
+                    "Address Proof"
+                ) {
+                    // edit_address_proof_data =
+                    //     $duplicate_documents_store.documents[i];
+                   address_proof_data.file_name = $documents_store.documents[i]['file_name'];
+                    address_proof_data.pod = $documents_store.documents[i]['pod'];
+                    console.log(
+                        " address proof data",
+                       address_proof_data
+                    );
                 }
             }
 
 
-            
         }
-
+        show_spinner = false;
     });
-    function get_state_and_tier(data){
+    function get_state_and_tier(data) {
         present_address.tier = data.tier;
         console.log("present_address.tier", present_address.tier);
-
     }
     // $:{
     //     present_address.location_id = present_address.location_id;
@@ -288,9 +417,9 @@ import {edit_facility_function} from '../services/identity_proof_services';
 
     //     }
     //     console.log("present_address.tier", present_address.tier);
-        
+
     //     }
-        
+
     //     // console.log("present_address.tier", present_address);
 
     // }
@@ -299,10 +428,12 @@ import {edit_facility_function} from '../services/identity_proof_services';
     //     console.log("inside work address reactive block", work_address.city);
     // }
 
-   async function gotoidentityproof() {
+    async function gotoidentityproof() {
+        show_spinner = true;
         valid = true;
         save_address_to_store();
         if ($facility_data_store.facility_name == null) {
+            show_spinner = false;
             valid = false;
             facility_name_message = "Please enter a facility name";
         } else {
@@ -311,6 +442,7 @@ import {edit_facility_function} from '../services/identity_proof_services';
         }
 
         if ($facility_data_store.dob == null) {
+            show_spinner = false;
             valid = false;
             facility_dob_message = "Please enter a date of birth";
         } else {
@@ -328,6 +460,7 @@ import {edit_facility_function} from '../services/identity_proof_services';
         // }
 
         if (work_address.city == null) {
+            show_spinner = false;
             valid = false;
             // present_address_city_message = "Please select a city";
             work_address_city_message = "Please select a city";
@@ -337,44 +470,49 @@ import {edit_facility_function} from '../services/identity_proof_services';
         }
 
         if (work_address.address == null) {
+            show_spinner = false;
             valid = false;
             // present_address_address_message = "Please enter an address";
             work_address_address_message = "Please enter an address";
         } else {
             // valid = true;
-            work_address_address_message  = "";
+            work_address_address_message = "";
         }
 
         if (work_address.postal == null) {
+            show_spinner = false;
             valid = false;
             work_address_postal_message = "Please enter a pin code.";
             // present_address_postal_message = "Please enter a pin code.";
         } else {
             // valid = true;
-            work_address_postal_message  = "";
+            work_address_postal_message = "";
         }
 
         if (address_check == "No") {
             if (present_address.location_id == null) {
+                show_spinner = false;
                 valid = false;
                 // console.log("present_address.location_id",present_address.location_id)
                 // work_address_city_message = "Please select a city.";
                 present_address_city_message = "Please select a city.";
             } else {
                 // valid = true;
-                present_address_city_message= "";
+                present_address_city_message = "";
             }
 
             if (present_address.address == null) {
+                show_spinner = false;
                 valid = false;
                 // work_address_address_message = "Please enter an address.";
-                present_address_address_message = "Please enter an address."
+                present_address_address_message = "Please enter an address.";
             } else {
                 // valid = true;
                 present_address_address_message = "";
             }
 
             if (present_address.postal == null) {
+                show_spinner = false;
                 valid = false;
                 // work_address_postal_message = "Please enter a pin code.";
                 present_address_postal_message = "Please enter a pin code.";
@@ -384,25 +522,24 @@ import {edit_facility_function} from '../services/identity_proof_services';
             }
         }
 
-        if(!$facility_id.facility_id_number){
+        if (!$facility_id.facility_id_number) {
             if (
-            address_proof_data.pod == null ||
-            address_proof_data.file_name == null ||
-            address_proof_data.pod == "" ||
-            address_proof_data.file_name == ""
-        ) {
-            valid = false;
-            work_address_proof_message = "Please upload a document";
-        } else {
-            // valid = true;
-            work_address_proof_message = "";
+                address_proof_data.pod == null ||
+                address_proof_data.file_name == null ||
+                address_proof_data.pod == "" ||
+                address_proof_data.file_name == ""
+            ) {
+                show_spinner = false;
+                valid = false;
+                work_address_proof_message = "Please upload a document";
+            } else {
+                // valid = true;
+                work_address_proof_message = "";
+            }
         }
-
-        }
-
-        
 
         if (address_check != "Yes" && address_check != "No") {
+            show_spinner = false;
             valid = false;
             address_check_message = "Please select an option";
         } else {
@@ -460,20 +597,20 @@ import {edit_facility_function} from '../services/identity_proof_services';
             }
             console.log("document store", $documents_store);
 
-            if($facility_id.facility_id_number){
-                let sorting_data_result = sorting_facility_details_for_edit($facility_data_store)
-                console.log("sorting_data_result", sorting_data_result)
-                let edit_facility_response = await edit_facility_function(sorting_data_result)
+            if ($facility_id.facility_id_number) {
+                let sorting_data_result =
+                    sorting_facility_details_for_edit($facility_data_store);
+                console.log("sorting_data_result", sorting_data_result);
+                let edit_facility_response = await edit_facility_function(
+                    sorting_data_result
+                );
                 console.log("edit_facility_response", edit_facility_response);
-                
-
-            }else{
+            } else {
+                show_spinner = false;
                 let replaceState = false;
-            goto(routeTo, { replaceState });
-
+                goto(routeTo, { replaceState });
             }
-
-            
+            show_spinner = false;
         }
 
         // $documents_store.documents.push(address_proof_data);
@@ -488,20 +625,20 @@ import {edit_facility_function} from '../services/identity_proof_services';
     }
     async function verify_facility_name() {
         /////////////
-        $facility_data_store.org_id = "AN"; //delete this 
-            $facility_data_store.station_code = "MHAE";
+        // $facility_data_store.org_id = "AN"; //delete this
+        // $facility_data_store.station_code = "MHAE";
 
         if ($facility_data_store.facility_name != null) {
-
             let res = set_facility_id();
             console.log("set_facility_id", res);
             $facility_data_store.facility_id = res;
+            console.log("$facility_data_store.facility_id", $facility_data_store);
         }
         ///////////////////////
         facility_name_message = "";
 
         if ($facility_data_store.facility_name != null) {
-           
+            $facility_data_store.facility_name = $facility_data_store.facility_name.trim();
             let verify_name_response = await verify_associate_name();
             console.log("verify_name_response", verify_name_response);
             try {
@@ -550,6 +687,7 @@ import {edit_facility_function} from '../services/identity_proof_services';
             let reader = new FileReader();
             reader.readAsDataURL(image);
             reader.onload = (e) => {
+                work_address_proof_message = "";
                 address_proof_copy = e.target.result;
                 address_proof_data.pod = e.target.result;
                 console.log("address_proof_copy", address_proof_copy);
@@ -599,27 +737,23 @@ import {edit_facility_function} from '../services/identity_proof_services';
         }
     };
     async function verify_email() {
-        if(! $facility_data_store.facility_email.match(email_pattern)){
+        if (!$facility_data_store.facility_email.match(email_pattern)) {
             facility_email_message = "Invalid Email format";
-            $facility_data_store.facility_email = "";
-
-        }
-        else{
+            // $facility_data_store.facility_email = "";
+        } else {
             let verify_email_response = await verify_associate_email();
-        console.log("verify_email_response", verify_email_response);
-        try {
-            if (verify_email_response.body.data == true) {
-                facility_email_message = "";
-            } else {
-                facility_email_message = verify_email_response.body.message;
+            console.log("verify_email_response", verify_email_response);
+            try {
+                if (verify_email_response.body.data == true) {
+                    facility_email_message = "";
+                } else {
+                    facility_email_message = verify_email_response.body.message;
+                }
+            } catch {
+                toast_text = "Unable to verify email";
+                toast_type = "error";
             }
-        } catch {
-            toast_text = "Unable to verify email";
-            toast_type = "error";
         }
-
-        }
-        
     }
     $: {
         console.log("inside reactive block");
@@ -641,36 +775,35 @@ import {edit_facility_function} from '../services/identity_proof_services';
 
     $: {
         console.log("date in reactive block", date);
-        
-        
-        
-        let dob_date = new Date(date)
 
-        console.log("dob_date",dob_date);
-        dob_date = get_date_format(dob_date, "dd-mm-yyyy");
-        console.log("dob_date",dob_date);
-     
-        // console.log(typeof dob_date);
-        // if (dob_date < 10) {
-        //     dob_date = "0" + String(dob_date);
-        // }
-        // console.log("dob_date", dob_date);
-        // let dob_month = date.getMonth() + 1;
-        // console.log(typeof dob_month);
-        // if (dob_month < 10) {
-        //     dob_month = "0" + String(dob_month);
-        // }
-        
+        if (date) {
+            let dob_date = new Date(date);
 
-        // $facility_data_store.dob = String(
-        //     date.getDate() +
-        //         "-" +
-        //         (date.getMonth() + 1) +
-        //         "-" +
-        //         date.getFullYear()
-        // );
-        $facility_data_store.dob = dob_date;
-        console.log("facility store",$facility_data_store);
+            console.log("dob_date", dob_date);
+            dob_date = get_date_format(dob_date, "dd-mm-yyyy");
+            console.log("dob_date", dob_date);
+
+            // console.log(typeof dob_date);
+            // if (dob_date < 10) {
+            //     dob_date = "0" + String(dob_date);
+            // }
+            // console.log("dob_date", dob_date);
+            // let dob_month = date.getMonth() + 1;
+            // console.log(typeof dob_month);
+            // if (dob_month < 10) {
+            //     dob_month = "0" + String(dob_month);
+            // }
+
+            // $facility_data_store.dob = String(
+            //     date.getDate() +
+            //         "-" +
+            //         (date.getMonth() + 1) +
+            //         "-" +
+            //         date.getFullYear()
+            // );
+            $facility_data_store.dob = dob_date;
+            console.log("facility store", $facility_data_store);
+        }
     }
     function save_address_to_store() {
         $facility_data_store.address = [];
@@ -687,7 +820,7 @@ import {edit_facility_function} from '../services/identity_proof_services';
             if (
                 present_address.location_id != null &&
                 present_address.address != null &&
-                present_address.postal != null 
+                present_address.postal != null
             ) {
                 final_address.push(present_address);
             }
@@ -728,13 +861,17 @@ import {edit_facility_function} from '../services/identity_proof_services';
             present_address_proof_data = present_address_proof_data;
         }
     }
-    $:{
-        console.log("test_date",test_date);
-        console.log("type of test date",typeof(test_date));
+    $: {
+        console.log("test_date", test_date);
+        console.log("type of test date", typeof test_date);
         const d = new Date(test_date);
-        console.log("date",d);
+        console.log("date", d);
     }
 </script>
+
+{#if show_spinner}
+    <Spinner />
+{/if}
 
 <div class="mainContent ">
     <div class="breadcrumb ">
@@ -756,7 +893,6 @@ import {edit_facility_function} from '../services/identity_proof_services';
     <div class="contentsection flexwrapSm">
         <div class="tablinksForm w100xs">
             <ul class="bgtablinks ">
-               
                 <Side_content_component
                     facility_type={$facility_data_store.facility_type}
                     {page_name}
@@ -857,13 +993,13 @@ import {edit_facility_function} from '../services/identity_proof_services';
                                     ></label
                                 >
                                 <div class="formInnerGroup ">
-                                    <span class="searchicon">
+                                    <!-- <span class="searchicon">
                                         <img
                                             src="{$img_url_name.img_name}/date.png"
                                             class="placeholderIcon"
                                             alt=""
                                         />
-                                    </span>
+                                    </span> -->
                                     <!-- <input type="Email" class="inputbox"> -->
                                     <!-- <DateInput
                                         placeholder="testing"
@@ -871,7 +1007,12 @@ import {edit_facility_function} from '../services/identity_proof_services';
                                         format="dd/MM/yyyy"
                                         max={max_date}
                                     /> -->
-                                    <input type="date" max={max_date} bind:value={date}>
+                                    <input
+                                    
+                                        type="date"
+                                        max={max_date}
+                                        bind:value={date}
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -926,11 +1067,16 @@ import {edit_facility_function} from '../services/identity_proof_services';
                                                     alt=""
                                                 />
                                             {/if}
-                                            <br>
+                                            <br />
                                             {#if $facility_id.facility_id_number}
-                                            {#if edit_profile_pic_data.file_name}
-                                            <a href={$page.url.origin+edit_profile_pic_data.file_url} class="text-blue-600 text-decoration-line: underline">{edit_profile_pic_data.file_name}</a>
-                                            {/if}
+                                                {#if edit_profile_pic_data.file_name}
+                                                    <a
+                                                        href={$page.url.origin +
+                                                            edit_profile_pic_data.file_url}
+                                                        class="text-blue-600 text-decoration-line: underline"
+                                                        >{edit_profile_pic_data.file_name}</a
+                                                    >
+                                                {/if}
                                             {/if}
                                         </div>
                                     </span>
@@ -967,17 +1113,15 @@ import {edit_facility_function} from '../services/identity_proof_services';
                                         id=""
                                         class="inputbox"
                                         bind:value={work_address.city}
-                                        on:change={(e)=>{console.log("on_change",e)}}
-                                        
-                                        
-                                        
-                                        
+                                        on:change={(e) => {
+                                            console.log("on_change", e);
+                                        }}
                                     >
                                         <option value="" selected disabled
                                             >Select City</option
                                         >
                                         {#each city_data as city}
-                                            <option value={city.city_name}  
+                                            <option value={city.city_name}
                                                 >{city.city_name} ({city.state_name})</option
                                             >
                                         {/each}
@@ -1083,9 +1227,14 @@ import {edit_facility_function} from '../services/identity_proof_services';
                                             />
                                         {/if}
                                         {#if $facility_id.facility_id_number}
-                                        {#if edit_address_proof_data.file_name}
-                                        <a href={$page.url.origin+edit_address_proof_data.file_url} class="text-blue-600 text-decoration-line: underline">{edit_address_proof_data.file_name}</a>
-                                        {/if}
+                                            {#if edit_address_proof_data.file_name}
+                                                <a
+                                                    href={$page.url.origin +
+                                                        edit_address_proof_data.file_url}
+                                                    class="text-blue-600 text-decoration-line: underline"
+                                                    >{edit_address_proof_data.file_name}</a
+                                                >
+                                            {/if}
                                         {/if}
                                     </div>
                                 </div>
@@ -1202,7 +1351,11 @@ import {edit_facility_function} from '../services/identity_proof_services';
                                                 >Select City</option
                                             >
                                             {#each city_data as city}
-                                                <option value={city.city_id} on:click={() =>{alert(city)}}
+                                                <option
+                                                    value={city.city_id}
+                                                    on:click={() => {
+                                                        alert(city);
+                                                    }}
                                                     >{city.city_name}({city.state_name})</option
                                                 >
                                             {/each}
@@ -1331,34 +1484,20 @@ import {edit_facility_function} from '../services/identity_proof_services';
                                                 />
                                             {/if}
                                             {#if $facility_id.facility_id_number}
-                                        {#if edit_present_address_proof_data.file_name}
-                                        <a href={$page.url+edit_present_address_proof_data.file_url} class="text-blue-600 text-decoration-line: underline">{edit_present_address_proof_data.file_name}</a>
-                                        {/if}
-                                        {/if}
+                                                {#if edit_present_address_proof_data.file_name}
+                                                    <a
+                                                        href={$page.url +
+                                                            edit_present_address_proof_data.file_url}
+                                                        class="text-blue-600 text-decoration-line: underline"
+                                                        >{edit_present_address_proof_data.file_name}</a
+                                                    >
+                                                {/if}
+                                            {/if}
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="flex">
-                                <div class="formGroup ">
-                                    <label class="formLable "
-                                        >testing
-                                        <span class="mandatoryIcon">*</span
-                                        ></label
-                                    >
-                                    <div class="formInnerGroup ">
-                                        <span class="searchicon">
-                                            <img
-                                                src="{$img_url_name.img_name}/location1.png"
-                                                class="placeholderIcon"
-                                                alt=""
-                                            />
-                                        </span>
-                                        <!-- <input type="Email" class="inputbox"> -->
-                                        <input type="date" max={temp_max_date} bind:value={test_date}>
-                                    </div>
-                                </div>
-                            </div>
+                           
                         {/if}
                     </div>
                     <div class="formElements">
@@ -1406,7 +1545,10 @@ import {edit_facility_function} from '../services/identity_proof_services';
                         }}
                         class="backButton"
                     >
-                        <img src="{$img_url_name.img_name}/arrowleft.png" alt="" />
+                        <img
+                            src="{$img_url_name.img_name}/arrowleft.png"
+                            alt=""
+                        />
                     </div>
                     <button
                         on:click|preventDefault={() => {

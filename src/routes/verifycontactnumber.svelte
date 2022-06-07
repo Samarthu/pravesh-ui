@@ -59,6 +59,8 @@ onMount(async () => {
     }
 
     }
+
+    console.log("facility store",$facility_data_store);
     
     
 

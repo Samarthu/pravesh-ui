@@ -35,6 +35,8 @@
     import { get_verticles_fun } from "../services/business_vertical_services";
     import {category_store_name} from '../stores/category_store';
     import {duplicate_documents_store} from "../stores/duplicate_document_store";
+    import Spinner from "./components/spinner.svelte";
+    let show_spinner = false;
 
     let org_list = [];
     let verticle_list = [];
@@ -153,6 +155,15 @@ import { facility_id } from "../stores/facility_id_store";
             );
             
             console.log("msme aggrement test", msme_agreement == 1);
+            for (let i = 0; i < $documents_store.documents.length; i++) {
+                    if (
+                        $documents_store.documents[i]["doc_category"] ==
+                        "MSME Certificate"
+                    ) {
+                        console.log("msme deleted");
+                        $documents_store.documents.splice(i, 1);
+                    }
+                }
 
             if (
                 $facility_data_store.non_msme_confirmed_by == null ||
@@ -270,6 +281,7 @@ import { facility_id } from "../stores/facility_id_store";
 
     routeTo = "verifycontactnumber";
     onMount(async () => {
+        show_spinner = true;
         console.log("page_name", page_name);
         console.log("page info",$page.url);
         console.log("page pic",$page.url.origin+"/files/"+edit_msme_data['file_name']);
@@ -277,6 +289,11 @@ import { facility_id } from "../stores/facility_id_store";
 
         console.log("facility_data_store", $facility_data_store);
         console.log("facility id",$facility_id.facility_id_number);
+
+
+       
+
+        
         
         
 
@@ -292,6 +309,7 @@ import { facility_id } from "../stores/facility_id_store";
 
             }
             else{
+                show_spinner = false;
                 toast_text = "No domain found for this organization";
                 toast_type = "error";
             }
@@ -302,6 +320,7 @@ import { facility_id } from "../stores/facility_id_store";
                 $category_store_name.category_name = get_category_response.body.data[0]['category'];
             }
             else{
+                show_spinner = false;
                 toast_text = "No category found for this facility type";
                 toast_type = "error";
             }
@@ -313,11 +332,12 @@ import { facility_id } from "../stores/facility_id_store";
                 
             }
             else{
+                show_spinner = false;
                 toast_text = "No city found for this station";
                 toast_type = "error";
             }
 
-            if($facility_data_store.msme_registered || $facility_data_store.msme_registered == "1"){
+            if( $facility_data_store.msme_registered == "1"){
                 console.log("msme_registered", $facility_data_store.msme_registered);
                 $facility_data_store.msme_registered = "1";
                 console.log("duplicate documents store", $duplicate_documents_store.documents);
@@ -336,12 +356,65 @@ import { facility_id } from "../stores/facility_id_store";
             }
             else{
                 $facility_data_store.msme_registered = "0";
+                if($facility_data_store.non_msme_confirmed_by){
+                    msme_agreement = true;
+                }
+                else{
+                    msme_agreement = false;
+                }
 
             }
 
             
 
         }
+        else{
+            if($facility_data_store.station_code){
+            let get_city_id_from_org_station_api_method_response = await get_city_id_from_org_station_api_method();
+            console.log("get_city_id_from_org_station_api_method_response", get_city_id_from_org_station_api_method_response);
+            if(get_city_id_from_org_station_api_method_response.body.data.length >0){
+                city_value = get_city_id_from_org_station_api_method_response.body.data[0]['location_id'];
+                
+            }
+            else{
+                show_spinner = false;
+                toast_text = "No city found for this station";
+                toast_type = "error";
+            }
+
+            if($facility_data_store.msme_registered == "1"){
+                console.log("msme_registered", $facility_data_store.msme_registered);
+                $facility_data_store.msme_registered = "1";
+                console.log("duplicate documents store", $documents_store.documents);
+                for(let i=0;i<$documents_store.documents.length;i++){
+                    if($documents_store.documents[i]["doc_category"] == "MSME Certificate"){
+                        msme_data.file_name = $documents_store.documents[i]["file_name"];
+                        msme_data.pod = $documents_store.documents[i]["pod"];
+                        
+                    }
+                }
+                
+
+            }
+            else{
+                $facility_data_store.msme_registered = "0";
+                if($facility_data_store.non_msme_confirmed_by){
+                    msme_agreement = true;
+                }
+                else{
+                    msme_agreement = false;
+                }
+
+            }
+
+
+
+
+
+
+        
+        }
+    }
         let verticles_response = await get_verticles_fun();
         if (verticles_response.body.status == "green") {
             console.log("verticles api response", verticles_response);
@@ -350,6 +423,7 @@ import { facility_id } from "../stores/facility_id_store";
             // toast_type = "warning";
             // toast_text = "verticles fetched success"
         } else {
+            show_spinner = false;
             toast_text = "Unable to fetch Verticles";
             toast_type = "error";
         }
@@ -373,11 +447,13 @@ import { facility_id } from "../stores/facility_id_store";
                     );
                 }
             } else {
+                show_spinner = false;
                 alert("Category list not found");
             }
 
             console.log("category_list", category_list);
         } else {
+            show_spinner = false;
             toast_type = "error";
             toast_text = "Category list not found";
         }
@@ -402,6 +478,7 @@ import { facility_id } from "../stores/facility_id_store";
                 get_pravesh_properties_response.body.data
             );
         } else {
+            show_spinner = false;
             toast_type = "error";
             toast_text = "Error in fetching pravesh properties";
         }
@@ -417,6 +494,7 @@ import { facility_id } from "../stores/facility_id_store";
             });
             console.log("org_id", org_id);
         } else {
+            show_spinner = false;
             toast_type = "error";
             toast_text = "Error in fetching organisation List";
         }
@@ -452,6 +530,7 @@ import { facility_id } from "../stores/facility_id_store";
             });
             console.log("facility link", temp);
         } else {
+            show_spinner = false;
             toast_type = "error";
             toast_text = "Error in fetching user scope";
         }
@@ -459,9 +538,11 @@ import { facility_id } from "../stores/facility_id_store";
         vendor_list_response = await get_vendor_by_config_method();
         if (vendor_list_response.body.status == "green") {
         } else {
+            show_spinner = false;
             toast_type = "error";
             toast_text = "Error in fetching vendor list";
         }
+        show_spinner = false;
 
         console.log("vendor list", vendor_list_response);
     });
@@ -477,6 +558,7 @@ import { facility_id } from "../stores/facility_id_store";
                 current_user_response.body.data.user.username;
             console.log("$current_user", $current_user);
         } else {
+            show_spinner = false;
             alert("Session user not found error!");
         }
     }
@@ -505,6 +587,7 @@ import { facility_id } from "../stores/facility_id_store";
                         current_user_response.body.data.user.username;
                     console.log("$current_user", $current_user);
                 } else {
+                    show_spinner = false;
                     alert("Session user not found error!");
                 }
 
@@ -671,6 +754,7 @@ import { facility_id } from "../stores/facility_id_store";
                 // $msme_store.user_id = $current_user.email;
                 msme_data.user_id = $current_user.email;
                 msme_data = msme_data;
+                msme_message = "";
 
                 console.log("msme store user id", msme_data);
             };
@@ -719,6 +803,11 @@ import { facility_id } from "../stores/facility_id_store";
         // console.log("document store", $documents_store.documents);
     }
 </script>
+{#if show_spinner}
+<Spinner />
+    
+{/if}
+
 
 <div class="mainContent ">
     <div class="breadcrumb ">
@@ -1240,6 +1329,7 @@ import { facility_id } from "../stores/facility_id_store";
                                                 <input
                                                     class="pt-3"
                                                     type="checkbox"
+                                                    id="non_msme_declaration_check"
                                                     name="msme_agreement"
                                                     bind:checked={msme_agreement}
                                                     on:click={() =>
