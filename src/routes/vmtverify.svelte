@@ -3807,7 +3807,8 @@
                 <h4 class="text-xl font-medium ">Verify Bank Details</h4>
                 {#if $bank_details.approved == "1"}
                 <p class="detailsUpdate">
-                    <span><span class="font-medium">updated by - </span> {$facility_data_store.document_updated_by} <span class="font-medium">On-</span>{verified_date}</span>
+                    <!-- <span><span class="font-medium">updated by - </span> {$facility_data_store.document_updated_by} <span class="font-medium">On-</span>{verified_date}</span> -->
+                    <span><span class="font-medium">Verified by - </span>{$facility_data_store.document_updated_by} <span class="font-medium">On-</span>{verified_date}</span>
                 </p>
                 {/if}
             </div> 
@@ -3933,7 +3934,8 @@
                                 <!-- <span><span class="font-medium">Verified by - </span> {$bank_details.validated_by} <span class="font-medium">On-</span>{$bank_details.validated_on}</span> -->
                                 {#if $bank_details.approved == "1"}
                                 <p class="detailsUpdate">
-                                    <span><span class="font-medium">updated by - </span> {$bank_details.updated_by} <span class="font-medium">On-</span>{$bank_details.updated_on}</span>
+                                    <!-- <span><span class="font-medium">updated by - </span> {$bank_details.updated_by} <span class="font-medium">On-</span>{$bank_details.updated_on}</span> -->
+                                    <span><span class="font-medium">Verified by - </span>{$facility_data_store.document_updated_by} <span class="font-medium">On-</span>{verified_date}</span>
                                 </p>
                                 {/if}
                             </div>
