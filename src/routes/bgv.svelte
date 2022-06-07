@@ -223,7 +223,7 @@
             if($facility_data_store.status.includes("Rejected")){
                
                 $facility_data_store.status = "Rejected";
-                status_name = $facility_data_store.status;
+                // status_name = $facility_data_store.status;
             }
             for (var j = 0;j < $facility_data_store.addresess.length;j++){
                 for(let k=0;k<scope_data.length;k++){
