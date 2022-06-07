@@ -680,12 +680,12 @@
                                 >
                             </p>
                         </div>
-                        <div
+                        <button
                             class="rightmodalclose"
                             on:click={closechequeDetails}
                         >
                             <img src="{$img_url_name.img_name}/blackclose.svg" alt="" />
-                        </div>
+                    </button>
                     </div>
                     <div class="innermodal">
                         <hr />
