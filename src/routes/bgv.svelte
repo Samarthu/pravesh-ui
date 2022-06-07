@@ -1002,11 +1002,11 @@
             show_spinner = false
             return
             }
-            else if($bgv_config_store.is_email_verification_mandatory == "1" && verification_success == false){
-                throwError("email_msg","Verify Email Id")
-                show_spinner = false
-            return
-            }
+            // else if($bgv_config_store.is_email_verification_mandatory == "1" && verification_success == false){
+            //     throwError("email_msg","Verify Email Id")
+            //     show_spinner = false
+            // return
+            // }
             else{
                 throwError("email_msg","")
                 show_spinner = false
@@ -1836,7 +1836,7 @@
                 if(sub_pol_res.body.status =="green"){
                     console.log("doc_present",doc_present)
                     if(!pol_photo_obj.pol_doc_url){
-                
+                        console.log("inside police doc submit")
                     pol_res = await submit_police();
                         
                         try{
@@ -2064,6 +2064,7 @@
             if(verify_email_res == "green"){
                 toast_text = verify_email_res.body.message.message;
                 toast_type = "success";
+                close_otp_model();
             }
             else{
                 toast_text = verify_email_res.body.message.message;
