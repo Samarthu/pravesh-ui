@@ -980,6 +980,7 @@
 
         let get_client_data_mapping_res =  await get_client_org_mapping();
         try {
+            get_client_data_mapping_data = [];
         if(get_client_data_mapping_res.body.status == "green"){
              for(let i=0;i<get_client_data_mapping_res.body.data.length;i++){
                 // station_code.push(get_client_data_mapping_res.body.data[i].station_code);

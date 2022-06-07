@@ -1262,14 +1262,16 @@
         }
         else{
             showCasUser.style.display = "block";
-            show_spinner = false;
+            
             if(get_cas_user_res.message = "User is Deactive in CAS" || get_cas_user_res.status == "red"){
+                show_spinner = false;
                 cas_flag = 1;
                 toast_text = "user is deactive"
                 toast_type = "error"
             }
             else{
                 cas_flag = 2;
+                show_spinner = false;
             }
         }
     }
@@ -1279,12 +1281,14 @@
         show_spinner = true;
         try {
             if(activate_cas_res.body.status == "green"){
+                closeCasUser();
                 show_spinner = false;
                 active_flag = 1;
                 toast_text = "CAS is Active"
                 toast_type = "success"
             }
         } catch (error) {
+            show_spinner = false;
             toast_text = "Error occured while CAS Activation"
             toast_type = "error"
         }
@@ -1296,11 +1300,13 @@
         try {
             if(create_cas_user_res.body.status == "green"){
                 show_spinner = false;
+                closeCasUser();
                 create_cas_flag = 1;
                 toast_text = "CAS User is Created"
                 toast_type = "success"
             }
         } catch (error) {
+            show_spinner = false;
             toast_text = "Error occured while CAS creation"
             toast_type = "error"
         }
