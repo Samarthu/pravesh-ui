@@ -1483,7 +1483,7 @@ else
                             </div>
                         </button>
                         <button class="idproof flex-grow">
-                            <div class="countHeading" on:click={()=>status_pill_clicked("BGV Rejected")}>
+                            <div class="countHeading" on:click={()=>status_pill_clicked("Background Verification Pending")}>
                                 BGV Pending <span class="idproofcount">{bgv_rejected}</span
                                 >
                                 </div>

@@ -1600,9 +1600,12 @@
                             else if(type == "print"){
                                 if(print_data_arr.accepted_contract){
                                     new_contract_data = document.getElementById("user_details").innerHTML+print_data_arr.accepted_contract;
+                                    window.frames["print_frame"].window.print();
+                                    // window.open(new_contract_data,'popUpWindow','height=500,width=400,left=100,top=100,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes');
                                 }
                                 else{
                                     new_contract_data = document.getElementById("user_details").innerHTML;
+                                    window.frames["print_frame"].window.print();
                                 }
                                
                             }

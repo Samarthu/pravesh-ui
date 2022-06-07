@@ -1356,8 +1356,7 @@
 
          <div class="grid grid-cols-3 gap-4  xsl:grid-cols-1" >
              <div class=" grid grid-cols-3 w-full px-5 mt-5  gap-4">
-                 
-                 {#if fac_photo_obj.profile_url == null}
+                 {#if !fac_photo_obj.profile_url}
                  <div class="">
                     <img src="{$img_url_name.img_name}/delivery.png" class="w-28 h-28 xsl:h-auto" alt="">
                 </div>
