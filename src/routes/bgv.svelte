@@ -1002,11 +1002,11 @@
             show_spinner = false
             return
             }
-            else if($bgv_config_store.is_email_verification_mandatory == "1" && verification_success == false){
-                throwError("email_msg","Verify Email Id")
-                show_spinner = false
-            return
-            }
+            // else if($bgv_config_store.is_email_verification_mandatory == "1" && verification_success == false){
+            //     throwError("email_msg","Verify Email Id")
+            //     show_spinner = false
+            // return
+            // }
             else{
                 throwError("email_msg","")
                 show_spinner = false
@@ -1834,8 +1834,9 @@
             let sub_pol_res = await submitPolDets();
             try{    
                 if(sub_pol_res.body.status =="green"){
+                    console.log("doc_present",doc_present)
                     if(!pol_photo_obj.pol_doc_url){
-                
+                        console.log("inside police doc submit")
                     pol_res = await submit_police();
                         
                         try{
@@ -2042,6 +2043,9 @@
                 toast_type = "success";
                 verification_success = true;
             }
+            else if($facility_data_store.email_verified == 1){
+                verification_success = true;
+            }
             else{
                 toast_text = "OTP Sending Failed";
                 toast_type = "error";
@@ -2058,11 +2062,12 @@
         let verify_email_res =  await verify_email(otp_num,personal_email)
         try {
             if(verify_email_res == "green"){
-                toast_text = verify_email_res.body.message;
+                toast_text = verify_email_res.body.message.message;
                 toast_type = "success";
+                close_otp_model();
             }
             else{
-                toast_text = verify_email_res.body.message;
+                toast_text = verify_email_res.body.message.message;
                 toast_type = "error";
             }
             
@@ -2570,8 +2575,8 @@
                                     
                                     
                                     
-                                    {#if $bgv_data_store.is_email_verified =="1"}
-                                    <p class="veriTextEmail ml-2"><img src="{$img_url_name.img_name}/checked.png"
+                                    {#if $facility_data_store.email_verified =="1"}
+                                    <p class="veriTextEmail ml-2 mr-5"><img src="{$img_url_name.img_name}/checked.png"
                                             class="mr-1 object-contain" alt=""> Verified</p>
                                         {:else}<p></p>
                                     {/if}
@@ -2579,13 +2584,13 @@
                                
                                 {#if $bgv_config_store.is_email_verification_mandatory =="1"}
                                 <div class="ml-2">   
-                                    <div class="ErBlueButton w-auto mt-3 cursor-pointer" on:click={verify_new_otp}>Verify</div>
+                                    <div class="ErBlueButton w-auto mt-3 cursor-pointer " on:click={verify_new_otp}>Verify</div>
                                 </div>
                                 {/if}
 
                             </div>
                             
-                            <div class="text-red-500" id="email_msg"></div>
+                            <div class="text-red-500 ml-2" id="email_msg"></div>
                         </div>
                         
 

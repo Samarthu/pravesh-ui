@@ -104,6 +104,7 @@ import { goto } from '$app/navigation';
                 if(total_count_associates>20){
                 var total_pages=Math.ceil(total_count_associates/new_drop_limit)
                 pages = createPagesArray(total_pages)
+                new_pages =[];
                 // console.log("pagesRESULT",pages)
                 for(let pagination in pages){
                     if(pagination>0 && pagination <= 3){
@@ -211,7 +212,7 @@ import { goto } from '$app/navigation';
     let urlString = window.location.href;	
     let paramString = urlString.split('=')[1];
     if(paramString == undefined){
-      show_pagination = true;
+    //   show_pagination = true;
       console.log("show_pagination",show_pagination)
     var new_drop_limit=parseInt(drop_limit)
    
@@ -557,7 +558,7 @@ else
 
     async function filterButton(){
         
-        mapped_pages = [];
+        // mapped_pages = [];
         vendor_type_select = document.getElementById("select_vendor_type").value.trim();
         console.log("vendor_type_select",vendor_type_select)
         for(let vendorData  of filter_vendortype_array){
@@ -599,17 +600,18 @@ else
                   
                 total_pages = Math.ceil(total_count_associates/new_drop_limit)
                 pages = createPagesArray(total_pages)
-                
-                    if(show_pagination == true){
+                new_pages =[];
+                    // if(show_pagination == true){
                         for(let pagination in pages){
                             
                             if(pagination>0 && pagination <= 3){
                                 // console.log("PAGES") 
                                 new_pages.push(pagination)
                                 mapped_pages=new_pages.map(Number)  
+                                console.log("mapped_pages",mapped_pages)
                             }
                     
-                        }
+                        // }
                     }
                 }
                     console.log("supplier_data_from_service here",supplier_data_from_service)
@@ -624,7 +626,7 @@ else
     }
 
     async function status_pill_clicked(status_selected){
-        
+      
         status = status_selected;
 
         var new_drop_limit=parseInt(drop_limit)
@@ -635,7 +637,7 @@ else
     
     try{
             if(filter_res_from_dash.body.status == "green"){
-                mapped_pages = [];
+               
                 supplier_data_from_service = [];
                 
                 supplier_data_from_service = filter_res_from_dash.body.data.data_list;
@@ -647,20 +649,21 @@ else
                 if(total_count_associates > 20 && status_pill_flag == false){
                   
                 total_pages = Math.ceil(total_count_associates/new_drop_limit)
+
                 pages = createPagesArray(total_pages)
-                
-                    if(show_pagination == true){
+                new_pages =[];
+                    // if(show_pagination == true){
                         for(let pagination in pages){
                             
                             if(pagination>0 && pagination <= 3){
-                                // console.log("PAGES") 
+                              
                                 new_pages.push(pagination)
                                 mapped_pages=new_pages.map(Number)  
-                               
-                                
+                              
+                                console.log("mapped_pages",mapped_pages)
                             }
                     
-                        }
+                        // }
                     }
                 }
                 status_pill_flag = true;

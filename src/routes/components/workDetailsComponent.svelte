@@ -218,6 +218,7 @@
             let cheque_img="";
             let checkupload,dl_lic_attach = "-";
             let result;
+            
             let mapped_pages = [];
             let hidden_field ="hidden";
             let gst_city_link_state="";
@@ -791,10 +792,10 @@
         }
         else{
             $bgv_data_store = facility_bgv_check_res.body.data[0];
-            gend_selected = $bgv_data_store.gender;
-            add_is_perm = $bgv_data_store.address_type;
-            curr_same = $bgv_data_store.current_address_is_same;
-            police_add_per = $bgv_data_store.police_address_type;
+            // gend_selected = $bgv_data_store.gender;
+            // add_is_perm = $bgv_data_store.address_type;
+            // curr_same = $bgv_data_store.current_address_is_same;
+            // police_add_per = $bgv_data_store.police_address_type;
             if(!$bgv_data_store.basic_info_dob){
                 var eighteenYearsAgo = new Date();
                 $bgv_data_store.basic_info_dob = get_date_format(new Date(eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear()-18)),"yyyy-mm-dd");
@@ -1574,10 +1575,19 @@
                         
                             if(type == "view"){
 
-                            
+                                console.log("print_data_arr",print_data_arr,esign_data_arr)
                                 var demo = window.open()
-                                new_contract_data = print_data_arr.accepted_contract+document.getElementById("user_details").innerHTML;
-                                demo.document.write(String(new_contract_data));
+                                if(print_data_arr.accepted_contract){
+                                    new_contract_data = print_data_arr.accepted_contract+document.getElementById("user_details").innerHTML;
+                                }
+                                else{
+                                    new_contract_data = document.getElementById("user_details").innerHTML;
+                                }
+                                
+                                if(new_contract_data){
+                                    demo.document.write(String(new_contract_data));
+                                }
+                                
                                 
                                 // document.getElementById("workContractDetails").style.display = "none";
                                 // document.getElementById("viewContractDetails").style.display = "block";
@@ -1588,15 +1598,20 @@
                                 // window.open(new_contract_data,'popUpWindow','height=500,width=400,left=100,top=100,resizable=yes,scrollbars=yes,toolbar=yes,menubar=no,location=no,directories=no, status=yes');
                             }   
                             else if(type == "print"){
-                                new_contract_data = document.getElementById("user_details").innerHTML+print_data_arr.accepted_contract;
-                                window.frames["print_frame"].window.print();
+                                if(print_data_arr.accepted_contract){
+                                    new_contract_data = document.getElementById("user_details").innerHTML+print_data_arr.accepted_contract;
+                                }
+                                else{
+                                    new_contract_data = document.getElementById("user_details").innerHTML;
+                                }
+                               
                             }
                     }
-                    else if(work_contract_arr[i].contract_accepted == 0){
-                        show_spinner = false;
-                        toast_type = "error";
-                        toast_text = "Contract not accepted";
-                    }
+                    // else if(assigned_id != work_contract_arr[i].assigned_id && work_contract_arr[i].contract_accepted == 0){
+                    //     show_spinner = false;
+                    //     toast_type = "error";
+                    //     toast_text = "Contract not accepted";
+                    // }
                 }
             }
             else if(print_data_res.body.status == "red"){
@@ -2402,7 +2417,8 @@
                                         <div class="w-full">
                                             <div class="light14grey mb-1">Start Date</div>
                                             <div class="formInnerwidthfull ">
-                                                <input type="date" class="inputboxpopoverdate" bind:value = {cont_start_date}>
+                                                <input type="date" class="inputboxpopoverdate" bind:value = {cont_start_date}
+                                                >
                                             </div>
                                         </div>
                                     </div>
@@ -2783,13 +2799,28 @@
 <div id="div1">{new_contract_data}</div>
 <iframe name="print_frame" width="0" height="0" frameborder="0" src="about:blank" srcdoc={new_contract_data}></iframe>
 <iframe name="view_frame" width="0" height="0" frameborder="0" src="about:blank" srcdoc={new_contract_data}></iframe>
+{#if esign_data_arr.length == 0}
+<div id="user_details">
+    <center><span style="font-size:22px;font-weight: bold;">E- Contract - {facility_id} - {$facility_data_store.facility_name}</span></center>
+    <br>
+    <br>
+
+    <span style="font-size:20px;">E- Contract - {facility_id} - {$facility_data_store.facility_name}</span>
+
+    <span style="font-size:20px;">ESIGNATURE</span>
+    <br>
+    <br>
+    </div>
+{:else}
 
    <div id="user_details">
     <center><span style="font-size:22px;font-weight: bold;">{facility_id}</span></center>
     <br>
     <br>
 
-    <span style="font-size:20px;font-weight: bold;">ESIGNATURE</span>
+    <span style="font-size:20px;">E- Contract - {facility_id} - {$facility_data_store.facility_name}</span>
+
+    <span style="font-size:20px;">ESIGNATURE</span>
     <br>
     <br>
     {#each esign_data_arr as esign}
@@ -2837,7 +2868,8 @@
     {/each}
     <br>
     <br>
-   </div>
+    </div>
+   {/if}
 {/if}
    
    

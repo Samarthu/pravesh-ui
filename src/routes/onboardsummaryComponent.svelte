@@ -472,7 +472,7 @@
                     facility_document_data[i].creation = doc_creation_date
                     facility_document_data[i].modified = doc_modified_date
                     facility_document_data = facility_document_data.sort((a, b) => new Date(b.modified) - new Date(a.modified));
-                    console.log("after facility_document_data",facility_document_data);
+                    
                    
                     
                     if(facility_document_data[i].doc_type == "pan-photo"){
@@ -553,12 +553,7 @@
                     //     toast_text = "No Document Found";
                     // }
                 }
-                console.log("b4 facility_document_data",facility_document_data);
-                // facility_document_data.sort(function(a,b){
-                //     console.log("a",a.modified,"b",b.modified);
-                // return new Date(b.modified) - new Date(a.modified);
-                
-                // });
+               
                
                 
             }
@@ -1501,29 +1496,29 @@
             }
         }
     
-        async function gstModel() {
-            modalidgst.style.display = "block";
-            let gst_details_res = await gst_details();
-            try{
-                if(gst_details_res != "null"){
-                    for(let i=0;i < gst_details_res.body.data.length;i++){
-                        gst_details_data.push(gst_details_res.body.data[i]);
-                    }
-                    gst_details_data=gst_details_data;
-                    console.log("gst_details_data",gst_details_data)
-                }
+        // async function gstModel() {
+        //     modalidgst.style.display = "block";
+        //     let gst_details_res = await gst_details();
+        //     try{
+        //         if(gst_details_res != "null"){
+        //             for(let i=0;i < gst_details_res.body.data.length;i++){
+        //                 gst_details_data.push(gst_details_res.body.data[i]);
+        //             }
+        //             gst_details_data=gst_details_data;
+        //             console.log("gst_details_data",gst_details_data)
+        //         }
                 
-            }
-            catch(err) {
-                toast_type = "error";
-                toast_text = gst_details_res.body.message;
+        //     }
+        //     catch(err) {
+        //         toast_type = "error";
+        //         toast_text = gst_details_res.body.message;
                 
-            }
-        }
+        //     }
+        // }
     
-        function closeGST() {
-            modalidgst.style.display = "none";
-        }
+        // function closeGST() {
+        //     modalidgst.style.display = "none";
+        // }
     
         async function erpModel() {
             erpIdModel.style.display = "block";
@@ -1882,8 +1877,8 @@
                         <!-- <span class="text-textgrey pr-1 text-base xs:text-xs">Home / Workforce</span> -->
                         <span class="Username ">
                             <img src="{$img_url_name.img_name}/delivery.png" class="userIconMedia" alt="">
-                            <span class="xs:hidden sm:hidden">{$facility_data_store.facility_name}</span>
-                            <span class="userDesignation">(Associate - {$facility_data_store.facility_type} / ID - {$facility_data_store.name}) </span> 
+                            <span class="xs:hidden sm:hidden">{#if $facility_data_store.facility_name}{$facility_data_store.facility_name}{:else}-{/if}</span>
+                            <span class="userDesignation">(Associate - {#if $facility_data_store.facility_type}{$facility_data_store.facility_type}{:else}-{/if} / ID - {#if $facility_data_store.name}{$facility_data_store.name}{:else}-{/if}) </span> 
                         </span>
                     </p>
                    
