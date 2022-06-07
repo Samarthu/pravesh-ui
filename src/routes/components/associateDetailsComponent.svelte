@@ -34,6 +34,8 @@
             let child = "linkchild";
             let childlink = "childlink"; 
             let all_tags_obj= {};
+            let gst_doc_type=[];
+            export let facility_document_data = [];
         let query;
             let tags_for_ass_arr=[];
             let check_selected = false;
@@ -677,6 +679,7 @@
     }
 
 
+
     async function gst_submit_click(){
         let gst_doc_submit_res;
         let gst_add_res;
@@ -744,6 +747,7 @@
                         if(gst_doc_submit_res.body.status == "green"){
                                     toast_type = "success";
                                     toast_text = "GST Details Added Successfully";
+                                    
                         }
                         else if(gst_doc_submit_res.body.status == "red"){
                             toast_type = "error";
@@ -761,7 +765,26 @@
                 toast_type = "error";
                 toast_text = "Error in Adding GST Details";
             }
-            location.reload();
+            // location.reload();
+
+            gst_details_data=[];
+            let gst_details_res = await gst_details();
+                console.log("gst_details_res ss",gst_details_res)
+                for(let i=0;i < gst_details_res.body.data.length;i++){
+                    console.log("inside for")
+                    
+                    // for(let i = 0;i<gst_doc_arr.length;i++){
+                    //     console.log("inside an for")
+                        // if(gst_details_res.body.data[i].gstn == gst_doc_arr[i].doc_number){
+                            
+                            gst_details_data.push(gst_details_res.body.data[i]);
+                            console.log("gst_details_data b4",gst_details_data)
+                        // }  
+                    // }
+                }
+            gst_details_data=gst_details_data;
+            console.log("gst_details_data here",gst_details_data)
+
             // let new_doc_type = "gst-certificate-"+gst_state_code;
             //         console.log("new_doc_type",new_doc_type)
             //         const gst_file_data = {"documents":[{"file_name":gst_img,"doc_category":"GST Certificate","status":"created","resource_id":$facility_id.facility_id_number,"user_id":username,"doc_number":"","pod":gst_data,"doc_type":new_doc_type,"facility_id":$facility_data_store.facility_id}]}
