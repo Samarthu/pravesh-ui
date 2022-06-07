@@ -173,7 +173,6 @@
 
 
     onMount(async () => {
-       
 
     //     let facility_data_res = await facility_data();
     //     try{
@@ -450,7 +449,7 @@
     //     goto(routeNext, { replaceState });
     // }  
     async function gstModel() {
-        
+        console.log("gst_doc_arr",gst_doc_arr)
         gst_city_link_state="";
         modalidgst.style.display = "block";
         let gst_details_res = await gst_details();
@@ -523,7 +522,7 @@
              console.log("gst_doc_type",gst_doc_type)
             
             if(gst_doc_arr[i].doc_type == gst_doc_type){
-                console.log("inside if")
+                console.log("inside if",gst_doc_arr)
                 // onFileSelected(new_gst.gstn,"gst_edit_upload")
                 // console.log("gst_file_datagst_file_data",gst_file_data)
                 gst_file = gst_doc_arr[i].file_url
@@ -556,6 +555,7 @@
     }
 
     async function gst_edit_submit(){
+        console.log("gst_doc_arr",gst_doc_arr)
         console.log("gst_edit_btn here",gst_edit_btn,gst_uniq_name)
         let gst_doc_submit_res;
         let gst_add_res;
@@ -684,6 +684,7 @@
         show_spinner = true;
         if(!gst_address.match(text_pattern)){
             gst_add_message = "Enter Valid Address";
+            show_spinner = false;
             return  
         }
         if(!gst_city_select){
@@ -730,87 +731,69 @@
             gst_add_res = await add_gst_dets(new_gst_payload);
             try {
                 if(gst_add_res.body.status == "green"){
-                    console.log("gst_add_res",gst_add_res)
-                    toast_type = "success";
-                    toast_text = "GST Details Added Successfully";
+                     show_spinner = false;
+                    // console.log("gst_add_res",gst_add_res)
+                    // toast_type = "success";
+                    // toast_text = "GST Details Added Successfully";
                     
                     let new_doc_type = "gst-certificate-"+gst_state_code;
-                    console.log("new_doc_type",new_doc_type)
+                    // console.log("new_doc_type",new_doc_type)
                     const gst_file_data = {"documents":[{"file_name":gst_img,"doc_category":"GST Certificate","status":"created","resource_id":$facility_id.facility_id_number,"user_id":username,"doc_number":gst_number,"pod":gst_data,"doc_type":new_doc_type,"facility_id":$facility_data_store.facility_id}]}
                     gst_doc_submit_res = await uploadDocs(gst_file_data);
                     try {
                         if(gst_doc_submit_res.body.status == "green"){
-                                    
                                     toast_type = "success";
-                                    toast_text = "GST Document Added Successfully";
+                                    toast_text = "GST Details Added Successfully";
                         }
                         else if(gst_doc_submit_res.body.status == "red"){
                             toast_type = "error";
                             toast_text = gst_doc_submit_res.body.message;
                         }
-                        show_spinner = false;
+                       
                     } catch (err) {
                         show_spinner = false;
                         toast_type = "error";
                         toast_text = "Error in Uploading GST Certificate";
                     }
                 }
-                else{
-                    show_spinner = false;
-                    toast_type = "error";
-                    toast_text = gst_add_res.body.message;
-                }
-                
             } catch (err) {
                 show_spinner = false;
                 toast_type = "error";
                 toast_text = "Error in Adding GST Details";
             }
+            location.reload();
             // let new_doc_type = "gst-certificate-"+gst_state_code;
             //         console.log("new_doc_type",new_doc_type)
             //         const gst_file_data = {"documents":[{"file_name":gst_img,"doc_category":"GST Certificate","status":"created","resource_id":$facility_id.facility_id_number,"user_id":username,"doc_number":"","pod":gst_data,"doc_type":new_doc_type,"facility_id":$facility_data_store.facility_id}]}
-            //         gst_doc_submit_res = await uploadDocs(gst_file_data);
-            //         try {
-            //             if(gst_doc_submit_res.body.status == "green"){
-                                    
-            //                         toast_type = "success";
-            //                         toast_text = "GST Document Added Successfully";
+            // console.log("gst_doc_arr",gst_doc_arr)
+            // if(gst_doc_submit_res.body.status == "green" && gst_add_res.body.status=="green"){
+            //     // gst_details_data=[];
+            //     let gst_details_res = await gst_details();
+            //     try{
+            //         if(gst_details_res != "null"){
+            //             console.log("gst_details_res",gst_details_res)
+            //                 console.log("gst_doc_arr",gst_doc_arr)
+            //             for(let i=0;i < gst_details_res.body.data.length;i++){
+            //                 console.log("gst_details_res",gst_details_res.body.data[i].gstn)
+            //                 console.log("gst_doc_arr",gst_doc_arr[i].doc_number)
+            //                 for(let i = 0;i<gst_doc_arr.length;i++){
+            //                     if(gst_details_res.body.data[i].gstn == gst_doc_arr[i].doc_number){
+            //                         // console.log("gst_details_res.body.data[i].gstn",gst_details_res.body.data)
+            //                         gst_details_data.push(gst_details_res.body.data[i]);
+            //                     }  
+            //                 }
             //             }
-            //             else if(gst_doc_submit_res.body.status == "red"){
-            //                 toast_type = "error";
-            //                 toast_text = gst_doc_submit_res.body.message;
-            //             }
-            //         } catch (err) {
-            //             toast_type = "error";
-            //             toast_text = "Error in Uploading GST Certificate";
+            //             gst_details_data=gst_details_data;
+            //             console.log("gst_details_data",gst_details_data)
             //         }
-            if(gst_doc_submit_res.body.status == "green" && gst_add_res.body.status=="green"){
-                // gst_details_data=[];
-                let gst_details_res = await gst_details();
-                try{
-                    if(gst_details_res != "null"){
-                        
-                        for(let i=0;i < gst_details_res.body.data.length;i++){
-                            console.log("gst_details_res",gst_details_res.body.data[i].gstn)
-                            console.log("gst_doc_arr",gst_doc_arr[i].doc_number)
-                            for(let i = 0;i<gst_doc_arr.length;i++){
-                                if(gst_details_res.body.data[i].gstn == gst_doc_arr[i].doc_number){
-                                    // console.log("gst_details_res.body.data[i].gstn",gst_details_res.body.data)
-                                    gst_details_data.push(gst_details_res.body.data[i]);
-                                }  
-                            }
-                        }
-                        gst_details_data=gst_details_data;
-                        console.log("gst_details_data",gst_details_data)
-                    }
                     
-                }
-                catch(err) {
-                    toast_type = "error";
-                    toast_text = gst_details_res.body.message;
+            //     }
+            //     catch(err) {
+            //         toast_type = "error";
+            //         toast_text = gst_details_res.body.message;
                     
-                }
-            }  
+            //     }
+            // }  
     }
             
     async function linkChild() {
