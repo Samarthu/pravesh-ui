@@ -22,6 +22,7 @@
     import { duplicate_facility_data_store } from "../stores/duplicate_facility_data_store";
     import { sorting_facility_details_for_edit } from "../services/pravesh_config";
     import { edit_facility_function } from "../services/identity_proof_services";
+    import {category_store_name} from '../stores/category_store';
     import Spinner from "./components/spinner.svelte";
     let show_spinner = false;
 
@@ -878,15 +879,31 @@
         <div class="breadcrumb-section">
             <p class="breadcrumbtext">
                 <span class="text-textgrey pr-1 text-base"
-                    >Home / Onboard New / Workforce</span
+                    >Home / Onboard New / {$category_store_name.category_name}</span
                 >
                 <span class="flex xs:text-base xs:items-center"
-                    ><img
-                        src="{$img_url_name.img_name}/delivery.png"
-                        class="pr-2.5 pl-5 xs:pl-0"
-                        alt=""
-                    /> NDA/DA/HDA
-                </span>
+                ><img
+                    src="{$img_url_name.img_name}/delivery.png"
+                    class="pr-2.5 pl-5 xs:pl-0"
+                    alt=""
+                /> {#if $facility_data_store.facility_type}
+                {$facility_data_store.facility_type}
+                    
+                {/if}
+            </span>
+            <span class="flex xs:text-base xs:items-center"
+                >
+                {
+                    #if $facility_id.facility_id_number
+                }
+                <div class="mx-3">
+                    Facility-ID: {$facility_id.facility_id_number}
+                </div>
+                
+
+                {/if}
+                 
+            </span>
             </p>
         </div>
     </div>
@@ -1539,6 +1556,7 @@
             </div>
             <div class="onboardFormNot ">
                 <div class="formFooterAction">
+                    
                     <div
                         on:click|preventDefault={() => {
                             gotoverifycontactnumber();

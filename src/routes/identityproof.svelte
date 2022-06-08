@@ -27,6 +27,7 @@
     import Spinner from "./components/spinner.svelte";
     import Success_popup from "./components/success_popup.svelte";
     import Toast from "./components/toast.svelte";
+    import {category_store_name} from '../stores/category_store';
     import {duplicate_documents_store} from "../stores/duplicate_document_store";
 import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_store";
     let toast_text = "";
@@ -503,7 +504,9 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
                 "SAG",
             ],
             bank_section_required_associates: ["NDA", "Reseller", "SAG"],
+       
         };
+        $facility_id.facility_id_number = "PNT101113"
         //TODO: remove this
        
     }
@@ -1062,14 +1065,30 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
         <div class="breadcrumb-section">
             <p class="breadcrumbtext">
                 <span class="text-textgrey pr-1 text-base"
-                    >Home / Onboard New / Workforce</span
+                    >Home / Onboard New / {$category_store_name.category_name}</span
                 >
                 <span class="flex xs:text-base xs:items-center"
                     ><img
                         src="{$img_url_name.img_name}/delivery.png"
                         class="pr-2.5 pl-5 xs:pl-0"
                         alt=""
-                    /> NDA/DA/HDA
+                    /> {#if $facility_data_store.facility_type}
+                    {$facility_data_store.facility_type}
+                        
+                    {/if}
+                </span>
+                <span class="flex xs:text-base xs:items-center"
+                    >
+                    {
+                        #if $facility_id.facility_id_number
+                    }
+                    <div class="mx-3">
+                        Facility-ID: {$facility_id.facility_id_number}
+                    </div>
+                    
+
+                    {/if}
+                     
                 </span>
             </p>
         </div>
@@ -1733,6 +1752,17 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
                     >
                         <img src="{$img_url_name.img_name}/arrowleft.png" alt="" />
                     </div>
+                    {#if $facility_id.facility_id_number}
+                    <button
+                    on:click={() => {
+                         let replaceState = false;
+                    goto("onboardsummary?unFacID="+$facility_id.facility_id_number, { replaceState });
+                    }}
+                    class="saveandproceed">Go to Onboard Summary</button
+                >
+                    
+                        
+                    {/if}
                     <button
                         on:click={() => {
                             save_facility();

@@ -9,6 +9,7 @@
     import Side_content_component from './side_content_scetion.svelte';
     import {img_url_name} from '../stores/flags_store';
     import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_store";
+    import {category_store_name} from '../stores/category_store';
     import Toast from './components/toast.svelte';
 import { facility_id } from "../stores/facility_id_store";
     let toast_text = "";
@@ -225,8 +226,30 @@ async function verify_otp(){
     <div class="breadcrumb ">
         <div class="breadcrumb-section">
             <p class="breadcrumbtext"><span class="text-textgrey pr-1 text-base">Home / Onboard New /
-                    Workforce</span> <span class="flex xs:text-base xs:items-center"><img
-                        src="{$img_url_name.img_name}/delivery.png" class="pr-2.5 pl-5 xs:pl-0" alt=""> NDA/DA/HDA </span>
+                {$category_store_name.category_name}</span> 
+                <span class="flex xs:text-base xs:items-center"
+                ><img
+                    src="{$img_url_name.img_name}/delivery.png"
+                    class="pr-2.5 pl-5 xs:pl-0"
+                    alt=""
+                /> {#if $facility_data_store.facility_type}
+                {$facility_data_store.facility_type}
+                    
+                {/if}
+            </span>
+            <span class="flex xs:text-base xs:items-center"
+                >
+                {
+                    #if $facility_id.facility_id_number
+                }
+                <div class="mx-3">
+                    Facility-ID: {$facility_id.facility_id_number}
+                </div>
+                
+
+                {/if}
+                 
+            </span>
             </p>
         </div>
     </div>
