@@ -35,6 +35,7 @@
     import { get_verticles_fun } from "../services/business_vertical_services";
     import {category_store_name} from '../stores/category_store';
     import {duplicate_documents_store} from "../stores/duplicate_document_store";
+
     import Spinner from "./components/spinner.svelte";
     let show_spinner = false;
 
@@ -277,6 +278,15 @@ import { facility_id } from "../stores/facility_id_store";
             temp = value.store_id;
         });
         console.log("store_id_temp", temp);
+    }
+
+    function clear_on_city_click(){
+        $facility_data_store.station_code = null;
+        $facility_data_store.store_id = null;
+        $facility_data_store.facility_type = null;
+        $facility_data_store.vendor_code = null;
+        $facility_data_store.vendor_name = null;
+        $facility_data_store.store_name = null;
     }
 
     routeTo = "verifycontactnumber";
@@ -562,6 +572,10 @@ import { facility_id } from "../stores/facility_id_store";
             alert("Session user not found error!");
         }
     }
+    function reset_non_msme(){
+        $facility_data_store.non_msme_confirmed_by = null;
+        $facility_data_store.non_msme_confirmed_on = null;
+    }
 
     async function get_session_user() {
         console.log("inside get session user");
@@ -629,10 +643,19 @@ import { facility_id } from "../stores/facility_id_store";
                 "$facility_data_store.non_msme_confirmed_by",
                 $facility_data_store.non_msme_confirmed_by
             );
+            for(let i=0; $documents_store.documents.length;i++){
+                if (
+                $documents_store.documents[i]["doc_category"] ==
+                "MSME Certificate"
+            ) {
+                $documents_store.documents.splice(i, 1);
+                console.log("msme deleted from document store");
+            }
+            }
         }
     }
     $: {
-        if (user_scope_response != null) {
+        if (user_scope_response != null && city_value!=null) {
             station_list = [];
 
             for (let i = 0; i < user_scope_response.body.data.length; i++) {
@@ -658,9 +681,11 @@ import { facility_id } from "../stores/facility_id_store";
             }
             station_list.sort((a, b) => (a.station_name > b.station_name) ? 1 : (a.station_name === b.station_name) ? ((a.station_code > b.station_code) ? 1 : -1) : -1 )
             station_list = station_list;
+            // alert("city value changed")
             
 
             console.log("station_list", station_list);
+            console.log("facility store",$facility_data_store);
         }
     }
     $: {
@@ -678,6 +703,14 @@ import { facility_id } from "../stores/facility_id_store";
             console.log("vendor list", vendor_list);
         }
     }
+    // $:{
+    //     city_value = city_value;
+    //     $facility_data_store.station_code = null;
+    //     $facility_data_store.facility_type = null;
+    //     $facility_data_store.vendor_code = null;
+    //     $facility_data_store.vendor_name = null;
+    //     // $facility_data_store.
+    // }
     async function get_facility_types() {
         let facility_type_response = await get_facility_types_function();
         console.log("facility_type_response", facility_type_response);
@@ -701,8 +734,12 @@ import { facility_id } from "../stores/facility_id_store";
         // }));
         let demo = $get_facility_type_link;
         console.log("facility type link", demo);
+        if($category_store_name.category_name || $facility_data_store.org_id || $facility_data_store.station_code){
+            get_facility_types();
 
-        get_facility_types();
+        }
+
+       
     }
     $: {
         $facility_data_store.store_name = $facility_data_store.vendor_code;
@@ -757,6 +794,7 @@ import { facility_id } from "../stores/facility_id_store";
                 msme_data.user_id = $current_user.email;
                 msme_data = msme_data;
                 msme_message = "";
+            
 
                 console.log("msme store user id", msme_data);
             };
@@ -816,15 +854,31 @@ import { facility_id } from "../stores/facility_id_store";
         <div class="breadcrumb-section">
             <p class="breadcrumbtext">
                 <span class="text-textgrey pr-1 text-base"
-                    >Home / Onboard New / Workforce</span
+                    >Home / Onboard New / {$category_store_name.category_name}</span
                 >
                 <span class="flex xs:text-base xs:items-center"
-                    ><img
-                        src="{$img_url_name.img_name}/delivery.png"
-                        class="pr-2.5 pl-5 xs:pl-0"
-                        alt=""
-                    /> NDA/DA/HDA
-                </span>
+                ><img
+                    src="{$img_url_name.img_name}/delivery.png"
+                    class="pr-2.5 pl-5 xs:pl-0"
+                    alt=""
+                /> {#if $facility_data_store.facility_type}
+                {$facility_data_store.facility_type}
+                    
+                {/if}
+            </span>
+            <span class="flex xs:text-base xs:items-center"
+                >
+                {
+                    #if $facility_id.facility_id_number
+                }
+                <div class="mx-3">
+                    Facility-ID: {$facility_id.facility_id_number}
+                </div>
+                
+
+                {/if}
+                 
+            </span>
             </p>
         </div>
     </div>
@@ -1001,6 +1055,7 @@ import { facility_id } from "../stores/facility_id_store";
                                     <select
                                         class="inputbox"
                                         bind:value={city_value}
+                                        on:click={() =>{ clear_on_city_click()}}
                                     >
                                         <option value="" disabled selected
                                             >Select City</option
@@ -1214,8 +1269,8 @@ import { facility_id } from "../stores/facility_id_store";
                                             disabled
                                             selected>Select Yes or No</option
                                         >
-                                        <option value="1">Yes</option>
-                                        <option value="0">No</option>
+                                        <option on:click={()=>{ reset_non_msme()}} value="1">Yes</option>
+                                        <option  value="0">No</option>
                                     </select>
                                     <div class="formSelectArrow ">
                                         <img
