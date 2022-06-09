@@ -40,6 +40,8 @@
             sorting_pravesh_properties,
         } from "../services/pravesh_config";
         import {pravesh_properties} from '../stores/pravesh_properties_store';
+        import { get_current_user_function } from "../services/dashboard_services";
+import { current_user } from "../stores/current_user_store";
 // import { bgv_data_store } from "src/stores/bgv_store";
     // import { bgv_data_store } from "src/stores/bgv_store";
     
@@ -564,6 +566,16 @@
             toast_type = "error";
             toast_text = err;
             }
+
+            let session_user_response = await get_current_user_function();
+            if(session_user_response.body.status == "green"){
+                // console.log("current user response",session_user_response.body.data.user);
+                $current_user.email = session_user_response.body.data.user.email;
+                $current_user.name = session_user_response.body.data.user.name;
+                $current_user.username = session_user_response.body.data.user.username;
+
+            }
+            console.log("current user store",$current_user);
            
     
             let fac_tag_res = await show_fac_tags($facility_data_store.facility_type);
