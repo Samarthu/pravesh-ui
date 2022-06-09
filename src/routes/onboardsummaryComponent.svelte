@@ -637,7 +637,7 @@
             console.log("temp date date of birth", temp_date);
             let temp = new Date(temp_date);
             console.log("temp", temp);
-            $facility_data_store['dob'] = get_date_format(temp, "yyyy-mm-dd");
+            $facility_data_store['dob'] = get_date_format(temp, "dd-mm-yyyy");
             
             // new_fac_remarks = $facility_data_store.remarks.split("\n");
             // console.log("new_fac_remarks",new_fac_remarks)
