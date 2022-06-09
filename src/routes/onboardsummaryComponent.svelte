@@ -632,6 +632,12 @@
             
             let id_date_format = new Date($facility_data_store.details_updated_on);
             id_new_date = get_date_format(id_date_format,"dd-mm-yyyy-hh-mm");
+            console.log("facility_data",$facility_data_store);
+            let temp_date = $facility_data_store.date_of_birth;
+            console.log("temp date date of birth", temp_date);
+            let temp = new Date(temp_date);
+            console.log("temp", temp);
+            $facility_data_store['dob'] = get_date_format(temp, "yyyy-mm-dd");
             
             // new_fac_remarks = $facility_data_store.remarks.split("\n");
             // console.log("new_fac_remarks",new_fac_remarks)
