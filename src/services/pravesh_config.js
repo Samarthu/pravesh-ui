@@ -174,12 +174,12 @@ function sorting_facility_details_for_edit(facility_data){
     filterred_data['status'] = facility_data.status;
     filterred_data['phone_number'] = facility_data.phone_number;
     filterred_data['facility_id'] = facility_data.facility_id;
-    filterred_data['store_id'] = facility_data.store_id;
+    filterred_data['store_id'] = facility_data.station_code;
     filterred_data['facility_name'] = facility_data.facility_name;
     filterred_data['org_id'] = facility_data.org_id;
     filterred_data['node_type'] = facility_data.node_type;
     filterred_data['facility_type'] = facility_data.facility_type;
-    filterred_data['store_name'] = facility_data.store_name;
+    filterred_data['store_name'] = facility_data.vendor_code;
     filterred_data['vendor_code'] = facility_data.vendor_code;
     filterred_data['vendor_name'] = facility_data.vendor_name;
     filterred_data['non_msme_confirmed_by'] = facility_data.non_msme_confirmed_by;
@@ -196,9 +196,40 @@ function sorting_facility_details_for_edit(facility_data){
 
 }
 
+async function get_facility_data(){
+
+}
+function sort_document_data(json_data){
+    let temp ={}
+    let key_array = Object.keys(json_data);
+    console.log("json data",json_data,"  key array",key_array);
+    for (let i=0;i<key_array.length;i++){
+        // if(!json_data[key_array[i]]){
+        //     console.log("key and array",key_array[i]," ",json_data[key_array[i]]);
+        // }
+        // console.log("key ",key_array[i]);
+        // console.log("value",json_data[key_array[i]]);
+        if(json_data[key_array[i]]  ){
+            console.log("key ",key_array[i]);
+            console.log("value",json_data[key_array[i]]);
+            temp[key_array[i]] = json_data[key_array[i]]
+
+        }
+       
+    }
+    console.log("temp after oppp",temp);
+    if(temp){
+        return temp;
+    }
+
+
+}
+
 export{
     sorting_pravesh_properties,
     sorting_facility_details_for_edit,
-    reset_all_stores
+    reset_all_stores,
+    get_facility_data,
+    sort_document_data
 
 }
