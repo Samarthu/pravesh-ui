@@ -225,18 +225,16 @@ async function verify_otp(){
 <div class="mainContent ">
     <div class="breadcrumb ">
         <div class="breadcrumb-section">
-            <p class="breadcrumbtext"><span class="text-textgrey pr-1 text-base">Home / Onboard New /
-                {$category_store_name.category_name}</span> 
-                <span class="flex xs:text-base xs:items-center"
-                ><img
-                    src="{$img_url_name.img_name}/delivery.png"
-                    class="pr-2.5 pl-5 xs:pl-0"
-                    alt=""
-                /> {#if $facility_data_store.facility_type}
-                {$facility_data_store.facility_type}
+            <p class="breadcrumbtext">
+                <span class="text-textgrey pr-1 text-base"
+                    >Home / {#if !$facility_id.facility_id_number} Onboard New
+                    {:else}Edit{/if} / {#if $category_store_name.category_name }
+                    {$category_store_name.category_name}
+                    {:else}
                     
-                {/if}
-            </span>
+                    {/if}
+                    </span
+                >
             <span class="flex xs:text-base xs:items-center"
                 >
                 {
