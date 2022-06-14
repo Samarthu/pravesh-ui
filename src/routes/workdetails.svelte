@@ -573,8 +573,29 @@ import { facility_id } from "../stores/facility_id_store";
         }
     }
     function reset_non_msme(){
-        $facility_data_store.non_msme_confirmed_by = null;
+        console.log("inside reset non msme");
+        if ($facility_data_store.msme_registered == "1"){
+            $facility_data_store.non_msme_confirmed_by = null;
         $facility_data_store.non_msme_confirmed_on = null;
+        msme_agreement = 0;
+
+        }else if($facility_data_store.msme_registered == "0"){
+            for (let i = 0; i < $documents_store.documents.length; i++) {
+            if (
+                $documents_store.documents[i]["doc_category"] ==
+                file_name["doc_category"]
+            ) {
+                $documents_store.documents.splice(i, 1);
+                console.log("msme deleted from document store");
+            }
+
+        }
+        msme_data.pod = null;
+        msme_data.file_name = null;
+            
+        }
+        
+        console.log("facility data store",$facility_data_store);
     }
 
     async function get_session_user() {
@@ -854,18 +875,14 @@ import { facility_id } from "../stores/facility_id_store";
         <div class="breadcrumb-section">
             <p class="breadcrumbtext">
                 <span class="text-textgrey pr-1 text-base"
-                    >Home / Onboard New / {$category_store_name.category_name}</span
-                >
-                <span class="flex xs:text-base xs:items-center"
-                ><img
-                    src="{$img_url_name.img_name}/delivery.png"
-                    class="pr-2.5 pl-5 xs:pl-0"
-                    alt=""
-                /> {#if $facility_data_store.facility_type}
-                {$facility_data_store.facility_type}
-                    
+                >Home / {#if !$facility_id.facility_id_number} Onboard New
+                {:else}Edit{/if} / {#if $category_store_name.category_name }
+                {$category_store_name.category_name}
+                {:else}
+                
                 {/if}
-            </span>
+                </span
+            >
             <span class="flex xs:text-base xs:items-center"
                 >
                 {
@@ -1262,6 +1279,7 @@ import { facility_id } from "../stores/facility_id_store";
                                     <select
                                         class="inputbox"
                                         bind:value={$facility_data_store.msme_registered}
+                                        on:click={()=> reset_non_msme()}
                                     >
                                         <option
                                             class="pt-6"
@@ -1269,7 +1287,7 @@ import { facility_id } from "../stores/facility_id_store";
                                             disabled
                                             selected>Select Yes or No</option
                                         >
-                                        <option on:click={()=>{ reset_non_msme()}} value="1">Yes</option>
+                                        <option  value="1">Yes</option>
                                         <option  value="0">No</option>
                                     </select>
                                     <div class="formSelectArrow ">

@@ -21,15 +21,17 @@
     import { pravesh_properties } from "../stores/pravesh_properties_store";
     import Side_content_component from "./side_content_scetion.svelte";
     import { page } from "$app/stores";
-    import {img_url_name} from '../stores/flags_store';
+    import { img_url_name } from "../stores/flags_store";
     import { onMount } from "svelte";
     import { save_flag } from "../stores/flags_store";
     import Spinner from "./components/spinner.svelte";
     import Success_popup from "./components/success_popup.svelte";
     import Toast from "./components/toast.svelte";
-    import {category_store_name} from '../stores/category_store';
-    import {duplicate_documents_store} from "../stores/duplicate_document_store";
-import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_store";
+    import { category_store_name } from "../stores/category_store";
+    import { duplicate_documents_store } from "../stores/duplicate_document_store";
+    import { sorting_facility_details_for_edit ,sort_document_data} from "../services/pravesh_config";
+    import { edit_facility_function } from "../services/identity_proof_services";
+    import { duplicate_facility_data_store } from "../stores/duplicate_facility_data_store";
     let toast_text = "";
     let toast_type = null;
     let success_text = "";
@@ -53,7 +55,7 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
     var adhar_crad_pattern = /^[0-9]{12}$/gm;
     var voter_id_pattern = /^([a-zA-Z]){3}([0-9]){7}?$/;
     var driving_license_pattern =
-        /^(([A-Z]{2}[0-9]{2})( )|([A-Z]{2}-[0-9]{2})|([A-Z]{2}[0-9]{2}))((19|20)[0-9][0-9])[0-9]{7}$/gm;
+        /^(([A-Z]{2}[0-9]{2})( )|([A-Z]{2}-[0-9]{2})|([A-Z]{2}[0-9]{2}))((19|20)[0-9][0-9])[0-9]{7}$/;
 
     let pan_card_message = "";
     let adhar_card_message = "";
@@ -150,78 +152,117 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
         console.log("page name on identity", page_name);
 
         console.log("duplicate document store", $duplicate_documents_store);
-        console.log("duplicate documents length",$duplicate_documents_store.documents.length);
+        console.log(
+            "duplicate documents length",
+            $duplicate_documents_store.documents.length
+        );
+        console.log("current user",$current_user);
 
-        if($facility_id.facility_id_number){
+        if ($facility_id.facility_id_number) {
             $documents_store.documents = [];
-            
-            for(let i=0;i<$duplicate_documents_store.documents.length;i++){
-                if($duplicate_documents_store.documents[i].doc_category == "Pancard"){
-                    edit_pan_card_data = $duplicate_documents_store.documents[i];
-                    pan_card_data.doc_number = $duplicate_documents_store.documents[i].doc_number;
-                    console.log("edit_pan_card_data", edit_pan_card_data);
 
-                }
-                else if($duplicate_documents_store.documents[i].doc_category == "Aadhar Id proof"){
-                    edit_adhar_card_data = $duplicate_documents_store.documents[i];
+            for (
+                let i = 0;
+                i < $duplicate_documents_store.documents.length;
+                i++
+            ) {
+                if (
+                    $duplicate_documents_store.documents[i].doc_category ==
+                    "Pancard"
+                ) {
+                    edit_pan_card_data =
+                        $duplicate_documents_store.documents[i];
+                    pan_card_data.doc_number =
+                        $duplicate_documents_store.documents[i].doc_number;
+                    console.log("edit_pan_card_data", edit_pan_card_data);
+                } else if (
+                    $duplicate_documents_store.documents[i].doc_category ==
+                    "Aadhar Id proof"
+                ) {
+                    edit_adhar_card_data =
+                        $duplicate_documents_store.documents[i];
                     console.log("edit_adhar_card_data", edit_adhar_card_data);
-                    adhar_card_data.doc_number = $duplicate_documents_store.documents[i].doc_number;
-                }
-                else if($duplicate_documents_store.documents[i].doc_category == "Voter Id proof"){
-                    edit_voter_id_card_data = $duplicate_documents_store.documents[i];
-                    console.log("edit_voter_id_card_data", edit_voter_id_card_data);
-                    voter_id_card_data.doc_number = $duplicate_documents_store.documents[i].doc_number;
-                }
-                else if($duplicate_documents_store.documents[i].doc_category == "Driving License"){
-                    edit_driving_license_data = $duplicate_documents_store.documents[i];
-                    console.log("edit_driving_license_data", edit_driving_license_data);
-                    driving_license_data.doc_number = $duplicate_documents_store.documents[i].doc_number;
+                    adhar_card_data.doc_number =
+                        $duplicate_documents_store.documents[i].doc_number;
+                } else if (
+                    $duplicate_documents_store.documents[i].doc_category ==
+                    "Voter Id proof"
+                ) {
+                    edit_voter_id_card_data =
+                        $duplicate_documents_store.documents[i];
+                    console.log(
+                        "edit_voter_id_card_data",
+                        edit_voter_id_card_data
+                    );
+                    voter_id_card_data.doc_number =
+                        $duplicate_documents_store.documents[i].doc_number;
+                } else if (
+                    $duplicate_documents_store.documents[i].doc_category ==
+                    "Driving License"
+                ) {
+                    edit_driving_license_data =
+                        $duplicate_documents_store.documents[i];
+                    console.log(
+                        "edit_driving_license_data",
+                        edit_driving_license_data
+                    );
+                    driving_license_data.doc_number =
+                        $duplicate_documents_store.documents[i].doc_number;
                 }
             }
-
-
-            
-        }else{
-
-            for(let i=0;i<$documents_store.documents.length;i++){
-                if($documents_store.documents[i].doc_category == "Pancard"){
+        } else {
+            for (let i = 0; i < $documents_store.documents.length; i++) {
+                if ($documents_store.documents[i].doc_category == "Pancard") {
                     // edit_pan_card_data = $documents_store.documents[i];
                     // pan_card_data.doc_number = $duplicate_documents_store.documents[i].doc_number;
-                    pan_card_data.doc_number = $documents_store.documents[i].doc_number;
-                    pan_card_data.file_name = $documents_store.documents[i].file_name;
+                    pan_card_data.doc_number =
+                        $documents_store.documents[i].doc_number;
+                    pan_card_data.file_name =
+                        $documents_store.documents[i].file_name;
                     pan_card_data.pod = $documents_store.documents[i].pod;
                     console.log("pan_card_data", pan_card_data);
-
-                }
-                else if($documents_store.documents[i].doc_category == "Aadhar Id proof"){
+                } else if (
+                    $documents_store.documents[i].doc_category ==
+                    "Aadhar Id proof"
+                ) {
                     // edit_adhar_card_data = $duplicate_documents_store.documents[i];
                     // console.log("edit_adhar_card_data", edit_adhar_card_data);
                     // adhar_card_data.doc_number = $duplicate_documents_store.documents[i].doc_number;
-                    adhar_card_data.doc_number = $documents_store.documents[i].doc_number;
-                    adhar_card_data.file_name = $documents_store.documents[i].file_name;
+                    adhar_card_data.doc_number =
+                        $documents_store.documents[i].doc_number;
+                    adhar_card_data.file_name =
+                        $documents_store.documents[i].file_name;
                     adhar_card_data.pod = $documents_store.documents[i].pod;
                     console.log("adhar_card_data", adhar_card_data);
-                }
-                else if($documents_store.documents[i].doc_category == "Voter Id proof"){
+                } else if (
+                    $documents_store.documents[i].doc_category ==
+                    "Voter Id proof"
+                ) {
                     // edit_voter_id_card_data = $duplicate_documents_store.documents[i];
                     // console.log("edit_voter_id_card_data", edit_voter_id_card_data);
                     // voter_id_card_data.doc_number = $duplicate_documents_store.documents[i].doc_number;
-                    voter_id_card_data.doc_number = $documents_store.documents[i].doc_number;
-                    voter_id_card_data.file_name = $documents_store.documents[i].file_name;
+                    voter_id_card_data.doc_number =
+                        $documents_store.documents[i].doc_number;
+                    voter_id_card_data.file_name =
+                        $documents_store.documents[i].file_name;
                     voter_id_card_data.pod = $documents_store.documents[i].pod;
                     console.log("voter_id_card_data", voter_id_card_data);
-                }
-                else if($documents_store.documents[i].doc_category == "Driving License"){
+                } else if (
+                    $documents_store.documents[i].doc_category ==
+                    "Driving License"
+                ) {
                     // edit_driving_license_data = $duplicate_documents_store.documents[i];
                     // console.log("edit_driving_license_data", edit_driving_license_data);
                     // driving_license_data.doc_number = $duplicate_documents_store.documents[i].doc_number;
-                    driving_license_data.doc_number = $documents_store.documents[i].doc_number;
-                    driving_license_data.file_name = $documents_store.documents[i].file_name;
-                    driving_license_data.pod = $documents_store.documents[i].pod;
+                    driving_license_data.doc_number =
+                        $documents_store.documents[i].doc_number;
+                    driving_license_data.file_name =
+                        $documents_store.documents[i].file_name;
+                    driving_license_data.pod =
+                        $documents_store.documents[i].pod;
                     console.log("driving_license_data", driving_license_data);
                 }
             }
-
         }
     });
     // let driving_lice
@@ -245,24 +286,46 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
                 pan_card_message = "Invalid Pan Card Number";
                 pan_check = false;
             } else {
-                
                 pan_card_message = "";
 
                 let pan_card_proof_response = await verify_document_function(
                     pan_card_data.doc_number
                 );
                 try {
-                    console.log(
-                        "pan_card_proof_response",
-                        pan_card_proof_response
-                    );
-                    if (pan_card_proof_response.body.data == false) {
+                    if ($facility_id.facility_id_number) {
+                        if (
+                            pan_card_data.doc_number !=
+                            edit_pan_card_data.doc_number
+                        ) {
+                            console.log(
+                                "pan_card_proof_response",
+                                pan_card_proof_response
+                            );
+                            if (pan_card_proof_response.body.data == false) {
+                                show_spinner = false;
+                                pan_card_message =
+                                    pan_card_proof_response.body.message;
+                            } else {
+                                show_spinner = false;
+                                pan_card_message = "";
+                                pan_check = true;
+                            }
+                        }
                         show_spinner = false;
-                        pan_card_message = pan_card_proof_response.body.message;
                     } else {
-                        show_spinner = false;
-                        pan_card_message = "";
-                        pan_check = true;
+                        console.log(
+                            "pan_card_proof_response",
+                            pan_card_proof_response
+                        );
+                        if (pan_card_proof_response.body.data == false) {
+                            show_spinner = false;
+                            pan_card_message =
+                                pan_card_proof_response.body.message;
+                        } else {
+                            show_spinner = false;
+                            pan_card_message = "";
+                            pan_check = true;
+                        }
                     }
                 } catch {
                     show_spinner = false;
@@ -301,10 +364,14 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
                     gotobankdetails();
                 }
             } else {
-                save_facility(); 
+                save_facility();
                 if ($facility_id.facility_id_number) {
                     let replaceState = false;
-                    goto("onboardsummary?unFacID="+$facility_id.facility_id_number, { replaceState });
+                    goto(
+                        "onboardsummary?unFacID=" +
+                            $facility_id.facility_id_number,
+                        { replaceState }
+                    );
                 }
             }
         }
@@ -327,15 +394,36 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
                         "adhar_card_proof_response",
                         adhar_card_proof_response
                     );
-                    if (adhar_card_proof_response.body.data == false) {
-                        show_spinner = false;
-                        console.log("inside if adhar_card_proof_response");
-                        adhar_card_message =
-                            adhar_card_proof_response.body.message;
+                    if ($facility_id.facility_id_number) {
+                        if (
+                            adhar_card_data.doc_number !=
+                            edit_adhar_card_data.doc_number
+                        ) {
+                            if (adhar_card_proof_response.body.data == false) {
+                                show_spinner = false;
+                                console.log(
+                                    "inside if adhar_card_proof_response"
+                                );
+                                adhar_card_message =
+                                    adhar_card_proof_response.body.message;
+                            } else {
+                                show_spinner = false;
+                                adhar_card_message = "";
+                                adhar_check = true;
+                            }
+                            show_spinner = false;
+                        }
                     } else {
-                        show_spinner = false;
-                        adhar_card_message = "";
-                        adhar_check = true;
+                        if (adhar_card_proof_response.body.data == false) {
+                            show_spinner = false;
+                            console.log("inside if adhar_card_proof_response");
+                            adhar_card_message =
+                                adhar_card_proof_response.body.message;
+                        } else {
+                            show_spinner = false;
+                            adhar_card_message = "";
+                            adhar_check = true;
+                        }
                     }
                 } catch {
                     show_spinner = false;
@@ -367,13 +455,32 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
                         "voter_id_proof_response",
                         voter_id_proof_response
                     );
-                    if (voter_id_proof_response.body.data == false) {
+                    if ($facility_id.facility_id_number) {
+                        if (
+                            edit_voter_id_card_data.doc_number !=
+                            voter_id_card_data.doc_number
+                        ) {
+                            if (voter_id_proof_response.body.data == false) {
+                                show_spinner = false;
+                                voter_id_message =
+                                    voter_id_proof_response.body.message;
+                            } else {
+                                show_spinner = false;
+                                voter_id_message = "";
+                                voter_id_check = true;
+                            }
+                        }
                         show_spinner = false;
-                        voter_id_message = voter_id_proof_response.body.message;
                     } else {
-                        show_spinner = false;
-                        voter_id_message = "";
-                        voter_id_check = true;
+                        if (voter_id_proof_response.body.data == false) {
+                            show_spinner = false;
+                            voter_id_message =
+                                voter_id_proof_response.body.message;
+                        } else {
+                            show_spinner = false;
+                            voter_id_message = "";
+                            voter_id_check = true;
+                        }
                     }
                 } catch {
                     show_spinner = false;
@@ -408,14 +515,35 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
                         "driving_license_proof_response",
                         driving_license_proof_response
                     );
-                    if (driving_license_proof_response.body.data == false) {
+                    if ($facility_id.facility_id_number) {
+                        if (
+                            edit_driving_license_data !=
+                            driving_license_data.doc_number
+                        ) {
+                            if (
+                                driving_license_proof_response.body.data ==
+                                false
+                            ) {
+                                show_spinner = false;
+                                driving_license_message =
+                                    driving_license_proof_response.body.message;
+                            } else {
+                                show_spinner = false;
+                                driving_license_message = "";
+                                dl_check = true;
+                            }
+                        }
                         show_spinner = false;
-                        driving_license_message =
-                            driving_license_proof_response.body.message;
                     } else {
-                        show_spinner = false;
-                        driving_license_message = "";
-                        dl_check = true;
+                        if (driving_license_proof_response.body.data == false) {
+                            show_spinner = false;
+                            driving_license_message =
+                                driving_license_proof_response.body.message;
+                        } else {
+                            show_spinner = false;
+                            driving_license_message = "";
+                            dl_check = true;
+                        }
                     }
                 } catch {
                     show_spinner = false;
@@ -504,11 +632,9 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
                 "SAG",
             ],
             bank_section_required_associates: ["NDA", "Reseller", "SAG"],
-       
         };
-        $facility_id.facility_id_number = "PNT101113"
+        $facility_id.facility_id_number = "PNT101113";
         //TODO: remove this
-       
     }
     // function set_user_id_to_document_store() {
     //     $msme_store.user_id = $current_user.email;
@@ -648,65 +774,175 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
     // }
     function check_validity() {
         valid = true;
-        console.log("DOCUMNET STORE",$documents_store);
-        if($facility_id.facility_id_number){
-            if(pan_card_data.doc_number){
-                if(pan_card_data.doc_number != edit_pan_card_data.doc_number){
-                    pan_card_data.status = null;
+        console.log("DOCUMNET STORE", $documents_store);
+        if ($facility_id.facility_id_number) {
+
+            if (pan_card_data.doc_number || pan_card_data.pod) {
+                if (pan_card_data.doc_number != edit_pan_card_data.doc_number) {
+                    pan_card_data.status = "active";
                     pan_card_data.resource_id = $facility_id.facility_id_number;
-                    for(let i=0;i<$documents_store.documents.length;i++){
-                        if($documents_store.documents[i].doc_category == "Pancard"){
-                            $documents_store.documents.splice(i, 1);
-
-                        }
-                    }
-                    $documents_store.documents.push(pan_card_data);
-                }
-            }
-
-            if(adhar_card_data.doc_number){
-                if(adhar_card_data.doc_number != edit_adhar_card_data.doc_number){
+                    pan_card_data.user_id = $current_user.username;
                     
-                    for(let i=0;i<$documents_store.documents.length;i++){
-                        if($documents_store.documents[i].doc_category == "Aadhar Id proof"){
+                    for (
+                        let i = 0;
+                        i < $documents_store.documents.length;
+                        i++
+                    ) {
+                        if (
+                            $documents_store.documents[i].doc_category ==
+                            "Pancard"
+                        ) {
                             $documents_store.documents.splice(i, 1);
                         }
                     }
-                    $documents_store.documents.push(adhar_card_data);
+                    $documents_store.documents.push(sort_document_data(pan_card_data));
+                   
+                } else if (pan_card_data.pod && pan_card_data.file_name) {
+                    pan_card_data.status = "active";
+                    pan_card_data.resource_id = $facility_id.facility_id_number;
+                    pan_card_data.user_id = $current_user.username;
+                    for (
+                        let i = 0;
+                        i < $documents_store.documents.length;
+                        i++
+                    ) {
+                        if (
+                            $documents_store.documents[i].doc_category ==
+                            "Pancard"
+                        ) {
+                            $documents_store.documents.splice(i, 1);
+                        }
+                    }
+                    $documents_store.documents.push(sort_document_data(pan_card_data));
                 }
             }
 
-            if(voter_id_card_data.doc_number){
-                if(voter_id_card_data.doc_number != edit_voter_id_card_data.doc_number){
-                    for(let i=0;i<$documents_store.documents.length;i++){
-                        if($documents_store.documents[i].doc_category == "Voter Id proof"){
+            if (adhar_card_data.pod || adhar_card_data.doc_number) {
+                adhar_card_data.status = "active";
+                adhar_card_data.resource_id = $facility_id.facility_id_number;
+                adhar_card_data.user_id = $current_user.username;
+                if (
+                    adhar_card_data.doc_number !=
+                    edit_adhar_card_data.doc_number
+                ) {
+                    for (
+                        let i = 0;
+                        i < $documents_store.documents.length;
+                        i++
+                    ) {
+                        if (
+                            $documents_store.documents[i].doc_category ==
+                            "Aadhar Id proof"
+                        ) {
                             $documents_store.documents.splice(i, 1);
                         }
                     }
-                    $documents_store.documents.push(voter_id_card_data);
+                    $documents_store.documents.push(sort_document_data( adhar_card_data));
+                } else if (adhar_card_data.pod && adhar_card_data.file_name) {
+                    for (
+                        let i = 0;
+                        i < $documents_store.documents.length;
+                        i++
+                    ) {
+                        if (
+                            $documents_store.documents[i].doc_category ==
+                            "Aadhar Id proof"
+                        ) {
+                            $documents_store.documents.splice(i, 1);
+                        }
+                    }
+                    $documents_store.documents.push(sort_document_data(adhar_card_data));
                 }
             }
 
-            if(driving_license_data.doc_number){
-                if(driving_license_data.doc_number != edit_driving_license_data.doc_number){
-                    for(let i=0;i<$documents_store.documents.length;i++){
-                        if($documents_store.documents[i].doc_category == "Driving License"){
+            if (voter_id_card_data.doc_number || voter_id_card_data.pod) {
+                voter_id_card_data.resource_id =
+                    $facility_id.facility_id_number;
+                voter_id_card_data.status = "active";
+                voter_id_card_data.user_id = $current_user.username;
+                if (
+                    voter_id_card_data.doc_number !=
+                    edit_voter_id_card_data.doc_number
+                ) {
+                    for (
+                        let i = 0;
+                        i < $documents_store.documents.length;
+                        i++
+                    ) {
+                        if (
+                            $documents_store.documents[i].doc_category ==
+                            "Voter Id proof"
+                        ) {
                             $documents_store.documents.splice(i, 1);
                         }
                     }
-                    $documents_store.documents.push(driving_license_data);
+                    $documents_store.documents.push(sort_document_data(voter_id_card_data));
+                } else if (
+                    voter_id_card_data.pod &&
+                    voter_id_card_data.doc_number
+                ) {
+                    for (
+                        let i = 0;
+                        i < $documents_store.documents.length;
+                        i++
+                    ) {
+                        if (
+                            $documents_store.documents[i].doc_category ==
+                            "Voter Id proof"
+                        ) {
+                            $documents_store.documents.splice(i, 1);
+                        }
+                    }
+                    $documents_store.documents.push(sort_document_data(voter_id_card_data));
+                }
+               
+            }
+
+            if (driving_license_data.doc_number || driving_license_data.pod) {
+                driving_license_data.resource_id = $facility_id.facility_id_number;
+                driving_license_data.status = 'active';
+                driving_license_data.user_id = $current_user.username;
+                if (
+                    driving_license_data.doc_number !=
+                    edit_driving_license_data.doc_number
+                ) {
+                    for (
+                        let i = 0;
+                        i < $documents_store.documents.length;
+                        i++
+                    ) {
+                        if (
+                            $documents_store.documents[i].doc_category ==
+                            "Driving License"
+                        ) {
+                            $documents_store.documents.splice(i, 1);
+                        }
+                    }
+                    $documents_store.documents.push(sort_document_data(driving_license_data));
+                }
+                else if(driving_license_data.pod && driving_license_data.file_name){
+                    for (
+                        let i = 0;
+                        i < $documents_store.documents.length;
+                        i++
+                    ) {
+                        if (
+                            $documents_store.documents[i].doc_category ==
+                            "Driving License"
+                        ) {
+                            $documents_store.documents.splice(i, 1);
+                        }
+                    }
+                    $documents_store.documents.push(sort_document_data(driving_license_data));
+
                 }
             }
 
             if (
                 !pan_card_data.doc_number &&
-                
                 !adhar_card_data.doc_number &&
-                
                 !voter_id_card_data.doc_number &&
-                
-                !driving_license_data.doc_number 
-                
+                !driving_license_data.doc_number
             ) {
                 valid = false;
                 // console.log("condition works");
@@ -715,6 +951,7 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
                 toast_type = "warning";
                 toast_text = "Please Upload Atleast One Document";
                 console.log("Please Upload Atleast One Document");
+                show_spinner = false;
             } else {
                 form_message = "";
                 console.log(
@@ -726,7 +963,7 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
                         "pan_required_associates"
                     ].includes($facility_data_store.facility_type)
                 ) {
-                    if (!pan_card_data.doc_number ) {
+                    if (!pan_card_data.doc_number) {
                         form_message = "Please upload Pan card details";
                         toast_type = "warning";
                         toast_text = "Please upload Pan card details";
@@ -737,132 +974,149 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
                 } else {
                 }
             }
-
 
             // toast_type = "error";
             // toast_text = "Facility already exists";
-            console.log("$documents_store.documents",$documents_store.documents);
+            console.log(
+                "$documents_store.documents",
+                $documents_store.documents
+            );
             show_spinner = false;
-
-
-
-        }
-        else{
-            if (pan_check && adhar_check && voter_id_check && dl_check) {
-            if (
-                pan_card_data.doc_number != null &&
-                pan_card_data.file_name != null
-            ) {
-                for (let i = 0; i < $documents_store.documents.length; i++) {
-                    if (
-                        $documents_store.documents[i]["doc_category"] ==
-                        "Pancard"
-                    ) {
-                        $documents_store.documents.splice(i, 1);
-                        console.log("pan card deleted");
-                    }
-                }
-                $documents_store.documents.push(pan_card_data);
-            }
-
-            if (
-                adhar_card_data.doc_number != null &&
-                adhar_card_data.file_name != null
-            ) {
-                for (let i = 0; i < $documents_store.documents.length; i++) {
-                    if (
-                        $documents_store.documents[i]["doc_type"] ==
-                        "aadhar-id-proof"
-                    ) {
-                        $documents_store.documents.splice(i, 1);
-                        console.log("adhar card deleted");
-                    }
-                }
-                $documents_store.documents.push(adhar_card_data);
-            }
-
-            if (
-                voter_id_card_data.doc_number != null &&
-                voter_id_card_data.file_name != null
-            ) {
-                for (let i = 0; i < $documents_store.documents.length; i++) {
-                    if (
-                        $documents_store.documents[i]["doc_category"] ==
-                        "Voter Id proof"
-                    ) {
-                        $documents_store.documents.splice(i, 1);
-                        console.log("voter id deleted");
-                    }
-                }
-                $documents_store.documents.push(voter_id_card_data);
-            }
-
-            if (
-                driving_license_data.doc_number != null &&
-                driving_license_data.file_name != null
-            ) {
-                for (let i = 0; i < $documents_store.documents.length; i++) {
-                    if (
-                        $documents_store.documents[i]["doc_category"] ==
-                        "Driving License"
-                    ) {
-                        $documents_store.documents.splice(i, 1);
-                        console.log("driving license deleted");
-                    }
-                }
-                $documents_store.documents.push(driving_license_data);
-            }
-
-            if (
-                (!pan_card_data.doc_number ||
-                !pan_card_data.file_name) &&
-                !adhar_card_data.doc_number &&
-                !adhar_card_data.file_name &&
-                !voter_id_card_data.doc_number &&
-                !voter_id_card_data.file_name &&
-                !driving_license_data.doc_number &&
-                !driving_license_data.file_name
-            ) {
-                valid = false;
-                // console.log("condition works");
-                // form_message = "Please Upload Atleast One Document";
-                // console.log("form_message", form_message);
-                toast_type = "warning";
-                toast_text = "Please Upload Atleast One Document";
-                console.log("Please Upload Atleast One Document");
-            } else {
-                form_message = "";
-                console.log(
-                    "pan facilities",
-                    $pravesh_properties.properties["pan_required_associates"]
-                );
-                if (
-                    $pravesh_properties.properties[
-                        "pan_required_associates"
-                    ].includes($facility_data_store.facility_type)
-                ) {
-                    if (!pan_card_data.doc_number && !pan_card_data.file_name) {
-                        form_message = "Please upload Pan card details";
-                        toast_type = "warning";
-                        toast_text = "Please upload Pan card details";
-                        valid = false;
-                    } else {
-                        form_message = "";
-                    }
-                } else {
-                }
-            }
         } else {
-            valid = false;
+            if (pan_check && adhar_check && voter_id_check && dl_check) {
+                if (
+                    pan_card_data.doc_number != null &&
+                    pan_card_data.file_name != null
+                ) {
+                    for (
+                        let i = 0;
+                        i < $documents_store.documents.length;
+                        i++
+                    ) {
+                        if (
+                            $documents_store.documents[i]["doc_category"] ==
+                            "Pancard"
+                        ) {
+                            $documents_store.documents.splice(i, 1);
+                            console.log("pan card deleted");
+                        }
+                    }
+                    $documents_store.documents.push(pan_card_data);
+                }
+
+                if (
+                    adhar_card_data.doc_number != null &&
+                    adhar_card_data.file_name != null
+                ) {
+                    for (
+                        let i = 0;
+                        i < $documents_store.documents.length;
+                        i++
+                    ) {
+                        if (
+                            $documents_store.documents[i]["doc_type"] ==
+                            "aadhar-id-proof"
+                        ) {
+                            $documents_store.documents.splice(i, 1);
+                            console.log("adhar card deleted");
+                        }
+                    }
+                    $documents_store.documents.push(adhar_card_data);
+                }
+
+                if (
+                    voter_id_card_data.doc_number != null &&
+                    voter_id_card_data.file_name != null
+                ) {
+                    for (
+                        let i = 0;
+                        i < $documents_store.documents.length;
+                        i++
+                    ) {
+                        if (
+                            $documents_store.documents[i]["doc_category"] ==
+                            "Voter Id proof"
+                        ) {
+                            $documents_store.documents.splice(i, 1);
+                            console.log("voter id deleted");
+                        }
+                    }
+                    $documents_store.documents.push(voter_id_card_data);
+                }
+
+                if (
+                    driving_license_data.doc_number != null &&
+                    driving_license_data.file_name != null
+                ) {
+                    for (
+                        let i = 0;
+                        i < $documents_store.documents.length;
+                        i++
+                    ) {
+                        if (
+                            $documents_store.documents[i]["doc_category"] ==
+                            "Driving License"
+                        ) {
+                            $documents_store.documents.splice(i, 1);
+                            console.log("driving license deleted");
+                        }
+                    }
+                    $documents_store.documents.push(driving_license_data);
+                }
+
+                if (
+                    (!pan_card_data.doc_number || !pan_card_data.file_name) &&
+                    !adhar_card_data.doc_number &&
+                    !adhar_card_data.file_name &&
+                    !voter_id_card_data.doc_number &&
+                    !voter_id_card_data.file_name &&
+                    !driving_license_data.doc_number &&
+                    !driving_license_data.file_name
+                ) {
+                    valid = false;
+                    // console.log("condition works");
+                    // form_message = "Please Upload Atleast One Document";
+                    // console.log("form_message", form_message);
+                    toast_type = "warning";
+                    toast_text = "Please Upload Atleast One Document";
+                    console.log("Please Upload Atleast One Document");
+                    show_spinner = false;
+                } else {
+                    form_message = "";
+                    console.log(
+                        "pan facilities",
+                        $pravesh_properties.properties[
+                            "pan_required_associates"
+                        ]
+                    );
+                    if (
+                        $pravesh_properties.properties[
+                            "pan_required_associates"
+                        ].includes($facility_data_store.facility_type)
+                    ) {
+                        if (
+                            !pan_card_data.doc_number &&
+                            !pan_card_data.file_name
+                        ) {
+                            form_message = "Please upload Pan card details";
+                            toast_type = "warning";
+                            toast_text = "Please upload Pan card details";
+                            valid = false;
+                            show_spinner = false;
+                        } else {
+                            form_message = "";
+                        }
+                    } else {
+                        show_spinner = false;
+                    }
+                }
+            } else {
+                valid = false;
+                show_spinner = false;
+            }
         }
-
-        }
-
-       
     }
-    function edit_facility(){
-
-    }
+    function edit_facility() {}
     async function save_facility() {
         show_spinner = true;
         check_validity();
@@ -922,6 +1176,7 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
                                 toast_message = "Session user not found error!";
                             }
                         } catch {
+                            show_spinner = false;
                             // alert("Session user not found error!");
                             toast_type = "error";
                             toast_message = "Session user not found error!";
@@ -982,9 +1237,17 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
                             // await delay(2000);
                             // console.log("delay");
                             let replaceState = false;
-                           
-                            setTimeout( goto("onboardsummary?unFacID="+$facility_id.facility_id_number, { replaceState }), 2000);
-                            
+
+                            setTimeout(
+                                goto(
+                                    "onboardsummary?unFacID=" +
+                                        $facility_id.facility_id_number,
+                                    { replaceState }
+                                ),
+                                2000
+                            );
+                        } else {
+                            setTimeout(gotobankdetails(), 2000);
                         }
                     } catch {
                         // alert("Error in saving facility!");
@@ -1013,13 +1276,82 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
                 // gotobankdetails();
                 // route_to_next_page();
             }
-        }
-        else{
-           
-            
-        }
+        } else {
+            if (valid) {
+                
+                for (let i = 0; i < $documents_store.documents.length; i++) {
+                    console.log("inside for loop");
+                    // console.log("documents store",$documents_store.documents[i]);
+                    $documents_store.documents[i].resource_id =
+                        $facility_id.facility_id_number;
+                    $documents_store.documents[i].user_id =
+                        $current_user.username;
+                    console.log(
+                        "documents store",
+                        $documents_store.documents[i]
+                    );
+                    let document_upload_response =
+                        await save_or_update_documents_function_1(
+                            $documents_store.documents[i]
+                        );
+                    if (document_upload_response.body.status != "green") {
+                        // alert("Document upload failed");
+                        toast_text =
+                            $documents_store.documents[i]["doc_category"] +
+                            " Document upload failed";
+                        toast_type = "error";
+                        show_spinner = false;
+                    }
+                    else{
+                        toast_text =
+                            $documents_store.documents[i]["doc_category"] +
+                            " Document uploaded";
+                        toast_type = "success";
 
-        
+                    }
+                    console.log(
+                        "document_upload_response",
+                        document_upload_response
+                    );
+                }
+
+                
+                console.log("document store",$documents_store.documents);
+                console.log("duplicate doc store",$duplicate_documents_store);
+
+                if (
+                            !$pravesh_properties.properties[
+                                "pan_required_associates"
+                            ].includes($facility_data_store.facility_type) &&
+                            !$pravesh_properties.properties[
+                                "bank_section_required_associates"
+                            ].includes($facility_data_store.facility_type)
+                        ) {
+                            console.log("taking you to the success page");
+                            // let replaceState = false;
+                            // goto("successpopup", { replaceState });
+                            // success_text = "Onboarding Completed Successfully";
+                            // await delay(2000);
+                            // console.log("delay");
+                            let replaceState = false;
+
+                            setTimeout(
+                                goto(
+                                    "onboardsummary?unFacID=" +
+                                        $facility_id.facility_id_number,
+                                    { replaceState }
+                                ),
+                                2000
+                            );
+                        } else {
+                            setTimeout(gotobankdetails(), 2000);
+                        }
+
+                // console.log("edit_facility_response", edit_facility_response);
+            }
+            show_spinner = false;
+
+        }
     }
     function delete_files(file_name) {
         for (let i = 0; i < $documents_store.documents.length; i++) {
@@ -1053,42 +1385,40 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
         }
     }
 </script>
+
 {#if show_spinner}
-<Spinner />
-    
+    <Spinner />
 {/if}
-
-
 
 <div class="mainContent ">
     <div class="breadcrumb ">
         <div class="breadcrumb-section">
             <p class="breadcrumbtext">
                 <span class="text-textgrey pr-1 text-base"
-                    >Home / Onboard New / {$category_store_name.category_name}</span
+                    >Home / {#if !$facility_id.facility_id_number} Onboard New
+                    {:else}Edit{/if} / {#if $category_store_name.category_name }
+                    {$category_store_name.category_name}
+                    {:else}
+                    
+                    {/if}
+                    </span
                 >
                 <span class="flex xs:text-base xs:items-center"
                     ><img
                         src="{$img_url_name.img_name}/delivery.png"
                         class="pr-2.5 pl-5 xs:pl-0"
                         alt=""
-                    /> {#if $facility_data_store.facility_type}
-                    {$facility_data_store.facility_type}
-                        
+                    />
+                    {#if $facility_data_store.facility_type}
+                        {$facility_data_store.facility_type}
                     {/if}
                 </span>
-                <span class="flex xs:text-base xs:items-center"
-                    >
-                    {
-                        #if $facility_id.facility_id_number
-                    }
-                    <div class="mx-3">
-                        Facility-ID: {$facility_id.facility_id_number}
-                    </div>
-                    
-
+                <span class="flex xs:text-base xs:items-center">
+                    {#if $facility_id.facility_id_number}
+                        <div class="mx-3">
+                            Facility-ID: {$facility_id.facility_id_number}
+                        </div>
                     {/if}
-                     
                 </span>
             </p>
         </div>
@@ -1404,16 +1734,20 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
                                             />
                                         {/if}
                                     </div>
-                                    <br>
+                                    <br />
                                     {#if $facility_id.facility_id_number}
-                                    {#if edit_pan_card_data.file_name}
-                                    <div class="flex">
-                                        <a href={$page.url.origin+edit_pan_card_data.file_url} target="_blank" class="text-blue-600 text-decoration-line: underline">{edit_pan_card_data.file_name}</a>
-                                        <br>
-
-
-                                    </div>
-                                    {/if}
+                                        {#if edit_pan_card_data.file_name}
+                                            <div class="flex">
+                                                <a
+                                                    href={$page.url.origin +
+                                                        edit_pan_card_data.file_url}
+                                                    target="_blank"
+                                                    class="text-blue-600 text-decoration-line: underline"
+                                                    >{edit_pan_card_data.file_name}</a
+                                                >
+                                                <br />
+                                            </div>
+                                        {/if}
                                     {/if}
                                     <p class="noteDescription mt-2">
                                         <span class="font-medium">Note:</span>
@@ -1498,14 +1832,18 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
                                         {/if}
                                     </div>
                                     {#if $facility_id.facility_id_number}
-                                    {#if edit_adhar_card_data.file_name}
-                                    <div class="flex">
-                                        <a href={$page.url.origin+edit_adhar_card_data.file_url} target="_blank" class="text-blue-600 text-decoration-line: underline">{edit_adhar_card_data.file_name}</a>
-                                        <br>
-
-
-                                    </div>
-                                    {/if}
+                                        {#if edit_adhar_card_data.file_name}
+                                            <div class="flex">
+                                                <a
+                                                    href={$page.url.origin +
+                                                        edit_adhar_card_data.file_url}
+                                                    target="_blank"
+                                                    class="text-blue-600 text-decoration-line: underline"
+                                                    >{edit_adhar_card_data.file_name}</a
+                                                >
+                                                <br />
+                                            </div>
+                                        {/if}
                                     {/if}
                                     <p class="noteDescription mt-2">
                                         <span class="font-medium">Note:</span>
@@ -1605,14 +1943,18 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
                                         {/if}
                                     </div>
                                     {#if $facility_id.facility_id_number}
-                                    {#if edit_voter_id_card_data.file_name}
-                                    <div class="flex">
-                                        <a href={$page.url.origin+edit_voter_id_card_data.file_url} target="_blank" class="text-blue-600 text-decoration-line: underline">{edit_voter_id_card_data.file_name}</a>
-                                        <br>
-
-
-                                    </div>
-                                    {/if}
+                                        {#if edit_voter_id_card_data.file_name}
+                                            <div class="flex">
+                                                <a
+                                                    href={$page.url.origin +
+                                                        edit_voter_id_card_data.file_url}
+                                                    target="_blank"
+                                                    class="text-blue-600 text-decoration-line: underline"
+                                                    >{edit_voter_id_card_data.file_name}</a
+                                                >
+                                                <br />
+                                            </div>
+                                        {/if}
                                     {/if}
                                     <p class="noteDescription mt-2">
                                         <span class="font-medium">Note:</span>
@@ -1699,14 +2041,18 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
                                         {/if}
                                     </div>
                                     {#if $facility_id.facility_id_number}
-                                    {#if edit_driving_license_data.file_name}
-                                    <div class="flex">
-                                        <a href={$page.url.origin+edit_driving_license_data.file_url} target="_blank" class="text-blue-600 text-decoration-line: underline">{edit_driving_license_data.file_name}</a>
-                                        <br>
-
-
-                                    </div>
-                                    {/if}
+                                        {#if edit_driving_license_data.file_name}
+                                            <div class="flex">
+                                                <a
+                                                    href={$page.url.origin +
+                                                        edit_driving_license_data.file_url}
+                                                    target="_blank"
+                                                    class="text-blue-600 text-decoration-line: underline"
+                                                    >{edit_driving_license_data.file_name}</a
+                                                >
+                                                <br />
+                                            </div>
+                                        {/if}
                                     {/if}
                                     <p class="noteDescription mt-2">
                                         <span class="font-medium">Note:</span>
@@ -1750,18 +2096,23 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
                         }}
                         class="backButton"
                     >
-                        <img src="{$img_url_name.img_name}/arrowleft.png" alt="" />
+                        <img
+                            src="{$img_url_name.img_name}/arrowleft.png"
+                            alt=""
+                        />
                     </div>
                     {#if $facility_id.facility_id_number}
-                    <button
-                    on:click={() => {
-                         let replaceState = false;
-                    goto("onboardsummary?unFacID="+$facility_id.facility_id_number, { replaceState });
-                    }}
-                    class="saveandproceed">Go to Onboard Summary</button
-                >
-                    
-                        
+                        <button
+                            on:click={() => {
+                                let replaceState = false;
+                                goto(
+                                    "onboardsummary?unFacID=" +
+                                        $facility_id.facility_id_number,
+                                    { replaceState }
+                                );
+                            }}
+                            class="saveandproceed">Go to Onboard Summary</button
+                        >
                     {/if}
                     <button
                         on:click={() => {
@@ -1826,6 +2177,4 @@ import {duplicate_facility_data_store} from "../stores/duplicate_facility_data_s
     </div>
 {/if}
 
-
 <Success_popup succ_text={success_text} />
-
