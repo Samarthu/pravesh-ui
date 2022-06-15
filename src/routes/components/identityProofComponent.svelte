@@ -235,23 +235,25 @@
     function openViewModel(data,doc_number){
         document.getElementById("img_model").style.display = "block";
         if(data == "aadhar"){
-            var ext = aadhar_obj.aadhar_attach.split('.').reverse()[0]
-            image_path = $page.url.origin+'/pravesh-ui'+aadhar_obj.aadhar_attach;
-            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+aadhar_obj.aadhar_attach);
             alt_image = "aadhar proof";
+            image_path = $page.url.origin+aadhar_obj.aadhar_attach;
+            var ext = aadhar_obj.aadhar_attach.split('.').reverse()[0]
+            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+aadhar_obj.aadhar_attach);
+            
+           
             if(ext == "pdf"){
                 console.log("inside ext matched")
-                document.getElementById("img_model_url").innerHTML = '<embed src='+image_path+' type="application/pdf" width="100%" height="100%" alt='+{alt_image}+'>'
+                document.getElementById("img_model_url").innerHTML = '<embed src='+image_path+' type="application/pdf" width="100%" height="100%" alt='+alt_image+'>'
             }
             else{
-                // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+aadhar_obj.aadhar_attach);
-                document.getElementById("img_model_url").innerHTML = '<img src='+image_path+' class="mx-auto" alt='+{alt_image}+'>'
+                document.getElementById("img_model_url").innerHTML = '<img src='+image_path+' class="mx-auto" alt='+alt_image+'>'
+                
             }
         }
         else if(data == "pan"){
             console.log("inside aadhar view",document.getElementById("img_model_url"))
             var ext = pancard_obj.pan_attach.split('.').reverse()[0]
-            image_path = $page.url.origin+'/pravesh-ui'+pancard_obj.pan_attach;
+            image_path = $page.url.origin+pancard_obj.pan_attach;
             alt_image = "pan-card proof";
             if(ext == "pdf"){
                 console.log("inside ext matched")
@@ -265,7 +267,7 @@
         else if(data == "address"){
 
             var ext = addproof_obj.address_url.split('.').reverse()[0]
-            image_path = $page.url.origin+'/pravesh-ui'+addproof_obj.address_url;
+            image_path = $page.url.origin+addproof_obj.address_url;
             if(ext == "pdf"){
                 console.log("inside ext matched")
                 document.getElementById("img_model_url").innerHTML = '<embed src='+image_path+' type="application/pdf" width="100%" height="100%" alt='+{alt_image}+'>'
@@ -279,7 +281,7 @@
             alt_image = "address proof";
         }
         else if(data == "licence"){
-            image_path = $page.url.origin+'/pravesh-ui'+dl_photo_obj.dl_lic_url;
+            image_path = $page.url.origin+dl_photo_obj.dl_lic_url;
             console.log("image_path",image_path)
             // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+dl_lic_attach);
             alt_image = "driving licence proof";
@@ -296,24 +298,24 @@
             }
         }
         else if(data == "offer"){
-            image_path = $page.url.origin+'/pravesh-ui'+new_off_file_obj.offer_url;
+            image_path = $page.url.origin+new_off_file_obj.offer_url;
             // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+new_off_file_obj.offer_url);
             alt_image = "offer letter proof";
         }
         else if(data == "can_cheque"){
-            image_path = $page.url.origin+'/pravesh-ui'+can_cheque_obj.can_cheque_url;
+            image_path = $page.url.origin+can_cheque_obj.can_cheque_url;
             // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+can_cheque_obj.can_cheque_url);
             alt_image = "cancel cheque proof";
         }
         else if(data == "cheque_disp"){
-            image_path = $page.url.origin+'/pravesh-ui'+cheque_disp_obj.cheque_disp_url;
+            image_path = $page.url.origin+cheque_disp_obj.cheque_disp_url;
             // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+new_cheque.file_url);
             alt_image = "cheque proof";
         }
         for(let i = 0;i<gst_doc_arr.length;i++){
             if(data == "mult_gsts"){
                 if(doc_number == gst_doc_arr[i].gst_doc_num)
-                image_path = $page.url.origin+'/pravesh-ui'+gst_url[i];
+                image_path = $page.url.origin+gst_url[i];
                 // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+gst_url[i]);
                 alt_image = "gst proof";
             }
