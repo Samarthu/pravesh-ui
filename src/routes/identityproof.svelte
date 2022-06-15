@@ -968,10 +968,13 @@
                         toast_type = "warning";
                         toast_text = "Please upload Pan card details";
                         valid = false;
+                        show_spinner = false;
                     } else {
                         form_message = "";
+                        show_spinner = false;
                     }
                 } else {
+                    show_spinner = false;
                 }
             }
 
@@ -1654,9 +1657,9 @@
                         <div class="flex">
                             <div class="formGroup ">
                                 <label class="formLable "
-                                    >PAN Card Number <span class="mandatoryIcon"
-                                        >*</span
-                                    ></label
+                                    >PAN Card Number 
+                                        
+                                    </label
                                 >
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
@@ -1692,9 +1695,7 @@
                         <div class="flex">
                             <div class="formGroupBaseLine py-1">
                                 <label class="formLable "
-                                    >PAN Card Copy <span class="mandatoryIcon"
-                                        >*</span
-                                    ></label
+                                    >PAN Card Copy </label
                                 >
                                 <!-- <div class="formInnerGroup ">
 
@@ -1759,10 +1760,18 @@
                         </div>
                         <div class="flex">
                             <div class="formGroup ">
+                                <label class="formLable invisible" />
+                                <div class="formInnerGroup mt-1">
+                                    <div class="text-blue-800 text-x text-center">
+                                        OR
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex">
+                            <div class="formGroup ">
                                 <label class="formLable "
-                                    >Aadhar Card Number <span
-                                        class="mandatoryIcon">*</span
-                                    ></label
+                                    >Aadhar Card Number </label
                                 >
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
@@ -1797,9 +1806,7 @@
                         <div class="flex">
                             <div class="formGroupBaseLine">
                                 <label class="formLable "
-                                    >Aadhar Card Copy <span
-                                        class="mandatoryIcon">*</span
-                                    ></label
+                                    >Aadhar Card Copy </label
                                 >
                                 <div class="formInnerGroup ">
                                     <label class="cursor-pointer inline-block">
@@ -1853,13 +1860,21 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="flex">
+                            <div class="formGroup ">
+                                <label class="formLable invisible" />
+                                <div class="formInnerGroup mt-1">
+                                    <div class="text-blue-800 text-x text-center">
+                                        OR
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="flex">
                             <div class="formGroup ">
                                 <label class="formLable "
-                                    >Voter ID Number <span class="mandatoryIcon"
-                                        >*</span
-                                    ></label
+                                    >Voter ID Number </label
                                 >
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
@@ -1895,9 +1910,7 @@
                         <div class="flex">
                             <div class="formGroupBaseLine py-1">
                                 <label class="formLable "
-                                    >Voter ID Copy <span class="mandatoryIcon"
-                                        >*</span
-                                    ></label
+                                    >Voter ID Copy </label
                                 >
                                 <!-- <div class="formInnerGroup ">
 
@@ -1966,10 +1979,18 @@
                         </div>
                         <div class="flex">
                             <div class="formGroup ">
+                                <label class="formLable invisible" />
+                                <div class="formInnerGroup mt-1">
+                                    <div class="text-blue-800 text-x text-center">
+                                        OR
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex">
+                            <div class="formGroup ">
                                 <label class="formLable"
-                                    >Driving License Number <span
-                                        class="mandatoryIcon">*</span
-                                    ></label
+                                    >Driving License Number </label
                                 >
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
@@ -2004,9 +2025,7 @@
                         <div class="flex">
                             <div class="formGroupBaseLine">
                                 <label class="formLable "
-                                    >Driving License Copy <span
-                                        class="mandatoryIcon">*</span
-                                    ></label
+                                    >Driving License Copy </label
                                 >
                                 <div class="formInnerGroup ">
                                     <label class="cursor-pointer inline-block">
@@ -2073,7 +2092,7 @@
                             </div>
                         </div>
                         {form_message}
-                        <button
+                        <!-- <button
                             on:click|preventDefault={() => {
                                 temp_function();
                             }}
@@ -2084,7 +2103,7 @@
                                 temp_value_filled();
                             }}
                             class="saveandproceed">fill_value</button
-                        >
+                        > -->
                     </div>
                 </form>
             </div>
