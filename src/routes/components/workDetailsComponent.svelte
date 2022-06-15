@@ -1837,7 +1837,7 @@
                                     {#if !new_off_file_obj.offer_name}
                                     <p>Not Required</p>
                                     {:else}
-                                    <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
+                                    <img src={$page.url.origin+new_off_file_obj.offer_url} class="w-5 mr-2" alt="offer letter">
                                     <p class="detailLbale">{new_off_file_obj.offer_name}</p>
                                     {/if}
                                 </div>
