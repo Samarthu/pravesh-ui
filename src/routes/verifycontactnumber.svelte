@@ -86,6 +86,7 @@ async function check_mobile_number(){
         if(!$facility_data_store.phone_number.match(mobile_no_pattern)){
         valid = false;
         mobile_number_message = "Please enter a valid Mobile number";
+        send_otp_disabled = true;
     }
     else{
         mobile_number_message = "";
@@ -94,6 +95,7 @@ async function check_mobile_number(){
     }else{
         valid = false;
         mobile_number_message = "Please enter a Mobile number";
+        send_otp_disabled = true;
     }
     
     if(valid){
