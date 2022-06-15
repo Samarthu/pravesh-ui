@@ -573,6 +573,10 @@
                 }
             }
         }
+        else{
+            toast_text="Please enter valid details"
+            toast_type="error"
+        }
     }
     function delete_files(file_name) {
         for (let i = 0; i < $documents_store.documents.length; i++) {
