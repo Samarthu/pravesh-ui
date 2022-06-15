@@ -35,6 +35,7 @@
             let childlink = "childlink"; 
             let all_tags_obj= {};
             let gst_doc_type=[];
+            let temp6 = "add_tag";
             export let facility_document_data = [];
         let query;
             let tags_for_ass_arr=[];
@@ -768,7 +769,7 @@
             // location.reload();
 
             gst_details_data=[];
-            let gst_details_res = await gst_details();
+            
                 console.log("gst_details_res ss",gst_details_res)
                 for(let i=0;i < gst_details_res.body.data.length;i++){
                     console.log("inside for")
@@ -1384,7 +1385,8 @@
          </div>
 
          <div class="grid grid-cols-3 gap-4  xsl:grid-cols-1" >
-             <div class=" grid grid-cols-3 w-full px-5 mt-5  gap-4">
+             <div class=" grid grid-cols-3 w-full px-5 mt-5  gap-4" style="
+             border-right: 1px solid lightgray">
                  <!-- {#if !fac_photo_obj.profile_url}
                  <div class="">
                     <img src="{$img_url_name.img_name}/delivery.png" class="w-28 h-28 xsl:h-auto" alt="">
@@ -1407,7 +1409,7 @@
                  <!-- {/if} -->
              </div>
 
-             <div class="contact_details">
+             <div class="contact_details" style="border-right: 1px solid lightgray">
                  <div class="px-5 py-4 text-erBlue font-medium">
                      <label for="">Contact Details</label>
                  </div>
@@ -1550,10 +1552,11 @@
                          <div class="flex items-start">
                              <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
                              <div class="pl-4 flex items-center">
-                                 <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
+                                 
                                  {#if !addproof_obj.address_name}
                                  <p>Not Provided</p>
                                  {:else}
+                                 <img src={$page.url.origin+addproof_obj.address_url} class="" alt="">
                                  <p class="detailLbale">{addproof_obj.address_name}</p>
                                  {/if}
                              </div>
@@ -1603,7 +1606,7 @@
 
          <div class="grid grid-cols-3 gap-4  xsl:grid-cols-1" >
              <div class="appcredentials">
-                 <div class="headingWithIcon">
+                 <div class="headingWithIcon" style="border-right: 1px solid lightgray;">
                      <img src="{$img_url_name.img_name}/mobileblue.png" alt="">
                      <p class="detailsTitle">Libera App Credentials</p>
                  </div>
@@ -1611,7 +1614,7 @@
          </div>  
 
          <div class="grid grid-cols-3 gap-4  xsl:grid-cols-1 pb-5" >
-             <div class="liberApp">
+             <div class="liberApp" style="border-right: 1px solid lightgray">
                  <div class="userInfoSec3 ">
                      <div class="flex items-start">
                          <img src="{$img_url_name.img_name}/pan.png" alt="">
@@ -2193,9 +2196,7 @@
 
                         <span class="userDesignation">
 
-                            - Associate- {$facility_data_store.facility_type}, MHPD - Mulsi
-
-                            SP</span
+                            - Associate- {$facility_data_store.facility_type}, {city}</span
 
                         >
 
@@ -2215,7 +2216,286 @@
 
                 <div class="GstModalContent">
 
-                    <hr>
+                  
+
+                    <div class=" ">
+
+                        <div class=" ">
+
+                            <div class="bg-bglightyellow py-2 px-3 mt-2 ">
+
+                                <div class="flex items-center">
+
+                                    <div class="detailLbale"> Tags added for this Associate
+
+                                        <span class="detailData " id="rem_comma">
+
+                                            {#each tags_for_ass_arr as show_fac}
+
+                                            {show_fac}
+
+                                            {/each}
+
+                                        </span>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class="flex  py-3 items-center ">
+
+                                <div class="light14grey mb-1">Select Location</div>
+
+                                <div class="formInnerGroup ">
+
+                                    <select
+
+                                    class="inputboxpopover"
+
+                                    on:click={() => {
+
+                                        child = "linkchild2";
+
+                                    }}
+
+                                    bind:value={city_select}
+
+                                >
+
+                                    <option class="pt-6"
+
+                                        value="-1">Select</option
+
+                                    >
+
+                                    {#each city_data as new_city}
+
+                                    <option class="pt-6"
+
+                                        >{new_city}</option
+
+                                    >
+
+                                    {/each}
+
+                                </select>
+
+                                    <div class="formSelectArrow ">
+
+                                        <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+
+                            <div class="searchSupplier " id="searchBox">
+
+                                <div class="formInnerGroup ">
+
+                                    <span class="searchicon">
+
+                                        <img
+
+                                            src="{$img_url_name.img_name}/search.svg"
+
+                                            class="placeholderIcon"
+
+                                            alt=""
+
+                                           />
+
+                                    </span>
+
+                                    <input bind:value="{searchTerm}"
+
+                                        class="inputboxsearch"
+
+                                        id="inputboxsearch"
+
+                                        placeholder="Search"
+
+                                        on:keypress="{enterKeyPress}"
+
+                                        
+
+                                    />
+
+                                    <div class="serchCloseIconSection " id="">
+
+                                        <div class="closeIconCon " on:click="{closeSearch}">
+
+                                            <img
+
+                                                src="{$img_url_name.img_name}/closeSearch.svg"
+
+                                                class="w-4 h-auto"
+
+                                                alt=""
+
+                                            />
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <div class=" searchClickbtn" on:click="{SearchClick}" >
+
+                                <p class="searchIconPlace">
+
+                                    <img
+
+                                        src="{$img_url_name.img_name}/search.svg"
+
+                                        class="placeholderIcon"
+
+                                        alt=""
+
+                                    />
+
+                                </p>
+
+                            </div>
+
+
+
+                            <div class="OtherAppliedTagsTable ">
+
+                                <table class="table  w-full text-center mt-2 ">
+
+                                    <thead class="theadpopover">
+
+                                        <tr>
+
+                                            <th>Facility Name</th>
+
+                                            <th>Unique ID</th>
+
+                                            <th>Station</th>
+
+                                            <th>Mobile No</th>
+
+                                            <th>Select</th>
+
+                                        </tr>
+
+                                    </thead>
+
+                                    <tbody class="tbodypopover">
+
+                                        {#if child == "linkchild"}
+
+                                        <tr class="hidden">
+
+                                            <td colspan="5" class="text-center">
+
+
+
+                                                <div class="light14greylong w-full mb-1">Select a
+
+                                                    location to view Associates</div>
+
+                                            </td>
+
+                                        </tr>
+
+                                        {/if}
+
+                                        {#if child == "linkchild2"}
+                                        
+                                        {#each paginatedItems as item}
+
+                                        <tr class="border-b">
+
+                                            <td>{item.facility_name}</td>
+
+                                            <td>{item.name}</td>
+
+                                            <td>{item.station_code}</td>
+
+                                            <td>{item.phone_number}</td>
+                                            
+                                            <td
+                                                    ><input
+                                                        type="checkbox"
+                                                        class=" checked:bg-blue-500 ..."
+                                                        id={"child_checkbox"+item.name}
+                                                        name={"child_checkbox"+item.name}
+                                                        bind:checked="{item.checked}"
+                                                       on:click={checkbox_clicked(item)}
+                                                    /></td
+                                                > 
+                                        </tr>
+                                        {/each}
+                                       
+                                        {/if}
+
+
+
+                                    </tbody>
+
+                                </table>
+
+
+
+                            </div>
+
+                        </div>
+
+                        <div class="paginationButton">
+
+                            <nav aria-label="Page navigation">
+
+                                <ul class="pagiWrapper ">
+
+                                   
+
+                                    <LightPaginationNav
+
+                                            totalItems="{client_det_arr.length}"
+
+                                            pageSize="{pageSize}"
+
+                                            currentPage="{currentPage}"
+
+                                            limit="{1}"
+
+                                            showStepOptions="{true}"
+
+                                            on:setPage="{(e) => currentPage = e.detail.page}"
+
+                                            />
+
+                                    
+
+                                </ul>
+
+                            </nav>
+
+                        </div>
+
+
+
+                        <div class="LinkchildAssociate">
+
+                            <div class="text-right mt-3" on:click={() => {child_submit_fun()}}>
+
+                                <button class="ErBlueButton">Link Child Associate</button>
+
+                            </div>
+
+                        </div>
+
+                    </div>
 
                     <div class="scrollbar ">
 
@@ -2245,7 +2525,7 @@
 
                                 {:else}
 
-                                    <!-- <div class="light14greylong w-full mb-1 text-center"> No child assosiates are linked</div> -->
+                                    <div class="light14greylong w-full mb-1 text-center"> No child assosiates are linked</div> -->
 
                                     
 
@@ -2351,291 +2631,6 @@
 
                             </div>
 
-                            <div class=" ">
-
-                                <div class=" ">
-
-                                    <div class="bg-bglightyellow py-2 px-3 mt-2 ">
-
-                                        <div class="flex items-center">
-
-                                            <div class="detailLbale"> Tags added for this Associate
-
-                                                <span class="detailData " id="rem_comma">
-
-                                                    {#each tags_for_ass_arr as show_fac}
-
-                                                    {show_fac}
-
-                                                    {/each}
-
-                                                </span>
-
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-
-                                    <div class="flex  py-3 items-center ">
-
-                                        <div class="light14grey mb-1">Select Location</div>
-
-                                        <div class="formInnerGroup ">
-
-                                            <select
-
-                                            class="inputboxpopover"
-
-                                            on:click={() => {
-
-                                                child = "linkchild2";
-
-                                            }}
-
-                                            bind:value={city_select}
-
-                                        >
-
-                                            <option class="pt-6"
-
-                                                value="-1">Select</option
-
-                                            >
-
-                                            {#each city_data as new_city}
-
-                                            <option class="pt-6"
-
-                                                >{new_city}</option
-
-                                            >
-
-                                            {/each}
-
-                                        </select>
-
-                                            <div class="formSelectArrow ">
-
-                                                <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
-
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-
-
-
-                                    <div class="searchSupplier " id="searchBox">
-
-                                        <div class="formInnerGroup ">
-
-                                            <span class="searchicon">
-
-                                                <img
-
-                                                    src="{$img_url_name.img_name}/search.svg"
-
-                                                    class="placeholderIcon"
-
-                                                    alt=""
-
-                                                   />
-
-                                            </span>
-
-                                            <input bind:value="{searchTerm}"
-
-                                                class="inputboxsearch"
-
-                                                id="inputboxsearch"
-
-                                                placeholder="Search"
-
-                                                on:keypress="{enterKeyPress}"
-
-                                                
-
-                                            />
-
-                                            <div class="serchCloseIconSection " id="">
-
-                                                <div class="closeIconCon " on:click="{closeSearch}">
-
-                                                    <img
-
-                                                        src="{$img_url_name.img_name}/closeSearch.svg"
-
-                                                        class="w-4 h-auto"
-
-                                                        alt=""
-
-                                                    />
-
-                                                </div>
-
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-
-                                    <div class=" searchClickbtn" on:click="{SearchClick}" >
-
-                                        <p class="searchIconPlace">
-
-                                            <img
-
-                                                src="{$img_url_name.img_name}/search.svg"
-
-                                                class="placeholderIcon"
-
-                                                alt=""
-
-                                            />
-
-                                        </p>
-
-                                    </div>
-
-
-
-                                    <div class="OtherAppliedTagsTable ">
-
-                                        <table class="table  w-full text-center mt-2 ">
-
-                                            <thead class="theadpopover">
-
-                                                <tr>
-
-                                                    <th>Facility Name</th>
-
-                                                    <th>Unique ID</th>
-
-                                                    <th>Station</th>
-
-                                                    <th>Mobile No</th>
-
-                                                    <th>Select</th>
-
-                                                </tr>
-
-                                            </thead>
-
-                                            <tbody class="tbodypopover">
-
-                                                {#if child == "linkchild"}
-
-                                                <tr class="hidden">
-
-                                                    <td colspan="5" class="text-center">
-
-
-
-                                                        <div class="light14greylong w-full mb-1">Select a
-
-                                                            location to view Associates</div>
-
-                                                    </td>
-
-                                                </tr>
-
-                                                {/if}
-
-                                                {#if child == "linkchild2"}
-                                                
-                                                {#each paginatedItems as item}
-
-                                                <tr class="border-b">
-
-                                                    <td>{item.facility_name}</td>
-
-                                                    <td>{item.name}</td>
-
-                                                    <td>{item.station_code}</td>
-
-                                                    <td>{item.phone_number}</td>
-                                                    
-                                                    <td
-                                                            ><input
-                                                                type="checkbox"
-                                                                class=" checked:bg-blue-500 ..."
-                                                                id={"child_checkbox"+item.name}
-                                                                name={"child_checkbox"+item.name}
-                                                                bind:checked="{item.checked}"
-                                                               on:click={checkbox_clicked(item)}
-                                                            /></td
-                                                        > 
-                                                </tr>
-                                                {/each}
-                                               
-                                                {/if}
-
-
-
-                                            </tbody>
-
-                                        </table>
-
-
-
-                                    </div>
-
-                                </div>
-
-                                <div class="paginationButton">
-
-                                    <nav aria-label="Page navigation">
-
-                                        <ul class="pagiWrapper ">
-
-                                           
-
-                                            <LightPaginationNav
-
-                                                    totalItems="{client_det_arr.length}"
-
-                                                    pageSize="{pageSize}"
-
-                                                    currentPage="{currentPage}"
-
-                                                    limit="{1}"
-
-                                                    showStepOptions="{true}"
-
-                                                    on:setPage="{(e) => currentPage = e.detail.page}"
-
-                                                    />
-
-                                            
-
-                                        </ul>
-
-                                    </nav>
-
-                                </div>
-
-
-
-                                <div class="LinkchildAssociate">
-
-                                    <div class="text-right mt-3" on:click={() => {child_submit_fun()}}>
-
-                                        <button class="ErBlueButton">Link Child Associate</button>
-
-                                    </div>
-
-                                </div>
-
-                            </div>
-
-
-
-
-
-                         
-
                         </div>
 
                     </div>
@@ -2653,6 +2648,8 @@
     </div>
 
 </div>
+
+
 
 <!--Reset Deactivation Status Confirmation modal -->
 

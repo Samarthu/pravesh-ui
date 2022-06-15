@@ -883,6 +883,7 @@ import { current_user } from "../stores/current_user_store";
             document.getElementById("img_model").style.display = "none";
         }
         function openViewModel(data,doc_number){
+            
             console.log("Inside functin")
             img_model_approve_rej.style.display = "block";
             console.log("view clicked")
@@ -892,12 +893,7 @@ import { current_user } from "../stores/current_user_store";
                 for(let i=0;i<facility_document_data.length;i++){
                     // console.log("inside for view new_doc")
                     if(doc_number == facility_document_data[i].doc_category){
-                        // console.log("inside if")
-                        // console.log("file p[ath and image",$page.url.origin+facility_document_data[i].file_url)
                         image_path = $page.url.origin+facility_document_data[i].file_url;
-                        // document.getElementById("doc_img_model_url").getAttribute('src',$page.url.origin+facility_document_data[i].file_url);
-                        // console.log("IMAGE path b4")
-                        // console.log("IMAGE PATH",facility_document_data[i].file_url)
                         alt_image = "uploaded document";
                         document_type = facility_document_data[i].doc_type;
                         document_number = facility_document_data[i].doc_number;
@@ -911,6 +907,7 @@ import { current_user } from "../stores/current_user_store";
                 alt_image = "aadhar proof";
             }
             else if(data == "pan"){
+                
                 image_path = $page.url.origin+pancard_obj.pan_attach;
                 // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+pancard_obj.pan_attach);
                 alt_image = "pan-card proof";

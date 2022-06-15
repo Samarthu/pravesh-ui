@@ -6,14 +6,15 @@
     import {supplier_data} from '../services/supplier_services';
     import {filter_city_data} from '../services/supplier_services';
     import {filter_status_data} from '../services/supplier_services';
-    import {filter_vendortype_data} from '../services/supplier_services';
+    import {filter_vendortype_data,search_supplier} from '../services/supplier_services';
     import {audit_trail_data} from '../services/supplier_services';
     import {logged_user} from '../services/supplier_services';
     import {get_client_org_mapping} from '../services/vmt_verify_services';
     import { page } from '$app/stores';
     import {img_url_name} from '../stores/flags_store';
     import Spinner from "./components/spinner.svelte";
-import { goto } from '$app/navigation';
+    import { goto } from '$app/navigation';
+    // import { facility_data } from 'src/services/onboardsummary_services';
     
     let show_spinner = false;
     let total_count = 0;
@@ -631,7 +632,16 @@ else
 
         var new_drop_limit=parseInt(drop_limit)
    
-    new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status_selected}
+        if(new_city == "All" && onboarded_by_me_checkbox == true){
+            
+            new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status_selected,username:"username",userid:"userid"}
+        }
+        else
+        {
+            new_associate_data = {city:new_city,limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status_selected} 
+        }
+
+    // new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status_selected}
     json_associate_new_data=JSON.stringify(new_associate_data);
     let filter_res_from_dash =await supplier_data(json_associate_new_data);
     
@@ -645,6 +655,7 @@ else
                 for(let i=0;i<supplier_data_from_service.length;i++){
                     supplier_data_from_service[i].expand = false;
                 }
+                console.log("supplier_data_from_service",supplier_data_from_service)
                 
                 if(total_count_associates > 20 && status_pill_flag == false){
                   
@@ -766,28 +777,64 @@ else
   };
 
     async function filterResults(){
-       
         let searchArray= [];
-        for(let searchK  of supplier_data_from_service){
-            console.log("supplier_data_from_service",searchK)
-            const seacrh_keyword = searchK.facility_name;
-            const search_supplier = searchK.name
-            console.log("seacrh_keyword",seacrh_keyword.includes(searchTerm))
-             let name_result = seacrh_keyword.toLowerCase().includes(searchTerm.toLowerCase());
-             let id_result = search_supplier.toLowerCase().includes(searchTerm.toLowerCase());
-            // newsearchK = result.append(...result);
-            // console.log("newsearchKn",newsearchK)
-            if(id_result === true || name_result === true){
-            
-            console.log("result = true")
-            mapped_pages.length=0
-            searchArray = [...searchArray,searchK]
-            total_count_associates = searchArray.length;
-            // console.log("searchK-----",total_count_associates)
-            }
+        let search_obj = 
+            {"city":-1,
+            "totalSkip":0,
+            "prevFlag":false,
+            "prevSkip":20,
+            "search_keyword":searchTerm,
+            "limit":10,
+            "offset":0,
+            "sortDesc":true}
         
+       console.log("search_obj",search_obj)
+
+        let searchresult_res = await search_supplier(JSON.stringify(search_obj))
+        try{
+            if(searchresult_res.body.status == "green"){
+                searchArray = searchresult_res.body.data.data_list;
+                console.log("searchArray",searchArray)
+                
+                // for(let searchK  of supplier_data_from_service){
+                //     const seacrh_keyword = searchK.facility_name;
+                    mapped_pages.length=0
+                    // searchArray = [...searchArray,searchK];
+                    total_count_associates = searchArray.length;
+                    supplier_data_from_service = searchArray;
+                    for(let i=0;i<supplier_data_from_service.length;i++){
+                        supplier_data_from_service[i].expand = false;
+                    }
+                    console.log("supplier_data_from_service",supplier_data_from_service)
+                // }
+            }
         }
-        supplier_data_from_service = searchArray;
+        catch(err) {
+            toast_type = "error";
+            toast_text = err;
+        }
+        
+
+        // for(let searchK  of supplier_data_from_service){
+        //     console.log("supplier_data_from_service",searchK)
+        //     const seacrh_keyword = searchK.facility_name;
+        //     const search_supplier = searchK.name
+        //     console.log("seacrh_keyword",seacrh_keyword.includes(searchTerm))
+        //      let name_result = seacrh_keyword.toLowerCase().includes(searchTerm.toLowerCase());
+        //      let id_result = search_supplier.toLowerCase().includes(searchTerm.toLowerCase());
+        //     // newsearchK = result.append(...result);
+        //     // console.log("newsearchKn",newsearchK)
+        //     if(id_result === true || name_result === true){
+            
+        //     console.log("result = true")
+        //     mapped_pages.length=0
+        //     searchArray = [...searchArray,searchK]
+        //     total_count_associates = searchArray.length;
+        //     // console.log("searchK-----",total_count_associates)
+        //     }
+        
+        // }
+       
             // console.log("supplier_data_from_service inside filterresult",supplier_data_from_service)
     }
     async function dropdown_function(){
@@ -2006,11 +2053,11 @@ else
                                         <td>
                                             {#if facility_data.expand == false}
                                             <div class="shortInfo">
-                                                <div class="paddingrt">{#if facility_data.message == ""} 
-                                                    <p class="smallText">-</p>
-                                                    {:else}
-                                                    <p class="smallText">1</p>
-                                                    {/if}
+                                                <div class="paddingrt">{#if facility_data.error ="" && facility_data.message == ""}
+                                                        <p class="smallText">-</p>
+                                                        {:else}
+                                                        <p class="smallText">1</p>
+                                                        {/if}
                                                 </div>
                                             </div>
                                             {/if}
@@ -2020,10 +2067,15 @@ else
                                                     class="remarklist ml-5 paddingrt"
                                                 >
                                                     <ul class="list-disc ">
-                                                        <div class="paddingrt">{#if facility_data.message == ""} 
-                                                            <p class="smallText">-</p>
-                                                            {:else}
-                                                            <p class="smallText">{facility_data.message}</p>
+                                                        <div class="paddingrt">
+                                                             {#if facility_data.error}
+                                                             <p class="smallText">{facility_data.error}</p>
+                                                             {:else}
+                                                                {#if facility_data.message == ""} 
+                                                                <p class="smallText">-</p>
+                                                                {:else}
+                                                                <p class="smallText">{facility_data.message}</p>
+                                                                {/if}
                                                             {/if}
                                                         </div>
                                                         

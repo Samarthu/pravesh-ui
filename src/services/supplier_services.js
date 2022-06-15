@@ -101,6 +101,14 @@ const filter_vendortype_data = () => {
         method: "GET"
     }, true)
 }
+const search_supplier=(search_obj)=>{
+    let search_supplier_url = '/api/method/pravesh.facility.routes.dashboard.get_facilities';
+    return request(
+        search_supplier_url, {
+        method: "POST",
+        body:search_obj
+    }, true)
+}
 
 export{
    logged_user,
@@ -108,5 +116,6 @@ export{
    filter_city_data,
    audit_trail_data,
    filter_status_data,
-   filter_vendortype_data
+   filter_vendortype_data,
+   search_supplier
 }
