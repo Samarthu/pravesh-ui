@@ -15,6 +15,7 @@
     import Side_content_component from "./side_content_scetion.svelte";
     import { documents_store } from "../stores/document_store";
     import { save_button_clicked } from "./identityproof.svelte";
+    import {category_store_name} from '../stores/category_store';
     import {
         verify_document_function,
         save_facility_function,
@@ -608,15 +609,31 @@
         <div class="breadcrumb-section">
             <p class="breadcrumbtext">
                 <span class="text-textgrey pr-1 text-base"
-                    >Home / Onboard New / Workforce</span
+                    >Home / Onboard New / {$category_store_name.category_name}</span
                 >
                 <span class="flex xs:text-base xs:items-center"
                     ><img
                         src="{$img_url_name.img_name}/delivery.png"
                         class="pr-2.5 pl-5 xs:pl-0"
                         alt=""
-                    /> NDA/DA/HDA
+                    /> {#if $facility_data_store.facility_type}
+                    {$facility_data_store.facility_type}
+                        
+                    {/if}
                 </span>
+                <span class="flex xs:text-base xs:items-center"
+                >
+                {
+                    #if $facility_id.facility_id_number
+                }
+                <div class="mx-3">
+                    Facility-ID: {$facility_id.facility_id_number}
+                </div>
+                
+
+                {/if}
+                 
+            </span>
             </p>
         </div>
     </div>

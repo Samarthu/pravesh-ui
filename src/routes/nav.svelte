@@ -1,6 +1,7 @@
 <script>
     import { goto } from "$app/navigation";
     import {img_url_name} from '../stores/flags_store';
+    import {reset_all_stores} from '../services/pravesh_config';
 
     let routeProfile = "";
     let routeDashboard = "";
@@ -11,8 +12,13 @@
     }
 
     function routeToPageDashboard() {
-        let replaceState = false;
+        let a = reset_all_stores();
+        if(a){
+            let replaceState = false;
         goto(routeDashboard, { replaceState });
+
+        }
+       
     }
 
     routeProfile = "profile";

@@ -6,4 +6,4 @@ export const vercticle_name = writable({
 });
 
 export const get_organization_link = derived(vercticle_name,
-    $vercticle_name => '/api/resource/Organization?fields=["*"]&filters=[["domain","=","'+$vercticle_name.verticle+'"]]');
+    $vercticle_name => '/api/resource/Organization?fields=["*"]&filters=[["domain","=","'+$vercticle_name.verticle+'"]]&limit_page_length=*');

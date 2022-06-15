@@ -22,6 +22,7 @@
     import { duplicate_facility_data_store } from "../stores/duplicate_facility_data_store";
     import { sorting_facility_details_for_edit } from "../services/pravesh_config";
     import { edit_facility_function } from "../services/identity_proof_services";
+    import {category_store_name} from '../stores/category_store';
     import Spinner from "./components/spinner.svelte";
     let show_spinner = false;
 
@@ -30,6 +31,7 @@
     let test_date;
 
     var email_pattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    var pincode_pattern = /^[1-9]{1}[0-9]{2}[0-9]{3}$/;
 
     // import { facility_data } from "src/services/onboardsummary_services";
 
@@ -51,6 +53,8 @@
     let final_address = [];
     let selected_present_address;
     let temp_max_date;
+
+    let email_check = false;
 
     let work_address = {
         city: null,
@@ -431,8 +435,22 @@
     async function gotoidentityproof() {
         show_spinner = true;
         valid = true;
-        save_address_to_store();
-        if ($facility_data_store.facility_name == null) {
+        
+        if($facility_data_store.facility_email){
+            verify_email();
+            if(!email_check){
+
+                show_spinner = false;
+                valid = false;
+                facility_email_message = "invalid email";
+
+            }
+            else{
+                facility_email_message = ""
+            }
+
+        }
+        if ($facility_data_store.facility_name == null || $facility_data_store.facility_name == "") {
             show_spinner = false;
             valid = false;
             facility_name_message = "Please enter a facility name";
@@ -469,7 +487,7 @@
             work_address_city_message = "";
         }
 
-        if (work_address.address == null) {
+        if (work_address.address == null || work_address.address =="") {
             show_spinner = false;
             valid = false;
             // present_address_address_message = "Please enter an address";
@@ -485,8 +503,19 @@
             work_address_postal_message = "Please enter a pin code.";
             // present_address_postal_message = "Please enter a pin code.";
         } else {
+            if(!work_address.postal.match(pincode_pattern)){
+                valid = false;
+                show_spinner = false;
+                work_address_postal_message = "Please enter a valid pin code.";
+
+            }
+            else{
+                work_address_postal_message = "";
+
+            }
+            
             // valid = true;
-            work_address_postal_message = "";
+            // work_address_postal_message = "";
         }
 
         if (address_check == "No") {
@@ -501,7 +530,7 @@
                 present_address_city_message = "";
             }
 
-            if (present_address.address == null) {
+            if (present_address.address == null || present_address.address == "") {
                 show_spinner = false;
                 valid = false;
                 // work_address_address_message = "Please enter an address.";
@@ -518,7 +547,17 @@
                 present_address_postal_message = "Please enter a pin code.";
             } else {
                 // valid = true;
-                present_address_postal_message = "";
+                if(!present_address.postal.match(pincode_pattern)){
+                    valid = false;
+                    show_spinner = false;
+                    present_address_postal_message= "Please enter a valid pin code.";
+
+            }
+            else{
+                present_address_postal_message= "";
+
+            }
+                // present_address_postal_message = "";
             }
         }
 
@@ -546,6 +585,10 @@
             // valid = true;
             address_check_message = "";
         }
+
+        
+
+        save_address_to_store();
 
         if (valid) {
             if (
@@ -605,6 +648,18 @@
                     sorting_data_result
                 );
                 console.log("edit_facility_response", edit_facility_response);
+                if(edit_facility_response.body.status == "green"){
+
+                    let replaceState = false;
+                    setTimeout(
+                                goto(routeTo,
+                                    
+                                    { replaceState }
+                                ),
+                                2000
+                            );
+
+                }
             } else {
                 show_spinner = false;
                 let replaceState = false;
@@ -739,6 +794,7 @@
     async function verify_email() {
         if (!$facility_data_store.facility_email.match(email_pattern)) {
             facility_email_message = "Invalid Email format";
+            email_check = false;
             // $facility_data_store.facility_email = "";
         } else {
             let verify_email_response = await verify_associate_email();
@@ -746,10 +802,13 @@
             try {
                 if (verify_email_response.body.data == true) {
                     facility_email_message = "";
+                    email_check = true;
                 } else {
                     facility_email_message = verify_email_response.body.message;
+                    email_check = false;
                 }
             } catch {
+                email_check = false;
                 toast_text = "Unable to verify email";
                 toast_type = "error";
             }
@@ -867,6 +926,45 @@
         const d = new Date(test_date);
         console.log("date", d);
     }
+
+    function on_city_change_event(){
+        work_address.address = null;
+        work_address.postal = null;
+
+    }
+    function on_present_city_change(){
+        present_address.address = null;
+        present_address.postal = null;
+    }
+    function verify_pincode(pin_code,address_type){
+        console.log("inside verify pincode");
+        if (!pin_code.match(pincode_pattern)) {
+            if(address_type == "work_address"){
+                work_address_postal_message = "Invalid Pincode format";
+
+            }
+            else if(address_type == "present_address"){
+                present_address_postal_message = "Invalid Pincode format"
+
+            }
+           
+            
+            // $facility_data_store.facility_email = "";
+        }
+        else{
+            if(address_type == "work_address"){
+                work_address_postal_message = "";
+
+            }
+            else if(address_type == "present_address"){
+                present_address_postal_message = ""
+
+            }
+
+
+        }
+
+    }
 </script>
 
 {#if show_spinner}
@@ -878,15 +976,27 @@
         <div class="breadcrumb-section">
             <p class="breadcrumbtext">
                 <span class="text-textgrey pr-1 text-base"
-                    >Home / Onboard New / Workforce</span
+                    >Home / {#if !$facility_id.facility_id_number} Onboard New
+                    {:else}Edit{/if} / {#if $category_store_name.category_name }
+                    {$category_store_name.category_name}
+                    {:else}
+                    
+                    {/if}
+                    </span
                 >
-                <span class="flex xs:text-base xs:items-center"
-                    ><img
-                        src="{$img_url_name.img_name}/delivery.png"
-                        class="pr-2.5 pl-5 xs:pl-0"
-                        alt=""
-                    /> NDA/DA/HDA
-                </span>
+            <span class="flex xs:text-base xs:items-center"
+                >
+                {
+                    #if $facility_id.facility_id_number
+                }
+                <div class="mx-3">
+                    Facility-ID: {$facility_id.facility_id_number}
+                </div>
+                
+
+                {/if}
+                 
+            </span>
             </p>
         </div>
     </div>
@@ -1113,9 +1223,8 @@
                                         id=""
                                         class="inputbox"
                                         bind:value={work_address.city}
-                                        on:change={(e) => {
-                                            console.log("on_change", e);
-                                        }}
+                                        on:change={ () => on_city_change_event()
+                                        }
                                     >
                                         <option value="" selected disabled
                                             >Select City</option
@@ -1267,6 +1376,7 @@
                                     <input
                                         type="Email"
                                         class="inputbox"
+                                        on:blur={()=> verify_pincode(work_address.postal,"work_address")}
                                         bind:value={work_address.postal}
                                     />
                                 </div>
@@ -1346,6 +1456,7 @@
                                             id="select_working_city"
                                             class="inputbox"
                                             bind:value={present_address.location_id}
+                                            on:change={() => on_present_city_change()}
                                         >
                                             <option value="" selected disabled
                                                 >Select City</option
@@ -1429,6 +1540,7 @@
                                         <input
                                             type="Email"
                                             class="inputbox"
+                                            on:blur={()=>verify_pincode(present_address.postal,"present_address")}
                                             bind:value={present_address.postal}
                                         />
                                     </div>
@@ -1539,6 +1651,7 @@
             </div>
             <div class="onboardFormNot ">
                 <div class="formFooterAction">
+                    
                     <div
                         on:click|preventDefault={() => {
                             gotoverifycontactnumber();
