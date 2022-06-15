@@ -453,8 +453,8 @@ import { current_user } from "../stores/current_user_store";
                 if(facility_document_res != "null"){
                     
                 
-                $documents_store.documents = facility_document_res.body.data
-                $duplicate_documents_store.documents = facility_document_res.body.data;
+                $documents_store.documents = JSON.parse(JSON.stringify(facility_document_res.body.data));
+                $duplicate_documents_store.documents = JSON.parse(JSON.stringify(facility_document_res.body.data));
                 // console.log("duplicate document store",$duplicate_documents_store)
     
                 // console.log("documents_store",$documents_store)
