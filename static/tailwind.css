@@ -729,8 +729,6 @@
     @apply  text-textdarkgrey text-sm font-normal 
 }
 
-
-
 .breadcrumbSupplier{
     @apply text-xl font-medium  pt-pt21 pb-pt21 xs:p-pt21 sm:p-pt21 border-borderBreadcrumb  flex items-center xs:flex-wrap xs:py-4
 }
