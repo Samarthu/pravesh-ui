@@ -52,6 +52,9 @@
     let logged_user_data;
     let new_new_associate_data;
     let org_data_arr = [];
+    $:pagenumber = "";
+    let last_num_from_pages;
+    // $:pagenumber = pagenumber;
     // let pages= [];
 //pagination////////////
     $:new_pages = [];
@@ -359,14 +362,16 @@ else
     }
 
     async function onboarded_check_func(){
+        if(status != ""){
         onboarded_by_me_checkbox = true;
+        
             logged_user_data = await logged_user();
             try{
                 username = logged_user_data.body.data.user.name;
                 userid = logged_user_data.body.data.user.username;
                 console.log("username and useridddd",username,userid)
                 var new_drop_limit=parseInt(drop_limit)  
-            
+                
                     if(onboarded_by_me_checkbox == true){ 
                         console.log("inside if block onboarded_by_me_checkbox",username,userid)
                         new_new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}  }
@@ -374,41 +379,45 @@ else
                         console.log("inside else block ")
                         new_new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status}
                     }
-                // }
-                console.log("onboarded_check_func checked")
-                json_associate_data=JSON.stringify(new_new_associate_data);
-                let onboarded_check_res=await supplier_data(json_associate_data);
+                    // }
+                        console.log("onboarded_check_func checked")
+                        json_associate_data=JSON.stringify(new_new_associate_data);
+                        let onboarded_check_res=await supplier_data(json_associate_data);
+                    
+                        supplier_data_from_service = onboarded_check_res.body.data.data_list;
+                        total_count_associates = onboarded_check_res.body.data.total_records;
+                        for(let i=0;i<supplier_data_from_service.length;i++){
+                            supplier_data_from_service[i].expand = false;
+                        }
+                    }
                 
-                    supplier_data_from_service = onboarded_check_res.body.data.data_list;
-                    total_count_associates = onboarded_check_res.body.data.total_records;
-                    for(let i=0;i<supplier_data_from_service.length;i++){
-                        supplier_data_from_service[i].expand = false;
-                    }
-                    }
                     
             catch(err) {
                 toast_type = "error";
                 toast_text = err;
             }
-            }
-          
-    if(onboarded_by_me_checkbox == true){    
-    new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: status,username:username,userid:userid}
-    }
-    else{
-    new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
+        }
+        }
+    if(status != ""){
+        if(onboarded_by_me_checkbox == true){    
+            new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: status,username:username,userid:userid}
+        }
+        else{
+            new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
+        }
     }
 
     function next_function(){
         
-        let last_num_from_pages = pages.length
-        if(mapped_pages.includes(last_num_from_pages)){
+        last_num_from_pages = pages.length
+        console.log("last_num",last_num_from_pages)
+        // if(mapped_pages.includes(last_num_from_pages)){
 
-        }
-         else{  
+        // }
+        //  else{  
        for (var i = 0; i < mapped_pages.length; i++){       
         mapped_pages[i] = mapped_pages[i] + 1;
-       }
+    //    }
     }
     // console.log("mapped_pagessss",mapped_pages)
     // console.log("mapped_pagessss",mapped_pages[0])
@@ -428,12 +437,13 @@ else
     pageChange(mapped_pages[0])
     }
 
-   async function pageChange(pagenumber){
-    //    console.log("Pagenumberrrrr",pagenumber);
+   async function pageChange(pagenum){
+        pagenumber = pagenum;
+       console.log("Pagenumberrrrr",pagenum);
        var new_drop_limit=parseInt(drop_limit)
     //    console.log("new_drop_limit in pagechange",new_drop_limit)
        
-       if(pagenumber == 1){
+       if(pagenum == 1){
         if(onboarded_by_me_checkbox == true){    
         new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:"username",userid:"userid"}
         }
@@ -450,7 +460,7 @@ else
        }
        else{
         //    console.log("pagenumberrrr",pagenumber - 1)
-           let new_offset = (pagenumber-1)*drop_limit
+           let new_offset = (pagenum-1)*drop_limit
         //    console.log(new_offset)
         if(onboarded_by_me_checkbox == true){    
             new_associate_data = {city: "-1",limit:new_drop_limit,offset:new_offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}
@@ -627,7 +637,7 @@ else
     }
 
     async function status_pill_clicked(status_selected){
-      
+      show_spinner = true;
         status = status_selected;
 
         var new_drop_limit=parseInt(drop_limit)
@@ -647,7 +657,7 @@ else
     
     try{
             if(filter_res_from_dash.body.status == "green"){
-               
+               show_spinner = false;
                 supplier_data_from_service = [];
                 
                 supplier_data_from_service = filter_res_from_dash.body.data.data_list;
@@ -681,6 +691,7 @@ else
             }
         }
         catch(err) {
+            show_spinner = false;
             toast_type = "error";
             toast_text = err;
         }
@@ -1582,8 +1593,8 @@ else
                         </div>
                     </button>
                     <button class="savedcount">
-                        <p class="otherCounts">All</p>
-                        <div class="bgAllCount flex-grow">
+                        <p class="otherCounts" >All</p>
+                        <div class="bgAllCount flex-grow" on:click={()=>status_pill_clicked("")}>
                             <p class="otherCountNumbers">{total_count}</p>
                         </div>
                     </button>
@@ -1791,28 +1802,42 @@ else
                             <nav aria-label="Page navigation">
                                 <ul class="pagiWrapper ">
                                     <li>
+                                        {#if pagenumber == "1"}
+                                        <button class="preNextbtn" style="background: #dddddd; pointer-events: none;">
+                                            Previous</button
+                                        >
+                                        {:else}
                                         <button class="preNextbtn"on:click={previous_function}>
                                             Previous</button
                                         >
+                                        {/if}
                                         <!-- <button on:click={setValuechange}>value change</button> -->
                                     </li>
                                     
-                                    {#if result === false}
+                                    <!-- {#if result === false}
                                     <li >
                                         <button id = "curr_page" class="pagiItemsNumber">
                                            1
                                         </button>
                                         </li>
-                                    {:else}
+                                    {:else} -->
                                     {#each mapped_pages as page}
-                                     
+                                     {#if pagenumber == page}
+                                     <li >
+                                        <button id = "curr_page" class="pagiItemsNumber" on:click="{pageChange(page)}" style="background-color: darkgray;">
+                                           {page}
+                                        </button>
+                                    </li>
+                                     {:else}
                                     <li >
                                         <button id = "curr_page" class="pagiItemsNumber" on:click="{pageChange(page)}">
                                            {page}
                                         </button>
                                     </li>
-                                    {/each}
                                     {/if}
+                                    {/each}
+                                    
+                                    <!-- {/if} -->
                                     
                                     <!-- <li>
                                         <button class="pagiItemsNumber"
@@ -1835,9 +1860,15 @@ else
                                     </li> -->
 
                                     <li>
+                                        {#if pagenumber == last_num_from_pages}
+                                        <button class="preNextbtn" style="background: #dddddd; pointer-events: none;">
+                                            Next</button
+                                        >
+                                        {:else}
                                         <button class="preNextbtn" on:click={next_function}>
                                             Next</button
                                         >
+                                        {/if}
                                     </li>
                                 </ul>
                             </nav>
@@ -1973,11 +2004,11 @@ else
                                                     />
                                                     {facility_data.status}
                                                 </div>
-                                                <p
+                                                <!-- <p
                                                     class="text-xs text-grey ml-4"
                                                 >
                                                     ({facility_data.status})
-                                                </p>
+                                                </p> -->
                                             </div>
                                             {/if}
                                             {#if facility_data.expand == true}
