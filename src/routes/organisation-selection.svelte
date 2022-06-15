@@ -339,13 +339,13 @@
 <div class="mainContent ">
     <div class="breadcrumb">
         <div class="breadcrumb-section">
-            <p class="breadcrumbtext"><span class="text-textgrey pr-1 text-base">Home /</span> <span class="text-base">Business List</span></p>
+            <p class="breadcrumbtext"><span class="text-textgrey pr-1 text-base">Home /</span> <span class="text-base">Organisation List</span></p>
         </div>
     </div>
     <div class="contentsection">
 
         <div class="innersection ">
-            <h4 class="headingText">Businesses </h4>
+            <h4 class="headingText">Organisations </h4>
 
             <div class="cardsectio">
                 
