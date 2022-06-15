@@ -573,6 +573,10 @@
                 }
             }
         }
+        else{
+            toast_text="Please enter valid details"
+            toast_type="error"
+        }
     }
     function delete_files(file_name) {
         for (let i = 0; i < $documents_store.documents.length; i++) {
@@ -913,6 +917,7 @@
                                     <input
                                         type="text"
                                         class="inputbox"
+                                        autocomplete="off"
                                         bind:value={$bank_details.account_number}
                                         on:blur={() => verify_account_number()}
                                     />
@@ -947,6 +952,7 @@
                                     <input
                                         type="password"
                                         class="inputbox"
+                                        autocomplete="off"
                                         bind:value={$bank_details.re_enter_account_number}
                                         on:blur={() =>
                                             verify_re_account_number()}
