@@ -1657,7 +1657,12 @@
                         <div class="flex">
                             <div class="formGroup ">
                                 <label class="formLable "
-                                    >PAN Card Number 
+                                    >PAN Card Number   
+                                    {#if $pravesh_properties.properties[
+                                        "pan_required_associates"
+                                    ].includes($facility_data_store.facility_type)}
+                                    <span class="text-mandatorysign">* </span>
+                                    {/if}
                                         
                                     </label
                                 >
@@ -1695,7 +1700,11 @@
                         <div class="flex">
                             <div class="formGroupBaseLine py-1">
                                 <label class="formLable "
-                                    >PAN Card Copy </label
+                                    >PAN Card Copy {#if $pravesh_properties.properties[
+                                        "pan_required_associates"
+                                    ].includes($facility_data_store.facility_type)}
+                                    <span class="text-mandatorysign">* </span>
+                                    {/if} </label
                                 >
                                 <!-- <div class="formInnerGroup ">
 
