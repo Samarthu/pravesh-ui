@@ -1692,7 +1692,7 @@
             </div>
 
             <div class="grid grid-cols-3 gap-4 pb-5 xsl:grid-cols-1" >
-                <div class="workdetailsColFirst">
+                <div class="workdetailsColFirst" style="border-right: 1px solid lightgray">
                     <div class="userInfoSec3">
                         <div class="flex items-start">
                             <img src="{$img_url_name.img_name}/Subtract.png" alt="" class="w-5 h-auto">
@@ -1784,7 +1784,7 @@
                    
                 </div>
 
-                <div class="workdetailsColSec">
+                <div class="workdetailsColSec" style="border-right: 1px solid lightgray">
                     <div class="px-5 py-4 text-erBlue font-medium">
                         <label for="">Documents</label>
                     </div>
@@ -1833,10 +1833,11 @@
                             <div class="flex items-start">
                                 <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
                                 <div class="pl-4 flex items-center">
-                                    <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
+                                    
                                     {#if !new_off_file_obj.offer_name}
                                     <p>Not Required</p>
                                     {:else}
+                                    <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
                                     <p class="detailLbale">{new_off_file_obj.offer_name}</p>
                                     {/if}
                                 </div>
@@ -1915,6 +1916,27 @@
                 <div class="ConModalContent">
 
                     <div class="">
+                        {#if temp2 == "gst1"}
+
+                                <div class="addbuttongst ">
+
+                                    <div class="updateAction" on:click={() => {
+
+                                                        temp2 = "gst2";
+
+                                                    }}>
+
+                                        <button class="ErBlueButton">Add New Tag</button>
+
+                                    </div>
+
+                                </div>
+
+                                {/if}
+
+
+
+                        {#if temp2 == "gst2"}
                         <div class="bgAddSection mt-3">
                             <div class="addGstForm pt-4">
                                 <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
@@ -2060,20 +2082,21 @@
 
                             </div>
                         </div>
+                        {/if}
                         <div class="tabwrapper flex justify-between text-center py-2 pb-3">
                             <!-- <div class="changetype py-3 w-2/4   ">
                                 <p>Add Tags</p>
                             </div> -->
                             {#if temp == "Add"}
                             <button
-                                class="changetype py-3 w-2/4 bg-bglightgreye"
+                                class="changetype py-3 w-2/4 bg-bglightgreye border"
                                 on:click={add_tag_tab_disp}
                             >
                                 <p>Add Tags</p>
                             </button>
                             {:else}
                             <button
-                                class="changetype py-3 w-2/4 "
+                                class="changetype py-3 w-2/4 border"
                                 on:click={add_tag_tab_disp}
                             >
                                 <p>Add Tags</p>
@@ -2081,12 +2104,12 @@
                             {/if}
 
                             {#if temp == "tag"}
-                            <button class="Historytab py-3 w-2/4 bg-bglightgreye"  on:click={tagAuditFunc}
+                            <button class="Historytab py-3 w-2/4 bg-bglightgreye border"   on:click={tagAuditFunc}
                             >
                                 <p>Tag Audit Trail</p>
                             </button>
                             {:else}
-                            <button class="Historytab py-3 w-2/4"  on:click={tagAuditFunc}
+                            <button class="Historytab py-3 w-2/4 border"  on:click={tagAuditFunc}
                             >
                                 <p>Tag Audit Trail</p>
                             </button>
@@ -2282,10 +2305,32 @@
                             <div class="bgAddSection">
                                 <div class="addbuttongst  hidden">
                                     <div class="updateAction">
-                                        <p class="mb-3">Upload New Physical contract here</p>
+                                        <p class="mb-3">Add New Physical Work Contract</p>
                                         <button class="ErBlueButton">Upload</button>
                                     </div>
                                 </div>
+
+                                {#if temp2 == "gst1"}
+
+                                <div class="addbuttongst ">
+
+                                    <div class="updateAction" on:click={() => {
+
+                                                        temp2 = "gst2";
+
+                                                    }}>
+
+                                        <button class="ErBlueButton">Add New Physical Work Contract</button>
+
+                                    </div>
+
+                                </div>
+
+                                {/if}
+
+
+
+                        {#if temp2 == "gst2"}
                                 <div class="addGstForm ">
                                     <div class="gstaddtitle px-4 py-4">
                                         <p class="text-lg font-medium">Upload New Physical Contract</p>
@@ -2468,6 +2513,7 @@
                                     </div>
 
                                 </div>
+                        {/if}
                             </div>
 
                         </div>
@@ -2475,14 +2521,14 @@
 
 
                         <div class="tabwrapper flex justify-between text-center py-2 pb-3"> 
-                            <button class="changetype py-3 w-1/2 {e_bg_bglightgreye}" on:click={() => {contract_tab("e-cont")}}>
+                            <button class="changetype py-3 w-1/2 border {e_bg_bglightgreye}" on:click={() => {contract_tab("e-cont")}}>
                                 <p>E-Contracts</p>
                             </button>
-                            <button class="Historytab py-3 w-1/2	 {phy_bg_bglightgreye}"  on:click={() => {contract_tab("phy_cont")}} >
+                            <button class="Historytab py-3 w-1/2 border {phy_bg_bglightgreye}"  on:click={() => {contract_tab("phy_cont")}} >
                                 <!-- on:click="{()=>contract_tab("phy_cont")} -->
                                 <p>Physical Contracts</p>
                             </button>
-                            <button class="changetype py-3 w-1/2 {all_bg_bglightgreye}" on:click={() => {contract_tab("all-cont")}}>
+                            <button class="changetype py-3 w-1/2 border {all_bg_bglightgreye}" on:click={() => {contract_tab("all-cont")}}>
                                 <p>View All Accepted Contracts</p>
                             </button>
                         </div>
@@ -2608,7 +2654,7 @@
                                             </tr>
                                         </thead>
                                         {#each work_contract_arr as contract}
-                                        <tbody class="tbodypopover">
+                                        <tbody class="tbodypopover border">
                                             <tr class="border-b">
                                                 {#if contract.is_physical_contract == "1"}
                                                 <td>{contract.contract_type}</td>

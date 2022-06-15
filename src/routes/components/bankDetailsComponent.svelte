@@ -499,7 +499,7 @@
 
      <div class="grid grid-cols-3 gap-4 pb-5 xsl:grid-cols-1" >
 
-         <div class="Bank_DetailsColFirst">
+         <div class="Bank_DetailsColFirst" style="border-right: 1px solid lightgray">
             
              <div class="userInfoSec3 ">
                  <div class="flex items-start">
@@ -632,10 +632,11 @@
                      <div class="flex items-start">
                          <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
                          <div class="pl-4 flex items-center">
-                             <img src="{$img_url_name.img_name}/jpeg.png" class="" alt="">
+                            
                             {#if can_cheque_obj.can_cheque_name == null}
                             <p>Not Provided</p>
                             {:else}
+                            <img src={$page.url.origin+can_cheque_obj.can_cheque_url} class="" alt="">
                              <p class="detailLbale">{can_cheque_obj.can_cheque_name}</p>
                              {/if}
                          </div>

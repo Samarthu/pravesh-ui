@@ -54,6 +54,9 @@ module.exports = {
         'bgVMTapprove' : '#47BD1D',
         'bglightVMTApprove':'#F2FCEE',
         'bgGreenApprove' : "#19BD16",
+        'bglightyellow':'#EFECD5',
+        'bgtransparent':"#00000073",
+
        
        }),
        zIndex: {
