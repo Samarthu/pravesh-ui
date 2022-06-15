@@ -264,22 +264,22 @@
                 
             }
         }
-        else if(data == "address"){
+        // else if(data == "address"){
 
-            var ext = addproof_obj.address_url.split('.').reverse()[0]
-            image_path = $page.url.origin+addproof_obj.address_url;
-            if(ext == "pdf"){
-                console.log("inside ext matched")
-                document.getElementById("img_model_url").innerHTML = '<embed src='+image_path+' type="application/pdf" width="100%" height="100%" alt='+{alt_image}+'>'
-            }
-            else{
-                document.getElementById("img_model_url").innerHTML = '<img src='+image_path+' class="mx-auto" alt='+alt_image+'>'
+        //     var ext = addproof_obj.address_url.split('.').reverse()[0]
+        //     image_path = $page.url.origin+addproof_obj.address_url;
+        //     if(ext == "pdf"){
+        //         console.log("inside ext matched")
+        //         document.getElementById("img_model_url").innerHTML = '<embed src='+image_path+' type="application/pdf" width="100%" height="100%" alt='+{alt_image}+'>'
+        //     }
+        //     else{
+        //         document.getElementById("img_model_url").innerHTML = '<img src='+image_path+' class="mx-auto" alt='+alt_image+'>'
                 
-            }
-            // image_path = $page.url.origin+addproof_obj.address_url;
-            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+addproof_obj.address_url);
-            alt_image = "address proof";
-        }
+        //     }
+        //     // image_path = $page.url.origin+addproof_obj.address_url;
+        //     // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+addproof_obj.address_url);
+        //     alt_image = "address proof";
+        // }
         else if(data == "licence"){
             image_path = $page.url.origin+dl_photo_obj.dl_lic_url;
             console.log("image_path",image_path)
@@ -297,21 +297,21 @@
                 document.getElementById("img_model_url").innerHTML = '<img src='+image_path+' class="mx-auto" alt='+alt_image+'>'
             }
         }
-        else if(data == "offer"){
-            image_path = $page.url.origin+new_off_file_obj.offer_url;
-            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+new_off_file_obj.offer_url);
-            alt_image = "offer letter proof";
-        }
-        else if(data == "can_cheque"){
-            image_path = $page.url.origin+can_cheque_obj.can_cheque_url;
-            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+can_cheque_obj.can_cheque_url);
-            alt_image = "cancel cheque proof";
-        }
-        else if(data == "cheque_disp"){
-            image_path = $page.url.origin+cheque_disp_obj.cheque_disp_url;
-            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+new_cheque.file_url);
-            alt_image = "cheque proof";
-        }
+        // else if(data == "offer"){
+        //     image_path = $page.url.origin+new_off_file_obj.offer_url;
+        //     // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+new_off_file_obj.offer_url);
+        //     alt_image = "offer letter proof";
+        // }
+        // else if(data == "can_cheque"){
+        //     image_path = $page.url.origin+can_cheque_obj.can_cheque_url;
+        //     // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+can_cheque_obj.can_cheque_url);
+        //     alt_image = "cancel cheque proof";
+        // }
+        // else if(data == "cheque_disp"){
+        //     image_path = $page.url.origin+cheque_disp_obj.cheque_disp_url;
+        //     // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+new_cheque.file_url);
+        //     alt_image = "cheque proof";
+        // }
         for(let i = 0;i<gst_doc_arr.length;i++){
             if(data == "mult_gsts"){
                 if(doc_number == gst_doc_arr[i].gst_doc_num)
@@ -622,7 +622,7 @@
                             {#if !pancard_obj.pan_name}
                             <p>Not Provided</p>
                             {:else}
-                            <img src={$page.url.origin+pancard_obj.pan_attach} class="" alt="">
+                            <img src={$page.url.origin+pancard_obj.pan_attach} class="mr-2 w-5" alt="">
                             <p class="detailLbale">{pancard_obj.pan_name}</p>
                             {/if}
                         </div>
@@ -685,7 +685,7 @@
                             {#if !aadhar_obj.aadhar_name}
                             <p>Not Provided</p>
                             {:else}
-                            <img src={$page.url.origin+aadhar_obj.aadhar_attach} class="" alt="">
+                            <img src={$page.url.origin+aadhar_obj.aadhar_attach} class="mr-2 w-5" alt="">
                             <p class="detailLbale">{aadhar_obj.aadhar_name}</p>
                             {/if}
                         </div>
@@ -749,7 +749,7 @@
                             {#if !dl_photo_obj.dl_lic_name}
                             <p>Not Provided</p>
                             {:else}
-                            <img src={$page.url.origin+dl_photo_obj.dl_lic_url} class="" alt="">
+                            <img src={$page.url.origin+dl_photo_obj.dl_lic_url} class="mr-2 w-5" alt="">
                             <p class="detailLbale">{dl_photo_obj.dl_lic_name}</p>
                             
                             {/if}

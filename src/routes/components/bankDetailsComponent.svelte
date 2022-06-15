@@ -636,7 +636,7 @@
                             {#if can_cheque_obj.can_cheque_name == null}
                             <p>Not Provided</p>
                             {:else}
-                            <img src={$page.url.origin+can_cheque_obj.can_cheque_url} class="" alt="">
+                            <img src={$page.url.origin+can_cheque_obj.can_cheque_url} class="w-5 mr-2" alt="">
                              <p class="detailLbale">{can_cheque_obj.can_cheque_name}</p>
                              {/if}
                          </div>

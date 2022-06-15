@@ -410,8 +410,17 @@
             alt_image = "pan-card proof";
         }
         else if(data == "address"){
+
+            var ext = addproof_obj.address_url.split('.').reverse()[0]
             image_path = $page.url.origin+addproof_obj.address_url;
-            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+addproof_obj.address_url);
+            if(ext == "pdf"){
+                console.log("inside ext matched")
+                document.getElementById("img_model_url").innerHTML = '<embed src='+image_path+' type="application/pdf" width="100%" height="100%" alt='+{alt_image}+'>'
+            }
+            else{
+                document.getElementById("img_model_url").innerHTML = '<img src='+image_path+' class="mx-auto" alt='+alt_image+'>'
+                
+            }
             alt_image = "address proof";
         }
         else if(data == "licence"){
@@ -1556,7 +1565,7 @@
                                  {#if !addproof_obj.address_name}
                                  <p>Not Provided</p>
                                  {:else}
-                                 <img src={$page.url.origin+addproof_obj.address_url} class="" alt="">
+                                 <img src={$page.url.origin+addproof_obj.address_url} class="w-5 mr-2" alt="demo">
                                  <p class="detailLbale">{addproof_obj.address_name}</p>
                                  {/if}
                              </div>
