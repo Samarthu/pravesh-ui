@@ -77,9 +77,10 @@
     // $:if(workforce_checkbox === true){
        
     // }
-    $:if(onboarded_by_me_checkbox === true){
-        onboarded_by_me_checkbox = true;
-    }
+    // $:if(onboarded_by_me_checkbox === true){
+    //     onboarded_by_me_checkbox = true;
+    // }
+    $:onboarded_by_me_checkbox
     new_associate_data=[];
     //////////////////////    onboard summary data if checkbox on ////////////
         //     if(onboarded_by_me_checkbox == true){ 
@@ -149,6 +150,7 @@
     let bank_details_pending = 0;
     let pending_offer_letter=0;
      let bgv_rejected = 0;
+     let bgv_pending = 0;
      let active=0
      let deactive=0,
     bank_verification_pending,bank_beneficiary_pending,background_verification_pending,onboarding_in_progress;
@@ -197,6 +199,9 @@
             }
             if(new_dash_data.name == "background verification rejected"){
                 bgv_rejected = new_dash_data.count
+            }
+            if(new_dash_data.name == "background verification pending"){
+                bgv_pending = new_dash_data.count
             }
         }
         // active = dashboard.active;
@@ -369,16 +374,18 @@ else
 
     async function onboarded_check_func(){
         show_spinner = true;
-        // if(status != ""){
-        onboarded_by_me_checkbox = true;
-        
+        console.log("onboarded_by_me_checkbox here",onboarded_by_me_checkbox)
+        if(onboarded_by_me_checkbox == false){
+            
             logged_user_data = await logged_user();
             try{
+                
                 username = logged_user_data.body.data.user.name;
                 userid = logged_user_data.body.data.user.username;
                 let onboard_by_me_sup_res = await onboard_by_me_sup(username,userid);
                 try{
                     if(onboard_by_me_sup_res.body.status == "green"){
+                        show_spinner=false;
                         new_dash_data = [];
                         console.log("onboard_by_me_sup_res",onboard_by_me_sup_res)
                         let dashboard = onboard_by_me_sup_res.body.data;
@@ -421,6 +428,9 @@ else
                             if(new_dash_data.name == "background verification rejected"){
                                 bgv_rejected = new_dash_data.count
                             }
+                            if(new_dash_data.name == "background verification pending"){
+                                bgv_pending = new_dash_data.count
+                            }
                         }
                         show_spinner=false;
                        
@@ -437,6 +447,7 @@ else
                     toast_type = "error"
                     toast_text = err
                 }
+                
                 // console.log("username and useridddd",username,userid)
                 // var new_drop_limit=parseInt(drop_limit)  
                 
@@ -461,18 +472,73 @@ else
                 
                     
             catch(err) {
+                show_spinner=false;
                 toast_type = "error";
                 toast_text = err;
             }
-        // }
+            }
+            else if(onboarded_by_me_checkbox == true){
+                console.log("here inside TRUE")
+                show_spinner=false;
+            let dashboard_res = await dashboard_data();
+            let dashboard = dashboard_res.body.data;
+            for(new_dash_data of dashboard){
+            
+            if(new_dash_data.name == "active"){
+                active = new_dash_data.count
+            }
+            if(new_dash_data.name == "deactive"){
+                deactive = new_dash_data.count
+            }
+            if(new_dash_data.name == "id proof rejected"){
+                id_proof_rejected = new_dash_data.count
+            }
+            if(new_dash_data.name == "background verification pending"){
+                background_verification_pending = new_dash_data.count
+            }
+            if(new_dash_data.name == "bank details rejected"){
+                bank_details_rejected = new_dash_data.count
+            }
+            if(new_dash_data.name == "id verification pending"){
+                id_verification_pending = new_dash_data.count
+            }
+            if(new_dash_data.name == "bank details pending"){
+                bank_details_pending = new_dash_data.count
+            }
+            if(new_dash_data.name == "bank beneficiary pending"){
+                bank_beneficiary_pending = new_dash_data.count
+            }
+            if(new_dash_data.name == "onboarding in progress"){
+                onboarding_in_progress = new_dash_data.count
+            }
+            if(new_dash_data.name == "bank details pending"){
+                bank_verification_pending = new_dash_data.count
+            }
+            if(new_dash_data.name == "pending offer letter"){
+                pending_offer_letter = new_dash_data.count
+            }
+            if(new_dash_data.name == "background verification rejected"){
+                bgv_rejected = new_dash_data.count
+            }
+            if(new_dash_data.name == "background verification pending"){
+                bgv_pending = new_dash_data.count
+            }
+        }
+                
+
+            }
+            // else{
+            //     show_spinner=false;
+            // }
+            
         }
     // if(status != ""){
-        if(onboarded_by_me_checkbox == true){    
-            new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: status,username:username,userid:userid}
-        }
-        else{
-            new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
-        }
+        // if(onboarded_by_me_checkbox == true){    
+        //     new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: status,username:username,userid:userid}
+        // }
+        // else if(onboarded_by_me_checkbox == false){
+        //     new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
+        // }
     // }
 
     function next_function(){
@@ -658,8 +724,8 @@ else
             }    
         } 
         status = document.getElementById("select_status").value.trim();
-        console.log("onboarded_by_me_checkbox",onboarded_by_me_checkbox)
-        
+        console.log("status",status)
+        if(status != "-1"){
         if(onboarded_by_me_checkbox == true){
             
             new_associate_data = {city:city,limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}
@@ -704,7 +770,7 @@ else
                 toast_text = err;
             } 
             
-
+        }
     }
 
     async function status_pill_clicked(status_selected){
@@ -1421,7 +1487,7 @@ else
                                                             bind:checked = "{vendor_checkbox}"
                                                         />
                                                         <span class="ml-2"
-                                                            >Associate</span
+                                                            >Vendor</span
                                                         >
                                                     </label>
                                                 </div>
@@ -1510,7 +1576,7 @@ else
                                                     <div class="selectSection ">
                                                         <label
                                                             class="formLableSelect "
-                                                            >Select Associate Type
+                                                            >Select Vendor / Associate Type
                                                         </label>
                                                         <div
                                                             class="formInnerGroupSelect "
@@ -1569,7 +1635,8 @@ else
                                                         <select
                                                         class="selectInputbox" id= "select_status"> 
                                                         <!-- <option class="pt-6" value="-1">All</option> -->
-                                                        <option value=" ">Select</option>
+                                                        <option value="-1">Select</option>
+                                                        <option value=" ">All</option>
                                                         {#each filter_status_array as data_status}   
                                                         {#if data_status.display_name != undefined}
                                                        
@@ -1654,18 +1721,35 @@ else
                         {#if status_for_highlight == "Background Verification Pending"}
                         <button class="idproof flex-grow" style="background-color: #dddd; border: 1px solid black;">
                             <div class="countHeading" on:click={()=>status_pill_clicked("Background Verification Pending")}>
-                                BGV Pending <span class="idproofcount">{bgv_rejected}</span
+                                BGV Pending <span class="idproofcount">{bgv_pending}</span
                                 >
                                 </div>
                         </button>
                         {:else}
                         <button class="idproof flex-grow">
                             <div class="countHeading" on:click={()=>status_pill_clicked("Background Verification Pending")}>
-                                BGV Pending <span class="idproofcount">{bgv_rejected}</span
+                                BGV Pending <span class="idproofcount">{bgv_pending}</span
                                 >
                                 </div>
                         </button>
                         {/if}
+
+                        {#if status_for_highlight == "Background Verification Rejected"}
+                        <button class="idproof flex-grow" style="background-color: #dddd; border: 1px solid black;">
+                            <div class="countHeading" on:click={()=>status_pill_clicked("Background Verification Rejected")}>
+                                BGV Rejected <span class="idproofcount">{bgv_rejected}</span
+                                >
+                                </div>
+                        </button>
+                        {:else}
+                        <button class="idproof flex-grow">
+                            <div class="countHeading" on:click={()=>status_pill_clicked("Background Verification Rejected")}>
+                                BGV Rejected <span class="idproofcount">{bgv_rejected}</span
+                                >
+                                </div>
+                        </button>
+                        {/if}
+
                     </div>
                 </div>
                 <div class="SectionsCounts ">

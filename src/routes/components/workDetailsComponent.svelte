@@ -1748,7 +1748,7 @@
                         <div class="userStatus ">
                             <p class="flex items-center smButtonText" on:click={view_add_client}>
                                 <a href="" class="smButton">
-                                    View/Edit
+                                    View/Edit Client Name
                                 </a>
                             </p>
                         </div>
