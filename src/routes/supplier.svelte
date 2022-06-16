@@ -523,6 +523,14 @@ else
             if(new_dash_data.name == "background verification pending"){
                 bgv_pending = new_dash_data.count
             }
+            new_associate_data = {city:city,limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status} 
+            json_associate_data=JSON.stringify(new_associate_data);
+            let onboarded_check_res=await supplier_data(json_associate_data);
+            supplier_data_from_service = onboarded_check_res.body.data.data_list;
+            total_count_associates = onboarded_check_res.body.data.total_records;
+            for(let i=0;i<supplier_data_from_service.length;i++){
+                supplier_data_from_service[i].expand = false;
+            }
         }
                 
 
