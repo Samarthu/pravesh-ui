@@ -1662,7 +1662,9 @@
                     </p>
                     <p class="flex items-center smButtonText">
                         
-                        <button class="smButton bg-erBlue text-white" on:click={()=>goto("workdetails")}>
+                        <button class="smButton bg-erBlue text-white" on:click={()=>{
+                            $documents_store.documents = [];
+                            goto("workdetails")}}>
                             Edit
 
                         </button>

@@ -1368,7 +1368,9 @@
                      <!-- <a href="" class="smButton bg-erBlue text-white" on:click={()=>{goto("associatedetails")}}>
                          Edit
                      </a> -->
-                     <button class="smButton bg-erBlue text-white" on:click={()=>{goto("associatedetails")}}>
+                     <button class="smButton bg-erBlue text-white" on:click={()=>{
+                         $documents_store.documents =[];
+                          goto("associatedetails")}}>
                         Edit
 
                      </button>

@@ -24,6 +24,11 @@
     import { edit_facility_function } from "../services/identity_proof_services";
     import { category_store_name } from "../stores/category_store";
     import Spinner from "./components/spinner.svelte";
+import { current_user } from "../stores/current_user_store";
+import {
+       
+        save_or_update_documents_function_1
+    } from "../services/identity_proof_services";
     let show_spinner = false;
 
     let toast_text = "";
@@ -581,6 +586,11 @@
                 profile_pic_data.pod != null ||
                 profile_pic_data.file_name != null
             ) {
+                if($facility_id.facility_id_number){
+                    profile_pic_data.status = "active";
+                    profile_pic_data.resource_id = $facility_id.facility_id_number;
+                    profile_pic_data.user_id = $current_user.username;
+                }
                 for (let i = 0; i < $documents_store.documents.length; i++) {
                     if (
                         $documents_store.documents[i]["doc_category"] ==
@@ -597,6 +607,11 @@
                 present_address_proof_data.pod != null ||
                 present_address_proof_data.file_name != null
             ) {
+                if($facility_id.facility_id_number){
+                    present_address_proof_data.status = "active";
+                    present_address_proof_data.resource_id = $facility_id.facility_id_number;
+                    present_address_proof_data.user_id = $current_user.username;
+                }
                 for (let i = 0; i < $documents_store.documents.length; i++) {
                     if (
                         $documents_store.documents[i]["doc_category"] ==
@@ -613,6 +628,11 @@
                 address_proof_data.pod != null ||
                 address_proof_data.file_name != null
             ) {
+                if($facility_id.facility_id_number){
+                    address_proof_data.status = "active";
+                    address_proof_data.resource_id = $facility_id.facility_id_number;
+                    address_proof_data.user_id = $current_user.username;
+                }
                 for (let i = 0; i < $documents_store.documents.length; i++) {
                     if (
                         $documents_store.documents[i]["doc_category"] ==
@@ -635,6 +655,26 @@
                 );
                 console.log("edit_facility_response", edit_facility_response);
                 if (edit_facility_response.body.status == "green") {
+                    show_spinner = false;
+                    for(let i=0;i<$documents_store.documents.length;i++){
+                         let document_upload_response = await save_or_update_documents_function_1($documents_store.documents[i]);
+                        if (
+                                document_upload_response.body.status != "green"
+                            ) {
+                                // alert("Document upload failed");
+                                toast_text =
+                                    $documents_store.documents[i][
+                                        "doc_category"
+                                    ] + " Document upload failed";
+                                toast_type = "error";
+                                show_spinner = false;
+                            }
+                            console.log(
+                                "document_upload_response",
+                                document_upload_response
+                            );
+
+                    }
                     let replaceState = false;
                     setTimeout(
                         goto(
