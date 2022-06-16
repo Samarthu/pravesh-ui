@@ -6,7 +6,7 @@
     import {supplier_data} from '../services/supplier_services';
     import {filter_city_data} from '../services/supplier_services';
     import {filter_status_data} from '../services/supplier_services';
-    import {filter_vendortype_data,search_supplier} from '../services/supplier_services';
+    import {filter_vendortype_data,search_supplier,onboard_by_me_sup} from '../services/supplier_services';
     import {audit_trail_data} from '../services/supplier_services';
     import {logged_user} from '../services/supplier_services';
     import {get_client_org_mapping} from '../services/vmt_verify_services';
@@ -54,6 +54,7 @@
     let logged_user_data;
     let new_new_associate_data;
     let org_data_arr = [];
+    let new_dash_data = [];
     $:pagenumber = "";
     let last_num_from_pages;
     // $:pagenumber = pagenumber;
@@ -159,7 +160,7 @@
 
     if(dashboard_res != null){
         let dashboard = dashboard_res.body.data;
-        for(let new_dash_data of dashboard){
+        for(new_dash_data of dashboard){
             
             if(new_dash_data.name == "active"){
                 active = new_dash_data.count
@@ -276,7 +277,7 @@ else
         try{
             if(userdetails.body.status == "green"){
                 username = userdetails.body.data.user.email;
-        userid = userdetails.body.data.user.username;
+                userid = userdetails.body.data.user.username;
             }
         }
         catch(err) {
@@ -367,33 +368,95 @@ else
     }
 
     async function onboarded_check_func(){
-        if(status != ""){
+        show_spinner = true;
+        // if(status != ""){
         onboarded_by_me_checkbox = true;
         
             logged_user_data = await logged_user();
             try{
                 username = logged_user_data.body.data.user.name;
                 userid = logged_user_data.body.data.user.username;
-                console.log("username and useridddd",username,userid)
-                var new_drop_limit=parseInt(drop_limit)  
-                
-                    if(onboarded_by_me_checkbox == true){ 
-                        console.log("inside if block onboarded_by_me_checkbox",username,userid)
-                        new_new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}  }
-                    else{
-                        console.log("inside else block ")
-                        new_new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status}
-                    }
-                    // }
-                        console.log("onboarded_check_func checked")
-                        json_associate_data=JSON.stringify(new_new_associate_data);
-                        let onboarded_check_res=await supplier_data(json_associate_data);
-                    
-                        supplier_data_from_service = onboarded_check_res.body.data.data_list;
-                        total_count_associates = onboarded_check_res.body.data.total_records;
-                        for(let i=0;i<supplier_data_from_service.length;i++){
-                            supplier_data_from_service[i].expand = false;
+                let onboard_by_me_sup_res = await onboard_by_me_sup(username,userid);
+                try{
+                    if(onboard_by_me_sup_res.body.status == "green"){
+                        new_dash_data = [];
+                        console.log("onboard_by_me_sup_res",onboard_by_me_sup_res)
+                        let dashboard = onboard_by_me_sup_res.body.data;
+                       
+                        for(new_dash_data of dashboard){
+                            
+                            if(new_dash_data.name == "active"){
+                                active = new_dash_data.count
+                            }
+                            if(new_dash_data.name == "deactive"){
+                                deactive = new_dash_data.count
+                            }
+                            if(new_dash_data.name == "id proof rejected"){
+                                id_proof_rejected = new_dash_data.count
+                            }
+                            if(new_dash_data.name == "background verification pending"){
+                                background_verification_pending = new_dash_data.count
+                            }
+                            if(new_dash_data.name == "bank details rejected"){
+                                bank_details_rejected = new_dash_data.count
+                            }
+                            if(new_dash_data.name == "id verification pending"){
+                                id_verification_pending = new_dash_data.count
+                            }
+                            if(new_dash_data.name == "bank details pending"){
+                                bank_details_pending = new_dash_data.count
+                            }
+                            if(new_dash_data.name == "bank beneficiary pending"){
+                                bank_beneficiary_pending = new_dash_data.count
+                            }
+                            if(new_dash_data.name == "onboarding in progress"){
+                                onboarding_in_progress = new_dash_data.count
+                            }
+                            if(new_dash_data.name == "bank verification pending"){
+                                bank_verification_pending = new_dash_data.count
+                            }
+                            if(new_dash_data.name == "pending offer letter"){
+                                pending_offer_letter = new_dash_data.count
+                            }
+                            if(new_dash_data.name == "background verification rejected"){
+                                bgv_rejected = new_dash_data.count
+                            }
                         }
+                        show_spinner=false;
+                       
+                    }
+                    else{
+                        show_spinner=false;
+                        toast_type="error"
+                        toast_text = onboard_by_me_sup_res.body.message;
+                    }
+
+                }
+                catch(err){
+                    show_spinner=false;
+                    toast_type = "error"
+                    toast_text = err
+                }
+                // console.log("username and useridddd",username,userid)
+                // var new_drop_limit=parseInt(drop_limit)  
+                
+                //     if(onboarded_by_me_checkbox == true){ 
+                //         console.log("inside if block onboarded_by_me_checkbox",username,userid)
+                //         new_new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}  }
+                //     else{
+                //         console.log("inside else block ")
+                //         new_new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status}
+                //     }
+                //     // }
+                //         console.log("onboarded_check_func checked")
+                //         json_associate_data=JSON.stringify(new_new_associate_data);
+                //         let onboarded_check_res=await supplier_data(json_associate_data);
+                    
+                //         supplier_data_from_service = onboarded_check_res.body.data.data_list;
+                //         total_count_associates = onboarded_check_res.body.data.total_records;
+                //         for(let i=0;i<supplier_data_from_service.length;i++){
+                //             supplier_data_from_service[i].expand = false;
+                //         }
                     }
                 
                     
@@ -401,16 +464,16 @@ else
                 toast_type = "error";
                 toast_text = err;
             }
+        // }
         }
-        }
-    if(status != ""){
+    // if(status != ""){
         if(onboarded_by_me_checkbox == true){    
             new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: status,username:username,userid:userid}
         }
         else{
             new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
         }
-    }
+    // }
 
     function next_function(){
         if(status != ""){
@@ -453,7 +516,7 @@ else
        
        if(pagenum == 1){
         if(onboarded_by_me_checkbox == true){    
-        new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:"username",userid:"userid"}
+        new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}
         }
         else{
         new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
@@ -594,13 +657,12 @@ else
                 city = new_city;
             }    
         } 
-        
-        
         status = document.getElementById("select_status").value.trim();
+        console.log("onboarded_by_me_checkbox",onboarded_by_me_checkbox)
         
         if(onboarded_by_me_checkbox == true){
             
-            new_associate_data = {city:city,limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:"username",userid:"userid"}
+            new_associate_data = {city:city,limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}
         }
         else
         {
@@ -657,7 +719,7 @@ else
         }
    
         if(new_city == "All" && onboarded_by_me_checkbox == true){
-            new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:"username",userid:"userid"}
+            new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}
         }
         else
         {
@@ -882,7 +944,7 @@ else
 
         if(status != ""){
             if(onboarded_by_me_checkbox == true){    
-                    new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:"username",userid:"userid"}
+                    new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}
                 }
                 else{
                     new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  

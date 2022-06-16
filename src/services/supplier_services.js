@@ -109,6 +109,13 @@ const search_supplier=(search_obj)=>{
         body:search_obj
     }, true)
 }
+const onboard_by_me_sup =(username,userid) =>{
+    let onboard_by_me_sup_url = '/api/method/pravesh.facility.routes.dashboard.get_dashboard_summary?username='+username+'&userid='+userid+''
+    return request(
+        onboard_by_me_sup_url, {
+        method: "GET"
+    }, true)
+}
 
 export{
    logged_user,
@@ -117,5 +124,6 @@ export{
    audit_trail_data,
    filter_status_data,
    filter_vendortype_data,
-   search_supplier
+   search_supplier,
+   onboard_by_me_sup
 }

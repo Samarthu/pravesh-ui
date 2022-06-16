@@ -1290,7 +1290,7 @@
 
         if(get_cas_user_res.body.status == "green"){
             show_spinner = false;
-            toast_text = "User is active";
+            toast_text = get_cas_user_res.body.message;
             toast_type = "success";
         }
         else{
