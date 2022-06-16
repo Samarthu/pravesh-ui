@@ -150,6 +150,7 @@
     onMount(async () => {
         page_name = $page.url["pathname"].split("/").pop();
         console.log("page name on identity", page_name);
+        console.log("document store",$documents_store.documents);
 
         console.log("duplicate document store", $duplicate_documents_store);
         console.log(
@@ -159,7 +160,7 @@
         console.log("current user",$current_user);
 
         if ($facility_id.facility_id_number) {
-            $documents_store.documents = [];
+            // $documents_store.documents = [];
 
             for (
                 let i = 0;
