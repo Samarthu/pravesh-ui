@@ -6,7 +6,7 @@
     import {supplier_data} from '../services/supplier_services';
     import {filter_city_data} from '../services/supplier_services';
     import {filter_status_data} from '../services/supplier_services';
-    import {filter_vendortype_data,search_supplier} from '../services/supplier_services';
+    import {filter_vendortype_data,search_supplier,onboard_by_me_sup} from '../services/supplier_services';
     import {audit_trail_data} from '../services/supplier_services';
     import {logged_user} from '../services/supplier_services';
     import {get_client_org_mapping} from '../services/vmt_verify_services';
@@ -54,6 +54,7 @@
     let logged_user_data;
     let new_new_associate_data;
     let org_data_arr = [];
+    let new_dash_data = [];
     $:pagenumber = "";
     let last_num_from_pages;
     // $:pagenumber = pagenumber;
@@ -159,7 +160,7 @@
 
     if(dashboard_res != null){
         let dashboard = dashboard_res.body.data;
-        for(let new_dash_data of dashboard){
+        for(new_dash_data of dashboard){
             
             if(new_dash_data.name == "active"){
                 active = new_dash_data.count
@@ -276,7 +277,7 @@ else
         try{
             if(userdetails.body.status == "green"){
                 username = userdetails.body.data.user.email;
-        userid = userdetails.body.data.user.username;
+                userid = userdetails.body.data.user.username;
             }
         }
         catch(err) {
@@ -367,33 +368,95 @@ else
     }
 
     async function onboarded_check_func(){
-        if(status != ""){
+        show_spinner = true;
+        // if(status != ""){
         onboarded_by_me_checkbox = true;
         
             logged_user_data = await logged_user();
             try{
                 username = logged_user_data.body.data.user.name;
                 userid = logged_user_data.body.data.user.username;
-                console.log("username and useridddd",username,userid)
-                var new_drop_limit=parseInt(drop_limit)  
-                
-                    if(onboarded_by_me_checkbox == true){ 
-                        console.log("inside if block onboarded_by_me_checkbox",username,userid)
-                        new_new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}  }
-                    else{
-                        console.log("inside else block ")
-                        new_new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status}
-                    }
-                    // }
-                        console.log("onboarded_check_func checked")
-                        json_associate_data=JSON.stringify(new_new_associate_data);
-                        let onboarded_check_res=await supplier_data(json_associate_data);
-                    
-                        supplier_data_from_service = onboarded_check_res.body.data.data_list;
-                        total_count_associates = onboarded_check_res.body.data.total_records;
-                        for(let i=0;i<supplier_data_from_service.length;i++){
-                            supplier_data_from_service[i].expand = false;
+                let onboard_by_me_sup_res = await onboard_by_me_sup(username,userid);
+                try{
+                    if(onboard_by_me_sup_res.body.status == "green"){
+                        new_dash_data = [];
+                        console.log("onboard_by_me_sup_res",onboard_by_me_sup_res)
+                        let dashboard = onboard_by_me_sup_res.body.data;
+                       
+                        for(new_dash_data of dashboard){
+                            
+                            if(new_dash_data.name == "active"){
+                                active = new_dash_data.count
+                            }
+                            if(new_dash_data.name == "deactive"){
+                                deactive = new_dash_data.count
+                            }
+                            if(new_dash_data.name == "id proof rejected"){
+                                id_proof_rejected = new_dash_data.count
+                            }
+                            if(new_dash_data.name == "background verification pending"){
+                                background_verification_pending = new_dash_data.count
+                            }
+                            if(new_dash_data.name == "bank details rejected"){
+                                bank_details_rejected = new_dash_data.count
+                            }
+                            if(new_dash_data.name == "id verification pending"){
+                                id_verification_pending = new_dash_data.count
+                            }
+                            if(new_dash_data.name == "bank details pending"){
+                                bank_details_pending = new_dash_data.count
+                            }
+                            if(new_dash_data.name == "bank beneficiary pending"){
+                                bank_beneficiary_pending = new_dash_data.count
+                            }
+                            if(new_dash_data.name == "onboarding in progress"){
+                                onboarding_in_progress = new_dash_data.count
+                            }
+                            if(new_dash_data.name == "bank verification pending"){
+                                bank_verification_pending = new_dash_data.count
+                            }
+                            if(new_dash_data.name == "pending offer letter"){
+                                pending_offer_letter = new_dash_data.count
+                            }
+                            if(new_dash_data.name == "background verification rejected"){
+                                bgv_rejected = new_dash_data.count
+                            }
                         }
+                        show_spinner=false;
+                       
+                    }
+                    else{
+                        show_spinner=false;
+                        toast_type="error"
+                        toast_text = onboard_by_me_sup_res.body.message;
+                    }
+
+                }
+                catch(err){
+                    show_spinner=false;
+                    toast_type = "error"
+                    toast_text = err
+                }
+                // console.log("username and useridddd",username,userid)
+                // var new_drop_limit=parseInt(drop_limit)  
+                
+                //     if(onboarded_by_me_checkbox == true){ 
+                //         console.log("inside if block onboarded_by_me_checkbox",username,userid)
+                //         new_new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}  }
+                //     else{
+                //         console.log("inside else block ")
+                //         new_new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status}
+                //     }
+                //     // }
+                //         console.log("onboarded_check_func checked")
+                //         json_associate_data=JSON.stringify(new_new_associate_data);
+                //         let onboarded_check_res=await supplier_data(json_associate_data);
+                    
+                //         supplier_data_from_service = onboarded_check_res.body.data.data_list;
+                //         total_count_associates = onboarded_check_res.body.data.total_records;
+                //         for(let i=0;i<supplier_data_from_service.length;i++){
+                //             supplier_data_from_service[i].expand = false;
+                //         }
                     }
                 
                     
@@ -401,16 +464,16 @@ else
                 toast_type = "error";
                 toast_text = err;
             }
+        // }
         }
-        }
-    if(status != ""){
+    // if(status != ""){
         if(onboarded_by_me_checkbox == true){    
             new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: status,username:username,userid:userid}
         }
         else{
             new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
         }
-    }
+    // }
 
     function next_function(){
         if(status != ""){
@@ -453,7 +516,7 @@ else
        
        if(pagenum == 1){
         if(onboarded_by_me_checkbox == true){    
-        new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:"username",userid:"userid"}
+        new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}
         }
         else{
         new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
@@ -541,7 +604,7 @@ else
             if(audit_res.body.status == "green"){
                 audit_details_array = audit_res.body.data
                 audit_supplier_data = datalist_name;
-                audit_supplier_address = audit_supplier_data.addresess[0].address
+                audit_supplier_address = audit_supplier_data.addresess[0].city
             }
         }
         catch(err) {
@@ -590,20 +653,20 @@ else
         var new_drop_limit=parseInt(drop_limit)
         for(let cityData  of filter_city_array){
             if (city == cityData.location_name){
-                new_city =cityData.location_id
+                new_city =cityData.location_id;
+                city = new_city;
             }    
         } 
-        
-        
         status = document.getElementById("select_status").value.trim();
+        console.log("onboarded_by_me_checkbox",onboarded_by_me_checkbox)
         
-        if(new_city == "All" && onboarded_by_me_checkbox == true){
+        if(onboarded_by_me_checkbox == true){
             
-            new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:"username",userid:"userid"}
+            new_associate_data = {city:city,limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}
         }
         else
         {
-            new_associate_data = {city:new_city,limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status} 
+            new_associate_data = {city:city,limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status} 
         }
 
         json_associate_new_data=JSON.stringify(new_associate_data);
@@ -656,7 +719,7 @@ else
         }
    
         if(new_city == "All" && onboarded_by_me_checkbox == true){
-            new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:"username",userid:"userid"}
+            new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}
         }
         else
         {
@@ -881,7 +944,7 @@ else
 
         if(status != ""){
             if(onboarded_by_me_checkbox == true){    
-                    new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:"username",userid:"userid"}
+                    new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}
                 }
                 else{
                     new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
@@ -1129,7 +1192,7 @@ else
                                                             bind:checked = "{vendor_checkbox}"
                                                         />
                                                         <span class="ml-2"
-                                                            >Asociate</span
+                                                            >Vendor</span
                                                         >
                                                     </label>
                                                 </div>
@@ -1217,7 +1280,7 @@ else
                                                     <div class="selectSection ">
                                                         <label
                                                             class="formLableSelect "
-                                                            >Select Associate Type
+                                                            >Select Vendor/Associate Type
                                                         </label>
                                                         <div
                                                             class="formInnerGroupSelect "
@@ -1358,7 +1421,7 @@ else
                                                             bind:checked = "{vendor_checkbox}"
                                                         />
                                                         <span class="ml-2"
-                                                            >Asociate</span
+                                                            >Associate</span
                                                         >
                                                     </label>
                                                 </div>
@@ -1424,7 +1487,7 @@ else
                                                                 id= "select_city"
                                                                 >
                                                                 
-                                                                <option class="pt-6" 
+                                                                <option class="pt-6" value="-1"
                                                                 >All</option>
                                                             {#each filter_city_array as data_city}
                                                                 <option
@@ -1447,7 +1510,7 @@ else
                                                     <div class="selectSection ">
                                                         <label
                                                             class="formLableSelect "
-                                                            >Select Asociate Type
+                                                            >Select Associate Type
                                                         </label>
                                                         <div
                                                             class="formInnerGroupSelect "
@@ -1506,7 +1569,7 @@ else
                                                         <select
                                                         class="selectInputbox" id= "select_status"> 
                                                         <!-- <option class="pt-6" value="-1">All</option> -->
-                                                        <option value="-1">Select</option>
+                                                        <option value=" ">Select</option>
                                                         {#each filter_status_array as data_status}   
                                                         {#if data_status.display_name != undefined}
                                                        
@@ -1841,8 +1904,10 @@ else
                                     class="xs:text-rejectcolor sm:text-rejectcolor"
                                     >{total_count_associates}</span
                                 > <span class="text-grey">ASSOCIATES</span>
+                                {#if status != "-1"}
                                 <p style="color: rgba(255, 149, 52, var(--tw-text-opacity));">
                                     {status}</p>
+                                {/if}
                             </h4>
                             
                         </div>
@@ -2041,7 +2106,7 @@ else
                                             Required Action
                                         </th>
                                         <th scope="col" class="theading">
-                                            Audit Trial
+                                            Audit Trail
                                         </th>
                                     </tr>
                                 </thead>
@@ -2071,7 +2136,7 @@ else
                                                         <div
                                                             class="smallText w-w115px"
                                                         >
-                                                            Asociate
+                                                            Associate
                                                         </div>
                                                         <div class="smLable"  style="max-width: 60%;">
                                                             {facility_data.facility_name}
@@ -2081,7 +2146,7 @@ else
                                                         <div
                                                             class="smallText w-w115px"
                                                         >
-                                                            Asociate Type
+                                                            Associate Type
                                                         </div>
                                                         <div class="smLable">
                                                             {facility_data.facility_type}
@@ -2091,7 +2156,7 @@ else
                                                         <div
                                                             class="smallText w-w115px"
                                                         >
-                                                            Asociate ID
+                                                            Associate ID
                                                         </div>
                                                         <div class="smLable">
                                                             {facility_data.name}
@@ -2120,7 +2185,7 @@ else
                                                 id="shortInfo"
                                             >
                                                 <div class="statusWrapper  ">
-                                                    {#if facility_data.status == "Bank Details Rejected" || facility_data.status == "ID Proof Rejected"}
+                                                    {#if facility_data.status == "Bank Details Rejected" || facility_data.status == "ID Proof Rejected" || facility_data.status == "Deactive"}
                                                     <div
                                                         class="statusredcircle "
                                                     />
@@ -2147,7 +2212,7 @@ else
                                             <div class="detailsInfo">
                                                 <div class="paddingrt">
                                                     <div class="statusWrapper">
-                                                        {#if facility_data.status == "Bank Details Rejected" || facility_data.status == "ID Proof Rejected"}
+                                                        {#if facility_data.status == "Bank Details Rejected" || facility_data.status == "ID Proof Rejected" || facility_data.status == "Deactive"}
                                                         <div
                                                             class="statusredcircle "
                                                         />
@@ -2199,10 +2264,15 @@ else
                                         <td>
                                             {#if facility_data.expand == false}
                                             <div class="shortInfo">
-                                                <div class="paddingrt">{#if facility_data.remarks.length == ""} 
+                                                <div class="paddingrt">
+                                                    {#if facility_data.remarks.length == ""} 
                                                     <p class="smallText">-</p>
                                                     {:else}
-                                                    <p class="smallText">{facility_data.remarks.length}</p>
+
+                                                    <!-- {#each facility_data.remarks as remark} -->
+                                                    <p class="smallTextWrap">{facility_data.remarks[0]}+({facility_data.remarks.length-1})</p>
+                                                    <!-- {/each} -->
+
                                                     {/if}
                                                 </div>
                                             </div>
@@ -2226,7 +2296,7 @@ else
                                         <td>
                                             {#if facility_data.expand == false}
                                             <div class="shortInfo">
-                                                <div class="paddingrt">{#if facility_data.error ="" && facility_data.message == ""}
+                                                <div class="paddingrt ml-5">{#if facility_data.error ="" && facility_data.message == ""}
                                                         <p class="smallText">-</p>
                                                         {:else}
                                                         <p class="smallText">1</p>
@@ -2242,12 +2312,12 @@ else
                                                     <ul class="list-disc ">
                                                         <div class="paddingrt">
                                                              {#if facility_data.error}
-                                                             <p class="smallText">{facility_data.error}</p>
+                                                             <li class="smallTextWrap">{facility_data.error}</li>
                                                              {:else}
                                                                 {#if facility_data.message == ""} 
-                                                                <p class="smallText">-</p>
+                                                                <li class="smallText">-</li>
                                                                 {:else}
-                                                                <p class="smallText">{facility_data.message}</p>
+                                                                <li class="smallTextWrap">{facility_data.message}</li>
                                                                 {/if}
                                                             {/if}
                                                         </div>
@@ -2265,7 +2335,7 @@ else
                                                         {#if facility_data.action == ""}
                                                         -
                                                         {:else}
-                                                        1
+                                                        {facility_data.action}
                                                         {/if}
                                                         </p>
                                                 </div>
@@ -2993,22 +3063,22 @@ else
                             
                             <div class="pl-p7px pt-p7px shortInfoMobile ">
                                 <p class="supName"> </p>
-                                <p class="subDeg ">(Asociate)</p>
+                                <p class="subDeg ">(Associate)</p>
                             </div>
 
                             <div
                                 class="pl-p7px pt-p7px detailsInfoMobile hidden"
                             >
                                 <div class="venderListDetails">
-                                    <p class="subDeg ">Asociate</p>
+                                    <p class="subDeg ">Associate</p>
                                     <p class="supName">{facility_data.facility_name}</p>
                                 </div>
                                 <div class="venderListDetails">
-                                    <p class="subDeg ">Asociate Type</p>
+                                    <p class="subDeg ">Associate Type</p>
                                     <p class="supName">{facility_data.facility_type}</p>
                                 </div>
                                 <div class="venderListDetails">
-                                    <p class="subDeg ">Asociate ID</p>
+                                    <p class="subDeg ">Associate ID</p>
                                     <p class="supName">{facility_data.name}</p>
                                 </div>
                                 <div class="venderListDetails">
@@ -3164,7 +3234,7 @@ else
                         <div
                             class="supDetailsTitle flex justify-end items-center"
                         >
-                            <p>Audit Trial</p>
+                            <p>Audit Trail</p>
                         </div>
                         <div class="supDetailsData ">
                             <div class="pl-p7px pt-p7px">
@@ -3222,18 +3292,18 @@ else
                         <div class="tdfirstDetailsformodal">
                             <div class="itemList ">
                                 <div class="smallText w-w115px">
-                                    Asociate Name
+                                    Associate Name
                                 </div>
                                 <div class="smLable"  style="max-width: 50%;">{audit_supplier_data.facility_name}</div>
                             </div>
                             <div class="itemList ">
                                 <div class="smallText w-w115px">
-                                    Asociate Type
+                                    Associate Type
                                 </div>
                                 <div class="smLable">{audit_supplier_data.facility_type}</div>
                             </div>
                             <div class="itemList ">
-                                <div class="smallText w-w115px">Asociate ID</div>
+                                <div class="smallText w-w115px">Associate ID</div>
                                 <div class="smLable">{audit_supplier_data.name}</div>
                             </div>
                             <div class="itemList">
@@ -3250,7 +3320,7 @@ else
                                 <div class="smallText w-w115px">Status</div>
                                 <div class="statusinformation">
                                     <div class="statusWrapper  ">
-                                        {#if audit_supplier_data.status == "Bank Details Rejected" || audit_supplier_data.status == "ID Proof Rejected"}
+                                        {#if audit_supplier_data.status == "Bank Details Rejected" || audit_supplier_data.status == "ID Proof Rejected" || audit_supplier_data.status == "Deactive"}
                                         <div
                                             class="statusredcircle "
                                         />
