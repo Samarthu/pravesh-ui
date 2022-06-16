@@ -77,9 +77,10 @@
     // $:if(workforce_checkbox === true){
        
     // }
-    $:if(onboarded_by_me_checkbox === true){
-        onboarded_by_me_checkbox = true;
-    }
+    // $:if(onboarded_by_me_checkbox === true){
+    //     onboarded_by_me_checkbox = true;
+    // }
+    $:onboarded_by_me_checkbox
     new_associate_data=[];
     //////////////////////    onboard summary data if checkbox on ////////////
         //     if(onboarded_by_me_checkbox == true){ 
@@ -369,16 +370,18 @@ else
 
     async function onboarded_check_func(){
         show_spinner = true;
-        // if(status != ""){
-        onboarded_by_me_checkbox = true;
-        
+        console.log("onboarded_by_me_checkbox here",onboarded_by_me_checkbox)
+        if(onboarded_by_me_checkbox == false){
+            
             logged_user_data = await logged_user();
             try{
+                
                 username = logged_user_data.body.data.user.name;
                 userid = logged_user_data.body.data.user.username;
                 let onboard_by_me_sup_res = await onboard_by_me_sup(username,userid);
                 try{
                     if(onboard_by_me_sup_res.body.status == "green"){
+                        show_spinner=false;
                         new_dash_data = [];
                         console.log("onboard_by_me_sup_res",onboard_by_me_sup_res)
                         let dashboard = onboard_by_me_sup_res.body.data;
@@ -437,6 +440,7 @@ else
                     toast_type = "error"
                     toast_text = err
                 }
+                
                 // console.log("username and useridddd",username,userid)
                 // var new_drop_limit=parseInt(drop_limit)  
                 
@@ -461,18 +465,70 @@ else
                 
                     
             catch(err) {
+                show_spinner=false;
                 toast_type = "error";
                 toast_text = err;
             }
-        // }
+            }
+            else if(onboarded_by_me_checkbox == true){
+                console.log("here inside TRUE")
+                show_spinner=false;
+            let dashboard_res = await dashboard_data();
+            let dashboard = dashboard_res.body.data;
+            for(new_dash_data of dashboard){
+            
+            if(new_dash_data.name == "active"){
+                active = new_dash_data.count
+            }
+            if(new_dash_data.name == "deactive"){
+                deactive = new_dash_data.count
+            }
+            if(new_dash_data.name == "id proof rejected"){
+                id_proof_rejected = new_dash_data.count
+            }
+            if(new_dash_data.name == "background verification pending"){
+                background_verification_pending = new_dash_data.count
+            }
+            if(new_dash_data.name == "bank details rejected"){
+                bank_details_rejected = new_dash_data.count
+            }
+            if(new_dash_data.name == "id verification pending"){
+                id_verification_pending = new_dash_data.count
+            }
+            if(new_dash_data.name == "bank details pending"){
+                bank_details_pending = new_dash_data.count
+            }
+            if(new_dash_data.name == "bank beneficiary pending"){
+                bank_beneficiary_pending = new_dash_data.count
+            }
+            if(new_dash_data.name == "onboarding in progress"){
+                onboarding_in_progress = new_dash_data.count
+            }
+            if(new_dash_data.name == "bank details pending"){
+                bank_verification_pending = new_dash_data.count
+            }
+            if(new_dash_data.name == "pending offer letter"){
+                pending_offer_letter = new_dash_data.count
+            }
+            if(new_dash_data.name == "background verification rejected"){
+                bgv_rejected = new_dash_data.count
+            }
+        }
+                
+
+            }
+            // else{
+            //     show_spinner=false;
+            // }
+            
         }
     // if(status != ""){
-        if(onboarded_by_me_checkbox == true){    
-            new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: status,username:username,userid:userid}
-        }
-        else{
-            new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
-        }
+        // if(onboarded_by_me_checkbox == true){    
+        //     new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: status,username:username,userid:userid}
+        // }
+        // else if(onboarded_by_me_checkbox == false){
+        //     new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
+        // }
     // }
 
     function next_function(){
@@ -1421,7 +1477,7 @@ else
                                                             bind:checked = "{vendor_checkbox}"
                                                         />
                                                         <span class="ml-2"
-                                                            >Associate</span
+                                                            >Vendor</span
                                                         >
                                                     </label>
                                                 </div>
@@ -1510,7 +1566,7 @@ else
                                                     <div class="selectSection ">
                                                         <label
                                                             class="formLableSelect "
-                                                            >Select Associate Type
+                                                            >Select Vendor / Associate Type
                                                         </label>
                                                         <div
                                                             class="formInnerGroupSelect "
