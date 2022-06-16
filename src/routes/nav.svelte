@@ -45,7 +45,7 @@
                     <img src=" {$img_url_name.img_name}/bar.png" alt="barsm" /></a
                 >
             </div>
-            <div class="pravesh-logo ml-3">
+            <div class="pravesh-logo ml-3 cursor-pointer" on:click={routeToPageDashboard}>
                 <img
                     src="{$img_url_name.img_name}/pravesh-logo.png"
                     class="xs:hidden sm:hidden block"
