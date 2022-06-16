@@ -61,7 +61,7 @@
     </div>
     <div class="top-right ml-auto">
         <ul class="flex items-center mr-4">
-            <li class="xs:hidden md:block">
+            <!-- <li class="xs:hidden md:block">
                 <div class="flex items-center mr-4">
                     <div class="relative mx-4 lg:mx-0">
                         <span class="searchicon">
@@ -86,7 +86,7 @@
                         />
                     </div>
                 </div>
-            </li>
+            </li> -->
             <li on:click={routeToProfile} class="">
                 <a href=""> <img src="{$img_url_name.img_name}/Userpic.png" alt="" /></a>
             </li>
