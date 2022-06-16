@@ -690,6 +690,9 @@
 .smallText{
     @apply text-sm whitespace-nowrap font-light
 }
+.smallTextWrap{
+    @apply text-sm font-light
+}
 
 .hText{
     @apply text-base text-blackshade font-normal
@@ -1023,9 +1026,13 @@
     @apply border resize-none border-blackshade w-full outline-none border-opacity-10 px-2
 }
 
-.timelinescroll{
+/* .timelinescroll{
     @apply overflow-scroll h-h600 pb-48 xs:overflow-scroll sm:overflow-scroll xs:pb-20 sm:pb-20 xs:h-h600 sm:h-h600
+} */
+.timelinescroll{
+    @apply overflow-scroll h-h600 pb-20 xs:overflow-scroll sm:overflow-scroll xs:pb-20 sm:pb-20 xs:h-h600 sm:h-h600
 }
+
 .timelineGreyline{
     @apply h-full w-1 bg-bgvlight pointer-events-none
 }

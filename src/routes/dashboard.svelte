@@ -281,7 +281,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="cardAction " on:click={bgv_pending_clicked}>
+                    <!-- <div class="cardAction " on:click={bgv_pending_clicked}>
                         <div class="cardContentText flex">
                             <div class="cardimg mr-3">
                                 <img
@@ -299,26 +299,28 @@
                                 <span class="countcircle  ">{bgv_pending}</span>
                             </div>
                         </div>
-                    </div>
-                    <!-- <div class="cardActionsaved">
+                    </div> -->
+
+                    <div class="cardAction " on:click={bgv_rejected_clicked}>
                         <div class="cardContentText flex">
                             <div class="cardimg mr-3">
                                 <img
-                                    src="{$img_url_name.img_name}/saved.png"
+                                    src="{$img_url_name.img_name}/bvgreject.png"
                                     alt=""
                                 />
                             </div>
                             <div class="content">
-                                <h1 class="dashHeading ">Saved</h1>
-                                <p class="dashDes ">Complete Onboarding</p>
+                                <h1 class="dashHeading ">BGV Rejected</h1>
+                                <p class="dashDes ">Resubmit BGV Details</p>
                             </div>
                         </div>
                         <div class="cardCount">
-                            <div class="bgcirclesaved ">
-                                <span class="countcirclesaved  ">01</span>
+                            <div class="bgcircle ">
+                                <span class="countcircle  ">{bgv_rejected}</span
+                                >
                             </div>
                         </div>
-                    </div> -->
+                    </div>
                 </div>
             </div>
             <div class="myactionitems ">
@@ -409,23 +411,23 @@
                             </div>
                         </div>
                     </div>
-                    <div class="cardAction " on:click={bgv_rejected_clicked}>
+                    
+                    <div class="cardActionother " on:click={bgv_pending_clicked}>
                         <div class="cardContentText flex">
                             <div class="cardimg mr-3">
                                 <img
-                                    src="{$img_url_name.img_name}/bvgreject.png"
+                                    src="{$img_url_name.img_name}/bgv.png"
                                     alt=""
                                 />
                             </div>
                             <div class="content">
-                                <h1 class="dashHeading ">BGV Rejected</h1>
-                                <p class="dashDes ">Resubmit BGV Details</p>
+                                <h1 class="dashHeading ">BGV Pending</h1>
+                                <p class="dashDes ">Take required action</p>
                             </div>
                         </div>
                         <div class="cardCount">
                             <div class="bgcircle ">
-                                <span class="countcircle  ">{bgv_rejected}</span
-                                >
+                                <span class="countcircle  ">{bgv_pending}</span>
                             </div>
                         </div>
                     </div>
@@ -435,7 +437,7 @@
         <div class="activeProfile xs:w-full">
             <div class="activeProfileWrapper w-w325 xs:w-full">
                 <div class="headingCount ">
-                    <p class="cxardhead">Active Profiles</p>
+                    <p class="cxardhead">Active Associates</p>
                     <p class="cardhead">{active}</p>
                 </div>
                 <div class="venderHead plr ">
@@ -451,7 +453,7 @@
                     <ul>
                         {#each ven_type_arr as ven_det}
                             <li class="listli">
-                                <a href="">{ven_det.new_type}</a>
+                                <p>{ven_det.new_type}</p>
                                 <span class="text-lg text-blackshade font-bold"
                                     >{ven_det.new_count}</span
                                 >
@@ -483,7 +485,8 @@
                                 <li class="listhb"><a href="">Team Leads </a><span class="text-lg text-blackshade font-bold"></span></li> -->
                         {#each workf_type_arr as workf_det}
                             <li class="listli">
-                                <a href="">{workf_det.new_type}</a><span
+                                <p>{workf_det.new_type}</p>
+                                <span
                                     class="text-lg text-blackshade font-bold"
                                     >{workf_det.new_count}</span
                                 >
