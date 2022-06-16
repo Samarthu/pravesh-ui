@@ -925,6 +925,9 @@
 .statusGreencircle{
     @apply bg-bgGreenlight rounded-full w-w10px h-h10px mr-2 whitespace-nowrap
 }
+.statusOrangecircle{
+    @apply bg-bglightorange rounded-full w-w10px h-h10px mr-2 whitespace-nowrap
+}
 
 .auditTrailtd{
     @apply flex items-center gap-3

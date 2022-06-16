@@ -419,7 +419,7 @@
                             </div>
                             <div class="content">
                                 <h1 class="dashHeading ">BGV Rejected</h1>
-                                <p class="dashDes ">Lorem Ipsum...</p>
+                                <p class="dashDes ">Resubmit BGV Details</p>
                             </div>
                         </div>
                         <div class="cardCount">
