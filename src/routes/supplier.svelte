@@ -150,6 +150,7 @@
     let bank_details_pending = 0;
     let pending_offer_letter=0;
      let bgv_rejected = 0;
+     let bgv_pending = 0;
      let active=0
      let deactive=0,
     bank_verification_pending,bank_beneficiary_pending,background_verification_pending,onboarding_in_progress;
@@ -198,6 +199,9 @@
             }
             if(new_dash_data.name == "background verification rejected"){
                 bgv_rejected = new_dash_data.count
+            }
+            if(new_dash_data.name == "background verification pending"){
+                bgv_pending = new_dash_data.count
             }
         }
         // active = dashboard.active;
@@ -424,6 +428,9 @@ else
                             if(new_dash_data.name == "background verification rejected"){
                                 bgv_rejected = new_dash_data.count
                             }
+                            if(new_dash_data.name == "background verification pending"){
+                                bgv_pending = new_dash_data.count
+                            }
                         }
                         show_spinner=false;
                        
@@ -512,6 +519,9 @@ else
             }
             if(new_dash_data.name == "background verification rejected"){
                 bgv_rejected = new_dash_data.count
+            }
+            if(new_dash_data.name == "background verification pending"){
+                bgv_pending = new_dash_data.count
             }
         }
                 
@@ -714,8 +724,8 @@ else
             }    
         } 
         status = document.getElementById("select_status").value.trim();
-        console.log("onboarded_by_me_checkbox",onboarded_by_me_checkbox)
-        
+        console.log("status",status)
+        if(status != "-1"){
         if(onboarded_by_me_checkbox == true){
             
             new_associate_data = {city:city,limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}
@@ -760,7 +770,7 @@ else
                 toast_text = err;
             } 
             
-
+        }
     }
 
     async function status_pill_clicked(status_selected){
@@ -1625,7 +1635,8 @@ else
                                                         <select
                                                         class="selectInputbox" id= "select_status"> 
                                                         <!-- <option class="pt-6" value="-1">All</option> -->
-                                                        <option value=" ">Select</option>
+                                                        <option value="-1">Select</option>
+                                                        <option value=" ">All</option>
                                                         {#each filter_status_array as data_status}   
                                                         {#if data_status.display_name != undefined}
                                                        
@@ -1710,18 +1721,35 @@ else
                         {#if status_for_highlight == "Background Verification Pending"}
                         <button class="idproof flex-grow" style="background-color: #dddd; border: 1px solid black;">
                             <div class="countHeading" on:click={()=>status_pill_clicked("Background Verification Pending")}>
-                                BGV Pending <span class="idproofcount">{bgv_rejected}</span
+                                BGV Pending <span class="idproofcount">{bgv_pending}</span
                                 >
                                 </div>
                         </button>
                         {:else}
                         <button class="idproof flex-grow">
                             <div class="countHeading" on:click={()=>status_pill_clicked("Background Verification Pending")}>
-                                BGV Pending <span class="idproofcount">{bgv_rejected}</span
+                                BGV Pending <span class="idproofcount">{bgv_pending}</span
                                 >
                                 </div>
                         </button>
                         {/if}
+
+                        {#if status_for_highlight == "Background Verification Rejected"}
+                        <button class="idproof flex-grow" style="background-color: #dddd; border: 1px solid black;">
+                            <div class="countHeading" on:click={()=>status_pill_clicked("Background Verification Rejected")}>
+                                BGV Rejected <span class="idproofcount">{bgv_rejected}</span
+                                >
+                                </div>
+                        </button>
+                        {:else}
+                        <button class="idproof flex-grow">
+                            <div class="countHeading" on:click={()=>status_pill_clicked("Background Verification Rejected")}>
+                                BGV Rejected <span class="idproofcount">{bgv_rejected}</span
+                                >
+                                </div>
+                        </button>
+                        {/if}
+
                     </div>
                 </div>
                 <div class="SectionsCounts ">
