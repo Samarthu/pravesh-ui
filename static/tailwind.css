@@ -684,9 +684,13 @@
     @apply border border-erBlue rounded-br5 px-2 py-2 flex w-16 items-center text-sm text-textdarkgrey
 }
 
-.smallText{
+/* .smallText{
     @apply text-sm  text-textdarkgrey whitespace-nowrap font-light
+} */
+.smallText{
+    @apply text-sm whitespace-nowrap font-light
 }
+
 .hText{
     @apply text-base text-blackshade font-normal
 }
@@ -725,11 +729,12 @@
     @apply bg-bglightgrey p-p9px mt-2
 }
 
-.listitems{
+/* .listitems{
     @apply  text-textdarkgrey text-sm font-normal 
+} */
+.listitems{
+    @apply text-sm font-normal 
 }
-
-
 
 .breadcrumbSupplier{
     @apply text-xl font-medium  pt-pt21 pb-pt21 xs:p-pt21 sm:p-pt21 border-borderBreadcrumb  flex items-center xs:flex-wrap xs:py-4
