@@ -146,12 +146,12 @@
     let id_proof_rejected = 0;
     let bank_details_rejected = 0;
     let id_verification_pending=0;
-    let bank_verification_pending=0;
+    let bank_details_pending = 0;
     let pending_offer_letter=0;
      let bgv_rejected = 0;
      let active=0
      let deactive=0,
-    bank_details_pending,bank_beneficiary_pending,background_verification_pending,onboarding_in_progress;
+    bank_verification_pending,bank_beneficiary_pending,background_verification_pending,onboarding_in_progress;
     let json_associate_data,json_associate_new_data;
     
     onMount(async () =>{
@@ -189,7 +189,7 @@
             if(new_dash_data.name == "onboarding in progress"){
                 onboarding_in_progress = new_dash_data.count
             }
-            if(new_dash_data.name == "bank verification pending"){
+            if(new_dash_data.name == "bank details pending"){
                 bank_verification_pending = new_dash_data.count
             }
             if(new_dash_data.name == "pending offer letter"){
@@ -412,8 +412,8 @@ else
                             if(new_dash_data.name == "onboarding in progress"){
                                 onboarding_in_progress = new_dash_data.count
                             }
-                            if(new_dash_data.name == "bank verification pending"){
-                                bank_verification_pending = new_dash_data.count
+                            if(new_dash_data.name == "bank details pending"){
+                                bank_details_pending = new_dash_data.count
                             }
                             if(new_dash_data.name == "pending offer letter"){
                                 pending_offer_letter = new_dash_data.count
@@ -718,12 +718,12 @@ else
             status = "";
         }
    
-        if(new_city == "All" && onboarded_by_me_checkbox == true){
-            new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}
+        if(onboarded_by_me_checkbox == true){
+            new_associate_data = {city:"-1",myOnboard: true,limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}
         }
         else
         {
-            new_associate_data = {city:new_city,limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status} 
+            new_associate_data = {city:city,limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status} 
         }
 
     // new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status_selected}
@@ -1686,9 +1686,9 @@ else
                                 </div>
                         </button>
                         {/if}
-                        {#if status_for_highlight == "Bank Verification Pending"}
+                        {#if status_for_highlight == "Bank Details Pending"}
                         <button class="bgdocreject flex-grow" style="background-color: #dddd; border: 1px solid black;">
-                            <div class="countHeading" on:click={()=>status_pill_clicked("Bank Verification Pending")}>
+                            <div class="countHeading" on:click={()=>status_pill_clicked("Bank Details Pending")}>
                                 Bank Details <span class="docRejectCount"
                                     >{bank_verification_pending}</span
                                 >
@@ -1696,9 +1696,9 @@ else
                         </button>
                         {:else}
                         <button class="bgdocreject flex-grow">
-                            <div class="countHeading" on:click={()=>status_pill_clicked("Bank Verification Pending")}>
+                            <div class="countHeading" on:click={()=>status_pill_clicked("Bank Details Pending")}>
                                 Bank Details <span class="docRejectCount"
-                                    >{bank_verification_pending}</span
+                                    >{bank_details_pending}</span
                                 >
                             </div>
                         </button>
