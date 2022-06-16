@@ -48,6 +48,7 @@
     let onboarded_by_me_checkbox = false;
     let workforce_checkbox = true;
     let status_pill_flag = false;
+    let status_for_highlight = "";
     let new_associate_data;
     let logged_user_data;
     let new_new_associate_data;
@@ -88,45 +89,47 @@
         //     }
         
         async function clearedSearchFunc(){
-        json_associate_data=JSON.stringify(new_associate_data);
-        //  console.log("json_associate_data",json_associate_data)
-        let cleared_search_res=await supplier_data(json_associate_data);
-        try{
-            if(cleared_search_res.body.status == "green"){
-                supplier_data_from_service = cleared_search_res.body.data.data_list;
-                total_count_associates = cleared_search_res.body.data.total_records;
-                
-                for(let i=0;i<supplier_data_from_service.length;i++){
-                    supplier_data_from_service[i].expand = false;
-                }
+            if(status != ""){
+                json_associate_data=JSON.stringify(new_associate_data);
+                //  console.log("json_associate_data",json_associate_data)
+                let cleared_search_res=await supplier_data(json_associate_data);
+                try{
+                    if(cleared_search_res.body.status == "green"){
+                        supplier_data_from_service = cleared_search_res.body.data.data_list;
+                        total_count_associates = cleared_search_res.body.data.total_records;
+                        
+                        for(let i=0;i<supplier_data_from_service.length;i++){
+                            supplier_data_from_service[i].expand = false;
+                        }
 
-                // console.log("RESULT",result)
-                result = true;
-                // console.log("RESULT",result)
-                // filter_vendortype_res = await filter_vendortype_data();
-                var new_drop_limit=parseInt(drop_limit)
-                if(total_count_associates>20){
-                var total_pages=Math.ceil(total_count_associates/new_drop_limit)
-                pages = createPagesArray(total_pages)
-                new_pages =[];
-                // console.log("pagesRESULT",pages)
-                for(let pagination in pages){
-                    if(pagination>0 && pagination <= 3){
-                        // console.log("PAGES") 
-                        new_pages.push(pagination)
-                        mapped_pages=new_pages.map(Number)  
-                        // console.log("mappedpagesRESULT inside",mapped_pages)
+                        // console.log("RESULT",result)
+                        result = true;
+                        // console.log("RESULT",result)
+                        // filter_vendortype_res = await filter_vendortype_data();
+                        var new_drop_limit=parseInt(drop_limit)
+                        if(total_count_associates>20){
+                            var total_pages=Math.ceil(total_count_associates/new_drop_limit)
+                            pages = createPagesArray(total_pages)
+                            new_pages =[];
+                            // console.log("pagesRESULT",pages)
+                            for(let pagination in pages){
+                                if(pagination>0 && pagination <= 3){
+                                    // console.log("PAGES") 
+                                    new_pages.push(pagination)
+                                    mapped_pages=new_pages.map(Number)  
+                                    // console.log("mappedpagesRESULT inside",mapped_pages)
+                                }
+                            }
+                        }
+
                     }
-            
+                }
+                catch(err) {
+                    toast_type = "error";
+                    toast_text = err;
                 }
             }
 
-            }
-        }
-        catch(err) {
-            toast_type = "error";
-            toast_text = err;
-        }
         }
         // async function user_data () {
         // logged_user_data = await logged_user();
@@ -246,9 +249,10 @@ else
     {
     // console.log("INside if blcok of paramString",paramString)
     let new_paramString = decodeURI(paramString)
+    status = new_paramString;
     // console.log("drop_limit inside urlString",drop_limit)
     var new_drop_limit=parseInt(drop_limit)
-    new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:new_paramString}
+    new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}
     json_associate_data=JSON.stringify(new_associate_data);
     let res=await supplier_data(json_associate_data);
         try{
@@ -408,33 +412,36 @@ else
     }
 
     function next_function(){
-        
+        if(status != ""){
         last_num_from_pages = pages.length
         console.log("last_num",last_num_from_pages)
         // if(mapped_pages.includes(last_num_from_pages)){
 
-        // }
-        //  else{  
-       for (var i = 0; i < mapped_pages.length; i++){       
-        mapped_pages[i] = mapped_pages[i] + 1;
-    //    }
+            // }
+            //  else{  
+        for (var i = 0; i < mapped_pages.length; i++){       
+            mapped_pages[i] = mapped_pages[i] + 1;
+            //    }
+            }
+            // console.log("mapped_pagessss",mapped_pages)
+            // console.log("mapped_pagessss",mapped_pages[0])
+            pageChange(mapped_pages[2])
     }
-    // console.log("mapped_pagessss",mapped_pages)
-    // console.log("mapped_pagessss",mapped_pages[0])
-    pageChange(mapped_pages[2])
 }
     
     function previous_function(){ 
-        let first_num_from_pages = pages[0];
-        if(mapped_pages.includes(first_num_from_pages)){
-        
+        if(status != ""){
+            let first_num_from_pages = pages[0];
+            if(mapped_pages.includes(first_num_from_pages)){
+            
+            }
+                else{
+            for (var i = 0; i < mapped_pages.length; i++){
+                mapped_pages[i] = mapped_pages[i] - 1;
+            }
+            }
+            pageChange(mapped_pages[0])
         }
-            else{
-       for (var i = 0; i < mapped_pages.length; i++){
-        mapped_pages[i] = mapped_pages[i] - 1;
-       }
-    }
-    pageChange(mapped_pages[0])
     }
 
    async function pageChange(pagenum){
@@ -637,18 +644,22 @@ else
     }
 
     async function status_pill_clicked(status_selected){
+        // console.log("status_selected",status_selected)
       show_spinner = true;
+      status_for_highlight = status_selected;
         status = status_selected;
 
         var new_drop_limit=parseInt(drop_limit)
+        if(status_selected == "All"){
+            status = "";
+        }
    
         if(new_city == "All" && onboarded_by_me_checkbox == true){
-            
-            new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status_selected,username:"username",userid:"userid"}
+            new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:"username",userid:"userid"}
         }
         else
         {
-            new_associate_data = {city:new_city,limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status_selected} 
+            new_associate_data = {city:new_city,limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status} 
         }
 
     // new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status_selected}
@@ -853,41 +864,42 @@ else
     console.log("new_lllliiimmmiitttt",status)
     var new_drop_limit=parseInt(drop_limit)
 
-    if(onboarded_by_me_checkbox == true){    
-        new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:"username",userid:"userid"}
-        }
-        else{
-            new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
-        }
-    // new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending",onboarded_by_me:true}
-    json_associate_new_data=JSON.stringify(new_associate_data);
-    let dropdown_res =await supplier_data(json_associate_new_data);
-    
-    total_count_associates = dropdown_res.body.data.total_records;
-    if(total_count_associates >20){
-    total_pages = Math.ceil(total_count_associates/new_drop_limit)
-    // console.log("page_count_______",total_pages)
-    pages = createPagesArray(total_pages)
-    }
-    // console.log("pages,,,,,",pages)
+        if(status != ""){
+            if(onboarded_by_me_checkbox == true){    
+                    new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:"username",userid:"userid"}
+                }
+                else{
+                    new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
+                }
+                // new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending",onboarded_by_me:true}
+                json_associate_new_data=JSON.stringify(new_associate_data);
+                let dropdown_res =await supplier_data(json_associate_new_data);
+                
+                total_count_associates = dropdown_res.body.data.total_records;
+                if(total_count_associates >20){
+                    total_pages = Math.ceil(total_count_associates/new_drop_limit)
+                    // console.log("page_count_______",total_pages)
+                    pages = createPagesArray(total_pages)
+                }
+        // console.log("pages,,,,,",pages)
 
 
-    try{
-        if(dropdown_res.body.status == "green"){
-        supplier_data_from_service = dropdown_res.body.data.data_list;
-        for(let i=0;i<supplier_data_from_service.length;i++){
-        supplier_data_from_service[i].expand = false;
-    }
-        // for(let i=0;i<supplier_data_from_service.length;i++){
-        //         supplier_data_from_service[i].expand = false;
-        //     }
+        try{
+            if(dropdown_res.body.status == "green"){
+            supplier_data_from_service = dropdown_res.body.data.data_list;
+            for(let i=0;i<supplier_data_from_service.length;i++){
+            supplier_data_from_service[i].expand = false;
+        }
+            // for(let i=0;i<supplier_data_from_service.length;i++){
+            //         supplier_data_from_service[i].expand = false;
+            //     }
+            }
+        }
+        catch(err) {
+            toast_type = "error";
+            toast_text = err;
         }
     }
-    catch(err) {
-        toast_type = "error";
-        toast_text = err;
-    }
-    
     // new_associate_data = {city:new_city,limit:drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}
     // console.log("dropdown_function",supplier_data_from_service)
         
@@ -1528,11 +1540,30 @@ else
                 <div class="SectionsCounts ">
                     <p class="docReject">Documents Rejected</p>
                     <div class="docRejctedCon flex gap-2">
+
+                        {#if status_for_highlight == "ID Proof Rejected"} 
+                        <button class="idproof flex-grow" style="background-color: #dddd; border: 1px solid black;">
+                            <div class="countHeading" on:click={()=>status_pill_clicked("ID Proof Rejected")}>
+                                ID Proof <span class="idproofcount">{id_proof_rejected}</span>
+                            </div>
+                        </button>
+                        {:else}
                         <button class="idproof flex-grow">
                             <div class="countHeading" on:click={()=>status_pill_clicked("ID Proof Rejected")}>
                                 ID Proof <span class="idproofcount">{id_proof_rejected}</span>
                             </div>
                         </button>
+                        {/if}
+
+                        {#if status_for_highlight == "Bank Details Rejected"}
+                        <button class="idproof flex-grow" style="background-color: #dddd; border: 1px solid black;">
+                            <div class="countHeading" on:click={()=>status_pill_clicked("Bank Details Rejected")}>
+                                Bank Details <span class="idproofcount"
+                                    >{bank_details_rejected}</span
+                                >
+                            </div>
+                        </button>
+                        {:else}
                         <button class="idproof flex-grow">
                             <div class="countHeading" on:click={()=>status_pill_clicked("Bank Details Rejected")}>
                                 Bank Details <span class="idproofcount"
@@ -1540,23 +1571,52 @@ else
                                 >
                             </div>
                         </button>
+                        {/if}
+
+                        {#if status_for_highlight == "Background Verification Pending"}
+                        <button class="idproof flex-grow" style="background-color: #dddd; border: 1px solid black;">
+                            <div class="countHeading" on:click={()=>status_pill_clicked("Background Verification Pending")}>
+                                BGV Pending <span class="idproofcount">{bgv_rejected}</span
+                                >
+                                </div>
+                        </button>
+                        {:else}
                         <button class="idproof flex-grow">
                             <div class="countHeading" on:click={()=>status_pill_clicked("Background Verification Pending")}>
                                 BGV Pending <span class="idproofcount">{bgv_rejected}</span
                                 >
                                 </div>
                         </button>
+                        {/if}
                     </div>
                 </div>
                 <div class="SectionsCounts ">
                     <p class="PendingVeri">Pending Verification</p>
                     <div class="docRejctedCon flex gap-2">
+                        {#if status_for_highlight == "ID Verification Pending"}
+                        <button class="bgdocreject flex-grow" style="background-color: #dddd; border: 1px solid black;">
+                            <div class="countHeading" on:click={()=>status_pill_clicked("ID Verification Pending")}>
+                                ID Proof <span class="docRejectCount">{id_verification_pending}</span
+                                >
+                                </div>
+                        </button>
+                        {:else}
                         <button class="bgdocreject flex-grow">
                             <div class="countHeading" on:click={()=>status_pill_clicked("ID Verification Pending")}>
                                 ID Proof <span class="docRejectCount">{id_verification_pending}</span
                                 >
                                 </div>
                         </button>
+                        {/if}
+                        {#if status_for_highlight == "Bank Verification Pending"}
+                        <button class="bgdocreject flex-grow" style="background-color: #dddd; border: 1px solid black;">
+                            <div class="countHeading" on:click={()=>status_pill_clicked("Bank Verification Pending")}>
+                                Bank Details <span class="docRejectCount"
+                                    >{bank_verification_pending}</span
+                                >
+                            </div>
+                        </button>
+                        {:else}
                         <button class="bgdocreject flex-grow">
                             <div class="countHeading" on:click={()=>status_pill_clicked("Bank Verification Pending")}>
                                 Bank Details <span class="docRejectCount"
@@ -1564,6 +1624,16 @@ else
                                 >
                             </div>
                         </button>
+                        {/if}
+                        {#if status_for_highlight == "Pending Offer Letter"}
+                        <button class="bgdocreject flex-grow"  style="background-color: #dddd; border: 1px solid black;">
+                            <div class="countHeading" on:click={()=>status_pill_clicked("Pending Offer Letter")}>
+                                Offer Letter <span class="docRejectCount"
+                                    >{pending_offer_letter}</span
+                                >
+                            </div>
+                        </button>
+                        {:else}
                         <button class="bgdocreject flex-grow">
                             <div class="countHeading" on:click={()=>status_pill_clicked("Pending Offer Letter")}>
                                 Offer Letter <span class="docRejectCount"
@@ -1571,6 +1641,7 @@ else
                                 >
                             </div>
                         </button>
+                        {/if}
                     </div>
                 </div>
                 <div class="SectionsCountsSaved ">
@@ -1580,24 +1651,56 @@ else
                             <p class="otherCountNumbers">05</p>
                         </div>
                     </div> -->
+                   
                     <button class="savedcount">
                         <p class="otherCounts">Active</p>
+                        {#if status_for_highlight == "Active"}
+                        <div class="bgActiveCount flex-grow" on:click={()=>status_pill_clicked("Active")}  style="background-color: #dddd; border: 1px solid black;">
+                            <p class="otherCountNumbers" style="color:black;">{active}</p>
+                        </div>
+                        {:else}
                         <div class="bgActiveCount flex-grow" on:click={()=>status_pill_clicked("Active")}>
                             <p class="otherCountNumbers">{active}</p>
                         </div>
+                        {/if}
                     </button>
+                    
+                   
+                    <button class="savedcount" >
+                        <p class="otherCounts">Deactive</p>
+                        {#if status_for_highlight == "Deactive"}
+                        <div class="bgDeactiveCount flex-grow" on:click={()=>status_pill_clicked("Deactive")} style="background-color: #dddd; border: 1px solid black;">
+                            <p class="otherCountNumbers" style="color:black;">{deactive}</p>
+                        </div>
+                        {:else}
+                        <div class="bgDeactiveCount flex-grow" on:click={()=>status_pill_clicked("Deactive")} >
+                            <p class="otherCountNumbers">{deactive}</p>
+                        </div>
+                        {/if}
+                    </button>
+                    <!-- {:else}
                     <button class="savedcount">
                         <p class="otherCounts">Deactive</p>
                         <div class="bgDeactiveCount flex-grow" on:click={()=>status_pill_clicked("Deactive")}>
                             <p class="otherCountNumbers">{deactive}</p>
                         </div>
                     </button>
+                    {/if} -->
+                   
                     <button class="savedcount">
                         <p class="otherCounts" >All</p>
-                        <div class="bgAllCount flex-grow" on:click={()=>status_pill_clicked("")}>
+                        {#if status_for_highlight == "All"}
+                        <div class="bgAllCount flex-grow" on:click={()=>status_pill_clicked("All")}  style="background-color: #dddd; border: 1px solid black;"> 
+                            <p class="otherCountNumbers" style = "color:black;">{total_count}</p>
+                        </div>
+                        {:else}
+                        <div class="bgAllCount flex-grow" on:click={()=>status_pill_clicked("All")}>
                             <p class="otherCountNumbers">{total_count}</p>
                         </div>
+                        {/if}
+
                     </button>
+                    
                     <!-- <div class="savedcount">
                         <p class="otherCounts">All</p>
                         <button class="bgAllCount flex-grow" on:click={()=>status_pill_clicked("-1")}>
@@ -1723,7 +1826,10 @@ else
                                     class="xs:text-rejectcolor sm:text-rejectcolor"
                                     >{total_count_associates}</span
                                 > <span class="text-grey">ASSOCIATES</span>
+                                <p style="color: rgba(255, 149, 52, var(--tw-text-opacity));">
+                                    {status}</p>
                             </h4>
+                            
                         </div>
 
                         <div class="searchSupplier " id="searchBox">
@@ -1952,7 +2058,7 @@ else
                                                         >
                                                             Vendor
                                                         </div>
-                                                        <div class="smLable">
+                                                        <div class="smLable"  style="max-width: 60%;">
                                                             {facility_data.facility_name}
                                                         </div>
                                                     </div>
@@ -1982,7 +2088,7 @@ else
                                                         >
                                                             Location
                                                         </div>
-                                                        <div class="smLableAddress">
+                                                        <div class="smLableAddress"  style="max-width: 60%;">
                                                             {#each facility_data.addresess as curr_address}
                                                             {curr_address.address}
                                                             {/each}
@@ -2134,11 +2240,15 @@ else
                                                 <div
                                                     class="remarklist ml-5 paddingrt"
                                                 >
+                                                {#if facility_data.action}
                                                     <ul class="list-disc ">
                                                         <li class="listitems">
                                                             {facility_data.action}
                                                         </li>
                                                     </ul>
+                                                    <!-- {:else}
+                                                    <p>-</p> -->
+                                                {/if}
                                                     <div class="actionBtn mt-3">
                                                         <button on:click="{update_associate(facility_data.name)}"
                                                             href="#"
@@ -2917,11 +3027,11 @@ else
                                         <div class="statusredcircle" />
                                         Documents Rejected
                                     </div>
-                                    <!-- <div class="statusWrapper">
+                                    <div class="statusWrapper">
                                         <div class="statusGreencircle"></div>
                                     Active
-                                    </div> -->
-                                    <p class="subDeg ml-4">(ID Proof)</p>
+                                    </div>
+                                    <!-- <p class="subDeg ml-4">(ID Proof)</p> -->
                                 </div>
                             </div>
                             <div
@@ -3078,7 +3188,7 @@ else
                                 <div class="smallText w-w115px">
                                     Vendor Name
                                 </div>
-                                <div class="smLable">{audit_supplier_data.facility_name}</div>
+                                <div class="smLable"  style="max-width: 50%;">{audit_supplier_data.facility_name}</div>
                             </div>
                             <div class="itemList ">
                                 <div class="smallText w-w115px">
@@ -3092,7 +3202,7 @@ else
                             </div>
                             <div class="itemList">
                                 <div class="smallText w-w115px">Location</div>
-                                <div class="smLable">
+                                <div class="smLable"  style="max-width: 50%;">
                                     <!-- {#each audit_supplier_data.addresess as curr_address}
                                     {curr_address.address}
                                     {/each} -->
@@ -3107,9 +3217,9 @@ else
                                         <div class="statusredcircle" />
                                         {audit_supplier_data.status}
                                     </div>
-                                    <p class="text-xs text-grey ml-4">
+                                    <!-- <p class="text-xs text-grey ml-4">
                                         (ID Proof)
-                                    </p>
+                                    </p> -->
                                 </div>
                             </div>
                         </div>
