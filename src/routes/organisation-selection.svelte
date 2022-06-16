@@ -7,6 +7,7 @@
     import Spinner from "./components/spinner.svelte";
     import {org_name} from '../stores/organisation_store';
     import Toast from './components/toast.svelte';
+import { vercticle_name } from '../stores/verticle_store';
     let toast_text = "";
     let toast_type = null;
     let verticle = null;
@@ -16,6 +17,10 @@
     let show_spinner = false;
     
     onMount(async () =>{
+        if(!$vercticle_name.verticle){
+            goto("bussines",{replaceState : false})
+
+        }
         show_spinner = true;
         // vercticle_name.subscribe(value =>{
         //     verticle = value.verticle;
