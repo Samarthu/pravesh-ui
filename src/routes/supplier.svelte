@@ -14,6 +14,7 @@
     import {img_url_name} from '../stores/flags_store';
     import Spinner from "./components/spinner.svelte";
     import { goto } from '$app/navigation';
+    import Toast from './components/toast.svelte';
     // import { facility_data } from 'src/services/onboardsummary_services';
     
     let show_spinner = false;
@@ -793,12 +794,26 @@ else
     };
 
     const enterKeyPress = e => {
-    if (e.charCode === 13) {
-        filterResults();
-    }
+        if(!searchTerm){
+            toast_type = "error";
+            toast_text = "Search should not be blank !";
+        }
+        else{
+    
+            if (e.charCode === 13) {
+             filterResults();
+            }
+        }
   };
 
     async function filterResults(){
+        // console.log("Inside filter resukts")
+        // console.log("inside seach term = ",searchTerm)
+        // if(searchTerm == "undefined"){
+        //     toast_type = "error";
+        //     toast_text = "Search should not be blank !";
+        // }
+        // else{
         let searchArray= [];
         let search_obj = 
             {"city":-1,
@@ -856,7 +871,7 @@ else
         //     }
         
         // }
-       
+    // }
             // console.log("supplier_data_from_service inside filterresult",supplier_data_from_service)
     }
     async function dropdown_function(){
@@ -1114,7 +1129,7 @@ else
                                                             bind:checked = "{vendor_checkbox}"
                                                         />
                                                         <span class="ml-2"
-                                                            >Vendor</span
+                                                            >Asociate</span
                                                         >
                                                     </label>
                                                 </div>
@@ -1202,7 +1217,7 @@ else
                                                     <div class="selectSection ">
                                                         <label
                                                             class="formLableSelect "
-                                                            >Select Vendor Type
+                                                            >Select Associate Type
                                                         </label>
                                                         <div
                                                             class="formInnerGroupSelect "
@@ -1343,7 +1358,7 @@ else
                                                             bind:checked = "{vendor_checkbox}"
                                                         />
                                                         <span class="ml-2"
-                                                            >Vendor</span
+                                                            >Asociate</span
                                                         >
                                                     </label>
                                                 </div>
@@ -1432,7 +1447,7 @@ else
                                                     <div class="selectSection ">
                                                         <label
                                                             class="formLableSelect "
-                                                            >Select Vendor Type
+                                                            >Select Asociate Type
                                                         </label>
                                                         <div
                                                             class="formInnerGroupSelect "
@@ -2056,7 +2071,7 @@ else
                                                         <div
                                                             class="smallText w-w115px"
                                                         >
-                                                            Vendor
+                                                            Asociate
                                                         </div>
                                                         <div class="smLable"  style="max-width: 60%;">
                                                             {facility_data.facility_name}
@@ -2066,7 +2081,7 @@ else
                                                         <div
                                                             class="smallText w-w115px"
                                                         >
-                                                            Vendor Type
+                                                            Asociate Type
                                                         </div>
                                                         <div class="smLable">
                                                             {facility_data.facility_type}
@@ -2076,7 +2091,7 @@ else
                                                         <div
                                                             class="smallText w-w115px"
                                                         >
-                                                            Vendor ID
+                                                            Asociate ID
                                                         </div>
                                                         <div class="smLable">
                                                             {facility_data.name}
@@ -2090,7 +2105,7 @@ else
                                                         </div>
                                                         <div class="smLableAddress"  style="max-width: 60%;">
                                                             {#each facility_data.addresess as curr_address}
-                                                            {curr_address.address}
+                                                            {facility_data.station_code} - {curr_address.city}
                                                             {/each}
                                                         </div>
                                                     </div>
@@ -2105,10 +2120,21 @@ else
                                                 id="shortInfo"
                                             >
                                                 <div class="statusWrapper  ">
+                                                    {#if facility_data.status == "Bank Details Rejected" || facility_data.status == "ID Proof Rejected"}
                                                     <div
-                                                        class="statusredcircle"
+                                                        class="statusredcircle "
                                                     />
+                                                    {:else if facility_data.status == "Background Verification Pending" || facility_data.status == "Bank Details Pending" || facility_data.status == "ID Verification Pending" || facility_data.status == "Bank Beneficiary Pending" || facility_data.status == "Pending Offer Letter" || facility_data.status == "Onboarding in Progress" || facility_data.status == "Bank Verification Pending"}
+                                                    <div
+                                                    class="statusOrangecircle "
+                                                    />
+                                                    {:else}
+                                                    <div
+                                                    class="statusGreencircle "
+                                                    />
+                                                    {/if}
                                                     {facility_data.status}
+                                                    
                                                 </div>
                                                 <!-- <p
                                                     class="text-xs text-grey ml-4"
@@ -2121,9 +2147,19 @@ else
                                             <div class="detailsInfo">
                                                 <div class="paddingrt">
                                                     <div class="statusWrapper">
+                                                        {#if facility_data.status == "Bank Details Rejected" || facility_data.status == "ID Proof Rejected"}
                                                         <div
                                                             class="statusredcircle "
                                                         />
+                                                        {:else if facility_data.status == "Background Verification Pending" || facility_data.status == "Bank Details Pending" || facility_data.status == "ID Verification Pending" || facility_data.status == "Bank Beneficiary Pending" || facility_data.status == "Pending Offer Letter" || facility_data.status == "Onboarding in Progress" || facility_data.status == "Bank Verification Pending"}
+                                                        <div
+                                                        class="statusorangecircle "
+                                                        />
+                                                        {:else}
+                                                        <div
+                                                        class="statusGreencircle "
+                                                        />
+                                                        {/if}
                                                         {facility_data.status}
                                                     </div>
                                                     <!-- <div class="statusDetails">
@@ -2957,22 +2993,22 @@ else
                             
                             <div class="pl-p7px pt-p7px shortInfoMobile ">
                                 <p class="supName"> </p>
-                                <p class="subDeg ">(Vendor)</p>
+                                <p class="subDeg ">(Asociate)</p>
                             </div>
 
                             <div
                                 class="pl-p7px pt-p7px detailsInfoMobile hidden"
                             >
                                 <div class="venderListDetails">
-                                    <p class="subDeg ">Vendor</p>
+                                    <p class="subDeg ">Asociate</p>
                                     <p class="supName">{facility_data.facility_name}</p>
                                 </div>
                                 <div class="venderListDetails">
-                                    <p class="subDeg ">Vendor Type</p>
+                                    <p class="subDeg ">Asociate Type</p>
                                     <p class="supName">{facility_data.facility_type}</p>
                                 </div>
                                 <div class="venderListDetails">
-                                    <p class="subDeg ">Vendor ID</p>
+                                    <p class="subDeg ">Asociate ID</p>
                                     <p class="supName">{facility_data.name}</p>
                                 </div>
                                 <div class="venderListDetails">
@@ -3186,18 +3222,18 @@ else
                         <div class="tdfirstDetailsformodal">
                             <div class="itemList ">
                                 <div class="smallText w-w115px">
-                                    Vendor Name
+                                    Asociate Name
                                 </div>
                                 <div class="smLable"  style="max-width: 50%;">{audit_supplier_data.facility_name}</div>
                             </div>
                             <div class="itemList ">
                                 <div class="smallText w-w115px">
-                                    Vendor Type
+                                    Asociate Type
                                 </div>
                                 <div class="smLable">{audit_supplier_data.facility_type}</div>
                             </div>
                             <div class="itemList ">
-                                <div class="smallText w-w115px">Vendor ID</div>
+                                <div class="smallText w-w115px">Asociate ID</div>
                                 <div class="smLable">{audit_supplier_data.name}</div>
                             </div>
                             <div class="itemList">
@@ -3214,7 +3250,19 @@ else
                                 <div class="smallText w-w115px">Status</div>
                                 <div class="statusinformation">
                                     <div class="statusWrapper  ">
-                                        <div class="statusredcircle" />
+                                        {#if audit_supplier_data.status == "Bank Details Rejected" || audit_supplier_data.status == "ID Proof Rejected"}
+                                        <div
+                                            class="statusredcircle "
+                                        />
+                                        {:else if audit_supplier_data.status == "Background Verification Pending" || audit_supplier_data.status == "Bank Details Pending" || audit_supplier_data.status == "ID Verification Pending" || audit_supplier_data.status == "Bank Beneficiary Pending" || audit_supplier_data.status == "Pending Offer Letter" || audit_supplier_data.status == "Onboarding in Progress" || audit_supplier_data.status == "Bank Verification Pending"}
+                                        <div
+                                        class="statusOrangecircle "
+                                        />
+                                        {:else}
+                                        <div
+                                        class="statusGreencircle "
+                                        />
+                                        {/if}
                                         {audit_supplier_data.status}
                                     </div>
                                     <!-- <p class="text-xs text-grey ml-4">
@@ -3573,5 +3621,5 @@ else
         </div>
     </div>
 </div>
-
+<Toast type={toast_type}  text={toast_text}/>
 
