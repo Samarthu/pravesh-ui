@@ -590,7 +590,7 @@ else
        
        if(pagenum == 1){
         if(onboarded_by_me_checkbox == true){    
-        new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}
+        new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status,myOnboard: true,username:username,userid:userid}
         }
         else{
         new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
@@ -608,7 +608,7 @@ else
            let new_offset = (pagenum-1)*drop_limit
         //    console.log(new_offset)
         if(onboarded_by_me_checkbox == true){    
-            new_associate_data = {city: "-1",limit:new_drop_limit,offset:new_offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}
+            new_associate_data = {city: "-1",limit:new_drop_limit,offset:new_offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,myOnboard:true,username:username,userid:userid}
         }
         else{
             new_associate_data = {city: "-1",limit:new_drop_limit,offset:new_offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
@@ -736,7 +736,7 @@ else
         if(status != "-1"){
         if(onboarded_by_me_checkbox == true){
             
-            new_associate_data = {city:city,limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}
+            new_associate_data = {city:city,limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,myOnboard: true,username:username,userid:userid}
         }
         else
         {
@@ -1018,7 +1018,7 @@ else
 
         if(status != ""){
             if(onboarded_by_me_checkbox == true){    
-                    new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}
+                    new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,myOnboard: true,username:username,userid:userid}
                 }
                 else{
                     new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
