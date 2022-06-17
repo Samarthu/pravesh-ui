@@ -13,7 +13,7 @@
         import { facility_data,facility_bgv_init,facility_bgv_check,all_facility_tags,
                 show_fac_tags,submit_fac_tag_data,remove_tag,tag_audit_trail,service_vendor,
                 get_loc_scope,client_details,erp_details,child_data,add_gst_dets,
-                facility_document,addnew_cheque_details,bank_details,cheque_details,gst_details,blacklist_vendor,
+                facility_document,addnew_cheque_details,bank_details_info,cheque_details,gst_details,blacklist_vendor,
                 initiateBGV} from "../services/onboardsummary_services";
         import {get_pravesh_properties_method,} from '../services/workdetails_services';
         import {approve_reject_status,get_client_org_mapping} from '../services/vmt_verify_services';
@@ -362,7 +362,7 @@ import { current_user } from "../stores/current_user_store";
                 toast_text = "Cannot get user details";
             }
     
-            let bank_details_res = await bank_details();
+            let bank_details_res = await bank_details_info();
             try{
                
                 if(!bank_details_res){
