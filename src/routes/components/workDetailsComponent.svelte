@@ -14,7 +14,7 @@
             import { facility_data,facility_bgv_init,facility_bgv_check,all_facility_tags,
                     show_fac_tags,submit_fac_tag_data,remove_tag,tag_audit_trail,service_vendor,
                     get_loc_scope,client_details,erp_details,child_data,add_gst_dets,
-                    facility_document,addnew_cheque_details,bank_details,cheque_details,gst_details,
+                    facility_document,addnew_cheque_details,bank_details_info,cheque_details,gst_details,
                     work_details_data,print_data,get_physical_contracts,save_physical_contract,get_station_details,
                     get_all_accepted_contracts} from "../../services/onboardsummary_services";
             import {bgv_data_store} from '../../stores/bgv_store'

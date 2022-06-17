@@ -28,6 +28,11 @@
     import { save_flag } from "../stores/flags_store";
     import {img_url_name} from '../stores/flags_store';
     import Toast from "./components/toast.svelte";
+    import { facility_data,facility_bgv_init,facility_bgv_check,all_facility_tags,
+                show_fac_tags,submit_fac_tag_data,remove_tag,tag_audit_trail,service_vendor,
+                get_loc_scope,client_details,erp_details,child_data,add_gst_dets,
+                facility_document,addnew_cheque_details,cheque_details,gst_details,blacklist_vendor,
+                initiateBGV} from "../services/onboardsummary_services";
     let toast_text = "";
     let toast_type = null;
     import Success_popup from "./components/success_popup.svelte";
@@ -98,6 +103,10 @@
         // console.log("TEMP RESULT",result)
         page_name = $page.url["pathname"].split("/").pop();
         console.log("bank pahge name", page_name);
+
+        if($facility_id.facility_id_number){
+            
+        }
 
         
     });

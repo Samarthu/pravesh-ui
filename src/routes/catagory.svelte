@@ -129,9 +129,9 @@
                 Select a category type to continue onboarding
             </p>
             <div class="cardsectio">
-                <div class="cardWrapper">
+                <div class="cardWrapper ">
                     {#each combined_category_properties as category }
-                    <div class={category.class_name} on:click={() =>clickhandle(category.type)}>
+                    <div class={category.class_name}  on:click={() =>clickhandle(category.type)} >
                         
                             <div  class="cardContainer">
                                 <div class="cardImage ">
