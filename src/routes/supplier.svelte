@@ -419,9 +419,6 @@ else
                             if(new_dash_data.name == "onboarding in progress"){
                                 onboarding_in_progress = new_dash_data.count
                             }
-                            if(new_dash_data.name == "bank details pending"){
-                                bank_details_pending = new_dash_data.count
-                            }
                             if(new_dash_data.name == "pending offer letter"){
                                 pending_offer_letter = new_dash_data.count
                             }
