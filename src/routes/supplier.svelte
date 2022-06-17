@@ -35,6 +35,7 @@
     let filter_vendortype_array = [];
     let city;
     let next_prev_disable = false;
+    let dropdown_disable = false;
     let searchTerm;
     let new_city;
     let total_pages = null;
@@ -160,6 +161,7 @@
     
     onMount(async () =>{
         next_prev_disable = true;
+        dropdown_disable = true;
         show_spinner = true;
     let dashboard_res = await dashboard_data();
 
@@ -383,6 +385,9 @@ else
     }
 
     async function onboarded_check_func(){
+        dropdown_disable = false;
+        next_prev_disable = false;
+        searchTerm = "";
         show_spinner = true;
         console.log("onboarded_by_me_checkbox here",onboarded_by_me_checkbox)
         if(onboarded_by_me_checkbox == false){
@@ -575,6 +580,7 @@ else
     // }
 
     function next_function(){
+        searchTerm = "";
         console.log("status",status)
         if(status != "-1"){
         last_num_from_pages = pages.length
@@ -594,6 +600,7 @@ else
 }
     
     function previous_function(){ 
+        searchTerm = "";
         if(status != "-1"){
             let first_num_from_pages = pages[0];
             if(mapped_pages.includes(first_num_from_pages)){
@@ -742,7 +749,8 @@ else
     // };
 
     async function filterButton(){
-        
+        dropdown_disable = false;
+        searchTerm = "";
         // mapped_pages = [];
         vendor_type_select = document.getElementById("select_vendor_type").value.trim();
         console.log("vendor_type_select",vendor_type_select)
@@ -850,6 +858,8 @@ else
     }
 
     async function status_pill_clicked(status_selected){
+        searchTerm = "";
+        dropdown_disable = false;
         // console.log("status_selected",status_selected)
         pagenumber = 1;
       show_spinner = true;
@@ -1017,6 +1027,8 @@ else
   };
 
     async function filterResults(){
+        dropdown_disable = false;
+        searchTerm = "";
         console.log("Inside filter resukts",searchTerm)
         // console.log("inside seach term = ",searchTerm)
         if(searchTerm == undefined){
@@ -1085,7 +1097,8 @@ else
             // console.log("supplier_data_from_service inside filterresult",supplier_data_from_service)
     }
     async function dropdown_function(){
-        
+        searchTerm = "";
+        dropdown_disable = false;
     console.log("new_lllliiimmmiitttt",status)
     new_drop_limit=parseInt(drop_limit)
 
@@ -1384,15 +1397,15 @@ else
                                                                 >
                                                                {/each}
                                                             </select>
-                                                            <div
-                                                                class="formSelectArrow "
+                                                            <button
+                                                                class="formSelectArrow  cursor-pointer"
                                                             >
                                                                 <img
                                                                     src="{$img_url_name.img_name}/downarrow.svg"
-                                                                    class="w-5 h-auto"
+                                                                    class="w-5 h-auto" 
                                                                     alt=""
                                                                 />
-                                                            </div>
+                                                            </button>
                                                         </div>
                                                     </div>
                                                     <div class="selectSection">
@@ -1417,15 +1430,15 @@ else
                                                                 {/each}
                                                                 
                                                             </select>
-                                                            <div
-                                                                class="formSelectArrow "
+                                                            <button
+                                                                class="formSelectArrow  cursor-pointer "
                                                             >
                                                                 <img
                                                                     src="{$img_url_name.img_name}/downarrow.svg"
                                                                     class="w-5 h-auto"
                                                                     alt=""
                                                                 />
-                                                            </div>
+                                                            </button>
                                                         </div>
                                                     </div>
                                                     <div class="selectSection ">
@@ -1466,15 +1479,15 @@ else
                                                            
                                                            {/if}
                                                             </select>
-                                                            <div
-                                                                class="formSelectArrow "
+                                                            <button
+                                                                class="formSelectArrow  cursor-pointer "
                                                             >
                                                                 <img
                                                                     src="{$img_url_name.img_name}/downarrow.svg"
                                                                     class="w-5 h-auto"
                                                                     alt=""
                                                                 />
-                                                            </div>
+                                                            </button>
                                                         </div>
                                                     </div>
                                                     <div class="selectSection ">
@@ -1500,15 +1513,15 @@ else
                                                             {/each}
                                                             
                                                             </select>
-                                                            <div
-                                                                class="formSelectArrow "
+                                                            <button
+                                                                class="formSelectArrow  cursor-pointer "
                                                             >
                                                                 <img
                                                                     src="{$img_url_name.img_name}/downarrow.svg"
                                                                     class="w-5 h-auto"
                                                                     alt=""
                                                                 />
-                                                            </div>
+                                                            </button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1614,15 +1627,15 @@ else
                                                             >
                                                         {/each}
                                                         </select>
-                                                            <div
-                                                                class="formSelectArrow "
+                                                            <button
+                                                                class="formSelectArrow  cursor-pointer "
                                                             >
                                                                 <img
                                                                     src="{$img_url_name.img_name}/downarrow.svg"
                                                                     class="w-5 h-auto"
                                                                     alt=""
                                                                 />
-                                                            </div>
+                                                            </button>
                                                         </div>
                                                     </div>
                                                     <div class="selectSection" >
@@ -1647,15 +1660,15 @@ else
                                                                     </option>
                                                                 {/each}
                                                             </select>
-                                                            <div
-                                                                class="formSelectArrow "
+                                                            <button
+                                                                class="formSelectArrow  cursor-pointer "
                                                             >
                                                                 <img
                                                                     src="{$img_url_name.img_name}/downarrow.svg"
                                                                     class="w-5 h-auto"
                                                                     alt=""
                                                                 />
-                                                            </div>
+                                                            </button>
                                                         </div>
                                                     </div>
                                                     <div class="selectSection ">
@@ -1697,15 +1710,15 @@ else
                                                            {/if}
                                                             
                                                             </select>
-                                                            <div
-                                                                class="formSelectArrow "
+                                                            <button
+                                                                class="formSelectArrow  cursor-pointer "
                                                             >
                                                                 <img
                                                                     src="{$img_url_name.img_name}/downarrow.svg"
                                                                     class="w-5 h-auto"
                                                                     alt=""
                                                                 />
-                                                            </div>
+                                                            </button>
                                                         </div>
                                                     </div>
                                                     <div class="selectSection " >
@@ -1732,15 +1745,15 @@ else
                                                         {/each}
                                                         
                                                     </select>
-                                                            <div
-                                                                class="formSelectArrow "
+                                                            <button
+                                                                class="formSelectArrow  cursor-pointer "
                                                             >
                                                                 <img
                                                                     src="{$img_url_name.img_name}/downarrow.svg"
                                                                     class="w-5 h-auto"
                                                                     alt=""
                                                                 />
-                                                            </div>
+                                                            </button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -2139,17 +2152,24 @@ else
                         <div class="itemsNo ">
                             <div class="selectSection">
                                 <div class="formInnerGroupSelect ">
+                                    {#if dropdown_disable == true}
+                                    <select class="selectInputbox" style="background: #dddddd; pointer-events: none;">
+                                        <option value="20">20 items</option>
+                                        <option value="30">30 items</option>
+                                    </select>
+                                    {:else}
                                     <select class="selectInputbox" bind:value ="{drop_limit}" on:change="{dropdown_function}">
                                         <option value="20">20 items</option>
                                         <option value="30">30 items</option>
                                     </select>
-                                    <div class="formSelectArrow ">
+                                    {/if}
+                                    <button class="formSelectArrow  cursor-pointer ">
                                         <img
                                             src="{$img_url_name.img_name}/downarrow.svg"
                                             class="w-5 h-auto"
                                             alt=""
                                         />
-                                    </div>
+                                    </button>
                                 </div>
                             </div>
                             <div class="perpage">
