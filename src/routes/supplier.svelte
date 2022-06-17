@@ -159,6 +159,7 @@
     let json_associate_data,json_associate_new_data;
     
     onMount(async () =>{
+        next_prev_disable = true;
         show_spinner = true;
     let dashboard_res = await dashboard_data();
 
@@ -304,6 +305,8 @@ else
             next_prev_disable = true;
         }
         }
+       
+        console.log('next_prev_disable',next_prev_disable)
 ////////////filter city status -data///////////
     filter_city_res = await filter_city_data();
         try{
@@ -1001,26 +1004,26 @@ else
     };
 
     const enterKeyPress = e => {
-        if(!searchTerm){
-            toast_type = "error";
-            toast_text = "Search should not be blank !";
-        }
-        else{
-    
-            if (e.charCode === 13) {
-             filterResults();
-            }
-        }
-  };
-
-    async function filterResults(){
-        // console.log("Inside filter resukts")
-        // console.log("inside seach term = ",searchTerm)
-        // if(searchTerm == "undefined"){
+        // if(searchTerm == undefined){
         //     toast_type = "error";
         //     toast_text = "Search should not be blank !";
         // }
         // else{
+    
+            if (e.charCode === 13) {
+             filterResults();
+            }
+        // }
+  };
+
+    async function filterResults(){
+        console.log("Inside filter resukts",searchTerm)
+        // console.log("inside seach term = ",searchTerm)
+        if(searchTerm == undefined){
+            toast_type = "error";
+            toast_text = "Search should not be blank !";
+        }
+        else{
         let searchArray= [];
         let search_obj = 
             {"city":-1,
@@ -1078,7 +1081,7 @@ else
         //     }
         
         // }
-    // }
+    }
             // console.log("supplier_data_from_service inside filterresult",supplier_data_from_service)
     }
     async function dropdown_function(){
@@ -2157,7 +2160,7 @@ else
                             <nav aria-label="Page navigation">
                                 <ul class="pagiWrapper ">
                                     <li>
-                                        {#if pagenumber == "1"}
+                                        {#if pagenumber == "1" || next_prev_disable == true}
                                         <button class="preNextbtn" style="background: #dddddd; pointer-events: none;">
                                             Previous</button
                                         >
@@ -2177,7 +2180,7 @@ else
                                         </li>
                                     {:else} -->
                                     {#each mapped_pages as page}
-                                     {#if pagenumber == page || next_prev_disable == true}
+                                     {#if pagenumber == page}
                                      <li >
                                         <button id = "curr_page" class="pagiItemsNumber" on:click="{pageChange(page)}" style="background-color: darkgray;">
                                            {page}
