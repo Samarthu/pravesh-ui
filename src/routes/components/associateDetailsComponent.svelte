@@ -1471,7 +1471,7 @@
                                  alt=""
                                  class="pr-2"
                              />
-                             User activation pending
+                             App Verification Pending
                          </p>
                     {/if}
                  </div>
