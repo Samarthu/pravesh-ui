@@ -485,7 +485,9 @@
                     <!-- <a href="" class="smButton bg-erBlue text-white" on:click={()=>{goto("identityproof")}}>
                         Edit
                     </a> -->
-                    <button class="smButton bg-erBlue text-white mr-1" on:click={()=>{goto("identityproof")}}>
+                    <button class="smButton bg-erBlue text-white mr-1" on:click={()=>{
+                        $documents_store.documents=[];
+                        goto("identityproof")}}>
                         Edit
                     </button>
                     <!-- <button class="smButton bg-erBlue text-white" on:click="{openIDcard}">
