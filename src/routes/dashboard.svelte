@@ -426,8 +426,8 @@
                             </div>
                         </div>
                         <div class="cardCount">
-                            <div class="bgcircle ">
-                                <span class="countcircle  ">{bgv_pending}</span>
+                            <div class="bgcircleother ">
+                                <span class="countcircleother">{bgv_pending}</span>
                             </div>
                         </div>
                     </div>
