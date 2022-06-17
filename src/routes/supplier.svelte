@@ -34,6 +34,7 @@
     let filter_city_array = [];
     let filter_vendortype_array = [];
     let city;
+    let next_prev_disable = false;
     let searchTerm;
     let new_city;
     let total_pages = null;
@@ -57,6 +58,7 @@
     let new_dash_data = [];
     $:pagenumber = "";
     let last_num_from_pages;
+    let new_drop_limit;
     // $:pagenumber = pagenumber;
     // let pages= [];
 //pagination////////////
@@ -92,7 +94,7 @@
         //     }
         
         async function clearedSearchFunc(){
-            if(status != ""){
+            if(status != "-1"){
                 json_associate_data=JSON.stringify(new_associate_data);
                 //  console.log("json_associate_data",json_associate_data)
                 let cleared_search_res=await supplier_data(json_associate_data);
@@ -109,7 +111,7 @@
                         result = true;
                         // console.log("RESULT",result)
                         // filter_vendortype_res = await filter_vendortype_data();
-                        var new_drop_limit=parseInt(drop_limit)
+                        new_drop_limit=parseInt(drop_limit)
                         if(total_count_associates>20){
                             var total_pages=Math.ceil(total_count_associates/new_drop_limit)
                             pages = createPagesArray(total_pages)
@@ -167,41 +169,41 @@
             if(new_dash_data.name == "active"){
                 active = new_dash_data.count
             }
-            if(new_dash_data.name == "deactive"){
+            else if(new_dash_data.name == "deactive"){
                 deactive = new_dash_data.count
             }
-            if(new_dash_data.name == "id proof rejected"){
+            else if(new_dash_data.name == "id proof rejected"){
                 id_proof_rejected = new_dash_data.count
             }
-            if(new_dash_data.name == "background verification pending"){
+            else if(new_dash_data.name == "background verification pending"){
                 background_verification_pending = new_dash_data.count
             }
-            if(new_dash_data.name == "bank details rejected"){
+            else if(new_dash_data.name == "bank details rejected"){
                 bank_details_rejected = new_dash_data.count
             }
-            if(new_dash_data.name == "id verification pending"){
+            else if(new_dash_data.name == "id verification pending"){
                 id_verification_pending = new_dash_data.count
             }
-            if(new_dash_data.name == "bank details pending"){
+            else if(new_dash_data.name == "bank details pending"){
                 bank_details_pending = new_dash_data.count
             }
-            if(new_dash_data.name == "bank beneficiary pending"){
+            else if(new_dash_data.name == "bank beneficiary pending"){
                 bank_beneficiary_pending = new_dash_data.count
             }
-            if(new_dash_data.name == "onboarding in progress"){
+            else if(new_dash_data.name == "onboarding in progress"){
                 onboarding_in_progress = new_dash_data.count
             }
-            if(new_dash_data.name == "bank details pending"){
-                bank_verification_pending = new_dash_data.count
-            }
-            if(new_dash_data.name == "pending offer letter"){
+            else if(new_dash_data.name == "pending offer letter"){
                 pending_offer_letter = new_dash_data.count
             }
-            if(new_dash_data.name == "background verification rejected"){
+            else if(new_dash_data.name == "background verification rejected"){
                 bgv_rejected = new_dash_data.count
             }
-            if(new_dash_data.name == "background verification pending"){
+            else if(new_dash_data.name == "background verification pending"){
                 bgv_pending = new_dash_data.count
+            }
+            else if(new_dash_data.name  == "bank verification pending"){
+                bank_verification_pending = new_dash_data.count
             }
         }
         // active = dashboard.active;
@@ -215,7 +217,8 @@
         // bank_verification_pending = dashboard.bank_verification_pending;
         // pending_offer_letter = dashboard.pending_offer_letter;
         // bgv_rejected = dashboard.bgv_rejected;
-        
+        console.log("total count active",bank_verification_pending)
+
         total_count = (active+deactive+id_proof_rejected+bank_details_rejected+
         id_verification_pending+bank_verification_pending+pending_offer_letter+bgv_rejected+
         bank_details_pending+bank_beneficiary_pending+onboarding_in_progress);
@@ -228,7 +231,7 @@
     if(paramString == undefined){
     //   show_pagination = true;
       console.log("show_pagination",show_pagination)
-    var new_drop_limit=parseInt(drop_limit)
+    new_drop_limit=parseInt(drop_limit)
    
     new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}
     json_associate_new_data=JSON.stringify(new_associate_data);
@@ -258,7 +261,7 @@ else
     let new_paramString = decodeURI(paramString)
     status = new_paramString;
     // console.log("drop_limit inside urlString",drop_limit)
-    var new_drop_limit=parseInt(drop_limit)
+    new_drop_limit=parseInt(drop_limit)
     new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}
     json_associate_data=JSON.stringify(new_associate_data);
     let res=await supplier_data(json_associate_data);
@@ -290,11 +293,15 @@ else
             toast_text = err;
         }
         
-        // var new_drop_limit=parseInt(drop_limit)
+        new_drop_limit=parseInt(drop_limit)
         total_count_associates = res.body.data.total_records;
-        if(total_count_associates >20){
+        if(total_count_associates > new_drop_limit){
+            next_prev_disable = false;
             total_pages = Math.ceil(total_count_associates/new_drop_limit)
             pages = createPagesArray(total_pages)
+        }
+        else{
+            next_prev_disable = true;
         }
         }
 ////////////filter city status -data///////////
@@ -389,46 +396,54 @@ else
                         new_dash_data = [];
                         console.log("onboard_by_me_sup_res",onboard_by_me_sup_res)
                         let dashboard = onboard_by_me_sup_res.body.data;
-                       
+                        
                         for(new_dash_data of dashboard){
                             
                             if(new_dash_data.name == "active"){
                                 active = new_dash_data.count
                             }
-                            if(new_dash_data.name == "deactive"){
+                            else if(new_dash_data.name == "deactive"){
                                 deactive = new_dash_data.count
                             }
-                            if(new_dash_data.name == "id proof rejected"){
+                            else if(new_dash_data.name == "id proof rejected"){
                                 id_proof_rejected = new_dash_data.count
                             }
-                            if(new_dash_data.name == "background verification pending"){
+                            else if(new_dash_data.name == "background verification pending"){
                                 background_verification_pending = new_dash_data.count
                             }
-                            if(new_dash_data.name == "bank details rejected"){
+                            else if(new_dash_data.name == "bank details rejected"){
                                 bank_details_rejected = new_dash_data.count
                             }
-                            if(new_dash_data.name == "id verification pending"){
+                            else if(new_dash_data.name == "id verification pending"){
                                 id_verification_pending = new_dash_data.count
                             }
-                            if(new_dash_data.name == "bank details pending"){
+                            else if(new_dash_data.name == "bank details pending"){
                                 bank_details_pending = new_dash_data.count
                             }
-                            if(new_dash_data.name == "bank beneficiary pending"){
+                            else if(new_dash_data.name == "bank beneficiary pending"){
                                 bank_beneficiary_pending = new_dash_data.count
                             }
-                            if(new_dash_data.name == "onboarding in progress"){
+                            else if(new_dash_data.name == "onboarding in progress"){
                                 onboarding_in_progress = new_dash_data.count
                             }
-                            if(new_dash_data.name == "pending offer letter"){
+                            else if(new_dash_data.name == "pending offer letter"){
                                 pending_offer_letter = new_dash_data.count
                             }
-                            if(new_dash_data.name == "background verification rejected"){
+                            else if(new_dash_data.name == "background verification rejected"){
                                 bgv_rejected = new_dash_data.count
                             }
-                            if(new_dash_data.name == "background verification pending"){
+                            else if(new_dash_data.name == "background verification pending"){
                                 bgv_pending = new_dash_data.count
                             }
+                            else if(new_dash_data.name  == "bank verification pending"){
+                                bank_verification_pending = new_dash_data.count
+                            }
+
+                            
                         }
+                        total_count = (active+deactive+id_proof_rejected+bank_details_rejected+
+                            id_verification_pending+bank_verification_pending+pending_offer_letter+bgv_rejected+
+                            bank_details_pending+bank_beneficiary_pending+onboarding_in_progress);
                         show_spinner=false;
                        
                     }
@@ -446,7 +461,7 @@ else
                 }
                 
                 // console.log("username and useridddd",username,userid)
-                // var new_drop_limit=parseInt(drop_limit)  
+                // new_drop_limit=parseInt(drop_limit)  
                 
                 //     if(onboarded_by_me_checkbox == true){ 
                 //         console.log("inside if block onboarded_by_me_checkbox",username,userid)
@@ -477,6 +492,7 @@ else
             else if(onboarded_by_me_checkbox == true){
                 console.log("here inside TRUE")
                 show_spinner=false;
+                status = "-1";
             let dashboard_res = await dashboard_data();
             let dashboard = dashboard_res.body.data;
             for(new_dash_data of dashboard){
@@ -484,42 +500,51 @@ else
             if(new_dash_data.name == "active"){
                 active = new_dash_data.count
             }
-            if(new_dash_data.name == "deactive"){
+            else if(new_dash_data.name == "deactive"){
                 deactive = new_dash_data.count
             }
-            if(new_dash_data.name == "id proof rejected"){
+            else if(new_dash_data.name == "id proof rejected"){
                 id_proof_rejected = new_dash_data.count
             }
-            if(new_dash_data.name == "background verification pending"){
+            else if(new_dash_data.name == "background verification pending"){
                 background_verification_pending = new_dash_data.count
             }
-            if(new_dash_data.name == "bank details rejected"){
+            else if(new_dash_data.name == "bank details rejected"){
                 bank_details_rejected = new_dash_data.count
             }
-            if(new_dash_data.name == "id verification pending"){
-                id_verification_pending = new_dash_data.count
-            }
-            if(new_dash_data.name == "bank details pending"){
+            else if(new_dash_data.name == "bank details pending"){
                 bank_details_pending = new_dash_data.count
             }
-            if(new_dash_data.name == "bank beneficiary pending"){
+            else if(new_dash_data.name == "id verification pending"){
+                id_verification_pending = new_dash_data.count
+            }
+            else if(new_dash_data.name == "bank details pending"){
+                bank_details_pending = new_dash_data.count
+            }
+            else if(new_dash_data.name == "bank beneficiary pending"){
                 bank_beneficiary_pending = new_dash_data.count
             }
-            if(new_dash_data.name == "onboarding in progress"){
+            else if(new_dash_data.name == "onboarding in progress"){
                 onboarding_in_progress = new_dash_data.count
             }
-            if(new_dash_data.name == "bank details pending"){
-                bank_verification_pending = new_dash_data.count
-            }
-            if(new_dash_data.name == "pending offer letter"){
+            else if(new_dash_data.name == "pending offer letter"){
                 pending_offer_letter = new_dash_data.count
             }
-            if(new_dash_data.name == "background verification rejected"){
+            else if(new_dash_data.name == "background verification rejected"){
                 bgv_rejected = new_dash_data.count
             }
-            if(new_dash_data.name == "background verification pending"){
+            else if(new_dash_data.name == "background verification pending"){
                 bgv_pending = new_dash_data.count
             }
+            else if(new_dash_data.name  == "bank verification pending"){
+                bank_verification_pending = new_dash_data.count
+            }
+        }
+            total_count = (active+deactive+id_proof_rejected+bank_details_rejected+
+            id_verification_pending+bank_verification_pending+pending_offer_letter+bgv_rejected+
+            bank_details_pending+bank_beneficiary_pending+onboarding_in_progress);
+
+
             new_associate_data = {city:city,limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status} 
             json_associate_data=JSON.stringify(new_associate_data);
             let onboarded_check_res=await supplier_data(json_associate_data);
@@ -528,7 +553,7 @@ else
             for(let i=0;i<supplier_data_from_service.length;i++){
                 supplier_data_from_service[i].expand = false;
             }
-        }
+        
                 
 
             }
@@ -547,7 +572,8 @@ else
     // }
 
     function next_function(){
-        if(status != ""){
+        console.log("status",status)
+        if(status != "-1"){
         last_num_from_pages = pages.length
         console.log("last_num",last_num_from_pages)
         // if(mapped_pages.includes(last_num_from_pages)){
@@ -565,7 +591,7 @@ else
 }
     
     function previous_function(){ 
-        if(status != ""){
+        if(status != "-1"){
             let first_num_from_pages = pages[0];
             if(mapped_pages.includes(first_num_from_pages)){
             
@@ -582,7 +608,7 @@ else
    async function pageChange(pagenum){
         pagenumber = pagenum;
        console.log("Pagenumberrrrr",pagenum);
-       var new_drop_limit=parseInt(drop_limit)
+       new_drop_limit=parseInt(drop_limit)
     //    console.log("new_drop_limit in pagechange",new_drop_limit)
        
        if(pagenum == 1){
@@ -678,7 +704,7 @@ else
                 audit_supplier_address = audit_supplier_data.addresess[0].city
             }
         }
-        catch(err) {
+        catch(err){
                 toast_type = "error";
                 toast_text = err;
             }
@@ -701,6 +727,9 @@ else
                 
         }
     }
+    function deactivate_fac(fac_name){
+        console.log("Deactivate Facility Pending Work")
+    }
 
 
     // window.onclick = function (event) {
@@ -714,6 +743,9 @@ else
         // mapped_pages = [];
         vendor_type_select = document.getElementById("select_vendor_type").value.trim();
         console.log("vendor_type_select",vendor_type_select)
+       
+
+
         for(let vendorData  of filter_vendortype_array){
             if (vendor_type_select == vendorData.facility_type_name){
                 new_vendor_type = vendorData.facility_type
@@ -721,7 +753,7 @@ else
             }    
         } 
         city = document.getElementById("select_city").value.trim();
-        var new_drop_limit=parseInt(drop_limit)
+        new_drop_limit=parseInt(drop_limit)
         for(let cityData  of filter_city_array){
             if (city == cityData.location_name){
                 new_city =cityData.location_id;
@@ -768,7 +800,8 @@ else
                 //     }
                 // }
 
-                if(total_count_associates > 20){
+                if(total_count_associates > new_drop_limit){
+                    next_prev_disable = false;
                   
                   total_pages = Math.ceil(total_count_associates/new_drop_limit)
   
@@ -788,6 +821,9 @@ else
                           // }
                       }
                   }
+                  else{
+                    next_prev_disable = true;
+                  }
                     console.log("supplier_data_from_service here",supplier_data_from_service)
                 }
             }
@@ -797,15 +833,27 @@ else
             } 
             
         }
+        else if(status == "-1"){
+            toast_type = "error"
+            toast_text ="Please select Status"
+            return
+        }
+        else if(vendor_type_select == "-1"){
+            toast_type = "error"
+            toast_text ="Please select Associate/Vendor type"
+            return
+        }
+        
     }
 
     async function status_pill_clicked(status_selected){
         // console.log("status_selected",status_selected)
+        pagenumber = 1;
       show_spinner = true;
       status_for_highlight = status_selected;
         status = status_selected;
 
-        var new_drop_limit=parseInt(drop_limit)
+        new_drop_limit=parseInt(drop_limit)
         if(status_selected == "All"){
             status = "";
         }
@@ -832,14 +880,15 @@ else
                 for(let i=0;i<supplier_data_from_service.length;i++){
                     supplier_data_from_service[i].expand = false;
                 }
-                console.log("supplier_data_from_service",supplier_data_from_service)
-                
-                if(total_count_associates > 20){
-                  
+                console.log("supplier_data_from_service",total_count_associates)
+                new_pages =[];
+                mapped_pages=[];
+                if(total_count_associates > new_drop_limit){
+                next_prev_disable = false;
                 total_pages = Math.ceil(total_count_associates/new_drop_limit)
 
                 pages = createPagesArray(total_pages)
-                new_pages =[];
+                
                     // if(show_pagination == true){
                         for(let pagination in pages){
                             
@@ -853,6 +902,9 @@ else
                     
                         // }
                     }
+                }
+                else{
+                    next_prev_disable = true;
                 }
                 // status_pill_flag = true;
             }
@@ -872,7 +924,7 @@ else
 //     // console.log("INside if blcok of paramString",paramString)
 //     let new_paramString = decodeURI(paramString)
 //     // console.log("drop_limit inside urlString",drop_limit)
-//     var new_drop_limit=parseInt(drop_limit)
+//     new_drop_limit=parseInt(drop_limit)
 //     new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:new_paramString}
 //     json_associate_data=JSON.stringify(new_associate_data);
 //     let res=await supplier_data(json_associate_data);
@@ -903,7 +955,7 @@ else
 //         message.innerHTML = "Error is " + err;
 //         }
         
-//         // var new_drop_limit=parseInt(drop_limit)
+//         // new_drop_limit=parseInt(drop_limit)
 //         total_count_associates = res.body.data.total_records;
         
 //         total_pages = Math.ceil(total_count_associates/new_drop_limit)
@@ -1032,9 +1084,9 @@ else
     async function dropdown_function(){
         
     console.log("new_lllliiimmmiitttt",status)
-    var new_drop_limit=parseInt(drop_limit)
+    new_drop_limit=parseInt(drop_limit)
 
-        if(status != ""){
+        if(status != "-1"){
             if(onboarded_by_me_checkbox == true){    
                     new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,myOnboard: true,username:username,userid:userid}
                 }
@@ -1046,10 +1098,14 @@ else
                 let dropdown_res =await supplier_data(json_associate_new_data);
                 
                 total_count_associates = dropdown_res.body.data.total_records;
-                if(total_count_associates >20){
+                if(total_count_associates > new_drop_limit){
+                    next_prev_disable = false;
                     total_pages = Math.ceil(total_count_associates/new_drop_limit)
                     // console.log("page_count_______",total_pages)
                     pages = createPagesArray(total_pages)
+                }
+                else{
+                    next_prev_disable = true;
                 }
         // console.log("pages,,,,,",pages)
 
@@ -1786,7 +1842,7 @@ else
                         <button class="bgdocreject flex-grow" style="background-color: #dddd; border: 1px solid black;">
                             <div class="countHeading" on:click={()=>status_pill_clicked("Bank Details Pending")}>
                                 Bank Details <span class="docRejectCount"
-                                    >{bank_verification_pending}</span
+                                    >{bank_details_pending}</span
                                 >
                             </div>
                         </button>
@@ -2121,7 +2177,7 @@ else
                                         </li>
                                     {:else} -->
                                     {#each mapped_pages as page}
-                                     {#if pagenumber == page}
+                                     {#if pagenumber == page || next_prev_disable == true}
                                      <li >
                                         <button id = "curr_page" class="pagiItemsNumber" on:click="{pageChange(page)}" style="background-color: darkgray;">
                                            {page}
@@ -2159,7 +2215,7 @@ else
                                     </li> -->
 
                                     <li>
-                                        {#if pagenumber == last_num_from_pages}
+                                        {#if pagenumber == last_num_from_pages  || next_prev_disable == true}
                                         <button class="preNextbtn" style="background: #dddddd; pointer-events: none;">
                                             Next</button
                                         >
@@ -2314,6 +2370,7 @@ else
                                                     {facility_data.status}
                                                     
                                                 </div>
+                                                
                                                 <!-- <p
                                                     class="text-xs text-grey ml-4"
                                                 >
@@ -2331,7 +2388,7 @@ else
                                                         />
                                                         {:else if facility_data.status == "Background Verification Pending" || facility_data.status == "Bank Details Pending" || facility_data.status == "ID Verification Pending" || facility_data.status == "Bank Beneficiary Pending" || facility_data.status == "Pending Offer Letter" || facility_data.status == "Onboarding in Progress" || facility_data.status == "Bank Verification Pending"}
                                                         <div
-                                                        class="statusorangecircle "
+                                                        class="statusOrangecircle "
                                                         />
                                                         {:else}
                                                         <div
@@ -2339,6 +2396,13 @@ else
                                                         />
                                                         {/if}
                                                         {facility_data.status}
+                                                    </div>
+                                                     <div class="actionBtn mt-3">
+                                                        <button on:click="{deactivate_fac(facility_data.name)}"
+                                                            href="#"
+                                                            class="ErBlueButton"
+                                                            >Deactivate Profile</button
+                                                        >
                                                     </div>
                                                     <!-- <div class="statusDetails">
                                                         <p
@@ -2383,7 +2447,11 @@ else
                                                     {:else}
 
                                                     <!-- {#each facility_data.remarks as remark} -->
-                                                    <p class="smallTextWrap">{facility_data.remarks[0]}+({facility_data.remarks.length-1})</p>
+                                                    <p class="smallTextWrap">{facility_data.remarks[0]}
+                                                        {#if facility_data.remarks.length-1 != 0}
+                                                        +({facility_data.remarks.length-1})
+                                                        {/if}
+                                                    </p>
                                                     <!-- {/each} -->
 
                                                     {/if}
