@@ -48,7 +48,7 @@
     let vendor_checkbox = false;
     let onboarded_by_me_checkbox = false;
     let workforce_checkbox = true;
-    let status_pill_flag = false;
+    // let status_pill_flag = false;
     let status_for_highlight = "";
     let new_associate_data;
     let logged_user_data;
@@ -752,24 +752,45 @@ else
                     for(let i=0;i<supplier_data_from_service.length;i++){
                         supplier_data_from_service[i].expand = false;
                     }
-                    if(total_count_associates > 20 && status_pill_flag == false){
+                //     if(total_count_associates > 20){
                   
-                total_pages = Math.ceil(total_count_associates/new_drop_limit)
-                pages = createPagesArray(total_pages)
-                new_pages =[];
-                    // if(show_pagination == true){
-                        for(let pagination in pages){
+                // total_pages = Math.ceil(total_count_associates/new_drop_limit)
+                // pages = createPagesArray(total_pages)
+                // new_pages =[];
+                //     // if(show_pagination == true){
+                //         for(let pagination in pages){
                             
-                            if(pagination>0 && pagination <= 3){
-                                // console.log("PAGES") 
-                                new_pages.push(pagination)
-                                mapped_pages=new_pages.map(Number)  
-                                console.log("mapped_pages",mapped_pages)
-                            }
+                //             if(pagination>0 && pagination <= 3){
+                //                 // console.log("PAGES") 
+                //                 new_pages.push(pagination)
+                //                 mapped_pages=new_pages.map(Number)  
+                //                 console.log("mapped_pages",mapped_pages)
+                //             }
                     
-                        // }
-                    }
-                }
+                //         // }
+                //     }
+                // }
+
+                if(total_count_associates > 20){
+                  
+                  total_pages = Math.ceil(total_count_associates/new_drop_limit)
+  
+                  pages = createPagesArray(total_pages)
+                  new_pages =[];
+                      // if(show_pagination == true){
+                          for(let pagination in pages){
+                              
+                              if(pagination>0 && pagination <= 3){
+                                
+                                  new_pages.push(pagination)
+                                  mapped_pages=new_pages.map(Number)  
+                                
+                                  console.log("mapped_pages",mapped_pages)
+                              }
+                      
+                          // }
+                      }
+                  }
                     console.log("supplier_data_from_service here",supplier_data_from_service)
                 }
             }
@@ -816,7 +837,7 @@ else
                 }
                 console.log("supplier_data_from_service",supplier_data_from_service)
                 
-                if(total_count_associates > 20 && status_pill_flag == false){
+                if(total_count_associates > 20){
                   
                 total_pages = Math.ceil(total_count_associates/new_drop_limit)
 
@@ -836,7 +857,7 @@ else
                         // }
                     }
                 }
-                status_pill_flag = true;
+                // status_pill_flag = true;
             }
         }
         catch(err) {
@@ -1726,21 +1747,7 @@ else
                         </button>
                         {/if}
 
-                        {#if status_for_highlight == "Background Verification Pending"}
-                        <button class="idproof flex-grow" style="background-color: #dddd; border: 1px solid black;">
-                            <div class="countHeading" on:click={()=>status_pill_clicked("Background Verification Pending")}>
-                                BGV Pending <span class="idproofcount">{bgv_pending}</span
-                                >
-                                </div>
-                        </button>
-                        {:else}
-                        <button class="idproof flex-grow">
-                            <div class="countHeading" on:click={()=>status_pill_clicked("Background Verification Pending")}>
-                                BGV Pending <span class="idproofcount">{bgv_pending}</span
-                                >
-                                </div>
-                        </button>
-                        {/if}
+                        
 
                         {#if status_for_highlight == "Background Verification Rejected"}
                         <button class="idproof flex-grow" style="background-color: #dddd; border: 1px solid black;">
@@ -1795,6 +1802,23 @@ else
                             </div>
                         </button>
                         {/if}
+
+                        {#if status_for_highlight == "Background Verification Pending"}
+                        <button class="bgdocreject flex-grow" style="background-color: #dddd; border: 1px solid black;">
+                            <div class="countHeading" on:click={()=>status_pill_clicked("Background Verification Pending")}>
+                                BGV Pending <span class="docRejectCount">{bgv_pending}</span
+                                >
+                                </div>
+                        </button>
+                        {:else}
+                        <button class="bgdocreject flex-grow">
+                            <div class="countHeading" on:click={()=>status_pill_clicked("Background Verification Pending")}>
+                                BGV Pending <span class="docRejectCount">{bgv_pending}</span
+                                >
+                                </div>
+                        </button>
+                        {/if}
+
                         {#if status_for_highlight == "Pending Offer Letter"}
                         <button class="bgdocreject flex-grow"  style="background-color: #dddd; border: 1px solid black;">
                             <div class="countHeading" on:click={()=>status_pill_clicked("Pending Offer Letter")}>
@@ -2277,7 +2301,7 @@ else
                                                 id="shortInfo"
                                             >
                                                 <div class="statusWrapper  ">
-                                                    {#if facility_data.status == "Bank Details Rejected" || facility_data.status == "ID Proof Rejected" || facility_data.status == "Deactive"}
+                                                    {#if facility_data.status == "Bank Details Rejected" || facility_data.status == "ID Proof Rejected" || facility_data.status == "Deactive" || facility_data.status == "Background Verification Rejected"}
                                                     <div
                                                         class="statusredcircle "
                                                     />
@@ -2304,7 +2328,7 @@ else
                                             <div class="detailsInfo">
                                                 <div class="paddingrt">
                                                     <div class="statusWrapper">
-                                                        {#if facility_data.status == "Bank Details Rejected" || facility_data.status == "ID Proof Rejected" || facility_data.status == "Deactive"}
+                                                        {#if facility_data.status == "Bank Details Rejected" || facility_data.status == "ID Proof Rejected" || facility_data.status == "Deactive" || facility_data.status == "Background Verification Rejected"  || facility_data.status == "Background Verification Rejected" }
                                                         <div
                                                             class="statusredcircle "
                                                         />
@@ -3412,7 +3436,7 @@ else
                                 <div class="smallText w-w115px">Status</div>
                                 <div class="statusinformation">
                                     <div class="statusWrapper  ">
-                                        {#if audit_supplier_data.status == "Bank Details Rejected" || audit_supplier_data.status == "ID Proof Rejected" || audit_supplier_data.status == "Deactive"}
+                                        {#if audit_supplier_data.status == "Bank Details Rejected" || audit_supplier_data.status == "ID Proof Rejected" || audit_supplier_data.status == "Deactive" || audit_supplier_data.status == "Background Verification Rejected" }
                                         <div
                                             class="statusredcircle "
                                         />
