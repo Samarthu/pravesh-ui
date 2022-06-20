@@ -2559,3 +2559,7 @@ p.tempText {
     word-break: break-all;
 }
 /* Word break */
+
+.formLableSupplier{
+    @apply text-blackshade text-base font-normal flex flex-nowrap whitespace-nowrap pr-3 w-60 xs:pb-2 sm:pb-2 justify-end xs:justify-start sm:justify-start
+}
