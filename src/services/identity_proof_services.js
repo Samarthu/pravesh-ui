@@ -1,6 +1,6 @@
 import {request} from './interceptor';
 import {facility_data_store,check_bgv_config_api_link} from '../stores/facility_store';
-import {BGV_api_link} from '../stores/facility_id_store';
+import {BGV_api_link,reset_contract_api_link} from '../stores/facility_id_store';
 
 import {msme_store} from '../stores/document_store';
 
@@ -18,12 +18,17 @@ let save_or_update_documents_api_url = '/api/method/pravesh.facility.routes.docu
 
 let check_bgv_config_api_url ;
 let BGV_api_url ;
+let reset_contrack_api;
 check_bgv_config_api_link.subscribe(value => {
     check_bgv_config_api_url = value;
 })
 BGV_api_link.subscribe(value => {
     BGV_api_url = value;
 })
+reset_contract_api_link.subscribe(value =>{
+    reset_contrack_api = value;
+})
+
 
 const verify_document_function = (document_number) => {
     let link = verify_document_api_url + document_number;
@@ -87,6 +92,12 @@ const save_or_update_documents_function_1 = (document_data_para) =>{
     body:JSON.stringify(document_data)},true)
 }
 
+const reset_contract_function =() =>{
+    return request(reset_contrack_api,{mode: 'no-cors',method:"GET"},true)
+
+
+}
+
 
 export{
     verify_document_function,
@@ -95,6 +106,7 @@ export{
     BGV_function,
     save_or_update_documents_function,
     save_or_update_documents_function_1,
-    edit_facility_function
+    edit_facility_function,
+    reset_contract_function
 
 }

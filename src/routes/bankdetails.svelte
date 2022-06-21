@@ -28,6 +28,9 @@
     import { save_flag } from "../stores/flags_store";
     import {img_url_name} from '../stores/flags_store';
     import Toast from "./components/toast.svelte";
+    import {
+        reset_contract_function
+    } from "../services/identity_proof_services";
     import { facility_data,facility_bgv_init,facility_bgv_check,all_facility_tags,
                 show_fac_tags,submit_fac_tag_data,remove_tag,tag_audit_trail,service_vendor,
                 get_loc_scope,client_details,erp_details,child_data,add_gst_dets,
@@ -477,6 +480,8 @@
                             document_upload_response
                         );
                     }
+                    let reset_contract_response = await reset_contract_function();
+                    console.log("reset_contract_response",reset_contract_response);
                 } catch {
                     // alert("Error in saving facility!");
                     toast_type = "error";
