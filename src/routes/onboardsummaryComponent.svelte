@@ -1483,7 +1483,14 @@ import { current_user } from "../stores/current_user_store";
             document.getElementById("supplierInfoModal").style.display = "none";
         }
         function blacklist_remark_select(){
-            Blacklist_confirmation_modal.style.display = "block";
+            if($facility_data_store.is_blacklisted == 1){
+                toast_type = "error";
+                toast_text = "Facility already Blacklisted..!!!";
+            }
+            else{
+                Blacklist_confirmation_modal.style.display = "block";
+            }
+            
             // Basic_Reject_modal.style.display = "block";
         }
         function close_blacklist_remark(){

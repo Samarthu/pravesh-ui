@@ -1363,6 +1363,7 @@
                      <span><span class="font-medium">Last updated -> </span>{#if !facility_created_date}<p>-</p>{:else}{facility_created_date}{/if} <span
                              class="font-medium"> By -> </span> {#if !$facility_data_store.owner} <p>-</p> {:else}{$facility_data_store.owner}{/if}</span>
                  </p>
+                 {#if is_adhoc_facility == false}
                  <p class="flex items-center smButtonText">
                      <!-- TODO -->
                      <!-- <a href="" class="smButton bg-erBlue text-white" on:click={()=>{goto("associatedetails")}}>
@@ -1382,6 +1383,7 @@
                         >
              {/if}
                  </p>
+                    {/if}
                  <div class="userStatus ml-4">
                     <p class="flex items-center smButtonText" on:click="{openCasUser}">
                         <a href="" class="smButton modal-open">

@@ -231,6 +231,7 @@
                 child_id_value = "";
             }
             else{
+                console.log("inside else")
                 show_spinner=false;
                 toast_type = "error";
                 toast_text = find_parent_function_res.body.message;

@@ -61,6 +61,8 @@
     $:pagenumber = "";
     let last_num_from_pages;
     let new_drop_limit;
+    let fac_obj = {};
+    let deact_date = "";
     // $:pagenumber = pagenumber;
     // let pages= [];
 //pagination////////////
@@ -164,7 +166,7 @@
      let bgv_pending = 0;
      let active=0
      let deactive=0,
-    bank_verification_pending,bank_beneficiary_pending,background_verification_pending,onboarding_in_progress;
+    bank_verification_pending,bank_beneficiary_pending,onboarding_in_progress;
     let json_associate_data,json_associate_new_data;
     
     onMount(async () =>{
@@ -424,9 +426,6 @@ else
                             else if(new_dash_data.name == "id proof rejected"){
                                 id_proof_rejected = new_dash_data.count
                             }
-                            else if(new_dash_data.name == "background verification pending"){
-                                background_verification_pending = new_dash_data.count
-                            }
                             else if(new_dash_data.name == "bank details rejected"){
                                 bank_details_rejected = new_dash_data.count
                             }
@@ -548,9 +547,6 @@ else
             }
             else if(new_dash_data.name == "background verification rejected"){
                 bgv_rejected = new_dash_data.count
-            }
-            else if(new_dash_data.name == "background verification pending"){
-                bgv_pending = new_dash_data.count
             }
             else if(new_dash_data.name  == "bank verification pending"){
                 bank_verification_pending = new_dash_data.count
@@ -750,6 +746,7 @@ else
 
 
     function update_associate(fac_name){
+        show_spinner = true;
         let associate_id;
         console.log("supplier_data_from_service",supplier_data_from_service)
         for(let i=0;i<supplier_data_from_service.length;i++){
@@ -759,6 +756,7 @@ else
             goto("onboardsummary?unFacID="+associate_id);
                 
         }
+        show_spinner = false;
     }
 
 
@@ -1270,17 +1268,20 @@ else
         });
     };
 
-    function deactivate_associate(){
-        console.log("inside deactivate fac")
+    function deactivate_associate(fac_data){
+        fac_obj = fac_data;
+        console.log("inside deactivate fac",fac_obj)
         deactivate_asso_profile.style.display = "block";
     }
     function close_deact_associate(){
+        // fac_obj_arr = [];
         deactivate_asso_profile.style.display = "none";
     }
     function open_deact_initiate_model(){
         initiateDeact.style.display = "block";
     }
     function close_deact_initiate_module(){
+        // fac_obj_arr = [];
         initiateDeact.style.display = "none";
     }
     // function confirm_initiate_deact(){
@@ -1288,14 +1289,46 @@ else
     // }
 
 
-    async function deactivate_profile(){
+    async function deactivate_profile_imm(){
+        // console.log("inside deactivate profile",fac_obj)
         show_spinner = true;
-        if(fac_id && date != ""){
-            var deactivate_user_imm_res = await deactivate_assocaite(fac_id,date);
+        if(deact_date && fac_obj){
+            var deactivate_user_imm_res = await deactivate_assocaite(fac_obj.name,deact_date);
         }
-        else{
+        else if(fac_obj){
+            var deactivate_user_imm_res = await deactivate_assocaite(fac_obj.name);
+        }
+        try{
+            if(deactivate_user_imm_res.body.status == "green"){
+                close_deact_associate()
+                close_deact_initiate_module()
+                show_spinner = false;
+                toast_type = "success";
+                toast_text = deactivate_user_imm_res.body.message;
+            }
+            else{
+                show_spinner = false;
+                toast_type = "error";
+                toast_text = deactivate_user_imm_res.body.message
+            }
+
+        }
+        catch(err){
+            show_spinner = false;
+            toast_type = "error"
+            toast_text = err;
+        }
+        show_spinner = false;
+    }
+    async function deactivate_profile_later(){
+        console.log("inside deactivate profile",fac_obj)
+        show_spinner = true;
+        // if(fac_id && date != ""){
+        //     var deactivate_user_imm_res = await deactivate_assocaite(fac_id,date);
+        // }
+        // else{
             var deactivate_user_imm_res = await deactivate_assocaite(fac_id);
-        }
+        // }
         try{
             if(deactivate_user_imm_res.body.status == "green"){
                 show_spinner = false;
@@ -2468,7 +2501,7 @@ else
                                                         {facility_data.status}
                                                     </div>
                                                      <div class="actionBtn mt-3">
-                                                        <button on:click={deactivate_associate}
+                                                        <button on:click={deactivate_associate(facility_data)}
                                                             href="#"
                                                             class="ErBlueButton"
                                                             >Deactivate Profile</button
@@ -3954,23 +3987,23 @@ else
                                Deactivate Associate
                             </p>
                         </div>
-                        <button class="rightmodalclose" on:click={close_deact_associate}>
+                        <button class="rightmodalclose" on:click|preventDefault={close_deact_associate}>
                             <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal">
                         </button>
                     </div>
                     <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 mt-5" >
                       <div class="flex">
-                        <button class="ErBlueButton" on:click={open_deact_initiate_model}>Deactivate Immediately </button>
+                        <button class="ErBlueButton" on:click|preventDefault={open_deact_initiate_model}>Deactivate Immediately </button>
                       </div>  
                    
                       <div class="formInnerGroup ">
-                        <input type="date" class="inputboxpopover px-4">
+                        <input type="date" class="inputboxpopover px-4" bind:value={deact_date}>
                      </div>
                      <div class="flex">
-                        <button class="ErButton bg-bgmandatorysign" on:click={open_deact_initiate_model}>Deactivate on Date </button>
+                        <button class="ErButton bg-bgmandatorysign" on:click|preventDefault={open_deact_initiate_model}>Deactivate on Date </button>
                       </div>  
                           <div class="pt-3 flex justify-center">
-                            <button type="button" class="dialogueSingleButton" on:click={close_deact_associate}>Close</button>
+                            <button type="button" class="dialogueSingleButton" on:click|preventDefault={close_deact_associate}>Close</button>
                         </div>
                     </form>
                 </div>
@@ -4010,7 +4043,7 @@ else
                                     <div class="formInnerGroup">
                                        
                                         <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium mr-2" on:click={close_deact_initiate_module}>Cancel</button>
-                                        <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium mr-2" on:click={deactivate_profile}>Ok</button>
+                                        <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium mr-2" on:click={deactivate_profile_imm}>Ok</button>
                                     </div>
                                 </div>
                               
