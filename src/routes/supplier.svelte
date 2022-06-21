@@ -63,6 +63,7 @@
     let new_drop_limit;
     let fac_obj = {};
     let deact_date = "";
+    let new_paramString = "";
     // $:pagenumber = pagenumber;
     // let pages= [];
 //pagination////////////
@@ -100,11 +101,11 @@
         async function clearedSearchFunc(){
             if(status != "-1"){
                 if(onboarded_by_me_checkbox == true){ 
-                    new_associate_data = {city:"",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}
+                    new_associate_data = {city:city,limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}
 
                 }
                 else{
-                new_associate_data = {city:"",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: status}  
+                new_associate_data = {city:city,limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: status}  
                 }
                 json_associate_data=JSON.stringify(new_associate_data);
                 //  console.log("json_associate_data",json_associate_data)
@@ -171,7 +172,7 @@
     
     onMount(async () =>{
         next_prev_disable = true;
-        dropdown_disable = true;
+       
         show_spinner = true;
     let dashboard_res = await dashboard_data();
 
@@ -237,6 +238,10 @@
         bank_details_pending+bank_beneficiary_pending+onboarding_in_progress);
     
     }
+    
+    else{
+        dropdown_disable = false;
+    }
     /////////from dashboard redirect with filter on//////////////
 
     let urlString = window.location.href;	
@@ -271,7 +276,7 @@
 else
     {
     // console.log("INside if blcok of paramString",paramString)
-    let new_paramString = decodeURI(paramString)
+    new_paramString = decodeURI(paramString)
     status = new_paramString;
     // console.log("drop_limit inside urlString",drop_limit)
     new_drop_limit=parseInt(drop_limit)
@@ -317,8 +322,10 @@ else
             next_prev_disable = true;
         }
         }
-       
-        console.log('next_prev_disable',next_prev_disable)
+
+        if(total_count_associates < 20){
+            dropdown_disable = true;
+        }
 ////////////filter city status -data///////////
     filter_city_res = await filter_city_data();
         try{
@@ -881,7 +888,7 @@ else
     }
 
     async function status_pill_clicked(status_selected){
-        searchTerm = "";
+        // searchTerm = "";
         dropdown_disable = false;
         // console.log("status_selected",status_selected)
         pagenumber = 1;
@@ -893,12 +900,14 @@ else
         if(status_selected == "All"){
             status = "";
         }
-   
+        console.log()
         if(onboarded_by_me_checkbox == true){
+            console.log("onboarded_by_me_checkbox true in status_pill_clicked")
             new_associate_data = {city:"-1",myOnboard: true,limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}
         }
         else
         {
+            console.log("onboarded_by_me_checkbox flase in status_pill_clicked")
             new_associate_data = {city:city,limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status} 
         }
 
@@ -1868,10 +1877,10 @@ else
                 <div class="SectionsCounts ">
                     <p class="docReject">Documents Rejected</p>
                     <div class="docRejctedCon flex gap-2">
-
-                        {#if status_for_highlight == "ID Proof Rejected"} 
+                        
+                        {#if status_for_highlight == "ID Proof Rejected" || status == "ID Proof Rejected"} 
                         <button class="idproof flex-grow" style="background-color: #dddd; border: 1px solid black;">
-                            <div class="countHeading" on:click={()=>status_pill_clicked("ID Proof Rejected")}>
+                            <div class="countHeading">
                                 ID Proof <span class="idproofcount">{id_proof_rejected}</span>
                             </div>
                         </button>
@@ -1883,9 +1892,9 @@ else
                         </button>
                         {/if}
 
-                        {#if status_for_highlight == "Bank Details Rejected"}
+                        {#if status_for_highlight == "Bank Details Rejected" || status == "Bank Details Rejected"}
                         <button class="idproof flex-grow" style="background-color: #dddd; border: 1px solid black;">
-                            <div class="countHeading" on:click={()=>status_pill_clicked("Bank Details Rejected")}>
+                            <div class="countHeading">
                                 Bank Details <span class="idproofcount"
                                     >{bank_details_rejected}</span
                                 >
@@ -1903,9 +1912,9 @@ else
 
                         
 
-                        {#if status_for_highlight == "Background Verification Rejected"}
+                        {#if status_for_highlight == "Background Verification Rejected" || status == "Background Verification Rejected"}
                         <button class="idproof flex-grow" style="background-color: #dddd; border: 1px solid black;">
-                            <div class="countHeading" on:click={()=>status_pill_clicked("Background Verification Rejected")}>
+                            <div class="countHeading">
                                 BGV Rejected <span class="idproofcount">{bgv_rejected}</span
                                 >
                                 </div>
@@ -1924,9 +1933,9 @@ else
                 <div class="SectionsCounts ">
                     <p class="PendingVeri">Pending Verification</p>
                     <div class="docRejctedCon flex gap-2">
-                        {#if status_for_highlight == "ID Verification Pending"}
+                        {#if status_for_highlight == "ID Verification Pending" || status == "ID Verification Pending"}
                         <button class="bgdocreject flex-grow" style="background-color: #dddd; border: 1px solid black;">
-                            <div class="countHeading" on:click={()=>status_pill_clicked("ID Verification Pending")}>
+                            <div class="countHeading">
                                 ID Proof <span class="docRejectCount">{id_verification_pending}</span
                                 >
                                 </div>
@@ -1939,9 +1948,9 @@ else
                                 </div>
                         </button>
                         {/if}
-                        {#if status_for_highlight == "Bank Details Pending"}
+                        {#if status_for_highlight == "Bank Details Pending" || status == "Bank Details Pending"}
                         <button class="bgdocreject flex-grow" style="background-color: #dddd; border: 1px solid black;">
-                            <div class="countHeading" on:click={()=>status_pill_clicked("Bank Details Pending")}>
+                            <div class="countHeading">
                                 Bank Details <span class="docRejectCount"
                                     >{bank_details_pending}</span
                                 >
@@ -1957,9 +1966,9 @@ else
                         </button>
                         {/if}
 
-                        {#if status_for_highlight == "Background Verification Pending"}
+                        {#if status_for_highlight == "Background Verification Pending" || status == "Background Verification Pending"}
                         <button class="bgdocreject flex-grow" style="background-color: #dddd; border: 1px solid black;">
-                            <div class="countHeading" on:click={()=>status_pill_clicked("Background Verification Pending")}>
+                            <div class="countHeading">
                                 BGV Pending <span class="docRejectCount">{bgv_pending}</span
                                 >
                                 </div>
@@ -1973,9 +1982,9 @@ else
                         </button>
                         {/if}
 
-                        {#if status_for_highlight == "Pending Offer Letter"}
+                        {#if status_for_highlight == "Pending Offer Letter" || status == "Pending Offer Letter"}
                         <button class="bgdocreject flex-grow"  style="background-color: #dddd; border: 1px solid black;">
-                            <div class="countHeading" on:click={()=>status_pill_clicked("Pending Offer Letter")}>
+                            <div class="countHeading" >
                                 Offer Letter <span class="docRejectCount"
                                     >{pending_offer_letter}</span
                                 >
@@ -2002,8 +2011,8 @@ else
                    
                     <button class="savedcount">
                         <p class="otherCounts">Active</p>
-                        {#if status_for_highlight == "Active"}
-                        <div class="bgActiveCount flex-grow" on:click={()=>status_pill_clicked("Active")}  style="background-color: #dddd; border: 1px solid black;">
+                        {#if status_for_highlight == "Active" || status == "Active"}
+                        <div class="bgActiveCount flex-grow"  style="background-color: #dddd; border: 1px solid black;">
                             <p class="otherCountNumbers" style="color:black;">{active}</p>
                         </div>
                         {:else}
@@ -2016,8 +2025,8 @@ else
                    
                     <button class="savedcount" >
                         <p class="otherCounts">Deactive</p>
-                        {#if status_for_highlight == "Deactive"}
-                        <div class="bgDeactiveCount flex-grow" on:click={()=>status_pill_clicked("Deactive")} style="background-color: #dddd; border: 1px solid black;">
+                        {#if status_for_highlight == "Deactive" || status == "Deactive"}
+                        <div class="bgDeactiveCount flex-grow" style="background-color: #dddd; border: 1px solid black;">
                             <p class="otherCountNumbers" style="color:black;">{deactive}</p>
                         </div>
                         {:else}
@@ -2037,8 +2046,8 @@ else
                    
                     <button class="savedcount">
                         <p class="otherCounts" >All</p>
-                        {#if status_for_highlight == "All"}
-                        <div class="bgAllCount flex-grow" on:click={()=>status_pill_clicked("All")}  style="background-color: #dddd; border: 1px solid black;"> 
+                        {#if status_for_highlight == "All" || status == "All"}
+                        <div class="bgAllCount flex-grow"  style="background-color: #dddd; border: 1px solid black;"> 
                             <p class="otherCountNumbers" style = "color:black;">{total_count}</p>
                         </div>
                         {:else}
