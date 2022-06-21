@@ -75,7 +75,7 @@
     $:if(searchTerm == ''){
         clearedSearchFunc();
     }
-    $:status = '';
+    $:status = '-1';
 
     // $:if(vendor_checkbox === true){
        
@@ -245,10 +245,10 @@
     /////////from dashboard redirect with filter on//////////////
 
     let urlString = window.location.href;
-    let paramString	
-    if(paramString){
-        paramString = urlString.split('=')[1].replaceAll("#","");
-    }
+    // let paramString	
+    // if(paramString){
+        let paramString = urlString.split('=')[1].replaceAll("#","");
+    // }
     if(paramString == undefined){
     //   show_pagination = true;
       console.log("show_pagination",show_pagination)
