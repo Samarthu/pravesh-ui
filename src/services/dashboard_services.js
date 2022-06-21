@@ -37,7 +37,22 @@ const get_fac_count = () => {
     }, true
     )
 }
-
+const find_parent_function = (fac_id) => {
+    let find_parent_url = '/api/method/pravesh.facility.routes.super_store.parent_details?facility_id='+fac_id+'';
+    return request(
+        find_parent_url, {
+        method: "GET"
+    }, true
+    )
+}
+const copy_parent_func = (parent_obj) => {
+    let copy_parent_func_url = '/api/method/pravesh.facility.routes.facility.add_vendor'
+    return request(
+        copy_parent_func_url, {
+        method: "POST",
+        body:parent_obj
+    }, true)
+}
 // const dashboard_data = () =>{
 //     return request(
 //         dashboard_data_url,{
@@ -69,5 +84,7 @@ export{
     demo_api_fun,
     dashboard_data,
     get_current_user_function,
-    get_fac_count
+    get_fac_count,
+    find_parent_function,
+    copy_parent_func
 }

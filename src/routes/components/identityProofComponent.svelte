@@ -162,6 +162,7 @@
         let gst_state_code = "";
         let gst_city_loc_id="";
         export let url = "";
+        export let is_adhoc_facility = false;
         /////////////////////svelte plugin pagiantion//////////
         let items;
         let currentPage = 1;
@@ -496,6 +497,7 @@
                     </button> -->
 
                 </p>
+                {#if is_adhoc_facility == false}
                 <div class="userStatus ml-4">
                     <p class="flex items-center smButtonText" on:click="{openIDcard}">
                         <a href="" class="smButton modal-open">
@@ -503,6 +505,7 @@
                         </a>
                     </p>
                 </div>
+                {/if}
             </div>
         </div>
     </div>

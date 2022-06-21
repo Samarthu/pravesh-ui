@@ -105,6 +105,7 @@
     let associate_type_message = "";
     let vendor_message = "";
     let msme_message = "";
+    export let is_adhoc_facility = false;
 
     function route() {
         // let valid = true;

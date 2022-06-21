@@ -1710,6 +1710,7 @@
                         <!-- {#if admin == false}
                         <p></p>
                         {:else} -->
+                        {#if is_adhoc_facility == false}
                         <div class="userStatus ">
                             <p class="flex items-center smButtonText" on:click={openassociateTypeMOdal}>
                                 <a class="smButton" id="changeAssociate">
@@ -1717,6 +1718,7 @@
                                 </a>
                             </p>
                         </div>
+                        {/if}
                         <!-- {/if} -->
                     </div>
                     <div class="userInfoSec3 ">
@@ -1918,7 +1920,8 @@
                 <div class="ConModalContent">
 
                     <div class="">
-                        {#if temp2 == "gst1"}
+                        {#if is_adhoc_facility == false}
+                            {#if temp2 == "gst1"}
 
                                 <div class="addbuttongst ">
 
@@ -1935,7 +1938,7 @@
                                 </div>
 
                                 {/if}
-
+                        {/if}
 
 
                         {#if temp2 == "gst2"}

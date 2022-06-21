@@ -36,7 +36,7 @@
 }
 
 .inputboxpopover{
-    @apply  text-greycolor bg-white  appearance-none border inline-block pt-3.5 pb-3.5 pl-pr14px  rounded leading-tight w-full   outline-none
+    @apply  text-greycolor bg-white  appearance-none border inline-block pt-3.5 pb-3.5 pl-pr14px  rounded leading-tight w-full   outline-none cursor-pointer
 }
 .inputboxpopoverdate{
     @apply  text-greycolor bg-white  appearance-none border inline-block pt-3.5 pb-3.5 pl-pr14px  rounded leading-tight  w-full  outline-none pr-p11px 
@@ -602,7 +602,7 @@
 
 
 .selectInputbox{
-    @apply  text-greycolor bg-white text-sm h-h34px font-normal appearance-none border border-textgrey inline-block pt-2 pb-2 pl-6 pr-8 rounded-full leading-tight w-full outline-none
+    @apply  text-greycolor bg-white text-sm h-h34px font-normal appearance-none border border-textgrey inline-block pt-2 pb-2 pl-6 pr-8 rounded-full leading-tight w-full outline-none cursor-pointer
 }
 
 .formLableSelect{
@@ -2559,3 +2559,10 @@ p.tempText {
     word-break: break-all;
 }
 /* Word break */
+
+.ErButton{
+    @apply  font-medium rounded text-white text-sm px-5 py-2 
+}
+.modalContainercopyvendor{
+    @apply fixed w-11/12  h-auto z-50 overflow-y-auto bg-white rounded-br8 mt-5 mb-4 top-0
+}
