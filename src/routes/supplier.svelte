@@ -244,8 +244,11 @@
     }
     /////////from dashboard redirect with filter on//////////////
 
-    let urlString = window.location.href;	
-    let paramString = urlString.split('=')[1];
+    let urlString = window.location.href;
+    let paramString	
+    if(paramString){
+        paramString = urlString.split('=')[1].replaceAll("#","");
+    }
     if(paramString == undefined){
     //   show_pagination = true;
       console.log("show_pagination",show_pagination)
@@ -277,6 +280,7 @@ else
     {
     // console.log("INside if blcok of paramString",paramString)
     new_paramString = decodeURI(paramString)
+        
     status = new_paramString;
     // console.log("drop_limit inside urlString",drop_limit)
     new_drop_limit=parseInt(drop_limit)
@@ -471,6 +475,16 @@ else
                         show_spinner=false;
                         // console.log("status in false onboard",status)
                         
+                        new_associate_data = {city:city,limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status,myOnboard: true,username:username,userid:userid}
+                        json_associate_data=JSON.stringify(new_associate_data);
+                        let onboarded_check_res=await supplier_data(json_associate_data);
+                        supplier_data_from_service = onboarded_check_res.body.data.data_list;
+                        total_count_associates = onboarded_check_res.body.data.total_records;
+                        for(let i=0;i<supplier_data_from_service.length;i++){
+                            supplier_data_from_service[i].expand = false;
+                        }
+                        // status_pill_clicked(status);
+                        // console.log("status afta",status)
                     }
                     else{
                         show_spinner=false;
@@ -513,13 +527,15 @@ else
                 toast_type = "error";
                 toast_text = err;
             }
+
+
+
             }
             else if(onboarded_by_me_checkbox == true){
                 console.log("here inside TRUE")
                 show_spinner=false;
                 console.log("status in true onboard",status)
-                status_pill_clicked(status);
-                console.log("status afta",status)
+                
             let dashboard_res = await dashboard_data();
             let dashboard = dashboard_res.body.data;
             for(new_dash_data of dashboard){
@@ -578,6 +594,8 @@ else
             for(let i=0;i<supplier_data_from_service.length;i++){
                 supplier_data_from_service[i].expand = false;
             }
+            status_pill_clicked(status);
+            console.log("status afta",status)
             
 
             }
@@ -646,16 +664,18 @@ else
     show_spinner = true;
       if(pagenumber != pagenum){
         pagenumber = pagenum;
-        console.log("pagenumber",pagenumber)
-       console.log("last_num_from_pages",last_num_from_pages);
+    //     console.log("pagenumber",pagenumber)
+    //    console.log("last_num_from_pages",last_num_from_pages);
        new_drop_limit=parseInt(drop_limit)
     //    console.log("new_drop_limit in pagechange",new_drop_limit)
        
        if(pagenum == 1){
-        if(onboarded_by_me_checkbox == true){    
+        if(onboarded_by_me_checkbox == true){
+            console.log("INside onboarded by me checkbox true")
         new_associate_data = {city:city,limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status,myOnboard: true,username:username,userid:userid}
         }
         else{
+            console.log("Inside onboarded by me checkbox false")
         new_associate_data = {city:city,limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
         }  
         // new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending"}
@@ -670,10 +690,12 @@ else
         //    console.log("pagenumberrrr",pagenumber - 1)
            let new_offset = (pagenum-1)*drop_limit
         //    console.log(new_offset)
-        if(onboarded_by_me_checkbox == true){    
+        if(onboarded_by_me_checkbox == true){   
+            console.log("INside onboarded by me checkbox true") 
             new_associate_data = {city:city,limit:new_drop_limit,offset:new_offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,myOnboard:true,username:username,userid:userid}
         }
         else{
+            console.log("INside onboarded by me checkbox false")
             new_associate_data = {city:city,limit:new_drop_limit,offset:new_offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
         }
         //    new_associate_data = {city: "-1",limit:new_drop_limit,offset:new_offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending"}
@@ -1878,7 +1900,7 @@ else
                     <p class="docReject">Documents Rejected</p>
                     <div class="docRejctedCon flex gap-2">
                         
-                        {#if status_for_highlight == "ID Proof Rejected" || status == "ID Proof Rejected"} 
+                        {#if status == "ID Proof Rejected"} 
                         <button class="idproof flex-grow" style="background-color: #dddd; border: 1px solid black;">
                             <div class="countHeading">
                                 ID Proof <span class="idproofcount">{id_proof_rejected}</span>
@@ -1892,7 +1914,7 @@ else
                         </button>
                         {/if}
 
-                        {#if status_for_highlight == "Bank Details Rejected" || status == "Bank Details Rejected"}
+                        {#if status == "Bank Details Rejected"}
                         <button class="idproof flex-grow" style="background-color: #dddd; border: 1px solid black;">
                             <div class="countHeading">
                                 Bank Details <span class="idproofcount"
@@ -1912,7 +1934,7 @@ else
 
                         
 
-                        {#if status_for_highlight == "Background Verification Rejected" || status == "Background Verification Rejected"}
+                        {#if status == "Background Verification Rejected"}
                         <button class="idproof flex-grow" style="background-color: #dddd; border: 1px solid black;">
                             <div class="countHeading">
                                 BGV Rejected <span class="idproofcount">{bgv_rejected}</span
@@ -1933,7 +1955,7 @@ else
                 <div class="SectionsCounts ">
                     <p class="PendingVeri">Pending Verification</p>
                     <div class="docRejctedCon flex gap-2">
-                        {#if status_for_highlight == "ID Verification Pending" || status == "ID Verification Pending"}
+                        {#if status == "ID Verification Pending"}
                         <button class="bgdocreject flex-grow" style="background-color: #dddd; border: 1px solid black;">
                             <div class="countHeading">
                                 ID Proof <span class="docRejectCount">{id_verification_pending}</span
@@ -1948,7 +1970,7 @@ else
                                 </div>
                         </button>
                         {/if}
-                        {#if status_for_highlight == "Bank Details Pending" || status == "Bank Details Pending"}
+                        {#if status == "Bank Details Pending"}
                         <button class="bgdocreject flex-grow" style="background-color: #dddd; border: 1px solid black;">
                             <div class="countHeading">
                                 Bank Details <span class="docRejectCount"
@@ -1966,7 +1988,7 @@ else
                         </button>
                         {/if}
 
-                        {#if status_for_highlight == "Background Verification Pending" || status == "Background Verification Pending"}
+                        {#if status == "Background Verification Pending"}
                         <button class="bgdocreject flex-grow" style="background-color: #dddd; border: 1px solid black;">
                             <div class="countHeading">
                                 BGV Pending <span class="docRejectCount">{bgv_pending}</span
@@ -1982,7 +2004,7 @@ else
                         </button>
                         {/if}
 
-                        {#if status_for_highlight == "Pending Offer Letter" || status == "Pending Offer Letter"}
+                        {#if status == "Pending Offer Letter"}
                         <button class="bgdocreject flex-grow"  style="background-color: #dddd; border: 1px solid black;">
                             <div class="countHeading" >
                                 Offer Letter <span class="docRejectCount"
@@ -2011,7 +2033,7 @@ else
                    
                     <button class="savedcount">
                         <p class="otherCounts">Active</p>
-                        {#if status_for_highlight == "Active" || status == "Active"}
+                        {#if status == "Active"}
                         <div class="bgActiveCount flex-grow"  style="background-color: #dddd; border: 1px solid black;">
                             <p class="otherCountNumbers" style="color:black;">{active}</p>
                         </div>
@@ -2025,7 +2047,7 @@ else
                    
                     <button class="savedcount" >
                         <p class="otherCounts">Deactive</p>
-                        {#if status_for_highlight == "Deactive" || status == "Deactive"}
+                        {#if status == "Deactive"}
                         <div class="bgDeactiveCount flex-grow" style="background-color: #dddd; border: 1px solid black;">
                             <p class="otherCountNumbers" style="color:black;">{deactive}</p>
                         </div>
@@ -2046,7 +2068,7 @@ else
                    
                     <button class="savedcount">
                         <p class="otherCounts" >All</p>
-                        {#if status_for_highlight == "All" || status == "All"}
+                        {#if status == ""}
                         <div class="bgAllCount flex-grow"  style="background-color: #dddd; border: 1px solid black;"> 
                             <p class="otherCountNumbers" style = "color:black;">{total_count}</p>
                         </div>
