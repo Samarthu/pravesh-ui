@@ -483,6 +483,34 @@ else
                         for(let i=0;i<supplier_data_from_service.length;i++){
                             supplier_data_from_service[i].expand = false;
                         }
+                        
+                        new_pages =[];
+                        mapped_pages=[];
+                        if(total_count_associates > new_drop_limit){
+                        next_prev_disable = false;
+                        total_pages = Math.ceil(total_count_associates/new_drop_limit)
+
+                        pages = createPagesArray(total_pages)
+                        
+                            // if(show_pagination == true){
+                                for(let pagination in pages){
+                                    
+                                    if(pagination>0 && pagination <= 3){
+                                    
+                                        new_pages.push(pagination)
+                                        mapped_pages=new_pages.map(Number)  
+                                    
+                                        console.log("mapped_pages",mapped_pages)
+                                    }
+                            
+                                // }
+                            }
+                        }
+                        else{
+                            next_prev_disable = true;
+                        }
+
+
                         // status_pill_clicked(status);
                         // console.log("status afta",status)
                     }
@@ -594,6 +622,31 @@ else
             for(let i=0;i<supplier_data_from_service.length;i++){
                 supplier_data_from_service[i].expand = false;
             }
+            new_pages =[];
+            mapped_pages=[];
+            if(total_count_associates > new_drop_limit){
+                next_prev_disable = false;
+                total_pages = Math.ceil(total_count_associates/new_drop_limit)
+
+                pages = createPagesArray(total_pages)
+                
+                    // if(show_pagination == true){
+                        for(let pagination in pages){
+                            
+                            if(pagination>0 && pagination <= 3){
+                              
+                                new_pages.push(pagination)
+                                mapped_pages=new_pages.map(Number)  
+                              
+                                console.log("mapped_pages",mapped_pages)
+                            }
+                    
+                        // }
+                    }
+                }
+                else{
+                    next_prev_disable = true;
+                }
             // status_pill_clicked(status);
             // console.log("status afta",status)
             
