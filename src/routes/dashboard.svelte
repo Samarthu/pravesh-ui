@@ -7,18 +7,19 @@
     import { get_current_user_function } from "../services/dashboard_services";
     import {
         dashboard_data,
-        get_fac_count,
+        get_fac_count,find_parent_function,copy_parent_func
     } from "../services/dashboard_services";
     import { current_user } from "../stores/current_user_store";
     import { img_url_name } from "../stores/flags_store";
     import Spinner from "./components/spinner.svelte";
-
+    import {get_loc_scope} from '../services/onboardsummary_services';
     import { facility_data_store } from "../stores/facility_store";
     import { facility_id } from "../stores/facility_id_store";
     // import {dashboard_details} from '../stores/dashboard_store';
     import Supplier from "./supplier.svelte";
     import { goto_wrapper } from "../services/goto_wrapper";
     import Toast from './components/toast.svelte';
+    
     let toast_text = "";
     let toast_type = null;
 
@@ -43,6 +44,16 @@
     let fac_count_array = [];
     let ven_type_arr = [];
     let workf_type_arr = [];
+    let child_id_value;
+    let parent_arr_for_child=[];
+    let scope_data=[];
+    let station_select_data=[];
+    let city_selected='';
+    let unique_fac_id = '';
+    let station_selected='';
+    $:if(city_selected != ""){
+        station_select_func();
+    }
 
     // console.log(dashboard)
     onMount(async () => {
@@ -193,6 +204,158 @@
     function bgv_rejected_clicked() {
         goto("./supplier?status=" + bgv_rejected_display_name);
     }
+
+    function find_parent(){
+        find_parent_model.style.display = "block";
+    }
+    function close_find_parent(){
+        find_parent_model.style.display = "none";
+        parent_arr_for_child = [];
+        child_id_value ="";
+    }
+
+    async function find_parent_btn(){
+        show_spinner=true
+        console.log("child_id_value",child_id_value)
+        let find_parent_function_res = await find_parent_function(child_id_value);
+        
+        try{
+            if(find_parent_function_res.body.status == "green"){
+                show_spinner=false;
+                toast_type = "success";
+                toast_text = find_parent_function_res.body.message;
+                console.log("find_parent_function_res",find_parent_function_res)
+                parent_arr_for_child = [];
+                parent_arr_for_child = find_parent_function_res.body.data;
+                console.log("parent_arr_for_child",parent_arr_for_child)
+                child_id_value = "";
+            }
+            else{
+                show_spinner=false;
+                toast_type = "error";
+                toast_text = find_parent_function_res.body.message;
+            }
+
+        }
+        catch(err){
+            show_spinner=false;
+            toast_type = "error";
+            toast_text = find_parent_function_res.body.message
+        }
+    }
+    
+    async function copy_model_vendor(){
+        show_spinner = true;
+        copy_from_vendor_model.style.display = "block";
+        let loc_data_res =  await get_loc_scope();
+        try {
+        if(loc_data_res.body.status == "green"){
+            show_spinner = false;
+            toast_type="success";
+            toast_text=loc_data_res.body.message
+             // city_data = loc_data_res.body.data;
+             console.log("loc_data_res",loc_data_res)
+             for(let i=0;i<loc_data_res.body.data.length;i++){
+                scope_data.push(loc_data_res.body.data[i]);
+            }
+            scope_data=scope_data;
+            console.log("scope_data",scope_data)
+            // city_data = city_data;
+        }
+        else{
+            show_spinner = false;
+            toast_type="error"
+            toast_text=loc_data_res.body.message
+        }
+        
+        } catch(err) {
+            show_spinner = false
+            toast_type="error"
+            toast_text=err;
+        
+        }
+    }
+
+    function station_select_func(){
+        console.log("inside station_select_func")
+        for(let i=0;i<scope_data.length;i++){
+            console.log("inside for e",city_selected,scope_data[i].location_name)
+            if(city_selected == scope_data[i].location_name){
+                console.log("inside if",city_selected)
+                station_select_data = scope_data[i].stations;
+                console.log("station_select_id",station_select_data)
+            }
+        }
+    }
+
+    function copy_vendor_close(){
+        copy_from_vendor_model.style.display = "none";
+    }
+    async function copy_parent_data(){
+        let city_id;
+        let station_id;
+        show_spinner = true;
+        console.log("copy_parent_data",unique_fac_id,city_selected,station_selected); 
+        if(!unique_fac_id){
+            show_spinner = false;
+            toast_type="error";
+            toast_text="Please Enter Unique Vendor ID"
+            return;
+        }
+        else if(!city_selected){
+            show_spinner = false;
+            toast_type="error";
+            toast_text="Please select a city"
+            return;
+        }
+        else if(!station_selected){
+            show_spinner = false;
+            toast_type="error";
+            toast_text="Please select a station"
+            return;
+        }  
+        console.log("station_selected",station_selected)
+        const result = station_selected.split('-');
+        console.log("result",result[0])
+        for(let i=0;i<scope_data.length;i++){
+            if(city_selected == scope_data[i].location_name){
+                city_id = scope_data[i].location_id;
+                // for(let j=0;j<scope_data[i].stations.length;j++){
+                //     if(result[0] == scope_data[i].stations[j].station_code){
+                //         station_id = scope_data[i].stations[j].station_id;
+                //     }
+                // }
+                station_id = result[0].trim();
+            }
+        }
+        let parent_obj = {
+            "facility_id":unique_fac_id,
+            "vendor_location":[{"location_id":city_id,"station_code":station_id,"doctype":"Vendor Location"}]
+        }
+        
+        let copy_parent_func_res = await copy_parent_func(JSON.stringify(parent_obj));
+        try{
+            if(copy_parent_func_res.body.status == "green"){
+                toast_type = "success";
+                toast_text = copy_parent_func_res.body.message;
+                copy_from_vendor_model.style.display = "none";  
+                show_spinner = false;
+            }
+            else{
+                show_spinner = false;
+                toast_type = "error";
+                toast_text = copy_parent_func_res.body.message;
+                
+            }
+        }
+        catch(err){
+            toast_type = "error";
+            toast_text = err;
+            show_spinner = false;
+        }
+        
+        show_spinner = false;
+    }
 </script>
 
 {#if show_spinner}
@@ -209,7 +372,10 @@
                 <span class=" pr-1 text-font32 font-medium xs:text-2xl"
                     >Dashboard</span
                 >
+                <button class ="ErBlueButton" on:click={find_parent}>Find Parent</button>
+                <button class ="ErBlueButton" on:click={copy_model_vendor}>Copy Vendor</button>
             </p>
+
             <p >
                 <button class="newonboard " on:click={() => routeToBussiness()}>
                 
@@ -498,6 +664,162 @@
         </div>
     </div>
 </div>
+<!-- FIND PARENT MODEL -->
+
+    <div class="hidden"  id="find_parent_model">
+        <div class="modalMain">
+            <div class="modalOverlay"></div>
+            <div class="modalContainercopyvendor rounded-lg">
+                <div class="modalHeadConmb-0 sticky top-0 bg-white z-99">
+                    <div class="leftmodalInfo">
+                        <p class="text-lg text-erBlue font-medium  ">
+                            <span class="">Find Parent For Child Associate</span>
+                        </p>
+                    </div>
+                    <button class="rightmodalclose" on:click={close_find_parent}>
+                        <img src="{$img_url_name.img_name}/blackclose.svg" alt="">
+                    </button>
+                </div>
+                <div class="modaldata">
+                    <div class="viewDocPanmainbodyModal">
+                        <div class="innermodal">
+
+                            <div class="formInnerGroup mb-4">
+                                <input type="input" class="inputboxpopover " placeholder="Enter Child ID" bind:value={child_id_value}>
+                             </div>
+                             <div class="flex mb-3">
+                                <button class="ErBlueButton" on:click={find_parent_btn}>Find Parent </button>
+                              </div> 
+                            <div class="tableforParentInfo ">
+                                <table class="table  w-full text-center mt-2 ">
+                                    <thead class="theadpopover h-10">
+                                        <tr>
+                                            <th width="33%">Parent Unique ID</th>
+                                            <th width="33%">Parent Name  </th>
+                                            <th width="33%"> Parent ID</th>
+
+                                        </tr>
+                                    </thead>
+                                    <tbody class="tbodycopyvendor ">
+                                        {#if parent_arr_for_child.length != 0}
+                                        {#each parent_arr_for_child as parent_data}
+                                        <tr class="border-b">
+                                            <td>{parent_data.parent_facility_id}</td>
+                                            <td>{parent_data.parent_name}</td>
+                                            <td>{parent_data.parent_id}</td>
+                                        </tr>
+                                        {/each}
+                                        {:else}
+                                        <!-- <tr class="border-b">
+                                            <td>Addhoc Facility</td>
+                                            <td>10-09-2020</td>
+                                            <td>Active</td>
+                                        </tr> -->
+                                        <tr>
+                                            <td colspan="3" class="text-center"> No Parent found</td>
+                                        </tr>   
+                                        {/if}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="pt-8 flex justify-center">
+                                <button type="button" class="dialogueSingleButton" on:click={close_find_parent}>Close</button>
+                            </div>
+                           
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- FIND PARENT MODEL -->
+
+ <!-- Copy vendor Modal-->
+ <div class="hidden"  id="copy_from_vendor_model">
+    <div class=" modalMain  ">
+        <div class="modalOverlay"></div>
+        <div class="modalContainercopyvendor rounded-lg">
+            <div class="modalHeadConmb-0 sticky top-0 bg-white z-99">
+                <div class="leftmodalInfo">
+                    <p class="text-lg text-erBlue font-medium  ">
+                        <span class="">Copy vendors</span>
+                    </p>
+                </div>
+                <button class="rightmodalclose" on:click={copy_vendor_close}>
+                    <img src="{$img_url_name.img_name}/blackclose.svg" alt="">
+                </button>
+            </div>
+            <div class="modaldata">
+                <div class="viewDocPanmainbodyModal">
+                    <div class="innermodal">
+                        <div class=" ">
+                            <table class="table  w-full text-center mt-2 ">
+                                <thead class="theadpopover h-10">
+                                    <tr>
+                                        <th width="33%">Copy from</th>
+                                        <th width="33%">Copy to Location   </th>
+                                        <th width="33%"> Copy to Station</th>
+
+                                    </tr>
+                                </thead>
+                                <tbody class="tbodycopyvendor ">
+                                    <tr class="">
+                                        <td>
+                                            <div class="formInnerGroupNote  mx-4">
+                                                <input type="input" class="inputboxpopover " placeholder="Enter Unique faculty ID" bind:value={unique_fac_id}>
+                                             </div>
+                                        </td>
+                                        <td> 
+                                                <div class="formInnerGroupNote  mx-4">
+                                                    <select class="inputboxpopover" bind:value={city_selected}>
+                                                        <option class="pt-6" value="-1">Select</option>
+                                                        {#each scope_data as new_city}
+                                                            <option class="pt-6">{new_city.location_name}</option>
+                                                        {/each}
+                                                        
+                                                    </select>
+                                                    <div class="formSelectArrow ">
+                                                        <img src="{$img_url_name.img_name}/selectarrow.png"
+                                                            class="w-5 h-auto" alt="">
+                                                    </div>
+                                                </div>
+                                        </td>
+                                        <td>
+                                            <div class="formInnerGroupNote mx-4">
+                                                <select class="inputboxpopover" bind:value={station_selected}>
+                                                    <option class="pt-6" value="-1">Select Station</option>
+                                                    {#each station_select_data as new_station}
+                                                        <option class="pt-6">{new_station.station_code} - {new_station.station_name}</option>
+                                                    {/each}
+                                                </select>
+                                                <div class="formSelectArrow ">
+                                                    <img src="{$img_url_name.img_name}/selectarrow.png"
+                                                        class="w-5 h-auto" alt="">
+                                                </div>
+                                            </div>
+                                        </td>
+                                     
+                                       
+                                    </tr>
+                                   
+
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="flex mt-3 justify-center">
+                            <button class="ErBlueButton" on:click={copy_parent_data}>Copy Faculty </button>
+                          </div> 
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+ <!-- Copy vendor Modal-->
+
+
 
 <!-- <div><svg width="58" height="58" viewBox="0 0 58 58" xmlns="http://www.w3.org/2000/svg">
     <g fill="none" fill-rule="evenodd">
@@ -557,3 +879,4 @@
     <h1>this is for testing</h1>
     <button on:click={() =>demo_clickhandle()}>click me bbbbbbbbbbbbbbbbbbbbbbbbb</button>
 </div> -->
+<Toast type={toast_type}  text={toast_text}/>

@@ -116,6 +116,27 @@ const onboard_by_me_sup =(username,userid) =>{
         method: "GET"
     }, true)
 }
+// const deactivate_assocaite_immediate=(fac_id)=>{
+//     let deactivate_assocaite_immediate_url = '/api/method/pravesh.facility.routes.facility.deactivate_facility?fac_id='+fac_id+'&immediate=true'
+//     return request(
+//         deactivate_assocaite_immediate_url, {
+//         method: "GET"
+//     }, true)
+    
+// }
+const deactivate_assocaite=(fac_id,date)=>{
+    if(fac_id && date)
+        var deactivate_assocaite_later_url = '/api/method/pravesh.facility.routes.facility.deactivate_facility?fac_id='+fac_id+'&immediate=false&date='+date+''
+    else{
+        var deactivate_assocaite_later_url = '/api/method/pravesh.facility.routes.facility.deactivate_facility?fac_id='+fac_id+'&immediate=true'
+    }
+    return request(
+        deactivate_assocaite_later_url, {
+        method: "GET"
+    }, true)
+    
+}
+
 
 export{
    logged_user,
@@ -125,5 +146,6 @@ export{
    filter_status_data,
    filter_vendortype_data,
    search_supplier,
-   onboard_by_me_sup
+   onboard_by_me_sup,
+   deactivate_assocaite
 }

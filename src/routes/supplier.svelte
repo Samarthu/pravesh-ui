@@ -6,7 +6,8 @@
     import {supplier_data} from '../services/supplier_services';
     import {filter_city_data} from '../services/supplier_services';
     import {filter_status_data} from '../services/supplier_services';
-    import {filter_vendortype_data,search_supplier,onboard_by_me_sup} from '../services/supplier_services';
+    import {filter_vendortype_data,search_supplier,onboard_by_me_sup,
+    deactivate_assocaite} from '../services/supplier_services';
     import {audit_trail_data} from '../services/supplier_services';
     import {logged_user} from '../services/supplier_services';
     import {get_client_org_mapping} from '../services/vmt_verify_services';
@@ -33,7 +34,7 @@
     let filter_status_array= [];
     let filter_city_array = [];
     let filter_vendortype_array = [];
-    let city;
+    let city; 
     let next_prev_disable = false;
     let dropdown_disable = false;
     let searchTerm;
@@ -96,6 +97,13 @@
         
         async function clearedSearchFunc(){
             if(status != "-1"){
+                if(onboarded_by_me_checkbox == true){ 
+                    new_associate_data = {city:"",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}
+
+                }
+                else{
+                new_associate_data = {city:"",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: status}  
+                }
                 json_associate_data=JSON.stringify(new_associate_data);
                 //  console.log("json_associate_data",json_associate_data)
                 let cleared_search_res=await supplier_data(json_associate_data);
@@ -113,7 +121,7 @@
                         // console.log("RESULT",result)
                         // filter_vendortype_res = await filter_vendortype_data();
                         new_drop_limit=parseInt(drop_limit)
-                        if(total_count_associates>20){
+                        if(total_count_associates > new_drop_limit){
                             var total_pages=Math.ceil(total_count_associates/new_drop_limit)
                             pages = createPagesArray(total_pages)
                             new_pages =[];
@@ -179,7 +187,7 @@
                 id_proof_rejected = new_dash_data.count
             }
             else if(new_dash_data.name == "background verification pending"){
-                background_verification_pending = new_dash_data.count
+                bgv_pending = new_dash_data.count
             }
             else if(new_dash_data.name == "bank details rejected"){
                 bank_details_rejected = new_dash_data.count
@@ -248,7 +256,7 @@
                     for(let i=0;i<supplier_data_from_service.length;i++){
                         supplier_data_from_service[i].expand = false;
                     } 
-                if(total_count_associates>20){
+                if(total_count_associates > new_drop_limit){
                     total_pages = Math.ceil(total_count_associates/new_drop_limit)
                     pages = createPagesArray(total_pages)
                 }
@@ -515,7 +523,7 @@ else
                 id_proof_rejected = new_dash_data.count
             }
             else if(new_dash_data.name == "background verification pending"){
-                background_verification_pending = new_dash_data.count
+                bgv_pending = new_dash_data.count
             }
             else if(new_dash_data.name == "bank details rejected"){
                 bank_details_rejected = new_dash_data.count
@@ -580,15 +588,17 @@ else
     // }
 
     function next_function(){
-        searchTerm = "";
-        console.log("status",status)
+        show_spinner = true;
         if(status != "-1"){
-        last_num_from_pages = pages.length
-        console.log("last_num",last_num_from_pages)
-        // if(mapped_pages.includes(last_num_from_pages)){
+            show_spinner = false;
+            // console.log("pages.length",pages.length)
+            last_num_from_pages = pages.length
+            console.log("last_num",last_num_from_pages)
+            console.log("pagenumber",pagenumber)
+            // if(mapped_pages.includes(last_num_from_pages)){
 
-            // }
-            //  else{  
+                // }
+                //  else{  
         for (var i = 0; i < mapped_pages.length; i++){       
             mapped_pages[i] = mapped_pages[i] + 1;
             //    }
@@ -596,37 +606,49 @@ else
             // console.log("mapped_pagessss",mapped_pages)
             // console.log("mapped_pagessss",mapped_pages[0])
             pageChange(mapped_pages[2])
-    }
+        }
+        else{
+            show_spinner = false;
+        }
 }
     
     function previous_function(){ 
-        searchTerm = "";
+        show_spinner = true;
+        // searchTerm = "";
         if(status != "-1"){
+            show_spinner = false;
             let first_num_from_pages = pages[0];
             if(mapped_pages.includes(first_num_from_pages)){
-            
+               
             }
-                else{
-            for (var i = 0; i < mapped_pages.length; i++){
-                mapped_pages[i] = mapped_pages[i] - 1;
-            }
+            else{
+                show_spinner = false;
+                for (var i = 0; i < mapped_pages.length; i++){
+                    mapped_pages[i] = mapped_pages[i] - 1;
+                }
             }
             pageChange(mapped_pages[0])
+        }
+        else{
+            show_spinner = false;
         }
     }
 
    async function pageChange(pagenum){
+    show_spinner = true;
+      if(pagenumber != pagenum){
         pagenumber = pagenum;
-       console.log("Pagenumberrrrr",pagenum);
+        console.log("pagenumber",pagenumber)
+       console.log("last_num_from_pages",last_num_from_pages);
        new_drop_limit=parseInt(drop_limit)
     //    console.log("new_drop_limit in pagechange",new_drop_limit)
        
        if(pagenum == 1){
         if(onboarded_by_me_checkbox == true){    
-        new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status,myOnboard: true,username:username,userid:userid}
+        new_associate_data = {city:city,limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status,myOnboard: true,username:username,userid:userid}
         }
         else{
-        new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
+        new_associate_data = {city:city,limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
         }  
         // new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending"}
         json_associate_new_data=JSON.stringify(new_associate_data);
@@ -641,10 +663,10 @@ else
            let new_offset = (pagenum-1)*drop_limit
         //    console.log(new_offset)
         if(onboarded_by_me_checkbox == true){    
-            new_associate_data = {city: "-1",limit:new_drop_limit,offset:new_offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,myOnboard:true,username:username,userid:userid}
+            new_associate_data = {city:city,limit:new_drop_limit,offset:new_offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,myOnboard:true,username:username,userid:userid}
         }
         else{
-            new_associate_data = {city: "-1",limit:new_drop_limit,offset:new_offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
+            new_associate_data = {city:city,limit:new_drop_limit,offset:new_offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
         }
         //    new_associate_data = {city: "-1",limit:new_drop_limit,offset:new_offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending"}
             json_associate_new_data=JSON.stringify(new_associate_data);
@@ -656,7 +678,8 @@ else
             }
        }
    }
-
+   show_spinner = false;
+}
     // function myFunction() {
     //     var x = document.getElementById("mobilemenu");
     //     if (x.style.display === "none") {
@@ -737,9 +760,6 @@ else
                 
         }
     }
-    function deactivate_fac(fac_name){
-        console.log("Deactivate Facility Pending Work")
-    }
 
 
     // window.onclick = function (event) {
@@ -749,8 +769,8 @@ else
     // };
 
     async function filterButton(){
+        pagenumber = 1;
         dropdown_disable = false;
-        searchTerm = "";
         // mapped_pages = [];
         vendor_type_select = document.getElementById("select_vendor_type").value.trim();
         console.log("vendor_type_select",vendor_type_select)
@@ -1028,7 +1048,6 @@ else
 
     async function filterResults(){
         dropdown_disable = false;
-        searchTerm = "";
         console.log("Inside filter resukts",searchTerm)
         // console.log("inside seach term = ",searchTerm)
         if(searchTerm == undefined){
@@ -1098,9 +1117,10 @@ else
     }
     async function dropdown_function(){
         searchTerm = "";
+        pagenumber = 1;
         dropdown_disable = false;
-    console.log("new_lllliiimmmiitttt",status)
-    new_drop_limit=parseInt(drop_limit)
+        console.log("new_lllliiimmmiitttt",status)
+        new_drop_limit=parseInt(drop_limit)
 
         if(status != "-1"){
             if(onboarded_by_me_checkbox == true){    
@@ -1115,10 +1135,27 @@ else
                 
                 total_count_associates = dropdown_res.body.data.total_records;
                 if(total_count_associates > new_drop_limit){
+                    new_pages =[];
+                    mapped_pages=[];
                     next_prev_disable = false;
                     total_pages = Math.ceil(total_count_associates/new_drop_limit)
                     // console.log("page_count_______",total_pages)
                     pages = createPagesArray(total_pages)
+                    last_num_from_pages = pages.length;
+
+                    // if(show_pagination == true){
+                        for(let pagination in pages){
+                            
+                            if(pagination>0 && pagination <= 3){
+                              
+                                new_pages.push(pagination)
+                                mapped_pages=new_pages.map(Number)  
+                              
+                                console.log("mapped_pages",mapped_pages)
+                            }
+                    
+                        // }
+                    }
                 }
                 else{
                     next_prev_disable = true;
@@ -1232,45 +1269,55 @@ else
             el.classList.add("hidden");
         });
     };
-    // {{{{{{{pending}}}}}}}
+
+    function deactivate_associate(){
+        console.log("inside deactivate fac")
+        deactivate_asso_profile.style.display = "block";
+    }
+    function close_deact_associate(){
+        deactivate_asso_profile.style.display = "none";
+    }
+    function open_deact_initiate_model(){
+        initiateDeact.style.display = "block";
+    }
+    function close_deact_initiate_module(){
+        initiateDeact.style.display = "none";
+    }
+    // function confirm_initiate_deact(){
+
+    // }
 
 
-    // let tabsContainer = document.querySelector("#tabs");
+    async function deactivate_profile(){
+        show_spinner = true;
+        if(fac_id && date != ""){
+            var deactivate_user_imm_res = await deactivate_assocaite(fac_id,date);
+        }
+        else{
+            var deactivate_user_imm_res = await deactivate_assocaite(fac_id);
+        }
+        try{
+            if(deactivate_user_imm_res.body.status == "green"){
+                show_spinner = false;
+                toast_type = "success";
+                toast_text = deactivate_user_imm_res.body.status;
+            }
+            else{
+                show_spinner = false;
+                toast_type = "error";
+                toast_text = "Error in deactivating profile"
+            }
 
-    // let tabTogglers = tabsContainer.querySelectorAll("a");
-    // console.log(tabTogglers);
+        }
+        catch(err){
+            show_spinner = false;
+            toast_type = "error"
+            toast_text = deactivate_user_imm_res.body.status;
+        }
+    }
 
-    // tabTogglers.forEach(function (toggler) {
-    //     toggler.addEventListener("click", function (e) {
-    //         e.preventDefault();
 
-    //         let tabName = this.getAttribute("href");
 
-    //         let tabContents = document.querySelector("#tab-contents");
-
-    //         for (let i = 0; i < tabContents.children.length; i++) {
-    //             tabTogglers[i].parentElement.classList.remove(
-    //                 "border-black",
-    //                 "border-b-2",
-    //                 "-mb-px",
-    //                 "opacity-100"
-    //             );
-    //             tabContents.children[i].classList.remove("hidden");
-    //             if ("#" + tabContents.children[i].id === tabName) {
-    //                 continue;
-    //             }
-    //             tabContents.children[i].classList.add("hidden");
-    //         }
-    //         e.target.parentElement.classList.add(
-    //             "border-black",
-    //             "border-b-2",
-    //             "-mb-px",
-    //             "opacity-100"
-    //         );
-    //     });
-    // });
-
-    // document.getElementById("default-tab").click();
 </script>
     {#if show_spinner}
     <Spinner />
@@ -2238,7 +2285,7 @@ else
                                     </li> -->
 
                                     <li>
-                                        {#if pagenumber == last_num_from_pages  || next_prev_disable == true}
+                                        {#if pagenumber > last_num_from_pages  || next_prev_disable == true}
                                         <button class="preNextbtn" style="background: #dddddd; pointer-events: none;">
                                             Next</button
                                         >
@@ -2421,7 +2468,7 @@ else
                                                         {facility_data.status}
                                                     </div>
                                                      <div class="actionBtn mt-3">
-                                                        <button on:click="{deactivate_fac(facility_data.name)}"
+                                                        <button on:click={deactivate_associate}
                                                             href="#"
                                                             class="ErBlueButton"
                                                             >Deactivate Profile</button
@@ -3895,5 +3942,87 @@ else
         </div>
     </div>
 </div>
+
+
+    <!--  Deactivate Associate  modal -->
+        <div class="actionDialogueOnboard hidden" id ="deactivate_asso_profile">
+            <div class="pancardDialogueOnboardWrapper ">
+                <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+                    <div class="modalHeadConmb-0">
+                        <div class="leftmodalInfo">
+                            <p class="text-lg text-erBlue font-medium  ">
+                               Deactivate Associate
+                            </p>
+                        </div>
+                        <button class="rightmodalclose" on:click={close_deact_associate}>
+                            <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal">
+                        </button>
+                    </div>
+                    <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 mt-5" >
+                      <div class="flex">
+                        <button class="ErBlueButton" on:click={open_deact_initiate_model}>Deactivate Immediately </button>
+                      </div>  
+                   
+                      <div class="formInnerGroup ">
+                        <input type="date" class="inputboxpopover px-4">
+                     </div>
+                     <div class="flex">
+                        <button class="ErButton bg-bgmandatorysign" on:click={open_deact_initiate_model}>Deactivate on Date </button>
+                      </div>  
+                          <div class="pt-3 flex justify-center">
+                            <button type="button" class="dialogueSingleButton" on:click={close_deact_associate}>Close</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+
+
+         <!--Initiate Module -->
+    
+    
+    <div id="initiateDeact" class="hidden">
+        <div  class="actionDialogueOnboard ">
+            <div class="pancardDialogueOnboardWrapper ">
+                <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+                    <div class="modalHeadConmb-0">
+                        <div class="leftmodalInfo">
+                            <!-- <p class=""> Reject Reason</p> -->
+                        </div>
+                        <div class="rightmodalclose">
+                            <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" on:click={close_deact_initiate_module}>
+                        </div>
+                    </div>
+                    <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+        
+                        <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0 mt-4">
+                            <label class="block  tracking-wide text-gray-700 font-bold mb-2" for="grid-state" >
+                                Do you want to deactivate fac_id ?
+                            </label>
+                            <div class="relative">
+                             
+                             
+                              <br>
+                              <div
+                                    class="flex  py-1 items-center flex-wrap"
+                                >
+                                    <div class="formInnerGroup">
+                                       
+                                        <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium mr-2" on:click={close_deact_initiate_module}>Cancel</button>
+                                        <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium mr-2" on:click={deactivate_profile}>Ok</button>
+                                    </div>
+                                </div>
+                              
+                            </div>
+                          </div>
+                    </form>
+                </div>
+            </div>
+        </div> 
+    </div>
+    
+    <!--Initiate Module -->
+        
 <Toast type={toast_type}  text={toast_text}/>
 

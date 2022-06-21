@@ -290,52 +290,7 @@ import { current_user } from "../stores/current_user_store";
             // console.log('$page.url.origin+',$page.url.origin)
             // edit_document_link=$page.url.origin;
             // console.log("$facility_id",$facility_id.facility_id_number);
-            ///////////////pravesh properties//////////////
-            let get_pravesh_properties_response =
-                await get_pravesh_properties_method();
-            // console.log(
-            //     "get_pravesh_properties_response",
-            //     get_pravesh_properties_response
-            // );
-            try{
-            if (get_pravesh_properties_response.body.status == "green") {
-                // console.log("get_pravesh_properties_response",get_pravesh_properties_response)
-                sorting_pravesh_properties(
-                    get_pravesh_properties_response.body.data
-                );
-                if($pravesh_properties.properties.offer_letter_required_associates.includes($facility_data_store.facility_type) && admin == true){
-                       show_upload_btn = true;
-                   }
-                   for(let i=0;i < show_fac_array.length;i++){
-                       
-                       if(show_upload_btn == true && $pravesh_properties.properties.offer_letter_not_required_tags.includes(show_fac_array[i].tag_id)){
-                           remove_upload_btn = true;
-                       } 
-                       if($pravesh_properties.properties.adhoc_facility_tag.includes(show_fac_array[i].tag_id)){
-                           is_adhoc_facility = true;
-                       }
-                   }
-                //    console.log("offer_letter_required_associates",$pravesh_properties.properties.offer_letter_required_associates)
-                if($pravesh_properties.properties.default_org_app_password[0]){
-                    facility_password = $pravesh_properties.properties.default_org_app_password[0]
-                }
-                
-                let bank_details_req_fac = [];
-                bank_details_req_fac = ($pravesh_properties.properties.bank_section_required_associates);
-                new_arr = bank_details_req_fac.concat($pravesh_properties.properties.pan_required_associates);
-                   
-                new_arr =[...new Set(new_arr)];
-            } 
-            else {
-                toast_type = "error";
-                toast_text = "Error in fetching pravesh properties";
-            }
-            //////////////////////////////////////////////////////////
-        }
-        catch(err){
-            toast_type = "error";
-            toast_text = err;
-        }
+            
     
     
             let userdetails = await logged_user();
@@ -600,6 +555,54 @@ import { current_user } from "../stores/current_user_store";
                 toast_text = err;
             }
     
+            ///////////////pravesh properties//////////////
+            let get_pravesh_properties_response =
+                await get_pravesh_properties_method();
+            // console.log(
+            //     "get_pravesh_properties_response",
+            //     get_pravesh_properties_response
+            // );
+            try{
+            if (get_pravesh_properties_response.body.status == "green") {
+                console.log("show_fac_array",show_fac_array)
+                sorting_pravesh_properties(
+                    get_pravesh_properties_response.body.data
+                );
+                if($pravesh_properties.properties.offer_letter_required_associates.includes($facility_data_store.facility_type) && admin == true){
+                       show_upload_btn = true;
+                   }
+                   for(let i=0;i < show_fac_array.length;i++){
+                       
+                       if(show_upload_btn == true && $pravesh_properties.properties.offer_letter_not_required_tags.includes(show_fac_array[i].tag_id)){
+                           remove_upload_btn = true;
+                       } 
+                       if($pravesh_properties.properties.adhoc_facility_tag.includes(show_fac_array[i].tag_id)){
+                           is_adhoc_facility = true;
+                       }
+                   }
+                   console.log("is_adhoc_facility",is_adhoc_facility)
+                if($pravesh_properties.properties.default_org_app_password[0]){
+                    facility_password = $pravesh_properties.properties.default_org_app_password[0]
+                }
+                
+                let bank_details_req_fac = [];
+                bank_details_req_fac = ($pravesh_properties.properties.bank_section_required_associates);
+                new_arr = bank_details_req_fac.concat($pravesh_properties.properties.pan_required_associates);
+                   
+                new_arr =[...new Set(new_arr)];
+            } 
+            else {
+                toast_type = "error";
+                toast_text = "Error in fetching pravesh properties";
+            }
+            //////////////////////////////////////////////////////////
+        }
+        catch(err){
+            toast_type = "error";
+            toast_text = err;
+        }
+
+
             //////////city_data/////////////
             let loc_data_res =  await get_loc_scope();
             try {
@@ -2142,7 +2145,7 @@ import { current_user } from "../stores/current_user_store";
                                         {/if} 
                                     {/if}  
                                     {#if is_adhoc_facility == true}
-                                    <p> - ( Adhoc )</p>
+                                    <b> - ( Adhoc )</b>
                                    {/if}
                                 </div>
                             </div>
