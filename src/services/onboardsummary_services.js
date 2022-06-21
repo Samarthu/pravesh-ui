@@ -9,7 +9,7 @@ facility_id.subscribe(value => {
 });
 
 
-const bank_details = () =>{
+const bank_details_info = () =>{
     let bank_data_url = '/api/resource/Bank Detail?filters=[["facility_id","=","' + new_facility_id + '"]]&fields=["*"]'
     return request(
         bank_data_url, {
@@ -306,7 +306,7 @@ const initiateBGV = () => {
 
 
 export {
-    bank_details,
+    bank_details_info,
     cheque_details,
     addnew_cheque_details,
     facility_document,

@@ -5,7 +5,7 @@
             import { bank_data_to_store,cheque_data_to_store } from "../../stores/onboardsummary_store";
         
             import {get_date_format} from "../../services/date_format_servives";
-            import {bank_details,cheque_details,facility_document,show_fac_tags,get_loc_scope,
+            import {bank_details_info,cheque_details,facility_document,show_fac_tags,get_loc_scope,
                 facility_data,facility_bgv_init,all_facility_tags,gst_details,client_details,add_gst_dets,
                 list_child_data,remove_child,reset_deact_status,child_data} from "../../services/onboardsummary_services";
             import {img_url_name} from '../../stores/flags_store';
@@ -1471,7 +1471,7 @@
                                  alt=""
                                  class="pr-2"
                              />
-                             App Verification Pending
+                             User activation pending
                          </p>
                     {/if}
                  </div>

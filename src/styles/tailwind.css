@@ -2566,3 +2566,6 @@ p.tempText {
 .modalContainercopyvendor{
     @apply fixed w-11/12  h-auto z-50 overflow-y-auto bg-white rounded-br8 mt-5 mb-4 top-0
 }
+.formLableSupplier{
+    @apply text-blackshade text-base font-normal flex flex-nowrap whitespace-nowrap pr-3 w-60 xs:pb-2 sm:pb-2 justify-end xs:justify-start sm:justify-start
+}

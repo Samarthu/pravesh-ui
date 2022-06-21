@@ -7,7 +7,7 @@
             import { facility_data,facility_bgv_init,facility_bgv_check,all_facility_tags,
                     show_fac_tags,submit_fac_tag_data,remove_tag,tag_audit_trail,service_vendor,
                     get_loc_scope,client_details,erp_details,child_data,add_gst_dets,
-                    facility_document,addnew_cheque_details,bank_details,cheque_details,gst_details} from "../../services/onboardsummary_services";
+                    facility_document,addnew_cheque_details,bank_details_info,cheque_details,gst_details} from "../../services/onboardsummary_services";
             import {img_url_name} from '../../stores/flags_store';
             import {facility_id} from "../../stores/facility_id_store"
             import {facility_data_store} from "../../stores/facility_store"
@@ -488,7 +488,9 @@
                      <!-- <a href="" class="smButton bg-erBlue text-white" on:click={()=>{goto("bankdetails")}}>
                          Edit
                      </a> -->
-                     <button class="smButton bg-erBlue text-white" on:click={()=>{goto("bankdetails")}}>
+                     <button class="smButton bg-erBlue text-white" on:click={()=>{
+                         $documents_store.documents=[];
+                         goto("bankdetails")}}>
                         Edit
                      </button>
                  </p>

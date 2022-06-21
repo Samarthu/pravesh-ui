@@ -28,6 +28,11 @@
     import { save_flag } from "../stores/flags_store";
     import {img_url_name} from '../stores/flags_store';
     import Toast from "./components/toast.svelte";
+    import { facility_data,facility_bgv_init,facility_bgv_check,all_facility_tags,
+                show_fac_tags,submit_fac_tag_data,remove_tag,tag_audit_trail,service_vendor,
+                get_loc_scope,client_details,erp_details,child_data,add_gst_dets,
+                facility_document,addnew_cheque_details,bank_details_info,cheque_details,gst_details,blacklist_vendor,
+                initiateBGV} from "../services/onboardsummary_services";
     let toast_text = "";
     let toast_type = null;
     import Success_popup from "./components/success_popup.svelte";
@@ -98,6 +103,30 @@
         // console.log("TEMP RESULT",result)
         page_name = $page.url["pathname"].split("/").pop();
         console.log("bank pahge name", page_name);
+
+        if($facility_id.facility_id_number){
+            let bank_details_response = await bank_details_info();
+            console.log("bank_details response",bank_details_response);
+            if(bank_details_response){
+                console.log("something is present");
+                $bank_details.ifsc_code = bank_details_response.ifsc_code;
+                $bank_details.bank_name = bank_details_response.bank_name;
+                $bank_details.branch_city = bank_details_response.branch_city;
+                $bank_details.branch_name = bank_details_response.branch_name;
+                $bank_details.account_number = bank_details_response.account_number;
+                $bank_details.re_enter_account_number = bank_details_response.re_enter_account_number;
+                $bank_details.account_holder = bank_details_response.account_holder;
+                $bank_details.bank_type = bank_details_response.bank_type;
+                $bank_details.branch_pin_code = bank_details_response.branch_pin_code;
+
+
+
+            }
+            else{
+                console.log("nothing is present");
+            }
+
+        }
 
         
     });
