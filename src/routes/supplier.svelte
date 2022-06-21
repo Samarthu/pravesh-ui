@@ -413,8 +413,8 @@ else
         
         console.log("onboarded_by_me_checkbox here",onboarded_by_me_checkbox)
         if(onboarded_by_me_checkbox == false){
-            status_pill_clicked(status);
-            console.log("Inside onboarded_by_me_checkbox false")
+            // status_pill_clicked(status);
+            // console.log("Inside onboarded_by_me_checkbox false")
             logged_user_data = await logged_user();
             try{
                 
@@ -594,8 +594,8 @@ else
             for(let i=0;i<supplier_data_from_service.length;i++){
                 supplier_data_from_service[i].expand = false;
             }
-            status_pill_clicked(status);
-            console.log("status afta",status)
+            // status_pill_clicked(status);
+            // console.log("status afta",status)
             
 
             }
