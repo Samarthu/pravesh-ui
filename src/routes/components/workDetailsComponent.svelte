@@ -1660,6 +1660,7 @@
                         <span><span class="font-medium">Last updated -> </span> {#if !facility_modified_date} <p>-</p> {:else}{facility_modified_date} {/if}<span
                                 class="font-medium"> By -> </span> {#if !$facility_data_store.modified_by}<p>-</p>{:else}{$facility_data_store.modified_by}{/if}</span>
                     </p>
+                    {#if is_adhoc_facility == false}
                     <p class="flex items-center smButtonText">
                         
                         <button class="smButton bg-erBlue text-white" on:click={()=>{
@@ -1669,6 +1670,7 @@
 
                         </button>
                     </p>
+                    {/if}
                     {#if admin == false}
                     <p></p>
                     {:else}
