@@ -399,8 +399,10 @@ else
         next_prev_disable = false;
         searchTerm = "";
         show_spinner = true;
+        
         console.log("onboarded_by_me_checkbox here",onboarded_by_me_checkbox)
         if(onboarded_by_me_checkbox == false){
+            status_pill_clicked(status);
             console.log("Inside onboarded_by_me_checkbox false")
             logged_user_data = await logged_user();
             try{
@@ -460,7 +462,8 @@ else
                             id_verification_pending+bank_verification_pending+pending_offer_letter+bgv_rejected+
                             bank_details_pending+bank_beneficiary_pending+onboarding_in_progress);
                         show_spinner=false;
-                        status_pill_clicked(status);
+                        // console.log("status in false onboard",status)
+                        
                     }
                     else{
                         show_spinner=false;
@@ -507,7 +510,9 @@ else
             else if(onboarded_by_me_checkbox == true){
                 console.log("here inside TRUE")
                 show_spinner=false;
-                status = "-1";
+                console.log("status in true onboard",status)
+                status_pill_clicked(status);
+                console.log("status afta",status)
             let dashboard_res = await dashboard_data();
             let dashboard = dashboard_res.body.data;
             for(new_dash_data of dashboard){
@@ -566,8 +571,7 @@ else
             for(let i=0;i<supplier_data_from_service.length;i++){
                 supplier_data_from_service[i].expand = false;
             }
-        
-                status_pill_clicked(status);
+            
 
             }
             // else{
