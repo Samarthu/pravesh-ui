@@ -33,10 +33,13 @@
                 get_loc_scope,client_details,erp_details,child_data,add_gst_dets,
                 facility_document,addnew_cheque_details,bank_details_info,cheque_details,gst_details,blacklist_vendor,
                 initiateBGV} from "../services/onboardsummary_services";
+    import { duplicate_documents_store } from "../stores/duplicate_document_store";
+    import { sorting_facility_details_for_edit ,sort_document_data,sorting_bank_details_for_edit} from "../services/pravesh_config";
     let toast_text = "";
     let toast_type = null;
     import Success_popup from "./components/success_popup.svelte";
     let success_text = "";
+    let edit_mode= false;
     // import {facility_id} from '../stores/facility_id_store';
 
     let ifsc_code;
@@ -65,7 +68,28 @@
         status: "created",
         user_id: null,
     };
+    let edit_blank_cheque_data = {
+        doc_category: "Blank Cheque",
+        doc_number: null,
+        doc_type: "blcheque",
+        facility_id: null,
+        file_name: null,
+        pod: null,
+        resource_id: null,
+        status: "created",
+        user_id: null,
+    };
     let passbook_data = {
+        doc_category: "Passbook",
+        doc_type: "passbook",
+        facility_id: null,
+        file_name: null,
+        pod: null,
+        resource_id: null,
+        status: "created",
+        user_id: null,
+    };
+    let edit_passbook_data = {
         doc_category: "Passbook",
         doc_type: "passbook",
         facility_id: null,
@@ -85,7 +109,27 @@
         status: "created",
         user_id: null,
     };
+    let edit_Cancel_cheque_data = {
+        doc_category: "Cancel Cheque",
+        doc_type: "can-cheque",
+        facility_id: null,
+        file_name: null,
+        pod: null,
+        resource_id: null,
+        status: "created",
+        user_id: null,
+    };
     let account_statement_data = {
+        doc_category: "Account Statement",
+        doc_type: "acc-stat",
+        facility_id: null,
+        file_name: null,
+        pod: null,
+        resource_id: null,
+        status: "created",
+        user_id: null,
+    };
+    let edit_account_statement_data = {
         doc_category: "Account Statement",
         doc_type: "acc-stat",
         facility_id: null,
@@ -105,9 +149,12 @@
         console.log("bank pahge name", page_name);
 
         if($facility_id.facility_id_number){
+            console.log("flag is save",$save_flag.is_save);
             let bank_details_response = await bank_details_info();
             console.log("bank_details response",bank_details_response);
             if(bank_details_response){
+                $save_flag.is_save = true;
+                edit_mode = true;
                 console.log("something is present");
                 $bank_details.ifsc_code = bank_details_response.ifsc_code;
                 $bank_details.bank_name = bank_details_response.bank_name;
@@ -118,6 +165,43 @@
                 $bank_details.account_holder = bank_details_response.account_holder;
                 $bank_details.bank_type = bank_details_response.bank_type;
                 $bank_details.branch_pin_code = bank_details_response.branch_pin_code;
+
+                console.log("duplicate document store",$duplicate_documents_store);
+                for(let i=0;i<$duplicate_documents_store.documents.length;i++){
+                    if (
+                    $duplicate_documents_store.documents[i].doc_category ==
+                    "Blank Cheque"
+                ){
+                    // edit_blank_cheque_data.doc_number = $duplicate_documents_store.documents[i].doc_number;
+                    // edit_blank_cheque_data.resource_id = $duplicate_documents_store.documents[i].resource_id;
+                    // edit_blank_cheque_data.file_name = $duplicate_documents_store.documents[i].file_name;
+                    // edit_blank_cheque_data.facility_id = $duplicate_documents_store.documents[i].facility_id;
+                    // edit_blank_cheque_data.user_id = $duplicate_documents_store.documents[i].user_id;
+                    edit_blank_cheque_data = $duplicate_documents_store.documents[i];
+
+
+                }
+                else if($duplicate_documents_store.documents[i].doc_category ==
+                "Passbook")
+                {
+                    // edit_passbook_data.facility_id = $duplicate_documents_store.documents[i].facility_id;
+                    // edit_passbook_data.file_name = $duplicate_documents_store.documents[i].file_name;
+                    // edit_passbook_data.resource_id = $duplicate_documents_store.documents[i].resource_id;
+                    // edit_passbook_data.user_id = $duplicate_documents_store.documents[i].user_id;
+                    edit_passbook_data = $duplicate_documents_store.documents[i];
+                    
+                }
+                else if($duplicate_documents_store.documents[i].doc_category ==
+                "Cancel Cheque"){
+                    edit_Cancel_cheque_data = $duplicate_documents_store.documents[i];
+
+                }
+                else if($duplicate_documents_store.documents[i].doc_category == "Account Statement"){
+                    edit_account_statement_data = $duplicate_documents_store.documents[i];
+                }
+                }
+                console.log("edit balnk cheque",edit_blank_cheque_data);
+                console.log("passbook",edit_passbook_data);
 
 
 
@@ -409,6 +493,7 @@
     }
     function check_validity() {
         valid = true;
+        verify_re_account_number();
         // $facility_id.facility_id_number = "MHPD01271";
         // $bank_details.facility_id = $facility_id.facility_id_number
         // $facility_data_store.facility_id = "tejas_testing_mhpd";
@@ -463,7 +548,7 @@
     function pushing_documents() {
         if (blank_cheque_data.file_name && blank_cheque_data.pod) {
             blank_cheque_data.facility_id = $facility_data_store.facility_id;
-            blank_cheque_data.user_id = $current_user.email;
+            blank_cheque_data.user_id = $current_user.username;
             blank_cheque_data.resource_id = $facility_id.facility_id_number;
             blank_cheque_data.doc_number = $bank_details.account_number;
             console.log("blank cheque data", blank_cheque_data);
@@ -480,7 +565,7 @@
 
         if (passbook_data.file_name && passbook_data.pod) {
             passbook_data.facility_id = $facility_data_store.facility_id;
-            passbook_data.user_id = $current_user.email;
+            passbook_data.user_id = $current_user.username;
             passbook_data.resource_id = $facility_id.facility_id_number;
             console.log("passbook_data", passbook_data);
             for (let i = 0; i < $bank_details.document_details.length; i++) {
@@ -496,7 +581,7 @@
 
         if (Cancel_cheque_data.file_name && Cancel_cheque_data.pod) {
             Cancel_cheque_data.facility_id = $facility_data_store.facility_id;
-            Cancel_cheque_data.user_id = $current_user.email;
+            Cancel_cheque_data.user_id = $current_user.username;
             Cancel_cheque_data.resource_id = $facility_id.facility_id_number;
             console.log("Cancel_cheque_data", Cancel_cheque_data);
             for (let i = 0; i < $bank_details.document_details.length; i++) {
@@ -512,7 +597,7 @@
         if (account_statement_data.file_name && account_statement_data.pod) {
             account_statement_data.facility_id =
                 $facility_data_store.facility_id;
-            account_statement_data.user_id = $current_user.email;
+            account_statement_data.user_id = $current_user.username;
             account_statement_data.resource_id =
                 $facility_id.facility_id_number;
             console.log("account_statement_data", account_statement_data);
@@ -530,7 +615,8 @@
     }
     async function save_bank_details() {
         check_validity();
-        if (
+        if(!edit_mode){
+            if (
             !blank_cheque_data.file_name &&
             !blank_cheque_data.pod &&
             !passbook_data.file_name &&
@@ -550,6 +636,12 @@
             form_message = "";
             console.log("inside else");
         }
+
+        }
+        else{
+
+        }
+        
 
         if (valid) {
             console.log("inside valid");
@@ -1174,6 +1266,20 @@
                                             />
                                         {/if}
                                     </div>
+                                    {#if $facility_id.facility_id_number}
+                                    {#if edit_blank_cheque_data.file_name}
+                                        <div class="flex">
+                                            <a
+                                                href={$page.url.origin +
+                                                    edit_blank_cheque_data.file_url}
+                                                target="_blank"
+                                                class="text-blue-600 text-decoration-line: underline"
+                                                >{edit_blank_cheque_data.file_name}</a
+                                            >
+                                            <br />
+                                        </div>
+                                    {/if}
+                                {/if}
                                 </div>
                             </div>
                         </div>
@@ -1219,6 +1325,20 @@
                                             />
                                         {/if}
                                     </div>
+                                    {#if $facility_id.facility_id_number}
+                                    {#if edit_passbook_data.file_name}
+                                        <div class="flex">
+                                            <a
+                                                href={$page.url.origin +
+                                                    edit_passbook_data.file_url}
+                                                target="_blank"
+                                                class="text-blue-600 text-decoration-line: underline"
+                                                >{edit_passbook_data.file_name}</a
+                                            >
+                                            <br />
+                                        </div>
+                                    {/if}
+                                {/if}
                                 </div>
                             </div>
                         </div>
@@ -1257,6 +1377,20 @@
                                             />
                                         {/if}
                                     </div>
+                                    {#if $facility_id.facility_id_number}
+                                    {#if edit_Cancel_cheque_data.file_name}
+                                        <div class="flex">
+                                            <a
+                                                href={$page.url.origin +
+                                                    edit_Cancel_cheque_data.file_url}
+                                                target="_blank"
+                                                class="text-blue-600 text-decoration-line: underline"
+                                                >{edit_Cancel_cheque_data.file_name}</a
+                                            >
+                                            <br />
+                                        </div>
+                                    {/if}
+                                {/if}
                                 </div>
                             </div>
                         </div>
@@ -1300,6 +1434,20 @@
                                             />
                                         {/if}
                                     </div>
+                                    {#if $facility_id.facility_id_number}
+                                    {#if edit_account_statement_data.file_name}
+                                        <div class="flex">
+                                            <a
+                                                href={$page.url.origin +
+                                                    edit_account_statement_data.file_url}
+                                                target="_blank"
+                                                class="text-blue-600 text-decoration-line: underline"
+                                                >{edit_account_statement_data.file_name}</a
+                                            >
+                                            <br />
+                                        </div>
+                                    {/if}
+                                {/if}
                                 </div>
                             </div>
                         </div>
