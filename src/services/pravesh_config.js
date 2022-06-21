@@ -195,6 +195,26 @@ function sorting_facility_details_for_edit(facility_data){
 
 
 }
+function sorting_bank_details_for_edit(bank_data){
+ 
+    let filtered_data = {};
+    filtered_data['account_holder'] = bank_data.account_holder;
+    filtered_data['account_number'] = bank_data.account_number;
+    filtered_data['bank_name'] = bank_data.bank_name;
+    filtered_data['bank_type'] = bank_data.bank_type;
+    filtered_data['branch_city'] = bank_data.branch_city;
+    filtered_data['branch_name'] = bank_data.branch_name;
+    filtered_data['branch_pin_code'] = bank_data.branch_pin_code;
+    filtered_data['document_details'] = bank_data.document_details;
+    filtered_data['facility_id'] = bank_data.facility_id;
+    filtered_data['ifsc_code'] = bank_data.ifsc_code;
+    filtered_data['re_enter_account_number'] = bank_data.re_enter_account_number;
+
+    return filtered_data;
+
+
+
+}
 
 async function get_facility_data(){
 
@@ -230,6 +250,7 @@ export{
     sorting_facility_details_for_edit,
     reset_all_stores,
     get_facility_data,
-    sort_document_data
+    sort_document_data,
+    sorting_bank_details_for_edit
 
 }
