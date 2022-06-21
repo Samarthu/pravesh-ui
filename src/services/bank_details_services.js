@@ -1,5 +1,7 @@
 import {request} from './interceptor';
 import {bank_details,verify_ifsc_code_api_url} from '../stores/bank_details_store';
+import { sorting_facility_details_for_edit ,sort_document_data,sorting_bank_details_for_edit} from "../services/pravesh_config";
+
 
 let ifsc_verify_api_url ;
 let save_bank_details_api_url = '/api/method/pravesh.facility.routes.bank.save_bank';
@@ -31,7 +33,8 @@ const save_bank_details_function = () =>{
     bank_details.subscribe(value => {
         save_bank_data = value;
     })
-    return request(save_bank_details_api_url,{method:"POST",body : JSON.stringify(save_bank_data)},true,false)
+    let sorted_data = sorting_bank_details_for_edit(save_bank_data)
+    return request(save_bank_details_api_url,{method:"POST",body : JSON.stringify(sorted_data)},true,false)
 }
 
 export{
