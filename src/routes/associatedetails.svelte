@@ -1253,6 +1253,7 @@ import {
                                                     <a
                                                         href={$page.url.origin +
                                                             edit_profile_pic_data.file_url}
+                                                            target="_blank"
                                                         class="text-blue-600 text-decoration-line: underline"
                                                         >{edit_profile_pic_data.file_name}</a
                                                     >
@@ -1409,6 +1410,7 @@ import {
                                                 <a
                                                     href={$page.url.origin +
                                                         edit_address_proof_data.file_url}
+                                                        target="_blank"
                                                     class="text-blue-600 text-decoration-line: underline"
                                                     >{edit_address_proof_data.file_name}</a
                                                 >
@@ -1678,6 +1680,7 @@ import {
                                                     <a
                                                         href={$page.url +
                                                             edit_present_address_proof_data.file_url}
+                                                            target="_blank"
                                                         class="text-blue-600 text-decoration-line: underline"
                                                         >{edit_present_address_proof_data.file_name}</a
                                                     >
