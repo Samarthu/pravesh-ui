@@ -1,4 +1,4 @@
-<script context = "module">
+<script context ="module">
     export let save_button_clicked = true;
 </script>
 
@@ -11,6 +11,7 @@
         BGV_function,
         save_or_update_documents_function,
         save_or_update_documents_function_1,
+        reset_contract_function,
     } from "../services/identity_proof_services";
     import { facility_data_store } from "../stores/facility_store";
     import { facility_id } from "../stores/facility_id_store";
@@ -29,9 +30,36 @@
     import Toast from "./components/toast.svelte";
     import { category_store_name } from "../stores/category_store";
     import { duplicate_documents_store } from "../stores/duplicate_document_store";
-    import { sorting_facility_details_for_edit ,sort_document_data} from "../services/pravesh_config";
+    import {
+        sorting_facility_details_for_edit,
+        sort_document_data,
+    } from "../services/pravesh_config";
     import { edit_facility_function } from "../services/identity_proof_services";
     import { duplicate_facility_data_store } from "../stores/duplicate_facility_data_store";
+    import {
+        facility_data,
+        facility_bgv_init,
+        facility_bgv_check,
+        all_facility_tags,
+        show_fac_tags,
+        submit_fac_tag_data,
+        remove_tag,
+        tag_audit_trail,
+        service_vendor,
+        get_loc_scope,
+        client_details,
+        erp_details,
+        child_data,
+        add_gst_dets,
+        facility_document,
+        addnew_cheque_details,
+        bank_details_info,
+        cheque_details,
+        gst_details,
+        blacklist_vendor,
+        initiateBGV,
+    } from "../services/onboardsummary_services";
+    import { get_date_format } from "../services/date_format_servives";
     let toast_text = "";
     let toast_type = null;
     let success_text = "";
@@ -150,14 +178,14 @@
     onMount(async () => {
         page_name = $page.url["pathname"].split("/").pop();
         console.log("page name on identity", page_name);
-        console.log("document store",$documents_store.documents);
+        console.log("document store", $documents_store.documents);
 
         console.log("duplicate document store", $duplicate_documents_store);
         console.log(
             "duplicate documents length",
             $duplicate_documents_store.documents.length
         );
-        console.log("current user",$current_user);
+        console.log("current user", $current_user);
 
         if ($facility_id.facility_id_number) {
             // $documents_store.documents = [];
@@ -777,13 +805,12 @@
         valid = true;
         console.log("DOCUMNET STORE", $documents_store);
         if ($facility_id.facility_id_number) {
-
             if (pan_card_data.doc_number || pan_card_data.pod) {
                 if (pan_card_data.doc_number != edit_pan_card_data.doc_number) {
                     pan_card_data.status = "active";
                     pan_card_data.resource_id = $facility_id.facility_id_number;
                     pan_card_data.user_id = $current_user.username;
-                    
+
                     for (
                         let i = 0;
                         i < $documents_store.documents.length;
@@ -796,8 +823,9 @@
                             $documents_store.documents.splice(i, 1);
                         }
                     }
-                    $documents_store.documents.push(sort_document_data(pan_card_data));
-                   
+                    $documents_store.documents.push(
+                        sort_document_data(pan_card_data)
+                    );
                 } else if (pan_card_data.pod && pan_card_data.file_name) {
                     pan_card_data.status = "active";
                     pan_card_data.resource_id = $facility_id.facility_id_number;
@@ -814,7 +842,9 @@
                             $documents_store.documents.splice(i, 1);
                         }
                     }
-                    $documents_store.documents.push(sort_document_data(pan_card_data));
+                    $documents_store.documents.push(
+                        sort_document_data(pan_card_data)
+                    );
                 }
             }
 
@@ -838,7 +868,9 @@
                             $documents_store.documents.splice(i, 1);
                         }
                     }
-                    $documents_store.documents.push(sort_document_data( adhar_card_data));
+                    $documents_store.documents.push(
+                        sort_document_data(adhar_card_data)
+                    );
                 } else if (adhar_card_data.pod && adhar_card_data.file_name) {
                     for (
                         let i = 0;
@@ -852,7 +884,9 @@
                             $documents_store.documents.splice(i, 1);
                         }
                     }
-                    $documents_store.documents.push(sort_document_data(adhar_card_data));
+                    $documents_store.documents.push(
+                        sort_document_data(adhar_card_data)
+                    );
                 }
             }
 
@@ -877,7 +911,9 @@
                             $documents_store.documents.splice(i, 1);
                         }
                     }
-                    $documents_store.documents.push(sort_document_data(voter_id_card_data));
+                    $documents_store.documents.push(
+                        sort_document_data(voter_id_card_data)
+                    );
                 } else if (
                     voter_id_card_data.pod &&
                     voter_id_card_data.doc_number
@@ -894,14 +930,16 @@
                             $documents_store.documents.splice(i, 1);
                         }
                     }
-                    $documents_store.documents.push(sort_document_data(voter_id_card_data));
+                    $documents_store.documents.push(
+                        sort_document_data(voter_id_card_data)
+                    );
                 }
-               
             }
 
             if (driving_license_data.doc_number || driving_license_data.pod) {
-                driving_license_data.resource_id = $facility_id.facility_id_number;
-                driving_license_data.status = 'active';
+                driving_license_data.resource_id =
+                    $facility_id.facility_id_number;
+                driving_license_data.status = "active";
                 driving_license_data.user_id = $current_user.username;
                 if (
                     driving_license_data.doc_number !=
@@ -919,9 +957,13 @@
                             $documents_store.documents.splice(i, 1);
                         }
                     }
-                    $documents_store.documents.push(sort_document_data(driving_license_data));
-                }
-                else if(driving_license_data.pod && driving_license_data.file_name){
+                    $documents_store.documents.push(
+                        sort_document_data(driving_license_data)
+                    );
+                } else if (
+                    driving_license_data.pod &&
+                    driving_license_data.file_name
+                ) {
                     for (
                         let i = 0;
                         i < $documents_store.documents.length;
@@ -934,8 +976,9 @@
                             $documents_store.documents.splice(i, 1);
                         }
                     }
-                    $documents_store.documents.push(sort_document_data(driving_license_data));
-
+                    $documents_store.documents.push(
+                        sort_document_data(driving_license_data)
+                    );
                 }
             }
 
@@ -1222,6 +1265,57 @@
                                 document_upload_response
                             );
                         }
+
+                        let reset_contract_respone =
+                            await reset_contract_function();
+                        console.log(
+                            "reset_contract_respone",
+                            reset_contract_respone
+                        );
+
+                        let get_updated_documents = await facility_document();
+                        console.log(
+                            "get_updated_documents",
+                            get_updated_documents
+                        );
+                        if (get_updated_documents.body.status == "green") {
+                            $duplicate_documents_store.documents = JSON.parse(
+                                JSON.stringify(get_updated_documents.body.data)
+                            );
+                            $documents_store.documents = [];
+                        }
+
+                        let get_updated_facility_data = await facility_data();
+                        console.log(
+                            "get_updated_facility_data",
+                            get_updated_facility_data
+                        );
+                        if (get_updated_facility_data.body.status == "green") {
+                            facility_data_store.set(
+                                JSON.parse(
+                                    JSON.stringify(
+                                        get_updated_facility_data.body.data[0]
+                                    )
+                                )
+                            );
+
+                            duplicate_facility_data_store.set(
+                                JSON.parse(
+                                    JSON.stringify(
+                                        get_updated_facility_data.body.data[0]
+                                    )
+                                )
+                            );
+                            let temp_date = $facility_data_store.date_of_birth;
+                            console.log("temp date date of birth", temp_date);
+                            let temp = new Date(temp_date);
+                            console.log("temp", temp);
+                            $facility_data_store["dob"] = get_date_format(
+                                temp,
+                                "dd-mm-yyyy"
+                            );
+                        }
+
                         show_spinner = false;
                         save_button_clicked = true;
                         $save_flag.is_save = true;
@@ -1282,7 +1376,6 @@
             }
         } else {
             if (valid) {
-                
                 for (let i = 0; i < $documents_store.documents.length; i++) {
                     console.log("inside for loop");
                     // console.log("documents store",$documents_store.documents[i]);
@@ -1305,56 +1398,93 @@
                             " Document upload failed";
                         toast_type = "error";
                         show_spinner = false;
-                    }
-                    else{
+                    } else {
                         toast_text =
                             $documents_store.documents[i]["doc_category"] +
                             " Document uploaded";
                         toast_type = "success";
-
                     }
                     console.log(
                         "document_upload_response",
                         document_upload_response
                     );
                 }
+                let reset_contract_respone = await reset_contract_function();
+                console.log("reset_contract_respone", reset_contract_respone);
+                let get_updated_documents = await facility_document();
+                console.log("get_updated_documents", get_updated_documents);
+                if (get_updated_documents.body.status == "green") {
+                    $duplicate_documents_store.documents = JSON.parse(
+                        JSON.stringify(get_updated_documents.body.data)
+                    );
+                    $documents_store.documents = [];
+                }
 
-                
-                console.log("document store",$documents_store.documents);
-                console.log("duplicate doc store",$duplicate_documents_store);
+                let get_updated_facility_data = await facility_data();
+                console.log(
+                    "get_updated_facility_data",
+                    get_updated_facility_data
+                );
+                if (get_updated_facility_data.body.status == "green") {
+                    facility_data_store.set(
+                        JSON.parse(
+                            JSON.stringify(
+                                get_updated_facility_data.body.data[0]
+                            )
+                        )
+                    );
+
+                    duplicate_facility_data_store.set(
+                        JSON.parse(
+                            JSON.stringify(
+                                get_updated_facility_data.body.data[0]
+                            )
+                        )
+                    );
+                    let temp_date = $facility_data_store.date_of_birth;
+                    console.log("temp date date of birth", temp_date);
+                    let temp = new Date(temp_date);
+                    console.log("temp", temp);
+                    $facility_data_store["dob"] = get_date_format(
+                        temp,
+                        "dd-mm-yyyy"
+                    );
+                }
+
+                console.log("document store", $documents_store.documents);
+                console.log("duplicate doc store", $duplicate_documents_store);
 
                 if (
-                            !$pravesh_properties.properties[
-                                "pan_required_associates"
-                            ].includes($facility_data_store.facility_type) &&
-                            !$pravesh_properties.properties[
-                                "bank_section_required_associates"
-                            ].includes($facility_data_store.facility_type)
-                        ) {
-                            console.log("taking you to the success page");
-                            // let replaceState = false;
-                            // goto("successpopup", { replaceState });
-                            // success_text = "Onboarding Completed Successfully";
-                            // await delay(2000);
-                            // console.log("delay");
-                            let replaceState = false;
+                    !$pravesh_properties.properties[
+                        "pan_required_associates"
+                    ].includes($facility_data_store.facility_type) &&
+                    !$pravesh_properties.properties[
+                        "bank_section_required_associates"
+                    ].includes($facility_data_store.facility_type)
+                ) {
+                    console.log("taking you to the success page");
+                    // let replaceState = false;
+                    // goto("successpopup", { replaceState });
+                    // success_text = "Onboarding Completed Successfully";
+                    // await delay(2000);
+                    // console.log("delay");
+                    let replaceState = false;
 
-                            setTimeout(
-                                goto(
-                                    "onboardsummary?unFacID=" +
-                                        $facility_id.facility_id_number,
-                                    { replaceState }
-                                ),
-                                2000
-                            );
-                        } else {
-                            setTimeout(gotobankdetails(), 2000);
-                        }
+                    setTimeout(
+                        goto(
+                            "onboardsummary?unFacID=" +
+                                $facility_id.facility_id_number,
+                            { replaceState }
+                        ),
+                        2000
+                    );
+                } else {
+                    setTimeout(gotobankdetails(), 2000);
+                }
 
                 // console.log("edit_facility_response", edit_facility_response);
             }
             show_spinner = false;
-
         }
     }
     function delete_files(file_name) {
@@ -1399,14 +1529,12 @@
         <div class="breadcrumb-section">
             <p class="breadcrumbtext">
                 <span class="text-textgrey pr-1 text-base"
-                    >Home / {#if !$facility_id.facility_id_number} Onboard New
-                    {:else}Edit{/if} / {#if $category_store_name.category_name }
-                    {$category_store_name.category_name}
-                    {:else}
-                    
-                    {/if}
-                    </span
-                >
+                    >Home / {#if !$facility_id.facility_id_number}
+                        Onboard New
+                    {:else}Edit{/if} / {#if $category_store_name.category_name}
+                        {$category_store_name.category_name}
+                    {:else}{/if}
+                </span>
                 <span class="flex xs:text-base xs:items-center"
                     ><img
                         src="{$img_url_name.img_name}/delivery.png"
@@ -1658,15 +1786,13 @@
                         <div class="flex">
                             <div class="formGroup ">
                                 <label class="formLable "
-                                    >PAN Card Number   
-                                    {#if $pravesh_properties.properties[
-                                        "pan_required_associates"
-                                    ].includes($facility_data_store.facility_type)}
-                                    <span class="text-mandatorysign">* </span>
+                                    >PAN Card Number
+                                    {#if $pravesh_properties.properties["pan_required_associates"].includes($facility_data_store.facility_type)}
+                                        <span class="text-mandatorysign"
+                                            >*
+                                        </span>
                                     {/if}
-                                        
-                                    </label
-                                >
+                                </label>
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
@@ -1701,12 +1827,12 @@
                         <div class="flex">
                             <div class="formGroupBaseLine py-1">
                                 <label class="formLable "
-                                    >PAN Card Copy {#if $pravesh_properties.properties[
-                                        "pan_required_associates"
-                                    ].includes($facility_data_store.facility_type)}
-                                    <span class="text-mandatorysign">* </span>
-                                    {/if} </label
-                                >
+                                    >PAN Card Copy {#if $pravesh_properties.properties["pan_required_associates"].includes($facility_data_store.facility_type)}
+                                        <span class="text-mandatorysign"
+                                            >*
+                                        </span>
+                                    {/if}
+                                </label>
                                 <!-- <div class="formInnerGroup ">
 
                             <span class="profileimage">
@@ -1772,7 +1898,9 @@
                             <div class="formGroup ">
                                 <label class="formLable invisible" />
                                 <div class="formInnerGroup mt-1">
-                                    <div class="text-blue-800 text-x text-center">
+                                    <div
+                                        class="text-blue-800 text-x text-center"
+                                    >
                                         OR
                                     </div>
                                 </div>
@@ -1781,8 +1909,8 @@
                         <div class="flex">
                             <div class="formGroup ">
                                 <label class="formLable "
-                                    >Aadhar Card Number </label
-                                >
+                                    >Aadhar Card Number
+                                </label>
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
@@ -1816,8 +1944,8 @@
                         <div class="flex">
                             <div class="formGroupBaseLine">
                                 <label class="formLable "
-                                    >Aadhar Card Copy </label
-                                >
+                                    >Aadhar Card Copy
+                                </label>
                                 <div class="formInnerGroup ">
                                     <label class="cursor-pointer inline-block">
                                         <div
@@ -1874,7 +2002,9 @@
                             <div class="formGroup ">
                                 <label class="formLable invisible" />
                                 <div class="formInnerGroup mt-1">
-                                    <div class="text-blue-800 text-x text-center">
+                                    <div
+                                        class="text-blue-800 text-x text-center"
+                                    >
                                         OR
                                     </div>
                                 </div>
@@ -1884,8 +2014,8 @@
                         <div class="flex">
                             <div class="formGroup ">
                                 <label class="formLable "
-                                    >Voter ID Number </label
-                                >
+                                    >Voter ID Number
+                                </label>
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
@@ -1919,9 +2049,7 @@
 
                         <div class="flex">
                             <div class="formGroupBaseLine py-1">
-                                <label class="formLable "
-                                    >Voter ID Copy </label
-                                >
+                                <label class="formLable ">Voter ID Copy </label>
                                 <!-- <div class="formInnerGroup ">
 
                             <span class="profileimage">
@@ -1991,7 +2119,9 @@
                             <div class="formGroup ">
                                 <label class="formLable invisible" />
                                 <div class="formInnerGroup mt-1">
-                                    <div class="text-blue-800 text-x text-center">
+                                    <div
+                                        class="text-blue-800 text-x text-center"
+                                    >
                                         OR
                                     </div>
                                 </div>
@@ -2000,8 +2130,8 @@
                         <div class="flex">
                             <div class="formGroup ">
                                 <label class="formLable"
-                                    >Driving License Number </label
-                                >
+                                    >Driving License Number
+                                </label>
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
                                         <img
@@ -2035,8 +2165,8 @@
                         <div class="flex">
                             <div class="formGroupBaseLine">
                                 <label class="formLable "
-                                    >Driving License Copy </label
-                                >
+                                    >Driving License Copy
+                                </label>
                                 <div class="formInnerGroup ">
                                     <label class="cursor-pointer inline-block">
                                         <div

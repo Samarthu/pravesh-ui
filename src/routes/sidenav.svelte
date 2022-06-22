@@ -55,7 +55,7 @@
     }
 
     let current = 'routeToPageOnboard';
-    routeOnboard = "bussines"; 
+    routeOnboard = "facility_type_select"; 
     routeDashboard = "dashboard";
     routeSupplier = "supplier";   
     routeDownloads = "downloads"; 

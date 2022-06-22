@@ -29,6 +29,11 @@ import {
        
         save_or_update_documents_function_1
     } from "../services/identity_proof_services";
+    import { facility_data,facility_bgv_init,facility_bgv_check,all_facility_tags,
+                show_fac_tags,submit_fac_tag_data,remove_tag,tag_audit_trail,service_vendor,
+                get_loc_scope,client_details,erp_details,child_data,add_gst_dets,
+                facility_document,addnew_cheque_details,bank_details_info,cheque_details,gst_details,blacklist_vendor,
+                initiateBGV} from "../services/onboardsummary_services";
     let show_spinner = false;
 
     let toast_text = "";
@@ -675,6 +680,34 @@ import {
                             );
 
                     }
+                    let get_updated_documents = await facility_document();
+                    console.log("get_updated_documents",get_updated_documents);
+                    if(get_updated_documents.body.status == "green"){
+                        $duplicate_documents_store.documents = JSON.parse(JSON.stringify(get_updated_documents.body.data));
+                        $documents_store.documents = [];
+
+                    }
+
+                    let get_updated_facility_data = await facility_data();
+                    console.log("get_updated_facility_data",get_updated_facility_data);
+                    if(get_updated_facility_data.body.status == "green"){
+                        facility_data_store.set(
+                JSON.parse(JSON.stringify(get_updated_facility_data.body.data[0]))
+            
+            )
+    
+            duplicate_facility_data_store.set(
+                JSON.parse(JSON.stringify(get_updated_facility_data.body.data[0]))
+            )
+            let temp_date = $facility_data_store.date_of_birth;
+            console.log("temp date date of birth", temp_date);
+            let temp = new Date(temp_date);
+            console.log("temp", temp);
+            $facility_data_store['dob'] = get_date_format(temp, "dd-mm-yyyy");
+
+                    }
+
+                    
                     let replaceState = false;
                     setTimeout(
                         goto(
