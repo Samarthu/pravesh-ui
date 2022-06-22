@@ -88,7 +88,7 @@
                 </div>
             </li> -->
             <li on:click={routeToProfile} class="">
-                <a href=""> <img src="{$img_url_name.img_name}/Userpic.png" alt="" /></a>
+                <span href=""> <img src="{$img_url_name.img_name}/Userpic.png" alt="" /></span>
             </li>
         </ul>
     </div>
