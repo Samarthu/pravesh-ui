@@ -247,7 +247,14 @@
     let urlString = window.location.href;
     // let paramString	
     // if(paramString){
-        let paramString = urlString.split('=')[1].replaceAll("#","");
+        let paramString = urlString.split('=')[1]
+        if(paramString.includes("#")){
+            paramString = paramString.replace("#"," ");
+        }
+        else{
+            paramString = paramString
+        }
+       
     // }
     if(paramString == undefined){
     //   show_pagination = true;
