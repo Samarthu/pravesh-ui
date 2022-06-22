@@ -443,9 +443,9 @@ async function verify_otp(){
                     </div>
                 </div>
             </div>
-            <div>
+            <!-- <div>
                 <button on:click|preventDefault={()=>{temp_function()}} class="ErBlueButton mt-3">temp</button>
-            </div>
+            </div> -->
             {#if show_proceed}
             <div>
                 <button on:click|preventDefault={()=>{proceed_function()}} class="ErBlueButton mt-3">Proceed</button>
