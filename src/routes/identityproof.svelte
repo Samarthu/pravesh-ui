@@ -1376,6 +1376,7 @@
             }
         } else {
             if (valid) {
+                show_spinner = true;
                 for (let i = 0; i < $documents_store.documents.length; i++) {
                     console.log("inside for loop");
                     // console.log("documents store",$documents_store.documents[i]);
@@ -1409,8 +1410,10 @@
                         document_upload_response
                     );
                 }
+
                 let reset_contract_respone = await reset_contract_function();
                 console.log("reset_contract_respone", reset_contract_respone);
+
                 let get_updated_documents = await facility_document();
                 console.log("get_updated_documents", get_updated_documents);
                 if (get_updated_documents.body.status == "green") {
@@ -1418,6 +1421,11 @@
                         JSON.stringify(get_updated_documents.body.data)
                     );
                     $documents_store.documents = [];
+                }
+                else{
+                    toast_text = "Unable to fetch Facility documents";
+                    toast_type = "error";
+                    show_spinner = false;
                 }
 
                 let get_updated_facility_data = await facility_data();
@@ -1449,6 +1457,11 @@
                         temp,
                         "dd-mm-yyyy"
                     );
+                }
+                else{
+                    show_spinner = false;
+                    toast_text = "Unable to fetch Facility data";
+                    toast_type = "error";
                 }
 
                 console.log("document store", $documents_store.documents);
@@ -1545,7 +1558,7 @@
                         {$facility_data_store.facility_type}
                     {/if}
                 </span>
-                <span class="flex xs:text-base xs:items-center">
+                <span class="flex xs:text-base xs:items-center ">
                     {#if $facility_id.facility_id_number}
                         <div class="mx-3">
                             Facility-ID: {$facility_id.facility_id_number}
