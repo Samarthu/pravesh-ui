@@ -1190,6 +1190,7 @@ import {
                                     /> -->
                                     <input
                                         type="date"
+                                        onkeydown="return false"
                                         max={temp_max_date}
                                         bind:value={date}
                                     />
