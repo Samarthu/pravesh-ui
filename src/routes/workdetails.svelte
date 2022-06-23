@@ -691,6 +691,7 @@
         // console.log(msme_agreement);
         // console.log(typeof msme_agreement);
         //TODO: Possible bug in sveltekit where the value is not being reversed.
+        msme_message = "";
         if (msme_agreement == 0) {
             // console.log(
             //     "inside msme agreement if statement",
