@@ -150,6 +150,10 @@
         // console.log("TEMP RESULT",result)
         page_name = $page.url["pathname"].split("/").pop();
         console.log("bank pahge name", page_name);
+        if(!$facility_data_store.org_id){
+            goto("facility_type_select",{replaceState:false})
+
+        }
 
         if($facility_id.facility_id_number){
             console.log("flag is save",$save_flag.is_save);

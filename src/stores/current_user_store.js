@@ -7,3 +7,8 @@ export const current_user = writable({
 
 
 });
+
+export const details_user_info = writable({
+    
+
+});

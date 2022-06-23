@@ -3,6 +3,7 @@
     import {get_current_user_function} from "../services/dashboard_services";
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
+    import { current_user,details_user_info } from "../stores/current_user_store";
 
     let city_list = [];
 
@@ -53,6 +54,10 @@
                           <p class="w-36 ">Name</p>   
                           <p class="w-full font-normal text-base pl-pr14px">Akshay Saini</p>   
                         </div>
+                        <div class="font-light text-sm flex">
+                            <p class="w-36 ">Email</p>   
+                            <p class="w-full font-normal text-base pl-pr14px">{$current_user.email}</p>   
+                          </div>
                         <div class="font-light text-sm flex">
                           <p class="w-36 ">Role</p>  
                           <p class="w-full font-normal text-base pl-pr14px">Territory Manager</p>   

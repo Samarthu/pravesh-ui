@@ -4,6 +4,7 @@
     import {get_categories_list} from '../services/category_services';
     import {get_category_ui_properties} from '../services/category_services';
     import {category_store_name} from '../stores/category_store';
+    import {facility_data_store} from '../stores/facility_store';
     import Breadcrumb from "../routes/breadcrumb.svelte";
     import {img_url_name} from '../stores/flags_store';
     import Toast from './components/toast.svelte';
@@ -50,6 +51,9 @@
     routeNext3 = "vendor";
     onMount(async () =>{
         show_spinner = true;
+        if(!$facility_data_store.org_id){
+            goto("facility_type_select",{replaceState :false})
+        }
         let category_response = await get_categories_list();
 
         console.log("category_response",category_response);

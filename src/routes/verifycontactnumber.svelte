@@ -52,6 +52,10 @@ let countdown = 10;
 onMount(async () => {
 
     page_name =  $page.url["pathname"].split("/").pop();
+    if(!$facility_data_store.org_id){
+            goto("facility_type_select",{replaceState:false})
+
+        }
     if($facility_id.facility_id_number){
         if($duplicate_facility_data_store.phone_number == $facility_data_store.phone_number ){
         show_send_otp_button = false;

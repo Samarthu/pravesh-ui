@@ -163,6 +163,10 @@ import {
     onMount(async () => {
         show_spinner = true;
         page_name = $page.url["pathname"].split("/").pop();
+        if(!$facility_data_store.org_id){
+            goto("facility_type_select",{replaceState:false})
+
+        }
         console.log("page_name", page_name);
         console.log("date", date);
         function get_max_date() {
