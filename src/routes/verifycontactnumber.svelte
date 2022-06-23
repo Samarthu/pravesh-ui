@@ -450,11 +450,7 @@ async function verify_otp(){
             <!-- <div>
                 <button on:click|preventDefault={()=>{temp_function()}} class="ErBlueButton mt-3">temp</button>
             </div> -->
-            {#if show_proceed}
-            <div>
-                <button on:click|preventDefault={()=>{proceed_function()}} class="ErBlueButton mt-3">Proceed</button>
-            </div>
-            {/if}
+            
         </form>
     </div>
     {:else}
@@ -513,19 +509,29 @@ async function verify_otp(){
 
         
     {/if}
-    <div
+    <div class="onboardFormNot flex justify-between items-center " >
+        <div
                         on:click|preventDefault={() => {
                             goto("workdetails")
                         }}
-                        class="backButton"
+                        class="backButton "
                     >
                         <img src="{$img_url_name.img_name}/arrowleft.png" alt="" />
                     </div>
+        {#if show_proceed}
+            <div class="">
+                <button on:click|preventDefault={()=>{proceed_function()}} class="ErBlueButton ">Proceed</button>
+            </div>
+            {/if}
+        
     
     
     <!-- OTP Verification -->
     
 </div>
+
+    </div>
+    
     </div>
 </div>
 
