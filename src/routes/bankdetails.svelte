@@ -57,7 +57,7 @@
     let form_message = "";
     var acc_number_check = /^[0-9]*$/;
     var ifsc_code_check = /^[A-Za-z]{4}\d{7}$/;
-    var account_holder_check = /^\w+$/gm;
+    var account_holder_check = /^([a-zA-Z]+\s)*[a-zA-Z]+$/;
     let account_number_match_check = false;
 
     let blank_cheque_data = {
