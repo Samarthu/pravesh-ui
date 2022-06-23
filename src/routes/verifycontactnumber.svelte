@@ -85,6 +85,7 @@ function route() {
 }
 
 async function check_mobile_number(){
+    console.log("inside check_mobile_number");
     let valid = true;
     if($facility_data_store.phone_number != null){
         if(!$facility_data_store.phone_number.match(mobile_no_pattern)){
@@ -423,7 +424,7 @@ async function verify_otp(){
                             <span class="searchicon">
                                 <img src="{$img_url_name.img_name}/mobilephone.png" class="placeholderIcon" alt="">
                             </span>
-                            <input type="text" class="inputbox" bind:value={$facility_data_store.phone_number} on:blur={()=> check_mobile_number()}>
+                            <input type="text" class="inputbox" bind:value={$facility_data_store.phone_number} on:input={()=> check_mobile_number()}>
                         </div>
                     </div>
                 </div>
