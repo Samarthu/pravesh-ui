@@ -1047,7 +1047,7 @@
                                     <input
                                         type="password"
                                         class="inputbox"
-                                        autocomplete="off"
+                                        autocomplete="false"
                                         bind:value={$bank_details.account_number}
                                         on:blur={() => verify_account_number()}
                                     />
@@ -1082,7 +1082,7 @@
                                     <input
                                         type="text"
                                         class="inputbox"
-                                        autocomplete="off"
+                                        autocomplete="false"
                                         bind:value={$bank_details.re_enter_account_number}
                                         on:blur={() =>
                                             verify_re_account_number()}
