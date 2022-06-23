@@ -76,6 +76,15 @@ import {
         tier: "3",
         state: "Maharashtra",
     };
+    let Permanent_address= {
+        address: null,
+address_type: "Permanent Address",
+location_id: null,
+parentfield: "address",
+parenttype: "Facility",
+postal: null,
+tier: null
+    }
     let present_address = {
         location_id: null,
         address: null,
@@ -163,6 +172,10 @@ import {
     onMount(async () => {
         show_spinner = true;
         page_name = $page.url["pathname"].split("/").pop();
+        if(!$facility_data_store.org_id){
+            goto("facility_type_select",{replaceState:false})
+
+        }
         console.log("page_name", page_name);
         console.log("date", date);
         function get_max_date() {
@@ -274,6 +287,7 @@ import {
                     work_address.city = temp_address_array[i].city;
                     work_address.address = temp_address_array[i].address;
                     work_address.postal = temp_address_array[i].postal;
+
                 } else if (
                     temp_address_array[i].address_type == "Present Address"
                 ) {
@@ -1190,6 +1204,7 @@ import {
                                     /> -->
                                     <input
                                         type="date"
+                                        onkeydown="return false"
                                         max={temp_max_date}
                                         bind:value={date}
                                     />
@@ -1247,17 +1262,22 @@ import {
                                                     alt=""
                                                 />
                                             {/if}
-                                            <br />
                                             {#if $facility_id.facility_id_number}
-                                                {#if edit_profile_pic_data.file_name}
-                                                    <a
-                                                        href={$page.url.origin +
-                                                            edit_profile_pic_data.file_url}
-                                                        class="text-blue-600 text-decoration-line: underline"
-                                                        >{edit_profile_pic_data.file_name}</a
-                                                    >
-                                                {/if}
+                                            {#if edit_profile_pic_data.file_name}
+                                                <a
+                                                    href={$page.url.origin +
+                                                        edit_profile_pic_data.file_url}
+                                                        target="_blank"
+                                                    class="text-blue-600 text-decoration-line: underline"
+                                                    >{edit_profile_pic_data.file_name}</a
+                                                >
                                             {/if}
+                                        {/if}
+                                            
+                                           
+                                        </div>
+                                        <div class="flex">
+                                           
                                         </div>
                                     </span>
                                 </div>
@@ -1339,7 +1359,11 @@ import {
                                         rows="4"
                                         cols="50"
                                         class="inputbox"
+                                        on:blur={()=>{
+                                            work_address.address = (work_address.address).trim()
+                                        }}
                                         bind:value={work_address.address}
+                                        
                                     />
                                 </div>
                             </div>
@@ -1409,6 +1433,7 @@ import {
                                                 <a
                                                     href={$page.url.origin +
                                                         edit_address_proof_data.file_url}
+                                                        target="_blank"
                                                     class="text-blue-600 text-decoration-line: underline"
                                                     >{edit_address_proof_data.file_name}</a
                                                 >
@@ -1581,6 +1606,7 @@ import {
                                             rows="4"
                                             cols="50"
                                             class="inputbox"
+                                            on:blur={()=>{present_address.address = (present_address.address).trim()}}
                                             bind:value={present_address.address}
                                         />
                                     </div>
@@ -1678,6 +1704,7 @@ import {
                                                     <a
                                                         href={$page.url +
                                                             edit_present_address_proof_data.file_url}
+                                                            target="_blank"
                                                         class="text-blue-600 text-decoration-line: underline"
                                                         >{edit_present_address_proof_data.file_name}</a
                                                     >

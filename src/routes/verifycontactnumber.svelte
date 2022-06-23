@@ -52,6 +52,10 @@ let countdown = 10;
 onMount(async () => {
 
     page_name =  $page.url["pathname"].split("/").pop();
+    if(!$facility_data_store.org_id){
+            goto("facility_type_select",{replaceState:false})
+
+        }
     if($facility_id.facility_id_number){
         if($duplicate_facility_data_store.phone_number == $facility_data_store.phone_number ){
         show_send_otp_button = false;
@@ -81,6 +85,7 @@ function route() {
 }
 
 async function check_mobile_number(){
+    console.log("inside check_mobile_number");
     let valid = true;
     if($facility_data_store.phone_number != null){
         if(!$facility_data_store.phone_number.match(mobile_no_pattern)){
@@ -419,7 +424,7 @@ async function verify_otp(){
                             <span class="searchicon">
                                 <img src="{$img_url_name.img_name}/mobilephone.png" class="placeholderIcon" alt="">
                             </span>
-                            <input type="text" class="inputbox" bind:value={$facility_data_store.phone_number} on:blur={()=> check_mobile_number()}>
+                            <input type="text" class="inputbox" bind:value={$facility_data_store.phone_number} on:input={()=> check_mobile_number()}>
                         </div>
                     </div>
                 </div>
@@ -443,14 +448,10 @@ async function verify_otp(){
                     </div>
                 </div>
             </div>
-            <div>
+            <!-- <div>
                 <button on:click|preventDefault={()=>{temp_function()}} class="ErBlueButton mt-3">temp</button>
-            </div>
-            {#if show_proceed}
-            <div>
-                <button on:click|preventDefault={()=>{proceed_function()}} class="ErBlueButton mt-3">Proceed</button>
-            </div>
-            {/if}
+            </div> -->
+            
         </form>
     </div>
     {:else}
@@ -509,19 +510,29 @@ async function verify_otp(){
 
         
     {/if}
-    <div
+    <div class="onboardFormNot flex justify-between items-center " >
+        <div
                         on:click|preventDefault={() => {
                             goto("workdetails")
                         }}
-                        class="backButton"
+                        class="backButton "
                     >
                         <img src="{$img_url_name.img_name}/arrowleft.png" alt="" />
                     </div>
+        {#if show_proceed}
+            <div class="">
+                <button on:click|preventDefault={()=>{proceed_function()}} class="ErBlueButton ">Proceed</button>
+            </div>
+            {/if}
+        
     
     
     <!-- OTP Verification -->
     
 </div>
+
+    </div>
+    
     </div>
 </div>
 

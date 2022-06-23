@@ -335,6 +335,10 @@
         console.log("facility_data_store", $facility_data_store);
         console.log("facility documnet store",$documents_store);
         console.log("facility id", $facility_id.facility_id_number);
+        if(!$facility_data_store.org_id){
+            goto("facility_type_select",{replaceState:false})
+
+        }
 
         if ($facility_id.facility_id_number) {
             console.log("inside facility id is present");
@@ -687,6 +691,7 @@
         // console.log(msme_agreement);
         // console.log(typeof msme_agreement);
         //TODO: Possible bug in sveltekit where the value is not being reversed.
+        msme_message = "";
         if (msme_agreement == 0) {
             // console.log(
             //     "inside msme agreement if statement",

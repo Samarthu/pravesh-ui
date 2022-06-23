@@ -57,7 +57,7 @@
     let form_message = "";
     var acc_number_check = /^[0-9]*$/;
     var ifsc_code_check = /^[A-Za-z]{4}\d{7}$/;
-    var account_holder_check = /^\w+$/gm;
+    var account_holder_check = /^([a-zA-Z]+\s)*[a-zA-Z]+$/;
     let account_number_match_check = false;
 
     let blank_cheque_data = {
@@ -150,6 +150,10 @@
         // console.log("TEMP RESULT",result)
         page_name = $page.url["pathname"].split("/").pop();
         console.log("bank pahge name", page_name);
+        if(!$facility_data_store.org_id){
+            goto("facility_type_select",{replaceState:false})
+
+        }
 
         if($facility_id.facility_id_number){
             console.log("flag is save",$save_flag.is_save);
@@ -1041,9 +1045,9 @@
                                         />
                                     </span>
                                     <input
-                                        type="text"
+                                        type="password"
                                         class="inputbox"
-                                        autocomplete="off"
+                                        autocomplete="false"
                                         bind:value={$bank_details.account_number}
                                         on:blur={() => verify_account_number()}
                                     />
@@ -1076,9 +1080,9 @@
                                         />
                                     </span>
                                     <input
-                                        type="password"
+                                        type="text"
                                         class="inputbox"
-                                        autocomplete="off"
+                                        autocomplete="false"
                                         bind:value={$bank_details.re_enter_account_number}
                                         on:blur={() =>
                                             verify_re_account_number()}

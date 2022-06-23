@@ -1,4 +1,10 @@
 <script>
+    let online_sup = false;
+    let offline_sup = false;
+
+    function supplier_select(){
+        
+    }
 
 </script>
 
@@ -30,10 +36,10 @@
                                     <label class="formLableSupplier ">Supplier Mode
                                         <span class="mandatoryIcon">*</span></label>
                                     <div class="formInnerGroup ">
-                                        <select class="inputboxpopover">
-                                            <option class="pt-6">Online Supplier
+                                        <select class="inputboxpopover" on:click={()=>supplier_select()}>
+                                            <option class="pt-6" value="Online">Online Supplier
                                             </option>
-                                            <option class="pt-6">Offline Supplier
+                                            <option class="pt-6" value="Offline">Offline Supplier
                                             </option>
                                             
                                         </select>
@@ -225,35 +231,13 @@
                             </div>
 
 
-                            <div class="flex">
-                                <div class="formGroup ">
-                                    <label class="formLableSupplier ">Enter PAN Card Number
-                                        <span
-                                            class="mandatoryIcon">*</span></label>
-                                            <div class="formInnerGroup ">
-                                                <input type="text" class="inputboxpopover">
-                                            </div>
-                                </div>
-                            </div>
-
-                            <div class="flex mt-2">
-                                <div class="formGroupBaseLine ">
-                                    <label class="formLableSupplier invisible">.</label>
-                                            <div class="formInnerGroup ">
-                                                <p class="text-grey mb-3 ">
-                                                    Upload PAN Card Copy</p>
-                                             
-                                                 <label class="cursor-pointer">
-                                                    <div class="uploadbutton">Upload</div>
-                                                    <input type='file' class="hidden" />
-                                                </label>
-                                                
-                                            </div>
-                                </div>
-                            </div>
+                           
 
                             <div class="formElements mt-4">
-                              
+
+
+
+                              {#if online_sup || offline_sup}
 
                                 <div class="flex mb-3">
                                     <div class="formGroup ">
@@ -267,6 +251,36 @@
                                                 </div>
                                     </div>
                                 </div>
+                                {/if}
+                                {#if offline_sup}
+                                <div class="flex">
+                                    <div class="formGroup ">
+                                        <label class="formLableSupplier ">Enter PAN Card Number
+                                            <span
+                                                class="mandatoryIcon">*</span></label>
+                                                <div class="formInnerGroup ">
+                                                    <input type="text" class="inputboxpopover">
+                                                </div>
+                                    </div>
+                                </div>
+    
+                                <div class="flex mt-2">
+                                    <div class="formGroupBaseLine ">
+                                        <label class="formLableSupplier invisible">.</label>
+                                                <div class="formInnerGroup ">
+                                                    <p class="text-grey mb-3 ">
+                                                        Upload PAN Card Copy</p>
+                                                 
+                                                     <label class="cursor-pointer">
+                                                        <div class="uploadbutton">Upload</div>
+                                                        <input type='file' class="hidden" />
+                                                    </label>
+                                                    
+                                                </div>
+                                    </div>
+                                </div>
+                                {/if}
+                                {#if online_sup}
 
                                 <div class="flex">
                                     <div class="formGroup ">
@@ -316,6 +330,7 @@
                                                 </div>
                                     </div>
                                 </div>
+                                {/if}
 
                             </div>
                         </div>

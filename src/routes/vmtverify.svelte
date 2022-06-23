@@ -258,6 +258,20 @@
     //     }
     // }
 
+
+    function zoomin() {
+        console.log("zoom in")
+            var GFG = document.getElementById("geeks");
+            var currWidth = GFG.clientWidth;
+            GFG.style.width = (currWidth + 100) + "px";
+        }
+          
+    function zoomout() {
+        var GFG = document.getElementById("geeks");
+        var currWidth = GFG.clientWidth;
+        GFG.style.width = (currWidth - 100) + "px";
+    }
+
     onMount(async () => {
         console.log("$facility_id.facility_id_number",$facility_id.facility_id_number)
         if(!$facility_id.facility_id_number){
@@ -3487,16 +3501,17 @@
 
                          <div class="imageZoom border rounded mt-2">
                             <div id="hubble-container">
-                              <img src="{pan_url}">
-                              <!-- <p >{pan_attach}</p> -->
-                            </div>
-
-                            <div class="flex items-center justify-center gap-4 py-4">
-                                <!-- <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
-                            
-                            <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                            <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
-                           
+                                <img src="{pan_url}" id="geeks">
+                                <!-- <p >{pan_attach}</p> -->
+                              </div>
+  
+                              <div class="flex items-center justify-center gap-4 py-4">
+                                  <!-- <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
+                              
+                              <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
+                              <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
+                              <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomout}">
+                              <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomin}">
                         </div>
                          </div>
 
@@ -3528,15 +3543,16 @@
 
                          <div class="imageZoom border rounded mt-2">
                             <div id="hubble-container">
-                              <img src="{voter_url}"  id="hubblepic">
+                                <img src="{voter_url}"  id="geeks">
                             </div>
 
-                            <div class="flex items-center justify-center gap-4 py-4">
-                                <!-- <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
-                            
-                            <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                            <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
-                           
+                                <div class="flex items-center justify-center gap-4 py-4">
+                                    <!-- <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
+                                
+                                <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
+                                <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
+                                <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomout}">
+                                <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomin}">
                         </div>
                          </div>
                      </div>  
@@ -3630,7 +3646,7 @@
 
                              <div class="imageZoom border rounded mt-2">
                                 <div id="hubble-container">
-                                  <img src="{aadhar_url}" >
+                                    <img src="{aadhar_url}" id="geeks">
                                 </div>
 
                                 <div class="flex items-center justify-center gap-4 py-4">
@@ -3638,7 +3654,8 @@
                                 
                                 <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
                                 <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
-                               
+                                <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomout}">
+                                <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomin}">
                             </div>
                              </div>
                          </div>  
@@ -3668,7 +3685,7 @@
 
                          <div class="imageZoom border rounded mt-2">
                             <div id="hubble-container">
-                              <img src="{dl_url}" >
+                                <img src="{dl_url}" id="geeks">
                             </div>
 
                             <div class="flex items-center justify-center gap-4 py-4">
@@ -3676,7 +3693,8 @@
                             
                             <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
                             <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
-                           
+                            <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomout}">
+                            <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomin}">
                         </div>
                          </div>
                      </div>  
@@ -3708,7 +3726,7 @@
 
                          <div class="imageZoom border rounded mt-2">
                             <div id="hubble-container">
-                              <img src="{address_url}">
+                                <img src="{address_url}" id="geeks">
                             </div>
 
                             <div class="flex items-center justify-center gap-4 py-4">
@@ -3716,7 +3734,8 @@
                             
                             <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
                             <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
-                           
+                            <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomout}">
+                            <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomin}">
                         </div>
                          </div>
                      </div>  
@@ -3750,7 +3769,7 @@
 
                          <div class="imageZoom border rounded mt-2">
                             <div id="hubble-container">
-                              <img src="{offer_url}">
+                                <img src="{offer_url}" id="geeks">
                             </div>
 
                             <div class="flex items-center justify-center gap-4 py-4">
@@ -3758,7 +3777,8 @@
                             
                                 <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
                                 <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
-                           
+                                <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomout}">
+                                <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomin}">
                             </div>
                          </div>
                     </div>  
@@ -3869,57 +3889,69 @@
                      {#if show_blk_cheque == 1}
                      <div class="imageZoom border rounded mt-2">
                         <div id="hubble-container">
-                          <img src="{blk_cheque_url}"  id="hubblepic">
-                        </div>
+                          <!-- <img src="{blk_cheque_url}"  id="hubblepic"> -->
+                          <img src="{blk_cheque_url}"  id="geeks">
+                          <!-- id="hubblepic" -->
+                      </div>
 
-                        <div class="flex items-center justify-center gap-4 py-4">
-                            <!-- <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
-                        
-                        <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                        <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
-                       
+                      <div class="flex items-center justify-center gap-4 py-4">
+                          <!-- <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
+                      
+                          <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
+                          <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
+                          <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomout}">
+                          <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomin}">
                     </div>
                      </div>
                      {:else if show_can_cheuque == 1}
                      <div class="imageZoom border rounded mt-2">
                         <div id="hubble-container">
-                          <img src="{can_cheque_url}"  id="hubblepic">
-                        </div>
+                          <!-- <img src="{can_cheque_url}"  id="hubblepic"> -->
+                          <img src="{can_cheque_url}"  id="geeks">
+                          <!-- id="hubblepic" -->
+                      </div>
 
-                        <div class="flex items-center justify-center gap-4 py-4">
-                            <!-- <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
-                        
-                        <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                        <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
-                       
+                      <div class="flex items-center justify-center gap-4 py-4">
+                          <!-- <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
+                      
+                          <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
+                          <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
+                          <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomout}">
+                          <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomin}">
                     </div>
                      </div>
                      {:else if show_passbook == 1}
                      <div class="imageZoom border rounded mt-2">
                         <div id="hubble-container">
-                          <img src="{passbook_url}"  id="hubblepic">
-                        </div>
+                          <!-- <img src="{passbook_url}"  id="hubblepic"> -->
+                          <img src="{passbook_url}"  id="geeks">
+                          <!-- id="hubblepic" -->
+                      </div>
 
-                        <div class="flex items-center justify-center gap-4 py-4">
-                            <!-- <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
-                        
-                        <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                        <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
-                       
+                      <div class="flex items-center justify-center gap-4 py-4">
+                          <!-- <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
+                      
+                          <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
+                          <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
+                          <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomout}">
+                          <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomin}">
                     </div>
                      </div>
                      {:else if show_acnt_stmt == 1}
                      <div class="imageZoom border rounded mt-2">
                         <div id="hubble-container">
-                          <img src="{acc_stmt_url}"  id="hubblepic">
-                        </div>
+                          <!-- <img src="{acc_stmt_url}"  id="hubblepic"> -->
+                          <img src="{acc_stmt_url}"  id="geeks">
+                          <!-- id="hubblepic" -->
+                      </div>
 
-                        <div class="flex items-center justify-center gap-4 py-4">
-                            <!-- <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
-                        
-                        <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                        <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
-                       
+                      <div class="flex items-center justify-center gap-4 py-4">
+                          <!-- <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
+                      
+                          <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
+                          <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
+                          <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomout}">
+                          <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomin}">
                     </div>
                      </div>
                      {/if}
@@ -4193,21 +4225,18 @@
                     {#if show_aadhar == 1}
                     <div class="imageZoom border rounded mt-2">
                         <div id="hubble-container">
-                          <img src="{aadhar_url}"  id="hubblepic">
-                        </div>
+                            <img src="{aadhar_url}"  alt="AC" id="geeks" >
 
+                        </div>
                         <div class="flex items-center justify-center gap-4 py-4">
-                            <!-- <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomin}">
-                        
-                        <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
-                        <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
-                       
+                            <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomout}">
+                            <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomin}">
                     </div>
                      </div>
                      {:else if show_voter == 1}
                      <div class="imageZoom border rounded mt-2">
                         <div id="hubble-container">
-                          <img src="{voter_url}"  id="hubblepic">
+                            <img src="{voter_url}"  id="geeks">
                         </div>
 
                         <div class="flex items-center justify-center gap-4 py-4">
@@ -4215,13 +4244,16 @@
                         
                         <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
                         <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
+
+                        <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomout}">
+                        <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomin}">
                        
                     </div>
                      </div>
                      {:else if show_pass_photo ==1}
                      <div class="imageZoom border rounded mt-2">
                         <div id="hubble-container">
-                          <img src="{pass_photo_url}"  id="hubblepic">
+                            <img src="{pass_photo_url}"  id="geeks">
                         </div>
 
                         <div class="flex items-center justify-center gap-4 py-4">
@@ -4229,7 +4261,8 @@
                         
                         <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
                         <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
-                       
+                        <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomout}">
+                        <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomin}">
                     </div>
                      </div>
                      {/if}
@@ -4387,7 +4420,7 @@
                      {:else}
                      <div class="imageZoom border rounded mt-2">
                         <div id="hubble-container">
-                          <img src="{address_url}">
+                            <img src="{address_url}" id="geeks">
                         </div>
 
                         <div class="flex items-center justify-center gap-4 py-4">
@@ -4395,7 +4428,8 @@
                         
                         <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
                         <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
-                       
+                        <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomout}">
+                        <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomin}">
                     </div>
                      </div>
                      {/if}
@@ -4587,7 +4621,7 @@
                          {:else}
                          <div class="imageZoom border rounded mt-2">
                             <div id="hubble-container">
-                              <img src="{dl_url}" >
+                                <img src="{dl_url}" id="geeks">
                             </div>
 
                             <div class="flex items-center justify-center gap-4 py-4">
@@ -4595,7 +4629,8 @@
                             
                             <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
                             <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
-                           
+                            <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomout}">
+                            <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomin}">
                         </div>
                          </div>
                          {/if}
@@ -4704,7 +4739,7 @@
                          {:else}
                         <div class="imageZoom border rounded mt-2">
                             <div id="hubble-container">
-                                <img src="{police_url}"  id="hubblepic">
+                                <img src="{police_url}"  id="geeks">
                             </div>
 
                             <div class="flex items-center justify-center gap-4 py-4">
@@ -4712,7 +4747,8 @@
                             
                                 <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
                                 <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
-                            
+                                <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomout}">
+                                <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomin}">
                             </div>
                         </div>
                         {/if}
@@ -4811,7 +4847,8 @@
                             {:else}
                             <div class="imageZoom border rounded mt-2">
                                 <div id="hubble-container">
-                                    <img src="{pan_url}"  id="hubblepic">
+                                    <img src="{pan_url}"  id="geeks">
+                                    <!-- id="hubblepic" -->
                                 </div>
     
                                 <div class="flex items-center justify-center gap-4 py-4">
@@ -4819,7 +4856,8 @@
                                 
                                     <input type="range" min="1" max="4" value="1" step="0.1" id="zoomer" oninput="deepdive()">
                                     <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomout}"> -->
-                                
+                                    <img src="{$img_url_name.img_name}/puls.svg" on:click="{zoomout}">
+                                    <img src="{$img_url_name.img_name}/minus.svg" on:click="{zoomin}">
                                 </div>
                             </div>
                             {/if}
