@@ -76,6 +76,15 @@ import {
         tier: "3",
         state: "Maharashtra",
     };
+    let Permanent_address= {
+        address: null,
+address_type: "Permanent Address",
+location_id: null,
+parentfield: "address",
+parenttype: "Facility",
+postal: null,
+tier: null
+    }
     let present_address = {
         location_id: null,
         address: null,
@@ -278,6 +287,7 @@ import {
                     work_address.city = temp_address_array[i].city;
                     work_address.address = temp_address_array[i].address;
                     work_address.postal = temp_address_array[i].postal;
+
                 } else if (
                     temp_address_array[i].address_type == "Present Address"
                 ) {
@@ -1349,7 +1359,11 @@ import {
                                         rows="4"
                                         cols="50"
                                         class="inputbox"
+                                        on:blur={()=>{
+                                            work_address.address = (work_address.address).trim()
+                                        }}
                                         bind:value={work_address.address}
+                                        
                                     />
                                 </div>
                             </div>
@@ -1592,6 +1606,7 @@ import {
                                             rows="4"
                                             cols="50"
                                             class="inputbox"
+                                            on:blur={()=>{present_address.address = (present_address.address).trim()}}
                                             bind:value={present_address.address}
                                         />
                                     </div>
