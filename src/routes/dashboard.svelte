@@ -668,7 +668,7 @@
 <!-- FIND PARENT MODEL -->
 
     <div class="hidden"  id="find_parent_model">
-        <div class="modalMain" on:click ={close_find_parent}> 
+        <div class="modalMain"> 
             <div class="modalOverlay"></div>
             <div class="modalContainercopyvendor rounded-lg">
                 <div class="modalHeadConmb-0 sticky top-0 bg-white z-99">
@@ -739,7 +739,7 @@
 
  <!-- Copy vendor Modal-->
  <div class="hidden"  id="copy_from_vendor_model">
-    <div class="modalMain " on:click={copy_vendor_close}>
+    <div class="modalMain ">
         <div class="modalOverlay"></div>
         <div class="modalContainercopyvendor rounded-lg">
             <div class="modalHeadConmb-0 sticky top-0 bg-white z-99">

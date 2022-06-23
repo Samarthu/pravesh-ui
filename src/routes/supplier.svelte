@@ -248,7 +248,7 @@
     // let paramString	
     // if(paramString){
         let paramString = urlString.split('=')[1]
-        if(paramString.includes("#")){
+        if(paramString && paramString.includes("#")){
             paramString = paramString.replace("#"," ");
         }
         else{
@@ -1472,6 +1472,7 @@ else
                             type="checkbox"
                             placeholder="Your password"
                             class="inputChecked"
+                            autocomplete="off"
                             bind:checked = "{onboarded_by_me_checkbox}"
                             on:click="{onboarded_check_func}"
                         />
