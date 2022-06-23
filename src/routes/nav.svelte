@@ -2,6 +2,9 @@
     import { goto } from "$app/navigation";
     import {img_url_name} from '../stores/flags_store';
     import {reset_all_stores} from '../services/pravesh_config';
+    import {get_current_user_function} from "../services/dashboard_services";
+    import { onMount } from "svelte";
+    import { current_user } from "../stores/current_user_store";
 
     let routeProfile = "";
     let routeDashboard = "";
@@ -20,6 +23,11 @@
         }
        
     }
+    // onMount(async () => {
+    //    let  current_user_response = await get_current_user_function();
+    //     console.log("nav current_user_response",current_user_response);
+    // })
+   
 
     routeProfile = "profile";
     routeDashboard = "dashboard"; 
@@ -87,9 +95,16 @@
                     </div>
                 </div>
             </li> -->
-            <li on:click={routeToProfile} class="">
+            {#if $current_user.username}
+            <li class="text-bglightredcolor cursor-pointer" on:click={routeToProfile}>{($current_user.username).toUpperCase()}</li>
+            {:else}
+            <li class="text-bglightredcolor">User not logged-in</li>
+                
+            {/if}
+           
+            <!-- <li on:click={routeToProfile} class="">
                 <span href=""> <img src="{$img_url_name.img_name}/Userpic.png" alt="" /></span>
-            </li>
+            </li> -->
         </ul>
     </div>
 </nav>

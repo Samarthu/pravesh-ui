@@ -177,6 +177,10 @@
     };
     onMount(async () => {
         page_name = $page.url["pathname"].split("/").pop();
+        if(!$facility_data_store.org_id){
+            goto("facility_type_select",{replaceState:false})
+
+        }
         console.log("page name on identity", page_name);
         console.log("document store", $documents_store.documents);
 
