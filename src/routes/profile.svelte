@@ -15,6 +15,7 @@
             for(let i=0;i<scope_response.body.data.length;i++){
                 city_list.push( scope_response.body.data[i]['location_name']);
             }
+            city_list.sort();
             city_list = city_list;
             
 
@@ -118,7 +119,7 @@
                         
                     {/each} -->
                     {#each city_list as city }
-                    <div class="bglightgreycolor">{city}</div>
+                    <div class="location_windows">{city}</div>
                         
                     {/each}
                     <!-- <div class="bglightgreycolor">city</div>
