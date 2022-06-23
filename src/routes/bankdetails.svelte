@@ -1045,7 +1045,7 @@
                                         />
                                     </span>
                                     <input
-                                        type="text"
+                                        type="password"
                                         class="inputbox"
                                         autocomplete="off"
                                         bind:value={$bank_details.account_number}
@@ -1080,7 +1080,7 @@
                                         />
                                     </span>
                                     <input
-                                        type="password"
+                                        type="text"
                                         class="inputbox"
                                         autocomplete="off"
                                         bind:value={$bank_details.re_enter_account_number}
