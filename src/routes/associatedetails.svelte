@@ -1248,18 +1248,22 @@ import {
                                                     alt=""
                                                 />
                                             {/if}
-                                            <br />
                                             {#if $facility_id.facility_id_number}
-                                                {#if edit_profile_pic_data.file_name}
-                                                    <a
-                                                        href={$page.url.origin +
-                                                            edit_profile_pic_data.file_url}
-                                                            target="_blank"
-                                                        class="text-blue-600 text-decoration-line: underline"
-                                                        >{edit_profile_pic_data.file_name}</a
-                                                    >
-                                                {/if}
+                                            {#if edit_profile_pic_data.file_name}
+                                                <a
+                                                    href={$page.url.origin +
+                                                        edit_profile_pic_data.file_url}
+                                                        target="_blank"
+                                                    class="text-blue-600 text-decoration-line: underline"
+                                                    >{edit_profile_pic_data.file_name}</a
+                                                >
                                             {/if}
+                                        {/if}
+                                            
+                                           
+                                        </div>
+                                        <div class="flex">
+                                           
                                         </div>
                                     </span>
                                 </div>
