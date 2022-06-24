@@ -217,6 +217,13 @@
     async function find_parent_btn(){
         show_spinner=true
         console.log("child_id_value",child_id_value)
+
+        if(!child_id_value){
+            show_spinner=false;
+            toast_type = "error"
+            toast_text = "Please Enter Child Id"
+            return
+        }
         let find_parent_function_res = await find_parent_function(child_id_value);
         
         try{
@@ -228,7 +235,7 @@
                 parent_arr_for_child = [];
                 parent_arr_for_child = find_parent_function_res.body.data;
                 console.log("parent_arr_for_child",parent_arr_for_child)
-                child_id_value = "";
+                // child_id_value = "";
             }
             else{
                 console.log("inside else")
@@ -252,8 +259,8 @@
         try {
         if(loc_data_res.body.status == "green"){
             show_spinner = false;
-            toast_type="success";
-            toast_text=loc_data_res.body.message
+            // toast_type="success";
+            // toast_text=loc_data_res.body.message
              // city_data = loc_data_res.body.data;
              console.log("loc_data_res",loc_data_res)
              for(let i=0;i<loc_data_res.body.data.length;i++){
@@ -338,9 +345,12 @@
         try{
             if(copy_parent_func_res.body.status == "green"){
                 toast_type = "success";
-                toast_text = copy_parent_func_res.body.message;
+                toast_text = "Facility Copied Unique Facility ID : "+unique_fac_id+""
                 copy_from_vendor_model.style.display = "none";  
                 show_spinner = false;
+                unique_fac_id="";
+                city_selected= "-1";
+                station_selected= "-1";
             }
             else{
                 show_spinner = false;

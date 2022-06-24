@@ -2291,7 +2291,8 @@ import { current_user } from "../stores/current_user_store";
         facility_password={facility_password}
         facility_address = {facility_address}
         pancard_obj={pancard_obj} admin = {admin}
-        is_adhoc_facility = {is_adhoc_facility}/>
+        is_adhoc_facility = {is_adhoc_facility}
+        tags_for_ass_arr = {tags_for_ass_arr}/>
         
         {:else if change_to == "Work_details"}
         <WorkDetails new_off_file_obj={new_off_file_obj} facility_modified_date={facility_modified_date} city={city}

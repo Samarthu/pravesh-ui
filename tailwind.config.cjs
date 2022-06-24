@@ -173,6 +173,7 @@ module.exports = {
         'left651': '-651px',
         'top183': '-183px' ,
         'top121': '-121px',
+        'left71': '71px',
 
       },
 
@@ -253,6 +254,7 @@ module.exports = {
     extend: {
       // ...
      stroke: ['hover', 'focus'],
+     display: ["group-hover"],
     }
 
   },
