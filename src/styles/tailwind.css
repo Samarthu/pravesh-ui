@@ -110,8 +110,12 @@
     @apply grid lg:grid-cols-3 2xl:grid-cols-4 xl:grid-cols-3 md:grid-cols-2 gap-9  xs:gap-4 sm:gap-4 pt-5
 }
 
-.cardItems{
+/* .cardItems{
     @apply rounded-br5  transition duration-500 ease-in-out  transform hover:-translate-y-1 hover:scale-105
+} */
+
+.cardItems{
+    @apply rounded-br5
 }
 
 .cardContainer{
@@ -2574,3 +2578,11 @@ p.tempText {
 .location_windows{
     @apply border rounded p-2 px-4 hover:bg-bglightgreycolor transition duration-500 ease-in-out  transform hover:-translate-y-1 hover:scale-100
 }
+
+
+/* Side nav */
+.associateDropdown li{
+    @apply mb-2 text-white cursor-pointer
+}
+
+/* Side nav */

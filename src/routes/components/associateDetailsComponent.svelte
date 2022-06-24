@@ -36,9 +36,9 @@
             let all_tags_obj= {};
             let gst_doc_type=[];
             let temp6 = "add_tag";
-            export let facility_document_data = [];
+            // export let facility_document_data = [];
         let query;
-            let tags_for_ass_arr=[];
+            export let tags_for_ass_arr=[];
             let check_selected = false;
             let id_new_date='';
             let all_tags_res;
@@ -830,19 +830,64 @@
     }
             
     async function linkChild() {
-        let no_com = document.getElementById("comma");
+        // let temp_res = await show_fac_tags($facility_data_store.facility_type);
+        // try {
+        //         show_fac_array = temp_res.body.data;
+        //         for(let i=0;i < show_fac_array.length;i++){
+        //             if( i == show_fac_array.length-1){
+                        
+        //                 tags_for_ass_arr.push(show_fac_array[i].tag_name)
+        //             }
+        //             else{
+        //                 tags_for_ass_arr.push(show_fac_array[i].tag_name+",")
+        //             }
+        //         }
+        //         tags_for_ass_arr=tags_for_ass_arr
+                
+                
+
+        //     }
+        // catch(err){
+        //     console.log("Error in mount show_fac_array")
+        // }
+
+        // let no_com = document.getElementById("comma");
         linkChildModel.style.display = "block";
 
         let list_child_data_res = await list_child_data();
-        // console.log("list_child_data_res",list_child_data_res)
         try {
             if (list_child_data_res.body.status == "green") {
                 childlink = "childlink2";
                 for (let i = 0; i < list_child_data_res.body.data[0].parent_child.length; i++) {
-                    // console.log("list_child_data_temp", list_child_data_res.body.data[0].parent_child)
-                    console.log("list_child_data_res", list_child_data_res.body.data[0])
+                    
                     child_selected_arr.push(list_child_data_res.body.data[0].parent_child[i]);
                 }
+
+                console.log("child_selected_arr outside", child_selected_arr)
+                for (let i = 0; i < list_child_data_res.body.data[0].addresess.length; i++) {
+                    console.log("Inside for")
+                    // console.log("list_child_data_temp", list_child_data_res.body.data[0].parent_child)
+                    console.log(" list_child_data_res.body.data[0].addresess[i]", list_child_data_res.body.data[0].addresess[i])
+                    if(list_child_data_res.body.data[0].addresess[i].address_type == "Work Address"){
+                        console.log("Inside if")
+                        for (let j = 0; j < child_selected_arr.length; j++) {
+                            child_selected_arr[j].address = list_child_data_res.body.data[0].addresess[i].city
+                        }
+                    }
+                    else if(list_child_data_res.body.data[0].addresess[i].address_type == "Present Address"){
+                        for (let j = 0; j < child_selected_arr.length; j++) {
+                            child_selected_arr[j].address = list_child_data_res.body.data[0].addresess[i].city
+                        }
+                    }
+                    else{
+                        console.log("Inside else")
+                        for (let j = 0; j < child_selected_arr.length; j++) {
+                            child_selected_arr[j].address = list_child_data_res.body.data[0].addresess[0].city
+                        }  
+                    }
+                    // child_selected_arr.push(list_child_data_res.body.data[0].parent_child[i]);
+                }
+
                 console.log("child_selected_arr in link child", child_selected_arr)
             }
         } catch (err) {
@@ -979,7 +1024,7 @@
         try{
            
             if(client_det_res.body.status == "green"){
-                
+                console.log("client_det_res",client_det_res)
                 show_spinner = false;
                 
                 for(let i=0;i<client_det_res.body.data.length;i++){
@@ -2182,21 +2227,12 @@
 <!--Full screen Link Child Associates modal -->
 
 
-
 <div class="hidden" id="linkChildModel">
-
     <div class="modalMain">
-
         <div class="modalOverlay"></div>
-
-
-
         <div class="modalContainer">
-
             <div class="modalHeadCon sticky top-0 bg-white z-zindex99">
-
                 <div class="leftmodalInfo">
-
                     <p class="modalTitleText"> Link Child Associates </p>
 
                     <p class="text-sm ">
@@ -2224,13 +2260,8 @@
                 </div>
 
             </div>
-
             <div class="modalContent">
-
                 <div class="GstModalContent">
-
-                  
-
                     <div class=" ">
 
                         <div class=" ">
@@ -2512,6 +2543,7 @@
 
                     <div class="scrollbar ">
 
+
                         <div class=" ">
 
                             <div class=" ">
@@ -2523,6 +2555,28 @@
                                         <p class="text-lg font-medium">Linked Child Associates</p>
 
                                     </div>
+
+
+                        <div class="OtherAppliedTagsTable ">
+                            <table class="table  w-full text-center mt-2 ">
+                                <thead class="theadpopover">
+                                    <tr>
+                                        <th>Location</th>
+                                        <th>Facility Name </th>
+                                        <th>Unique ID</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="tbodypopover">
+                                    <tr class="border-b">
+                                        <td>abc</td>
+                                        <td>adbc</td>
+                                        <td>adbc</td>
+                                        <td>delete</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
 
                                     {#each child_selected_arr as new_child}
                                     {#if !child_selected_arr}
@@ -2580,7 +2634,7 @@
 
                                             <div class="w-2/3 ">
 
-                                                <div class="detailData"> {city_select}</div>
+                                                <div class="detailData"> {new_child.address}</div>
 
                                             </div>
 
@@ -2595,10 +2649,10 @@
                                             </div>
 
                                             <div class="w-2/3 ">
-                                                {#if !new_child.child_facility_id}
+                                                {#if !new_child.child_id}
                                                 <p>-</p>
                                                 {:else}
-                                                <div class="detailData"> {new_child.child_facility_id}</div>
+                                                <div class="detailData"> {new_child.child_id}</div>
                                                 {/if}
                                             </div>
 
@@ -2614,7 +2668,11 @@
 
                                             <div class="w-2/3 ">
 
-                                                <div class="detailData"> {new_child.name}</div>
+                                                {#if !new_child.child_facility_id}
+                                                <p>-</p>
+                                                {:else}
+                                                <div class="detailData"> {new_child.child_facility_id}</div>
+                                                {/if}
 
                                             </div>
 
@@ -2651,15 +2709,9 @@
 
 
                 </div>
-
-
-
             </div>
-
         </div>
-
     </div>
-
 </div>
 
 

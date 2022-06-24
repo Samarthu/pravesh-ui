@@ -141,6 +141,7 @@
                     </button>
                 <!-- </a> -->
             </li>
+            
             <li on:click={routeToPageSupplier} class="listItem">
                 <a  href="javascript:void(0)"
                 class="{current === 'routeToPageSupplier' ? 'active' : ''}"
@@ -185,6 +186,37 @@
                     <span class="menuname">Associates</span>
                 </a>
             </li>
+
+            <li class="listItem relative group">
+                <a  href="javascript:void(0)">
+                    <svg class="svgIcon" width="22" height="22" viewBox="0 0 22 22" fill="none">
+                        <path
+                            d="M14.9286 18.0714V16.5C14.9286 15.6664 14.5975 14.867 14.0081 14.2776C13.4187 13.6882 12.6193 13.3571 11.7857 13.3571H5.5C4.66647 13.3571 3.86707 13.6882 3.27767 14.2776C2.68827 14.867 2.35715 15.6664 2.35715 16.5V18.0714"
+                            stroke="#F2F2F2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <path
+                            d="M8.64286 10.2143C10.3786 10.2143 11.7857 8.8072 11.7857 7.07145C11.7857 5.33569 10.3786 3.92859 8.64286 3.92859C6.9071 3.92859 5.5 5.33569 5.5 7.07145C5.5 8.8072 6.9071 10.2143 8.64286 10.2143Z"
+                            stroke="#F2F2F2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <path
+                            d="M19.6428 18.0714V16.5C19.6423 15.8036 19.4106 15.1272 18.9839 14.5768C18.5573 14.0265 17.96 13.6334 17.2857 13.4593"
+                            stroke="#F2F2F2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        <path
+                            d="M14.1429 4.0307C14.8189 4.20379 15.4181 4.59697 15.846 5.14823C16.2739 5.69949 16.5062 6.3775 16.5062 7.07534C16.5062 7.77319 16.2739 8.45119 15.846 9.00246C15.4181 9.55372 14.8189 9.94689 14.1429 10.12"
+                            stroke="#F2F2F2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span class="menuname">Other options</span>
+                </a>
+                <div class="absolute w-40 bg-bgSideNav shadow-lg rounded-lg left-left71  top-0 py-3 hidden group-hover:block ">
+                    <ul class="associateDropdown text-left pl-3 text-sm ">
+                        <li>All Associate</li>
+                        <li>Find Parent</li>
+                        <li>Copy Vendor</li>
+                    </ul>
+                </div>
+            </li>
+
+
+
+
             <li class="listItem">
                 <a class="" href="javascript:void(0)">
                     <svg
