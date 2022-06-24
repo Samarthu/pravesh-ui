@@ -215,6 +215,7 @@
     }
 
     async function find_parent_btn(){
+        parent_arr_for_child = [];
         show_spinner=true
         console.log("child_id_value",child_id_value)
 
@@ -232,7 +233,7 @@
                 toast_type = "success";
                 toast_text = find_parent_function_res.body.message;
                 console.log("find_parent_function_res",find_parent_function_res)
-                parent_arr_for_child = [];
+               
                 parent_arr_for_child = find_parent_function_res.body.data;
                 console.log("parent_arr_for_child",parent_arr_for_child)
                 // child_id_value = "";
@@ -310,13 +311,13 @@
             toast_text="Please Enter Unique Vendor ID"
             return;
         }
-        else if(!city_selected){
+        else if(!city_selected || city_selected =="-1"){
             show_spinner = false;
             toast_type="error";
-            toast_text="Please select a city"
+            toast_text="Please Select a Location"
             return;
         }
-        else if(!station_selected){
+        else if(!station_selected || station_selected == "-1"){
             show_spinner = false;
             toast_type="error";
             toast_text="Please select a station"
@@ -779,7 +780,7 @@
                                     <tr class="">
                                         <td>
                                             <div class="formInnerGroupNote  mx-4">
-                                                <input type="input" class="inputboxpopover " placeholder="Enter Unique faculty ID" bind:value={unique_fac_id}>
+                                                <input type="input" class="inputboxpopover " placeholder="Enter Unique Facility ID" bind:value={unique_fac_id}>
                                              </div>
                                         </td>
                                         <td> 
@@ -820,7 +821,7 @@
                             </table>
                         </div>
                         <div class="flex mt-3 justify-center">
-                            <button class="ErBlueButton" on:click={copy_parent_data}>Copy Faculty </button>
+                            <button class="ErBlueButton" on:click={copy_parent_data}>Copy Facility </button>
                           </div> 
                     </div>
                 </div>
