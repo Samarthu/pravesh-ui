@@ -2055,7 +2055,7 @@
                                         <div class="light14grey mb-1">Remarks</div>
                                         <div class="formInnerwidthfull ">
                                             <input
-                                                   class="inputboxpopover"
+                                                   class="inputboxcursortext"
                                                    type="text"
                                                    bind:value="{tag_remark}"
                                                />
@@ -3143,7 +3143,7 @@
                                                 <div class="light14greylong mb-1">Client Empployee ID ( If available)
                                                 </div>
                                                 <div class="formInnerwidthfull ">
-                                                    <input type="text" class="inputboxpopover" bind:value="{emp_number}">
+                                                    <input type="text" class="inputboxcursortext" bind:value="{emp_number}">
                                                 </div>
                                             </div>
                                         </div>

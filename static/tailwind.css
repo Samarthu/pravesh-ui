@@ -38,6 +38,11 @@
 .inputboxpopover{
     @apply  text-greycolor bg-white  appearance-none border inline-block pt-3.5 pb-3.5 pl-pr14px  rounded leading-tight w-full   outline-none cursor-pointer
 }
+
+.inputboxcursortext{
+    @apply  text-greycolor bg-white  appearance-none border inline-block pt-3.5 pb-3.5 pl-pr14px  rounded leading-tight w-full   outline-none cursor-text
+}
+
 .inputboxpopoverdate{
     @apply  text-greycolor bg-white  appearance-none border inline-block pt-3.5 pb-3.5 pl-pr14px  rounded leading-tight  w-full  outline-none pr-p11px 
 }

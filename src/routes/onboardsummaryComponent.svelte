@@ -2432,10 +2432,20 @@ import { current_user } from "../stores/current_user_store";
                                             >{new_audit_data.creation}</span
                                         >
                                     </h3>
-                                    <div class="timeStatus  timeStatusbglightPink">
+                                    <!-- <div class="timeStatus  timeStatusbglightPink">
                                         <p class="timeCircle" />
                                         {new_audit_data.remarks}
+                                       
+                                        <p>({new_audit_data.status})</p>
+                                    </div> -->
+                                    <div class="timeStatusbglightPink">
+                                        <div class="flex items-center text-font13px font-normal  p-2 pb-0">
+                                        <p class="timeCircle"></p>  {new_audit_data.remarks}
+                                        </div>
+                                        <p class="text-font13px text-textdarkgrey font-normal p-2 pl-4">({new_audit_data.status})</p>
                                     </div>
+    
+    
                                     <br>
                                 {/each}
                             </div>
@@ -2526,7 +2536,7 @@ import { current_user } from "../stores/current_user_store";
                                                     </div>
                                                     <div class="formInnerGroup">
                                                         <input
-                                                            class="inputboxpopover"
+                                                            class="inputboxcursortext"
                                                             type="text"
                                                             bind:value="{document_desc}"
                                                         />

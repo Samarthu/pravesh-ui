@@ -1927,7 +1927,7 @@
 
                                                 <div class="w-full">
 
-                                                    <input class="inputboxpopover" type="text" bind:value="{gst_address}">
+                                                    <input class="inputboxcursortext" type="text" bind:value="{gst_address}">
 
                                                     <div class="text-red-500">{gst_add_message}</div>
 
@@ -2005,7 +2005,7 @@
 
                                                 <div class="w-full">
 
-                                                    <input class="inputboxpopover" type="text" bind:value="{gst_city_link_state}">
+                                                    <input class="inputboxcursortext" type="text" bind:value="{gst_city_link_state}">
 
                                                 </div>
 
