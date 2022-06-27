@@ -340,9 +340,38 @@
             return;
         }
         var download_beejak_docs_res = await  download_beejak_docs(invArr)
-        console.log("download_beejak_docs_res",download_beejak_docs_res)
-        window.URL.createObjectURL(download_beejak_docs_res.body);
+        // console.log("download_beejak_docs_res",download_beejak_docs_res)
+        // window.URL.createObjectURL(download_beejak_docs_res.body);
         // window.open(download_beejak_docs_res.body);
+        try{
+            if(download_beejak_docs_res){
+            var a = document.createElement('a');
+			var url = window.URL.createObjectURL(download_beejak_docs_res.body);
+			a.href = url;
+			var filename = "BeejakInvoices";
+			var disposition = download_beejak_docs_res.xhr.getResponseHeader('Content-Disposition');
+			disposition = disposition.replace("filename=\"", "", 1)
+			disposition = disposition.slice(0, -1)
+
+			if (disposition && disposition.indexOf('attachment') !== -1) {
+				var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+				var matches = filenameRegex.exec(disposition);
+				if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
+			}
+
+			a.download = filename;
+			a.target = "_blank";
+			document.body.append(a);
+			a.click();
+			a.remove();
+			window.URL.revokeObjectURL(url);
+        }
+    }
+    catch(err){
+        toast_text=err
+        toast_type = "error"
+    }
+
     }
 
     function find_by_client_id(){
