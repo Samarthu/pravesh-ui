@@ -131,6 +131,7 @@
             let cas_flag = 0;
             let active_flag = 0;
             let create_cas_flag = 0;
+            let delete_child_id
         // /////////Document view Model//////
             $:{
                 for(let key in all_tags_obj){
@@ -1014,6 +1015,8 @@
     }
 
     async function link_child(data){
+        items = [];
+        paginatedItems = [];
         client_det_arr = [];
         if (!check_facility_status("Add Child Facilities not allowed for Deactive/Blacklisted Facility")) {
         return;
@@ -1114,6 +1117,14 @@
         console.log("child_selected_arr neww",child_selected_arr,new_child_selected_arr)
 
     }
+    function open_view_child(){
+        if(open_child_view.style.display == "block"){
+            open_child_view.style.display = "none"
+        }
+        else{
+        open_child_view.style.display = "block"
+    }
+    }
 
     async function child_submit_fun(){
         show_spinner = true;
@@ -1145,23 +1156,62 @@
             toast_text = child_submit_res.body.message;
             toast_type = "success";
             let list_child_data_res = await list_child_data();
-                try {
-                    if (list_child_data_res.body.status == "green") {
+                // try {
+                //     if (list_child_data_res.body.status == "green") {
                        
-                        child_selected_arr = [];
-                        new_child_selected_arr = [];
+                //         child_selected_arr = [];
+                //         new_child_selected_arr = [];
                         
-                        for (let i = 0; i < list_child_data_res.body.data[0].parent_child.length; i++) {
-                            // console.log("list_child_data_temp", list_child_data_res.body.data[0].parent_child)
-                            child_selected_arr.push(list_child_data_res.body.data[0].parent_child[i]);
+                //         for (let i = 0; i < list_child_data_res.body.data[0].parent_child.length; i++) {
+                //             // console.log("list_child_data_temp", list_child_data_res.body.data[0].parent_child)
+                //             child_selected_arr.push(list_child_data_res.body.data[0].parent_child[i]);
+                //         }
+                //         child_selected_arr=child_selected_arr
+                //         city = city;
+                //         console.log("child_selected_arr in link child", child_selected_arr)
+                //     }
+                // } catch (err) {
+                //     toast_type = "error";
+                //     toast_text = err;
+                // }
+                try {
+            if (list_child_data_res.body.status == "green") {
+                childlink = "childlink2";
+                for (let i = 0; i < list_child_data_res.body.data[0].parent_child.length; i++) {
+                    
+                    child_selected_arr.push(list_child_data_res.body.data[0].parent_child[i]);
+                }
+
+                console.log("child_selected_arr outside", child_selected_arr)
+                for (let i = 0; i < list_child_data_res.body.data[0].addresess.length; i++) {
+                    console.log("Inside for")
+                    // console.log("list_child_data_temp", list_child_data_res.body.data[0].parent_child)
+                    console.log(" list_child_data_res.body.data[0].addresess[i]", list_child_data_res.body.data[0].addresess[i])
+                    if(list_child_data_res.body.data[0].addresess[i].address_type == "Work Address"){
+                        console.log("Inside if")
+                        for (let j = 0; j < child_selected_arr.length; j++) {
+                            child_selected_arr[j].address = list_child_data_res.body.data[0].addresess[i].city
                         }
-                        child_selected_arr=child_selected_arr
-                        city = city;
-                        console.log("child_selected_arr in link child", child_selected_arr)
                     }
+                    else if(list_child_data_res.body.data[0].addresess[i].address_type == "Present Address"){
+                        for (let j = 0; j < child_selected_arr.length; j++) {
+                            child_selected_arr[j].address = list_child_data_res.body.data[0].addresess[i].city
+                        }
+                    }
+                    else{
+                        console.log("Inside else")
+                        for (let j = 0; j < child_selected_arr.length; j++) {
+                            child_selected_arr[j].address = list_child_data_res.body.data[0].addresess[0].city
+                        }  
+                    }
+                    // child_selected_arr.push(list_child_data_res.body.data[0].parent_child[i]);
+                }
+
+                console.log("child_selected_arr in link child", child_selected_arr)
+            }
                 } catch (err) {
                     toast_type = "error";
-                    toast_text = err;
+                    toast_text = list_child_data_res.body.message;
                 }
                 // document.getElementById("child_checkbox"+unique_id).checked = false;
                 link_child(city_select);
@@ -1182,33 +1232,81 @@
     }
         
     }
+    function confirm_delete(child_id){
+        confirm_delete_child_model.style.display = "block";
+        delete_child_id  = child_id
+    }
+    function confirm_delete_child_model_close(){
+        confirm_delete_child_model.style.display = "none";
+    }
 
     
-    async function delete_child(child_id){
+    async function delete_child(){
         show_spinner = true;
-        console.log("child_id",child_id)
-        let delete_child_res =await remove_child(child_id);
+        console.log("child_id",delete_child_id)
+        let delete_child_res =await remove_child(delete_child_id);
         console.log("delete_child_res",delete_child_res)
         try {
             if(delete_child_res.body.status == "green"){
+                confirm_delete_child_model.style.display = "none";
                 toast_type = "success";
                 toast_text = delete_child_res.body.message;
                 let list_child_data_res = await list_child_data();
+                // try {
+                //     if (list_child_data_res.body.status == "green") {
+                //         child_selected_arr = [];
+                //         for (let i = 0; i < list_child_data_res.body.data[0].parent_child.length; i++) {
+                //             // console.log("list_child_data_temp", list_child_data_res.body.data[0].parent_child)
+                //             child_selected_arr.push(list_child_data_res.body.data[0].parent_child[i]);
+                //         }
+                //         city = city;
+                //         console.log("child_selected_arr in link child", child_selected_arr)
+                //     }
+                // } catch (err) {
+                //     show_spinner = false;
+                //     toast_type = "error";
+                //     toast_text = err;
+                // }
                 try {
-                    if (list_child_data_res.body.status == "green") {
-                        child_selected_arr = [];
-                        for (let i = 0; i < list_child_data_res.body.data[0].parent_child.length; i++) {
-                            // console.log("list_child_data_temp", list_child_data_res.body.data[0].parent_child)
-                            child_selected_arr.push(list_child_data_res.body.data[0].parent_child[i]);
-                        }
-                        city = city;
-                        console.log("child_selected_arr in link child", child_selected_arr)
-                    }
-                } catch (err) {
-                    show_spinner = false;
-                    toast_type = "error";
-                    toast_text = err;
+            if (list_child_data_res.body.status == "green") {
+                child_selected_arr=[]
+                childlink = "childlink2";
+                for (let i = 0; i < list_child_data_res.body.data[0].parent_child.length; i++) {
+                    
+                    child_selected_arr.push(list_child_data_res.body.data[0].parent_child[i]);
                 }
+
+                console.log("child_selected_arr outside", child_selected_arr)
+                for (let i = 0; i < list_child_data_res.body.data[0].addresess.length; i++) {
+                    console.log("Inside for")
+                    // console.log("list_child_data_temp", list_child_data_res.body.data[0].parent_child)
+                    console.log(" list_child_data_res.body.data[0].addresess[i]", list_child_data_res.body.data[0].addresess[i])
+                    if(list_child_data_res.body.data[0].addresess[i].address_type == "Work Address"){
+                        console.log("Inside if")
+                        for (let j = 0; j < child_selected_arr.length; j++) {
+                            child_selected_arr[j].address = list_child_data_res.body.data[0].addresess[i].city
+                        }
+                    }
+                    else if(list_child_data_res.body.data[0].addresess[i].address_type == "Present Address"){
+                        for (let j = 0; j < child_selected_arr.length; j++) {
+                            child_selected_arr[j].address = list_child_data_res.body.data[0].addresess[i].city
+                        }
+                    }
+                    else{
+                        console.log("Inside else")
+                        for (let j = 0; j < child_selected_arr.length; j++) {
+                            child_selected_arr[j].address = list_child_data_res.body.data[0].addresess[0].city
+                        }  
+                    }
+                    // child_selected_arr.push(list_child_data_res.body.data[0].parent_child[i]);
+                }
+
+                console.log("child_selected_arr in link child", child_selected_arr)
+            }
+        } catch (err) {
+            toast_type = "error";
+            toast_text = list_child_data_res.body.message;
+        }
                 link_child(city_select);
                 console.log("child_check",child_check)
                 show_spinner = false;
@@ -1225,6 +1323,7 @@
     function linkChildModelclose() {
         city_select = "-1";
         linkChildModel.style.display = "none";
+        open_child_view.style.display = "none"
     }
     
 
@@ -2528,7 +2627,6 @@
                         </div>
 
 
-
                         <div class="LinkchildAssociate">
 
                             <div class="text-right mt-3" on:click={() => {child_submit_fun()}}>
@@ -2537,11 +2635,22 @@
 
                             </div>
 
+                            <div class="text-right mt-3" on:click={() => {open_view_child()}}>
+
+                                <button class="ErBlueButton">View Linked Child Associate</button>
+                             </div>
+                             
                         </div>
 
-                    </div>
+                        <!-- <div class="LinkchildAssociate">
 
-                    <div class="scrollbar ">
+                            
+
+                        </div> -->
+
+                    </div>
+                    <div id ="open_child_view" hidden>
+                    <div class="scrollbar pb-7">
 
 
                         <div class=" ">
@@ -2567,134 +2676,63 @@
                                         <th>Action</th>
                                     </tr>
                                 </thead>
+                                {#each child_selected_arr as new_child}
+                                {#if !child_selected_arr}
+                                <div
+
+                                class="light14greylong w-full mb-1 text-center"
+
+                            >
+
+                                No child assosiates are linked
+
+                            </div>
+
+                        {:else}
+                        {#if childlink == "childlink2"}
                                 <tbody class="tbodypopover">
                                     <tr class="border-b">
-                                        <td>abc</td>
-                                        <td>adbc</td>
-                                        <td>adbc</td>
-                                        <td>delete</td>
+                                        <td>{new_child.address}</td>
+                                        <td>
+                                        {#if !new_child.child_id}
+                                            <p>-</p>
+                                        {:else}
+                                            <div> {new_child.child_id}</div>
+                                        {/if}
+                                    </td> 
+                                    <td>
+                                        {#if !new_child.child_facility_id}
+                                            <p>-</p>
+                                        {:else}
+                                        <div> {new_child.child_facility_id}</div>
+                                        {/if}
+                                    </td>
+                                    <td>
+                                        <button on:click={() => {confirm_delete(new_child.name)}}
+
+                                    >
+                                
+                                        <img
+
+                                            src="{$img_url_name.img_name}/reject.png"
+
+                                            width="25px"
+
+                                            alt=""
+
+                                        />
+
+                                    </button>
+                                </td>
                                     </tr>
                                 </tbody>
+                                {/if}
+                                {/if}
+                                {/each}
                             </table>
                         </div>
 
-                                    {#each child_selected_arr as new_child}
-                                    {#if !child_selected_arr}
-                                    <div
-
-                                        class="light14greylong w-full mb-1 text-center"
-
-                                    >
-
-                                        No child assosiates are linked
-
-                                    </div>
-
-                                {:else}
-
-                                    <div class="light14greylong w-full mb-1 text-center"> No child assosiates are linked</div> -->
-
-                                    
-
-                                    {#if childlink == "childlink2"}
-
-                                    <div class="cardforlinkedChild px-5 border-b pb-3">
-
-                                        <div class="flex justify-end">
-
-                                            <button
-
-                                            class="detailData"
-
-                                            on:click={() => {delete_child(new_child.name)}}
-
-                                        >
-
-                                            <img
-
-                                                src="{$img_url_name.img_name}/reject.png"
-
-                                                width="25px"
-
-                                                alt=""
-
-                                            />
-
-                                        </button>
-
-                                        </div>
-
-                                        <div class="flex ">
-
-                                            <div class="w-1/3 ">
-
-                                                <div class="detailLbale"> Location</div>
-
-                                            </div>
-
-                                            <div class="w-2/3 ">
-
-                                                <div class="detailData"> {new_child.address}</div>
-
-                                            </div>
-
-                                        </div>
-
-                                        <div class="flex ">
-
-                                            <div class="w-1/3 ">
-
-                                                <div class="detailLbale"> Facility Name</div>
-
-                                            </div>
-
-                                            <div class="w-2/3 ">
-                                                {#if !new_child.child_id}
-                                                <p>-</p>
-                                                {:else}
-                                                <div class="detailData"> {new_child.child_id}</div>
-                                                {/if}
-                                            </div>
-
-                                        </div>
-
-                                        <div class="flex ">
-
-                                            <div class="w-1/3 ">
-
-                                                <div class="detailLbale"> Unique ID</div>
-
-                                            </div>
-
-                                            <div class="w-2/3 ">
-
-                                                {#if !new_child.child_facility_id}
-                                                <p>-</p>
-                                                {:else}
-                                                <div class="detailData"> {new_child.child_facility_id}</div>
-                                                {/if}
-
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-
-                                    {/if}
-                                    {/if}
-                                    {/each}
-
-
-
-
-
-
-
-
-
-
-
-                                </div>
+                            </div>
 
 
 
@@ -2703,6 +2741,7 @@
                             </div>
 
                         </div>
+                    </div>
 
                     </div>
 
@@ -2853,4 +2892,50 @@
         </div>
     </div>
 </div>
+
+<!--Remove Tag Confirmation modal -->
+    
+<div id="confirm_delete_child_model" class="hidden">
+    <div  class="actionDialogueOnboard ">
+        <div class="pancardDialogueOnboardWrapper ">
+            <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+                <div class="modalHeadConmb-0">
+                    <div class="leftmodalInfo">
+                        <!-- <p class=""> Reject Reason</p> -->
+                    </div>
+                    <div class="rightmodalclose">
+                        <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" on:click="{confirm_delete_child_model_close}">
+                    </div>
+                </div>
+                <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+    
+                    <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0 mt-4">
+                        <label class="block  tracking-wide text-gray-700 font-bold mb-2" for="grid-state">
+                            Confirm Delete Child ?
+                        </label>
+                        <div class="relative">
+                         
+                          <br>
+                          
+                          <div
+                                class="flex  py-1 items-center flex-wrap"
+                            >
+                                <div class="formInnerGroup">
+                                   
+                                    <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium mr-2" on:click="{confirm_delete_child_model_close}">Cancel</button>
+                                    <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium mr-2" on:click="{delete_child}">Ok</button>
+                                </div>
+                            </div>
+                          
+                        </div>
+                      </div>
+                </form>
+            </div>
+        </div>
+    </div> 
+</div>
+
+<!--Remove Tag Confirmation modal -->
+
+
 <Toast type={toast_type}  text={toast_text}/>
