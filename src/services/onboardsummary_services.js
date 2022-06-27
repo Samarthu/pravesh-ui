@@ -302,6 +302,23 @@ const initiateBGV = () => {
 
 }
 
+const get_libera_login = () => {
+    let get_libera_login_url = "/api/method/pravesh.facility.routes.facility.get_libera_user?facility_id="+new_facility_id;
+    return request(
+        get_libera_login_url,{
+    method: "GET"
+    },true)
+
+}
+const check_if_already_child = ()=>{
+    let check_if_already_child_url = "/api/method/pravesh.facility.routes.super_store.check_having_parent?facility_id="+new_facility_id;
+    return request(
+        check_if_already_child_url,{
+        method: "GET"
+        },true)  
+}
+
+
 
 
 
@@ -338,5 +355,7 @@ export {
     get_all_accepted_contracts,
     blacklist_vendor,
     reset_deact_status,
-    initiateBGV
+    initiateBGV,
+    get_libera_login,
+    check_if_already_child
 }

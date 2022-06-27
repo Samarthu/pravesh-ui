@@ -143,7 +143,7 @@ import { current_user } from "../stores/current_user_store";
         let voter_id_object = {
             voter_id_number:null
         }
-    
+        let fac_tag_pay_to_ass = false;
         let text_pattern = /^[a-zA-Z_ ]+$/;
         let recrun_pattern =  /^[^-\s](?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9 _-]+)$/;
         let city_select;
@@ -539,7 +539,7 @@ import { current_user } from "../stores/current_user_store";
                     if(fac_tag_res.body.data.length != 0){
                         show_fac_array = fac_tag_res.body.data;
                         for(let i=0;i < show_fac_array.length;i++){
-                            if( i == show_fac_array.length-1){
+                            if(i == show_fac_array.length-1){
                                 
                                 tags_for_ass_arr.push(show_fac_array[i].tag_name)
                             }
@@ -548,6 +548,14 @@ import { current_user } from "../stores/current_user_store";
                             }
                         }
                         tags_for_ass_arr=tags_for_ass_arr
+                        console.log("tags_for_ass_arr",tags_for_ass_arr)
+                        for(let i=0;i<tags_for_ass_arr.length;i++){
+                            if(tags_for_ass_arr[i] == "Payment to Associate" || tags_for_ass_arr[i] == "Payment to Associate,"){
+                                fac_tag_pay_to_ass = true;
+                            }
+                        }
+                        console.log("fac_tag_pay_to_ass",fac_tag_pay_to_ass)
+
                     }
                 }
             catch(err){
@@ -2277,7 +2285,7 @@ import { current_user } from "../stores/current_user_store";
                 <div class="{work_active}" on:click={() => {change_to = "Work_details",work_active="active",asso_active="",id_active="",bank_active=""}}>Work Details</div>
                 <div class="{id_active}" on:click={() => {change_to = "Identity_details",work_active="",asso_active="",id_active="active",bank_active=""}}>Identity Proof</div>
                 {#each new_arr as req_fac}
-                {#if req_fac == $facility_data_store.facility_type}
+                {#if req_fac == $facility_data_store.facility_type && fac_tag_pay_to_ass == true}
                 <div class="{bank_active}" on:click={() => {change_to = "Bank_details",work_active="",asso_active="",id_active="",bank_active="active"}}>Bank Details</div>
                 {/if}
                 {/each}
