@@ -1123,10 +1123,14 @@
         }
         else{
         open_child_view.style.display = "block"
-    }
+        }
     }
 
     async function child_submit_fun(){
+        if(open_child_view.style.display == "none"){
+            open_child_view.style.display = "block"
+        }
+        // child_selected_arr=[]
         show_spinner = true;
         console.log("Spinner")
         if(new_child_selected_arr.length == 0){
@@ -1153,6 +1157,7 @@
 
        try{
            if(child_submit_res.body.status == "green"){
+            
             toast_text = child_submit_res.body.message;
             toast_type = "success";
             let list_child_data_res = await list_child_data();
@@ -1176,6 +1181,7 @@
                 // }
                 try {
             if (list_child_data_res.body.status == "green") {
+                child_selected_arr = [];
                 childlink = "childlink2";
                 for (let i = 0; i < list_child_data_res.body.data[0].parent_child.length; i++) {
                     
@@ -2369,7 +2375,7 @@
 
                                 <div class="flex items-center">
 
-                                    <div class="detailLbale"> Tags added for this Associate
+                                    <div class="detailLbale"> Tags added for this Associate :
 
                                         <span class="detailData " id="rem_comma">
 
