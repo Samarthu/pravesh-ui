@@ -2639,7 +2639,7 @@
                                                     <div class="flex px-2 py-0 items-center xs:flex-wrap">
                                                         <div class="light14grey w-36">Remarks</div>
                                                         <div class="formInnerGroup">
-                                                            <input class="inputboxpopover" type="text">
+                                                            <input class="inputboxcursortext" type="text">
                                                         </div>
                                                     </div>
 
@@ -4145,7 +4145,7 @@
                                                 </div>
                                                 <div class="formInnerGroup">
                                                     <input
-                                                        class="inputboxpopover"
+                                                        class="inputboxcursortext"
                                                         type="text"
                                                     />
                                                 </div>
@@ -4410,7 +4410,7 @@
                                                 </div>
                                                 <div class="formInnerGroup">
                                                     <input
-                                                        class="inputboxpopover"
+                                                        class="inputboxcursortext"
                                                         type="text"
                                                         bind:value="{gst_city_link_state}"
                                                     />
@@ -4564,7 +4564,7 @@
                                                             class="formInnerGroup"
                                                         >
                                                             <input
-                                                                class="inputboxpopover"
+                                                                class="inputboxcursortext"
                                                                 type="text"
                                                                 bind:value="{gst_city_link_state}"
                                                             />
@@ -5667,7 +5667,7 @@
                                                     </div>
                                                     <div class="formInnerGroup">
                                                         <input
-                                                            class="inputboxpopover"
+                                                            class="inputboxcursortext"
                                                             type="text"
                                                         />
                                                     </div>
@@ -5717,7 +5717,7 @@
                                                     </div>
                                                     <div class="formInnerGroup">
                                                         <input
-                                                            class="inputboxpopover"
+                                                            class="inputboxcursortext"
                                                             type="text"
                                                         />
                                                     </div>
@@ -5904,7 +5904,7 @@
                                                             class="formInnerGroup"
                                                         >
                                                             <input
-                                                                class="inputboxpopover"
+                                                                class="inputboxcursortext"
                                                                 type="text"
                                                             />
                                                         </div>
@@ -6225,7 +6225,7 @@
                                                 </div>
                                                 <div class="formInnerGroup">
                                                     <input
-                                                        class="inputboxpopover"
+                                                        class="inputboxcursortext"
                                                         type="text"
                                                     />
                                                 </div>
@@ -6318,7 +6318,7 @@
                                                         </select> -->
                                                             <input
                                                                 type="text"
-                                                                class="inputboxpopover"
+                                                                class="inputboxcursortext"
                                                                 bind:value={bank_name}
                                                             />
                                                             <div class="text-red-500">{bank_name_message}</div>
@@ -6451,7 +6451,7 @@
                                                             class="formInnerGroup"
                                                         >
                                                             <input
-                                                                class="inputboxpopover"
+                                                                class="inputboxcursortext"
                                                                 type="text"
                                                                 bind:value={cheque_number}
                                                             />
@@ -6489,7 +6489,7 @@
                                                             class="formInnerGroup"
                                                         >
                                                             <input
-                                                                class="inputboxpopover"
+                                                                class="inputboxcursortext"
                                                                 type="text"
                                                                 bind:value={recrun_number}
                                                             />

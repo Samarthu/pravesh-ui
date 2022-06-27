@@ -839,7 +839,7 @@
                                                 </div>
                                                 <div class="formInnerGroup">
                                                     <input
-                                                        class="inputboxpopover"
+                                                        class="inputboxcursortext"
                                                         type="text"
                                                     />
                                                 </div>
@@ -883,7 +883,7 @@
                                                 </div>
                                                 <div class="formInnerGroup">
                                                     <input
-                                                        class="inputboxpopover"
+                                                        class="inputboxcursortext"
                                                         type="text"
                                                     />
                                                 </div>
@@ -976,7 +976,7 @@
                                                         </select> -->
                                                             <input
                                                                 type="text"
-                                                                class="inputboxpopover"
+                                                                class="inputboxcursortext"
                                                                 bind:value={bank_name}
                                                             />
                                                             <div class="text-red-500">{bank_name_message}</div>
@@ -1109,7 +1109,7 @@
                                                             class="formInnerGroup"
                                                         >
                                                             <input
-                                                                class="inputboxpopover"
+                                                                class="inputboxcursortext"
                                                                 type="text"
                                                                 bind:value={cheque_number}
                                                             />
@@ -1147,7 +1147,7 @@
                                                             class="formInnerGroup"
                                                         >
                                                             <input
-                                                                class="inputboxpopover"
+                                                                class="inputboxcursortext"
                                                                 type="text"
                                                                 bind:value={recrun_number}
                                                             />

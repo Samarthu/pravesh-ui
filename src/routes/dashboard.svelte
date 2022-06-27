@@ -4,10 +4,11 @@
 
 <script>
     import { goto } from "$app/navigation";
-    import { get_current_user_function } from "../services/dashboard_services";
+    import { get_current_user_function,download_beejak_docs} from "../services/dashboard_services";
     import {
         dashboard_data,
-        get_fac_count,find_parent_function,copy_parent_func
+        get_fac_count,find_parent_function,copy_parent_func,
+        get_ass_by_client_name
     } from "../services/dashboard_services";
     import { current_user } from "../stores/current_user_store";
     import { img_url_name } from "../stores/flags_store";
@@ -252,6 +253,110 @@
             toast_text = find_parent_function_res.body.message
         }
     }
+
+    function download_bulk_docs(){
+        download_bulk_doc_model.style.display = "block"
+    }
+    function close_download_bulk_docs(){
+        download_bulk_doc_model.style.display = "none"
+    }
+    
+    var bulkDocType = { "beejakinv": "beejakinv", "dl": "dl-photo,dl_info_supp_file", "aadhar": "basic_info_supp_file,aadhar-id-proof", "voter": "voter-id-proof", "pancard": "pan-photo,pan_info_supp_file" }
+    var docType,facIds;
+   
+    async function download_docs_func(){
+        show_spinner = true;
+    var format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
+	
+
+	if (docType == "beejakinv") {
+		downloadBeejakInvoices();
+        show_spinner = false;
+		return;
+	}
+	
+	if (facIds == undefined || facIds.trim().length == 0) {
+        toast_type = "error"
+        toast_text = "Enter some facility IDs separated by new line"
+        show_spinner = false;
+		return;
+	}
+	if (format.test(facIds)) {
+        toast_type = "error"
+        toast_text = "Enter Valid Facility ID"
+        show_spinner = false;
+		return;
+	}
+	var downDoctype = bulkDocType[docType];
+	if (downDoctype == undefined) {
+        toast_type = "error"
+        toast_text = "Invalid Doc Type Selected"
+        show_spinner = false;
+		return;
+	}
+	var facArr = facIds.split("\n");
+
+	if (facArr.length == 0) {
+        toast_type = "error"
+        toast_text = "Invalid Facility Ids !!"
+        show_spinner = false;
+		return;
+	}
+
+	if (facArr.length > 100) {
+        toast_type = "error"
+        toast_text = "Maximum 100 Ids allowed at one time !!"
+        show_spinner = false;
+		return;
+	}
+    var downUrl = "/api/method/pravesh.facility.routes.document.get_documents?facility_ids=" + facArr.join(",") + "&doc_type=" + downDoctype;
+        window.open(downUrl);
+        show_spinner = false;
+
+    }
+
+    async function downloadBeejakInvoices(){
+        show_spinner = true;
+
+        if (facIds == undefined || facIds.trim().length == 0) {
+            toast_type = "error"
+            toast_text = "Enter some facility IDs separated by new line"
+            show_spinner = false;
+            return;
+        }
+
+        var invArr = facIds.split("\n");
+
+        if (invArr.length == 0) {
+            toast_type = "error"
+            toast_text = "Invalid Invoice Numbers !!"
+            show_spinner = false;
+            return;
+        }
+        if (invArr.length > 500) {
+            toast_type = "error"
+            toast_text = "Maximum 500 Invoice numbers <br> allowed at one time !!"
+            show_spinner = false;
+            return;
+        }
+        var download_beejak_docs_res = await  download_beejak_docs(invArr)
+        console.log("download_beejak_docs_res",download_beejak_docs_res)
+        window.open(download_beejak_docs_res.body);
+    }
+
+    function find_by_client_id(){
+        find_by_client_id_model.style.display = "block";
+
+    }
+    function close_find_by_client_id(){
+        find_by_client_id_model.style.display = "none";
+        
+    }
+    var pan_emp_id_name = ""
+    async function find_one_by_client_name(){
+        let get_ass_by_client_name_res = get_ass_by_client_name();
+        console.log
+    }
     
     async function copy_model_vendor(){
         show_spinner = true;
@@ -386,6 +491,8 @@
                 >
                 <button class ="ErBlueButton" on:click={find_parent}>Find Parent</button>
                 <button class ="ErBlueButton" on:click={copy_model_vendor}>Copy Vendor</button>
+                <button class ="ErBlueButton" on:click={download_bulk_docs}>Download Bulk Docs</button>
+                <button class ="ErBlueButton" on:click={find_by_client_id}>Find By Client Name / Employee Id</button>
             </p>
 
             <p >
@@ -697,7 +804,7 @@
                         <div class="innermodal">
 
                             <div class="formInnerGroup mb-4">
-                                <input type="input" class="inputboxpopover " placeholder="Enter Child ID" bind:value={child_id_value}>
+                                <input type="input" class="inputboxcursortext " placeholder="Enter Child ID" bind:value={child_id_value}>
                              </div>
                              <div class="flex mb-3">
                                 <button class="ErBlueButton" on:click={find_parent_btn}>Find Parent </button>
@@ -891,4 +998,64 @@
     <h1>this is for testing</h1>
     <button on:click={() =>demo_clickhandle()}>click me bbbbbbbbbbbbbbbbbbbbbbbbb</button>
 </div> -->
+
+<!--  Download Bulk Docs -->
+
+<div class="hidden" id="download_bulk_doc_model">
+    <div class=" modalMain  ">
+        <div class="modalOverlay"></div>
+        <div class="modalContainercopyvendor rounded-lg">
+            <div class="modalHeadConmb-0 sticky top-0 bg-white z-99">
+                <div class="leftmodalInfo">
+                    <p class="text-lg text-erBlue font-medium  ">
+                        <span class="">  Download Bulk Docs </span>
+                    </p>
+                </div>
+                <button class="rightmodalclose">
+                    <img src="{$img_url_name.img_name}/blackclose.svg" alt="" on:click = {close_download_bulk_docs}>
+                </button>
+            </div>
+            <div class="modaldata">
+                <div class="viewDocPanmainbodyModal">
+                    <div class="innermodal">
+                        <div class="form-lable">
+                            <p class="namelable">Select Document Type </p>
+                            <div class="formInnerGroup">
+                                <select class="inputboxpopover" bind:value = {docType}>
+                                    <option value="dl" class="pt-6">Driving License</option>
+                                    <option value="aadhar" class="pt-6">Aadhaar</option>
+                                    <option value="voter" class="pt-6">Voter ID</option>
+                                    <option value="pancard" class="pt-6">Pancard</option>
+                                    <option value="beejakinv" class="pt-6">Beejak Invoices</option>
+                                    
+                                </select>
+                                <div class="formSelectArrow ">
+                                    <img src="{$img_url_name.img_name}/selectarrow.png"
+                                        class="w-5 h-auto" alt="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-lable mt-5">
+                            <div class="formInnerGroup">
+                                <textarea class="inputboxcursortext" placeholder="Enter Unique Facility IDs here separated by new line" bind:value={facIds}></textarea>
+                            </div>
+                        </div>
+
+                      
+                         <div class="flex mb-3 mt-4">
+                            <button class="ErBlueButton" on:click={download_docs_func}>Download Docs </button>
+                          </div> 
+                    
+
+                        <div class="pt-8 flex justify-center">
+                            <button type="button" class="dialogueSingleButton" on:click = {close_download_bulk_docs}>Close</button>
+                        </div>
+                       
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--  Download Bulk Docs -->
 <Toast type={toast_type}  text={toast_text}/>
