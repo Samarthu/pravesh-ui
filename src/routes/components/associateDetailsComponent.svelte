@@ -7,7 +7,7 @@
             import {get_date_format} from "../../services/date_format_servives";
             import {bank_details_info,cheque_details,facility_document,show_fac_tags,get_loc_scope,
                 facility_data,facility_bgv_init,all_facility_tags,gst_details,client_details,add_gst_dets,
-                list_child_data,remove_child,reset_deact_status,child_data} from "../../services/onboardsummary_services";
+                list_child_data,remove_child,reset_deact_status,child_data,get_libera_login,check_if_already_child} from "../../services/onboardsummary_services";
             import {img_url_name} from '../../stores/flags_store';
             import {facility_id} from "../../stores/facility_id_store"
             import {facility_data_store} from "../../stores/facility_store";
@@ -36,6 +36,7 @@
             let all_tags_obj= {};
             let gst_doc_type=[];
             let temp6 = "add_tag";
+            let libera_username = "";
             // export let facility_document_data = [];
         let query;
             export let tags_for_ass_arr=[];
@@ -283,6 +284,17 @@
     //     toast_text = facility_data_res.body.message;
         
     //     }
+    let get_libera_login_res = await get_libera_login();
+    try {
+        if(get_libera_login_res.body.status == "green"){
+            libera_username = get_libera_login_res.body.data.username;
+        }
+       
+    } catch(err) {
+        toast_type = "error";
+        toast_text = err
+       
+    }
         let loc_data_res =  await get_loc_scope();
         try {
         if(loc_data_res.body.status == "green"){
@@ -1139,104 +1151,120 @@
             toast_text = "Please select atleast one child";
         }
         else{
-        console.log("new_child_selected_arrnew_child_selected_arr",new_child_selected_arr)
-        let new_child_obj = [];
-        childlink = "childlink2";
-        for(let i = 0;i<new_child_selected_arr.length;i++){
-            new_child_obj.push(
-            {"parent_facility_id":$facility_id.facility_id_number,
-            "status":"active",
-            "child_facility_id":new_child_selected_arr[i].name,
-            "child_id":new_child_selected_arr[i].facility_name,
-            "parent_name":$facility_data_store.facility_name,
-            "parent_id":$facility_data_store.facility_id})
-        }
-       
-        // console.log("new_child_obj",new_child_obj)
-       let child_submit_res = await child_data(new_child_obj);
-
-       try{
-           if(child_submit_res.body.status == "green"){
-            
-            toast_text = child_submit_res.body.message;
-            toast_type = "success";
-            let list_child_data_res = await list_child_data();
-                // try {
-                //     if (list_child_data_res.body.status == "green") {
-                       
-                //         child_selected_arr = [];
-                //         new_child_selected_arr = [];
-                        
-                //         for (let i = 0; i < list_child_data_res.body.data[0].parent_child.length; i++) {
-                //             // console.log("list_child_data_temp", list_child_data_res.body.data[0].parent_child)
-                //             child_selected_arr.push(list_child_data_res.body.data[0].parent_child[i]);
-                //         }
-                //         child_selected_arr=child_selected_arr
-                //         city = city;
-                //         console.log("child_selected_arr in link child", child_selected_arr)
-                //     }
-                // } catch (err) {
-                //     toast_type = "error";
-                //     toast_text = err;
-                // }
-                try {
-            if (list_child_data_res.body.status == "green") {
-                child_selected_arr = [];
-                childlink = "childlink2";
-                for (let i = 0; i < list_child_data_res.body.data[0].parent_child.length; i++) {
-                    
-                    child_selected_arr.push(list_child_data_res.body.data[0].parent_child[i]);
-                }
-
-                console.log("child_selected_arr outside", child_selected_arr)
-                for (let i = 0; i < list_child_data_res.body.data[0].addresess.length; i++) {
-                    console.log("Inside for")
-                    // console.log("list_child_data_temp", list_child_data_res.body.data[0].parent_child)
-                    console.log(" list_child_data_res.body.data[0].addresess[i]", list_child_data_res.body.data[0].addresess[i])
-                    if(list_child_data_res.body.data[0].addresess[i].address_type == "Work Address"){
-                        console.log("Inside if")
-                        for (let j = 0; j < child_selected_arr.length; j++) {
-                            child_selected_arr[j].address = list_child_data_res.body.data[0].addresess[i].city
-                        }
+            let check_if_already_child_res = await check_if_already_child()
+            try {
+                if(check_if_already_child_res.body.status == "green"){
+                    show_spinner = false;
+                    console.log("new_child_selected_arrnew_child_selected_arr",new_child_selected_arr)
+                    let new_child_obj = [];
+                    childlink = "childlink2";
+                    for(let i = 0;i<new_child_selected_arr.length;i++){
+                        new_child_obj.push(
+                        {"parent_facility_id":$facility_id.facility_id_number,
+                        "status":"active",
+                        "child_facility_id":new_child_selected_arr[i].name,
+                        "child_id":new_child_selected_arr[i].facility_name,
+                        "parent_name":$facility_data_store.facility_name,
+                        "parent_id":$facility_data_store.facility_id})
                     }
-                    else if(list_child_data_res.body.data[0].addresess[i].address_type == "Present Address"){
-                        for (let j = 0; j < child_selected_arr.length; j++) {
-                            child_selected_arr[j].address = list_child_data_res.body.data[0].addresess[i].city
-                        }
-                    }
-                    else{
-                        console.log("Inside else")
-                        for (let j = 0; j < child_selected_arr.length; j++) {
-                            child_selected_arr[j].address = list_child_data_res.body.data[0].addresess[0].city
-                        }  
-                    }
-                    // child_selected_arr.push(list_child_data_res.body.data[0].parent_child[i]);
-                }
-
-                console.log("child_selected_arr in link child", child_selected_arr)
-            }
-                } catch (err) {
-                    toast_type = "error";
-                    toast_text = list_child_data_res.body.message;
-                }
-                // document.getElementById("child_checkbox"+unique_id).checked = false;
-                link_child(city_select);
-                show_spinner = false;
                 
+                    // console.log("new_child_obj",new_child_obj)
+                let child_submit_res = await child_data(new_child_obj);
+
+                try{
+                    if(child_submit_res.body.status == "green"){
+                        
+                        toast_text = child_submit_res.body.message;
+                        toast_type = "success";
+                        let list_child_data_res = await list_child_data();
+                            // try {
+                            //     if (list_child_data_res.body.status == "green") {
+                                
+                            //         child_selected_arr = [];
+                            //         new_child_selected_arr = [];
+                                    
+                            //         for (let i = 0; i < list_child_data_res.body.data[0].parent_child.length; i++) {
+                            //             // console.log("list_child_data_temp", list_child_data_res.body.data[0].parent_child)
+                            //             child_selected_arr.push(list_child_data_res.body.data[0].parent_child[i]);
+                            //         }
+                            //         child_selected_arr=child_selected_arr
+                            //         city = city;
+                            //         console.log("child_selected_arr in link child", child_selected_arr)
+                            //     }
+                            // } catch (err) {
+                            //     toast_type = "error";
+                            //     toast_text = err;
+                            // }
+                            try {
+                            if (list_child_data_res.body.status == "green") {
+                            child_selected_arr = [];
+                            childlink = "childlink2";
+                            for (let i = 0; i < list_child_data_res.body.data[0].parent_child.length; i++) {
+                                
+                                child_selected_arr.push(list_child_data_res.body.data[0].parent_child[i]);
+                            }
+
+                            console.log("child_selected_arr outside", child_selected_arr)
+                            for (let i = 0; i < list_child_data_res.body.data[0].addresess.length; i++) {
+                                console.log("Inside for")
+                                // console.log("list_child_data_temp", list_child_data_res.body.data[0].parent_child)
+                                console.log(" list_child_data_res.body.data[0].addresess[i]", list_child_data_res.body.data[0].addresess[i])
+                                if(list_child_data_res.body.data[0].addresess[i].address_type == "Work Address"){
+                                    console.log("Inside if")
+                                    for (let j = 0; j < child_selected_arr.length; j++) {
+                                        child_selected_arr[j].address = list_child_data_res.body.data[0].addresess[i].city
+                                    }
+                                }
+                                else if(list_child_data_res.body.data[0].addresess[i].address_type == "Present Address"){
+                                    for (let j = 0; j < child_selected_arr.length; j++) {
+                                        child_selected_arr[j].address = list_child_data_res.body.data[0].addresess[i].city
+                                    }
+                                }
+                                else{
+                                    console.log("Inside else")
+                                    for (let j = 0; j < child_selected_arr.length; j++) {
+                                        child_selected_arr[j].address = list_child_data_res.body.data[0].addresess[0].city
+                                    }  
+                                }
+                                // child_selected_arr.push(list_child_data_res.body.data[0].parent_child[i]);
+                            }
+
+                            console.log("child_selected_arr in link child", child_selected_arr)
+                        }
+                            } catch (err) {
+                                toast_type = "error";
+                                toast_text = list_child_data_res.body.message;
+                            }
+                            // document.getElementById("child_checkbox"+unique_id).checked = false;
+                            link_child(city_select);
+                            show_spinner = false;
+                            
+                        }
+                    else{
+                        show_spinner = false;
+                        toast_text = "Child Adding Failed";
+                        toast_type = "error";
+                    }
+                }
+                catch(err){
+                    show_spinner = false;
+                    toast_text = err;
+                    toast_type = "error";
+                }
             }
-           else{
-            show_spinner = false;
-            toast_text = "Child Adding Failed";
-            toast_type = "error";
-           }
-       }
-       catch(err){
-        show_spinner = false;
-        toast_text = err;
-        toast_type = "error";
-       }
-    }
+            else{
+                toast_text = check_if_already_child_res.body.message 
+                toast_type = "error";
+                show_spinner = false;
+            }
+        }
+            catch(err){
+                    show_spinner = false;
+                    toast_text = err;
+                    toast_type = "error";
+            }
         
+        }
     }
     function confirm_delete(child_id){
         confirm_delete_child_model.style.display = "block";
@@ -1785,10 +1813,10 @@
                              <!-- <p class="detailLbale">User ID</p>
                              <p class="detailData">dhiraj.shah@elastic.run</p> -->
                              <p class="detailLbale">User ID</p>
-                            {#if !$facility_data_store.facility_id}
+                            {#if !libera_username}
                             <p>-</p>
                             {:else}
-                            <p class="detailData">{$facility_data_store.facility_id}</p>
+                            <p class="detailData">{libera_username}</p>
                             {/if}
                          </div>
                      </div>

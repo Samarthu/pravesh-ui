@@ -340,11 +340,12 @@
             return;
         }
         var download_beejak_docs_res = await  download_beejak_docs(invArr)
-        // console.log("download_beejak_docs_res",download_beejak_docs_res)
+        console.log("download_beejak_docs_res",download_beejak_docs_res)
         // window.URL.createObjectURL(download_beejak_docs_res.body);
         // window.open(download_beejak_docs_res.body);
         try{
             if(download_beejak_docs_res){
+                show_spinner =false;
             var a = document.createElement('a');
 			var url = window.URL.createObjectURL(download_beejak_docs_res.body);
 			a.href = url;
@@ -368,6 +369,7 @@
         }
     }
     catch(err){
+        show_spinner =false;
         toast_text=err
         toast_type = "error"
     }
@@ -383,7 +385,7 @@
         
     }
     var pan_emp_id_name = ""
-    async function find_one_by_client_name(){
+    async function find_ass_by_client_name(){
         let get_ass_by_client_name_res = get_ass_by_client_name();
         console.log
     }
@@ -1088,4 +1090,162 @@
     </div>
 </div>
 <!--  Download Bulk Docs -->
+
+<!-- Find Associate By Client Name Modal-->
+
+<div class="hidden">
+    <div class=" modalMain  " id="modal-id">
+        <div class="modalOverlay"></div>
+        <div class="modalContainerFindAssociate rounded-lg     ">
+            <div class="modalHeadConmb-0 sticky top-0 bg-white z-zindex99">
+                <div class="leftmodalInfo">
+                    <p class="text-lg text-erBlue font-medium  ">
+                        <span class=""> Find Associate By Client Name</span>
+                    </p>
+                </div>
+                <button class="rightmodalclose">
+                    <img
+                    src="{$img_url_name.img_name}/idproofRejected.png"
+                    alt="closebtn"
+                />
+                </button>
+            </div>
+            <div class="modaldata">
+                <div class="viewDocPanmainbodyModal">
+                    <div class="innermodal">
+                        <div class="flex gap-4 items-center xsl:flex-wrap xsl:gap-3" >
+                   
+                            <div class="formInnerGroup ">
+                              <input type="input" class="inputboxcursortext " placeholder="Enter Client ID">
+                           </div>
+                           <div class="flex">
+                              <button class="ErBlueButton">Find One </button>
+                            </div> 
+                        </div>
+                        <div class="w-full py-3">
+                            <div class="text-center  flex gap-5 mb-2 xsl:flex-wrap xsl:gap-3">
+                                <div class="flex items-center mt-3">
+                                    <input id="radio11" type="radio" name="radio" class="hidden" checked />
+                                    <label for="radio11" class="radioLable"> <span class="radioCirle"></span> By Client Name 
+                                    </label>
+                                </div>
+                            
+                                <div class="flex items-center  mt-2">
+                                    <input id="radio22" type="radio" name="radio" class="hidden" />
+                                    <label for="radio22" class="radioLable"> <span class="radioCirle"></span> By Employee ID
+                                    </label>
+                                </div>
+                                <div class="flex items-center  mt-2">
+                                    <input id="radio33" type="radio" name="radio" class="hidden" />
+                                    <label for="radio33" class="radioLable"> <span class="radioCirle"></span> By PAN Number
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 items-center " >
+                            <button class="ErBlueButton">Bulk Search </button>
+
+                        </div>
+
+                        <div class="text-sm mb-4 mt-4">
+                            <p> Bulk Search By Client Name  </p>
+                            <p>Sheet Name should be "client_name_search"</p>
+                            <p> Column Names should be as below ( check sample data as well) </p>
+                        </div>
+
+                        <div class="pb-4 xsl:overflow-scroll">
+                            <table class="table  w-full text-center mt-2 ">
+                                <thead class="theadpopover h-10">
+                                    <tr>
+                                        <th width="50%">Station Code        </th>
+                                        <th width="50%">Client Name</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="tbodycopyvendor outline">
+                                    <tr class="border-b">
+                                        <td>AXHN00112</td>
+                                        <td>Eknath Shinde</td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td>AXHN00113</td>
+                                        <td>Bacchu kadu</td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="flex mt-4">
+                            <button class="ErBlueButton">Download Bulk Search Template </button>
+                         </div> 
+                         <div class="flex mt-4">
+                            <div class="formInnerGroup flex items-center ">
+                                
+                                 <label class="cursor-pointer">
+                                    <div class="uploadbutton">Upload</div>
+                                    <input type="file" class="hidden">
+                                </label>
+                                <p class="text-grey ml-4">
+                                    Choose file</p>
+                                
+                            </div>
+                         </div> 
+                         <div class="flex mt-4">
+                            <button class="ErBlueButton">Search</button>
+                         </div> 
+
+                         <div class="xsl:overflow-scroll mt-5 ">
+                            <table class="table  w-full text-center mt-2 ">
+                                <thead class="theadpopover h-10">
+                                    <tr>
+                                        <th width="25%">Client Name         </th>
+                                        <th width="25%">Station Code    </th>
+                                        <th width="25%">Associate Name      </th>
+                                        <th width="25%">Associate ID</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="tbodycopyvendor outline">
+                                    <tr class="border-b">
+                                        <td>SURAJ_KHARATE_NTEX_107117481    </td>
+                                        <td>IXUD</td>
+                                        <td>SURAJ PRAKASH KHARATE   </td>
+                                        <td>IXUD00886   </td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td>SURAJ_KHARATE_NTEX_107117481    </td>
+                                        <td>IXUD</td>
+                                        <td>SURAJ PRAKASH KHARATE   </td>
+                                        <td>IXUD00886   </td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td>SURAJ_KHARATE_NTEX_107117481    </td>
+                                        <td>IXUD</td>
+                                        <td>SURAJ PRAKASH KHARATE   </td>
+                                        <td>IXUD00886   </td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td>SURAJ_KHARATE_NTEX_107117481    </td>
+                                        <td>IXUD</td>
+                                        <td>SURAJ PRAKASH KHARATE   </td>
+                                        <td>IXUD00886   </td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td>SURAJ_KHARATE_NTEX_107117481    </td>
+                                        <td>IXUD</td>
+                                        <td>SURAJ PRAKASH KHARATE   </td>
+                                        <td>IXUD00886   </td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+   </div>
+   <!-- Find Associate By Client Name Modal-->
+
 <Toast type={toast_type}  text={toast_text}/>
