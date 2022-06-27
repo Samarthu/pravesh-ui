@@ -341,7 +341,8 @@
         }
         var download_beejak_docs_res = await  download_beejak_docs(invArr)
         console.log("download_beejak_docs_res",download_beejak_docs_res)
-        window.open(download_beejak_docs_res.body);
+        window.URL.createObjectURL(download_beejak_docs_res.body);
+        // window.open(download_beejak_docs_res.body);
     }
 
     function find_by_client_id(){
