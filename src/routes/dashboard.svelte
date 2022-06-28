@@ -1093,8 +1093,8 @@
 
 <!-- Find Associate By Client Name Modal-->
 
-<div class="hidden">
-    <div class=" modalMain  " id="modal-id">
+<div id="find_by_client_id_model" hidden>
+    <div class="modalMain">
         <div class="modalOverlay"></div>
         <div class="modalContainerFindAssociate rounded-lg     ">
             <div class="modalHeadConmb-0 sticky top-0 bg-white z-zindex99">
@@ -1105,8 +1105,9 @@
                 </div>
                 <button class="rightmodalclose">
                     <img
-                    src="{$img_url_name.img_name}/idproofRejected.png"
+                    src="{$img_url_name.img_name}/blackclose.svg"
                     alt="closebtn"
+                    on:click = {close_find_by_client_id}
                 />
                 </button>
             </div>

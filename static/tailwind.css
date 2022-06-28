@@ -2466,3 +2466,7 @@ ul.menuList li a.active span{
 }
 
 /* Side nav */
+
+.modalContainerFindAssociate{
+    @apply fixed w-11/12  h-max-h-95vh z-50 overflow-y-auto bg-white rounded-br8 mt-5 mb-4 top-0 
+}
