@@ -75,7 +75,10 @@ const get_ass_by_client_name = (key,type) =>{
     let get_ass_by_client_name_url = "/api/method/pravesh.facility.routes.facility.get_facility_by_client_or_emp_id?key="+key+"&key_type="+type+"";
     return request(
         get_ass_by_client_name_url, {
-        method: "GET"
+        method: "GET",
+        xhrFields: {
+			responseType: 'blob'
+		}
     }, true
     )
 }
