@@ -81,7 +81,9 @@ const get_ass_by_client_name = (key,type) =>{
 			responseType: 'blob'
 		}
     }, true
-    )
+    ).then((value)=>{
+        console.log("value",value)
+    })
 }
 // const dashboard_data = () =>{
 //     return request(
