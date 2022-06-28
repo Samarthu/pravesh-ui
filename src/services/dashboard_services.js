@@ -76,6 +76,7 @@ const get_ass_by_client_name = (key,type) =>{
     return request(
         get_ass_by_client_name_url, {
         method: "GET",
+        contentType: 'application/json',
         xhrFields: {
 			responseType: 'blob'
 		}
