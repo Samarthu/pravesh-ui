@@ -62,17 +62,18 @@ const copy_parent_func = (parent_obj) => {
 //     )
 // }
 
-const download_beejak_docs = (beejak_id) =>{
+const download_beejak_docs = async (beejak_id) =>{
     let download_beejak_docs_url = "/api/method/pravesh.facility.routes.document.get_beejak_invoices?invoice_ids="+beejak_id;
-    return request(
+    const value = await request(
         download_beejak_docs_url, {
         method: "POST",
         contentType: 'application/json',
         xhrFields: {
-			responseType: 'blob'
-		}
+            responseType: 'blob'
+        }
     }, true
-    )
+    );
+    console.log("value", value);
 }
 
 const get_ass_by_client_name = (key,type) =>{
