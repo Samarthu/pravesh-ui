@@ -62,14 +62,17 @@ const copy_parent_func = (parent_obj) => {
 //     )
 // }
 
-const download_beejak_docs = async (beejak_id) =>{
+const download_beejak_docs = (beejak_id) =>{
     let download_beejak_docs_url = "/api/method/pravesh.facility.routes.document.get_beejak_invoices?invoice_ids="+beejak_id;
-    const value = await request(
+    return request(
         download_beejak_docs_url, {
-        method: "POST"
+        method: "POST",
+        contentType: 'application/json',
+        xhrFields: {
+			responseType: 'blob'
+		}
     }, true
-    );
-    console.log("value", value);
+    )
 }
 
 const get_ass_by_client_name = (key,type) =>{
@@ -77,10 +80,6 @@ const get_ass_by_client_name = (key,type) =>{
     return request(
         get_ass_by_client_name_url, {
         method: "GET",
-        contentType: 'application/json',
-        xhrFields: {
-			responseType: 'blob'
-		}
     }, true
     )
 }
