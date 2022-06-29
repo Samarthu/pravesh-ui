@@ -198,7 +198,7 @@ const bgv_data=(final_bgv_data)=>{
     let bgv_data_url = "/api/method/pravesh.facility.routes.facility_background_verification.get_all_bgv_data";
     return request(
         bgv_data_url, {
-        method: "PUT",
+        method: "POST",
         dataType: "json",
         body:JSON.stringify(final_bgv_data)
         }, true)
