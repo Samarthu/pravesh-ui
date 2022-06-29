@@ -2579,6 +2579,10 @@ p.tempText {
     @apply border rounded p-2 px-4 hover:bg-bglightgreycolor transition duration-500 ease-in-out  transform hover:-translate-y-1 hover:scale-100
 }
 
+.modalContainerAuto{
+    @apply fixed w-10/12  h-auto z-50 overflow-y-auto bg-white rounded-br8 mt-5 mb-4
+}
+
 
 /* Side nav */
 .associateDropdown li{
@@ -2586,3 +2590,152 @@ p.tempText {
 }
 
 /* Side nav */
+
+
+
+    
+
+/* Report and attendence tracker page css */
+
+.reportCard{
+    @apply py-6 px-6
+}
+
+
+.reportCard h3{
+    @apply text-base font-medium pb-2 text-blackshade
+}
+
+.reportCard p{
+    @apply text-font13px font-normal text-grey pb-4 leading-4
+}
+
+.getReportData{
+    @apply px-7 py-6 bg-white
+}
+
+.getReportData h3{
+    @apply text-base font-medium pb-2 text-blackshade
+
+}
+
+.getReportCard{
+    @apply py-6 px-6
+}
+
+.getReportCard h3{
+    @apply text-base font-medium pb-4 text-blackshade 
+}
+
+.getReportCard .light14greylong{
+    @apply mb-1
+}
+
+.tHeadAssociate tr th{
+    font-size: 13px;
+    font-weight: 400;
+    background: #060606;
+    color: white;
+    text-align: center;
+    padding: 12px 8px;
+}
+
+.tBodyAssociate tr td{
+    font-size: 13px;
+    font-weight: 400;
+    text-align: center;
+    padding: 16px 8px;  
+    color: #575757;
+}
+
+.attendanceTrackor tr th{
+    font-size: 13px;
+    font-weight: 400;
+    background: #060606;
+    color: white;
+    text-align: left;
+    padding: 12px 8px;
+}
+
+.attendanceTrackor tr td{
+    font-size: 13px;
+    font-weight: 400;
+    text-align: left;
+    padding: 16px 8px;  
+    vertical-align: baseline;
+    color: #575757;
+}
+
+tr:nth-child(even) {background-color: #f2f2f2;}
+
+.dataItems div.dataLable{
+    @apply text-font13px text-textdarkgrey  font-normal
+}
+
+.dataItems div.dataFetched{
+    @apply text-font13px text-textdarkgrey  font-medium
+}
+
+
+/* End Report and attendence tracker page css */
+
+
+/* buldMapping start */
+
+
+
+.woDetails tr th{
+    font-size: 13px;
+    font-weight: 400;
+    background: #060606;
+    color: white;
+    text-align: left;
+    padding: 12px 8px;
+}
+
+.woDetails tr td{
+    font-size: 13px;
+    font-weight: 400;
+    text-align: left;
+    padding: 16px 8px;  
+    vertical-align: top;
+    color: #575757;
+}
+
+
+.workOrderTabel tr th{
+    font-size: 14px!important;
+    font-weight: 400;
+    text-align: center;
+    padding: 12px 8px;
+    border: 1px solid lightgray;
+
+}
+
+.workOrderTabel tr td{
+    font-size: 14px!important;
+    font-weight: 400;
+    text-align: center;
+    padding: 16px 8px;  
+    vertical-align: top;
+    color: #575757;
+    border: 1px solid lightgray;
+}
+
+
+.caretBulkemp{
+margin-left: auto;
+margin-right: 397px;
+z-index: 999999;
+margin-bottom: -1px;
+}
+
+.formLableBulkemp{
+    @apply text-blackshade text-base font-normal flex flex-nowrap whitespace-nowrap pr-3  xs:pb-2 sm:pb-2 justify-end xs:justify-start sm:justify-start
+}
+
+.formGroupBulkemp{
+    @apply w-full flex  pr-0 md:pr-4 items-center  xs:flex-wrap sm:flex-wrap
+}
+
+ /* bulk end */
