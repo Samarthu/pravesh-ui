@@ -44,7 +44,7 @@ const get_vendor_by_config_method =() =>{
 }
 const get_pravesh_properties_method =() =>{
     return request(get_pravesh_properties_url,{
-        method: "PUT",
+        method: "POST",
         
         
     body : JSON.stringify(get_pravesh_properties_data)},true,false)
