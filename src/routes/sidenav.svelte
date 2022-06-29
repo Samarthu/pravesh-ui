@@ -225,7 +225,7 @@
 
 
             <li class="listItem" on:click="{routeToPageReports}">
-                <a class="" href="javascript:void(0)">
+                <button class="" href="javascript:void(0)">
                     <svg
                         class="svgIcon"
                         width="22"
@@ -249,7 +249,7 @@
                         />
                     </svg>
                     <span class="menuname">Reports</span>
-                </a>
+                </button>
             </li>
 
             <li class="listItem">
