@@ -53,6 +53,37 @@ const copy_parent_func = (parent_obj) => {
         body:parent_obj
     }, true)
 }
+// const download_docs = (facArr,downDoctype) =>{
+//     let download_doc_url = "/api/method/pravesh.facility.routes.document.get_documents?facility_ids=" + facArr.join(",") + "&doc_type=" + downDoctype;
+//     return request(
+//         download_doc_url, {
+//         method: "GET"
+//     }, true
+//     )
+// }
+
+const download_beejak_docs = async (beejak_id) =>{
+    let download_beejak_docs_url = "/api/method/pravesh.facility.routes.document.get_beejak_invoices?invoice_ids="+beejak_id;
+    const value = await request(
+        download_beejak_docs_url, {
+        method: "POST",
+        contentType: 'application/json',
+        xhrFields: {
+            responseType: 'blob'
+        }
+    }, true
+    );
+    console.log("value", value);
+}
+
+const get_ass_by_client_name = (key,type) =>{
+    let get_ass_by_client_name_url = "/api/method/pravesh.facility.routes.facility.get_facility_by_client_or_emp_id?key="+key+"&key_type="+type+"";
+    return request(
+        get_ass_by_client_name_url, {
+        method: "GET",
+    }, true
+    )
+}
 // const dashboard_data = () =>{
 //     return request(
 //         dashboard_data_url,{
@@ -86,5 +117,8 @@ export{
     get_current_user_function,
     get_fac_count,
     find_parent_function,
-    copy_parent_func
+    copy_parent_func,
+    get_ass_by_client_name,
+    download_beejak_docs
+    //download_docs,
 }

@@ -167,7 +167,7 @@
                                     <label class="formLableSupplier ">Phone Number<span
                                             class="mandatoryIcon">*</span></label>
                                             <div class="formInnerGroup ">
-                                                <input type="text" class="inputboxpopover">
+                                                <input type="text" class="inputboxcursortext">
                                             </div>
                                 </div>
                             </div>
@@ -290,7 +290,7 @@
                                             <div class="text-sm pr-3">(Consumer id/User id/login details)</div>
                                         </div>
                                                 <div class="formInnerGroup ">
-                                                    <input type="text" class="inputboxpopover">
+                                                    <input type="text" class="inputboxcursortext">
                                                 </div>
                                     </div>
                                 </div>
@@ -310,7 +310,7 @@
                                     <div class="formGroup ">
                                         <label class="formLableSupplier ">Label 3</label>
                                                 <div class="formInnerGroup ">
-                                                    <input type="text" class="inputboxpopover">
+                                                    <input type="text" class="inputboxcursortext">
                                                 </div>
                                     </div>
                                 </div>
@@ -318,7 +318,7 @@
                                     <div class="formGroup ">
                                         <label class="formLableSupplier ">Label 4</label>
                                                 <div class="formInnerGroup ">
-                                                    <input type="text" class="inputboxpopover">
+                                                    <input type="text" class="inputboxcursortext">
                                                 </div>
                                     </div>
                                 </div>
@@ -326,7 +326,7 @@
                                     <div class="formGroup ">
                                         <label class="formLableSupplier ">Value 1</label>
                                                 <div class="formInnerGroup ">
-                                                    <input type="text" class="inputboxpopover">
+                                                    <input type="text" class="inputboxcursortext">
                                                 </div>
                                     </div>
                                 </div>

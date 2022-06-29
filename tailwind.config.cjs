@@ -162,6 +162,7 @@ module.exports = {
         'max-h-80vh':'80vh',
         'max-h-95vh':'95vh',
         'max-h-70vh':'70vh',
+        'h96vh': '95vh'
 
       },
      

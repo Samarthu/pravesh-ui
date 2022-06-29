@@ -4094,7 +4094,7 @@ else
                       </div>  
                    
                       <div class="formInnerGroup ">
-                        <input type="date" class="inputboxpopover px-4" bind:value={deact_date}>
+                        <input type="date" class="inputboxcursortext px-4" bind:value={deact_date}>
                      </div>
                      <div class="flex">
                         <button class="ErButton bg-bgmandatorysign" on:click|preventDefault={open_deact_initiate_model}>Deactivate on Date </button>

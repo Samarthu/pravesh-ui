@@ -4,10 +4,11 @@
 
 <script>
     import { goto } from "$app/navigation";
-    import { get_current_user_function } from "../services/dashboard_services";
+    import { get_current_user_function,download_beejak_docs} from "../services/dashboard_services";
     import {
         dashboard_data,
-        get_fac_count,find_parent_function,copy_parent_func
+        get_fac_count,find_parent_function,copy_parent_func,
+        get_ass_by_client_name
     } from "../services/dashboard_services";
     import { current_user } from "../stores/current_user_store";
     import { img_url_name } from "../stores/flags_store";
@@ -252,6 +253,142 @@
             toast_text = find_parent_function_res.body.message
         }
     }
+
+    function download_bulk_docs(){
+        download_bulk_doc_model.style.display = "block"
+    }
+    function close_download_bulk_docs(){
+        download_bulk_doc_model.style.display = "none"
+    }
+    
+    var bulkDocType = { "beejakinv": "beejakinv", "dl": "dl-photo,dl_info_supp_file", "aadhar": "basic_info_supp_file,aadhar-id-proof", "voter": "voter-id-proof", "pancard": "pan-photo,pan_info_supp_file" }
+    var docType,facIds;
+   
+    async function download_docs_func(){
+        show_spinner = true;
+    var format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
+	
+
+	if (docType == "beejakinv") {
+		downloadBeejakInvoices();
+        show_spinner = false;
+		return;
+	}
+	
+	if (facIds == undefined || facIds.trim().length == 0) {
+        toast_type = "error"
+        toast_text = "Enter some facility IDs separated by new line"
+        show_spinner = false;
+		return;
+	}
+	if (format.test(facIds)) {
+        toast_type = "error"
+        toast_text = "Enter Valid Facility ID"
+        show_spinner = false;
+		return;
+	}
+	var downDoctype = bulkDocType[docType];
+	if (downDoctype == undefined) {
+        toast_type = "error"
+        toast_text = "Invalid Doc Type Selected"
+        show_spinner = false;
+		return;
+	}
+	var facArr = facIds.split("\n");
+
+	if (facArr.length == 0) {
+        toast_type = "error"
+        toast_text = "Invalid Facility Ids !!"
+        show_spinner = false;
+		return;
+	}
+
+	if (facArr.length > 100) {
+        toast_type = "error"
+        toast_text = "Maximum 100 Ids allowed at one time !!"
+        show_spinner = false;
+		return;
+	}
+    var downUrl = "/api/method/pravesh.facility.routes.document.get_documents?facility_ids=" + facArr.join(",") + "&doc_type=" + downDoctype;
+        window.open(downUrl);
+        show_spinner = false;
+
+    }
+
+    async function downloadBeejakInvoices(){
+        show_spinner = true;
+
+        if (facIds == undefined || facIds.trim().length == 0) {
+            toast_type = "error"
+            toast_text = "Enter some facility IDs separated by new line"
+            show_spinner = false;
+            return;
+        }
+
+        var invArr = facIds.split("\n");
+
+        if (invArr.length == 0) {
+            toast_type = "error"
+            toast_text = "Invalid Invoice Numbers !!"
+            show_spinner = false;
+            return;
+        }
+        if (invArr.length > 500) {
+            toast_type = "error"
+            toast_text = "Maximum 500 Invoice numbers <br> allowed at one time !!"
+            show_spinner = false;
+            return;
+        }
+        var download_beejak_docs_res = await  download_beejak_docs(invArr)
+        console.log("download_beejak_docs_res",download_beejak_docs_res)
+        // window.URL.createObjectURL(download_beejak_docs_res.body);
+        // window.open(download_beejak_docs_res.body);
+        try{
+            if(download_beejak_docs_res){
+                show_spinner =false;
+            var a = document.createElement('a');
+			var url = window.URL.createObjectURL(download_beejak_docs_res.body);
+			a.href = url;
+			var filename = "BeejakInvoices";
+			var disposition = download_beejak_docs_res.xhr.getResponseHeader('Content-Disposition');
+			disposition = disposition.replace("filename=\"", "", 1)
+			disposition = disposition.slice(0, -1)
+
+			if (disposition && disposition.indexOf('attachment') !== -1) {
+				var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+				var matches = filenameRegex.exec(disposition);
+				if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
+			}
+
+			a.download = filename;
+			a.target = "_blank";
+			document.body.append(a);
+			a.click();
+			a.remove();
+			window.URL.revokeObjectURL(url);
+        }
+    }
+    catch(err){
+        show_spinner =false;
+        toast_text=err
+        toast_type = "error"
+    }
+
+    }
+
+    function find_by_client_id(){
+        find_by_client_id_model.style.display = "block";
+
+    }
+    function close_find_by_client_id(){
+        find_by_client_id_model.style.display = "none";
+        
+    }
+    var pan_emp_id_name = ""
+    async function find_ass_by_client_name(){
+        let get_ass_by_client_name_res = get_ass_by_client_name();
+        console.log
+    }
     
     async function copy_model_vendor(){
         show_spinner = true;
@@ -386,6 +523,8 @@
                 >
                 <button class ="ErBlueButton" on:click={find_parent}>Find Parent</button>
                 <button class ="ErBlueButton" on:click={copy_model_vendor}>Copy Vendor</button>
+                <button class ="ErBlueButton" on:click={download_bulk_docs}>Download Bulk Docs</button>
+                <button class ="ErBlueButton" on:click={find_by_client_id}>Find By Client Name / Employee Id</button>
             </p>
 
             <p >
@@ -697,7 +836,7 @@
                         <div class="innermodal">
 
                             <div class="formInnerGroup mb-4">
-                                <input type="input" class="inputboxpopover " placeholder="Enter Child ID" bind:value={child_id_value}>
+                                <input type="input" class="inputboxcursortext " placeholder="Enter Child ID" bind:value={child_id_value}>
                              </div>
                              <div class="flex mb-3">
                                 <button class="ErBlueButton" on:click={find_parent_btn}>Find Parent </button>
@@ -891,4 +1030,223 @@
     <h1>this is for testing</h1>
     <button on:click={() =>demo_clickhandle()}>click me bbbbbbbbbbbbbbbbbbbbbbbbb</button>
 </div> -->
+
+<!--  Download Bulk Docs -->
+
+<div class="hidden" id="download_bulk_doc_model">
+    <div class=" modalMain  ">
+        <div class="modalOverlay"></div>
+        <div class="modalContainercopyvendor rounded-lg">
+            <div class="modalHeadConmb-0 sticky top-0 bg-white z-99">
+                <div class="leftmodalInfo">
+                    <p class="text-lg text-erBlue font-medium  ">
+                        <span class="">  Download Bulk Docs </span>
+                    </p>
+                </div>
+                <button class="rightmodalclose">
+                    <img src="{$img_url_name.img_name}/blackclose.svg" alt="" on:click = {close_download_bulk_docs}>
+                </button>
+            </div>
+            <div class="modaldata">
+                <div class="viewDocPanmainbodyModal">
+                    <div class="innermodal">
+                        <div class="form-lable">
+                            <p class="namelable">Select Document Type </p>
+                            <div class="formInnerGroup">
+                                <select class="inputboxpopover" bind:value = {docType}>
+                                    <option value="dl" class="pt-6">Driving License</option>
+                                    <option value="aadhar" class="pt-6">Aadhaar</option>
+                                    <option value="voter" class="pt-6">Voter ID</option>
+                                    <option value="pancard" class="pt-6">Pancard</option>
+                                    <option value="beejakinv" class="pt-6">Beejak Invoices</option>
+                                    
+                                </select>
+                                <div class="formSelectArrow ">
+                                    <img src="{$img_url_name.img_name}/selectarrow.png"
+                                        class="w-5 h-auto" alt="">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-lable mt-5">
+                            <div class="formInnerGroup">
+                                <textarea class="inputboxcursortext" placeholder="Enter Unique Facility IDs here separated by new line" bind:value={facIds}></textarea>
+                            </div>
+                        </div>
+
+                      
+                         <div class="flex mb-3 mt-4">
+                            <button class="ErBlueButton" on:click={download_docs_func}>Download Docs </button>
+                          </div> 
+                    
+
+                        <div class="pt-8 flex justify-center">
+                            <button type="button" class="dialogueSingleButton" on:click = {close_download_bulk_docs}>Close</button>
+                        </div>
+                       
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--  Download Bulk Docs -->
+
+<!-- Find Associate By Client Name Modal-->
+
+<div id="find_by_client_id_model" hidden>
+    <div class="modalMain">
+        <div class="modalOverlay"></div>
+        <div class="modalContainerFindAssociate rounded-lg     ">
+            <div class="modalHeadConmb-0 sticky top-0 bg-white z-zindex99">
+                <div class="leftmodalInfo">
+                    <p class="text-lg text-erBlue font-medium  ">
+                        <span class=""> Find Associate By Client Name</span>
+                    </p>
+                </div>
+                <button class="rightmodalclose">
+                    <img
+                    src="{$img_url_name.img_name}/blackclose.svg"
+                    alt="closebtn"
+                    on:click = {close_find_by_client_id}
+                />
+                </button>
+            </div>
+            <div class="modaldata">
+                <div class="viewDocPanmainbodyModal">
+                    <div class="innermodal">
+                        <div class="flex gap-4 items-center xsl:flex-wrap xsl:gap-3" >
+                   
+                            <div class="formInnerGroup ">
+                              <input type="input" class="inputboxcursortext " placeholder="Enter Client ID">
+                           </div>
+                           <div class="flex">
+                              <button class="ErBlueButton">Find One </button>
+                            </div> 
+                        </div>
+                        <div class="w-full py-3">
+                            <div class="text-center  flex gap-5 mb-2 xsl:flex-wrap xsl:gap-3">
+                                <div class="flex items-center mt-3">
+                                    <input id="radio11" type="radio" name="radio" class="hidden" checked />
+                                    <label for="radio11" class="radioLable"> <span class="radioCirle"></span> By Client Name 
+                                    </label>
+                                </div>
+                            
+                                <div class="flex items-center  mt-2">
+                                    <input id="radio22" type="radio" name="radio" class="hidden" />
+                                    <label for="radio22" class="radioLable"> <span class="radioCirle"></span> By Employee ID
+                                    </label>
+                                </div>
+                                <div class="flex items-center  mt-2">
+                                    <input id="radio33" type="radio" name="radio" class="hidden" />
+                                    <label for="radio33" class="radioLable"> <span class="radioCirle"></span> By PAN Number
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex gap-4 items-center " >
+                            <button class="ErBlueButton">Bulk Search </button>
+
+                        </div>
+
+                        <div class="text-sm mb-4 mt-4">
+                            <p> Bulk Search By Client Name  </p>
+                            <p>Sheet Name should be "client_name_search"</p>
+                            <p> Column Names should be as below ( check sample data as well) </p>
+                        </div>
+
+                        <div class="pb-4 xsl:overflow-scroll">
+                            <table class="table  w-full text-center mt-2 ">
+                                <thead class="theadpopover h-10">
+                                    <tr>
+                                        <th width="50%">Station Code        </th>
+                                        <th width="50%">Client Name</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="tbodycopyvendor outline">
+                                    <tr class="border-b">
+                                        <td>AXHN00112</td>
+                                        <td>Eknath Shinde</td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td>AXHN00113</td>
+                                        <td>Bacchu kadu</td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="flex mt-4">
+                            <button class="ErBlueButton">Download Bulk Search Template </button>
+                         </div> 
+                         <div class="flex mt-4">
+                            <div class="formInnerGroup flex items-center ">
+                                
+                                 <label class="cursor-pointer">
+                                    <div class="uploadbutton">Upload</div>
+                                    <input type="file" class="hidden">
+                                </label>
+                                <p class="text-grey ml-4">
+                                    Choose file</p>
+                                
+                            </div>
+                         </div> 
+                         <div class="flex mt-4">
+                            <button class="ErBlueButton">Search</button>
+                         </div> 
+
+                         <div class="xsl:overflow-scroll mt-5 ">
+                            <table class="table  w-full text-center mt-2 ">
+                                <thead class="theadpopover h-10">
+                                    <tr>
+                                        <th width="25%">Client Name         </th>
+                                        <th width="25%">Station Code    </th>
+                                        <th width="25%">Associate Name      </th>
+                                        <th width="25%">Associate ID</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="tbodycopyvendor outline">
+                                    <tr class="border-b">
+                                        <td>SURAJ_KHARATE_NTEX_107117481    </td>
+                                        <td>IXUD</td>
+                                        <td>SURAJ PRAKASH KHARATE   </td>
+                                        <td>IXUD00886   </td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td>SURAJ_KHARATE_NTEX_107117481    </td>
+                                        <td>IXUD</td>
+                                        <td>SURAJ PRAKASH KHARATE   </td>
+                                        <td>IXUD00886   </td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td>SURAJ_KHARATE_NTEX_107117481    </td>
+                                        <td>IXUD</td>
+                                        <td>SURAJ PRAKASH KHARATE   </td>
+                                        <td>IXUD00886   </td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td>SURAJ_KHARATE_NTEX_107117481    </td>
+                                        <td>IXUD</td>
+                                        <td>SURAJ PRAKASH KHARATE   </td>
+                                        <td>IXUD00886   </td>
+                                    </tr>
+                                    <tr class="border-b">
+                                        <td>SURAJ_KHARATE_NTEX_107117481    </td>
+                                        <td>IXUD</td>
+                                        <td>SURAJ PRAKASH KHARATE   </td>
+                                        <td>IXUD00886   </td>
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+   </div>
+   <!-- Find Associate By Client Name Modal-->
+
 <Toast type={toast_type}  text={toast_text}/>

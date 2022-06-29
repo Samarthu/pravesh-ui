@@ -38,6 +38,11 @@
 .inputboxpopover{
     @apply  text-greycolor bg-white  appearance-none border inline-block pt-3.5 pb-3.5 pl-pr14px  rounded leading-tight w-full   outline-none cursor-pointer
 }
+
+.inputboxcursortext{
+    @apply  text-greycolor bg-white  appearance-none border inline-block pt-3.5 pb-3.5 pl-pr14px  rounded leading-tight w-full   outline-none cursor-text
+}
+
 .inputboxpopoverdate{
     @apply  text-greycolor bg-white  appearance-none border inline-block pt-3.5 pb-3.5 pl-pr14px  rounded leading-tight  w-full  outline-none pr-p11px 
 }
@@ -2613,3 +2618,6 @@ margin-bottom: -1px;
 }
 
  /* bulk end */
+.modalContainerFindAssociate{
+    @apply fixed w-11/12  h-max-h-95vh z-50 overflow-y-auto bg-white rounded-br8 mt-5 mb-4 top-0 
+}

@@ -78,7 +78,8 @@ import { current_user } from "../stores/current_user_store";
         let check_val,query;
         let tags_for_ass_arr=[];
         var doc_type_name = [];
-        let new_arr = []
+        let new_arr = [];
+        let pan_req_tags = [];
         // let edit_document_link = null;
         let check_selected;
         let id_new_date='';
@@ -143,7 +144,7 @@ import { current_user } from "../stores/current_user_store";
         let voter_id_object = {
             voter_id_number:null
         }
-    
+        let fac_tag_pay_to_ass = false;
         let text_pattern = /^[a-zA-Z_ ]+$/;
         let recrun_pattern =  /^[^-\s](?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9 _-]+)$/;
         let city_select;
@@ -539,15 +540,22 @@ import { current_user } from "../stores/current_user_store";
                     if(fac_tag_res.body.data.length != 0){
                         show_fac_array = fac_tag_res.body.data;
                         for(let i=0;i < show_fac_array.length;i++){
-                            if( i == show_fac_array.length-1){
+                            // if(i == show_fac_array.length-1){
                                 
                                 tags_for_ass_arr.push(show_fac_array[i].tag_name)
-                            }
-                            else{
-                                tags_for_ass_arr.push(show_fac_array[i].tag_name+",")
-                            }
+                            // }
+                            // else{
+                            //     tags_for_ass_arr.push(show_fac_array[i].tag_name+",")
+                            // }
                         }
                         tags_for_ass_arr=tags_for_ass_arr
+                        // console.log("tags_for_ass_arr",tags_for_ass_arr)
+                        // for(let i=0;i<tags_for_ass_arr.length;i++){
+                        //     if(tags_for_ass_arr[i] == "Payment to Associate" || tags_for_ass_arr[i] == "Payment to Associate,"){
+                        //         fac_tag_pay_to_ass = true;
+                        //     }
+                        // }
+
                     }
                 }
             catch(err){
@@ -588,7 +596,22 @@ import { current_user } from "../stores/current_user_store";
                 let bank_details_req_fac = [];
                 bank_details_req_fac = ($pravesh_properties.properties.bank_section_required_associates);
                 new_arr = bank_details_req_fac.concat($pravesh_properties.properties.pan_required_associates);
-                   
+                pan_req_tags = $pravesh_properties.properties.pan_required_tags;
+              
+                console.log("tags_for_ass_arr",tags_for_ass_arr) 
+                console.log("pan_req_tags",pan_req_tags) 
+                
+                for(let i=0;i<tags_for_ass_arr.length;i++){
+                    for(let j=0;j<pan_req_tags.length;j++){
+                        // console.log("tags_for_ass_arr[i].toLowerCase",tags_for_ass_arr[i].toLowerCase().split(' ').join('_')) 
+                    if(tags_for_ass_arr[i].toLowerCase().split(' ').join('_') == pan_req_tags[j]){
+                        fac_tag_pay_to_ass = true;
+                    }
+                    }
+                }
+                console.log("fac_tag_pay_to_ass",fac_tag_pay_to_ass)
+
+
                 new_arr =[...new Set(new_arr)];
             } 
             else {
@@ -2277,7 +2300,7 @@ import { current_user } from "../stores/current_user_store";
                 <div class="{work_active}" on:click={() => {change_to = "Work_details",work_active="active",asso_active="",id_active="",bank_active=""}}>Work Details</div>
                 <div class="{id_active}" on:click={() => {change_to = "Identity_details",work_active="",asso_active="",id_active="active",bank_active=""}}>Identity Proof</div>
                 {#each new_arr as req_fac}
-                {#if req_fac == $facility_data_store.facility_type}
+                {#if req_fac == $facility_data_store.facility_type && fac_tag_pay_to_ass == true}
                 <div class="{bank_active}" on:click={() => {change_to = "Bank_details",work_active="",asso_active="",id_active="",bank_active="active"}}>Bank Details</div>
                 {/if}
                 {/each}
@@ -2432,10 +2455,20 @@ import { current_user } from "../stores/current_user_store";
                                             >{new_audit_data.creation}</span
                                         >
                                     </h3>
-                                    <div class="timeStatus  timeStatusbglightPink">
+                                    <!-- <div class="timeStatus  timeStatusbglightPink">
                                         <p class="timeCircle" />
                                         {new_audit_data.remarks}
+                                       
+                                        <p>({new_audit_data.status})</p>
+                                    </div> -->
+                                    <div class="timeStatusbglightPink">
+                                        <div class="flex items-center text-font13px font-normal  p-2 pb-0">
+                                        <p class="timeCircle"></p>  {new_audit_data.remarks}
+                                        </div>
+                                        <p class="text-font13px text-textdarkgrey font-normal p-2 pl-4">({new_audit_data.status})</p>
                                     </div>
+    
+    
                                     <br>
                                 {/each}
                             </div>
@@ -2526,7 +2559,7 @@ import { current_user } from "../stores/current_user_store";
                                                     </div>
                                                     <div class="formInnerGroup">
                                                         <input
-                                                            class="inputboxpopover"
+                                                            class="inputboxcursortext"
                                                             type="text"
                                                             bind:value="{document_desc}"
                                                         />
