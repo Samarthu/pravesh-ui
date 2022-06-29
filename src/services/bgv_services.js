@@ -193,6 +193,17 @@ const verify_email = (otp_num,email_id) => {
         }, true)
 }
 
+const bgv_data=(final_bgv_data)=>{
+   
+    let bgv_data_url = "/api/method/pravesh.facility.routes.facility_background_verification.get_all_bgv_data";
+    return request(
+        bgv_data_url, {
+        method: "PUT",
+        dataType: "json",
+        body:JSON.stringify(final_bgv_data)
+        }, true)
+}
+
   
 export {
     get_states,
@@ -207,5 +218,6 @@ export {
     get_casper_id,
     check_doc_exist,
     send_otp,
-    verify_email
+    verify_email,
+    bgv_data
 }
