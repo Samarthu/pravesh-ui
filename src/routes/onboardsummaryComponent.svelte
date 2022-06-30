@@ -613,6 +613,12 @@ import { current_user } from "../stores/current_user_store";
                     }
                     }
                 }
+                for(let i=0;i<new_arr.length;i++){
+                   if(new_arr[i] == $facility_data_store.facility_type && fac_tag_pay_to_ass == false){
+                    fac_tag_pay_to_ass = true;
+                   }
+                }
+
                 console.log("fac_tag_pay_to_ass",fac_tag_pay_to_ass)
 
 
@@ -2309,11 +2315,11 @@ import { current_user } from "../stores/current_user_store";
                 <div class="{asso_active}" on:click={() => {change_to = "Associate_details",work_active="",asso_active="active",id_active="",bank_active=""}}>Associate Details</div>
                 <div class="{work_active}" on:click={() => {change_to = "Work_details",work_active="active",asso_active="",id_active="",bank_active=""}}>Work Details</div>
                 <div class="{id_active}" on:click={() => {change_to = "Identity_details",work_active="",asso_active="",id_active="active",bank_active=""}}>Identity Proof</div>
-                {#each new_arr as req_fac}
-                {#if req_fac == $facility_data_store.facility_type || fac_tag_pay_to_ass == true}
+                
+                {#if fac_tag_pay_to_ass == true}
                 <div class="{bank_active}" on:click={() => {change_to = "Bank_details",work_active="",asso_active="",id_active="",bank_active="active"}}>Bank Details</div>
                 {/if}
-                {/each}
+                
             </div> 
         {#if change_to == "Associate_details"}
        
