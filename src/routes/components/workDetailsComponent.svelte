@@ -913,6 +913,11 @@
     
     function clear() {
         addRemoveModal.style.display = "none";
+        select_tag_data="-1"
+        serv_ch_data="-1"
+        tag_date=""
+        tag_remark=""
+
     }
 
     async function view_add_client() {
@@ -1335,6 +1340,9 @@
     function change_pay_my_ser_ch(){
         if(select_tag_data == "Pay My Service Charge"){
             pay_my_ser = "1";
+        }
+        else{
+            pay_my_ser = "0";
         }
     }
 
@@ -1982,9 +1990,9 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        
+                                        {#if pay_my_ser == "1"}
                                         <div class="w-full">
-                                            {#if pay_my_ser == "1"}
+                                           
                                             <div class="light14greylong mb-1">
                                                 Select Sevice Charge Vendor
                                             </div>
@@ -2026,8 +2034,9 @@
                                                         class="w-5 h-auto" alt="" />
                                                 </div>
                                             </div>
-                                            {/if}
+                                            
                                         </div>
+                                        {/if}
                                         <div class="w-full">
                                             <div class="light14grey mb-1">Remove On</div>
                                             <div class="formInnerwidthfull ">
