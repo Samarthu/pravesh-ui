@@ -204,6 +204,25 @@ const create_cas_user = () =>{
         }, true)
 }
 
+const send_external_app_rej=(ex_data)=>{
+   
+    let send_external_app_rej_url = "/api/method/pravesh.facility.routes.facility.update_facility_third_party_verification";
+    return request(
+        send_external_app_rej_url, {
+        method: "POST",
+        body:JSON.stringify(ex_data)
+        }, true)
+}
+
+const not_onboarded_data=(statCode,reportDate)=>{
+    // let not_onboarded_data_url = "/api/method/pravesh.facility.routes.facility_type_master.get_facility_types?facility_id=" + new_facility_id + ''
+    let not_onboarded_data_url = "/api/method/pravesh.facility.routes.ecom_work_done.get_not_onboarded_report?station_code=" + statCode.toLowerCase() + "&month_year=" + reportDate  ;
+    return request(
+        not_onboarded_data_url,{
+            method: "GET"
+        },true)
+}
+
 
 
 export {
@@ -225,5 +244,7 @@ export {
     get_assoc_types,
     get_cas_user,
     activate_cas_user,
-    create_cas_user
+    create_cas_user,
+    send_external_app_rej,
+    not_onboarded_data
 }

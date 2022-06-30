@@ -3,7 +3,7 @@
     import {facility_data_store} from "../stores/facility_store";
     import { bank_details } from "../stores/bank_details_store";
     import {get_facility_details,facility_bgv_check,get_bank_facility_details,facility_document,
-         approve_reject_status,bank_approve_reject,bgv_approve_rej,final_id_ver_rej,final_bgv_app_rej,get_client_details,get_client_org_mapping,get_specific_name,save_mapping,get_change_associte,get_assoc_types,send_associate_req,get_cas_user, activate_cas_user , create_cas_user} from "../services/vmt_verify_services";
+         approve_reject_status,bank_approve_reject,bgv_approve_rej,final_id_ver_rej,final_bgv_app_rej,get_client_details,get_client_org_mapping,get_specific_name,save_mapping,get_change_associte,get_assoc_types,send_associate_req,get_cas_user, activate_cas_user , create_cas_user, send_external_app_rej, not_onboarded_data} from "../services/vmt_verify_services";
     import {facility_bgv_init} from "../services/onboardsummary_services";
     import {bgv_config_store} from '../stores/bgv_config_store';
     import { goto } from "$app/navigation";
@@ -216,6 +216,12 @@
     let cas_flag = 0;
     let window;
     let bgv_pass_data;
+    let exShow = 0;
+    let exRemarks = ""
+    let exScore = "";
+    let exStatus = "";
+    let notonboarded_data = [];
+    let notonbDate;
     $:if(stat_select != null){
         console.log("station_select",stat_select)
         station_code_select(stat_select);
@@ -333,6 +339,7 @@
             if ($facility_data_store.org_id == "FT"){
                 show_fields = 1
             }
+
             }
             catch (err) {
                 console.log("error in facility data")
@@ -350,6 +357,18 @@
         // "CRUN",
         // "Reseller"
         ]
+
+        try {
+            if (!get_client_data_mapping_data){
+                console.log("Organization Data not Found")
+            }
+            else{
+                exShow = 1
+            }
+        } catch (err) {
+            console.log("Organization Data not Found")
+        }
+
         let bgv_init_res = await facility_bgv_init(bgv_pass_data);   
     
         if (bgv_init_res.body.status == "green"){
@@ -3018,6 +3037,257 @@
         window.print();
     }
 
+    async function openExternalVerify(){
+        showexternalverify.style.display = "block";
+    }
+
+    function closeExternalVerify(){
+        showexternalverify.style.display = "none";
+    }
+
+    async function openDash(){
+        showDash.style.display = "block";
+
+        let new_start_date = new Date(fromDate);
+        let updated_start_date = get_date_format(new_start_date,"yyyy-mm-dd");
+
+        let get_client_data_mapping_res =  await get_client_org_mapping();
+        try {
+            get_client_data_mapping_data = [];
+        if(get_client_data_mapping_res.body.status == "green"){
+             for(let i=0;i<get_client_data_mapping_res.body.data.length;i++){
+                // station_code.push(get_client_data_mapping_res.body.data[i].station_code);
+                // org_name_array.push(get_client_data_mapping_res.body.data[i].org_name)
+                // get_client_data_mapping_data.push(get_client_data_mapping_res.body.data[i]);
+                get_client_data_mapping_data.push({"org_id":get_client_data_mapping_res.body.data[i].org_id,"org_name":get_client_data_mapping_res.body.data[i].org_name})
+
+                
+            }
+            // station_code = station_code;
+            // org_name_array=org_name_array;
+            get_client_data_mapping_data = get_client_data_mapping_data;
+            console.log("get_client_data_mapping_data",get_client_data_mapping_data)
+            // for(let i=0;i<get_client_data_mapping_data.length;i++){
+               
+            //     org_name = get_client_data_mapping_data[i].org_name;
+            //     // gst_city_loc_id = get_client_data_mapping_data[i].location_id;
+            //     // gst_state_code = get_client_data_mapping_data[i].state_code;
+            //     console.log("org_name",org_name)
+            // }
+        }
+        else{
+            toast_type = "error";
+            toast_text = "No client Data";
+        }
+        
+        } catch(err) {
+            toast_type = "error";
+            toast_text = get_client_data_mapping_res.body.message;
+        
+        }
+    }
+
+    function closeDash(){
+        showDash.style.display = "none";
+    }
+
+    async function externalReject(){
+        showexternalverify.style.display = "none";
+        console.log("im in ex rej")
+
+        if(!exScore){
+            console.log("im in reject score")
+            toast_text = "Please select Score";
+            toast_type = "error";
+            return
+        }
+
+        if(!exRemarks){
+            console.log("im in reject ex")
+            toast_text = "Please select Remarks";
+            toast_type = "error";
+            return
+        }
+
+        let final_req_load = {
+                "facility_id":$facility_id.facility_id_number,
+                "Remarks": exRemarks,
+                "third_party_verification_score": exScore,
+                "third_party_verification_status": "Rejected",
+            }
+
+            let send_associate_req_res = await send_external_app_rej(final_req_load)
+            console.log("send_associate_req_res",send_associate_req_res)
+    }
+
+    async function externalApprove(){
+        showexternalverify.style.display = "none";
+        console.log("im in ex app")
+
+        if(!exScore){
+            console.log("im in reject score")
+            toast_text = "Please select Score";
+            toast_type = "error";
+            return
+        }
+
+        if(!exRemarks){
+            console.log("im in reject ex")
+            toast_text = "Please select Remarks";
+            toast_type = "error";
+            return
+        }
+
+        let final_req_load = {
+                "facility_id":$facility_id.facility_id_number,
+                "Remarks": exRemarks,
+                "third_party_verification_score": exScore,
+                "third_party_verification_status": "Approved",
+            }
+
+            let external_req_res = await send_external_app_rej(final_req_load)
+            console.log("external_req_res",external_req_res)
+    }
+
+    async function downloadDoc(){
+        // let docdata = [];
+        console.log("inside 1st")
+
+        let get_client_data_mapping_res =  await get_client_org_mapping();
+        try {
+            get_client_data_mapping_data = [];
+        if(get_client_data_mapping_res.body.status == "green"){
+             for(let i=0;i<get_client_data_mapping_res.body.data.length;i++){
+                // station_code.push(get_client_data_mapping_res.body.data[i].station_code);
+                // org_name_array.push(get_client_data_mapping_res.body.data[i].org_name)
+                // get_client_data_mapping_data.push(get_client_data_mapping_res.body.data[i]);
+                get_client_data_mapping_data.push({"org_id":get_client_data_mapping_res.body.data[i].org_id,"org_name":get_client_data_mapping_res.body.data[i].org_name})
+
+                
+            }
+            // station_code = station_code;
+            // org_name_array=org_name_array;
+            get_client_data_mapping_data = get_client_data_mapping_data;
+            console.log("get_client_data_mapping_data",get_client_data_mapping_data)
+            // for(let i=0;i<get_client_data_mapping_data.length;i++){
+               
+            //     org_name = get_client_data_mapping_data[i].org_name;
+            //     // gst_city_loc_id = get_client_data_mapping_data[i].location_id;
+            //     // gst_state_code = get_client_data_mapping_data[i].state_code;
+            //     console.log("org_name",org_name)
+            // }
+        }
+        else{
+            toast_type = "error";
+            toast_text = "No client Data";
+        }
+        
+        } catch(err) {
+            toast_type = "error";
+            toast_text = get_client_data_mapping_res.body.message;
+        
+        }
+
+        let notonboardDate = new Date(notonbDate);
+        let new_date =get_date_format(notonboardDate,"MMMM/YYYY");
+
+        let not_onboarded_data_res = await not_onboarded_data(stat_select,new_date)
+        console.log("not_onboarded_data inside",not_onboarded_data_res)
+        try {
+            if (not_onboarded_data_res != "null"){
+                for(let i=0; i< not_onboarded_data_res.body.data.length;i++){
+                    notonboarded_data.push(not_onboarded_data_res.body.data[i]);
+                }
+                notonboarded_data = notonboarded_data;
+                console.log("insnde notonboarded_data",notonboarded_data)
+
+                
+            }
+        } catch (error) {
+            toast_type = "error";
+            toast_text = not_onboarded_data_res.body.message;
+        }
+
+
+
+
+    }
+
+
+
+    async function download_csv_file() {  
+        let count = 0 ;
+
+        if(!stat_select){
+            toast_text = "Please select Station";
+            toast_type = "error";
+            return
+        }
+
+        if(!id_select){
+            toast_text = "Please select organization";
+            toast_type = "error"
+            return
+        }
+
+
+        let notonboardDate = new Date(notonbDate);
+        let new_date =get_date_format(notonboardDate,"MMMM/YYYY");
+
+        let not_onboarded_data_res = await not_onboarded_data(stat_select,new_date)
+        console.log("not_onboarded_data inside",not_onboarded_data_res)
+        try {
+            if (not_onboarded_data_res != "null"){
+                for(let i=0; i< not_onboarded_data_res.body.data.length;i++){
+                    notonboarded_data.push(not_onboarded_data_res.body.data[i]);
+                }
+                notonboarded_data = notonboarded_data;
+                console.log("insnde notonboarded_data",notonboarded_data[0].month_year)
+            }
+
+            for (let i = 0; i < notonboarded_data[0].daily_work.length; i++) {
+                count = count + notonboarded_data[0].daily_work[i].work_done
+            }
+            console.log("inside daily work",count)
+
+        } catch (error) {
+            toast_type = "error";
+            toast_text = not_onboarded_data_res.body.message;
+        }
+
+        // let csvFileData = csvBody + ele.month_year.replace("_"," - ")+ ","+ele.org_id + "," + ele.station_code + "," + ele.resource_id + "," + count + "\n";
+
+
+        var csvFileData = [  
+            // ['Alan Walker', 'Singer'],  
+            // ['Cristiano Ronaldo', 'Footballer'],  
+            // ['Saina Nehwal', 'Badminton Player'],  
+            // ['Arijit Singh', 'Singer'],  
+            [notonboarded_data[0].month_year,notonboarded_data[0].org_id,notonboarded_data[0].station_code,notonboarded_data[0].resource_id,count]  
+        ]; 
+
+        
+        //define the heading for each row of the data  
+        var csv = 'Month-Year , Org ID ,Station Code , Associate Name , Monthly Count of Work  \n';  
+            
+        //merge the data with CSV  
+        csvFileData.forEach(function(row) {  
+                csv += row.join(',');  
+                csv += "\n";  
+        });  
+        
+        //display the created CSV data on the web browser   
+        document.write(csv);  
+
+        
+        var hiddenElement = document.createElement('a');  
+        hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);  
+        hiddenElement.target = '_blank';  
+            
+        //provide the name for the CSV file to be downloaded  
+        hiddenElement.download = 'NotOnboardedAssocistes.csv';  
+        hiddenElement.click();  
+    } 
 
 </script>
 
@@ -3071,6 +3341,25 @@
                         </a>
                     </p>
                 </div> -->
+
+
+                {#if exShow == 1}
+                <div class="userStatus ml-4" on:click="{openExternalVerify}">
+                    <p class="flex items-center smButtonText">
+                        <a href="" class="smButton modal-open">
+                            Update External Verification
+                        </a>
+                    </p>
+                </div>
+                {/if}
+
+                <div class="userStatus ml-4" on:click="{openDash}">
+                    <p class="flex items-center smButtonText">
+                        <a href="" class="smButton modal-open">
+                            Dashboard
+                        </a>
+                    </p>
+                </div>
 
                 <button on:click={routeToOnboardsummary} type="button"
                         class="px-p15 text-sm text-white font-medium py-p10 rounded bg-erBlue ml-3">Back</button>
@@ -5674,205 +5963,205 @@
     </div>
 
 
-        <!-- Full screen modal  Change Associate Type Desktop and Responsive Done--->
+    <!-- Full screen modal  Change Associate Type Desktop and Responsive Done--->
 
-        <div class="hidden"  id="associateTypeMOdal">
-            <div class="modalMain ">
-                <div class="modalOverlay"></div>
-    
-                <div class="modalContainer">
-    
-                    <div class="modalHeadCon sticky top-0 bg-white z-zindex99">
-                        <div class="leftmodalInfo">
-                            <p class="modalTitleText">  Change Associate Type </p>
-                            <p class="text-sm ">
-                                <span class="font-medium text-lg"> {$facility_data_store.facility_name}</span>
-                                <span class="userDesignation"> (Associate
-                                    - {$facility_data_store.facility_type} / ID - {$facility_data_store.name})</span>
-                            </p>
-                        </div>
-                        <div class="rightmodalclose" on:click="{closeassociateTypeMOdal}">
-                            <img src="../src/img/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal">
-                        </div>
+    <div class="hidden"  id="associateTypeMOdal">
+        <div class="modalMain ">
+            <div class="modalOverlay"></div>
+
+            <div class="modalContainer">
+
+                <div class="modalHeadCon sticky top-0 bg-white z-zindex99">
+                    <div class="leftmodalInfo">
+                        <p class="modalTitleText">  Change Associate Type </p>
+                        <p class="text-sm ">
+                            <span class="font-medium text-lg"> {$facility_data_store.facility_name}</span>
+                            <span class="userDesignation"> (Associate
+                                - {$facility_data_store.facility_type} / ID - {$facility_data_store.name})</span>
+                        </p>
                     </div>
-    
-                    <div class="modalContent">
-                        <!-- <div class="tabwrapper flex justify-between text-center py-2 pb-3">
-                        <div class="changetype py-3 w-2/4	">
-                            <p>Change Type</p>
-                        </div>
-                        <div class="Historytab py-3 w-2/4	 bg-bglightgreye">
-                            <p>History</p>
-                        </div>
-                    </div> -->
-                        <div class="ConModalContent mt-3">
-    
-                            <div class="xsl:grid-cols-1 gap-4">
-    
-    
-                                <div>
-                                    <div class="bgAddSection">
-                                        <p class="font-medium px-3 pt-4">Change Type </p>
-                                        {#if  status_display == -1}
-                                            <p>user in inactive</p>
-                                        {:else}
-                                        <div class="addGstForm pt-4">
-                                            <!-- {#each $facility_data_store as new_client} -->
-                                            <div class="flex gap-4 px-4 py-1 xsl:flex-wrap mb-3">
-                                                <div class="w-full">
-                                                    <div class="light14grey mb-1">Current Type</div>
-                                                    <div class="formInnerwidthfull ">
-                                                        <div class="font-normal text-base text-greycolor mb-1">{$facility_data_store.facility_type}</div>
-                                                    </div>
+                    <div class="rightmodalclose" on:click="{closeassociateTypeMOdal}">
+                        <img src="../src/img/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal">
+                    </div>
+                </div>
+
+                <div class="modalContent">
+                    <!-- <div class="tabwrapper flex justify-between text-center py-2 pb-3">
+                    <div class="changetype py-3 w-2/4	">
+                        <p>Change Type</p>
+                    </div>
+                    <div class="Historytab py-3 w-2/4	 bg-bglightgreye">
+                        <p>History</p>
+                    </div>
+                </div> -->
+                    <div class="ConModalContent mt-3">
+
+                        <div class="xsl:grid-cols-1 gap-4">
+
+
+                            <div>
+                                <div class="bgAddSection">
+                                    <p class="font-medium px-3 pt-4">Change Type </p>
+                                    {#if  status_display == -1}
+                                        <p>user in inactive</p>
+                                    {:else}
+                                    <div class="addGstForm pt-4">
+                                        <!-- {#each $facility_data_store as new_client} -->
+                                        <div class="flex gap-4 px-4 py-1 xsl:flex-wrap mb-3">
+                                            <div class="w-full">
+                                                <div class="light14grey mb-1">Current Type</div>
+                                                <div class="formInnerwidthfull ">
+                                                    <div class="font-normal text-base text-greycolor mb-1">{$facility_data_store.facility_type}</div>
                                                 </div>
-                                                <div class="w-full">
-                                                    <div class="light14grey mb-1">Pravesh ID</div>
-                                                    <div class="formInnerwidthfull ">
-                                                        <div class="font-normal text-base text-greycolor mb-1">{$facility_data_store.name}
-                                                        </div>
+                                            </div>
+                                            <div class="w-full">
+                                                <div class="light14grey mb-1">Pravesh ID</div>
+                                                <div class="formInnerwidthfull ">
+                                                    <div class="font-normal text-base text-greycolor mb-1">{$facility_data_store.name}
                                                     </div>
                                                 </div>
                                             </div>
-                                            <!-- {/each} -->
-    
-                                            <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
-                                                <div class="w-full">
-                                                    <div class="light14grey mb-1">New Type</div>
-                                                    <div class="formInnerwidthfull ">
-                                                        <select class="inputboxpopover" bind:value="{newType}">
-                                                            <option class="pt-6">Select</option>
-                                                            {#each get_assoc_types_data as assoc}
-                                                                <option
-                                                                    class="pt-6" 
-                                                                    value={assoc.facility_type}
-                                                                    >{assoc.facility_type}</option
-                                                                >
-                                                                {/each}
-                                                        </select>
-                                                        <div class="formSelectArrow ">
-                                                            <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="w-full">
-                                                    <div class="light14grey mb-1">Type of Attendance</div>
-                                                    <div class="formInnerwidthfull ">
-                                                        <select class="inputboxpopover" bind:value="{attendenceType}">
-                                                            <option class="pt-6">Select</option>
-                                                            {#each get_assoc_types_data as assoc}
-                                                                <option
-                                                                    class="pt-6" 
-                                                                    value={assoc.facility_type}
-                                                                    >{assoc.facility_type}</option
-                                                                >
-                                                                {/each}
-                                                        </select>
-                                                        <div class="formSelectArrow ">
-                                                            <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
-                                                        </div>
-                                                    </div>
-                                                </div>
-    
-                                            </div>
-                                            <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
-                                                <div class="w-full">
-                                                    <div class="light14grey mb-1">From Date</div>
-                                                    <div class="formInnerwidthfull ">
-                                                        <input type="date" class="inputboxpopoverdate" bind:value="{fromDate}">
-                                                    </div>
-    
-                                                </div>
-                                                <div class="w-full">
-                                                    <div class="light14grey mb-1">To Date</div>
-                                                    <div class="formInnerwidthfull ">
-                                                        <input type="date" class="inputboxpopoverdate">
-                                                    </div>
-                                                    <div class="w-full">
-                                                        <div class="light14greylong mb-1 invisible"></div>
-                                                        <div class="formInnerwidthfull ">
-                                                            <div class="light14greylong mb-1 text-xs">Note: Leave empty if
-                                                                no end date</div>
-    
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
-                                                <div class="w-full">
-                                                    <div class="light14grey mb-1">Remarks</div>
-                                                    <div class="formInnerwidthfull ">
-                                                        <input type="text" class="inputbox" bind:value="{assocRemarks}">
-                                                    </div>
-                                                </div>
-    
-                                            </div>
-                                            <div class="actionButtons">
-    
-                                                <div class="updateAction " on:click="{finalreqAssoc}">
-                                                    <button class="ErBlueButton">Submit</button>
-                                                </div>
-                                            </div>
-    
                                         </div>
-                                        {/if}
+                                        <!-- {/each} -->
+
+                                        <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
+                                            <div class="w-full">
+                                                <div class="light14grey mb-1">New Type</div>
+                                                <div class="formInnerwidthfull ">
+                                                    <select class="inputboxpopover" bind:value="{newType}">
+                                                        <option class="pt-6">Select</option>
+                                                        {#each get_assoc_types_data as assoc}
+                                                            <option
+                                                                class="pt-6" 
+                                                                value={assoc.facility_type}
+                                                                >{assoc.facility_type}</option
+                                                            >
+                                                            {/each}
+                                                    </select>
+                                                    <div class="formSelectArrow ">
+                                                        <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="w-full">
+                                                <div class="light14grey mb-1">Type of Attendance</div>
+                                                <div class="formInnerwidthfull ">
+                                                    <select class="inputboxpopover" bind:value="{attendenceType}">
+                                                        <option class="pt-6">Select</option>
+                                                        {#each get_assoc_types_data as assoc}
+                                                            <option
+                                                                class="pt-6" 
+                                                                value={assoc.facility_type}
+                                                                >{assoc.facility_type}</option
+                                                            >
+                                                            {/each}
+                                                    </select>
+                                                    <div class="formSelectArrow ">
+                                                        <img src="../src/img/selectarrow.png" class="w-5 h-auto" alt="">
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
+                                            <div class="w-full">
+                                                <div class="light14grey mb-1">From Date</div>
+                                                <div class="formInnerwidthfull ">
+                                                    <input type="date" class="inputboxpopoverdate" bind:value="{fromDate}">
+                                                </div>
+
+                                            </div>
+                                            <div class="w-full">
+                                                <div class="light14grey mb-1">To Date</div>
+                                                <div class="formInnerwidthfull ">
+                                                    <input type="date" class="inputboxpopoverdate">
+                                                </div>
+                                                <div class="w-full">
+                                                    <div class="light14greylong mb-1 invisible"></div>
+                                                    <div class="formInnerwidthfull ">
+                                                        <div class="light14greylong mb-1 text-xs">Note: Leave empty if
+                                                            no end date</div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
+                                            <div class="w-full">
+                                                <div class="light14grey mb-1">Remarks</div>
+                                                <div class="formInnerwidthfull ">
+                                                    <input type="text" class="inputbox" bind:value="{assocRemarks}">
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="actionButtons">
+
+                                            <div class="updateAction " on:click="{finalreqAssoc}">
+                                                <button class="ErBlueButton">Submit</button>
+                                            </div>
+                                        </div>
+
                                     </div>
-    
+                                    {/if}
                                 </div>
-    
-                                <div class="PhysicalCardContainer">
-                                    <p class="font-medium px-3 pt-4">History</p>
-                                    <div class="heightCardContainer">
-                                        <table class="table  w-full text-center mt-2 ">
-                                            <thead class="theadpopover h-10">
-                                                <tr>
-                                                    <th>Associate
-                                                        Type</th>
-                                                    <th>Type of Attendance</th>
-                                                    <th> Effective From</th>
-                                                    <th>Effective Till</th>
-                                                    <th> Requested On</th>
-                                                    <th> Requested By</th>
-                                                    <th> Remarks</th>
-    
-                                                </tr>
-                                            </thead>
-                                            
-                                            <tbody class="tbodypopover">
-                                                {#each get_change_associte_data as associate}
-                                                <tr class="border-b">
-                                                    
-                                                    <td>{associate.property_value}</td>
-                                                    <td>{associate.attendance_facility_type}</td>
-                                                    <td>{associate.from_date}</td>
-                                                    <td>{associate.to_date}</td>
-                                                    <td>{associate.creation}</td>
-                                                    <td>{associate.owner}</td>
-                                                    <td>
-                                                        {associate.remark}
-                                                    </td>
-                                                    
-                                                </tr>
-                                                {/each}
-                                            </tbody>
-                                            
-                                        </table>
-                                    </div>
+
+                            </div>
+
+                            <div class="PhysicalCardContainer">
+                                <p class="font-medium px-3 pt-4">History</p>
+                                <div class="heightCardContainer">
+                                    <table class="table  w-full text-center mt-2 ">
+                                        <thead class="theadpopover h-10">
+                                            <tr>
+                                                <th>Associate
+                                                    Type</th>
+                                                <th>Type of Attendance</th>
+                                                <th> Effective From</th>
+                                                <th>Effective Till</th>
+                                                <th> Requested On</th>
+                                                <th> Requested By</th>
+                                                <th> Remarks</th>
+
+                                            </tr>
+                                        </thead>
+                                        
+                                        <tbody class="tbodypopover">
+                                            {#each get_change_associte_data as associate}
+                                            <tr class="border-b">
+                                                
+                                                <td>{associate.property_value}</td>
+                                                <td>{associate.attendance_facility_type}</td>
+                                                <td>{associate.from_date}</td>
+                                                <td>{associate.to_date}</td>
+                                                <td>{associate.creation}</td>
+                                                <td>{associate.owner}</td>
+                                                <td>
+                                                    {associate.remark}
+                                                </td>
+                                                
+                                            </tr>
+                                            {/each}
+                                        </tbody>
+                                        
+                                    </table>
                                 </div>
-        
                             </div>
     
-    
-    
-    
                         </div>
-    
+
+
+
+
                     </div>
+
                 </div>
             </div>
         </div>
+    </div>
 
 
-            <!-- Cas View modal HTML-->
+    <!-- Cas View modal HTML-->
     
     <div  class="actionDialogueOnboard " id="showCasUser" hidden>
         <div class="pancardDialogueOnboardWrapper ">
@@ -5911,6 +6200,108 @@
                         <button type="button" class="dialogueSingleButton">Activate User</button>
                     </div> -->
                 </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Extrenal Verifcation View modal HTML-->
+
+    <div  class="actionDialogueOnboard " id="showexternalverify" hidden>
+        <div class="pancardDialogueOnboardWrapper ">
+            <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+                <div class="modalHeadConmb-0">
+                    <div class="leftmodalInfo">
+                        <p class=""> External Verification Status</p>
+                    </div>
+                    <div class="rightmodalclose" on:click="{closeExternalVerify}">
+                        <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal">
+                    </div>
+                </div>
+                <div class="m-4 col-span-3 " >
+                    <div class="formField mb-2">
+                        <label class="text-greycolor font-light text-sm text-left ">Score <span class="text-red-600">*</span> </label>
+                        <div class="w-full ">
+                            <input type="text" class="inputboxVMT" bind:value="{exScore}">
+                        </div>
+                    </div>
+
+                    <div class="formField mb-2">
+                        <label class="text-greycolor font-light text-sm text-left " >Remarks <span class="text-red-600">*</span> </label>
+                        <div class="w-full ">
+                            <input type="text" class="inputboxVMT" bind:value="{exRemarks}">
+                        </div>
+                    </div>
+
+                    <div class="ActionButtonsReject text-right mt-3">
+                        <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium" on:click="{externalReject}">Reject</button>
+                        <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium" on:click="{externalApprove}">Approve</button>    
+                    </div>    
+            </div>  
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard modal View modal HTML-->
+
+    <div  class="actionDialogueOnboard " id="showDash" hidden>
+        <div class="pancardDialogueOnboardWrapper ">
+            <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+                <div class="modalHeadConmb-0 bg-red-200 rounded-t-lg">
+                    <div class="leftmodalInfo">
+                        <p class=""> Facilities who have worked but have name mismatch issues</p>
+                    </div>
+                    <div class="rightmodalclose" on:click="{closeDash}">
+                        <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal">
+                    </div>
+                </div>
+                <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
+                    <div class="w-full">
+                        <div class="light14grey mb-1">Organization</div>
+                        <div class="formInnerwidthfull ">
+                            <select class="inputboxpopover" bind:value={id_select}>
+                                <option value="" disabled selected>Select</option>
+                                {#each get_client_data_mapping_data as org_detail}
+                                    <option
+                                        class="pt-6"
+                                        value="{org_detail.org_id}"
+                                        >{org_detail.org_name}</option
+                                    >
+                                {/each}
+                            </select>
+                            <div class="formSelectArrow ">
+                                <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-full">
+                        <div class="light14grey mb-1">Station</div>
+                        <div class="formInnerwidthfull ">
+                            <select class="inputboxpopover" bind:value={stat_select}>
+                                <option value="" disabled selected>Select</option>
+                                {#each station_data_array as station}
+                                    <option
+                                        class="pt-6" 
+                                        value={station.station_code}
+                                        >{station.station_code} - {station.station_name}</option
+                                    >
+                                    {/each}
+                            </select>
+                            <div class="formSelectArrow ">
+                                <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="w-full">
+                        <div class="light14grey mb-1">Month-Year</div>
+                        <div class="formInnerwidthfull ">
+                            <input type="date" class="inputboxpopoverdate" bind:value="{notonbDate}">
+                        </div>
+
+                    </div>
+                </div>
+                <div class="ActionButtonsReject text-right mt-3 pr-3 pb-2">
+                    <button type="button" class="btnApprove px-pt21 py-p9px bg-bgrebeccapurple text-white rounded-br5 font-medium" on:click="{download_csv_file}">Download</button>    
+                </div>  
             </div>
         </div>
     </div>

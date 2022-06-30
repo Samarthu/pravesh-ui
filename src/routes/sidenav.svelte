@@ -9,6 +9,7 @@
     let routeSupplier = "";
     let routeDownloads = "";
     let routeSupport = "";
+    let routeReports = "";
 
     export let url = "";
 
@@ -54,12 +55,18 @@
         goto(routeSupport, { replaceState });
     }
 
+    function routeToPageReports() {
+        let replaceState = false;
+        goto(routeReports, { replaceState });
+    }
+
     let current = 'routeToPageOnboard';
     routeOnboard = "facility_type_select"; 
     routeDashboard = "dashboard";
     routeSupplier = "supplier";   
     routeDownloads = "downloads"; 
     routeSupport = "support"; 
+    routeReports = "reports";
 </script>
 
 <div class="w-full flex">
@@ -217,8 +224,8 @@
 
 
 
-            <li class="listItem">
-                <a class="" href="javascript:void(0)">
+            <li class="listItem" on:click="{routeToPageReports}">
+                <button class="" href="javascript:void(0)">
                     <svg
                         class="svgIcon"
                         width="22"
@@ -242,7 +249,7 @@
                         />
                     </svg>
                     <span class="menuname">Reports</span>
-                </a>
+                </button>
             </li>
 
             <li class="listItem">

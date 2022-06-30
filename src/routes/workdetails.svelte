@@ -107,6 +107,8 @@
     let msme_message = "";
     export let is_adhoc_facility = false;
 
+   
+
     function route() {
         // let valid = true;
         valid = true;
@@ -323,6 +325,23 @@
 
     routeTo = "verifycontactnumber";
     onMount(async () => {
+    //     window.onbeforeunload = function(event)
+    // {
+    //     if(confirm("All data will be Lost!") == true){
+    //         if(!$facility_data_store.org_id){
+    //         goto("facility_type_select",{replaceState:false})
+
+    //     }
+    //     else{
+    //         alert($facility_id.facility_id_number)
+
+    //     }
+
+    //     }
+    //     else{
+
+    //     }
+    // };
         show_spinner = true;
         console.log("page_name", page_name);
         console.log("page info", $page.url);
@@ -335,10 +354,14 @@
         console.log("facility_data_store", $facility_data_store);
         console.log("facility documnet store",$documents_store);
         console.log("facility id", $facility_id.facility_id_number);
-        if(!$facility_data_store.org_id){
+    //     if(confirm("All data will be Lost!") == true){
+            
+    // }
+    if(!$facility_data_store.org_id){
             goto("facility_type_select",{replaceState:false})
 
         }
+        
 
         if ($facility_id.facility_id_number) {
             console.log("inside facility id is present");
