@@ -607,7 +607,7 @@ import { current_user } from "../stores/current_user_store";
                 
                 for(let i=0;i<tags_for_ass_arr.length;i++){
                     for(let j=0;j<pan_req_tags.length;j++){
-                        // console.log("tags_for_ass_arr[i].toLowerCase",tags_for_ass_arr[i].toLowerCase().split(' ').join('_')) 
+                        console.log("tags_for_ass_arr[i].toLowerCase",tags_for_ass_arr[i].toLowerCase().split(' ').join('_')) 
                     if(tags_for_ass_arr[i].toLowerCase().split(' ').join('_') == pan_req_tags[j]){
                         fac_tag_pay_to_ass = true;
                     }
@@ -2310,7 +2310,7 @@ import { current_user } from "../stores/current_user_store";
                 <div class="{work_active}" on:click={() => {change_to = "Work_details",work_active="active",asso_active="",id_active="",bank_active=""}}>Work Details</div>
                 <div class="{id_active}" on:click={() => {change_to = "Identity_details",work_active="",asso_active="",id_active="active",bank_active=""}}>Identity Proof</div>
                 {#each new_arr as req_fac}
-                {#if req_fac == $facility_data_store.facility_type && fac_tag_pay_to_ass == true}
+                {#if req_fac == $facility_data_store.facility_type || fac_tag_pay_to_ass == true}
                 <div class="{bank_active}" on:click={() => {change_to = "Bank_details",work_active="",asso_active="",id_active="",bank_active="active"}}>Bank Details</div>
                 {/if}
                 {/each}
