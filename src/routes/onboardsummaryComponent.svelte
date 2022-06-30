@@ -2336,7 +2336,8 @@ import { current_user } from "../stores/current_user_store";
         is_adhoc_facility = {is_adhoc_facility}
         aadhar_obj ={aadhar_obj}
         dl_photo_obj={dl_photo_obj}
-        pancard_obj={pancard_obj}/>
+        pancard_obj={pancard_obj}
+        location_id = {location_id}/>
     
         {:else if change_to == "Identity_details"}
         <IdentityProof pancard_obj={pancard_obj}
