@@ -1501,7 +1501,7 @@
 
    <!-- TEMPLATE for download -->
 
-   <table id="demotemplatemodel" cellspacing="0" cellpadding="0">
+   <table id="demotemplatemodel" cellspacing="0" cellpadding="0" class = "hidden">
     <tr>
         <th>Station Code</th>
         <th>Client Name</th>
