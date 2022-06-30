@@ -7,26 +7,33 @@
     import { flip } from "svelte/animate";
 
     $:{
-        type=type,
+        // type=type,
         
-        text=text
-        console.log("type",type);
+        // text=text
+        // console.log("type",type);
         
-        console.log("text",text);
+        // console.log("text",text);
+        // type=type
         // countdown = 10;
-        flag = true;
-        duration = 10;
-        if(flag){
-            start_countdown();
-            duration = 10;
-        }
+        // flag = true;
+        // duration = 10;
+        // if(flag){
+        //     start_countdown();
+        //     duration = 10;
+        // }
         
+
+        // if(type){
+        //     console.log("type in reactive",type);
+        // }
         // start_countdown();
     }
 
     function close_click(){
-        type = null;
+        type = "nothing";
         text = null;
+        console.log("after toast click, type:",type," text:",text);
+        setTimeout(console.log(" timeout after toast click, type:",type," text:",text),3000)
     }
     let countdown = 10;
   let timer;
@@ -35,10 +42,10 @@
       if (timer) {
         clearInterval(timer);
         // resend_flag = true;
-        type = null;
-        text = null;
-        timer = null;
-        duration = null;
+        // type = null;
+        // text = null;
+        // timer = null;
+        // duration = null;
         console.log("inside reactive");
       }
     }
