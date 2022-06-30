@@ -8,8 +8,9 @@
     import {
         dashboard_data,
         get_fac_count,find_parent_function,copy_parent_func,
-        get_ass_by_client_name
+        find_by_one_ser,bulk_search_ser
     } from "../services/dashboard_services";
+    import { allowed_pdf_size } from "../services/pravesh_config";
     import { current_user } from "../stores/current_user_store";
     import { img_url_name } from "../stores/flags_store";
     import Spinner from "./components/spinner.svelte";
@@ -23,7 +24,6 @@
     
     let toast_text = "";
     let toast_type = null;
-
     let active =0;
     let show_spinner = false;
     // let background_verification_pending;
@@ -55,6 +55,19 @@
     $:if(city_selected != ""){
         station_select_func();
     }
+    let find_by="clientname";
+    let plchldr = "Enter Client Name";
+    let find_by_data = "";
+    let find_by_arr = [];
+    let bulk_search_var = false;
+    $:if(find_by){
+        find_by_option_changed()
+    }
+    let excel_data="";
+    let excel_upload_message = "";
+    let excel_img = "";
+    
+
 
     // console.log(dashboard)
     onMount(async () => {
@@ -178,6 +191,82 @@
         goto("bussines", { replaceState });
         // goto_wrapper("bussiness",{ replaceState });
     }
+    
+    function convert_to_excel(element_id, type, fn, sheet_name = "client_details") {
+	var elt = document.getElementById(element_id);
+	var wb = XLSX.utils.table_to_book(elt, { sheet: sheet_name });
+	XLSX.writeFile(wb, fn + "." + type);
+
+    }
+
+    var X;
+    const onFileSelected = (e,doctext) => {
+        console.log("INside onfile selected")
+        X = XLSX;
+        var files = e.target.files;
+        var f = files[0];
+        let img = e.target.files[0];
+        if (f != undefined) {
+            if (img.size <= allowed_pdf_size) {
+                console.log("img", img);
+                
+                if(doctext == "excel_upload"){
+                    console.log("Photo log uploaded")  
+                    excel_img = img.name;
+                    console.log("excel_img",excel_img)  
+                }
+                var reader = new FileReader()
+                // reader.readAsBinaryString(img);
+                reader.onload = function () {
+                console.log("reader",reader.result);
+                
+                if(doctext == "excel_upload"){
+                    excel_data = reader.result;
+                    var wb;
+                    wb = X.read(excel_data, { type: 'binary' });
+                    process_wb(wb);
+                    // console.log("photo_data",reader.result);
+                    toast_text = "Doc Selected";
+                    toast_type = "success";
+                    }
+                }
+                    // var reader = new FileReader();
+                    reader.readAsBinaryString(f);
+                    reader.onerror = function (error) {
+                    console.log("Error: ", error);
+                    }
+            }
+            else {
+            alert(
+                "File size is greater than " +
+                    Number(allowed_pdf_size / 1048576) +
+                    "MB. Please upload a file less than " +
+                    Number(allowed_pdf_size / 1048576) +
+                    "MB ."
+            );
+        };
+    }
+}
+
+
+    var finJson;
+    function process_wb(wb) {
+	var output = "";
+	output = JSON.stringify(to_json(wb), 2, 2);
+	finJson = output;
+    }
+
+    function to_json(workbook) {
+        var result = {};
+        workbook.SheetNames.forEach(function (sheetName) {
+            var roa = X.utils.sheet_to_row_object_array(workbook.Sheets[sheetName]);
+            if (roa.length > 0) {
+                result[sheetName] = roa;
+            }
+        });
+        return result;
+    }
+    var X;
 
     // routeNew = "/bussines";
 
@@ -339,13 +428,12 @@
             show_spinner = false;
             return;
         }
-        var download_beejak_docs_res = await  download_beejak_docs(invArr)
+        var download_beejak_docs_res =await  download_beejak_docs(invArr)
         console.log("download_beejak_docs_res",download_beejak_docs_res)
         // window.URL.createObjectURL(download_beejak_docs_res.body);
         // window.open(download_beejak_docs_res.body);
         try{
-            if(download_beejak_docs_res){
-                show_spinner =false;
+            show_spinner =false;
             var a = document.createElement('a');
 			var url = window.URL.createObjectURL(download_beejak_docs_res.body);
 			a.href = url;
@@ -366,7 +454,6 @@
 			a.click();
 			a.remove();
 			window.URL.revokeObjectURL(url);
-        }
     }
     catch(err){
         show_spinner =false;
@@ -384,11 +471,144 @@
         find_by_client_id_model.style.display = "none";
         
     }
-    var pan_emp_id_name = ""
-    async function find_ass_by_client_name(){
-        let get_ass_by_client_name_res = get_ass_by_client_name();
-        console.log
+
+    function find_by_option_changed(){
+        if(find_by == "clientname"){
+            plchldr = "Enter Client Name"
+        }
+        else if(find_by == "employeeid"){
+            plchldr = "Enter Employee Id"
+        }
+        else if(find_by == "pancard"){
+            plchldr = "Enter Pan Number"
+        }
     }
+    
+    async function find_by_one(){
+        if(!find_by_data){
+            toast_type = "error"
+            if(find_by == "clientname"){
+                toast_text = "Enter Valid Client Name."
+            }
+            else if(find_by == "employeeid"){
+                toast_text = "Enter Valid Employee ID"
+            }
+            else if(find_by == "pancard"){
+                toast_text = "Enter Valid PanCard Number"
+            }
+            show_spinner = false
+            return
+        }
+        show_spinner = true
+        let find_by_one_res = await find_by_one_ser(find_by_data,find_by)
+        try{
+            if(find_by_one_res.body.status == "green"){
+                show_spinner = false
+                console.log("find_by_one_res",find_by_one_res)
+                find_by_arr = find_by_one_res.body.data
+                console.log("find_by_arr",find_by_arr)
+            }
+            else{
+                show_spinner = false
+                toast_type = "error"
+                toast_text = find_by_one_res.body.message
+            }
+        }
+        catch(err){
+            show_spinner = false
+            toast_text = err
+            toast_type = "error"
+        }
+
+
+    }
+    function bulk_search_clicked(){
+        if(bulk_search_var == false){
+            bulk_search_var =true;
+        }
+        else{
+            bulk_search_var =false;
+        }
+    }
+
+    function download_template(){
+        var data = document.getElementById('demotemplatemodel');
+        var file = XLSX.utils.table_to_book(data, {sheet: "sheet1"});
+        XLSX.write(file, { bookType: 'xlsx', bookSST: true, type: 'base64' });
+        XLSX.writeFile(file, 'Bulk Search Template.' + 'xlsx');
+    }
+    
+    async function upload_template_doc(){
+    show_spinner = true;
+    console.log("finJson",finJson);
+	if (finJson === undefined || finJson === "") {
+        show_spinner = false;
+        toast_type="error"
+        toast_text = "Please upload parseable <br>excel ( .xlsx ) file "
+		return;
+	}
+	try {
+		finJson = JSON.parse(finJson);
+        // console.log("finJson finJson",finJson)
+	} catch (err) {
+        show_spinner = false;
+        toast_type="error";
+        toast_text = err
+		return;
+	}
+	if (finJson.client_name_search === undefined || finJson.client_name_search == null) {
+        toast_type="error";
+        toast_text = "Client Name Details Missing";
+        show_spinner = false;
+		return;
+	}
+    show_spinner = false;
+    let new_obj = finJson.client_name_search[0]
+    console.log("find_by_data",new_obj['Client Name'])
+    var storeName = new_obj['Client Name'];
+    var stationCode = new_obj['Station Code'];
+    
+    if(!storeName){
+        toast_type="error";
+        toast_text = "Client Name Data Missing In Uploaded File";
+        show_spinner = false;
+		return;
+    }
+    else if(!stationCode){
+        toast_type="error";
+        toast_text = "Station Code Data Missing In Uploaded File";
+        show_spinner = false;
+		return;
+    }
+    
+    let bulk_search_payload = {"json":
+    [{"storeName":storeName,"stationCode":stationCode}]
+    ,"search_type":find_by}
+
+    let bulk_search_res = await bulk_search_ser(bulk_search_payload);
+    // console.log("bulk_search_res",bulk_search_res)
+    try{
+        if(bulk_search_res.body.status == "green"){
+            show_spinner = false;
+            toast_type = "success";
+            toast_text = bulk_search_res.body.message;
+        }
+        else{
+            show_spinner = false;
+            toast_type = "error";
+            toast_text = bulk_search_res.body.message;
+        }
+        
+    }
+    catch(err){
+        show_spinner = false;
+        toast_type = "error";
+        toast_text = err;
+    }
+	
+
+    }
+
     
     async function copy_model_vendor(){
         show_spinner = true;
@@ -1117,37 +1337,37 @@
                         <div class="flex gap-4 items-center xsl:flex-wrap xsl:gap-3" >
                    
                             <div class="formInnerGroup ">
-                              <input type="input" class="inputboxcursortext " placeholder="Enter Client ID">
+                              <input type="input" class="inputboxcursortext " id = "plchldr" placeholder={plchldr} bind:value={find_by_data}>
                            </div>
                            <div class="flex">
-                              <button class="ErBlueButton">Find One </button>
+                              <button class="ErBlueButton" on:click={find_by_one}>Find One </button>
                             </div> 
                         </div>
                         <div class="w-full py-3">
                             <div class="text-center  flex gap-5 mb-2 xsl:flex-wrap xsl:gap-3">
                                 <div class="flex items-center mt-3">
-                                    <input id="radio11" type="radio" name="radio" class="hidden" checked />
+                                    <input id="radio11" type="radio" name="radio" class="hidden" bind:group={find_by} value="clientname" checked/>
                                     <label for="radio11" class="radioLable"> <span class="radioCirle"></span> By Client Name 
                                     </label>
                                 </div>
                             
                                 <div class="flex items-center  mt-2">
-                                    <input id="radio22" type="radio" name="radio" class="hidden" />
+                                    <input id="radio22" type="radio" name="radio" class="hidden" bind:group={find_by} value="employeeid"/>
                                     <label for="radio22" class="radioLable"> <span class="radioCirle"></span> By Employee ID
                                     </label>
                                 </div>
                                 <div class="flex items-center  mt-2">
-                                    <input id="radio33" type="radio" name="radio" class="hidden" />
+                                    <input id="radio33" type="radio" name="radio" class="hidden" bind:group={find_by} value="pancard"/>
                                     <label for="radio33" class="radioLable"> <span class="radioCirle"></span> By PAN Number
                                     </label>
                                 </div>
                             </div>
                         </div>
                         <div class="flex gap-4 items-center " >
-                            <button class="ErBlueButton">Bulk Search </button>
+                            <button class="ErBlueButton" on:click={bulk_search_clicked}>Bulk Search </button>
 
                         </div>
-
+                        {#if bulk_search_var == true}
                         <div class="text-sm mb-4 mt-4">
                             <p> Bulk Search By Client Name  </p>
                             <p>Sheet Name should be "client_name_search"</p>
@@ -1158,44 +1378,51 @@
                             <table class="table  w-full text-center mt-2 ">
                                 <thead class="theadpopover h-10">
                                     <tr>
-                                        <th width="50%">Station Code        </th>
-                                        <th width="50%">Client Name</th>
+                                        <th width="25%">Station Code</th>
+                                        <th width="25%">Client Name</th>
                                     </tr>
                                 </thead>
+                               
                                 <tbody class="tbodycopyvendor outline">
                                     <tr class="border-b">
-                                        <td>AXHN00112</td>
-                                        <td>Eknath Shinde</td>
+                                        <td>AXHN</td>
+                                        <td>EFBH</td>
                                     </tr>
-                                    <tr class="border-b">
-                                        <td>AXHN00113</td>
-                                        <td>Bacchu kadu</td>
+                                    <tr>
+                                        <td>NDA Ram Kumar/ NTEX/12313</td>
+                                        <td>Vendor_ER_Shyam Kumar</td>
                                     </tr>
+                                
 
                                 </tbody>
+                                
                             </table>
                         </div>
 
                         <div class="flex mt-4">
-                            <button class="ErBlueButton">Download Bulk Search Template </button>
+                            <button class="ErBlueButton" on:click={download_template}>Download Bulk Search Template </button>
                          </div> 
                          <div class="flex mt-4">
                             <div class="formInnerGroup flex items-center ">
                                 
                                  <label class="cursor-pointer">
+                                    
                                     <div class="uploadbutton">Upload</div>
-                                    <input type="file" class="hidden">
+                                    <input type="file" class="hidden" on:change={(e) =>
+                                    onFileSelected(e,"excel_upload")}
+
+                                bind:value="{excel_data}" />
+                            <div class="text-red-500">{excel_upload_message}</div>
+
                                 </label>
-                                <p class="text-grey ml-4">
-                                    Choose file</p>
-                                
+                                <p class="text-grey ml-4">{excel_img}</p>
                             </div>
                          </div> 
                          <div class="flex mt-4">
-                            <button class="ErBlueButton">Search</button>
+                            <button class="ErBlueButton" on:click={upload_template_doc}>Search</button>
                          </div> 
-
-                         <div class="xsl:overflow-scroll mt-5 ">
+                        {/if}
+                         <!-- <div class="xsl:overflow-scroll mt-5 ">
                             <table class="table  w-full text-center mt-2 ">
                                 <thead class="theadpopover h-10">
                                     <tr>
@@ -1239,8 +1466,31 @@
 
                                 </tbody>
                             </table>
-                        </div>
+                        </div> -->
+                        <div class="xsl:overflow-scroll mt-5 ">
+                        <table class="table  w-full text-center mt-2 ">
+                            <thead class="theadpopover h-10">
+                                <tr>
+                                    <th width="25%">Client Name</th>
+                                    <th width="25%">Station Code</th>
+                                    <th width="25%">Associate Name</th>
+                                    <th width="25%">Associate ID</th>
+                                </tr>
+                            </thead>
+                            {#each find_by_arr as client}
+                            <tbody class="tbodycopyvendor outline">
+                                <tr class="border-b">
+                                    <td>{#if client.org_specific_name}{client.org_specific_name}{:else}<p>-</p>{/if}</td>
+                                    <td>{#if client.conf_station_code}{client.conf_station_code}{:else}<p>-</p>{/if}</td>
+                                    <td>{#if client.facility_name}{client.facility_name}{:else}<p>-</p>{/if}</td>
+                                    <td>{#if client.facility_id}{client.facility_id}{:else}<p>-</p>{/if}</td>
+                                </tr>
+                            
 
+                            </tbody>
+                            {/each}
+                        </table>
+                    </div>
                     </div>
                 </div>
             </div>
@@ -1248,5 +1498,27 @@
     </div>
    </div>
    <!-- Find Associate By Client Name Modal-->
+
+   <!-- TEMPLATE for download -->
+
+   <table id="demotemplatemodel" cellspacing="0" cellpadding="0">
+    <tr>
+        <th>Station Code</th>
+        <th>Client Name</th>
+        
+    </tr>
+    <tr>
+        <td>AXHN</td>
+        <td>NDA Ram Kumar/ NTEX/12313</td>
+        
+    </tr>
+    <tr>
+        <td>EFBH</td>
+        <td>Vendor_ER_Shyam Kumar</td>
+        
+    </tr>
+</table>
+
+      <!-- TEMPLATE for download -->
 
 <Toast type={toast_type}  text={toast_text}/>

@@ -2597,6 +2597,7 @@ else
                                                         {/if}
                                                         {facility_data.status}
                                                     </div>
+                                                    {#if facility_data.status != "Deactive"}
                                                      <div class="actionBtn mt-3">
                                                         <button on:click={deactivate_associate(facility_data)}
                                                             href="#"
@@ -2604,6 +2605,7 @@ else
                                                             >Deactivate Profile</button
                                                         >
                                                     </div>
+                                                    {/if}
                                                     <!-- <div class="statusDetails">
                                                         <p
                                                             class="vendorDetailsText"
