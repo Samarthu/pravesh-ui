@@ -62,54 +62,53 @@ const copy_parent_func = (parent_obj) => {
 //     )
 // }
 
-const download_beejak_docs = async (beejak_id) =>{
+const download_beejak_docs = (beejak_id) =>{
     let download_beejak_docs_url = "/api/method/pravesh.facility.routes.document.get_beejak_invoices?invoice_ids="+beejak_id;
-    const value = await request(
+    return request(
         download_beejak_docs_url, {
         method: "POST",
         contentType: 'application/json',
         xhrFields: {
-            responseType: 'blob'
-        }
+			responseType: 'blob'
+		}
     }, true
-    );
-    console.log("value", value);
+    ).then((value)=>{
+        console.log("value",value)
+    })
 }
 
-const get_ass_by_client_name = (key,type) =>{
-    let get_ass_by_client_name_url = "/api/method/pravesh.facility.routes.facility.get_facility_by_client_or_emp_id?key="+key+"&key_type="+type+"";
+const find_by_one_ser =(key,key_type)=>{
+    let find_by_one_ser_url = '/api/method/pravesh.facility.routes.facility.get_facility_by_client_or_emp_id?key='+key+'&key_type='+key_type
     return request(
-        get_ass_by_client_name_url, {
+        find_by_one_ser_url, {
         method: "GET",
     }, true
     )
 }
-// const dashboard_data = () =>{
-//     return request(
-//         dashboard_data_url,{
-//             method: "GET"
-//         },true
-//     ).then((data)=>{
-//         console.log("inside service",data)
-        // dashboard_details.set({
-        // // dashboard_details : data
-        // id_proof_rejected : data.body.data[7].count,
-        // bank_details_rejected : data.body.data[4].count,
-        // bgv_pending : data.body.data[1].count,
-        // id_verification_pending : data.body.data[8].count,
-        // bank_verification_pending : data.body.data[5].count,
-        // pending_offer_letter : data.body.data[10].count,
-        // bgv_rejected : data.body.data[12].count,
-        // active : data.body.data[0].count,
-        // deactive : data.body.data[6].count,
-        // bank_details_pending : data.body.data[3].count,
-        // bank_beneficiary_pending : data.body.data[2].count,
-        // onboarding_in_progress : data.body.data[9].count,
-        // })
-        // console.log("dashboard_detaissss ls",dashboard_details)
-//     })
+// const bulk_search_ser = (data) =>{
+// let bulk_search_sers_url = "/api/method/pravesh.facility.routes.facility.bulk_client_name_search";
+// return request(
+//     bulk_search_sers_url, {
+//     method: "POST",
+//     headers: { "Contains-Array": "yes" },
+//     contentType: 'application/json',
+//     dataType: 'json',
+//     data:JSON.stringify(data)
+// }, true)
+
 // }
 
+const bulk_search_ser = (data) =>{
+    let bulk_search_sers_url = '/api/method/pravesh.facility.routes.facility.bulk_client_name_search';
+    return request(
+        bulk_search_sers_url, 
+        {  
+            method: "POST",
+            headers: { "contains-array": "yes" ,"Content-Type": "application/json"},
+            body:JSON.stringify(data),       
+               
+        },true)
+}
 
 export{
     demo_api_fun,
@@ -118,7 +117,8 @@ export{
     get_fac_count,
     find_parent_function,
     copy_parent_func,
-    get_ass_by_client_name,
-    download_beejak_docs
+    download_beejak_docs,
+    find_by_one_ser,
+    bulk_search_ser
     //download_docs,
 }

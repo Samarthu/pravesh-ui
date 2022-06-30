@@ -29,8 +29,6 @@ const get_date_format = (date,format) =>{
         }
         else if(format == 'mm-dd-yyyy'){
             return String(month+"-"+day+"-"+year);
-
-
         }
         else if(format == 'dd-mm-yyyy-hh-mm'){
             var hours = date.getHours();
@@ -42,7 +40,6 @@ const get_date_format = (date,format) =>{
             return String(day+"-"+month+"-"+year+ " "+hours+":"+minutes +" "+ ampm);
 
         }
-        
         else{
             return "please provide a valid date format";
         }

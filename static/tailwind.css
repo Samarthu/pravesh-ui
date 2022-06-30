@@ -2470,3 +2470,39 @@ ul.menuList li a.active span{
 .modalContainerFindAssociate{
     @apply fixed w-11/12  h-max-h-95vh z-50 overflow-y-auto bg-white rounded-br8 mt-5 mb-4 top-0 
 }
+
+.theadpopover tr th{
+    font-size: 13px;
+    font-weight: 500;
+    background: #060606;
+    color: white;
+    text-align: center;
+    padding: 5px 9px;
+
+}
+.tbodypopover tr td{
+    color: #575757;
+    font-size: 13px;
+    font-weight: 400;
+    white-space: nowrap;
+    text-align: center;
+    padding: 10px 0px;
+}
+
+
+.tbodypopover tr{
+    border-bottom: 2px solid #BECDD7;
+}
+
+/* copy vendor */
+
+.tbodycopyvendor tr td{
+    color: #575757;
+    font-size: 13px;
+    font-weight: 400;
+    white-space: nowrap;
+    text-align: center;
+    padding: 10px 0px;
+
+}
+tr:nth-child(even) {background-color: #f2f2f2;}
