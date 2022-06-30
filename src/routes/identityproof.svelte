@@ -3,6 +3,8 @@
 </script>
 
 <script>
+    import { SvelteToast, toast } from '@zerodevx/svelte-toast'
+    import {success_toast ,error_toast,warning_toast} from '../services/toast_theme';
     import { goto } from "$app/navigation";
     import {
         verify_document_function,
@@ -177,10 +179,10 @@
     };
     onMount(async () => {
         page_name = $page.url["pathname"].split("/").pop();
-        if(!$facility_data_store.org_id){
-            goto("facility_type_select",{replaceState:false})
+        // if(!$facility_data_store.org_id){
+        //     goto("facility_type_select",{replaceState:false})
 
-        }
+        // }
         console.log("page name on identity", page_name);
         console.log("document store", $documents_store.documents);
 
@@ -362,8 +364,10 @@
                     }
                 } catch {
                     show_spinner = false;
-                    toast_text = "Unable to verify Pan Card";
-                    toast_type = "error";
+                    // toast_text = "Unable to verify Pan Card";
+                    // toast_type = "error";
+                    error_toast("Unable to verify Pan Card");
+                    
                 }
             }
         } else {
@@ -460,8 +464,9 @@
                     }
                 } catch {
                     show_spinner = false;
-                    toast_text = "Unable to verify Aadhar Card";
-                    toast_type = "error";
+                    // toast_text = "Unable to verify Aadhar Card";
+                    // toast_type = "error";
+                    error_toast("Unable to verify Aadhar Card");
                 }
             }
         } else {
@@ -517,8 +522,9 @@
                     }
                 } catch {
                     show_spinner = false;
-                    toast_text = "Unable to verify Voter Id";
-                    toast_type = "error";
+                    // toast_text = "Unable to verify Voter Id";
+                    // toast_type = "error";
+                    error_toast("Unable to verify Voter Id");
                 }
             }
         } else {
@@ -580,8 +586,9 @@
                     }
                 } catch {
                     show_spinner = false;
-                    toast_text = "Unable to verify Driving License";
-                    toast_type = "error";
+                    // toast_text = "Unable to verify Driving License";
+                    // toast_type = "error";
+                    error_toast("Unable to verify Driving License");
                 }
             }
         } else {
@@ -592,8 +599,15 @@
     }
 
     function temp_function() {
-        toast_text = "test1";
-        toast_type = "error";
+        // toast_text = "test1";
+        // toast_type = "error";
+//         toast.push('Success!', {
+//   theme: {
+//     '--toastBackground': '#48BB78',
+//     '--toastBarBackground': '#2F855A'
+//   }
+// })
+success_toast("test1")
         console.log("toast_text", toast_text, "   toast_type", toast_type);
         facility_data_store.subscribe((value) => {
             temp = value;
@@ -616,8 +630,14 @@
         console.log("pravesh properties", $pravesh_properties.properties);
     }
     function temp_value_filled() {
-        toast_text = "test2";
-        toast_type = "error";
+        // toast_text = "test2";
+        // toast_type = "error";
+//         toast.push('Succsssssss', {
+//   theme: {
+//     '--toastBackground': '#48BB78',
+//     '--toastBarBackground': '#2F855A'
+//   }
+// })
         console.log("toast_text", toast_text, "   toast_type", toast_type);
         $facility_data_store.address = [
             {
@@ -996,8 +1016,9 @@
                 // console.log("condition works");
                 // form_message = "Please Upload Atleast One Document";
                 // console.log("form_message", form_message);
-                toast_type = "warning";
-                toast_text = "Please Upload Atleast One Document";
+                // toast_type = "warning";
+                // toast_text = "Please Upload Atleast One Document";
+                warning_toast("Please Upload Atleast One Document")
                 console.log("Please Upload Atleast One Document");
                 show_spinner = false;
             } else {
@@ -1013,8 +1034,9 @@
                 ) {
                     if (!pan_card_data.doc_number) {
                         form_message = "Please upload Pan card details";
-                        toast_type = "warning";
-                        toast_text = "Please upload Pan card details";
+                        // toast_type = "warning";
+                        // toast_text = "Please upload Pan card details";
+                        warning_toast("Please upload Pan card details")
                         valid = false;
                         show_spinner = false;
                     } else {
@@ -1128,8 +1150,9 @@
                     // console.log("condition works");
                     // form_message = "Please Upload Atleast One Document";
                     // console.log("form_message", form_message);
-                    toast_type = "warning";
-                    toast_text = "Please Upload Atleast One Document";
+                    // toast_type = "warning";
+                    // toast_text = "Please Upload Atleast One Document";
+                    warning_toast("Please Upload Atleast One Document")
                     console.log("Please Upload Atleast One Document");
                     show_spinner = false;
                 } else {
@@ -1150,8 +1173,9 @@
                             !pan_card_data.file_name
                         ) {
                             form_message = "Please upload Pan card details";
-                            toast_type = "warning";
-                            toast_text = "Please upload Pan card details";
+                            // toast_type = "warning";
+                            // toast_text = "Please upload Pan card details";
+                            warning_toast("Please upload Pan card details");
                             valid = false;
                             show_spinner = false;
                         } else {
@@ -1193,8 +1217,9 @@
                     try {
                         console.log("inside save try");
                         // alert("Facility saved successfully");
-                        toast_type = "success";
-                        toast_text = "Facility saved successfully";
+                        // toast_type = "success";
+                        // toast_text = "Facility saved successfully";
+                        success_toast("Facility saved successfully")
 
                         $facility_id.facility_id_number =
                             save_facility_response.body.data.name;
@@ -1223,14 +1248,16 @@
                             } else {
                                 // alert("Session user not found error!");
 
-                                toast_type = "error";
-                                toast_message = "Session user not found error!";
+                                // toast_type = "error";
+                                // toast_message = "Session user not found error!";
+                                error_toast("Session user not found error!");
                             }
                         } catch {
                             show_spinner = false;
-                            // alert("Session user not found error!");
-                            toast_type = "error";
-                            toast_message = "Session user not found error!";
+                          
+                            // toast_type = "error";
+                            // toast_message = "Session user not found error!";
+                            error_toast("Session user not found error!");
                             console.log("current user data", $current_user);
                         }
 
@@ -1257,11 +1284,14 @@
                                 document_upload_response.body.status != "green"
                             ) {
                                 // alert("Document upload failed");
-                                toast_text =
-                                    $documents_store.documents[i][
+                                // toast_text =
+                                //     $documents_store.documents[i][
+                                //         "doc_category"
+                                //     ] + " Document upload failed";
+                                // toast_type = "error";
+                                error_toast($documents_store.documents[i][
                                         "doc_category"
-                                    ] + " Document upload failed";
-                                toast_type = "error";
+                                    ] + " Document upload failed");
                                 show_spinner = false;
                             }
                             console.log(
@@ -1287,6 +1317,10 @@
                                 JSON.stringify(get_updated_documents.body.data)
                             );
                             $documents_store.documents = [];
+                        }
+                        else{
+                            error_toast("Unable to fetch Facility Documents")
+
                         }
 
                         let get_updated_facility_data = await facility_data();
@@ -1318,6 +1352,9 @@
                                 temp,
                                 "dd-mm-yyyy"
                             );
+                        }else{
+                            error_toast("Unable to fetch Facility data")
+
                         }
 
                         show_spinner = false;
@@ -1353,8 +1390,9 @@
                         }
                     } catch {
                         // alert("Error in saving facility!");
-                        toast_text = "Error in saving facility!";
-                        toast_type = "error";
+                        // toast_text = "Error in saving facility!";
+                        // toast_type = "error";
+                        error_toast("Error in saving facility!");
                         show_spinner = false;
                     }
                 } else {
@@ -1369,8 +1407,9 @@
                             "Traceback :" +
                             save_facility_response.body.traceback
                     );
-                    toast_text = "Error in saving facility!";
-                    toast_type = "error";
+                    // toast_text = "Error in saving facility!";
+                    // toast_type = "error";
+                    error_toast( "Error in saving facility!")
                     show_spinner = false;
 
                     // alert("Facility not created");
@@ -1397,17 +1436,21 @@
                             $documents_store.documents[i]
                         );
                     if (document_upload_response.body.status != "green") {
-                        // alert("Document upload failed");
-                        toast_text =
-                            $documents_store.documents[i]["doc_category"] +
-                            " Document upload failed";
-                        toast_type = "error";
+                      
+                        // toast_text =
+                        //     $documents_store.documents[i]["doc_category"] +
+                        //     " Document upload failed";
+                        // toast_type = "error";
+                        error_toast($documents_store.documents[i]["doc_category"] +
+                            " Document upload failed");
                         show_spinner = false;
                     } else {
-                        toast_text =
-                            $documents_store.documents[i]["doc_category"] +
-                            " Document uploaded";
-                        toast_type = "success";
+                        // toast_text =
+                        //     $documents_store.documents[i]["doc_category"] +
+                        //     " Document uploaded";
+                        // toast_type = "success";
+                        success_toast($documents_store.documents[i]["doc_category"] +
+                            " Document uploaded")
                     }
                     console.log(
                         "document_upload_response",
@@ -1427,8 +1470,9 @@
                     $documents_store.documents = [];
                 }
                 else{
-                    toast_text = "Unable to fetch Facility documents";
-                    toast_type = "error";
+                    // toast_text = "Unable to fetch Facility documents";
+                    // toast_type = "error";
+                    error_toast("Unable to fetch Facility documents");
                     show_spinner = false;
                 }
 
@@ -1464,8 +1508,9 @@
                 }
                 else{
                     show_spinner = false;
-                    toast_text = "Unable to fetch Facility data";
-                    toast_type = "error";
+                    error_toast("Unable to fetch Facility data");
+                    // toast_text = "Unable to fetch Facility data";
+                    // toast_type = "error";
                 }
 
                 console.log("document store", $documents_store.documents);
@@ -1804,11 +1849,11 @@
                             <div class="formGroup ">
                                 <label class="formLable "
                                     >PAN Card Number
-                                    {#if $pravesh_properties.properties["pan_required_associates"].includes($facility_data_store.facility_type)}
+                                    <!-- {#if $pravesh_properties.properties["pan_required_associates"].includes($facility_data_store.facility_type)}
                                         <span class="text-mandatorysign"
                                             >*
                                         </span>
-                                    {/if}
+                                    {/if} -->
                                 </label>
                                 <div class="formInnerGroup ">
                                     <span class="searchicon">
@@ -1844,11 +1889,12 @@
                         <div class="flex">
                             <div class="formGroupBaseLine py-1">
                                 <label class="formLable "
-                                    >PAN Card Copy {#if $pravesh_properties.properties["pan_required_associates"].includes($facility_data_store.facility_type)}
+                                    >PAN Card Copy 
+                                    <!-- {#if $pravesh_properties.properties["pan_required_associates"].includes($facility_data_store.facility_type)}
                                         <span class="text-mandatorysign"
                                             >*
                                         </span>
-                                    {/if}
+                                    {/if} -->
                                 </label>
                                 <!-- <div class="formInnerGroup ">
 
@@ -2249,7 +2295,7 @@
                             </div>
                         </div>
                         {form_message}
-                        <!-- <button
+                        <button
                             on:click|preventDefault={() => {
                                 temp_function();
                             }}
@@ -2260,7 +2306,7 @@
                                 temp_value_filled();
                             }}
                             class="saveandproceed">fill_value</button
-                        > -->
+                        >
                     </div>
                 </form>
             </div>
@@ -2308,6 +2354,7 @@
     </div>
 </div>
 <Toast type={toast_type} text={toast_text} />
+<SvelteToast />
 {#if show_dialouge}
     <div id="actionModalDialogue" tabindex="-1" class="actionDialogue">
         <div class="actionDialogueWrapper">
