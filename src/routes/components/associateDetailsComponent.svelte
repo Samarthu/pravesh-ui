@@ -40,6 +40,7 @@
             // export let facility_document_data = [];
         let query;
             export let tags_for_ass_arr=[];
+            export let tags_to_display = [];
             let check_selected = false;
             let id_new_date='';
             let all_tags_res;
@@ -2407,7 +2408,7 @@
 
                                         <span class="detailData " id="rem_comma">
 
-                                            {#each tags_for_ass_arr as show_fac}
+                                            {#each tags_to_display as show_fac}
 
                                             {show_fac}
 
