@@ -1065,7 +1065,7 @@ import { current_user } from "../stores/current_user_store";
         const onFileSelected = (e,doctext) => {
             show_spinner = true;
             let img = e.target.files[0];
-            if (img.size <= allowed_pdf_size) {
+            if (img && img.size <= allowed_pdf_size) {
                 console.log("img", img);
                 
                 if(doctext == "gst_upload"){
@@ -1111,7 +1111,13 @@ import { current_user } from "../stores/current_user_store";
                     console.log("Error: ", error);
                     }
             }
+            else if(!img){
+                toast_text = "Select File";
+                    toast_type = "error";
+                show_spinner = false;
+            }
             else {
+                show_spinner = false;
             alert(
                 "File size is greater than " +
                     Number(allowed_pdf_size / 1048576) +
@@ -1773,7 +1779,7 @@ import { current_user } from "../stores/current_user_store";
                 return
             }
              if(!document_desc){
-                doc_det_msg = "Please Select Document Type"
+                doc_det_msg = "Please Enter Document Description"
                 show_spinner = false;
                 return
             }
@@ -2646,7 +2652,7 @@ import { current_user } from "../stores/current_user_store";
                                                         <p class="detailData">{new_doc_data.doc_category}<br>({new_doc_data.doc_type})</p>
                                                     </td>
                                                     <td>
-                                                        <p class="detailData">{new_doc_data.modified_by}</p>
+                                                        <p class="detailData">{new_doc_data.owner}</p>
                                                     </td>
                                                     <td>
                                                         <p class="detailData"> {new_doc_data.modified}</p>
