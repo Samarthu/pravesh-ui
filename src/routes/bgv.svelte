@@ -2614,7 +2614,7 @@
                                     <div class="flex  items-center">
                                         <div class="formInnerGroup ">
                                             <input type="date" id = "dob" class="inputboxbgv" bind:value="{$bgv_data_store.basic_info_dob}"
-                                            max={new Date().toISOString().split('T')[0]}>
+                                            max={new Date().toISOString().split('T')[0]} onkeydown="return false">
                                             
                                         <div class="text-red-500" id="dob_msg"></div>
                                         </div>
@@ -3068,7 +3068,7 @@
                                     </span>
                                     <input type="date" class="inputbox"  
                                     max={new Date().toISOString().split('T')[0]}
-                                    bind:value="{$bgv_data_store.stay_from}">
+                                    bind:value="{$bgv_data_store.stay_from}" onkeydown="return false">
                                     <div class="text-red-500" id="st_from_msg"></div>
                                 </div>
                             </div>
@@ -3082,7 +3082,7 @@
                                     </span>
                                     <input type="date" class="inputbox"  
                                     min={new Date().toISOString().split('T')[0]}
-                                    bind:value="{$bgv_data_store.stay_till}">
+                                    bind:value="{$bgv_data_store.stay_till}" onkeydown="return false">
                                     <div class="text-red-500" id="st_till_msg"></div>
                                 </div>
                             </div>
@@ -3238,7 +3238,7 @@
                                 <div class="xs:w-full sm:w-full">
                                     <div class="flex  items-center">
                                         <div class="formInnerGroup ">
-                                            <input type="date" class="inputboxbgv" bind:value="{$bgv_data_store.pan_dob}">
+                                            <input type="date" class="inputboxbgv" bind:value="{$bgv_data_store.pan_dob}" onkeydown="return false">
                                             <div class="text-red-500" id="pan_dob_msg"></div>
                                         </div>
                                         <div>
@@ -3418,7 +3418,7 @@
                                 <div class="xs:w-full sm:w-full">
                                     <div class="flex  items-center">
                                         <div class="formInnerGroup ">
-                                            <input type="date" class="inputboxbgv"  bind:value="{$bgv_data_store.dl_dob}">
+                                            <input type="date" class="inputboxbgv"  bind:value="{$bgv_data_store.dl_dob}" onkeydown="return false">
                                             <div class="text-red-500" id="lic_dob_msg"></div>
                                         </div>
                                         <div>
@@ -3444,7 +3444,7 @@
                                     </span>
                                     <input type="date" class="inputbox" 
                                     max={new Date().toISOString().split('T')[0]}
-                                    bind:value="{$bgv_data_store.dl_issue_date}">
+                                    bind:value="{$bgv_data_store.dl_issue_date}" onkeydown="return false">
                                     <div class="text-red-500" id="dl_issue_msg"></div>
                                 </div>
                             </div>
@@ -3459,7 +3459,7 @@
                                     </span>
                                     <input type="date" class="inputbox" 
                                     min={new Date().toISOString().split('T')[0]}
-                                    bind:value="{$bgv_data_store.dl_expiry_date}">
+                                    bind:value="{$bgv_data_store.dl_expiry_date}" onkeydown="return false">
                                     <div class="text-red-500" id="dl_expiry_msg"></div>
                                 </div>
                             </div>

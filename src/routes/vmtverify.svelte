@@ -6067,14 +6067,14 @@
                                             <div class="w-full">
                                                 <div class="light14grey mb-1">From Date</div>
                                                 <div class="formInnerwidthfull ">
-                                                    <input type="date" class="inputboxpopoverdate" bind:value="{fromDate}">
+                                                    <input type="date" class="inputboxpopoverdate" bind:value="{fromDate}" onkeydown="return false">
                                                 </div>
 
                                             </div>
                                             <div class="w-full">
                                                 <div class="light14grey mb-1">To Date</div>
                                                 <div class="formInnerwidthfull ">
-                                                    <input type="date" class="inputboxpopoverdate">
+                                                    <input type="date" class="inputboxpopoverdate" onkeydown="return false">
                                                 </div>
                                                 <div class="w-full">
                                                     <div class="light14greylong mb-1 invisible"></div>
@@ -6294,7 +6294,7 @@
                     <div class="w-full">
                         <div class="light14grey mb-1">Month-Year</div>
                         <div class="formInnerwidthfull ">
-                            <input type="date" class="inputboxpopoverdate" bind:value="{notonbDate}">
+                            <input type="date" class="inputboxpopoverdate" bind:value="{notonbDate}" onkeydown="return false">
                         </div>
 
                     </div>

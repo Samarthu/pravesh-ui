@@ -2041,7 +2041,7 @@
                                             <div class="light14grey mb-1">Remove On</div>
                                             <div class="formInnerwidthfull ">
                                                 <input type="date" class="inputboxpopoverdate" placeholder=" " min={new
-                                                    Date().toISOString().split('T')[0]} bind:value="{tag_date}" />
+                                                    Date().toISOString().split('T')[0]} bind:value="{tag_date}"  onkeydown="return false" />
 
                                             </div>
                                             <div class="w-full">
@@ -2438,7 +2438,7 @@
                                             <div class="light14grey mb-1">Start Date</div>
                                             <div class="formInnerwidthfull ">
                                                 <input type="date" class="inputboxpopoverdate" bind:value = {cont_start_date}
-                                                >
+                                                onkeydown="return false">
                                             </div>
                                         </div>
                                     </div>
@@ -2447,7 +2447,7 @@
                                         <div class="w-full">
                                             <div class="light14grey mb-1">End Date</div>
                                             <div class="formInnerwidthfull ">
-                                                <input type="date" class="inputboxpopoverdate" bind:value = {cont_end_date}>
+                                                <input type="date" class="inputboxpopoverdate" bind:value = {cont_end_date} onkeydown="return false">
                                             </div>
                                         </div>
                                         <div class="w-full">
@@ -3356,14 +3356,14 @@
                                             <div class="w-full">
                                                 <div class="light14grey mb-1">From Date</div>
                                                 <div class="formInnerwidthfull ">
-                                                    <input type="date" class="inputboxpopoverdate" bind:value="{fromDate}">
+                                                    <input type="date" class="inputboxpopoverdate" bind:value="{fromDate}" onkeydown="return false">
                                                 </div>
 
                                             </div>
                                             <div class="w-full">
                                                 <div class="light14grey mb-1">To Date</div>
                                                 <div class="formInnerwidthfull ">
-                                                    <input type="date" class="inputboxpopoverdate">
+                                                    <input type="date" class="inputboxpopoverdate" onkeydown="return false">
                                                 </div>
                                                 <div class="w-full">
                                                     <div class="light14greylong mb-1 invisible"></div>
