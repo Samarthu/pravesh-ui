@@ -111,6 +111,7 @@
             let table_head = "";
             let mapping_blocked_data = [];
             let crClient = "no";
+            let select = "-1";
 
         //    ASSOCIATE TYPE VARS
         let fromDate;
@@ -560,6 +561,13 @@
             toast_type = "error"
             return
         }
+
+        if(!stat_select){
+                toast_text = "Please select Station";
+                toast_type = "error";
+                return
+            }
+
         let response = await get_pravesh_properties_method()
         // console.log("id_select == response.body.data.mapping_blocked_org",id_select,)
         // if(id_select == response.body.data.mapping_blocked_org){
@@ -634,15 +642,7 @@
             }
             }
             
-            
-
-            if(!stat_select){
-                toast_text = "Please select Station";
-                toast_type = "error";
-                return
-            }
-
-            if(!stat_code){
+            if(!stat_code || stat_code=="-1"){
                 toast_text = "Please select Specific Name or COMP Name";
                 toast_type = "error";
                 return
@@ -3118,7 +3118,7 @@
                                                 <div class="formInnerwidthfull ">
                                                     <select class="inputboxpopover" bind:value ={stat_code}>
                                                         {#if org_AN_flag == 1}
-                                                        <option class="pt-6" >Select</option>
+                                                        <option class="pt-6" value="-1">Select</option>
                                                         <option class="pt-6">Create Only Rabbit ID/COMP ID</option>
                                                         {#each station_code_arr as stat_code}
                                                             <option class="pt-6">
