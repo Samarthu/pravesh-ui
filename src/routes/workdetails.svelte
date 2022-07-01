@@ -915,8 +915,11 @@
         // var cookie_data = document.cookie;
         // console.log("cookie data", cookie_data);
         let pdf = e.target.files[0];
-        console.log("pdf size", pdf.size);
-        if (pdf.size < allowed_pdf_size) {
+        let extention_name = pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2);
+        // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
+       
+        if(extention_name == "pdf" || extention_name == "jpg" || extention_name == "png" || extention_name == "jpeg"){
+            if (pdf.size < allowed_pdf_size) {
             pdf_name = pdf.name;
             // msme_store.set({
             //     file_name: pdf.name
@@ -964,6 +967,14 @@
                     "MB ."
             );
         }
+            
+
+
+        }else{
+            error_toast("Incorrect File Type!")
+        }
+
+       
     };
     //     function open_pdf_window(base_64_string){
     //         let new_url = base_64_string.substring(base_64_string.indexOf(",")+1);
