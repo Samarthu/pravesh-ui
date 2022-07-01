@@ -51,7 +51,7 @@
     let vendor_checkbox = false;
     let onboarded_by_me_checkbox = false;
     let workforce_checkbox = true;
-    let org_selected = "-1";
+    let org_selected = "";
     // let status_pill_flag = false;
     let status_for_highlight = "";
     let new_associate_data;
@@ -1568,7 +1568,7 @@ else
                                                             <select
                                                                 class="selectInputbox"
                                                             bind:value = {org_selected}>
-                                                            <option value="-1">Select</option>
+                                                            <option value="">Select</option>
                                                             {#each org_data_arr as org}
                                                                 <option
                                                                     class="pt-6"
@@ -1798,7 +1798,7 @@ else
                                                         class="selectInputbox"
                                                         bind:value = {org_selected}>
                                                         
-                                                        <option value="-1">Select</option>
+                                                        <option value="">Select</option>
                                                         {#each org_data_arr as org}
                                                             <option
                                                                 class="pt-6"
