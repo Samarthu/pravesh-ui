@@ -477,7 +477,16 @@
                          {/if}  
              </div>
              {#if bank_values_from_store.modified_by == "-" && bank_new_date =="-"}
-             <p></p>
+             <p class="flex items-center smButtonText">
+                <!-- <a href="" class="smButton bg-erBlue text-white" on:click={()=>{goto("bankdetails")}}>
+                    Edit
+                </a> -->
+                <button class="smButton bg-erBlue text-white" on:click={()=>{
+                    $documents_store.documents=[];
+                    goto("bankdetails")}}>
+                   Edit
+                </button>
+            </p>
              {:else}
              <div class="flex">
                  <p class="detailsUpdate mr-4">
