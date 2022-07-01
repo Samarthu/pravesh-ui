@@ -51,7 +51,7 @@
     let vendor_checkbox = false;
     let onboarded_by_me_checkbox = false;
     let workforce_checkbox = true;
-    let org_selected = "";
+    let org_selected = "-1";
     // let status_pill_flag = false;
     let status_for_highlight = "";
     let new_associate_data;
@@ -848,8 +848,9 @@ else
             if(fac_name == supplier_data_from_service[i].name){
                 associate_id = supplier_data_from_service[i].name
             }
-            goto("onboardsummary?unFacID="+associate_id);
+            // goto("onboardsummary?unFacID="+associate_id,'_blank');
                 
+            window.open("onboardsummary?unFacID="+associate_id, "_blank");
         }
         show_spinner = false;
     }
@@ -1795,7 +1796,7 @@ else
                                                         >
                                                         <select
                                                         class="selectInputbox"
-                                                        >
+                                                        bind:value = {org_selected}>
                                                         
                                                         <option value="-1">Select</option>
                                                         {#each org_data_arr as org}
@@ -4097,7 +4098,7 @@ else
                       </div>  
                    
                       <div class="formInnerGroup ">
-                        <input type="date" class="inputboxcursortext px-4" bind:value={deact_date}>
+                        <input type="date" class="inputboxcursortext px-4" bind:value={deact_date} onkeydown="return false">
                      </div>
                      <div class="flex">
                         <button class="ErButton bg-bgmandatorysign" on:click|preventDefault={open_deact_initiate_model}>Deactivate on Date </button>

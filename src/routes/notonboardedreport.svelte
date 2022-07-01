@@ -263,12 +263,12 @@
                 <div class="col-span-2  items-center ">
                     <div class="light14greylong">Select Month and Year</div>
                     <div class="formInnerGroupNote ">
-                        <input class="inputboxpopoverdate" type="date" bind:value="{notonbDate}">
+                        <input class="inputboxpopoverdate" type="date" bind:value="{notonbDate}" onkeydown="return false">
                     </div>
                 </div>
 
                 <div class="text-right items-end justify-start flex">
-                    <button class="ErBlueButton" on:click="{download_csv_file}">Get Data</button>
+                    <button class="ErBlueButton" on:click="{download_csv_file}">Get Data</button >
                 </div>
             </div>
         </div>

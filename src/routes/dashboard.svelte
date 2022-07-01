@@ -49,9 +49,9 @@
     let parent_arr_for_child=[];
     let scope_data=[];
     let station_select_data=[];
-    let city_selected='';
+    let city_selected='-1';
     let unique_fac_id = '';
-    let station_selected='';
+    let station_selected='-1';
     $:if(city_selected != ""){
         station_select_func();
     }
@@ -656,6 +656,10 @@
 
     function copy_vendor_close(){
         copy_from_vendor_model.style.display = "none";
+        unique_fac_id=""
+        city_selected="-1"
+        station_selected="-1"
+
     }
     async function copy_parent_data(){
         let city_id;

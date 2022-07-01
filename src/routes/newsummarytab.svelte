@@ -2629,7 +2629,7 @@
                                                         <div class="light14grey">Remove On</div>
                                                         <div class="formInnerGroup ">
                                                             <input type="date" class="inputboxpopoverdate"
-                                                                placeholder=" ">
+                                                                placeholder=" " onkeydown="return false">
                                                             <p
                                                                 class="text-grey whitespace-nowrap text-xs px-1 mt-1">
                                                                 Note: Use only if required</p>
@@ -2926,13 +2926,13 @@
                                                             <div class="light14grey">From Date</div>
                                                             <div class="formInnerGroup ">
                                                                 <input type="date" class="inputboxpopoverdate"
-                                                                    placeholder=" ">
+                                                                    placeholder=" " onkeydown="return false">
                                                             </div>
                                                         </div>
                                                         <div class="flex px-4 py-0 items-center xs:flex-wrap">
                                                             <div class="light14grey w-36">To Date</div>
                                                             <div class="formInnerGroup">
-                                                                <input type="date" class="inputboxpopoverdate">
+                                                                <input type="date" class="inputboxpopoverdate" onkeydown="return false">
                                                                 <p
                                                                     class="light14grey whitespace-nowrap text-xs px-1">
                                                                     Leave empty if no end date</p>
@@ -5415,6 +5415,7 @@
                                                                     type="date"
                                                                     class="inputboxpopoverdate"
                                                                     placeholder=" "
+                                                                    onkeydown="return false"
                                                                 />
                                                             </div>
                                                         </div>
@@ -5433,6 +5434,7 @@
                                                                     type="date"
                                                                     class="inputboxpopoverdate"
                                                                     placeholder=" "
+                                                                    onkeydown="return false"
                                                                 />
                                                             </div>
                                                         </div>
