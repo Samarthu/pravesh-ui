@@ -62,6 +62,7 @@
         initiateBGV,
     } from "../services/onboardsummary_services";
     import { get_date_format } from "../services/date_format_servives";
+    
     let toast_text = "";
     let toast_type = null;
     let success_text = "";
@@ -607,7 +608,9 @@
 //     '--toastBarBackground': '#2F855A'
 //   }
 // })
-success_toast("test1")
+// success_toast("test1")
+error_toast("error")
+warning_toast("warning")
         console.log("toast_text", toast_text, "   toast_type", toast_type);
         facility_data_store.subscribe((value) => {
             temp = value;

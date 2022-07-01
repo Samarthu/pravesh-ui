@@ -12,6 +12,8 @@
     import {category_store_name} from '../stores/category_store';
     import Toast from './components/toast.svelte';
 import { facility_id } from "../stores/facility_id_store";
+import { SvelteToast, toast } from '@zerodevx/svelte-toast'
+    import {success_toast ,error_toast,warning_toast} from '../services/toast_theme';
     let toast_text = "";
     let toast_type = null;
 
@@ -130,8 +132,9 @@ async function check_mobile_number(){
             }
         }
         catch{
-            toast_type = "error";
-            toast_text = "Unable to verify mobile number";
+            error_toast("Unable to verify mobile number")
+            // toast_type = "error";
+            // toast_text = "Unable to verify mobile number";
 
         }
         console.log("verify mobile number",valid_mobile_number_response);
@@ -150,13 +153,15 @@ async function send_otp_function(){
     if(otp_response.body.data == true)
     {
         toggele = false;
-        toast_type = "success";
-        toast_text = "OTP sent successfully.";
+        success_toast("OTP sent successfully.");
+        // toast_type = "success";
+        // toast_text = "OTP sent successfully.";
 
 
     }else{
-        toast_type = "error";
-        toast_text = "Unable to send OTP!";
+        error_toast("Unable to send OTP!");
+        // toast_type = "error";
+        // toast_text = "Unable to send OTP!";
     }
     // alert("button pressed");
 
@@ -537,6 +542,7 @@ async function verify_otp(){
 </div>
 
 <Toast type={toast_type}  text={toast_text}/>
+<SvelteToast />
 
 
 <!-- <div id="toast-success" class="toast-success-msg" role="alert">

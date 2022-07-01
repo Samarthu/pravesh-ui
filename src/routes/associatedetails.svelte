@@ -35,6 +35,8 @@ import {
                 facility_document,addnew_cheque_details,bank_details_info,cheque_details,gst_details,blacklist_vendor,
                 initiateBGV} from "../services/onboardsummary_services";
     let show_spinner = false;
+    import { SvelteToast, toast } from '@zerodevx/svelte-toast'
+    import {success_toast ,error_toast,warning_toast} from '../services/toast_theme';
 
     let toast_text = "";
     let toast_type = null;
@@ -258,8 +260,9 @@ tier: null
             }
         } catch {
             show_spinner = false;
-            toast_text = "Unable to fetch user scope data";
-            toast_type = "error";
+            error_toast("Unable to fetch user scope data");
+            // toast_text = "Unable to fetch user scope data";
+            // toast_type = "error";
         }
         let date_formatter = get_date_format(max_date, "dd-mm-yyyy");
         console.log("date_formatter", date_formatter);
@@ -680,12 +683,15 @@ tier: null
                         if (
                                 document_upload_response.body.status != "green"
                             ) {
-                                // alert("Document upload failed");
-                                toast_text =
-                                    $documents_store.documents[i][
+                               
+                                // toast_text =
+                                //     $documents_store.documents[i][
+                                //         "doc_category"
+                                //     ] + " Document upload failed";
+                                // toast_type = "error";
+                                error_toast($documents_store.documents[i][
                                         "doc_category"
-                                    ] + " Document upload failed";
-                                toast_type = "error";
+                                    ] + " Document upload failed")
                                 show_spinner = false;
                             }
                             console.log(
@@ -779,8 +785,9 @@ tier: null
                     facility_name_message = verify_name_response.body.message;
                 }
             } catch {
-                toast_text = "Unable to verify facility name";
-                toast_type = "error";
+                // toast_text = "Unable to verify facility name";
+                // toast_type = "error";
+                error_toast("Unable to verify facility name");
             }
         }
     }
@@ -891,8 +898,9 @@ tier: null
                         }
                     } catch {
                         email_check = false;
-                        toast_text = "Unable to verify email";
-                        toast_type = "error";
+                        // toast_text = "Unable to verify email";
+                        // toast_type = "error";
+                        error_toast("Unable to verify email");
                     }
                 }else{
                     facility_email_message = "";
@@ -913,8 +921,9 @@ tier: null
                     }
                 } catch {
                     email_check = false;
-                    toast_text = "Unable to verify email";
-                    toast_type = "error";
+                    // toast_text = "Unable to verify email";
+                    // toast_type = "error";
+                    error_toast("Unable to verify email");
                 }
             }
         }
@@ -1779,3 +1788,4 @@ tier: null
 </div>
 
 <Toast type={toast_type} text={toast_text} />
+<SvelteToast />

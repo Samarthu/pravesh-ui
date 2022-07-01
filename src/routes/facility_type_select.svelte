@@ -3,6 +3,8 @@
     import Breadcrumb from "./breadcrumb.svelte";
     import Spinner from "./components/spinner.svelte";
     import { goto } from "$app/navigation";
+    import { SvelteToast, toast } from '@zerodevx/svelte-toast'
+    import {success_toast ,error_toast,warning_toast} from '../services/toast_theme';
 
     let show_spinner;
     let toast_type = null;
@@ -59,4 +61,5 @@
 </div>
 
 <Toast type={toast_type}  text={toast_text}/>
+<SvelteToast />
 

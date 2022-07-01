@@ -9,6 +9,8 @@
     import {img_url_name} from '../stores/flags_store';
     import Toast from './components/toast.svelte';
     import Spinner from "./components/spinner.svelte";
+    import { SvelteToast, toast } from '@zerodevx/svelte-toast'
+    import {success_toast ,error_toast,warning_toast} from '../services/toast_theme';
     let toast_text = "";
     let toast_type = null;
     let show_spinner = false;
@@ -64,7 +66,8 @@
             }
         }
         else{
-            alert("Category list not found");
+            // alert("Category list not found");
+            error_toast("Category list not found");
         }
 
         console.log("category_list",category_list);
@@ -73,8 +76,9 @@
         }
         else{
             show_spinner = false;
-            toast_type = "error";
-            toast_text = "Category list not found";
+            // toast_type = "error";
+            // toast_text = "Category list not found";
+            error_toast("Category list not found");
 
 
         }
@@ -102,8 +106,9 @@
         }
         else{
             show_spinner = false;
-            toast_type = "error";
-            toast_text = "Category  UI propeerties not found";
+            error_toast("Category  UI propeerties not found");
+            // toast_type = "error";
+            // toast_text = "Category  UI propeerties not found";
         }
         show_spinner = false;
 
@@ -210,3 +215,4 @@
     </div>
 </div>
 <Toast type={toast_type}  text={toast_text}/>
+<SvelteToast />
