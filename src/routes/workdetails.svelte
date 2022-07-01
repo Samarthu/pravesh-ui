@@ -50,6 +50,8 @@
     import { each } from "svelte/internal";
     import { vercticle_name } from "../stores/verticle_store";
     import { facility_id } from "../stores/facility_id_store";
+    import { SvelteToast, toast } from '@zerodevx/svelte-toast'
+    import {success_toast ,error_toast,warning_toast} from '../services/toast_theme';
 // import { facility_document } from "src/services/onboardsummary_services";
     // import { vercticle_name } from "src/stores/verticle_store";
     let temp_name;
@@ -375,8 +377,9 @@
                     get_domain_response.body.data[0]["domain"];
             } else {
                 show_spinner = false;
-                toast_text = "No domain found for this organization";
-                toast_type = "error";
+                // toast_text = "No domain found for this organization";
+                // toast_type = "error";
+                error_toast("No domain found for this organization")
             }
 
             let get_category_response =
@@ -387,8 +390,9 @@
                     get_category_response.body.data[0]["category"];
             } else {
                 show_spinner = false;
-                toast_text = "No category found for this facility type";
-                toast_type = "error";
+                // toast_text = "No category found for this facility type";
+                // toast_type = "error";
+                error_toast("No category found for this facility type");
             }
 
             let get_city_id_from_org_station_api_method_response =
@@ -406,8 +410,9 @@
                         .data[0]["location_id"];
             } else {
                 show_spinner = false;
-                toast_text = "No city found for this station";
-                toast_type = "error";
+                error_toast("No city found for this station");
+                // toast_text = "No city found for this station";
+                // toast_type = "error";
             }
 
             if ($facility_data_store.msme_registered == "1") {
@@ -492,8 +497,9 @@
                             .data[0]["location_id"];
                 } else {
                     show_spinner = false;
-                    toast_text = "No city found for this station";
-                    toast_type = "error";
+                    // toast_text = "No city found for this station";
+                    // toast_type = "error";
+                    error_toast("No city found for this station");
                 }
 
                 if ($facility_data_store.msme_registered == "1") {
@@ -540,8 +546,9 @@
             // toast_text = "verticles fetched success"
         } else {
             show_spinner = false;
-            toast_text = "Unable to fetch Verticles";
-            toast_type = "error";
+            error_toast("Unable to fetch Verticles");
+            // toast_text = "Unable to fetch Verticles";
+            // toast_type = "error";
         }
 
         for (let i = 0; i < org_list.length; i++) {
@@ -564,14 +571,16 @@
                 }
             } else {
                 show_spinner = false;
-                alert("Category list not found");
+                // alert("Category list not found");
+                error_toast("Category list not found");
             }
 
             console.log("category_list", category_list);
         } else {
             show_spinner = false;
-            toast_type = "error";
-            toast_text = "Category list not found";
+            error_toast("Category list not found");
+            // toast_type = "error";
+            // toast_text = "Category list not found";
         }
         category_list = category_list;
 
@@ -595,8 +604,9 @@
             );
         } else {
             show_spinner = false;
-            toast_type = "error";
-            toast_text = "Error in fetching pravesh properties";
+            error_toast("Error in fetching pravesh properties");
+            // toast_type = "error";
+            // toast_text = "Error in fetching pravesh properties";
         }
 
         let org_response = await get_organistaion_method();
@@ -611,8 +621,9 @@
             console.log("org_id", org_id);
         } else {
             show_spinner = false;
-            toast_type = "error";
-            toast_text = "Error in fetching organisation List";
+            error_toast("Error in fetching organisation List");
+            // toast_type = "error";
+            // toast_text = "Error in fetching organisation List";
         }
 
         user_scope_response = await get_user_scope_function();
@@ -655,16 +666,18 @@
             console.log("facility link", temp);
         } else {
             show_spinner = false;
-            toast_type = "error";
-            toast_text = "Error in fetching user scope";
+            error_toast("Error in fetching user scope");
+            // toast_type = "error";
+            // toast_text = "Error in fetching user scope";
         }
 
         vendor_list_response = await get_vendor_by_config_method();
         if (vendor_list_response.body.status == "green") {
         } else {
             show_spinner = false;
-            toast_type = "error";
-            toast_text = "Error in fetching vendor list";
+            error_toast("Error in fetching vendor list");
+            // toast_type = "error";
+            // toast_text = "Error in fetching vendor list";
         }
         show_spinner = false;
 
@@ -683,7 +696,8 @@
             console.log("$current_user", $current_user);
         } else {
             show_spinner = false;
-            alert("Session user not found error!");
+            // alert("Session user not found error!");
+            error_toast("Session user not found error!")
         }
     }
     function reset_non_msme() {
@@ -735,7 +749,8 @@
                     console.log("$current_user", $current_user);
                 } else {
                     show_spinner = false;
-                    alert("Session user not found error!");
+                    // alert("Session user not found error!");
+                    error_toast("Session user not found error!")
                 }
 
                 // console.log("current on",$facility_data_store.non_msme_confirmed_on);
@@ -859,8 +874,9 @@
             associate_type_list = facility_type_response.body.data;
             console.log("associate_type_list", associate_type_list);
         } else {
-            toast_type = "error";
-            toast_text = "Error in fetching facility type";
+            error_toast("Error in fetching facility type");
+            // toast_type = "error";
+            // toast_text = "Error in fetching facility type";
         }
     }
     $: {
@@ -1620,3 +1636,4 @@
     </div>
 </div>
 <Toast type={toast_type} text={toast_text} />
+<SvelteToast />

@@ -8,6 +8,8 @@
     import {org_name} from '../stores/organisation_store';
     import Toast from './components/toast.svelte';
 import { vercticle_name } from '../stores/verticle_store';
+import { SvelteToast, toast } from '@zerodevx/svelte-toast'
+    import {success_toast ,error_toast,warning_toast} from '../services/toast_theme';
     let toast_text = "";
     let toast_type = null;
     let verticle = null;
@@ -37,8 +39,9 @@ import { vercticle_name } from '../stores/verticle_store';
 
         }else{
             show_spinner = false;
-            toast_text = "Organisation list not found";
-            toast_type = "error";
+            // toast_text = "Organisation list not found";
+            // toast_type = "error";
+            error_toast("Organisation list not found");
             
         }
         
@@ -82,8 +85,9 @@ import { vercticle_name } from '../stores/verticle_store';
 
         }else{
             show_spinner = false;
-            toast_text = "Organisation ui properties not found";
-            toast_type = "error";
+            // toast_text = "Organisation ui properties not found";
+            // toast_type = "error";
+            error_toast("Organisation ui properties not found");
 
         }
 
@@ -394,3 +398,4 @@ import { vercticle_name } from '../stores/verticle_store';
 </div>
 
 <Toast type={toast_type}  text={toast_text}/>
+<SvelteToast />

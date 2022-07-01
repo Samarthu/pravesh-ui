@@ -38,6 +38,8 @@
                 initiateBGV} from "../services/onboardsummary_services";
     import { duplicate_documents_store } from "../stores/duplicate_document_store";
     import { sorting_facility_details_for_edit ,sort_document_data,sorting_bank_details_for_edit} from "../services/pravesh_config";
+    import { SvelteToast, toast } from '@zerodevx/svelte-toast'
+    import {success_toast ,error_toast,warning_toast} from '../services/toast_theme';
     let toast_text = "";
     let toast_type = null;
     import Success_popup from "./components/success_popup.svelte";
@@ -639,8 +641,10 @@
             //console.log("Please upload atleast one document");
             // alert("Please upload atleast one document");
             form_message = "Please upload atleast one document";
-            toast_type = "warning";
-            toast_text = "Please upload atleast one document";
+            warning_toast("Please upload atleast one document");
+
+            // toast_type = "warning";
+            // toast_text = "Please upload atleast one document";
         } else {
             form_message = "";
             console.log("inside else");
@@ -665,17 +669,19 @@
                     let save_bank_details = await save_bank_details_function();
                     console.log("save_bank_details", save_bank_details);
                     if (save_bank_details.body.status == "green") {
-                        // alert("Bank Details Saved Successfully");
-                        toast_text = "Bank Details Saved Successfully";
-                        toast_type = "success";
+                       
+                        // toast_text = "Bank Details Saved Successfully";
+                        // toast_type = "success";
+                        success_toast("Bank Details Saved Successfully");
                         success_text = "Facility created and Bank Details Saved Successfully";
                         // let replaceState = false
                         setTimeout(goto("onboardsummary?unFacID="+$facility_id.facility_id_number, { replaceState:true }), 2000);
                         
                     } else {
-                        // alert("Something went wrong!");
-                        toast_type = "error";
-                        toast_text = save_bank_details.body.message;
+                       
+                        // toast_type = "error";
+                        // toast_text = save_bank_details.body.message;
+                        error_toast(save_bank_details.body.message);
                     }
 
                     console.log("inside valid");
@@ -689,23 +695,27 @@
                 let save_bank_details = await save_bank_details_function();
                 console.log("save_bank_details", save_bank_details);
                 if (save_bank_details.body.status == "green") {
-                    // alert("Bank Details Saved Successfully");
-                    toast_type = "success";
-                    toast_text = "Bank Details Saved Successfully";
+                   
+                    // toast_type = "success";
+                    
+                    // toast_text = "Bank Details Saved Successfully";
+                    success_toast("Bank Details Saved Successfully");
                     success_text = "Bank Details Saved Successfully";
                     let replaceState = false;
                     setTimeout(goto("onboardsummary?unFacID="+$facility_id.facility_id_number, { replaceState:true }), 2000);
                     // goto("onboardsummary?unFacID="+$facility_id.facility_id_number, { replaceState:true });
                 } else {
-                    // alert("Something went wrong!");
-                    toast_type = "error";
-                    toast_text = save_bank_details.body.message;
+    
+                    // toast_type = "error";
+                    // toast_text = save_bank_details.body.message;
+                    error_toast(save_bank_details.body.message);
                 }
             }
         }
         else{
-            toast_text="Please enter valid details"
-            toast_type="error"
+            // toast_text="Please enter valid details"
+            // toast_type="error"
+            error_toast("Please enter valid details");
         }
     }
     function delete_files(file_name) {
@@ -1538,4 +1548,5 @@
     </div>
 </div>
 <Toast type={toast_type} text={toast_text} />
+<SvelteToast />
 <Success_popup text={success_text} />
