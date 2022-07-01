@@ -285,17 +285,7 @@
     //     toast_text = facility_data_res.body.message;
         
     //     }
-    let get_libera_login_res = await get_libera_login();
-    try {
-        if(get_libera_login_res.body.status == "green"){
-            libera_username = get_libera_login_res.body.data.username;
-        }
-       
-    } catch(err) {
-        toast_type = "error";
-        toast_text = err
-       
-    }
+
         let loc_data_res =  await get_loc_scope();
         try {
         if(loc_data_res.body.status == "green"){
@@ -323,6 +313,17 @@
     } catch(err) {
         toast_type = "error";
         toast_text = loc_data_res.body.message;
+       
+    }
+    let get_libera_login_res = await get_libera_login();
+    try {
+        if(get_libera_login_res.body.status == "green"){
+            libera_username = get_libera_login_res.body.data.username;
+        }
+       
+    } catch(err) {
+        toast_type = "error";
+        toast_text = err
        
     }
     
@@ -1527,6 +1528,8 @@
     function closeCasUser(){
         showCasUser.style.display = "none";
     }
+
+    
     
     </script>
         {#if show_spinner}
