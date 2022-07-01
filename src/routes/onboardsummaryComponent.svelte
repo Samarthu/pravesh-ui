@@ -77,6 +77,7 @@ import { current_user } from "../stores/current_user_store";
         let child_list=[];
         let check_val,query;
         let tags_for_ass_arr=[];
+        let tags_to_display = [];
         var doc_type_name = [];
         let new_arr = [];
         let pan_req_tags = [];
@@ -540,15 +541,18 @@ import { current_user } from "../stores/current_user_store";
                     if(fac_tag_res.body.data.length != 0){
                         show_fac_array = fac_tag_res.body.data;
                         for(let i=0;i < show_fac_array.length;i++){
-                            // if(i == show_fac_array.length-1){
+                            tags_for_ass_arr.push(show_fac_array[i].tag_name)
+                            if(i == show_fac_array.length-1){
                                 
-                                tags_for_ass_arr.push(show_fac_array[i].tag_name)
-                            // }
-                            // else{
-                            //     tags_for_ass_arr.push(show_fac_array[i].tag_name+",")
-                            // }
+                                
+                                tags_to_display.push(show_fac_array[i].tag_name)
+                            }
+                            else{
+                                tags_to_display.push(show_fac_array[i].tag_name+","+" ")
+                            }
                         }
                         tags_for_ass_arr=tags_for_ass_arr
+                        tags_to_display = tags_to_display
                         // console.log("tags_for_ass_arr",tags_for_ass_arr)
                         // for(let i=0;i<tags_for_ass_arr.length;i++){
                         //     if(tags_for_ass_arr[i] == "Payment to Associate" || tags_for_ass_arr[i] == "Payment to Associate,"){
@@ -603,12 +607,18 @@ import { current_user } from "../stores/current_user_store";
                 
                 for(let i=0;i<tags_for_ass_arr.length;i++){
                     for(let j=0;j<pan_req_tags.length;j++){
-                        // console.log("tags_for_ass_arr[i].toLowerCase",tags_for_ass_arr[i].toLowerCase().split(' ').join('_')) 
+                        console.log("tags_for_ass_arr[i].toLowerCase",tags_for_ass_arr[i].toLowerCase().split(' ').join('_')) 
                     if(tags_for_ass_arr[i].toLowerCase().split(' ').join('_') == pan_req_tags[j]){
                         fac_tag_pay_to_ass = true;
                     }
                     }
                 }
+                for(let i=0;i<new_arr.length;i++){
+                   if(new_arr[i] == $facility_data_store.facility_type && fac_tag_pay_to_ass == false){
+                    fac_tag_pay_to_ass = true;
+                   }
+                }
+
                 console.log("fac_tag_pay_to_ass",fac_tag_pay_to_ass)
 
 
@@ -1065,7 +1075,7 @@ import { current_user } from "../stores/current_user_store";
         const onFileSelected = (e,doctext) => {
             show_spinner = true;
             let img = e.target.files[0];
-            if (img.size <= allowed_pdf_size) {
+            if (img && img.size <= allowed_pdf_size) {
                 console.log("img", img);
                 
                 if(doctext == "gst_upload"){
@@ -1111,7 +1121,13 @@ import { current_user } from "../stores/current_user_store";
                     console.log("Error: ", error);
                     }
             }
+            else if(!img){
+                toast_text = "Select File";
+                    toast_type = "error";
+                show_spinner = false;
+            }
             else {
+                show_spinner = false;
             alert(
                 "File size is greater than " +
                     Number(allowed_pdf_size / 1048576) +
@@ -1773,7 +1789,7 @@ import { current_user } from "../stores/current_user_store";
                 return
             }
              if(!document_desc){
-                doc_det_msg = "Please Select Document Type"
+                doc_det_msg = "Please Enter Document Description"
                 show_spinner = false;
                 return
             }
@@ -2299,11 +2315,11 @@ import { current_user } from "../stores/current_user_store";
                 <div class="{asso_active}" on:click={() => {change_to = "Associate_details",work_active="",asso_active="active",id_active="",bank_active=""}}>Associate Details</div>
                 <div class="{work_active}" on:click={() => {change_to = "Work_details",work_active="active",asso_active="",id_active="",bank_active=""}}>Work Details</div>
                 <div class="{id_active}" on:click={() => {change_to = "Identity_details",work_active="",asso_active="",id_active="active",bank_active=""}}>Identity Proof</div>
-                {#each new_arr as req_fac}
-                {#if req_fac == $facility_data_store.facility_type && fac_tag_pay_to_ass == true}
+                
+                {#if fac_tag_pay_to_ass == true}
                 <div class="{bank_active}" on:click={() => {change_to = "Bank_details",work_active="",asso_active="",id_active="",bank_active="active"}}>Bank Details</div>
                 {/if}
-                {/each}
+                
             </div> 
         {#if change_to == "Associate_details"}
        
@@ -2315,7 +2331,8 @@ import { current_user } from "../stores/current_user_store";
         facility_address = {facility_address}
         pancard_obj={pancard_obj} admin = {admin}
         is_adhoc_facility = {is_adhoc_facility}
-        tags_for_ass_arr = {tags_for_ass_arr}/>
+        tags_for_ass_arr = {tags_for_ass_arr}
+        tags_to_display = {tags_to_display}/>
         
         {:else if change_to == "Work_details"}
         <WorkDetails new_off_file_obj={new_off_file_obj} facility_modified_date={facility_modified_date} city={city}
@@ -2325,7 +2342,8 @@ import { current_user } from "../stores/current_user_store";
         is_adhoc_facility = {is_adhoc_facility}
         aadhar_obj ={aadhar_obj}
         dl_photo_obj={dl_photo_obj}
-        pancard_obj={pancard_obj}/>
+        pancard_obj={pancard_obj}
+        location_id = {location_id}/>
     
         {:else if change_to == "Identity_details"}
         <IdentityProof pancard_obj={pancard_obj}
@@ -2646,7 +2664,7 @@ import { current_user } from "../stores/current_user_store";
                                                         <p class="detailData">{new_doc_data.doc_category}<br>({new_doc_data.doc_type})</p>
                                                     </td>
                                                     <td>
-                                                        <p class="detailData">{new_doc_data.modified_by}</p>
+                                                        <p class="detailData">{new_doc_data.owner}</p>
                                                     </td>
                                                     <td>
                                                         <p class="detailData"> {new_doc_data.modified}</p>

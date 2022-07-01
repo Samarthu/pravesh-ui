@@ -8,6 +8,8 @@
     import {goto_wrapper} from '../services/goto_wrapper';
     import Toast from './components/toast.svelte';
     import {img_url_name} from '../stores/flags_store';
+    import { SvelteToast, toast } from '@zerodevx/svelte-toast'
+    import {success_toast ,error_toast,warning_toast} from '../services/toast_theme';
     
   
     import Breadcrumb from "./breadcrumb.svelte";
@@ -59,8 +61,9 @@
         }
         else{
             show_spinner = false;
-            toast_text = "Unable to fetch Verticles";
-        toast_type = "error";
+        //     toast_text = "Unable to fetch Verticles";
+        // toast_type = "error";
+        error_toast("Unable to fetch Verticles");
 
             
             
@@ -100,8 +103,9 @@
         console.log("combined list",combined_list);
         }else{
             show_spinner= false;
-            toast_text = "Unable to fetch Verticles UI properties";
-        toast_type = "error";
+        //     toast_text = "Unable to fetch Verticles UI properties";
+        // toast_type = "error";
+        error_toast("Unable to fetch Verticles UI properties");
         }
         show_spinner = false;
         
@@ -308,4 +312,5 @@
 </div>
 
 <Toast type={toast_type}  text={toast_text}/>
+<SvelteToast />
 

@@ -51,6 +51,7 @@
     let vendor_checkbox = false;
     let onboarded_by_me_checkbox = false;
     let workforce_checkbox = true;
+    let org_selected = "";
     // let status_pill_flag = false;
     let status_for_highlight = "";
     let new_associate_data;
@@ -101,11 +102,11 @@
         async function clearedSearchFunc(){
             if(status != "-1"){
                 if(onboarded_by_me_checkbox == true){ 
-                    new_associate_data = {city:city,limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}
+                    new_associate_data = {city:city,limit:limit,org_id:org_selected,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}
 
                 }
                 else{
-                new_associate_data = {city:city,limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: status}  
+                new_associate_data = {city:city,limit:limit,org_id:org_selected,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: status}  
                 }
                 json_associate_data=JSON.stringify(new_associate_data);
                 //  console.log("json_associate_data",json_associate_data)
@@ -261,7 +262,7 @@
       console.log("show_pagination",show_pagination)
     new_drop_limit=parseInt(drop_limit)
    
-    new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}
+    new_associate_data = {city:"-1",limit:new_drop_limit,org_id:org_selected,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}
     json_associate_new_data=JSON.stringify(new_associate_data);
     let filter_res_from_dash =await supplier_data(json_associate_new_data);
     
@@ -291,7 +292,7 @@ else
     status = new_paramString;
     // console.log("drop_limit inside urlString",drop_limit)
     new_drop_limit=parseInt(drop_limit)
-    new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}
+    new_associate_data = {city:"-1",limit:new_drop_limit,org_id:org_selected,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}
     json_associate_data=JSON.stringify(new_associate_data);
     let res=await supplier_data(json_associate_data);
         try{
@@ -482,7 +483,7 @@ else
                         show_spinner=false;
                         // console.log("status in false onboard",status)
                         
-                        new_associate_data = {city:city,limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status,myOnboard: true,username:username,userid:userid}
+                        new_associate_data = {city:city,limit:new_drop_limit,org_id:org_selected,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status,myOnboard: true,username:username,userid:userid}
                         json_associate_data=JSON.stringify(new_associate_data);
                         let onboarded_check_res=await supplier_data(json_associate_data);
                         supplier_data_from_service = onboarded_check_res.body.data.data_list;
@@ -621,7 +622,7 @@ else
             bank_details_pending+bank_beneficiary_pending+onboarding_in_progress);
 
 
-            new_associate_data = {city:city,limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status} 
+            new_associate_data = {city:city,limit:new_drop_limit,org_id:org_selected,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status} 
             json_associate_data=JSON.stringify(new_associate_data);
             let onboarded_check_res=await supplier_data(json_associate_data);
             supplier_data_from_service = onboarded_check_res.body.data.data_list;
@@ -732,11 +733,11 @@ else
        if(pagenum == 1){
         if(onboarded_by_me_checkbox == true){
             console.log("INside onboarded by me checkbox true")
-        new_associate_data = {city:city,limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status,myOnboard: true,username:username,userid:userid}
+        new_associate_data = {city:city,limit:new_drop_limit,org_id:org_selected,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status,myOnboard: true,username:username,userid:userid}
         }
         else{
             console.log("Inside onboarded by me checkbox false")
-        new_associate_data = {city:city,limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
+        new_associate_data = {city:city,limit:new_drop_limit,org_id:org_selected,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
         }  
         // new_associate_data = {city: "-1",limit:new_drop_limit,offset:0,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending"}
         json_associate_new_data=JSON.stringify(new_associate_data);
@@ -752,11 +753,11 @@ else
         //    console.log(new_offset)
         if(onboarded_by_me_checkbox == true){   
             console.log("INside onboarded by me checkbox true") 
-            new_associate_data = {city:city,limit:new_drop_limit,offset:new_offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,myOnboard:true,username:username,userid:userid}
+            new_associate_data = {city:city,limit:new_drop_limit,org_id:org_selected,offset:new_offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,myOnboard:true,username:username,userid:userid}
         }
         else{
             console.log("INside onboarded by me checkbox false")
-            new_associate_data = {city:city,limit:new_drop_limit,offset:new_offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
+            new_associate_data = {city:city,limit:new_drop_limit,org_id:org_selected,offset:new_offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
         }
         //    new_associate_data = {city: "-1",limit:new_drop_limit,offset:new_offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending"}
             json_associate_new_data=JSON.stringify(new_associate_data);
@@ -847,8 +848,9 @@ else
             if(fac_name == supplier_data_from_service[i].name){
                 associate_id = supplier_data_from_service[i].name
             }
-            goto("onboardsummary?unFacID="+associate_id);
+            // goto("onboardsummary?unFacID="+associate_id,'_blank');
                 
+            window.open("onboardsummary?unFacID="+associate_id, "_blank");
         }
         show_spinner = false;
     }
@@ -888,11 +890,11 @@ else
         if(status != "-1"){
         if(onboarded_by_me_checkbox == true){
             
-            new_associate_data = {city:city,limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,myOnboard: true,username:username,userid:userid}
+            new_associate_data = {city:city,limit:new_drop_limit,org_id:org_selected,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,myOnboard: true,username:username,userid:userid}
         }
         else
         {
-            new_associate_data = {city:city,limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status} 
+            new_associate_data = {city:city,limit:new_drop_limit,org_id:org_selected,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status} 
         }
 
         json_associate_new_data=JSON.stringify(new_associate_data);
@@ -985,12 +987,12 @@ else
         console.log()
         if(onboarded_by_me_checkbox == true){
             console.log("onboarded_by_me_checkbox true in status_pill_clicked")
-            new_associate_data = {city:"-1",myOnboard: true,limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}
+            new_associate_data = {city:"-1",myOnboard: true,org_id:org_selected,limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}
         }
         else
         {
             console.log("onboarded_by_me_checkbox flase in status_pill_clicked")
-            new_associate_data = {city:city,limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status} 
+            new_associate_data = {city:city,limit:new_drop_limit,org_id:org_selected,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status} 
         }
 
     // new_associate_data = {city:"-1",limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status_selected}
@@ -1218,10 +1220,10 @@ else
 
         if(status != "-1"){
             if(onboarded_by_me_checkbox == true){    
-                    new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,myOnboard: true,username:username,userid:userid}
+                    new_associate_data = {city: "-1",limit:new_drop_limit,org_id:org_selected,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,myOnboard: true,username:username,userid:userid}
                 }
                 else{
-                    new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
+                    new_associate_data = {city: "-1",limit:new_drop_limit,org_id:org_selected,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
                 }
                 // new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending",onboarded_by_me:true}
                 json_associate_new_data=JSON.stringify(new_associate_data);
@@ -1565,8 +1567,8 @@ else
                                                         >
                                                             <select
                                                                 class="selectInputbox"
-                                                            >
-                                                            <option value="-1">Select</option>
+                                                            bind:value = {org_selected}>
+                                                            <option value="">Select</option>
                                                             {#each org_data_arr as org}
                                                                 <option
                                                                     class="pt-6"
@@ -1794,9 +1796,9 @@ else
                                                         >
                                                         <select
                                                         class="selectInputbox"
-                                                        >
+                                                        bind:value = {org_selected}>
                                                         
-                                                        <option value="-1">Select</option>
+                                                        <option value="">Select</option>
                                                         {#each org_data_arr as org}
                                                             <option
                                                                 class="pt-6"
@@ -2597,6 +2599,7 @@ else
                                                         {/if}
                                                         {facility_data.status}
                                                     </div>
+                                                    {#if facility_data.status != "Deactive"}
                                                      <div class="actionBtn mt-3">
                                                         <button on:click={deactivate_associate(facility_data)}
                                                             href="#"
@@ -2604,6 +2607,7 @@ else
                                                             >Deactivate Profile</button
                                                         >
                                                     </div>
+                                                    {/if}
                                                     <!-- <div class="statusDetails">
                                                         <p
                                                             class="vendorDetailsText"
@@ -4094,7 +4098,7 @@ else
                       </div>  
                    
                       <div class="formInnerGroup ">
-                        <input type="date" class="inputboxcursortext px-4" bind:value={deact_date}>
+                        <input type="date" class="inputboxcursortext px-4" bind:value={deact_date} onkeydown="return false">
                      </div>
                      <div class="flex">
                         <button class="ErButton bg-bgmandatorysign" on:click|preventDefault={open_deact_initiate_model}>Deactivate on Date </button>

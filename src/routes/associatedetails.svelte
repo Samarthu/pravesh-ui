@@ -35,6 +35,8 @@ import {
                 facility_document,addnew_cheque_details,bank_details_info,cheque_details,gst_details,blacklist_vendor,
                 initiateBGV} from "../services/onboardsummary_services";
     let show_spinner = false;
+    import { SvelteToast, toast } from '@zerodevx/svelte-toast'
+    import {success_toast ,error_toast,warning_toast} from '../services/toast_theme';
 
     let toast_text = "";
     let toast_type = null;
@@ -258,8 +260,9 @@ tier: null
             }
         } catch {
             show_spinner = false;
-            toast_text = "Unable to fetch user scope data";
-            toast_type = "error";
+            error_toast("Unable to fetch user scope data");
+            // toast_text = "Unable to fetch user scope data";
+            // toast_type = "error";
         }
         let date_formatter = get_date_format(max_date, "dd-mm-yyyy");
         console.log("date_formatter", date_formatter);
@@ -680,12 +683,15 @@ tier: null
                         if (
                                 document_upload_response.body.status != "green"
                             ) {
-                                // alert("Document upload failed");
-                                toast_text =
-                                    $documents_store.documents[i][
+                               
+                                // toast_text =
+                                //     $documents_store.documents[i][
+                                //         "doc_category"
+                                //     ] + " Document upload failed";
+                                // toast_type = "error";
+                                error_toast($documents_store.documents[i][
                                         "doc_category"
-                                    ] + " Document upload failed";
-                                toast_type = "error";
+                                    ] + " Document upload failed")
                                 show_spinner = false;
                             }
                             console.log(
@@ -779,8 +785,9 @@ tier: null
                     facility_name_message = verify_name_response.body.message;
                 }
             } catch {
-                toast_text = "Unable to verify facility name";
-                toast_type = "error";
+                // toast_text = "Unable to verify facility name";
+                // toast_type = "error";
+                error_toast("Unable to verify facility name");
             }
         }
     }
@@ -789,7 +796,11 @@ tier: null
         //   profile_pic_name = image.name;
 
         //   img_name = image.name;
-        if (image.size <= allowed_pdf_size) {
+        let extention_name = image.name.slice((image.name.lastIndexOf(".") - 1 >>> 0) + 2);
+        // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
+       
+        if(extention_name == "pdf" || extention_name == "jpg" || extention_name == "png" || extention_name == "jpeg"){
+            if (image.size <= allowed_pdf_size) {
             profile_pic_data.file_name = image.name;
 
             let reader = new FileReader();
@@ -808,11 +819,22 @@ tier: null
                     "MB ."
             );
         }
+
+        }
+        else{
+            error_toast("Incorrect File Type!");
+
+        }
+        
     };
 
     const onadders_prrof = (e) => {
         let image = e.target.files[0];
-        if (image.size <= allowed_pdf_size) {
+        let extention_name = image.name.slice((image.name.lastIndexOf(".") - 1 >>> 0) + 2);
+        // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
+       
+        if(extention_name == "pdf" || extention_name == "jpg" || extention_name == "png" || extention_name == "jpeg"){
+            if (image.size <= allowed_pdf_size) {
             address_proof_copy_name = image.name;
             address_proof_data.file_name = image.name;
             let reader = new FileReader();
@@ -832,6 +854,13 @@ tier: null
                     "MB ."
             );
         }
+
+        }
+        else{
+            error_toast("Incorrect File Type!");
+
+        }
+       
     };
     function temp_show_value() {
         console.log("present data", present_address);
@@ -844,7 +873,11 @@ tier: null
     }
     const onpresent_address_proof = (e) => {
         let image = e.target.files[0];
-        if (image.size <= allowed_pdf_size) {
+        let extention_name = image.name.slice((image.name.lastIndexOf(".") - 1 >>> 0) + 2);
+        // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
+       
+        if(extention_name == "pdf" || extention_name == "jpg" || extention_name == "png" || extention_name == "jpeg"){
+            if (image.size <= allowed_pdf_size) {
             present_address_proof_copy_name = image.name;
             present_address_proof_data.file_name = image.name;
             let reader = new FileReader();
@@ -866,6 +899,13 @@ tier: null
                     "MB ."
             );
         }
+
+        }
+        else{
+            error_toast("Incorrect File Type!");
+
+        }
+        
     };
     async function verify_email() {
         if (!$facility_data_store.facility_email.match(email_pattern)) {
@@ -891,8 +931,9 @@ tier: null
                         }
                     } catch {
                         email_check = false;
-                        toast_text = "Unable to verify email";
-                        toast_type = "error";
+                        // toast_text = "Unable to verify email";
+                        // toast_type = "error";
+                        error_toast("Unable to verify email");
                     }
                 }else{
                     facility_email_message = "";
@@ -913,8 +954,9 @@ tier: null
                     }
                 } catch {
                     email_check = false;
-                    toast_text = "Unable to verify email";
-                    toast_type = "error";
+                    // toast_text = "Unable to verify email";
+                    // toast_type = "error";
+                    error_toast("Unable to verify email");
                 }
             }
         }
@@ -1779,3 +1821,4 @@ tier: null
 </div>
 
 <Toast type={toast_type} text={toast_text} />
+<SvelteToast />

@@ -181,6 +181,7 @@
             //     gst_rejected:null
             // };
             let selectserCh ;
+            let pay_my_ser = "0";
             let text_pattern = /^[a-zA-Z_ ]+$/;
             let recrun_pattern =  /^[^-\s](?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9 _-]+)$/;
             let city_select;
@@ -205,9 +206,13 @@
             export let remove_upload_btn;
             let org_name;
             console.log("city data new",city);
-            let facility_address,facility_postal,facility_password,location_id,status_name;
+            let facility_address,facility_postal,facility_password,status_name;
+            export let location_id;
             let new_fac_remarks = [];
             let select_tag_data,serv_ch_data;
+            $:if(select_tag_data){
+                change_pay_my_ser_ch()
+            }
             let total_pages;
             let pages=[];
             let tag_date,tag_remark;
@@ -908,6 +913,11 @@
     
     function clear() {
         addRemoveModal.style.display = "none";
+        select_tag_data="-1"
+        serv_ch_data="-1"
+        tag_date=""
+        tag_remark=""
+
     }
 
     async function view_add_client() {
@@ -1221,6 +1231,7 @@
         let service_vend_res = await service_vendor();
         console.log("service_vend_res",service_vend_res)
         try {
+            console.log("location_id",location_id)
             show_spinner = true;
             if(service_vend_res.body.status == "green"){
                 show_spinner = false;
@@ -1325,6 +1336,14 @@
             toast_text = err;
         }
       
+    }
+    function change_pay_my_ser_ch(){
+        if(select_tag_data == "Pay My Service Charge"){
+            pay_my_ser = "1";
+        }
+        else{
+            pay_my_ser = "0";
+        }
     }
 
     function remove_tag_con_model(){
@@ -1900,296 +1919,252 @@
         </div>
 
   <!-- Full screen modal  Add / Remove Tags  change replacement section-->
+  <div class="hidden" id="addRemoveModal">
+        <div class="modalMain">
+            <div class="modalOverlay"></div>
 
+            <div class="modalContainer">
+                <div class="modalHeadConmb-0">
+                    <div class="leftmodalInfo">
+                        <p class="modalTitleText"> Add / Remove Tags</p>
 
-  <div class="hidden" id = "addRemoveModal">
-    <div class="modalMain">
-        <div class="modalOverlay"></div>
-
-        <div class="modalContainer">
-            <div class="modalHeadConmb-0">
-                <div class="leftmodalInfo">
-                    <p class="modalTitleText"> Add / Remove Tags</p>
-
+                    </div>
+                    <div class="rightmodalclose" on:click={clear}>
+                        <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer"
+                            alt="closemodal">
+                    </div>
                 </div>
-                <div class="rightmodalclose" on:click={clear}>
-                    <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal">
-                </div>
-            </div>
 
-            <div class="modalContent">
-               
-                <div class="ConModalContent">
+                <div class="modalContent">
 
-                    <div class="">
-                        {#if is_adhoc_facility == false}
+                    <div class="ConModalContent">
+
+                        <div class="">
+                            {#if is_adhoc_facility == false}
                             {#if temp2 == "gst1"}
 
-                                <div class="addbuttongst ">
+                            <div class="addbuttongst ">
 
-                                    <div class="updateAction" on:click={() => {
+                                <div class="updateAction" on:click={()=> {
 
-                                                        temp2 = "gst2";
+                                    temp2 = "gst2";
 
-                                                    }}>
+                                    }}>
 
-                                        <button class="ErBlueButton">Add New Tag</button>
-
-                                    </div>
+                                    <button class="ErBlueButton">Add New Tag</button>
 
                                 </div>
 
-                                {/if}
-                        {/if}
+                            </div>
+
+                            {/if}
+                            {/if}
 
 
-                        {#if temp2 == "gst2"}
-                        <div class="bgAddSection mt-3">
-                            <div class="addGstForm pt-4">
-                                <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
-                                    <div class="w-full">
-                                        <div class="light14grey mb-1">Select Tag</div>
-                                        <div class="formInnerwidthfull ">
-                                            <select
-                                                   class="inputboxpopover"
-                                               bind:value="{select_tag_data}">
-                                               <option value="-1">Select</option>
-                                               {#if !all_tags_data}
-                                               <p></p>
-                                               {:else}
-                                               {#each all_tags_data as tag_data}
-                                               <option>{tag_data}</option>
-                                                   {/each}
-                                                   {/if}
-                                            </select>
-                                            {#if selectTag == "1"}
-                                               <div class="text-red-500">
-                                                   "Select tag name"
-                                               </div>
-                                               {/if}
-
-                                            <div class="formSelectArrow ">
-                                                <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div
-                                       class="flex px-2 pt-3 items-center xs:flex-wrap {hidden_field}"
-                                   >
-                                       <div
-                                           class="light14grey"
-                                       >
-                                       Select Sevice Charge Vendor
-                                       </div>
-                                       <div
-                                           class="formInnerGroup "
-                                       >
-                                           <select
-                                               class="inputboxpopover"
-                                           bind:value={serv_ch_data}>
-                                          
-                                           <!-- <option
-                                                   class="pt-6"
-                                                   >Select</option
-                                               > -->
-                                           <option value="-1">Select</option>
-                                           {#if !tag_data_obj}
-                                           <p></p>
-                                           {:else}
-                                           <!-- {#each Object.keys(tag_data_obj),tag_data_obj[Object.keys(tag_data_obj)] as key,value} -->
-                                           {#each tag_data_obj as obj}
-                                           <option value={obj.vendor_id}>{obj.vendor_name} - {obj.vendor_id}</option>
-                                               <!-- <option
-                                                   >Axis</option
-                                               >
-                                               <option
-                                                   >SIB</option
-                                               > -->
-                                              
-                                           {/each}
-                                           {/if}
- 
-                                      
-                                           </select>
-                                           {#if selectserCh == "1"}
-                                           <div class="text-red-500">
-                                               "Select Sevice Charge Vendor"
-                                           </div>
-                                           {/if}
-                                          
-                                           <div
-                                               class="formSelectArrow "
-                                           >
-                                               <img
-                                                   src="{$img_url_name.img_name}/selectarrow.png"
-                                                   class="w-5 h-auto"
-                                                   alt=""
-                                               />
-                                           </div>
-                                       </div>
-                                   </div>
-                                    <div class="w-full">
-                                        <div class="light14grey mb-1">Remove On</div>
-                                        <div class="formInnerwidthfull ">
-                                            <input
-                                                   type="date"
-                                                   class="inputboxpopoverdate"
-                                                   placeholder=" "
-                                                   min={new Date().toISOString().split('T')[0]}
-                                                   bind:value="{tag_date}"
-                                               />
-
-                                        </div>
+                            {#if temp2 == "gst2"}
+                            <div class="bgAddSection mt-3">
+                                <div class="addGstForm pt-4">
+                                    <div class="grid grid-cols-3 xsl:grid-cols-1 gap-4 px-4 py-1 ">
                                         <div class="w-full">
-                                            <div class="light14greylong mb-1 invisible"></div>
+                                            <div class="light14grey mb-1">Select Tag</div>
                                             <div class="formInnerwidthfull ">
-                                                <div class="light14greylong mb-1 text-xs">Note: Use only if
-                                                    required</div>
+                                                <select class="inputboxpopover" bind:value="{select_tag_data}">
+                                                    <option value="-1">Select</option>
+                                                    {#if !all_tags_data}
+                                                    <p></p>
+                                                    {:else}
+                                                    {#each all_tags_data as tag_data}
+                                                    <option>{tag_data}</option>
+                                                    {/each}
+                                                    {/if}
+                                                </select>
+                                                {#if selectTag == "1"}
+                                                <div class="text-red-500">
+                                                    "Select tag name"
+                                                </div>
+                                                {/if}
+
+                                                <div class="formSelectArrow ">
+                                                    <img src="{$img_url_name.img_name}/selectarrow.png"
+                                                        class="w-5 h-auto" alt="">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {#if pay_my_ser == "1"}
+                                        <div class="w-full">
+                                           
+                                            <div class="light14greylong mb-1">
+                                                Select Sevice Charge Vendor
+                                            </div>
+                                            <div class="formInnerwidthfull ">
+                                                <select class="inputboxpopover" bind:value={serv_ch_data}>
+
+                                                    <!-- <option
+                                                               class="pt-6"
+                                                               >Select</option
+                                                           > -->
+                                                    <option value="-1">Select</option>
+                                                    {#if !tag_data_obj}
+                                                    <p></p>
+                                                    {:else}
+                                                    <!-- {#each Object.keys(tag_data_obj),tag_data_obj[Object.keys(tag_data_obj)] as key,value} -->
+                                                    {#each tag_data_obj as obj}
+                                                    <option value={obj.vendor_id}>{obj.vendor_name} - {obj.vendor_id}
+                                                    </option>
+                                                    <!-- <option
+                                                               >Axis</option
+                                                           >
+                                                           <option
+                                                               >SIB</option
+                                                           > -->
+
+                                                    {/each}
+                                                    {/if}
+
+
+                                                </select>
+                                                {#if selectserCh == "1"}
+                                                <div class="text-red-500">
+                                                    "Select Sevice Charge Vendor"
+                                                </div>
+                                                {/if}
+
+                                                <div class="formSelectArrow ">
+                                                    <img src="{$img_url_name.img_name}/selectarrow.png"
+                                                        class="w-5 h-auto" alt="" />
+                                                </div>
+                                            </div>
+                                            
+                                        </div>
+                                        {/if}
+                                        <div class="w-full">
+                                            <div class="light14grey mb-1">Remove On</div>
+                                            <div class="formInnerwidthfull ">
+                                                <input type="date" class="inputboxpopoverdate" placeholder=" " min={new
+                                                    Date().toISOString().split('T')[0]} bind:value="{tag_date}"  onkeydown="return false" />
+
+                                            </div>
+                                            <div class="w-full">
+                                                <div class="light14greylong mb-1 invisible"></div>
+                                                <div class="formInnerwidthfull ">
+                                                    <div class="light14greylong mb-1 text-xs">Note: Use only if
+                                                        required</div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                    </div>
+                                    <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
+                                        <div class="w-full">
+                                            <div class="light14grey mb-1">Remarks</div>
+                                            <div class="formInnerwidthfull ">
+                                                <input class="inputboxcursortext" type="text"
+                                                    bind:value="{tag_remark}" />
 
                                             </div>
                                         </div>
+                                        <div class="flex px-2 py-0 items-center xs:flex-wrap">
+
+                                            {#if addRemark == "1"}
+
+                                            <div class="text-red-500">
+                                                "Please enter a remark"
+                                            </div>
+                                            {/if}
+                                        </div>
+
                                     </div>
-                                </div>
-                                <div class="flex gap-4 px-4 py-1 xsl:flex-wrap">
-                                    <div class="w-full">
-                                        <div class="light14grey mb-1">Remarks</div>
-                                        <div class="formInnerwidthfull ">
-                                            <input
-                                                   class="inputboxcursortext"
-                                                   type="text"
-                                                   bind:value="{tag_remark}"
-                                               />
+                                    <div class="actionButtons">
+
+                                        <div class="updateAction ">
+                                            <button class="saveandproceed"
+                                                on:click="{handleTagClick(select_tag_data,tag_date,tag_remark,tag_data_obj)}">Add</button>
 
                                         </div>
                                     </div>
-                                    <div
-                                           class="flex px-2 py-0 items-center xs:flex-wrap"
-                                       >
-                                      
-                                       {#if addRemark == "1"}
-                                      
-                                               <div class="text-red-500">
-                                                   "Please enter a remark"
-                                               </div>
-                                           {/if}
-                                           </div>
 
                                 </div>
-                                <div class="actionButtons">
-
-                                    <div class="updateAction ">
-                                        <button
-                                               class="saveandproceed"
-                                               on:click="{handleTagClick(select_tag_data,tag_date,tag_remark,tag_data_obj)}"
-                                               >Add</button
-                                           >
-
-                                    </div>
-                                </div>
-
                             </div>
-                        </div>
-                        {/if}
-                        <div class="tabwrapper flex justify-between text-center py-2 pb-3">
-                            <!-- <div class="changetype py-3 w-2/4   ">
-                                <p>Add Tags</p>
-                            </div> -->
+                            {/if}
+                            <div class="tabwrapper flex justify-between text-center py-2 pb-3">
+                                <!-- <div class="changetype py-3 w-2/4   ">
+                                            <p>Add Tags</p>
+                                        </div> -->
+                                {#if temp == "Add"}
+                                <button class="changetype py-3 w-2/4 bg-bglightgreye border"
+                                    on:click={add_tag_tab_disp}>
+                                    <p>Add Tags</p>
+                                </button>
+                                {:else}
+                                <button class="changetype py-3 w-2/4 border" on:click={add_tag_tab_disp}>
+                                    <p>Add Tags</p>
+                                </button>
+                                {/if}
+
+                                {#if temp == "tag"}
+                                <button class="Historytab py-3 w-2/4 bg-bglightgreye border" on:click={tagAuditFunc}>
+                                    <p>Tag Audit Trail</p>
+                                </button>
+                                {:else}
+                                <button class="Historytab py-3 w-2/4 border" on:click={tagAuditFunc}>
+                                    <p>Tag Audit Trail</p>
+                                </button>
+                                {/if}
+                            </div>
                             {#if temp == "Add"}
-                            <button
-                                class="changetype py-3 w-2/4 bg-bglightgreye border"
-                                on:click={add_tag_tab_disp}
-                            >
-                                <p>Add Tags</p>
-                            </button>
-                            {:else}
-                            <button
-                                class="changetype py-3 w-2/4 border"
-                                on:click={add_tag_tab_disp}
-                            >
-                                <p>Add Tags</p>
-                            </button>
-                            {/if}
+                            <div class="PhysicalCardContainer">
+                                <p class="font-medium">Other Applied Tags</p>
+                                <div class="">
+                                    <table class="table  w-full text-center mt-2 ">
+                                        <thead class="theadpopover h-10">
+                                            <tr>
+                                                <th>Tag</th>
+                                                <th>Remarks</th>
+                                                <th> Added by</th>
+                                                <th>Added On</th>
+                                                <th> Auto Removal On</th>
+                                                <th> Remove</th>
 
-                            {#if temp == "tag"}
-                            <button class="Historytab py-3 w-2/4 bg-bglightgreye border"   on:click={tagAuditFunc}
-                            >
-                                <p>Tag Audit Trail</p>
-                            </button>
-                            {:else}
-                            <button class="Historytab py-3 w-2/4 border"  on:click={tagAuditFunc}
-                            >
-                                <p>Tag Audit Trail</p>
-                            </button>
-                            {/if}
-                        </div>
-                        {#if temp == "Add"}
-                        <div class="PhysicalCardContainer">
-                            <p class="font-medium">Other Applied Tags</p>
-                            <div class="">
-                                <table class="table  w-full text-center mt-2 ">
-                                    <thead class="theadpopover h-10">
-                                        <tr>
-                                            <th>Tag</th>
-                                            <th>Remarks</th>
-                                            <th> Added by</th>
-                                            <th>Added On</th>
-                                            <th> Auto Removal On</th>
-                                            <th> Remove</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="tbodypopover">{#each show_fac_array as show_fac}
 
-                                        </tr>
-                                    </thead>
-                                    <tbody class="tbodypopover">{#each show_fac_array as show_fac}
-                                              
-                                                   <tr
-                                                       class="border-b"
-                                                   >
-                                                       <td id="remove_tag_id"
-                                                           >{show_fac.tag_name}</td
-                                                       >
-                                                       <td
-                                                           >
-                                                           {#if !show_fac.remarks}
-                                                           <p>-</p>
-                                                           {:else}
-                                                           {show_fac.remarks}{/if}</td
-                                                       >
-                                                       <td
-                                                           >{show_fac.owner}</td
-                                                       >
-                                                       <td
-                                                           >{show_fac.creation}</td
-                                                       >
-                                                       <td
-                                                           >
-                                                           {#if !show_fac.deactivation_date}
-                                                           <p>-</p>
-                                                           {:else}
-                                                           {show_fac.deactivation_date}{/if}</td
-                                                       >
-                                                       <td>
-                                                           <div
-                                                               class="flex justify-center"
-                                                           >
-                                                               <img
-                                                                   src="{$img_url_name.img_name}/reject.png"
-                                                                   alt=""
-                                                                   on:click={remove_tag_con_model}
-                                                               />
-                                                           </div>
-                                                       </td>
-                                                   </tr>
-                                  
-                                                   {/each}
-                                               </tbody>
-                                </table>
+                                            <tr class="border-b">
+                                                <td id="remove_tag_id">{show_fac.tag_name}</td>
+                                                <td>
+                                                    {#if !show_fac.remarks}
+                                                    <p>-</p>
+                                                    {:else}
+                                                    {show_fac.remarks}{/if}
+                                                </td>
+                                                <td>{show_fac.owner}</td>
+                                                <td>{show_fac.creation}</td>
+                                                <td>
+                                                    {#if !show_fac.deactivation_date}
+                                                    <p>-</p>
+                                                    {:else}
+                                                    {show_fac.deactivation_date}{/if}
+                                                </td>
+                                                <td>
+                                                    <div class="flex justify-center">
+                                                        <img src="{$img_url_name.img_name}/reject.png" alt=""
+                                                            on:click={remove_tag_con_model} />
+                                                    </div>
+                                                </td>
+                                            </tr>
+
+                                            {/each}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
-                        </div>
-                        {/if}
-                        {#if temp == "tag"}
+                            {/if}
+                            {#if temp == "tag"}
                             <div class="PhysicalCardContainer mb-3 ">
                                 <div class="">
-                            <p class="font-medium">Tag Audit Trail
-</p>
+                                    <p class="font-medium">Tag Audit Trail
+                                    </p>
 
                                     <table class="table  w-full text-center mt-2 ">
                                         <thead class="theadpopover h-10">
@@ -2200,62 +2175,51 @@
                                                 <th>Status</th>
                                             </tr>
                                         </thead>
-                                        <tbody
-                                        class="tbodypopover"
-                                    >
-                                    {#each tag_data_arr as new_tag_audit}  
-                                    <tr
-                                            class="border-b"
-                                        >
-                                        <!-- {#each tag_data_arr as new_tag_audit}
-                                            <td
-                                                >{new_tag_audit.parenttype}</td
-                                            >
-                                            <td
-                                                >{new_tag_audit.creation}</td
-                                            >
-                                            <td
-                                                >{new_tag_audit.owner}</td
-                                            >
-                                            <td>{new_tag_audit.status}</td>
-                                            {/each} -->
-                                           
-                                       
-                                            <td
-                                                >{new_tag_audit.remarks}</td
-                                            >
-                                            <td
-                                                >{new_tag_audit.creation}</td
-                                            >
-                                            <td
-                                                >{new_tag_audit.owner}</td
-                                            >
-                                            <td>{new_tag_audit.status}</td>
-                                            
-                                        </tr>
-                                        {/each}
-                                        
-                                       
-                                    </tbody>
+                                        <tbody class="tbodypopover">
+                                            {#each tag_data_arr as new_tag_audit}
+                                            <tr class="border-b">
+                                                <!-- {#each tag_data_arr as new_tag_audit}
+                                                        <td
+                                                            >{new_tag_audit.parenttype}</td
+                                                        >
+                                                        <td
+                                                            >{new_tag_audit.creation}</td
+                                                        >
+                                                        <td
+                                                            >{new_tag_audit.owner}</td
+                                                        >
+                                                        <td>{new_tag_audit.status}</td>
+                                                        {/each} -->
+
+
+                                                <td>{new_tag_audit.remarks}</td>
+                                                <td>{new_tag_audit.creation}</td>
+                                                <td>{new_tag_audit.owner}</td>
+                                                <td>{new_tag_audit.status}</td>
+
+                                            </tr>
+                                            {/each}
+
+
+                                        </tbody>
                                     </table>
                                 </div>
                             </div>
-                      {/if}
+                            {/if}
+                        </div>
+
+
+
+
+
+
+
                     </div>
 
-                   
-
-                 
-
-
-
                 </div>
-
             </div>
         </div>
     </div>
-</div>
-
 
 <!--End Full screen modal  Add / Remove Tags  change replacement section-->
 
@@ -2474,7 +2438,7 @@
                                             <div class="light14grey mb-1">Start Date</div>
                                             <div class="formInnerwidthfull ">
                                                 <input type="date" class="inputboxpopoverdate" bind:value = {cont_start_date}
-                                                >
+                                                onkeydown="return false">
                                             </div>
                                         </div>
                                     </div>
@@ -2483,7 +2447,7 @@
                                         <div class="w-full">
                                             <div class="light14grey mb-1">End Date</div>
                                             <div class="formInnerwidthfull ">
-                                                <input type="date" class="inputboxpopoverdate" bind:value = {cont_end_date}>
+                                                <input type="date" class="inputboxpopoverdate" bind:value = {cont_end_date} onkeydown="return false">
                                             </div>
                                         </div>
                                         <div class="w-full">
@@ -3392,14 +3356,14 @@
                                             <div class="w-full">
                                                 <div class="light14grey mb-1">From Date</div>
                                                 <div class="formInnerwidthfull ">
-                                                    <input type="date" class="inputboxpopoverdate" bind:value="{fromDate}">
+                                                    <input type="date" class="inputboxpopoverdate" bind:value="{fromDate}" onkeydown="return false">
                                                 </div>
 
                                             </div>
                                             <div class="w-full">
                                                 <div class="light14grey mb-1">To Date</div>
                                                 <div class="formInnerwidthfull ">
-                                                    <input type="date" class="inputboxpopoverdate">
+                                                    <input type="date" class="inputboxpopoverdate" onkeydown="return false">
                                                 </div>
                                                 <div class="w-full">
                                                     <div class="light14greylong mb-1 invisible"></div>

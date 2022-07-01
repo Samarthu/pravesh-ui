@@ -40,6 +40,7 @@
             // export let facility_document_data = [];
         let query;
             export let tags_for_ass_arr=[];
+            export let tags_to_display = [];
             let check_selected = false;
             let id_new_date='';
             let all_tags_res;
@@ -284,17 +285,7 @@
     //     toast_text = facility_data_res.body.message;
         
     //     }
-    let get_libera_login_res = await get_libera_login();
-    try {
-        if(get_libera_login_res.body.status == "green"){
-            libera_username = get_libera_login_res.body.data.username;
-        }
-       
-    } catch(err) {
-        toast_type = "error";
-        toast_text = err
-       
-    }
+
         let loc_data_res =  await get_loc_scope();
         try {
         if(loc_data_res.body.status == "green"){
@@ -322,6 +313,17 @@
     } catch(err) {
         toast_type = "error";
         toast_text = loc_data_res.body.message;
+       
+    }
+    let get_libera_login_res = await get_libera_login();
+    try {
+        if(get_libera_login_res.body.status == "green"){
+            libera_username = get_libera_login_res.body.data.username;
+        }
+       
+    } catch(err) {
+        toast_type = "error";
+        toast_text = err
        
     }
     
@@ -1526,6 +1528,8 @@
     function closeCasUser(){
         showCasUser.style.display = "none";
     }
+
+    
     
     </script>
         {#if show_spinner}
@@ -2407,7 +2411,7 @@
 
                                         <span class="detailData " id="rem_comma">
 
-                                            {#each tags_for_ass_arr as show_fac}
+                                            {#each tags_to_display as show_fac}
 
                                             {show_fac}
 
