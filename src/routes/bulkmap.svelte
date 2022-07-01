@@ -11,21 +11,19 @@
     }
 
     async function download_csv_file() {  
-        let count = 0 ;
+        // let count = 0 ;
         // let csvFileData = csvBody + ele.month_year.replace("_"," - ")+ ","+ele.org_id + "," + ele.station_code + "," + ele.resource_id + "," + count + "\n";
 
 
         var csvFileData = [  
-            // [''],  
-            // [''],  
-            // [''],  
-            // [''],  
+            ['a','a','a','a','a','a'],
+            ['a','a','a','a','a','a']
             // [notonboarded_data[0].month_year,notonboarded_data[0].org_id,notonboarded_data[0].station_code,notonboarded_data[0].resource_id,count]  
         ]; 
 
         
         //define the heading for each row of the data  
-        var csv = 'Month-Year , Org ID ,Station Code , Associate Name , Monthly Count of Work  \n';  
+        var csv = 'FacilityID , EmployeeID	 ,Client System ID, Client BGV ID , Client BGV Status, BGV Remarks  \n';  
             
         //merge the data with CSV  
         csvFileData.forEach(function(row) {  
@@ -42,10 +40,9 @@
         hiddenElement.target = '_blank';  
             
         //provide the name for the CSV file to be downloaded  
-        hiddenElement.download = 'NotOnboardedAssocistes.xlsx';  
+        hiddenElement.download = 'Bulk Data Mapping.xlsx';  
         hiddenElement.click();  
     } 
-
 </script>
 
 <div class="mainContent ">
