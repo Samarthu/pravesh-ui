@@ -796,7 +796,11 @@ tier: null
         //   profile_pic_name = image.name;
 
         //   img_name = image.name;
-        if (image.size <= allowed_pdf_size) {
+        let extention_name = image.name.slice((image.name.lastIndexOf(".") - 1 >>> 0) + 2);
+        // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
+       
+        if(extention_name == "pdf" || extention_name == "jpg" || extention_name == "png" || extention_name == "jpeg"){
+            if (image.size <= allowed_pdf_size) {
             profile_pic_data.file_name = image.name;
 
             let reader = new FileReader();
@@ -815,11 +819,22 @@ tier: null
                     "MB ."
             );
         }
+
+        }
+        else{
+            error_toast("Incorrect File Type!");
+
+        }
+        
     };
 
     const onadders_prrof = (e) => {
         let image = e.target.files[0];
-        if (image.size <= allowed_pdf_size) {
+        let extention_name = image.name.slice((image.name.lastIndexOf(".") - 1 >>> 0) + 2);
+        // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
+       
+        if(extention_name == "pdf" || extention_name == "jpg" || extention_name == "png" || extention_name == "jpeg"){
+            if (image.size <= allowed_pdf_size) {
             address_proof_copy_name = image.name;
             address_proof_data.file_name = image.name;
             let reader = new FileReader();
@@ -839,6 +854,13 @@ tier: null
                     "MB ."
             );
         }
+
+        }
+        else{
+            error_toast("Incorrect File Type!");
+
+        }
+       
     };
     function temp_show_value() {
         console.log("present data", present_address);
@@ -851,7 +873,11 @@ tier: null
     }
     const onpresent_address_proof = (e) => {
         let image = e.target.files[0];
-        if (image.size <= allowed_pdf_size) {
+        let extention_name = image.name.slice((image.name.lastIndexOf(".") - 1 >>> 0) + 2);
+        // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
+       
+        if(extention_name == "pdf" || extention_name == "jpg" || extention_name == "png" || extention_name == "jpeg"){
+            if (image.size <= allowed_pdf_size) {
             present_address_proof_copy_name = image.name;
             present_address_proof_data.file_name = image.name;
             let reader = new FileReader();
@@ -873,6 +899,13 @@ tier: null
                     "MB ."
             );
         }
+
+        }
+        else{
+            error_toast("Incorrect File Type!");
+
+        }
+        
     };
     async function verify_email() {
         if (!$facility_data_store.facility_email.match(email_pattern)) {

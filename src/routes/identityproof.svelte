@@ -180,10 +180,10 @@
     };
     onMount(async () => {
         page_name = $page.url["pathname"].split("/").pop();
-        // if(!$facility_data_store.org_id){
-        //     goto("facility_type_select",{replaceState:false})
+        if(!$facility_data_store.org_id){
+            goto("facility_type_select",{replaceState:false})
 
-        // }
+        }
         console.log("page name on identity", page_name);
         console.log("document store", $documents_store.documents);
 
@@ -697,7 +697,11 @@ warning_toast("warning")
     // }
     const on_pan_upload = (e) => {
         let image = e.target.files[0];
-        if (image.size <= allowed_pdf_size) {
+        let extention_name = image.name.slice((image.name.lastIndexOf(".") - 1 >>> 0) + 2);
+        // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
+       
+        if(extention_name == "pdf" || extention_name == "jpg" || extention_name == "png" || extention_name == "jpeg"){
+            if (image.size <= allowed_pdf_size) {
             if (pan_card_data.doc_number != null) {
                 pan_card_data.file_name = image.name;
                 let reader = new FileReader();
@@ -718,10 +722,21 @@ warning_toast("warning")
                     "MB ."
             );
         }
+
+        }
+        else{
+            error_toast("Invalid File Type!")
+
+        }
+        
     };
     const on_adhar_upload = (e) => {
         let image = e.target.files[0];
-        if (image.size <= allowed_pdf_size) {
+        let extention_name = image.name.slice((image.name.lastIndexOf(".") - 1 >>> 0) + 2);
+        // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
+       
+        if(extention_name == "pdf" || extention_name == "jpg" || extention_name == "png" || extention_name == "jpeg"){
+            if (image.size <= allowed_pdf_size) {
             if (adhar_card_data.doc_number != null) {
                 adhar_card_data.file_name = image.name;
                 let reader = new FileReader();
@@ -742,10 +757,21 @@ warning_toast("warning")
                     "MB ."
             );
         }
+        }
+        else{
+            error_toast("Invalid File Type!")
+
+        }
+        
+        
     };
     const on_voter_id_upload = (e) => {
         let image = e.target.files[0];
-        if (image.size <= allowed_pdf_size) {
+        let extention_name = image.name.slice((image.name.lastIndexOf(".") - 1 >>> 0) + 2);
+        // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
+       
+        if(extention_name == "pdf" || extention_name == "jpg" || extention_name == "png" || extention_name == "jpeg"){
+            if (image.size <= allowed_pdf_size) {
             if (voter_id_card_data.doc_number != null) {
                 voter_id_card_data.file_name = image.name;
                 let reader = new FileReader();
@@ -770,10 +796,19 @@ warning_toast("warning")
                     "MB ."
             );
         }
+        }else{
+            error_toast("Invalid File Type!")
+
+        }
+       
     };
     const on_driving_license_upload = (e) => {
         let image = e.target.files[0];
-        if (image.size <= allowed_pdf_size) {
+        let extention_name = image.name.slice((image.name.lastIndexOf(".") - 1 >>> 0) + 2);
+        // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
+       
+        if(extention_name == "pdf" || extention_name == "jpg" || extention_name == "png" || extention_name == "jpeg"){
+            if (image.size <= allowed_pdf_size) {
             if (driving_license_data.doc_number != null) {
                 driving_license_data.file_name = image.name;
                 let reader = new FileReader();
@@ -794,6 +829,12 @@ warning_toast("warning")
                     "MB ."
             );
         }
+        }
+        else{
+            error_toast("Invalid File Type!")
+
+        }
+       
     };
     async function get_current_user() {
         console.log("inside get_current_user");

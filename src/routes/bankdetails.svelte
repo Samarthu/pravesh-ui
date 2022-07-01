@@ -321,7 +321,11 @@
     }
     const on_blank_cheque_upload = (e) => {
         let image = e.target.files[0];
-        if (image.size <= allowed_pdf_size) {
+        let extention_name = image.name.slice((image.name.lastIndexOf(".") - 1 >>> 0) + 2);
+        // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
+       
+        if(extention_name == "pdf" || extention_name == "jpg" || extention_name == "png" || extention_name == "jpeg"){
+            if (image.size <= allowed_pdf_size) {
             if (
                 $bank_details.account_number &&
                 $bank_details.re_enter_account_number
@@ -351,10 +355,21 @@
                     "MB ."
             );
         }
+
+        }
+        else{
+            error_toast("Invalid File Type!")
+
+        }
+        
     };
     const on_passbook_upload = (e) => {
         let image = e.target.files[0];
-        if (image.size <= allowed_pdf_size) {
+        let extention_name = image.name.slice((image.name.lastIndexOf(".") - 1 >>> 0) + 2);
+        // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
+       
+        if(extention_name == "pdf" || extention_name == "jpg" || extention_name == "png" || extention_name == "jpeg"){
+            if (image.size <= allowed_pdf_size) {
             passbook_data.file_name = image.name;
             let reader = new FileReader();
             reader.readAsDataURL(image);
@@ -371,10 +386,20 @@
                     "MB ."
             );
         }
+
+        }else{
+            error_toast("Invalid File Type!")
+
+        }
+        
     };
     const on_cancle_cheque_upload = (e) => {
         let image = e.target.files[0];
-        if (image.size <= allowed_pdf_size) {
+        let extention_name = image.name.slice((image.name.lastIndexOf(".") - 1 >>> 0) + 2);
+        // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
+       
+        if(extention_name == "pdf" || extention_name == "jpg" || extention_name == "png" || extention_name == "jpeg"){
+            if (image.size <= allowed_pdf_size) {
             Cancel_cheque_data.file_name = image.name;
             let reader = new FileReader();
             reader.readAsDataURL(image);
@@ -391,10 +416,20 @@
                     "MB ."
             );
         }
+        }
+        else{
+            error_toast("Invalid File Type!")
+
+        }
+        
     };
     const on_account_statement_upload = (e) => {
         let image = e.target.files[0];
-        if (image.size <= allowed_pdf_size) {
+        let extention_name = image.name.slice((image.name.lastIndexOf(".") - 1 >>> 0) + 2);
+        // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
+       
+        if(extention_name == "pdf" || extention_name == "jpg" || extention_name == "png" || extention_name == "jpeg"){
+            if (image.size <= allowed_pdf_size) {
             account_statement_data.file_name = image.name;
             let reader = new FileReader();
             reader.readAsDataURL(image);
@@ -411,6 +446,11 @@
                     "MB ."
             );
         }
+        }else{
+            error_toast("Invalid File Type!")
+
+        }
+       
     };
     async function save_facility() {
         // check_validity();
