@@ -823,7 +823,7 @@
                                 <p>Valid till {minDate}</p>
                             </div>
                             <div class="profilePhoto">
-                                <img src="{fac_photo_obj.profile_url}" class="profilePic">
+                                <img src="{fac_photo_obj.profile_url}" class="profilePic" height="90px">
                                 <!-- {$img_url_name.img_name}/profilepic.png -->
                             </div>
                             <div class="bloodgroup">

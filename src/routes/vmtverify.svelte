@@ -3343,7 +3343,7 @@
                 </div> -->
 
 
-                {#if exShow == 1}
+                <!-- {#if exShow == 1}
                 <div class="userStatus ml-4" on:click="{openExternalVerify}">
                     <p class="flex items-center smButtonText">
                         <a href="" class="smButton modal-open">
@@ -3359,7 +3359,7 @@
                             Dashboard
                         </a>
                     </p>
-                </div>
+                </div> -->
 
                 <button on:click={routeToOnboardsummary} type="button"
                         class="px-p15 text-sm text-white font-medium py-p10 rounded bg-erBlue ml-3">Back</button>
