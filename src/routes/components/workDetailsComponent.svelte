@@ -28,7 +28,7 @@
             import {bgv_config_store} from '../../stores/bgv_config_store'
             import Toast from './toast.svelte';
             import { SvelteToast, toast } from '@zerodevx/svelte-toast'
-            import {success_toast ,error_toast,warning_toast} from '../services/toast_theme';
+            import {success_toast ,error_toast,warning_toast} from '../../services/toast_theme';
         //     import AssociateDetails from './components/associateDetailsComponent.svelte';
         //     import BankDetails from './components/bankDetailsComponent.svelte';
         //     import IdentityProof from './components/identityProofComponent.svelte';
