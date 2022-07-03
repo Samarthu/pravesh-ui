@@ -701,6 +701,7 @@
         }
     }
     function reset_non_msme() {
+        msme_message="";
         console.log("inside reset non msme");
         if ($facility_data_store.msme_registered == "1") {
             $facility_data_store.non_msme_confirmed_by = null;
@@ -1417,7 +1418,7 @@
                                     <select
                                         class="inputbox"
                                         bind:value={$facility_data_store.msme_registered}
-                                        on:click={() => reset_non_msme()}
+                                        on:change={() => reset_non_msme()}
                                     >
                                         <option
                                             class="pt-6"

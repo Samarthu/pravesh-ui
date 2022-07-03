@@ -46,6 +46,9 @@
 
         // alert("button clicked");
     }
+    function back_to_page(){
+        goto("facility_type_select");
+    }
     onMount(async () =>{
         show_spinner = true;
         let response = await get_verticles_fun();
@@ -303,6 +306,11 @@
                         
                     {/each}
                 </div> -->
+            </div>
+            <div on:click={() =>back_to_page()} class="flex mt-m49">
+                <div class="backButton">
+                    <img src="{$img_url_name.img_name}/arrowleft.png" alt="" />
+                </div>
             </div>
         </div>
         

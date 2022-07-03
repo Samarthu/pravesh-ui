@@ -66,6 +66,26 @@ onMount(async () => {
     }
 
     }
+    else{
+        if($facility_data_store.phone_number){
+            if($duplicate_facility_data_store.phone_number == $facility_data_store.phone_number){
+        show_send_otp_button = false;
+        show_proceed = true;
+
+        }
+        else{
+            show_send_otp_button = true;
+        show_proceed = false;
+
+        }
+        }
+        else{
+            show_send_otp_button = true;
+        show_proceed = false;
+
+        }
+       
+    }
 
     console.log("facility store",$facility_data_store);
     
@@ -218,6 +238,7 @@ async function verify_otp(){
         if(verify_otp_response.body.message.data == true){
             otp_message_status = true;
             otp_message="OTP Verified ( click on save button on the next section to save the data )"
+            $duplicate_facility_data_store.phone_number = $facility_data_store.phone_number;
             route();
 
         }
@@ -229,6 +250,13 @@ async function verify_otp(){
     catch{
 
     }
+}
+
+function number_cahanged(){
+    console.log("mobile number changed");
+    // show_proceed = false;
+    show_send_otp_button = true;
+    show_proceed = false;
 }
 </script>
 
@@ -429,7 +457,7 @@ async function verify_otp(){
                             <span class="searchicon">
                                 <img src="{$img_url_name.img_name}/mobilephone.png" class="placeholderIcon" alt="">
                             </span>
-                            <input type="text" class="inputbox" bind:value={$facility_data_store.phone_number} on:input={()=> check_mobile_number()}>
+                            <input type="text" class="inputbox" bind:value={$facility_data_store.phone_number} on:input={()=> check_mobile_number()} on:change={()=>{number_cahanged()}}>
                         </div>
                     </div>
                 </div>
