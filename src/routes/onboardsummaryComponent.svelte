@@ -142,6 +142,52 @@ import { current_user } from "../stores/current_user_store";
             gst_verified:null,
             gst_rejected:null
         };
+        let blk_cheque_obj = {
+            blk_cheque_name:null,
+            blk_cheque_url:null,
+            blk_cheque_verified:null,
+            blk_cheque_rejected:null
+
+        // doc_category: "Blank Cheque",
+        // doc_number: null,
+        // doc_type: "blcheque",
+        // facility_id: null,
+        // file_name: null,
+        // pod: null,
+        // resource_id: null,
+        // status: "created",
+        // user_id: null,
+    };
+        let passbook_obj = {
+           passbook_name:null,
+           passbook_url:null,
+           passbook_verified:null,
+           passbook_rejected:null
+                
+            // doc_category: "Passbook",
+            //     doc_type: "passbook",
+            //     facility_id: null,
+            //     file_name: null,
+            //     pod: null,
+            //     resource_id: null,
+            //     status: "created",
+            //     user_id: null,
+            };
+       
+        let acc_stmt_obj = {
+            acc_stmt_name:null,
+            acc_stmt_url:null,
+            acc_stmt_verified:null,
+            acc_stmt_rejected:null
+                // doc_category: "Account Statement",
+                // doc_type: "acc-stat",
+                // facility_id: null,
+                // file_name: null,
+                // pod: null,
+                // resource_id: null,
+                // status: "created",
+                // user_id: null,
+            };
         let voter_id_object = {
             voter_id_number:null
         }
@@ -478,6 +524,27 @@ import { current_user } from "../stores/current_user_store";
                         can_cheque_url : facility_document_data[i].file_url,
                         can_cheque_verified : facility_document_data[i].verified,
                         can_cheque_rejected : facility_document_data[i].rejected};
+                    }
+                    else if(facility_document_data[i].doc_type == "blcheque"){
+                        // console.log("Inside can cheque")
+                        blk_cheque_obj.push = {blk_cheque_name : facility_document_data[i].file_name,
+                        blk_cheque_url : facility_document_data[i].file_url,
+                        blk_cheque_verified : facility_document_data[i].verified,
+                        blk_cheque_rejected : facility_document_data[i].rejected};
+                    }
+                    else if(facility_document_data[i].doc_type == "passbook"){
+                        // console.log("Inside can cheque")
+                        passbook_obj.push = {passbook_name : facility_document_data[i].file_name,
+                        passbook_url : facility_document_data[i].file_url,
+                        passbook_verified : facility_document_data[i].verified,
+                        passbook_rejected : facility_document_data[i].rejected};
+                    }
+                    else if(facility_document_data[i].doc_type == "acc-stat"){
+                        // console.log("Inside can cheque")
+                        acc_stmt_obj.push = {acc_stmt_name : facility_document_data[i].file_name,
+                        acc_stmt_url : facility_document_data[i].file_url,
+                        acc_stmt_verified : facility_document_data[i].verified,
+                        acc_stmt_rejected : facility_document_data[i].rejected};
                     }
                     else if(facility_document_data[i].doc_type == "dl-photo"){
                         // console.log("Inside dl photo")
@@ -1937,16 +2004,16 @@ import { current_user } from "../stores/current_user_store";
     <div class="mainContent ">
         <div class="breadcrumb ">
             <div class="breadcrumb-section xsl:px-p10">
-                <div class="breadcrumbtextDetails breadcrumbmedia">
+                <div class="breadcrumbtextDetails flex-wrap">
                     <p class="flex items-center">
-                        <!-- <span class="text-textgrey pr-1 text-base xs:text-xs">Home / Workforce</span> -->
+                        <span class="text-textgrey pr-1 text-base xs:text-xs">Home / Workforce</span>
                         <span class="Username ">
                             <img src="{$img_url_name.img_name}/delivery.png" class="userIconMedia" alt="">
                             <span class="xs:hidden sm:hidden">{#if $facility_data_store.facility_name}{$facility_data_store.facility_name}{:else}-{/if}</span>
                             <span class="userDesignation">(Associate - {#if $facility_data_store.facility_type}{$facility_data_store.facility_type}{:else}-{/if} / ID - {#if $facility_data_store.name}{$facility_data_store.name}{:else}-{/if}) </span> 
                         </span>
                     </p>
-                   
+                    <div class="w-full flex justify-end mt-5">
                     <p class="breadcrumbRight">
                         {#if is_adhoc_facility == false}
                         <a href=""> 
@@ -1978,6 +2045,7 @@ import { current_user } from "../stores/current_user_store";
                         {/if}
                         {/if}
                     </p>
+                    </div>
                 
                 </div>
     
@@ -2361,6 +2429,9 @@ import { current_user } from "../stores/current_user_store";
         {:else if change_to == "Bank_details"}
         <BankDetails bank_values_from_store = {bank_values_from_store}
          city={city} can_cheque_obj = {can_cheque_obj}
+         blk_cheque_obj = {blk_cheque_obj}
+         acc_stmt_obj = {acc_stmt_obj}
+         passbook_obj = {passbook_obj}
          bank_new_date={bank_new_date} admin = {admin}
          is_adhoc_facility = {is_adhoc_facility}
          bank_details_req_fac = {new_arr}/>
@@ -2390,11 +2461,11 @@ import { current_user } from "../stores/current_user_store";
                                     <div class="smallText w-w115px">Facility ID</div>
                                     <div class="smLable">{$facility_data_store.name}</div>
                                 </div>
-                                <div class="itemList ">
+                                <div class="itemListForBaseline ">
                                     <div class="smallText w-w115px">
                                         Facility Name
                                     </div>
-                                    <div class="smLable break-all">{$facility_data_store.facility_name}</div>
+                                    <div class="smLable break-all w-64 xsl:w-48">{$facility_data_store.facility_name}</div>
                                 </div>
                                 <div class="itemList ">
                                     <div class="smallText w-w115px">
@@ -2452,11 +2523,15 @@ import { current_user } from "../stores/current_user_store";
                     </div> -->
     
                     <div class="timelinescroll ">
+                        {#each audit_details_array as new_audit_data}
                         <div class="flex md:contents">
+                            
                             <div class="timelinesection">
+                                
                                 <div class="timeline ">
                                     <div class="timelineGreyline" />
                                 </div>
+                               
                                 <div class="timelineImg ">
                                     <img
                                         src="{$img_url_name.img_name}/chat2.svg"
@@ -2465,8 +2540,9 @@ import { current_user } from "../stores/current_user_store";
                                     />
                                 </div>
                             </div>
+                            
                             <div class="timelineContent ">
-                                {#each audit_details_array as new_audit_data}
+                              
                                     <h3 class="timeCommenterName ">
                                         {new_audit_data.owner}
                                         <span class="timeCommentDate "
@@ -2486,12 +2562,10 @@ import { current_user } from "../stores/current_user_store";
                                         <p class="text-font13px text-textdarkgrey font-normal p-2 pl-4">({new_audit_data.status})</p>
                                     </div>
     
-    
-                                    <br>
-                                {/each}
+                               
                             </div>
                         </div>
-                        <div class="flex md:contents">
+                        <!-- <div class="flex md:contents">
                             <div class="timelinesection">
                                 <div class="timeline ">
                                     <div class="timelineGreyline" />
@@ -2504,7 +2578,8 @@ import { current_user } from "../stores/current_user_store";
                                     />
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
+                        {/each}
                     </div>
                 </div>
             </div>
