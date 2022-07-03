@@ -24,19 +24,38 @@
     import { edit_facility_function } from "../services/identity_proof_services";
     import { category_store_name } from "../stores/category_store";
     import Spinner from "./components/spinner.svelte";
-import { current_user } from "../stores/current_user_store";
-import {
-       
-        save_or_update_documents_function_1
-    } from "../services/identity_proof_services";
-    import { facility_data,facility_bgv_init,facility_bgv_check,all_facility_tags,
-                show_fac_tags,submit_fac_tag_data,remove_tag,tag_audit_trail,service_vendor,
-                get_loc_scope,client_details,erp_details,child_data,add_gst_dets,
-                facility_document,addnew_cheque_details,bank_details_info,cheque_details,gst_details,blacklist_vendor,
-                initiateBGV} from "../services/onboardsummary_services";
+    import { current_user } from "../stores/current_user_store";
+    import { save_or_update_documents_function_1 } from "../services/identity_proof_services";
+    import {
+        facility_data,
+        facility_bgv_init,
+        facility_bgv_check,
+        all_facility_tags,
+        show_fac_tags,
+        submit_fac_tag_data,
+        remove_tag,
+        tag_audit_trail,
+        service_vendor,
+        get_loc_scope,
+        client_details,
+        erp_details,
+        child_data,
+        add_gst_dets,
+        facility_document,
+        addnew_cheque_details,
+        bank_details_info,
+        cheque_details,
+        gst_details,
+        blacklist_vendor,
+        initiateBGV,
+    } from "../services/onboardsummary_services";
     let show_spinner = false;
-    import { SvelteToast, toast } from '@zerodevx/svelte-toast'
-    import {success_toast ,error_toast,warning_toast} from '../services/toast_theme';
+    import { SvelteToast, toast } from "@zerodevx/svelte-toast";
+    import {
+        success_toast,
+        error_toast,
+        warning_toast,
+    } from "../services/toast_theme";
 
     let toast_text = "";
     let toast_type = null;
@@ -44,6 +63,7 @@ import {
 
     var email_pattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
     var pincode_pattern = /^[1-9]{1}[0-9]{2}[0-9]{3}$/;
+    var facility_name_format = /^[a-zA-Z_\s]{5,}$/;
 
     // import { facility_data } from "src/services/onboardsummary_services";
 
@@ -78,15 +98,15 @@ import {
         tier: "3",
         state: "Maharashtra",
     };
-    let Permanent_address= {
+    let Permanent_address = {
         address: null,
-address_type: "Permanent Address",
-location_id: null,
-parentfield: "address",
-parenttype: "Facility",
-postal: null,
-tier: null
-    }
+        address_type: "Permanent Address",
+        location_id: null,
+        parentfield: "address",
+        parenttype: "Facility",
+        postal: null,
+        tier: null,
+    };
     let present_address = {
         location_id: null,
         address: null,
@@ -174,9 +194,8 @@ tier: null
     onMount(async () => {
         show_spinner = true;
         page_name = $page.url["pathname"].split("/").pop();
-        if(!$facility_data_store.org_id){
-            goto("facility_type_select",{replaceState:false})
-
+        if (!$facility_data_store.org_id) {
+            goto("facility_type_select", { replaceState: false });
         }
         console.log("page_name", page_name);
         console.log("date", date);
@@ -290,7 +309,6 @@ tier: null
                     work_address.city = temp_address_array[i].city;
                     work_address.address = temp_address_array[i].address;
                     work_address.postal = temp_address_array[i].postal;
-
                 } else if (
                     temp_address_array[i].address_type == "Present Address"
                 ) {
@@ -473,7 +491,8 @@ tier: null
             facility_name_message = "Please enter a facility name";
         } else {
             // valid = true;
-            facility_name_message = "";
+            verify_facility_name()
+            // facility_name_message = "";
         }
 
         if ($facility_data_store.dob == null) {
@@ -608,9 +627,10 @@ tier: null
                 profile_pic_data.pod != null ||
                 profile_pic_data.file_name != null
             ) {
-                if($facility_id.facility_id_number){
+                if ($facility_id.facility_id_number) {
                     profile_pic_data.status = "active";
-                    profile_pic_data.resource_id = $facility_id.facility_id_number;
+                    profile_pic_data.resource_id =
+                        $facility_id.facility_id_number;
                     profile_pic_data.user_id = $current_user.username;
                 }
                 for (let i = 0; i < $documents_store.documents.length; i++) {
@@ -629,9 +649,10 @@ tier: null
                 present_address_proof_data.pod != null ||
                 present_address_proof_data.file_name != null
             ) {
-                if($facility_id.facility_id_number){
+                if ($facility_id.facility_id_number) {
                     present_address_proof_data.status = "active";
-                    present_address_proof_data.resource_id = $facility_id.facility_id_number;
+                    present_address_proof_data.resource_id =
+                        $facility_id.facility_id_number;
                     present_address_proof_data.user_id = $current_user.username;
                 }
                 for (let i = 0; i < $documents_store.documents.length; i++) {
@@ -650,9 +671,10 @@ tier: null
                 address_proof_data.pod != null ||
                 address_proof_data.file_name != null
             ) {
-                if($facility_id.facility_id_number){
+                if ($facility_id.facility_id_number) {
                     address_proof_data.status = "active";
-                    address_proof_data.resource_id = $facility_id.facility_id_number;
+                    address_proof_data.resource_id =
+                        $facility_id.facility_id_number;
                     address_proof_data.user_id = $current_user.username;
                 }
                 for (let i = 0; i < $documents_store.documents.length; i++) {
@@ -678,56 +700,72 @@ tier: null
                 console.log("edit_facility_response", edit_facility_response);
                 if (edit_facility_response.body.status == "green") {
                     show_spinner = false;
-                    for(let i=0;i<$documents_store.documents.length;i++){
-                         let document_upload_response = await save_or_update_documents_function_1($documents_store.documents[i]);
-                        if (
-                                document_upload_response.body.status != "green"
-                            ) {
-                               
-                                // toast_text =
-                                //     $documents_store.documents[i][
-                                //         "doc_category"
-                                //     ] + " Document upload failed";
-                                // toast_type = "error";
-                                error_toast($documents_store.documents[i][
-                                        "doc_category"
-                                    ] + " Document upload failed")
-                                show_spinner = false;
-                            }
-                            console.log(
-                                "document_upload_response",
-                                document_upload_response
+                    for (
+                        let i = 0;
+                        i < $documents_store.documents.length;
+                        i++
+                    ) {
+                        let document_upload_response =
+                            await save_or_update_documents_function_1(
+                                $documents_store.documents[i]
                             );
-
+                        if (document_upload_response.body.status != "green") {
+                            // toast_text =
+                            //     $documents_store.documents[i][
+                            //         "doc_category"
+                            //     ] + " Document upload failed";
+                            // toast_type = "error";
+                            error_toast(
+                                $documents_store.documents[i]["doc_category"] +
+                                    " Document upload failed"
+                            );
+                            show_spinner = false;
+                        }
+                        console.log(
+                            "document_upload_response",
+                            document_upload_response
+                        );
                     }
                     let get_updated_documents = await facility_document();
-                    console.log("get_updated_documents",get_updated_documents);
-                    if(get_updated_documents.body.status == "green"){
-                        $duplicate_documents_store.documents = JSON.parse(JSON.stringify(get_updated_documents.body.data));
+                    console.log("get_updated_documents", get_updated_documents);
+                    if (get_updated_documents.body.status == "green") {
+                        $duplicate_documents_store.documents = JSON.parse(
+                            JSON.stringify(get_updated_documents.body.data)
+                        );
                         $documents_store.documents = [];
-
                     }
 
                     let get_updated_facility_data = await facility_data();
-                    console.log("get_updated_facility_data",get_updated_facility_data);
-                    if(get_updated_facility_data.body.status == "green"){
+                    console.log(
+                        "get_updated_facility_data",
+                        get_updated_facility_data
+                    );
+                    if (get_updated_facility_data.body.status == "green") {
                         facility_data_store.set(
-                JSON.parse(JSON.stringify(get_updated_facility_data.body.data[0]))
-            
-            )
-    
-            duplicate_facility_data_store.set(
-                JSON.parse(JSON.stringify(get_updated_facility_data.body.data[0]))
-            )
-            let temp_date = $facility_data_store.date_of_birth;
-            console.log("temp date date of birth", temp_date);
-            let temp = new Date(temp_date);
-            console.log("temp", temp);
-            $facility_data_store['dob'] = get_date_format(temp, "dd-mm-yyyy");
+                            JSON.parse(
+                                JSON.stringify(
+                                    get_updated_facility_data.body.data[0]
+                                )
+                            )
+                        );
 
+                        duplicate_facility_data_store.set(
+                            JSON.parse(
+                                JSON.stringify(
+                                    get_updated_facility_data.body.data[0]
+                                )
+                            )
+                        );
+                        let temp_date = $facility_data_store.date_of_birth;
+                        console.log("temp date date of birth", temp_date);
+                        let temp = new Date(temp_date);
+                        console.log("temp", temp);
+                        $facility_data_store["dob"] = get_date_format(
+                            temp,
+                            "dd-mm-yyyy"
+                        );
                     }
 
-                    
                     let replaceState = false;
                     setTimeout(
                         goto(
@@ -760,107 +798,131 @@ tier: null
         /////////////
         // $facility_data_store.org_id = "AN"; //delete this
         // $facility_data_store.station_code = "MHAE";
-
-        if ($facility_data_store.facility_name != null) {
-            let res = set_facility_id();
-            console.log("set_facility_id", res);
-            $facility_data_store.facility_id = res;
-            console.log(
-                "$facility_data_store.facility_id",
-                $facility_data_store
-            );
-        }
-        ///////////////////////
-        facility_name_message = "";
-
-        if ($facility_data_store.facility_name != null) {
-            $facility_data_store.facility_name =
-                $facility_data_store.facility_name.trim();
-            let verify_name_response = await verify_associate_name();
-            console.log("verify_name_response", verify_name_response);
-            try {
-                if (verify_name_response.body.data == true) {
-                    facility_name_message = "";
-                } else {
-                    facility_name_message = verify_name_response.body.message;
-                }
-            } catch {
-                // toast_text = "Unable to verify facility name";
-                // toast_type = "error";
-                error_toast("Unable to verify facility name");
+        if($facility_data_store.facility_name){
+            if ($facility_data_store.facility_name.match(facility_name_format)) {
+            if ($facility_data_store.facility_name != null) {
+                let res = set_facility_id();
+                console.log("set_facility_id", res);
+                $facility_data_store.facility_id = res;
+                console.log(
+                    "$facility_data_store.facility_id",
+                    $facility_data_store
+                );
             }
+            ///////////////////////
+            facility_name_message = "";
+
+            if ($facility_data_store.facility_name != null) {
+                $facility_data_store.facility_name =
+                    $facility_data_store.facility_name.trim();
+                let verify_name_response = await verify_associate_name();
+                console.log("verify_name_response", verify_name_response);
+                try {
+                    if (verify_name_response.body.data == true) {
+                        facility_name_message = "";
+                    } else {
+                        facility_name_message =
+                            verify_name_response.body.message;
+                            valid = false;
+                            show_spinner = false;
+                    }
+                } catch {
+                    // toast_text = "Unable to verify facility name";
+                    // toast_type = "error";
+                    error_toast("Unable to verify facility name");
+                    valid = false;
+                    show_spinner = false;
+                }
+            } else {
+                facility_name_message = "Please Enter Facility Name";
+                show_spinner =  false;
+            }
+        } else {
+            facility_name_message = "Invalid Facility name";
+            error_toast("Invalid Facility name");
+            valid = false;
+            show_spinner = false;
         }
+
+        }
+       
     }
     const onFileSelected = (e) => {
         let image = e.target.files[0];
         //   profile_pic_name = image.name;
 
         //   img_name = image.name;
-        let extention_name = image.name.slice((image.name.lastIndexOf(".") - 1 >>> 0) + 2);
+        let extention_name = image.name.slice(
+            ((image.name.lastIndexOf(".") - 1) >>> 0) + 2
+        );
         // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
-       
-        if(extention_name == "pdf" || extention_name == "jpg" || extention_name == "png" || extention_name == "jpeg"){
+
+        if (
+            extention_name == "pdf" ||
+            extention_name == "jpg" ||
+            extention_name == "png" ||
+            extention_name == "jpeg"
+        ) {
             if (image.size <= allowed_pdf_size) {
-            profile_pic_data.file_name = image.name;
+                profile_pic_data.file_name = image.name;
 
-            let reader = new FileReader();
-            reader.readAsDataURL(image);
-            reader.onload = (e) => {
-                // profile_pic = e.target.result;
-                profile_pic_data.pod = e.target.result;
-                console.log("profile_pic", profile_pic);
-            };
+                let reader = new FileReader();
+                reader.readAsDataURL(image);
+                reader.onload = (e) => {
+                    // profile_pic = e.target.result;
+                    profile_pic_data.pod = e.target.result;
+                    console.log("profile_pic", profile_pic);
+                };
+            } else {
+                alert(
+                    "File size is greater than " +
+                        Number(allowed_pdf_size / 1048576) +
+                        "MB. Please upload a file less than " +
+                        Number(allowed_pdf_size / 1048576) +
+                        "MB ."
+                );
+            }
         } else {
-            alert(
-                "File size is greater than " +
-                    Number(allowed_pdf_size / 1048576) +
-                    "MB. Please upload a file less than " +
-                    Number(allowed_pdf_size / 1048576) +
-                    "MB ."
-            );
-        }
-
-        }
-        else{
             error_toast("Incorrect File Type!");
-
         }
-        
     };
 
     const onadders_prrof = (e) => {
         let image = e.target.files[0];
-        let extention_name = image.name.slice((image.name.lastIndexOf(".") - 1 >>> 0) + 2);
+        let extention_name = image.name.slice(
+            ((image.name.lastIndexOf(".") - 1) >>> 0) + 2
+        );
         // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
-       
-        if(extention_name == "pdf" || extention_name == "jpg" || extention_name == "png" || extention_name == "jpeg"){
+
+        if (
+            extention_name == "pdf" ||
+            extention_name == "jpg" ||
+            extention_name == "png" ||
+            extention_name == "jpeg"
+        ) {
             if (image.size <= allowed_pdf_size) {
-            address_proof_copy_name = image.name;
-            address_proof_data.file_name = image.name;
-            let reader = new FileReader();
-            reader.readAsDataURL(image);
-            reader.onload = (e) => {
-                work_address_proof_message = "";
-                address_proof_copy = e.target.result;
-                address_proof_data.pod = e.target.result;
-                console.log("address_proof_copy", address_proof_copy);
-            };
+                address_proof_copy_name = image.name;
+                address_proof_data.file_name = image.name;
+                let reader = new FileReader();
+                reader.readAsDataURL(image);
+                reader.onload = (e) => {
+                    work_address_proof_message = "";
+                    address_proof_copy = e.target.result;
+                    address_proof_data.pod = e.target.result;
+                    console.log("address_proof_copy", address_proof_copy);
+                };
+            } else {
+                alert(
+                    "File size is greater than " +
+                        Number(allowed_pdf_size / 1048576) +
+                        "MB. Please upload a file less than " +
+                        Number(allowed_pdf_size / 1048576) +
+                        "MB ."
+                );
+            }
         } else {
-            alert(
-                "File size is greater than " +
-                    Number(allowed_pdf_size / 1048576) +
-                    "MB. Please upload a file less than " +
-                    Number(allowed_pdf_size / 1048576) +
-                    "MB ."
-            );
-        }
-
-        }
-        else{
             error_toast("Incorrect File Type!");
-
         }
-       
     };
     function temp_show_value() {
         console.log("present data", present_address);
@@ -873,39 +935,42 @@ tier: null
     }
     const onpresent_address_proof = (e) => {
         let image = e.target.files[0];
-        let extention_name = image.name.slice((image.name.lastIndexOf(".") - 1 >>> 0) + 2);
+        let extention_name = image.name.slice(
+            ((image.name.lastIndexOf(".") - 1) >>> 0) + 2
+        );
         // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
-       
-        if(extention_name == "pdf" || extention_name == "jpg" || extention_name == "png" || extention_name == "jpeg"){
+
+        if (
+            extention_name == "pdf" ||
+            extention_name == "jpg" ||
+            extention_name == "png" ||
+            extention_name == "jpeg"
+        ) {
             if (image.size <= allowed_pdf_size) {
-            present_address_proof_copy_name = image.name;
-            present_address_proof_data.file_name = image.name;
-            let reader = new FileReader();
-            reader.readAsDataURL(image);
-            reader.onload = (e) => {
-                present_address_proof_copy = e.target.result;
-                present_address_proof_data.pod = e.target.result;
-                console.log(
-                    "present_address_proof_copy",
-                    present_address_proof_copy
+                present_address_proof_copy_name = image.name;
+                present_address_proof_data.file_name = image.name;
+                let reader = new FileReader();
+                reader.readAsDataURL(image);
+                reader.onload = (e) => {
+                    present_address_proof_copy = e.target.result;
+                    present_address_proof_data.pod = e.target.result;
+                    console.log(
+                        "present_address_proof_copy",
+                        present_address_proof_copy
+                    );
+                };
+            } else {
+                alert(
+                    "File size is greater than " +
+                        Number(allowed_pdf_size / 1048576) +
+                        "MB. Please upload a file less than " +
+                        Number(allowed_pdf_size / 1048576) +
+                        "MB ."
                 );
-            };
+            }
         } else {
-            alert(
-                "File size is greater than " +
-                    Number(allowed_pdf_size / 1048576) +
-                    "MB. Please upload a file less than " +
-                    Number(allowed_pdf_size / 1048576) +
-                    "MB ."
-            );
-        }
-
-        }
-        else{
             error_toast("Incorrect File Type!");
-
         }
-        
     };
     async function verify_email() {
         if (!$facility_data_store.facility_email.match(email_pattern)) {
@@ -935,10 +1000,9 @@ tier: null
                         // toast_type = "error";
                         error_toast("Unable to verify email");
                     }
-                }else{
+                } else {
                     facility_email_message = "";
                     email_check = true;
-
                 }
             } else {
                 let verify_email_response = await verify_associate_email();
@@ -1305,22 +1369,18 @@ tier: null
                                                 />
                                             {/if}
                                             {#if $facility_id.facility_id_number}
-                                            {#if edit_profile_pic_data.file_name}
-                                                <a
-                                                    href={$page.url.origin +
-                                                        edit_profile_pic_data.file_url}
+                                                {#if edit_profile_pic_data.file_name}
+                                                    <a
+                                                        href={$page.url.origin +
+                                                            edit_profile_pic_data.file_url}
                                                         target="_blank"
-                                                    class="text-blue-600 text-decoration-line: underline"
-                                                    >{edit_profile_pic_data.file_name}</a
-                                                >
+                                                        class="text-blue-600 text-decoration-line: underline"
+                                                        >{edit_profile_pic_data.file_name}</a
+                                                    >
+                                                {/if}
                                             {/if}
-                                        {/if}
-                                            
-                                           
                                         </div>
-                                        <div class="flex">
-                                           
-                                        </div>
+                                        <div class="flex" />
                                     </span>
                                 </div>
                             </div>
@@ -1401,11 +1461,11 @@ tier: null
                                         rows="4"
                                         cols="50"
                                         class="inputbox"
-                                        on:blur={()=>{
-                                            work_address.address = (work_address.address).trim()
+                                        on:blur={() => {
+                                            work_address.address =
+                                                work_address.address.trim();
                                         }}
                                         bind:value={work_address.address}
-                                        
                                     />
                                 </div>
                             </div>
@@ -1475,7 +1535,7 @@ tier: null
                                                 <a
                                                     href={$page.url.origin +
                                                         edit_address_proof_data.file_url}
-                                                        target="_blank"
+                                                    target="_blank"
                                                     class="text-blue-600 text-decoration-line: underline"
                                                     >{edit_address_proof_data.file_name}</a
                                                 >
@@ -1648,7 +1708,10 @@ tier: null
                                             rows="4"
                                             cols="50"
                                             class="inputbox"
-                                            on:blur={()=>{present_address.address = (present_address.address).trim()}}
+                                            on:blur={() => {
+                                                present_address.address =
+                                                    present_address.address.trim();
+                                            }}
                                             bind:value={present_address.address}
                                         />
                                     </div>
@@ -1746,7 +1809,7 @@ tier: null
                                                     <a
                                                         href={$page.url +
                                                             edit_present_address_proof_data.file_url}
-                                                            target="_blank"
+                                                        target="_blank"
                                                         class="text-blue-600 text-decoration-line: underline"
                                                         >{edit_present_address_proof_data.file_name}</a
                                                     >
