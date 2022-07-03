@@ -17,8 +17,8 @@
     let org_list= [];
     let verticle_list = [];
     let combined_list = [];
-    // let toast_text = "";
-    // let toast_type = null;
+    let toast_text = "";
+    let toast_type = null;
     let show_spinner = false;
 
 
