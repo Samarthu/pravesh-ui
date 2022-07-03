@@ -59,7 +59,7 @@
     let form_message = "";
     var acc_number_check = /^[0-9]*$/;
     var ifsc_code_check = /^[A-Za-z]{4}\d{7}$/;
-    var account_holder_check = /^([a-zA-Z]+\s)*[a-zA-Z]+$/;
+    var account_holder_check = /^[a-zA-Z_\s]{5,}$/;
     let account_number_match_check = false;
 
     let blank_cheque_data = {
@@ -152,10 +152,10 @@
         // console.log("TEMP RESULT",result)
         page_name = $page.url["pathname"].split("/").pop();
         console.log("bank pahge name", page_name);
-        if(!$facility_data_store.org_id){
-            goto("facility_type_select",{replaceState:false})
+        // if(!$facility_data_store.org_id){
+        //     goto("facility_type_select",{replaceState:false})
 
-        }
+        // }
 
         if($facility_id.facility_id_number){
             console.log("flag is save",$save_flag.is_save);
@@ -238,6 +238,7 @@
     function verify_account_number() {
         if (!$bank_details.account_number.match(acc_number_check)) {
             account_number_message = "Please enter a valid account number";
+            valid = false;
         } else {
             account_number_message = "";
         }
@@ -247,12 +248,14 @@
         if (!$bank_details.re_enter_account_number.match(acc_number_check)) {
             re_account_number_message = "Please enter a valid account number";
             account_number_match_check = false;
+            valid = false;
         } else if (
             $bank_details.account_number !=
             $bank_details.re_enter_account_number
         ) {
             re_account_number_message = "Account number does not match";
             account_number_match_check = false;
+            valid =  false;
         } else {
             re_account_number_message = "";
             account_number_match_check = true;
@@ -261,13 +264,18 @@
     function verify_pincode() {
         if (!$bank_details.branch_pin_code.match(acc_number_check)) {
             pincode_message = "Please enter a valid pincode";
+            valid = false;
         } else {
             pincode_message = "";
         }
     }
     function verify_account_holder() {
+        $bank_details.account_holder = $bank_details.account_holder.trim();
         if (!$bank_details.account_holder.match(account_holder_check)) {
+            
             account_holder_message = "Please enter a valid account holder name";
+            valid = false;
+            
         } else {
             account_holder_message = "";
         }
@@ -559,6 +567,7 @@
             account_number_message = "Please enter account number";
         } else {
             account_number_message = "";
+            verify_account_number();
         }
 
         if (!$bank_details.re_enter_account_number) {
@@ -566,6 +575,8 @@
             re_account_number_message = "Please confirm account number";
         } else {
             re_account_number_message = "";
+            verify_re_account_number();
+            
         }
 
         if (!$bank_details.account_holder) {
@@ -573,6 +584,7 @@
             account_holder_message = "Please enter account holder name";
         } else {
             account_holder_message = "";
+            verify_account_holder();
         }
 
         if (!$bank_details.bank_type) {
@@ -593,6 +605,7 @@
             valid = false;
             pincode_message = "Please enter branch pin code";
         } else {
+            verify_pincode();
             pincode_message = "";
         }
     }
