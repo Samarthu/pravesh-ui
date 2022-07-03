@@ -957,7 +957,7 @@
                         <div class="cardContentText flex">
                             <div class="cardimg mr-3">
                                 <img
-                                    src="{$img_url_name.img_name}/bgv.png"
+                                    src="{$img_url_name.img_name}/pendingletter.png"
                                     alt=""
                                 />
                             </div>

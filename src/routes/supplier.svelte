@@ -1381,6 +1381,7 @@ else
     function close_deact_initiate_module(){
         // fac_obj_arr = [];
         initiateDeact.style.display = "none";
+        deact_date = "";
     }
     // function confirm_initiate_deact(){
 
@@ -2438,7 +2439,7 @@ else
                 <div class="tableSectionSuppliers ">
                     <div class="py-2 ">
                         <div class="tableWrapper">
-                            <table class="mainTable ">
+                            <table class="mainTable associate_expanded">
                                 <thead class="bg-bgthead ">
                                     <tr>
                                         <th
@@ -3675,11 +3676,11 @@ else
                 <div class="infoUserdetailsSection ">
                     <div class="detailsInfoSection">
                         <div class="tdfirstDetailsformodal">
-                            <div class="itemList ">
-                                <div class="smallText w-w115px">
+                            <div class="itemListForBaseline">
+                                <div class="smallText w-w115px ">
                                     Associate Name
                                 </div>
-                                <div class="smLable"  style="max-width: 50%;">{audit_supplier_data.facility_name}</div>
+                                <div class="smLable w-64 xsl:w-48">{audit_supplier_data.facility_name}</div>
                             </div>
                             <div class="itemList ">
                                 <div class="smallText w-w115px">
@@ -4132,7 +4133,7 @@ else
         
                         <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0 mt-4">
                             <label class="block  tracking-wide text-gray-700 font-bold mb-2" for="grid-state" >
-                                Do you want to deactivate fac_id ?
+                                Do you want to deactivate fac_id {fac_obj.name}?
                             </label>
                             <div class="relative">
                              

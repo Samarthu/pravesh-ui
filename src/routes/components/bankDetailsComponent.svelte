@@ -87,6 +87,24 @@
             can_cheque_verified:null,
             can_cheque_rejected:null
         };
+        export let blk_cheque_obj = {
+            blk_cheque_name:null,
+            blk_cheque_url:null,
+            blk_cheque_verified:null,
+            blk_cheque_rejected:null
+        }
+        export let passbook_obj = {
+            passbook_name:null,
+            passbook_url:null,
+            passbook_verified:null,
+            passbook_rejected:null
+        }
+        export let acc_stmt_obj = {
+            acc_stmt_name:null,
+            acc_stmt_url:null,
+            acc_stmt_verified:null,
+            acc_stmt_rejected:null
+        }
     
     
         let text_pattern = /^[a-zA-Z_ ]+$/;
@@ -254,6 +272,18 @@
             image_path = $page.url.origin+can_cheque_obj.can_cheque_url;
             // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+can_cheque_obj.can_cheque_url);
             alt_image = "cancel cheque proof";
+        }
+        else if(data == "blk_cheque"){
+            image_path = $page.url.origin+blk_cheque_obj.blk_cheque_url;
+            alt_image = "blank cheque proof";
+        }
+        else if(data == "passbook"){
+            image_path = $page.url.origin+passbook_obj.passbook_url;
+            alt_image = "passbook proof";
+        }
+        else if(data == "acc_stmt"){
+            image_path = $page.url.origin+acc_stmt_obj.acc_stmt_url;
+            alt_image = "account statement proof";
         }
         else if(data == "cheque_disp"){
             for(let i=0;i<cheque_values_from_store.length;i++){
@@ -662,9 +692,201 @@
                          </p>
                      </div>
                  </div>
+
+                 <div class="attachment mt-5">
+                    <div class="flex items-start">
+                        <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
+                        <div class="pl-4 flex items-center">
+                            <p class="detailLbale">Blank Cheque Attachment</p>
+
+                        </div>
+                    </div>
+                    {#if blk_cheque_obj.blk_cheque_rejected == "1"}
+                <p class="rejectText pr-3">
+                    <img
+                        src="{$img_url_name.img_name}/reject.png"
+                        alt=""
+                        class="pr-2"
+                    /> Rejected
+                </p>
+                {:else if blk_cheque_obj.blk_cheque_verified == "1"}
+                
+                    <p class="verifiedTextGreen pr-3">
+                        <img
+                            src="{$img_url_name.img_name}/checked.png"
+                            alt=""
+                            class="pr-1"
+                        />
+                        Verified
+                    </p>
+               
+                {:else if blk_cheque_obj.blk_cheque_verified == "0" && blk_cheque_obj.blk_cheque_rejected == "0"}
+                    <p class="verifyText pr-3">
+                        <img
+                            src="{$img_url_name.img_name}/timer.png"
+                            alt=""
+                            class="pr-2"
+                        />
+                        Verification Pending
+                    </p>
+               {/if}
+                </div>
+                <div class="wrapperInfo ">
+                    <div class="flex items-start">
+                        <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
+                        <div class="pl-4 flex items-center">
+                           
+                           {#if blk_cheque_obj.blk_cheque_name == null}
+                           <p>Not Provided</p>
+                           {:else}
+                           <img src={$page.url.origin+blk_cheque_obj.blk_cheque_url} class="w-5 mr-2" alt="">
+                            <p class="detailLbale">{blk_cheque_obj.blk_cheque_name}</p>
+                            {/if}
+                        </div>
+                    </div>
+                    <div class="userStatus ">
+                        <p class="verifyText">
+                            {#if blk_cheque_obj.blk_cheque_url}
+                            <a href="" class="smButton">
+                                <img src="{$img_url_name.img_name}/view.png" alt="" on:click="{()=>{openViewModel("blk_cheque")}}">
+                            </a>
+                            {/if}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="attachment mt-5">
+                    <div class="flex items-start">
+                        <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
+                        <div class="pl-4 flex items-center">
+                            <p class="detailLbale">Passbook Attachment</p>
+
+                        </div>
+                    </div>
+                    {#if passbook_obj.passbook_rejected == "1"}
+                <p class="rejectText pr-3">
+                    <img
+                        src="{$img_url_name.img_name}/reject.png"
+                        alt=""
+                        class="pr-2"
+                    /> Rejected
+                </p>
+                {:else if passbook_obj.passbook_verified == "1"}
+                
+                    <p class="verifiedTextGreen pr-3">
+                        <img
+                            src="{$img_url_name.img_name}/checked.png"
+                            alt=""
+                            class="pr-1"
+                        />
+                        Verified
+                    </p>
+               
+                {:else if passbook_obj.passbook_verified == "0" && passbook_obj.passbook_rejected == "0"}
+                    <p class="verifyText pr-3">
+                        <img
+                            src="{$img_url_name.img_name}/timer.png"
+                            alt=""
+                            class="pr-2"
+                        />
+                        Verification Pending
+                    </p>
+               {/if}
+                </div>
+                <div class="wrapperInfo ">
+                    <div class="flex items-start">
+                        <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
+                        <div class="pl-4 flex items-center">
+                           
+                           {#if passbook_obj.passbook_name == null}
+                           <p>Not Provided</p>
+                           {:else}
+                           <img src={$page.url.origin+passbook_obj.passbook_url} class="w-5 mr-2" alt="">
+                            <p class="detailLbale">{passbook_obj.passbook_name}</p>
+                            {/if}
+                        </div>
+                    </div>
+                    <div class="userStatus ">
+                        <p class="verifyText">
+                            {#if passbook_obj.passbook_url}
+                            <a href="" class="smButton">
+                                <img src="{$img_url_name.img_name}/view.png" alt="" on:click="{()=>{openViewModel("passbook")}}">
+                            </a>
+                            {/if}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="attachment mt-5">
+                    <div class="flex items-start">
+                        <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
+                        <div class="pl-4 flex items-center">
+                            <p class="detailLbale">Account Statement Attachment</p>
+
+                        </div>
+                    </div>
+                    {#if acc_stmt_obj.acc_stmt_rejected == "1"}
+                <p class="rejectText pr-3">
+                    <img
+                        src="{$img_url_name.img_name}/reject.png"
+                        alt=""
+                        class="pr-2"
+                    /> Rejected
+                </p>
+                {:else if acc_stmt_obj.acc_stmt_verified == "1"}
+                
+                    <p class="verifiedTextGreen pr-3">
+                        <img
+                            src="{$img_url_name.img_name}/checked.png"
+                            alt=""
+                            class="pr-1"
+                        />
+                        Verified
+                    </p>
+               
+                {:else if acc_stmt_obj.acc_stmt_verified == "0" && acc_stmt_obj.acc_stmt_rejected == "0"}
+                    <p class="verifyText pr-3">
+                        <img
+                            src="{$img_url_name.img_name}/timer.png"
+                            alt=""
+                            class="pr-2"
+                        />
+                        Verification Pending
+                    </p>
+               {/if}
+                </div>
+                <div class="wrapperInfo ">
+                    <div class="flex items-start">
+                        <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
+                        <div class="pl-4 flex items-center">
+                           
+                           {#if acc_stmt_obj.acc_stmt_name == null}
+                           <p>Not Provided</p>
+                           {:else}
+                           <img src={$page.url.origin+acc_stmt_obj.acc_stmt_url} class="w-5 mr-2" alt="">
+                            <p class="detailLbale">{acc_stmt_obj.acc_stmt_name}</p>
+                            {/if}
+                        </div>
+                    </div>
+                    <div class="userStatus ">
+                        <p class="verifyText">
+                            {#if acc_stmt_obj.acc_stmt_url}
+                            <a href="" class="smButton">
+                                <img src="{$img_url_name.img_name}/view.png" alt="" on:click="{()=>{openViewModel("acc_stmt")}}">
+                            </a>
+                            {/if}
+                        </p>
+                    </div>
+                </div>
+
+
+
+
+
              </div>
             
          </div>
+         
 
      </div> 
   
