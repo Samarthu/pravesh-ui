@@ -21,6 +21,8 @@
     import {facility_data_store} from "../stores/facility_store"
     import {bgv_config_store} from '../stores/bgv_config_store'
     import Toast from './components/toast.svelte';
+    import { SvelteToast, toast } from '@zerodevx/svelte-toast'
+    import {success_toast ,error_toast,warning_toast} from '../services/toast_theme';
     import { object_without_properties } from "svelte/internal";
     import { paginate, LightPaginationNav } from "svelte-paginate";
     import Spinner from "./components/spinner.svelte";
@@ -6958,3 +6960,4 @@
 </div> 
 <!-- Document view Model -->
 <Toast type={toast_type}  text={toast_text}/>
+<SvelteToast />

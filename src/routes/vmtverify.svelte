@@ -11,6 +11,8 @@
     // import {facility_id} from "../stores/facility_id_store"
     import {bgv_data_store} from "../stores/bgv_store";
     import Toast from './components/toast.svelte';
+    import { SvelteToast, toast } from '@zerodevx/svelte-toast'
+    import {success_toast ,error_toast,warning_toast} from '../services/toast_theme';
     import Spinner from "./components/spinner.svelte";
     import { img_url_name } from "../stores/flags_store";
     import { each } from "svelte/internal";
@@ -6307,7 +6309,7 @@
     </div>
 
 <Toast type={toast_type}  text={toast_text}/> 
-
+<SvelteToast />
 
 <style type="text/css" media="print">
     .noPrint{

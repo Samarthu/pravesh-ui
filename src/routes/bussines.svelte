@@ -10,8 +10,6 @@
     import {img_url_name} from '../stores/flags_store';
     import { SvelteToast, toast } from '@zerodevx/svelte-toast'
     import {success_toast ,error_toast,warning_toast} from '../services/toast_theme';
-    
-  
     import Breadcrumb from "./breadcrumb.svelte";
     import Spinner from "./components/spinner.svelte";
     import {get_verticles_ui_fun} from '../services/business_vertical_services';
@@ -19,8 +17,8 @@
     let org_list= [];
     let verticle_list = [];
     let combined_list = [];
-    let toast_text = "";
-    let toast_type = null;
+    // let toast_text = "";
+    // let toast_type = null;
     let show_spinner = false;
 
 

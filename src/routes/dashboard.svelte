@@ -21,6 +21,8 @@
     import Supplier from "./supplier.svelte";
     import { goto_wrapper } from "../services/goto_wrapper";
     import Toast from './components/toast.svelte';
+    import { SvelteToast, toast } from '@zerodevx/svelte-toast'
+    import {success_toast ,error_toast,warning_toast} from '../services/toast_theme';
     
     let toast_text = "";
     let toast_type = null;
@@ -95,8 +97,10 @@
             // console.log("email",current_user_response.body.data);
         } else {
             // alert("Session User not found");
-            toast_text = "Session User not found";
-            toast_type = "error";
+            // toast_text = "Session User not found";
+            // toast_type = "error";
+            error_toast("Session User not found")
+
         }
 
         let fac_count_res = await get_fac_count();
@@ -226,8 +230,9 @@
                     wb = X.read(excel_data, { type: 'binary' });
                     process_wb(wb);
                     // console.log("photo_data",reader.result);
-                    toast_text = "Doc Selected";
-                    toast_type = "success";
+                    // toast_text = "Doc Selected";
+                    // toast_type = "success";
+                    success_toast("Doc Selected")
                     }
                 }
                     // var reader = new FileReader();
@@ -311,8 +316,10 @@
 
         if(!child_id_value){
             show_spinner=false;
-            toast_type = "error"
-            toast_text = "Please Enter Child Id"
+            // toast_type = "error"
+            // toast_text = "Please Enter Child Id"
+            error_toast("Please Enter Child Id")
+
             return
         }
         let find_parent_function_res = await find_parent_function(child_id_value);
@@ -320,8 +327,9 @@
         try{
             if(find_parent_function_res.body.status == "green"){
                 show_spinner=false;
-                toast_type = "success";
-                toast_text = find_parent_function_res.body.message;
+                // toast_type = "success";
+                // toast_text = find_parent_function_res.body.message;
+                success_toast(find_parent_function_res.body.message)
                 console.log("find_parent_function_res",find_parent_function_res)
                
                 parent_arr_for_child = find_parent_function_res.body.data;
@@ -331,15 +339,18 @@
             else{
                 console.log("inside else")
                 show_spinner=false;
-                toast_type = "error";
-                toast_text = find_parent_function_res.body.message;
+                // toast_type = "error";
+                // toast_text = find_parent_function_res.body.message;
+                error_toast(find_parent_function_res.body.message)
             }
 
         }
         catch(err){
             show_spinner=false;
-            toast_type = "error";
-            toast_text = find_parent_function_res.body.message
+            // toast_type = "error";
+            // toast_text = find_parent_function_res.body.message
+            error_toast(find_parent_function_res.body.message)
+
         }
     }
 
@@ -365,36 +376,45 @@
 	}
 	
 	if (facIds == undefined || facIds.trim().length == 0) {
-        toast_type = "error"
-        toast_text = "Enter some facility IDs separated by new line"
+        // toast_type = "error"
+        // toast_text = "Enter some facility IDs separated by new line"
+        error_toast("Enter some facility IDs separated by new line")
         show_spinner = false;
 		return;
 	}
 	if (format.test(facIds)) {
-        toast_type = "error"
-        toast_text = "Enter Valid Facility ID"
+        // toast_type = "error"
+        // toast_text = "Enter Valid Facility ID"
+        error_toast("Enter Valid Facility ID")
+
         show_spinner = false;
 		return;
 	}
 	var downDoctype = bulkDocType[docType];
 	if (downDoctype == undefined) {
-        toast_type = "error"
-        toast_text = "Invalid Doc Type Selected"
+        // toast_type = "error"
+        // toast_text = "Invalid Doc Type Selected"
+        error_toast("Invalid Doc Type Selected")
+
         show_spinner = false;
 		return;
 	}
 	var facArr = facIds.split("\n");
 
 	if (facArr.length == 0) {
-        toast_type = "error"
-        toast_text = "Invalid Facility Ids !!"
+        // toast_type = "error"
+        // toast_text = "Invalid Facility Ids !!"
+        error_toast("Invalid Facility Ids !!")
+
         show_spinner = false;
 		return;
 	}
 
 	if (facArr.length > 100) {
-        toast_type = "error"
-        toast_text = "Maximum 100 Ids allowed at one time !!"
+        // toast_type = "error"
+        // toast_text = "Maximum 100 Ids allowed at one time !!"
+        error_toast("Maximum 100 Ids allowed at one time !!")
+        
         show_spinner = false;
 		return;
 	}
@@ -408,8 +428,10 @@
         show_spinner = true;
 
         if (facIds == undefined || facIds.trim().length == 0) {
-            toast_type = "error"
-            toast_text = "Enter some facility IDs separated by new line"
+            // toast_type = "error"
+            // toast_text = "Enter some facility IDs separated by new line"
+            error_toast("Enter some facility IDs separated by new line")
+
             show_spinner = false;
             return;
         }
@@ -417,14 +439,18 @@
         var invArr = facIds.split("\n");
 
         if (invArr.length == 0) {
-            toast_type = "error"
-            toast_text = "Invalid Invoice Numbers !!"
+            // toast_type = "error"
+            // toast_text = "Invalid Invoice Numbers !!"
+            error_toast("Invalid Invoice Numbers !!")
+
             show_spinner = false;
             return;
         }
         if (invArr.length > 500) {
-            toast_type = "error"
-            toast_text = "Maximum 500 Invoice numbers <br> allowed at one time !!"
+            // toast_type = "error"
+            // toast_text = "Maximum 500 Invoice numbers <br> allowed at one time !!"
+            error_toast("Maximum 500 Invoice numbers <br> allowed at one time !!")
+
             show_spinner = false;
             return;
         }
@@ -457,8 +483,10 @@
     }
     catch(err){
         show_spinner =false;
-        toast_text=err
-        toast_type = "error"
+        // toast_text=err
+        // toast_type = "error"
+        error_toast(err)
+
     }
 
     }
@@ -486,15 +514,20 @@
     
     async function find_by_one(){
         if(!find_by_data){
-            toast_type = "error"
+            
             if(find_by == "clientname"){
-                toast_text = "Enter Valid Client Name."
+                // toast_text = "Enter Valid Client Name."
+            error_toast("Enter Valid Client Name.")
+
             }
             else if(find_by == "employeeid"){
-                toast_text = "Enter Valid Employee ID"
+                // toast_text = "Enter Valid Employee ID"
+                error_toast("Enter Valid Employee ID.")
             }
             else if(find_by == "pancard"){
                 toast_text = "Enter Valid PanCard Number"
+                error_toast("Enter Valid PanCard Number.")
+
             }
             show_spinner = false
             return
@@ -510,14 +543,18 @@
             }
             else{
                 show_spinner = false
-                toast_type = "error"
-                toast_text = find_by_one_res.body.message
+                // toast_type = "error"
+                // toast_text = find_by_one_res.body.message
+            error_toast(find_by_one_res.body.message)
+
             }
         }
         catch(err){
             show_spinner = false
-            toast_text = err
-            toast_type = "error"
+            // toast_text = err
+            // toast_type = "error"
+            error_toast(err)
+
         }
 
 
@@ -590,20 +627,26 @@
     try{
         if(bulk_search_res.body.status == "green"){
             show_spinner = false;
-            toast_type = "success";
-            toast_text = bulk_search_res.body.message;
+            // toast_type = "success";
+            // toast_text = bulk_search_res.body.message;
+            success_toast(bulk_search_res.body.message)
+
         }
         else{
             show_spinner = false;
-            toast_type = "error";
-            toast_text = bulk_search_res.body.message;
+            // toast_type = "error";
+            // toast_text = bulk_search_res.body.message;
+            error_toast(bulk_search_res.body.message)
+
         }
         
     }
     catch(err){
         show_spinner = false;
-        toast_type = "error";
-        toast_text = err;
+        // toast_type = "error";
+        // toast_text = err;
+        error_toast(err)
+
     }
 	
 
@@ -706,8 +749,10 @@
         let copy_parent_func_res = await copy_parent_func(JSON.stringify(parent_obj));
         try{
             if(copy_parent_func_res.body.status == "green"){
-                toast_type = "success";
-                toast_text = "Facility Copied Unique Facility ID : "+unique_fac_id+""
+                // toast_type = "success";
+                // toast_text = "Facility Copied Unique Facility ID : "+unique_fac_id+""
+                success_toast( "Facility Copied Unique Facility ID : "+unique_fac_id+"")
+
                 copy_from_vendor_model.style.display = "none";  
                 show_spinner = false;
                 unique_fac_id="";
@@ -716,14 +761,17 @@
             }
             else{
                 show_spinner = false;
-                toast_type = "error";
-                toast_text = copy_parent_func_res.body.message;
-                
+                // toast_type = "error";
+                // toast_text = copy_parent_func_res.body.message;
+                error_toast(copy_parent_func_res.body.message)
+
             }
         }
         catch(err){
-            toast_type = "error";
-            toast_text = err;
+            // toast_type = "error";
+            // toast_text = err;
+            error_toast(err)
+
             show_spinner = false;
         }
         
@@ -1526,3 +1574,4 @@
       <!-- TEMPLATE for download -->
 
 <Toast type={toast_type}  text={toast_text}/>
+<SvelteToast />
