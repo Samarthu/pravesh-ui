@@ -23,7 +23,7 @@
             import {uploadDocs} from "../../services/bgv_services";
             import Toast from './toast.svelte';
             import { SvelteToast, toast } from '@zerodevx/svelte-toast'
-            import {success_toast ,error_toast,warning_toast} from '../services/toast_theme';
+            import {success_toast ,error_toast,warning_toast} from '../../services/toast_theme';
             import {get_cas_user, activate_cas_user , create_cas_user} from "../../services/vmt_verify_services"
             // import {check_facility_status} from '.././onboardsummaryComponent.svelte';
 

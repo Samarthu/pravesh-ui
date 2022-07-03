@@ -47,7 +47,7 @@
             import { goto } from "$app/navigation";
             import Toast from './toast.svelte';
             import { SvelteToast, toast } from '@zerodevx/svelte-toast'
-            import {success_toast ,error_toast,warning_toast} from '../services/toast_theme';
+            import {success_toast ,error_toast,warning_toast} from '../../services/toast_theme';
             import QRCode from "./qr-code.svelte";
             import {get_pravesh_properties_method} from "../../services/workdetails_services";
             import {get_date_format} from "../../services/date_format_servives";
