@@ -10,6 +10,7 @@
 import { vercticle_name } from '../stores/verticle_store';
 import { SvelteToast, toast } from '@zerodevx/svelte-toast'
     import {success_toast ,error_toast,warning_toast} from '../services/toast_theme';
+    import {img_url_name} from '../stores/flags_store';
     let toast_text = "";
     let toast_type = null;
     let verticle = null;
@@ -136,6 +137,9 @@ import { SvelteToast, toast } from '@zerodevx/svelte-toast'
         let replaceState = false;
         goto("catagory", { replaceState });
         // alert(org_select);
+    }
+    function on_back_page(){
+        goto("bussines")
     }
 
 </script>
@@ -386,6 +390,11 @@ import { SvelteToast, toast } from '@zerodevx/svelte-toast'
                     {/each}
                    
                  
+                </div>
+            </div>
+            <div on:click={() =>{on_back_page()}} class="flex mt-m49">
+                <div class="backButton">
+                    <img src="{$img_url_name.img_name}/arrowleft.png" alt="" />
                 </div>
             </div>
 
