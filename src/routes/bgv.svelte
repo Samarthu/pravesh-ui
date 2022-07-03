@@ -12,7 +12,9 @@
     import { allowed_pdf_size } from "../services/pravesh_config";
     import { each, text } from "svelte/internal";
     import {logged_user} from '../services/supplier_services'
-    import Toast from './components/toast.svelte';
+    // import Toast from './components/toast.svelte';
+    import { SvelteToast, toast } from '@zerodevx/svelte-toast'
+    import {success_toast ,error_toast,warning_toast} from '../services/toast_theme';
     import { img_url_name } from "../stores/flags_store";
     import Spinner from "./components/spinner.svelte";
     import {get_date_format} from "../services/date_format_servives";
@@ -171,8 +173,9 @@
                 $facility_id.facility_id_number = temp;
             }
             else{
-                toast_type = "error";
-                toast_text = "Facility ID not found";
+                // toast_type = "error";
+                // toast_text = "Facility ID not found";
+                error_toast("Facility ID not found")
             }
         }
         console.log("$facility_id.facility_id_number",$facility_id.facility_id_number);
@@ -189,8 +192,9 @@
         }
         catch(err) {
             
-            toast_type = "error";
-            toast_text = "User Not Found";
+            // toast_type = "error";
+            // toast_text = "User Not Found";
+            error_toast("User Not Found")
         }
 
         show_spinner = true;
@@ -260,8 +264,10 @@
         }
         }
         catch(err) {
-        toast_type = "error";
-        toast_text = err;
+        // toast_type = "error";
+        // toast_text = err;
+        error_toast(err)
+        
         
         }
 
@@ -345,8 +351,9 @@
         }
         catch(err) {
        
-        toast_type = "error";
-        toast_text = err;
+        // toast_type = "error";
+        // toast_text = err;
+        error_toast(err)
         }
         //////////////////facility document data ends here/////////////////////////////
 
@@ -392,8 +399,9 @@
             }
         }
         catch(err){
-           toast_type = "error";
-           toast_text = err;
+        //    toast_type = "error";
+        //    toast_text = err;
+        error_toast(err)
         }
     }
 
@@ -500,8 +508,9 @@
     }
     }
      catch(err) {
-        toast_type = "error";
-        toast_text = err;
+        // toast_type = "error";
+        // toast_text = err;
+        error_toast(err)
         
     }
     
@@ -556,8 +565,9 @@
         }
         
     } catch(err) {
-        toast_text = err;
-        toast_type = "error";
+        // toast_text = err;
+        // toast_type = "error";
+        error_toast(err)
        
     }
     ////Get current Date///
@@ -680,8 +690,9 @@
             // }
             // fac_photo_obj.profile_url = reader.result;
             console.log("photo_data",new_profile_url);
-            toast_text = "Photo Added Successfully";
-            toast_type = "success";
+            // toast_text = "Photo Added Successfully";
+            // toast_type = "success";
+            success_toast("Photo Added Successfully")
         }
         else if(doctext == "aadhar_upload"){
             // if(!fac_photo_obj.profile_url){
@@ -696,8 +707,9 @@
             // }
             // aadhar_obj.aadhar_attach = reader.result;
             console.log("aadhar_data",reader.result);
-            toast_text = "Document Added Successfully";
-            toast_type = "success";
+            // toast_text = "Document Added Successfully";
+            // toast_type = "success";
+            success_toast("Document Added Successfully")
         }
         else if(doctext == "address_upload"){
             // if(!fac_photo_obj.address_url){
@@ -712,8 +724,9 @@
             // }
             // addproof_obj.address_url = reader.result;
             console.log("address_data",reader.result);
-            toast_text = "Address Document Added Successfully";
-            toast_type = "success";
+            // toast_text = "Address Document Added Successfully";
+            // toast_type = "success";
+            success_toast("Address Document Added Successfully")
         }
         else if(doctext == "pancard_upload"){
             // if(!fac_photo_obj.pan_attach){
@@ -728,8 +741,9 @@
             // }
             // pancard_obj.pan_attach= reader.result;
             console.log("pan_data",reader.result);
-            toast_text = "Pan Card Uploaded Successfully";
-            toast_type = "success";
+            // toast_text = "Pan Card Uploaded Successfully";
+            // toast_type = "success";
+            success_toast("Pan Card Uploaded Successfully")
         }
         else if(doctext == "police_upload"){
             // if(!fac_photo_obj.pol_doc_url){
@@ -740,8 +754,9 @@
             // }
             // pol_photo_obj.pol_doc_url = reader.result;
             console.log("police_data",reader.result);
-            toast_text = "Document Uploaded Successfully";
-            toast_type = "success";
+            // toast_text = "Document Uploaded Successfully";
+            // toast_type = "success";
+            success_toast("Document Uploaded Successfully")
         }
         else if(doctext == "license_upload"){
             // if(!fac_photo_obj.dl_lic_url){
@@ -754,13 +769,16 @@
             // }
             // dl_photo_obj.dl_lic_url = reader.result;
             console.log("dl_data",reader.result);
-            toast_text = "Licence Uploaded Successfully";
-            toast_type = "success";
+            // toast_text = "Licence Uploaded Successfully";
+            // toast_type = "success";
+            success_toast("Licence Uploaded Successfully")
+            
         }
         };
         reader.onerror = function (error) {
-           toast_type = "error";
-           toast_text =error;
+        //    toast_type = "error";
+        //    toast_text =error;
+        error_toast(error)
         };
     }
     else {
@@ -1494,13 +1512,15 @@
                                     photo_res = "green"
                                 }
                                 else{
-                                    toast_type = "error"
-                                    toast_msg = "Photo Upload Failed"
+                                    // toast_type = "error"
+                                    // toast_msg = "Photo Upload Failed"
+                                    error_toast("Photo Upload Failed")
                                 }
                             }
                             catch(err){
-                                toast_type = "error"
-                                toast_msg = err;
+                                // toast_type = "error"
+                                // toast_msg = err;
+                                error_toast(err)
                             }
                         // }
                         
@@ -1513,13 +1533,17 @@
                                     photo_res = "green"
                                 }
                                 else{
-                                    toast_type = "error"
-                                    toast_msg = "Photo Upload Failed"
+                                    // toast_type = "error"
+                                    // toast_msg = "Photo Upload Failed"
+                                error_toast("Photo Upload Failed")
+
                                 }
                             }
                             catch(err){
-                                toast_type = "error"
-                                toast_msg = err;
+                                // toast_type = "error"
+                                // toast_msg = err;
+                                error_toast(err)
+
                             }
                         }
                     if(!aadhar_obj.aadhar_attach){
@@ -1530,13 +1554,15 @@
                                         aadhar_res = "green"
                                     }
                                     else{
-                                        toast_type = "error"
-                                        toast_msg = "Photo Upload Failed"
+                                        // toast_type = "error"
+                                        // toast_msg = "Photo Upload Failed"
+                                        error_toast("Photo Upload Failed")
                                     }
                             }
                             catch(err){
-                                toast_type = "error"
-                                toast_msg = err;
+                                // toast_type = "error"
+                                // toast_msg = err;
+                                error_toast(err)
                             }
                         // }
                         
@@ -1548,21 +1574,24 @@
                                         aadhar_res = "green"
                                     }
                                     else{
-                                        toast_type = "error"
-                                        toast_msg = "Photo Upload Failed"
+                                        // toast_type = "error"
+                                        // toast_msg = "Photo Upload Failed"
+                                        error_toast("Photo Upload Failed")
                                     }
                             }
                             catch(err){
-                                toast_type = "error"
-                                toast_msg = err;
+                                // toast_type = "error"
+                                // toast_msg = err;
+                                error_toast(err)
                             } 
                     }
                     
                     if(doc_present.length == "0" || (aadhar_res =="green" && photo_res == "green") || aadhar_res == "green" || photo_res == "green"){
                     console.log("Inside Successs")
                     show_spinner = false;
-                    toast_text = "Basic Details Submitted Successfully";
-                    toast_type = "success";
+                    // toast_text = "Basic Details Submitted Successfully";
+                    // toast_type = "success";
+                    success_toast("Basic Details Submitted Successfully")
                     if($bgv_config_store.is_address_info_mandatory =="1"){
                     temp="b";
                     is_add_active = "active";
@@ -1597,8 +1626,9 @@
                 }
                 else{
                     show_spinner = false
-                    toast_text = "Document submission failed";
-                    toast_type = "error";
+                    // toast_text = "Document submission failed";
+                    // toast_type = "error";
+                    error_toast("Document submission failed")
                 }
             }
             catch(err){
@@ -1623,13 +1653,17 @@
                                     address_res = "green"
                                 }
                                 else{
-                                    toast_type = "error"
-                                    toast_msg = "Photo Upload Failed"
+                                    // toast_type = "error"
+                                    // toast_msg = "Photo Upload Failed"
+                                error_toast("Photo Upload Failed")
+
                                 }
                             }
                             catch(err){
-                                toast_type = "error"
-                                toast_msg = err;
+                                // toast_type = "error"
+                                // toast_msg = err;
+                                error_toast(err)
+
                             }
                         // }
                         
@@ -1641,20 +1675,25 @@
                                         address_res = "green"
                                     }
                                     else{
-                                        toast_type = "error"
-                                        toast_msg = "Photo Upload Failed"
+                                        // toast_type = "error"
+                                        // toast_msg = "Photo Upload Failed"
+                                        error_toast("Photo Upload Failed")
+
                                     }
                             }
                             catch(err){
-                                toast_type = "error"
-                                toast_msg = err;
+                                // toast_type = "error"
+                                // toast_msg = err;
+                                error_toast(err)
+
                             } 
                     }
                     
                     if(doc_present.length == "0" || address_res =="green"){
                     show_spinner = false;
-                    toast_text = "Address Details Submitted Successfully";
-                    toast_type = "success";
+                    // toast_text = "Address Details Submitted Successfully";
+                    // toast_type = "success";
+                    success_toast("Address Details Submitted Successfully")
                     if($bgv_config_store.is_pan_info_mandatory =="1"){
                     temp="c";
                     is_pan_active = "active";
@@ -1703,13 +1742,16 @@
                                     pan_res = "green"
                                 }
                                 else{
-                                    toast_type = "error"
-                                    toast_msg = "Photo Upload Failed"
+                                    // toast_type = "error"
+                                    // toast_msg = "Photo Upload Failed"
+                                error_toast("Photo Upload Failed")
                                 }
                             }
                             catch(err){
-                                toast_type = "error"
-                                toast_msg = err;
+                                // toast_type = "error"
+                                // toast_msg = err;
+                                error_toast(err)
+
                             }
                 }
                 else if(doc_present.includes("pan_present")){
@@ -1719,13 +1761,15 @@
                                         pan_res = "green"
                                     }
                                     else{
-                                        toast_type = "error"
-                                        toast_msg = "Photo Upload Failed"
+                                        // toast_type = "error"
+                                        // toast_msg = "Photo Upload Failed"
+                                        error_toast("Photo Upload Failed")
                                     }
                             }
                             catch(err){
-                                toast_type = "error"
-                                toast_msg = err;
+                                // toast_type = "error"
+                                // toast_msg = err;
+                                error_toast(err)
                             } 
                 }
 
@@ -1734,8 +1778,9 @@
                 if(doc_present.length == "0" || pan_res =="green"){
                 
                 show_spinner = false;
-                toast_text = "Pan Card Details Submitted Successfully";
-                toast_type = "success";
+                // toast_text = "Pan Card Details Submitted Successfully";
+                // toast_type = "success";
+                success_toast("Pan Card Details Submitted Successfully")
                 if($bgv_config_store.is_driving_license_mandatory =="1"){
                 temp="d"
                 is_dl_active="active";
@@ -1777,13 +1822,17 @@
                                     dl_res = "green"
                                 }
                                 else{
-                                    toast_type = "error"
-                                    toast_msg = "Photo Upload Failed"
+                                    // toast_type = "error"
+                                    // toast_msg = "Photo Upload Failed"
+                                    error_toast("Photo Upload Failed")
+
                                 }
                             }
                             catch(err){
-                                toast_type = "error"
-                                toast_msg = err;
+                                // toast_type = "error"
+                                // toast_msg = err;
+                                error_toast(err)
+
                             }
                         }
                     else if(doc_present.includes("dl_present")){
@@ -1793,13 +1842,17 @@
                                     dl_res = "green"
                                 }
                                 else{
-                                    toast_type = "error"
-                                    toast_msg = "Photo Upload Failed"
+                                    // toast_type = "error"
+                                    // toast_msg = "Photo Upload Failed"
+                                    error_toast("Photo Upload Failed")
+
                                 }
                         }
                         catch(err){
-                            toast_type = "error"
-                            toast_msg = err;
+                            // toast_type = "error"
+                            // toast_msg = err;
+                            error_toast(err)
+
                         } 
                     }
                         
@@ -1807,8 +1860,9 @@
                 if(doc_present.length == "0" || dl_res =="green"){
 
                     show_spinner = false;
-                toast_text = "Licence Details Submitted Successfully";
-                toast_type = "success";
+                // toast_text = "Licence Details Submitted Successfully";
+                // toast_type = "success";
+                success_toast("Licence Details Submitted Successfully")
                 if($bgv_config_store.is_police_verification_mandatory =="1"){
                 temp="e"
                 is_pol_active="active";
@@ -1844,13 +1898,17 @@
                                 pol_res = "green"
                             }
                             else{
-                                toast_type = "error"
-                                toast_msg = "Photo Upload Failed"
+                                // toast_type = "error"
+                                // toast_msg = "Photo Upload Failed"
+                                error_toast("Photo Upload Failed")
+                                
                             }
                         }
                         catch(err){
-                            toast_type = "error"
-                            toast_msg = err;
+                            // toast_type = "error"
+                            // toast_msg = err;
+                            error_toast(err)
+
                         }
                     }
                     else if(doc_present.includes("pol_present")){
@@ -1860,21 +1918,26 @@
                                     pol_res = "green"
                                 }
                                 else{
-                                    toast_type = "error"
-                                    toast_msg = "Photo Upload Failed"
+                                    // toast_type = "error"
+                                    // toast_msg = "Photo Upload Failed"
+                                    error_toast("Photo Upload Failed")
+
                                 }
                         }
                         catch(err){
-                            toast_type = "error"
-                            toast_msg = err;
+                            // toast_type = "error"
+                            // toast_msg = err;
+                            error_toast(err)
+
                         } 
                     }
                     
                 }
             if(doc_present.length == "0" || pol_res =="green"){
                 show_spinner = false;
-                toast_text = "Police Verification Details Submitted Successfully";
-                toast_type = "success";
+                // toast_text = "Police Verification Details Submitted Successfully";
+                // toast_type = "success";
+                success_toast("Police Verification Details Submitted Successfully")
                 temp="f";
                 }
                 show_spinner = false
@@ -2020,8 +2083,10 @@
 
     function verify_new_otp(){
         if(!personal_email.match(email_pattern)){
-            toast_type = "error"
-            toast_text = "Please Enter Email Id and then click on verify button";
+            // toast_type = "error"
+            // toast_text = "Please Enter Email Id and then click on verify button";
+            error_toast("Please Enter Email Id and then click on verify button")
+
             return
         }
         else{
@@ -2039,21 +2104,26 @@
         let sent_otp_res = await send_otp(personal_email);
         try {
             if(sent_otp_res.body.status == "green"){
-                toast_text = "OTP Sent Successfully";
-                toast_type = "success";
+                // toast_text = "OTP Sent Successfully";
+                // toast_type = "success";
+                success_toast("OTP Sent Successfully")
                 verification_success = true;
             }
             else if($facility_data_store.email_verified == 1){
                 verification_success = true;
             }
             else{
-                toast_text = "OTP Sending Failed";
-                toast_type = "error";
+                // toast_text = "OTP Sending Failed";
+                // toast_type = "error";
+                error_toast("OTP Sending Failed")
+
             }
             
         } catch (error) {
-            toast_type = "error";
-            toast_text = error;
+            // toast_type = "error";
+            // toast_text = error;
+            error_toast(error)
+
         }
         }
         
@@ -2062,18 +2132,24 @@
         let verify_email_res =  await verify_email(otp_num,personal_email)
         try {
             if(verify_email_res == "green"){
-                toast_text = verify_email_res.body.message.message;
-                toast_type = "success";
+                // toast_text = verify_email_res.body.message.message;
+                // toast_type = "success";
+                success_toast(verify_email_res.body.message.message)
+
                 close_otp_model();
             }
             else{
-                toast_text = verify_email_res.body.message.message;
-                toast_type = "error";
+                // toast_text = verify_email_res.body.message.message;
+                // toast_type = "error";
+                error_toast(verify_email_res.body.message.message)
+
             }
             
         } catch (error) {
-            toast_type = "error";
-            toast_text = error;
+            // toast_type = "error";
+            // toast_text = error;
+            error_toast(error)
+
         }
     }
     
@@ -3741,5 +3817,5 @@
 <!--Mobile OTP Modal-->
 
 <Toast type={toast_type}  text={toast_text}/>
-
+<SvelteToast />
 

@@ -24,6 +24,8 @@
         import {facility_data_store} from "../stores/facility_store"
         import {bgv_config_store} from '../stores/bgv_config_store'
         import Toast from './components/toast.svelte';
+        import { SvelteToast, toast } from '@zerodevx/svelte-toast'
+        import {success_toast ,error_toast,warning_toast} from '../services/toast_theme';
         import AssociateDetails from './components/associateDetailsComponent.svelte';
         import BankDetails from './components/bankDetailsComponent.svelte';
         import IdentityProof from './components/identityProofComponent.svelte';
@@ -323,13 +325,17 @@ import { current_user } from "../stores/current_user_store";
                 }
                 else{
                     goto("dashboard")
-                    toast_type = "error";
-                    toast_text = "Facility ID not found";
+                    // toast_type = "error";
+                    // toast_text = "Facility ID not found";
+                error_toast("Facility ID not found")
+
                 }
             }
             else{
-                toast_type = "error";
-                toast_text = "Facility ID not found";
+                // toast_type = "error";
+                // toast_text = "Facility ID not found";
+                error_toast("Facility ID not found")
+
                 goto("dashboard")
             }
     
@@ -361,8 +367,10 @@ import { current_user } from "../stores/current_user_store";
                 }
             }
             catch(err) {
-                toast_type = "error";
-                toast_text = "Cannot get user details";
+                // toast_type = "error";
+                // toast_text = "Cannot get user details";
+                error_toast("Cannot get user details")
+
             }
     
             let bank_details_res = await bank_details_info();
@@ -396,8 +404,10 @@ import { current_user } from "../stores/current_user_store";
                 }
             catch(err) {
                 
-                toast_type = "error";
-                toast_text = err;
+                // toast_type = "error";
+                // toast_text = err;
+                error_toast(err)
+
             }
     
             ///Org Details
@@ -417,12 +427,16 @@ import { current_user } from "../stores/current_user_store";
                     
                 }
                 else{
-                    toast_type = "error";
-                    toast_text = "No client Data";
+                    // toast_type = "error";
+                    // toast_text = "No client Data";
+                    error_toast("No client Data")
+
                 }
                 } catch(err) {
-                    toast_type = "error";
-                    toast_text = err;
+                    // toast_type = "error";
+                    // toast_text = err;
+                    error_toast(err)
+
            
                 }
                 ///////Org details ends here
@@ -587,8 +601,10 @@ import { current_user } from "../stores/current_user_store";
             }
             catch(err) {
            
-            toast_type = "error";
-            toast_text = err;
+            // toast_type = "error";
+            // toast_text = err;
+            error_toast(err)
+
             }
 
             let session_user_response = await get_current_user_function();
@@ -630,8 +646,10 @@ import { current_user } from "../stores/current_user_store";
                     }
                 }
             catch(err){
-                toast_type = "error";
-                toast_text = err;
+                // toast_type = "error";
+                // toast_text = err;
+                error_toast(err)
+
             }
     
             ///////////////pravesh properties//////////////
@@ -692,14 +710,18 @@ import { current_user } from "../stores/current_user_store";
                 new_arr =[...new Set(new_arr)];
             } 
             else {
-                toast_type = "error";
-                toast_text = "Error in fetching pravesh properties";
+                // toast_type = "error";
+                // toast_text = "Error in fetching pravesh properties";
+            error_toast("Error in fetching pravesh properties")
+
             }
             //////////////////////////////////////////////////////////
         }
         catch(err){
-            toast_type = "error";
-            toast_text = err;
+            // toast_type = "error";
+            // toast_text = err;
+            error_toast(err)
+
         }
 
 
@@ -721,13 +743,16 @@ import { current_user } from "../stores/current_user_store";
                 }
             }
             else{
-                toast_type = "error";
-                toast_text = "No City Data";
+                // toast_type = "error";
+                // toast_text = "No City Data";
+                 error_toast("No City Data")
+
             }
             
         } catch(err) {
-            toast_type = "error";
-            toast_text = loc_data_res.body.message;
+            // toast_type = "error";
+            // toast_text = loc_data_res.body.message;
+            error_toast(err)
            
         }
     
@@ -812,8 +837,9 @@ import { current_user } from "../stores/current_user_store";
             }
         }
         catch(err) {
-            toast_type = "error";
-            toast_text = facility_data_res.body.message;
+            // toast_type = "error";
+            // toast_text = facility_data_res.body.message;
+            error_toast(facility_data_res.body.message)
             
             }
     
@@ -843,8 +869,10 @@ import { current_user } from "../stores/current_user_store";
             console.log("bgv_config_store here",$bgv_config_store)
         }
         catch(err){
-            toast_type = "error";
-            toast_text = err;
+            // toast_type = "error";
+            // toast_text = err;
+            error_toast(err)
+
         }
     
         all_tags_res = await all_facility_tags($facility_data_store.name);
@@ -859,8 +887,10 @@ import { current_user } from "../stores/current_user_store";
             }
         } 
         catch(err) {
-            toast_type = "error";
-            toast_text = all_tags_res.body.message;
+            // toast_type = "error";
+            // toast_text = all_tags_res.body.message;
+            error_toast(all_tags_res.body.message)
+
         }
     
     
@@ -895,9 +925,11 @@ import { current_user } from "../stores/current_user_store";
                 }
             } 
             catch(err) {
-                toast_type = "error";
-                toast_text = err;
-            
+                // toast_type = "error";
+                // toast_text = err;
+                show_spinner = false;
+                error_toast(err)
+
              }
         show_spinner = false;
         
@@ -906,12 +938,17 @@ import { current_user } from "../stores/current_user_store";
         if (!$facility_data_store.status && $facility_data_store.status != undefined && $facility_data_store.is_blacklisted == 1) {
             
             if (message != undefined){
-                toast_text = message;
-                toast_type = "error";
+                // toast_text = message;
+                // toast_type = "error";
+                error_toast(message)
+
+
             }
             else{
-                toast_text = "Request not allowed for Blacklisted Facility";
-                toast_type = "error";
+                // toast_text = "Request not allowed for Blacklisted Facility";
+                // toast_type = "error";
+                error_toast("Request not allowed for Blacklisted Facility")
+
                 return false;
             }
         }
@@ -932,8 +969,8 @@ import { current_user } from "../stores/current_user_store";
             return;
             }
             show_spinner = true;
-            console.log("here inside child")
-            console.log("sjhow spin ner",show_spinner)
+            // console.log("here inside child")
+            // console.log("sjhow spin ner",show_spinner)
             let client_det_res = await client_details(data);
             try{
                 if(client_det_res.body.status == "green"){
@@ -955,8 +992,10 @@ import { current_user } from "../stores/current_user_store";
             }
             catch(err){
                 show_spinner = false;
-                toast_type = "error";
-                toast_text = err;
+                // toast_type = "error";
+                // toast_text = err;
+                error_toast(err)
+
             }
             
         }
@@ -1117,8 +1156,10 @@ import { current_user } from "../stores/current_user_store";
             }
             catch(err) {
                 show_spinner = false;
-                toast_type = "error";
-                toast_text = err;
+                // toast_type = "error";
+                // toast_text = err;
+                error_toast(err)
+
             }
         }
         async function filterResults(){
@@ -1168,20 +1209,26 @@ import { current_user } from "../stores/current_user_store";
                     show_spinner = false;
                     gst_data = reader.result;
                     // console.log("photo_data",reader.result);
-                    toast_text = "File selected";
-                    toast_type = "success";
+                    // toast_text = "File selected";
+                    // toast_type = "success";
+                    success_toast("File selected")
+
                 }
                 else if(doctext == "cheque_upload"){
                     show_spinner = false;
                     cheque_data = reader.result;
-                    toast_text = "File selected";
-                    toast_type = "success";
+                    // toast_text = "File selected";
+                    // toast_type = "success";
+                    success_toast("File selected")
+
                 }
                 else if(doctext == "new_doc_upload"){
                     document_url = reader.result;
                     show_spinner = false;
-                    toast_text = "File selected";
-                    toast_type = "success";
+                    // toast_text = "File selected";
+                    // toast_type = "success";
+                    success_toast("File selected")
+
                 }
                 }
                     reader.onerror = function (error) {
@@ -1189,8 +1236,10 @@ import { current_user } from "../stores/current_user_store";
                     }
             }
             else if(!img){
-                toast_text = "Select File";
-                    toast_type = "error";
+                // toast_text = "Select File";
+                //     toast_type = "error";
+                error_toast("Select File")
+
                 show_spinner = false;
             }
             else {
@@ -1309,23 +1358,31 @@ import { current_user } from "../stores/current_user_store";
             initiateBgv.style.display = "block";
         }
         function initiate_deact_popup(){
-            toast_type = "error";
-            toast_text = "Deactive Facility cannot Initiate Background Verification";
+            // toast_type = "error";
+            // toast_text = "Deactive Facility cannot Initiate Background Verification";
+            error_toast("Deactive Facility cannot Initiate Background Verification")
+            
         }
         async function confirm_initiate_bgv(){
             let confirm_initiate_bgv_res = await initiateBGV();
             try {
                 if(confirm_initiate_bgv_res.body.status == "green"){
-                    toast_type = "success";
-                    toast_text = confirm_initiate_bgv_res.body.message;
+                    // toast_type = "success";
+                    // toast_text = confirm_initiate_bgv_res.body.message;
+                    success_toast(confirm_initiate_bgv_res.body.message)
+
                     let replaceState = false;
                     goto("bgv?unFacID="+$facility_id.facility_id_number, { replaceState });
     
                 }
                 
             } catch (error) {
-                toast_type = "error";
-                toast_text = error;
+                // toast_type = "error";
+                // toast_text = error;
+                // error_toast(error)
+                error_toast(error)
+
+
             }
         }
         
@@ -1555,8 +1612,10 @@ import { current_user } from "../stores/current_user_store";
                 }
             }
             catch(err){
-                toast_type = "error"
-                toast_text = err
+                // toast_type = "error"
+                // toast_text = err
+                error_toast(err)
+
             }
         }
     
@@ -1590,8 +1649,10 @@ import { current_user } from "../stores/current_user_store";
         }
         function blacklist_remark_select(){
             if($facility_data_store.is_blacklisted == 1){
-                toast_type = "error";
-                toast_text = "Facility already Blacklisted..!!!";
+                // toast_type = "error";
+                // toast_text = "Facility already Blacklisted..!!!";
+                error_toast("Facility already Blacklisted..!!!")
+
             }
             else{
                 Blacklist_confirmation_modal.style.display = "block";
@@ -1617,8 +1678,9 @@ import { current_user } from "../stores/current_user_store";
                 let blacklist_res = await blacklist_vendor(blacklist_remark);
                 try {
                     if (blacklist_res.body.status == "green") {
-                    toast_type = "success";
-                    toast_text = blacklist_res.body.message;
+                    // toast_type = "success";
+                    // toast_text = blacklist_res.body.message;
+                    success_toast(blacklist_res.body.message)
                     window.location.reload();
                     }
                 }
@@ -1892,8 +1954,10 @@ import { current_user } from "../stores/current_user_store";
             try {
                 if(save_doc_res.body.status == "green"){
                     show_spinner = false;
-                    toast_type = "success"
-                    toast_text = save_doc_res.body.message;
+                    // toast_type = "success"
+                    // toast_text = save_doc_res.body.message;
+                    success_toast(save_doc_res.body.message)
+
                     document_desc ="";
                     document.getElementById("selected_doc_type").selectedIndex = "-1";
                     document.getElementById("document_url").value = "";
@@ -1919,15 +1983,19 @@ import { current_user } from "../stores/current_user_store";
                     }
                     catch(err){
                         show_spinner = false;
-                        toast_type = "error";
-                        toast_text = err;
+                        // toast_type = "error";
+                        // toast_text = err;
+                        error_toast(err)
+
                     }
                 }
             } 
             catch (err) {
                 show_spinner = false;
-                toast_type = "error";
-                toast_text = err;
+                // toast_type = "error";
+                // toast_text = err;
+                error_toast(err)
+
             }
         }
     
@@ -1954,8 +2022,10 @@ import { current_user } from "../stores/current_user_store";
             try{
                 if(doc_res.body.status == "green"){
                     show_spinner = false;
-                    toast_text = doc_res.body.message;
-                    toast_type = "success";
+                    // toast_text = doc_res.body.message;
+                    // toast_type = "success";
+                    success_toast(doc_res.body.message)
+
     
                     let facility_document_res = await facility_document();
                     try{
@@ -1976,16 +2046,20 @@ import { current_user } from "../stores/current_user_store";
                     }
                     catch(err){
                         show_spinner = false;
-                        toast_type = "error";
-                        toast_text = err;
+                        // toast_type = "error";
+                        // toast_text = err;
+                        error_toast(err)
+
                         closeApproveViewModel();
                     }
                 }
             }
             catch(err){
                 show_spinner = false;
-                toast_text = err;
-                toast_type = "error";
+                // toast_text = err;
+                // toast_type = "error";
+                error_toast(err)
+
             }
                 
         }
@@ -3065,3 +3139,4 @@ import { current_user } from "../stores/current_user_store";
     </div>
     <!--BG Basic Detail Reject modal -->
     <Toast type={toast_type}  text={toast_text}/>
+    <SvelteToast />

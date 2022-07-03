@@ -22,6 +22,8 @@
             import { allowed_pdf_size } from "../../services/pravesh_config";
             import {uploadDocs} from "../../services/bgv_services";
             import Toast from './toast.svelte';
+            import { SvelteToast, toast } from '@zerodevx/svelte-toast'
+            import {success_toast ,error_toast,warning_toast} from '../services/toast_theme';
             import {get_cas_user, activate_cas_user , create_cas_user} from "../../services/vmt_verify_services"
             // import {check_facility_status} from '.././onboardsummaryComponent.svelte';
 
@@ -306,13 +308,16 @@
             
         }
         else{
-            toast_type = "error";
-            toast_text = "No City Data";
+            // toast_type = "error";
+            // toast_text = "No City Data";
+            error_toast("No City Data")
+            
         }
         
     } catch(err) {
-        toast_type = "error";
-        toast_text = loc_data_res.body.message;
+        // toast_type = "error";
+        // toast_text = loc_data_res.body.message;
+        error_toast(loc_data_res.body.message)
        
     }
     let get_libera_login_res = await get_libera_login();
@@ -322,8 +327,10 @@
         }
        
     } catch(err) {
-        toast_type = "error";
-        toast_text = err
+        // toast_type = "error";
+        // toast_text = err
+        error_toast(err)
+
        
     }
     
@@ -384,13 +391,17 @@
             if(doctext == "gst_upload"){
                 gst_data = reader.result;
                 // console.log("photo_data",reader.result);
-                toast_text = "Photo Uploaded Successfully";
-                toast_type = "success";
+                // toast_text = "Photo Uploaded Successfully";
+                // toast_type = "success";
+                success_toast("Photo Uploaded Successfully")
+
             }
             else if(doctext == "cheque_upload"){
                 cheque_data = reader.result;
-                toast_text = "Document Uploaded Successfully";
-                toast_type = "success";
+                // toast_text = "Document Uploaded Successfully";
+                // toast_type = "success";
+                success_toast("Document Uploaded Successfully")
+
             }
             }
                 reader.onerror = function (error) {
@@ -525,8 +536,10 @@
             
         }
         catch(err) {
-            toast_type = "error";
-            toast_text = gst_details_res.body.message;
+            // toast_type = "error";
+            // toast_text = gst_details_res.body.message;
+            error_toast(gst_details_res.body.message)
+
             
         }
     }
@@ -634,8 +647,10 @@
             try {
                 if(gst_add_res.body.status == "green"){
                     console.log("gst_add_res",gst_add_res)
-                    toast_type = "success";
-                    toast_text = "GST Details Added Successfully";
+                    // toast_type = "success";
+                    // toast_text = "GST Details Added Successfully";
+                    success_toast("GST Details Added Successfully")
+
                     
                     // let new_doc_type = "gst-certificate-"+gst_state_code;
                     // console.log("new_doc_type",new_doc_type)
@@ -660,14 +675,17 @@
                 }
                 else{
                     show_spinner = false;
-                    toast_type = "error";
-                    toast_text = gst_add_res.body.message;
+                    // toast_type = "error";
+                    // toast_text = gst_add_res.body.message;
+                    error_toast(gst_add_res.body.message)
+
                 }
                 
             } catch (err) {
                 show_spinner = false;
-                toast_type = "error";
-                toast_text = "Error in Adding GST Details";
+                // toast_type = "error";
+                // toast_text = "Error in Adding GST Details";
+                error_toast( "Error in Adding GST Details")
             }
             
             if(gst_add_res.body.status=="green"){
@@ -696,9 +714,9 @@
                 }
                 catch(err) {
                     show_spinner = false;
-                    toast_type = "error";
-                    toast_text = gst_details_res.body.message;
-                    
+                    // toast_type = "error";
+                    // toast_text = gst_details_res.body.message;
+                    error_toast(gst_details_res.body.message)
                 }
             }  
     }
@@ -770,25 +788,29 @@
                     gst_doc_submit_res = await uploadDocs(gst_file_data);
                     try {
                         if(gst_doc_submit_res.body.status == "green"){
-                                    toast_type = "success";
-                                    toast_text = "GST Details Added Successfully";
+                                    // toast_type = "success";
+                                    // toast_text = "GST Details Added Successfully";
+                                    success_toast("GST Details Added Successfully")
                                     
                         }
                         else if(gst_doc_submit_res.body.status == "red"){
-                            toast_type = "error";
-                            toast_text = gst_doc_submit_res.body.message;
+                            // toast_type = "error";
+                            // toast_text = gst_doc_submit_res.body.message;
+                            error_toast(gst_doc_submit_res.body.message)
                         }
                        
                     } catch (err) {
                         show_spinner = false;
-                        toast_type = "error";
-                        toast_text = "Error in Uploading GST Certificate";
+                        // toast_type = "error";
+                        // toast_text = "Error in Uploading GST Certificate";
+                        error_toast(err)
                     }
                 }
             } catch (err) {
                 show_spinner = false;
-                toast_type = "error";
-                toast_text = "Error in Adding GST Details";
+                // toast_type = "error";
+                // toast_text = "Error in Adding GST Details";
+                error_toast(err)
             }
             // location.reload();
 
@@ -906,8 +928,9 @@
                 console.log("child_selected_arr in link child", child_selected_arr)
             }
         } catch (err) {
-            toast_type = "error";
-            toast_text = list_child_data_res.body.message;
+            // toast_type = "error";
+            // toast_text = list_child_data_res.body.message;
+            error_toast(err)
         }
 
     }
@@ -916,8 +939,9 @@
             Reset_confirmation_modal.style.display = "block";
         }
         else if($facility_data_store.is_blacklisted == 1){
-            toast_type = "error";
-            toast_text = "Reset Deactivation status not allowed for Blacklisted Facility!!!";
+            // toast_type = "error";
+            // toast_text = "Reset Deactivation status not allowed for Blacklisted Facility!!!";
+            error_toast("Reset Deactivation status not allowed for Blacklisted Facility!!!")
         }
     }
     function close_reset_deact_tab(){
@@ -927,8 +951,10 @@
         let reset_deact_res = await reset_deact_status();
         try {
             if (reset_deact_res.body.status == "green") {
-                toast_type = "success";
-                toast_text = reset_deact_res.body.message;
+                // toast_type = "success";
+                // toast_text = reset_deact_res.body.message;
+                success_toast(reset_deact_res.body.message)
+
             //     let facility_data_res = await facility_data();
             //     try{
             //         if(facility_data_res != "null"){
@@ -1007,8 +1033,9 @@
             window.location.reload();
             }
         } catch (err) {
-            toast_type = "error";
-            toast_text = reset_deact_res.body.message;
+            // toast_type = "error";
+            // toast_text = reset_deact_res.body.message;
+            error_toast(err)
         }
     }
 
@@ -1016,12 +1043,16 @@
     function check_facility_status(message) {
         if (!$facility_data_store.status && $facility_data_store.status != undefined && ($facility_data_store.status.toLowerCase() == "deactive" || $facility_data_store.is_blacklisted == 1)) {
             if (message != undefined){
-                toast_text = message;
-                toast_type = "error";
+                // toast_text = message;
+                // toast_type = "error";
+                error_toast(message)
             }
             else{
-                toast_text = "Request not allowed for Deactive/Blacklisted Facility";
-                toast_type = "error";
+                // toast_text = "Request not allowed for Deactive/Blacklisted Facility";
+                // toast_type = "error";
+                error_toast("Request not allowed for Deactive/Blacklisted Facility")
+
+                message
             return false;
             }
         }
@@ -1065,8 +1096,9 @@
         }
         catch(err){
             show_spinner = false;
-            toast_type = "error";
-            toast_text = err;
+            // toast_type = "error";
+            // toast_text = err;
+            error_toast(err)
         }
         
     }
@@ -1149,8 +1181,9 @@
         console.log("Spinner")
         if(new_child_selected_arr.length == 0){
             show_spinner = false;
-            toast_type = "error";
-            toast_text = "Please select atleast one child";
+            // toast_type = "error";
+            // toast_text = "Please select atleast one child";
+            error_toast("Please select atleast one child")
         }
         else{
             let check_if_already_child_res = await check_if_already_child()
@@ -1176,8 +1209,10 @@
                 try{
                     if(child_submit_res.body.status == "green"){
                         
-                        toast_text = child_submit_res.body.message;
-                        toast_type = "success";
+                        // toast_text = child_submit_res.body.message;
+                        // toast_type = "success";
+                        success_toast(child_submvit_res.body.message)
+
                         let list_child_data_res = await list_child_data();
                             // try {
                             //     if (list_child_data_res.body.status == "green") {
@@ -1234,8 +1269,10 @@
                             console.log("child_selected_arr in link child", child_selected_arr)
                         }
                             } catch (err) {
-                                toast_type = "error";
-                                toast_text = list_child_data_res.body.message;
+                                // toast_type = "error";
+                                // toast_text = list_child_data_res.body.message;
+                                error_toast(err)
+                                show_spinner = false;
                             }
                             // document.getElementById("child_checkbox"+unique_id).checked = false;
                             link_child(city_select);
@@ -1244,26 +1281,31 @@
                         }
                     else{
                         show_spinner = false;
-                        toast_text = "Child Adding Failed";
-                        toast_type = "error";
+                        // toast_text = "Child Adding Failed";
+                        // toast_type = "error";
+                        error_toast( "Child Adding Failed")
                     }
                 }
                 catch(err){
                     show_spinner = false;
-                    toast_text = err;
-                    toast_type = "error";
+                    // toast_text = err;
+                    // toast_type = "error";
+                    error_toast(err)
                 }
             }
             else{
-                toast_text = check_if_already_child_res.body.message 
-                toast_type = "error";
+                // toast_text = check_if_already_child_res.body.message 
+                // toast_type = "error";
+                error_toast(check_if_already_child_res.body.message )
                 show_spinner = false;
             }
         }
             catch(err){
                     show_spinner = false;
-                    toast_text = err;
-                    toast_type = "error";
+                    // toast_text = err;
+                    // toast_type = "error";
+                    error_toast(err)
+
             }
         
         }
@@ -1285,8 +1327,10 @@
         try {
             if(delete_child_res.body.status == "green"){
                 confirm_delete_child_model.style.display = "none";
-                toast_type = "success";
-                toast_text = delete_child_res.body.message;
+                // toast_type = "success";
+                // toast_text = delete_child_res.body.message;
+                success_toast(delete_child_res.body.message)
+
                 let list_child_data_res = await list_child_data();
                 // try {
                 //     if (list_child_data_res.body.status == "green") {
@@ -1340,8 +1384,10 @@
                 console.log("child_selected_arr in link child", child_selected_arr)
             }
         } catch (err) {
-            toast_type = "error";
-            toast_text = list_child_data_res.body.message;
+            show_spinner = false;
+            // toast_type = "error";
+            // toast_text = list_child_data_res.body.message;
+            error_toast(err)
         }
                 link_child(city_select);
                 console.log("child_check",child_check)
@@ -1349,8 +1395,9 @@
             }
         } catch (error) {
             show_spinner = false;
-            toast_type = "error";
-            toast_text = delete_child_res.body.message;
+            // toast_type = "error";
+            error_toast(error)
+            // toast_text = delete_child_res.body.message;
         }
 
     
@@ -1441,8 +1488,10 @@
        }
        catch(err){
            show_spinner = false;
-           toast_type = "error";
-           toast_text = err;
+        //    toast_type = "error";
+        //    toast_text = err;
+           error_toast(err)
+
        }
     }
     async function filterResults(){
@@ -1470,8 +1519,10 @@
 
         if(get_cas_user_res.body.status == "green"){
             show_spinner = false;
-            toast_text = get_cas_user_res.body.message;
-            toast_type = "success";
+            // toast_text = get_cas_user_res.body.message;
+            // toast_type = "success";
+            success_toast(get_cas_user_res.body.message)
+
         }
         else{
             showCasUser.style.display = "block";
@@ -1479,8 +1530,10 @@
             if(get_cas_user_res.message = "User is Deactive in CAS" || get_cas_user_res.status == "red"){
                 show_spinner = false;
                 cas_flag = 1;
-                toast_text = "user is deactive"
-                toast_type = "error"
+                // toast_text = "user is deactive"
+                // toast_type = "error"
+                error_toast("user is deactive")
+
             }
             else{
                 cas_flag = 2;
@@ -1497,13 +1550,16 @@
                 closeCasUser();
                 show_spinner = false;
                 active_flag = 1;
-                toast_text = "CAS is Active"
-                toast_type = "success"
+                // toast_text = "CAS is Active"
+                // toast_type = "success"
+                success_toast("CAS is Active")
+
             }
         } catch (error) {
             show_spinner = false;
-            toast_text = "Error occured while CAS Activation"
-            toast_type = "error"
+            // toast_text = "Error occured while CAS Activation"
+            // toast_type = "error"
+            error_toast(error)
         }
     }
 
@@ -1515,13 +1571,17 @@
                 show_spinner = false;
                 closeCasUser();
                 create_cas_flag = 1;
-                toast_text = "CAS User is Created"
-                toast_type = "success"
+                // toast_text = "CAS User is Created"
+                // toast_type = "success"
+                success_toast("CAS User is Created")
+
             }
         } catch (error) {
             show_spinner = false;
-            toast_text = "Error occured while CAS creation"
-            toast_type = "error"
+            // toast_text = "Error occured while CAS creation"
+            // toast_type = "error"
+            error_toast("Error occured while CAS creation")
+
         }
     }
 
@@ -2977,3 +3037,4 @@
 
 
 <Toast type={toast_type}  text={toast_text}/>
+<SvelteToast />

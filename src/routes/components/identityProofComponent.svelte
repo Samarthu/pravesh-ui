@@ -46,6 +46,8 @@
             import {documents_store} from '../../stores/document_store';
             import { goto } from "$app/navigation";
             import Toast from './toast.svelte';
+            import { SvelteToast, toast } from '@zerodevx/svelte-toast'
+            import {success_toast ,error_toast,warning_toast} from '../services/toast_theme';
             import QRCode from "./qr-code.svelte";
             import {get_pravesh_properties_method} from "../../services/workdetails_services";
             import {get_date_format} from "../../services/date_format_servives";
@@ -344,13 +346,17 @@
             if(doctext == "gst_upload"){
                 gst_data = reader.result;
                 // console.log("photo_data",reader.result);
-                toast_text = "Photo Uploaded Successfully";
-                toast_type = "success";
+                // toast_text = "Photo Uploaded Successfully";
+                // toast_type = "success";
+                success_toast("Photo Uploaded Successfully")
+
             }
             else if(doctext == "cheque_upload"){
                 cheque_data = reader.result;
-                toast_text = "Document Uploaded Successfully";
-                toast_type = "success";
+                // toast_text = "Document Uploaded Successfully";
+                // toast_type = "success";
+                success_toast("Document Uploaded Successfully")
+
             }
             }
                 reader.onerror = function (error) {
@@ -371,8 +377,9 @@
 
     async function openIDcard(){
         if($facility_data_store.status == "Deactive" ){
-            toast_text = "User is not active ";
-            toast_type = "error"
+            // toast_text = "User is not active ";
+            // toast_type = "error"
+            error_toast("User is not active ")
         }
         else{
             if(fac_photo_obj.profile_url){
@@ -398,8 +405,9 @@
                 }
             }
             else{
-                toast_text = "Upload Profile Pic ";
-                toast_type = "error"
+                // toast_text = "Upload Profile Pic ";
+                // toast_type = "error"
+                error_toast("Upload Profile Pic ")
             }
                 // let facility_doc_data_res = await facility_document()
                 // try{
@@ -905,7 +913,7 @@
     </div>
 </div>
 <Toast type={toast_type}  text={toast_text}/>
-
+<SvelteToast />
 
 <!-- <style type="text/css" media="print">
     .noPrint{

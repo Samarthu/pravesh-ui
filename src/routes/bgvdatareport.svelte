@@ -3,6 +3,8 @@
     import {bgv_data} from "../services/bgv_services";
     import {get_date_format} from '../services/date_format_servives';
     import Toast from './components/toast.svelte';
+    import { SvelteToast, toast } from '@zerodevx/svelte-toast'
+    import {success_toast ,error_toast,warning_toast} from '../services/toast_theme';
 
     let temp = "org";
     let bgv_fac;
@@ -75,8 +77,9 @@
 
             let final_map_bgv_data_res = await bgv_data(final_bgv_data)
             console.log("final_map_bgv_data_res",final_map_bgv_data_res)
-            toast_text = "Details will be sent on mail";
-            toast_type = "success";
+            // toast_text = "Details will be sent on mail";
+            // toast_type = "success";
+            success_toast("Details will be sent on mail")
 
     }
 </script>
@@ -243,3 +246,4 @@
 </div>
 
 <Toast type={toast_type}  text={toast_text}/> 
+<SvelteToast />

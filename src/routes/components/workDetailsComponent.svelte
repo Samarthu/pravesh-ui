@@ -27,6 +27,8 @@
             import {facility_data_store} from "../../stores/facility_store"
             import {bgv_config_store} from '../../stores/bgv_config_store'
             import Toast from './toast.svelte';
+            import { SvelteToast, toast } from '@zerodevx/svelte-toast'
+            import {success_toast ,error_toast,warning_toast} from '../services/toast_theme';
         //     import AssociateDetails from './components/associateDetailsComponent.svelte';
         //     import BankDetails from './components/bankDetailsComponent.svelte';
         //     import IdentityProof from './components/identityProofComponent.svelte';
@@ -355,8 +357,9 @@
                     }
                 }
                 catch (error) {
-                    toast_type = "error";
-                    toast_text = get_loc_scope_res.body.message;
+                    // toast_type = "error";
+                    // toast_text = get_loc_scope_res.body.message;
+                    error_toast(error)
                 }
             }
 
@@ -369,8 +372,10 @@
                     cost_center_details = cost_center_details;
                 }
                 catch (error) {
-                    toast_type = "error";
-                    toast_text = error
+                    // toast_type = "error";
+                    // toast_text = error
+                    error_toast(error)
+                    
                 };
 
             }
@@ -391,33 +396,39 @@
 
             console.log("contract_name",contract_name)
             if(!contract_name){
-                toast_type = "error";
-                toast_text = "Select Contract Type";
+                // toast_type = "error";
+                // toast_text = "Select Contract Type";
+                error_toast("Select Contract Type")
                 return
             }
             if(!org_selected || org_selected == "-1"){
-                toast_type = "error";
-                toast_text = "Select Organization Id";
+                // toast_type = "error";
+                // toast_text = "Select Organization Id";
+                error_toast("Select Organization Id")
                 return
             }
             if(!station_selected || station_selected == "-1"){
-                toast_type = "error";
-                toast_text = "Select Station Id";
+                // toast_type = "error";
+                // toast_text = "Select Station Id";
+                error_toast("Select Station Id")
                 return
             }
             if(!cont_start_date){
-                toast_type = "error";
-                toast_text = "Select Start Date";
+                // toast_type = "error";
+                // toast_text = "Select Start Date";
+                error_toast("Select Start Date")
                 return
             }
             if(!cont_end_date){
-                toast_type = "error";
-                toast_text = "Select End Date";
+                // toast_type = "error";
+                // toast_text = "Select End Date";
+                error_toast("Select End Date")
                 return
             }
             if(!phy_cont_file){
-                toast_type = "error";
-                toast_text = "Upload File";
+                // toast_type = "error";
+                // toast_text = "Upload File";
+                error_toast("Upload File")
                 return
             }
             
@@ -440,25 +451,33 @@
                 if(save_phy_contract_res.body.status == "green"){
                     work_contract_arr=[];
                     show_spinner = false;
-                    toast_type = "success";
-                    toast_text = save_phy_contract_res.body.message;
+                    // toast_type = "success";
+                    // toast_text = save_phy_contract_res.body.message;
+                    success_toast(save_phy_contract_res.body.message)
+
                     let work_details_res = await work_details_data();
                 try {
                     if(work_details_res.body.status == "green"){
                         show_spinner = false;
-                        toast_type = "success";
-                        toast_text = work_details_res.body.message;
+                        // toast_type = "success";
+                        // toast_text = work_details_res.body.message;
+                        success_toast(work_details_res.body.message)
+
                         work_contract_arr = work_details_res.body.data;
                     }
                     else if(work_details_res.body.status == "red"){
                         show_spinner = false;
-                        toast_type = "error";
-                        toast_text = work_details_res.body.message;
+                        // toast_type = "error";
+                        // toast_text = work_details_res.body.message;
+                        error_toast(work_details_res.body.message)
+
                     }
                     else{
                         show_spinner = false;
-                        toast_type = "error";
-                        toast_text = "Something went wrong";
+                        // toast_type = "error";
+                        // toast_text = "Something went wrong";
+                        error_toast("Something went wrong")
+
                     }
                     work_contract_arr = work_contract_arr;
                     // for(let i=0;i<work_contract_arr.length;i++){
@@ -468,8 +487,10 @@
                 }
                 catch (error) {
                     show_spinner = false;
-                    toast_type = "error";
-                    toast_text = error;   
+                    // toast_type = "error";
+                    // toast_text = error;   
+                    // error_toast("Something went wrong")
+                    error_toast(error)
                 }
 
             }
@@ -496,12 +517,14 @@
         }
     }
     async function station_code_select(station_code){
+        show_spinner = true
         console.log("station_code",station_code)
         station_code_arr = [];
         console.log("station_code",station_code.toLowerCase())
         let get_specific_name_res = await get_specific_name(station_code.toLowerCase())
         try{
             if(get_specific_name_res.body.status == "green"){
+                show_spinner = false
         station_code_arr.push(get_specific_name_res.body.data[0].resource_id)
         console.log("get_specific_name_res",get_specific_name_res)
 
@@ -510,21 +533,28 @@
         }
         }
         catch(err){
-            toast_type = "error";
-            toast_text = err;
+            show_spinner = false
+            // toast_type = "error";
+            // toast_text = err;
+            error_toast(err)
+
         }
 
     }
 
     async function org_id_select(org_id){
+        show_spinner = true
         if(org_id == "AN"){
             table_head = "Name in COMP"
+            show_spinner = false
         }
         else if(org_id == "FT"){
             table_head = "Name in LIBERA"
+            show_spinner = false
         }
         else{
             table_head = "Org Specific Name"
+            show_spinner = false
         }
         station_code_arr = [];
         org_AN_flag = 0;
@@ -549,6 +579,7 @@
                     }
                     }
                 }
+                show_spinner = false
                 station_data_array = station_data_array;
         console.log("station_data_array",station_data_array);
 
@@ -556,20 +587,25 @@
     }
 
     async function finalMap(){ 
+        show_spinner = true
         let phoneNumber,emailId;
         let orgSpecificNumber = [];
 
         
         // console.log("get_pravesh_properties_method",response)
         if(!id_select){
-            toast_text = "Please select organization";
-            toast_type = "error"
+            // toast_text = "Please select organization";
+            // toast_type = "error"
+            error_toast("Please select Organization")
+            show_spinner = false
             return
         }
 
         if(!stat_select){
-                toast_text = "Please select Station";
-                toast_type = "error";
+                // toast_text = "Please select Station";
+                // toast_type = "error";
+                error_toast("Please select Station")
+                show_spinner = false
                 return
             }
 
@@ -585,14 +621,16 @@
             for(let i = 0; i<mapping_blocked_data.length;i++){
                 // console.log("mapping_blocked_data inside if",mapping_blocked_data[i])
                 if(id_select == mapping_blocked_data[i]){
-                    toast_text = "Mapping is not allowed for this Organization";
-                    toast_type = "error"
+                    // toast_text = "Mapping is not allowed for this Organization";
+                    // toast_type = "error"
+                    error_toast("Mapping is not allowed for this Organization")
                     return
                 }
             }
             if($facility_data_store.is_bgv_verified == undefined || $facility_data_store.is_bgv_verified != 1){
-                toast_text = "BGV Verification Incomplete !!";
-                toast_type = "error"
+                // toast_text = "BGV Verification Incomplete !!";
+                // toast_type = "error"
+                error_toast("BGV Verification Incomplete !!")
                 return
             }
             var profileIncom = false;
@@ -604,8 +642,9 @@
                 profileIncom = true;
             }
             if (profileIncom) {
-                toast_text = "Upload both Pancard and Driving Licence first !!";
-                toast_type = "error"
+                // toast_text = "Upload both Pancard and Driving Licence first !!";
+                // toast_type = "error"
+                error_toast("Upload both Pancard and Driving Licence first !!")
                 return;
             }
             console.log("checking requestType",requestType)
@@ -625,22 +664,27 @@
                         
                         for(let i=0;i<get_client_details_data.length;i++){
                             if(get_client_details_data[i].mobile_number == phoneNumber){
-                                toast_text =  'Rabbit ID already requested for mob number <br>' + phoneNumber + "<br> Please update new number in <br> Basic Information Section under BGV <br> and try again";
-                                toast_type = "error"
+                                // toast_text =  'Rabbit ID already requested for mob number <br>' + phoneNumber + "<br> Please update new number in <br> Basic Information Section under BGV <br> and try again";
+                                // toast_type = "error"
+                                error_toast('Rabbit ID already requested for mob number <br>' + phoneNumber + "<br> Please update new number in <br> Basic Information Section under BGV <br> and try again")
                             }
                         }
 
                     }
                     if ($bgv_data_store.email_id == undefined || $bgv_data_store.email_id.trim().length == 0) {
-                        toast_type = "error"
-                        toast_text = "Please update email address in BGV form and then try"
+                        // toast_type = "error"
+                        // toast_text = "Please update email address in BGV form and then try"
+                        error_toast("Please update email address in BGV form and then try")
+
                         return;
                     }
                     
 
                     if ($bgv_data_store.is_email_verified != 1) {
-                        toast_type = "error"
-                        toast_text = "Please verify email address in BGV form and then try"
+                        // toast_type = "error"
+                        // toast_text = "Please verify email address in BGV form and then try"
+                        error_toast("Please update email address in BGV form and then try")
+
                         return;
                     }
                     emailId = $bgv_data_store.email_id;
@@ -648,13 +692,16 @@
             }
             
             if(!stat_code || stat_code=="-1"){
-                toast_text = "Please select Specific Name or COMP Name";
-                toast_type = "error";
+                // toast_text = "Please select Specific Name or COMP Name";
+                // toast_type = "error";
+                error_toast("Please select Specific Name or COMP Name")
                 return
             }
             if(stat_code == "Create Only Rabbit ID/COMP ID" && requestType == ""){
-                toast_text = "Please select Rabbit Id or Comp Id option";
-                toast_type = "error";
+                // toast_text = "Please select Rabbit Id or Comp Id option";
+                // toast_type = "error";
+                error_toast("Please select Rabbit Id or Comp Id option")
+                
             }
 
             let new_org_name
@@ -699,8 +746,10 @@
             console.log("final_save_mapping_res",final_save_mapping_res)
             // try {
                 if(final_save_mapping_res.body.status == "green"){
-                    toast_text = final_save_mapping_res.body.message;
-                    toast_type = "green";
+                    // toast_text = final_save_mapping_res.body.message;
+                    // toast_type = "green";
+                    success_toast(final_save_mapping_res.body.message)
+
                     id_select = "";
 
 
@@ -717,24 +766,16 @@
                 console.log("get_client_details_data",get_client_details_data)
             }
         } catch (err) {
-            toast_type = "error";
-            toast_text = get_client_details_res.body.message;
+            // toast_type = "error";
+            // toast_text = get_client_details_res.body.message;
+            error_toast(err)
         }
-
-
-
-
-
-
-
-
-
-
-                }
+        }
             // }
              else {
-                toast_text = "Error occured while adding mapping";
-                toast_type = "error";
+                // toast_text = "Error occured while adding mapping";
+                // toast_type = "error";
+                error_toast("Error occured while adding mapping")
             }
         console.log("final_map_load",final_map_load)
 
@@ -754,12 +795,14 @@
                 
             }
             else{
-                toast_type = "error";
-                toast_text = "No client Data";
+                // toast_type = "error";
+                // toast_text = "No client Data";
+                error_toast("No client Data")
             }
             } catch(err) {
-                toast_type = "error";
-                toast_text = err;
+                // toast_type = "error";
+                // toast_text = err;
+                error_toast(err)
        
             }
 
@@ -778,8 +821,10 @@
                 }
             } 
             catch(err) {
-                toast_type = "error";
-                toast_text = all_tags_res.body.message;
+                // toast_type = "error";
+                // toast_text = all_tags_res.body.message;
+                error_toast(err)
+
             }
             show_spinner = false;
 
@@ -831,8 +876,10 @@
         try {
             if(work_details_res.body.status == "green"){
                 show_spinner = false;
-                toast_type = "success";
-                toast_text = work_details_res.body.message;
+                // toast_type = "success";
+                // toast_text = work_details_res.body.message;
+                success_toast(work_details_res.body.message)
+
                 work_contract_arr = work_details_res.body.data;
                 for(let i=0;i<work_contract_arr.length;i++){
                     let updated_date_format = new Date(work_contract_arr[i].updated_date);
@@ -843,50 +890,64 @@
             }
             else if(work_details_res.body.status == "red"){
                 show_spinner = false;
-                toast_type = "error";
-                toast_text = work_details_res.body.message;
+                // toast_type = "error";
+                // toast_text = work_details_res.body.message;
+                error_toast(work_details_res.body.message)
+
             }
             else{
                 show_spinner = false;
-                toast_type = "error";
-                toast_text = "Something went wrong";
+                // toast_type = "error";
+                // toast_text = "Something went wrong";
+                error_toast("Something went wrong")
+
             }
             work_contract_arr = work_contract_arr;
             console.log("work_contract_arr",work_contract_arr);
         }
         catch (error) {
             show_spinner = false;
-            toast_type = "error";
-            toast_text = error;   
+            // toast_type = "error";
+            // toast_text = error;   
+            error_toast(error)
+
         }
         
         let physical_contract_res =await get_physical_contracts();
         try {
             if(physical_contract_res.body.status == "green"){
                 show_spinner = false;
-                toast_type = "success";
-                toast_text = physical_contract_res.body.message;
+                // toast_type = "success";
+                // toast_text = physical_contract_res.body.message;
+                success_toast(physical_contract_res.body.message)
+
                 physical_contract_arr = physical_contract_res.body.data;
             }
             else{
                 show_spinner = false;
-                toast_type = "error";
-                toast_text = "Something went wrong";
+                // toast_type = "error";
+                // toast_text = "Something went wrong";
+                error_toast("Something went wrong")
+
             }  
             physical_contract_arr = physical_contract_arr;
         }
         catch (error) {
             show_spinner = false;
-            toast_type = "error";
-            toast_text = error;
+            // toast_type = "error";
+            // toast_text = error;
+            error_toast(error)
+
         }
 
         let all_accepted_contract_res =await get_all_accepted_contracts();
         try {
             if(all_accepted_contract_res.body.status == "green"){
                 show_spinner = false;
-                toast_type = "success";
-                toast_text = all_accepted_contract_res.body.message;
+                // toast_type = "success";
+                // toast_text = all_accepted_contract_res.body.message;
+                success_toast(all_accepted_contract_res.body.message)
+
                 all_accepted_contract_arr = all_accepted_contract_res.body.data;
                 for(let i=0;i<all_accepted_contract_arr.length;i++){
                     let updated_date_format = new Date(all_accepted_contract_arr[i].updated_date);
@@ -897,16 +958,20 @@
             }
             else{
                 show_spinner = false;
-                toast_type = "error";
-                toast_text = "Something went wrong";
+                // toast_type = "error";
+                // toast_text = "Something went wrong";
+                error_toast("Something went wrong")
+
             }  
             all_accepted_contract_arr = all_accepted_contract_arr;
             console.log("all_accepted_contract_arr",all_accepted_contract_arr);
         }
         catch (error) {
             show_spinner = false;
-            toast_type = "error";
-            toast_text = error;
+            // toast_type = "error";
+            // toast_text = error;
+            error_toast(error)
+            
         }
 
     }
@@ -926,8 +991,10 @@
         workorganizationModel.style.display = "block";
         if($facility_data_store.status == "Deactive"){
             status_display = -1;
-            toast_text = "User is Deactive";
-            toast_type = "error";
+            // toast_text = "User is Deactive";
+            // toast_type = "error";
+            error_toast("User is Deactive")
+
         }
         let get_client_details_res = await get_client_details(facility_id)
         try {
@@ -939,8 +1006,10 @@
                 console.log("get_client_details_data",get_client_details_data)
             }
         } catch (err) {
-            toast_type = "error";
-            toast_text = get_client_details_res.body.message;
+            // toast_type = "error";
+            // toast_text = get_client_details_res.body.message;
+            error_toast(get_client_details_res.body.message)
+
         }
 
         let get_loc_scope_res = await get_loc_scope()
@@ -969,8 +1038,10 @@
 
 
         } catch (error) {
-            toast_type = "error";
-            toast_text = get_loc_scope_res.body.message;
+            // toast_type = "error";
+            // toast_text = get_loc_scope_res.body.message;
+            error_toast(error)
+
         }
 
 
@@ -1013,13 +1084,15 @@
             // }
         }
         else{
-            toast_type = "error";
-            toast_text = "No client Data";
+            // toast_type = "error";
+            // toast_text = "No client Data";
+            error_toast("No client Data")
         }
         
         } catch(err) {
-            toast_type = "error";
-            toast_text = get_client_data_mapping_res.body.message;
+            // toast_type = "error";
+            // toast_text = get_client_data_mapping_res.body.message;
+            error_toast(err)
         
         }
         //     async function station_code_select(stat_select){
@@ -1123,23 +1196,29 @@
         }
 
         if(!newType){
-            toast_text = "Please select New Type";
-            toast_type = "error";
+            // toast_text = "Please select New Type";
+            // toast_type = "error";
+            error_toast("Please select New Type")
+
             return
             }
 
             console.log("inside update_date_arr.includes(updated_start_date)",update_date_arr.includes(updated_start_date))
         if(!fromDate && update_date_arr.includes(updated_start_date) == true){
             
-            toast_text = "Please select vaild From date";
-            toast_type = "error";
+            // toast_text = "Please select vaild From date";
+            // toast_type = "error";
+            error_toast("Please select vaild From date")
+            
             return
         }
 
 
         if(!assocRemarks){
-            toast_text = "Please select Remarks";
-            toast_type = "error";
+            // toast_text = "Please select Remarks";
+            // toast_type = "error";
+            error_toast("Please select Remarks")
+            
             return
         }
 
@@ -1160,8 +1239,10 @@
                 if(send_associate_req_res.body.status == "green"){
                     get_change_associte_data = [];
                     console.log("inside final",get_change_associte_data)
-                    toast_text = send_associate_req_res.body.message;
-                    toast_type = "green";
+                    // toast_text = send_associate_req_res.body.message;
+                    // toast_type = "green";
+                    success_toast(send_associate_req_res.body.message)
+
                     console.log("inside 2404")
                     let get_change_associte_res = await get_change_associte();
                     try {
@@ -1175,12 +1256,15 @@
                                 console.log("inside 2404")
                             }
                     } catch (err) {
-                        console.log("inside error with associate")
+                        // console.log("inside error with associate")
+                        error_toast(err)
                     }
                 }
             else {
-                toast_text = "Error occured while sending associate request";
-                toast_type = "error";
+                // toast_text = "Error occured while sending associate request";
+                // toast_type = "error";
+                error_toast("Error occured while sending associate request")
+
             }
             console.log("final_req_load",final_req_load)
         }
@@ -1218,13 +1302,17 @@
             }
             else{
                 show_spinner = false;
-                toast_type = "error";
-                toast_text = "No Tags Found";
+                // toast_type = "error";
+                // toast_text = "No Tags Found";
+                error_toast("No Tags Found")
+
             }
         } 
         catch(err) {
-            toast_type = "error";
-            toast_text = err;
+            // toast_type = "error";
+            // toast_text = err;
+            error_toast(err)
+
         
          }
 
@@ -1246,14 +1334,18 @@
             }
             else{
                 show_spinner = false;
-                toast_type = "error";
-                toast_text = "No Vendor Found";
+                // toast_type = "error";
+                // toast_text = "No Vendor Found";
+                error_toast( "No Vendor Found")
+
             }
         }
         catch(err) {
             show_spinner = false;
-            toast_type = "error";
-            toast_text = err;
+            // toast_type = "error";
+            // toast_text = err;
+            error_toast(err)
+
         }
 
 
@@ -1297,8 +1389,9 @@
                 console.log("Show spinner inadding new tag ",show_spinner)
                 if(submit_fac_res.body.status == "green"){
 
-                    toast_type = "success";
-                    toast_text = submit_fac_res.body.message;
+                    // toast_type = "success";
+                    // toast_text = submit_fac_res.body.message;
+                    success_toast(submit_fac_res.body.message)
                     show_spinner = false;
                     select_tag_data = "-1"
                     serv_ch_data="-1"
@@ -1317,23 +1410,28 @@
                 }
                 // console.log("submit_fac_res.body",submit_fac_res.body)
                 else if(submit_fac_res.body.message == "Tag already exist..!"){
-                    toast_type = "error";
-                    toast_text = "Cannot Add Tag already exist..!";
+                    // toast_type = "error";
+                    // toast_text = "Cannot Add Tag already exist..!";
+                    error_toast("Cannot Add Tag already exist..!")
+
                     show_spinner = false;
                 }
             }
                 catch(err) {
                     show_spinner = false;
-                    toast_type = "error";
-                    toast_text = err;
+                    // toast_type = "error";
+                    // toast_text = err;
+                error_toast(err)
+
                 }
         }
 
         }
         catch(err) {
             show_spinner = false;
-            toast_type = "error";
-            toast_text = err;
+            // toast_type = "error";
+            // toast_text = err;
+            error_toast(err)
         }
       
     }
@@ -1376,8 +1474,10 @@
         if(remove_tag_res.body.status == "green")
         {
             remove_tag_con_model_close()
-            toast_type = "success";
-            toast_text = remove_tag_res.body.message;
+            // toast_type = "success";
+            // toast_text = remove_tag_res.body.message;
+            success_toast(remove_tag_res.body.message)
+
             
 
         
@@ -1396,16 +1496,17 @@
         
         catch(err) {
         show_spinner = false;
-        toast_type = "error";
-        toast_text = err;
-        
+        // toast_type = "error";
+        // toast_text = err;
+        error_toast(err)
          }
 
         }
         else{
             show_spinner = false;
-            toast_type = "error";
-            toast_text = remove_tag_res.body.message;
+            // toast_type = "error";
+            // toast_text = remove_tag_res.body.message;
+            error_toast(remove_tag_res.body.message)
         }
     }
 
@@ -1494,8 +1595,10 @@
                     }
                     else{
                         document.getElementById("img_model").style.display = "none";
-                        toast_type = "error";
-                        toast_text = "Contract not accepted";
+                        // toast_type = "error";
+                        // toast_text = "Contract not accepted";
+                        error_toast("Contract not accepted")
+
                     }
                     
                 }
@@ -1536,13 +1639,18 @@
             
             if(doctext == "contract_upload"){
                 phy_cont_file = reader.result;
-                toast_text = "Document Uploaded Successfully";
-                toast_type = "success";
+                // toast_text = "Document Uploaded Successfully";
+                // toast_type = "success";
+                success_toast("Document Uploaded Successfully")
+
             }
+
             else if(doctext == "new_offer_upload"){
                 new_offer_name = reader.result;
-                toast_text = "Document Uploaded Successfully";
-                toast_type = "success";
+                // toast_text = "Document Uploaded Successfully";
+                // toast_type = "success";
+                success_toast("Document Uploaded Successfully")
+
             }
             
             }
@@ -1585,8 +1693,10 @@
             if(print_data_res.body.status == "green" && print_data_res.body.data != false){
                 
                 show_spinner = false;
-                toast_type = "success";
-                toast_text = print_data_res.body.message;
+                // toast_type = "success";
+                // toast_text = print_data_res.body.message;
+                success_toast( print_data_res.body.message)
+
                 print_data_arr = print_data_res.body.data;
                 esign_data_arr = print_data_res.body.data.esign
                
@@ -1639,20 +1749,26 @@
             }
             else if(print_data_res.body.status == "red"){
                 show_spinner = false;
-                toast_type = "error";
-                toast_text = print_data_res.body.message;
+                // toast_type = "error";
+                // toast_text = print_data_res.body.message;
+                error_toast(print_data_res.body.message)
+
             }
             else if(print_data_res.body.data == false){
                 show_spinner = false;
-                toast_type = "error";
-                toast_text = "No Contract Details Found";
+                // toast_type = "error";
+                // toast_text = "No Contract Details Found";
+                error_toast("No Contract Details Found")
+                
             }
             
         }
         catch (error) {
             show_spinner = false;
-            toast_type = "error";
-            toast_text = error;
+            // toast_type = "error";
+            // toast_text = error;
+            error_toast(error)
+
         }
         
         
@@ -3494,3 +3610,4 @@
 
 
 <Toast type={toast_type}  text={toast_text}/>
+<SvelteToast />

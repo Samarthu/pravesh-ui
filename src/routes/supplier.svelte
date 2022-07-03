@@ -16,6 +16,8 @@
     import Spinner from "./components/spinner.svelte";
     import { goto } from '$app/navigation';
     import Toast from './components/toast.svelte';
+    import { SvelteToast, toast } from '@zerodevx/svelte-toast'
+    import {success_toast ,error_toast,warning_toast} from '../services/toast_theme';
     // import { facility_data } from 'src/services/onboardsummary_services';
     
     let show_spinner = false;
@@ -143,8 +145,10 @@
                     }
                 }
                 catch(err) {
-                    toast_type = "error";
-                    toast_text = err;
+                    // toast_type = "error";
+                    // toast_text = err;
+                    error_toast(err)
+
                 }
             }
 
@@ -306,8 +310,10 @@ else
             }
         }
         catch(err) {
-            toast_type = "error";
-            toast_text = err;
+            // toast_type = "error";
+            // toast_text = err;
+            error_toast(err)
+
         }
 
          userdetails = await logged_user();
@@ -319,8 +325,10 @@ else
             }
         }
         catch(err) {
-            toast_type = "error";
-            toast_text = err;
+            // toast_type = "error";
+            // toast_text = err;
+            error_toast(err)
+
         }
         
         new_drop_limit=parseInt(drop_limit)
@@ -346,8 +354,10 @@ else
             }
         }
         catch(err) {
-            toast_type = "error";
-            toast_text = err;
+            // toast_type = "error";
+            // toast_text = err;
+            error_toast(err)
+
         }  
     
     filter_status_res = await filter_status_data();
@@ -357,8 +367,10 @@ else
             }
         }
         catch(err) {
-            toast_type = "error";
-            toast_text = err;
+            // toast_type = "error";
+            // toast_text = err;
+            error_toast(err)
+
         }
    
 
@@ -367,8 +379,10 @@ else
             filter_vendortype_array = filter_vendortype_res.body.data;
         }
         catch(err) {
-            toast_type = "error";
-            toast_text = err;
+            // toast_type = "error";
+            // toast_text = err;
+            error_toast(err)
+
         }
         for(let pagination in pages){   
             
@@ -391,12 +405,16 @@ else
                 
             }
             else{
-                toast_type = "error";
-                toast_text = "No client Data";
+                // toast_type = "error";
+                // toast_text = "No client Data";
+                error_toast("No client Data")
+
             }
             } catch(err) {
-                toast_type = "error";
-                toast_text = err;
+                // toast_type = "error";
+                // toast_text = err;
+                error_toast(err)
+
        
             }
             show_spinner = false;
@@ -531,8 +549,10 @@ else
                 }
                 catch(err){
                     show_spinner=false;
-                    toast_type = "error"
-                    toast_text = err
+                    // toast_type = "error"
+                    // toast_text = err
+                error_toast(err)
+
                 }
                 
                 // console.log("username and useridddd",username,userid)
@@ -560,8 +580,10 @@ else
                     
             catch(err) {
                 show_spinner=false;
-                toast_type = "error";
-                toast_text = err;
+                // toast_type = "error";
+                // toast_text = err;
+                error_toast(err)
+
             }
 
 
@@ -829,8 +851,10 @@ else
             }
         }
         catch(err){
-                toast_type = "error";
-                toast_text = err;
+                // toast_type = "error";
+                // toast_text = err;
+                error_toast(err)
+
             }
         supplierInfoModal.style.display = "block";
     };
@@ -953,19 +977,25 @@ else
                 }
             }
             catch(err) {
-                toast_type = "error";
-                toast_text = err;
+                // toast_type = "error";
+                // toast_text = err;
+                error_toast(err)
+
             } 
             
         }
         else if(status == "-1"){
-            toast_type = "error"
-            toast_text ="Please select Status"
+            // toast_type = "error"
+            // toast_text ="Please select Status"
+            error_toast("Please select Status")
+
             return
         }
         else if(vendor_type_select == "-1"){
-            toast_type = "error"
-            toast_text ="Please select Associate/Vendor type"
+            // toast_type = "error"
+            // toast_text ="Please select Associate/Vendor type"
+            error_toast("Please select Associate/Vendor type")
+
             return
         }
         
@@ -1040,8 +1070,10 @@ else
         }
         catch(err) {
             show_spinner = false;
-            toast_type = "error";
-            toast_text = err;
+            // toast_type = "error";
+            // toast_text = err;
+            error_toast(err)
+
         }
         
     }
@@ -1147,8 +1179,10 @@ else
         console.log("Inside filter resukts",searchTerm)
         // console.log("inside seach term = ",searchTerm)
         if(searchTerm == undefined){
-            toast_type = "error";
-            toast_text = "Search should not be blank !";
+            // toast_type = "error";
+            // toast_text = "Search should not be blank !";
+            error_toast("Search should not be blank !")
+
         }
         else{
         let searchArray= [];
@@ -1184,8 +1218,10 @@ else
             }
         }
         catch(err) {
-            toast_type = "error";
-            toast_text = err;
+            // toast_type = "error";
+            // toast_text = err;
+            error_toast(err)
+
         }
         
 
@@ -1271,8 +1307,10 @@ else
             }
         }
         catch(err) {
-            toast_type = "error";
-            toast_text = err;
+            // toast_type = "error";
+            // toast_text = err;
+            error_toast(err)
+
         }
     }
     // new_associate_data = {city:new_city,limit:drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}
@@ -1402,20 +1440,24 @@ else
                 close_deact_associate()
                 close_deact_initiate_module()
                 show_spinner = false;
-                toast_type = "success";
-                toast_text = deactivate_user_imm_res.body.message;
+                // toast_type = "success";
+                // toast_text = deactivate_user_imm_res.body.message;
+                success_toast(deactivate_user_imm_res.body.message)
+
             }
             else{
                 show_spinner = false;
-                toast_type = "error";
-                toast_text = deactivate_user_imm_res.body.message
+                // toast_type = "deactivate_user_imm_res.body.messageivate_user_imm_res.body.message
+                error_toast(deactivate_user_imm_res.body.message)
+
             }
 
         }
         catch(err){
             show_spinner = false;
-            toast_type = "error"
-            toast_text = err;
+            // toast_type = "error"
+            // toast_text = err;
+            error_toast(err)
         }
         show_spinner = false;
     }
@@ -1431,20 +1473,23 @@ else
         try{
             if(deactivate_user_imm_res.body.status == "green"){
                 show_spinner = false;
-                toast_type = "success";
-                toast_text = deactivate_user_imm_res.body.status;
+                // toast_type = "success";
+                // toast_text = deactivate_user_imm_res.body.status;
+                success_toast(deactivate_user_imm_res.body.status)
+
             }
             else{
                 show_spinner = false;
-                toast_type = "error";
-                toast_text = "Error in deactivating profile"
+                // toast_type = "error";
+                // toast_text = "Error in deactivating profile"
+                error_toast("Error in deactivating profile")
             }
 
         }
         catch(err){
             show_spinner = false;
-            toast_type = "error"
-            toast_text = deactivate_user_imm_res.body.status;
+            // toast_type deactivate_user_imm_res.body.statuseactivate_user_imm_res.body.status;
+            error_toast(deactivate_user_imm_res.body.status)
         }
     }
 
@@ -4160,4 +4205,4 @@ else
     <!--Initiate Module -->
         
 <Toast type={toast_type}  text={toast_text}/>
-
+<SvelteToast />

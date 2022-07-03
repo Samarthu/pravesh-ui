@@ -19,6 +19,8 @@
             import { allowed_pdf_size } from "../../services/pravesh_config";    
             import {get_date_format} from "../../services/date_format_servives";
             import Toast from './toast.svelte';
+            import { SvelteToast, toast } from '@zerodevx/svelte-toast'
+            import {success_toast ,error_toast,warning_toast} from '../services/toast_theme';
 
         let show_spinner = false;
         let toast_text;
@@ -327,13 +329,17 @@
             if(doctext == "gst_upload"){
                 gst_data = reader.result;
                 // console.log("photo_data",reader.result);
-                toast_text = "Photo Uploaded Successfully";
-                toast_type = "success";
+                // toast_text = "Photo Uploaded Successfully";
+                // toast_type = "success";
+                success_toast("Photo Uploaded Successfully")
+
             }
             else if(doctext == "cheque_upload"){
                 cheque_data = reader.result;
-                toast_text = "Document Uploaded Successfully";
-                toast_type = "success";
+                // toast_text = "Document Uploaded Successfully";
+                // toast_type = "success";
+                success_toast("Document Uploaded Successfully")
+
             }
             }
                 reader.onerror = function (error) {
@@ -415,8 +421,10 @@
                 show_spinner = true;
                 if(cheque_add_res.body.status== "green"){
                     show_spinner = false;
-                    toast_text = "Cheque Details Added Successfully";
-                    toast_type = "success";
+                    // toast_text = "Cheque Details Added Successfully";
+                    // toast_type = "success";
+                    success_toast("Cheque Details Added Successfully")
+
                     let cheque_details_res = await cheque_details();
                     try{
                         if(cheque_details_res.body.status == "green" && cheque_details_res != "null"){
@@ -432,28 +440,32 @@
                     }
                     catch(err) {
                         show_spinner = false;
-                        toast_type = "error";
-                        toast_text = err;
-                        
+                        // toast_type = "error";
+                        // toast_text = err;
+                        error_toast(err)
                     }
 
                 }
                 else if(cheque_add_res.body.status == "red"){
                     show_spinner = false;
-                    toast_type = "error";
-                    toast_text = cheque_add_res.body.message;
+                    // toast_type = "error";
+                    // toast_text = cheque_add_res.body.message;
+                    error_toast(cheque_add_res.body.message)
                 }
                 else{
                     show_spinner = false;
-                    toast_text = "Error in Adding Cheque Details";
-                    toast_type = "danger";
+                    // toast_text = "Error in Adding Cheque Details";
+                    // toast_type = "danger";
+                    error_toast("Error in Adding Cheque Details")
                 }
 
             }
             catch(err){
                 show_spinner = false;
-                toast_text = "Error in Adding Cheque Details";
-                toast_type = "danger";
+                // toast_text = "Error in Adding Cheque Details";
+                // toast_type = "danger";
+                error_toast(err)
+
             }
     }
     
@@ -1496,3 +1508,4 @@
 </div> 
 <!-- Document view Model -->
 <Toast type={toast_type}  text={toast_text}/>
+<SvelteToast />
