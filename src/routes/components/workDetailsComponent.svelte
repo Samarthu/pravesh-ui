@@ -42,7 +42,7 @@
             import { goto } from "$app/navigation";
             import {get_pravesh_properties_method} from "../../services/workdetails_services";
             import {get_client_org_mapping,get_client_details,get_specific_name,get_change_associte,get_assoc_types,send_associate_req,save_mapping} from '../../services/vmt_verify_services'
-            
+            import {approve_reject_status} from "../../services/vmt_verify_services";
             // import {onFileSelected} from '../onboardsummaryComponent.svelte'
         
             let show_spinner = false;
@@ -171,7 +171,9 @@
                 offer_name:null,
                 offer_url:null,
                 offer_verified:null,
-                offer_rejected:null
+                offer_rejected:null,
+                offer_number:null,
+                offer_type:null
             };
             export let admin;
             export let is_adhoc_facility;
@@ -1557,41 +1559,43 @@
 
     function openViewModel(data,doc_number){
         document.getElementById("img_model").style.display = "block";
-        if(data == "aadhar"){
-            image_path = $page.url.origin+aadhar_obj.aadhar_attach;
-            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+aadhar_obj.aadhar_attach);
-            alt_image = "aadhar proof";
-        }
-        else if(data == "pan"){
-            image_path = $page.url.origin+pancard_obj.pan_attach;
-            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+pancard_obj.pan_attach);
-            alt_image = "pan-card proof";
-        }
-        else if(data == "address"){
-            image_path = $page.url.origin+addproof_obj.address_url;
-            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+addproof_obj.address_url);
-            alt_image = "address proof";
-        }
-        else if(data == "licence"){
-            image_path = $page.url.origin+dl_lic_attach;
-            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+dl_lic_attach);
-            alt_image = "driving licence proof";
-        }
-        else if(data == "offer"){
+        // if(data == "aadhar"){
+        //     image_path = $page.url.origin+aadhar_obj.aadhar_attach;
+        //     // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+aadhar_obj.aadhar_attach);
+        //     alt_image = "aadhar proof";
+        // }
+        // else if(data == "pan"){
+        //     image_path = $page.url.origin+pancard_obj.pan_attach;
+        //     // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+pancard_obj.pan_attach);
+        //     alt_image = "pan-card proof";
+        // }
+        // else if(data == "address"){
+        //     image_path = $page.url.origin+addproof_obj.address_url;
+        //     // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+addproof_obj.address_url);
+        //     alt_image = "address proof";
+        // }
+        // else if(data == "licence"){
+        //     image_path = $page.url.origin+dl_lic_attach;
+        //     // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+dl_lic_attach);
+        //     alt_image = "driving licence proof";
+        // }
+        if(data == "offer"){
             image_path = $page.url.origin+new_off_file_obj.offer_url;
+            document_number = new_off_file_obj.offer_number;
+            document_type = new_off_file_obj.offer_type;
             // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+new_off_file_obj.offer_url);
             alt_image = "offer letter proof";
         }
-        else if(data == "can_cheque"){
-            image_path = $page.url.origin+can_cheque_obj.can_cheque_url;
-            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+can_cheque_obj.can_cheque_url);
-            alt_image = "cancel cheque proof";
-        }
-        else if(data == "cheque_disp"){
-            image_path = $page.url.origin+cheque_disp_obj.cheque_disp_url;
-            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+new_cheque.file_url);
-            alt_image = "cheque proof";
-        } 
+        // else if(data == "can_cheque"){
+        //     image_path = $page.url.origin+can_cheque_obj.can_cheque_url;
+        //     // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+can_cheque_obj.can_cheque_url);
+        //     alt_image = "cancel cheque proof";
+        // }
+        // else if(data == "cheque_disp"){
+        //     image_path = $page.url.origin+cheque_disp_obj.cheque_disp_url;
+        //     // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+new_cheque.file_url);
+        //     alt_image = "cheque proof";
+        // } 
         else if(data == "view_physical_contract"){
             for(let i=0;i<work_contract_arr.length;i++){
                 if(work_contract_arr[i].assigned_id == doc_number){
@@ -1627,72 +1631,72 @@
 
     async function docApproveRejected(doc_cat){
     
-    let document_load,new_status
-    console.log("doc_cat",doc_cat)
-    show_spinner = true;
-    if(doc_cat == "approve"){
-        new_status="DV"
-    }
-    else if(doc_cat == "reject"){
-        new_status="RJ"
-    }
-    document_load = {
-    "resource_id":$facility_id.facility_id_number,
-    "doc_number":document_number,
-    "status_type":new_status,
-    "status":"true",
-    "doc_type":document_type
-    }
-    let doc_res = await approve_reject_status(document_load)
-    
-    try{
-        if(doc_res.body.status == "green"){
-            show_spinner = false;
-            // toast_text = doc_res.body.message;
-            // toast_type = "success";
-            success_toast(doc_res.body.message)
-
-
-            let facility_document_res = await facility_document();
+            let document_load,new_status
+            console.log("doc_cat",doc_cat)
+            show_spinner = true;
+            if(doc_cat == "approve"){
+                new_status="DV"
+            }
+            else if(doc_cat == "reject"){
+                new_status="RJ"
+            }
+            document_load = {
+            "resource_id":facility_id,
+            "doc_number":document_number,
+            "status_type":new_status,
+            "status":"true",
+            "doc_type":document_type
+            }
+            let doc_res = await approve_reject_status(document_load)
+            
             try{
-                if(facility_document_res != "null"){
-                facility_document_data = [];
-                facility_document_data = facility_document_res.body.data;
-                    for(let i=0;i<facility_document_data.length;i++){
-                    let doc_modified_format = new Date(facility_document_data[i].modified);
-                    let doc_modified_date = get_date_format(doc_modified_format,"dd-mm-yyyy-hh-mm");
-                    
-                    facility_document_data[i].modified = doc_modified_date
-                        facility_document_data = facility_document_data.sort((a, b) => new Date(b.modified) - new Date(a.modified));
-                    
-                    closeApproveViewModel();
+                if(doc_res.body.status == "green"){
+                    show_spinner = false;
+                    // toast_text = doc_res.body.message;
+                    // toast_type = "success";
+                    success_toast(doc_res.body.message)
+
+    
+                    let facility_document_res = await facility_document();
+                    try{
+                        if(facility_document_res != "null"){
+                        facility_document_data = [];
+                        facility_document_data = facility_document_res.body.data;
+                            for(let i=0;i<facility_document_data.length;i++){
+                            let doc_modified_format = new Date(facility_document_data[i].modified);
+                            let doc_modified_date = get_date_format(doc_modified_format,"dd-mm-yyyy-hh-mm");
+                            
+                            facility_document_data[i].modified = doc_modified_date
+                                facility_document_data = facility_document_data.sort((a, b) => new Date(b.modified) - new Date(a.modified));
+                            
+                            closeApproveViewModel();
+                            }
+                        
+                        }
                     }
-                
+                    catch(err){
+                        show_spinner = false;
+                        // toast_type = "error";
+                        // toast_text = err;
+                        error_toast(err)
+
+                        closeApproveViewModel();
+                    }
                 }
             }
             catch(err){
                 show_spinner = false;
-                // toast_type = "error";
                 // toast_text = err;
+                // toast_type = "error";
                 error_toast(err)
 
-                closeApproveViewModel();
             }
+                
         }
-    }
-    catch(err){
-        show_spinner = false;
-        // toast_text = err;
-        // toast_type = "error";
-        error_toast(err)
-
-    }
-        
-}
-function closeApproveViewModel(){
-    img_model_approve_rej.style.display = "none";
-    document.getElementById("img_model").style.display = "none";
-}
+        function closeApproveViewModel(){
+            img_model_approve_rej.style.display = "none";
+            document.getElementById("img_model").style.display = "none";
+        }
 
     const onFileSelected = (e,doctext) => {
         let img = e.target.files[0];

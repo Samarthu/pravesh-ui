@@ -98,14 +98,16 @@ import { current_user } from "../stores/current_user_store";
             pan_attach:null,
             pan_name:null,
             pan_verified:null,
-            pan_rejected:null
+            pan_rejected:null,
+            pan_type:null
         }
         let aadhar_obj = {
             aadhar_num:null,
             aadhar_attach:null,
             aadhar_name:null,
             aadhar_verified:null,
-            aadhar_rejected:null
+            aadhar_rejected:null,
+            aadhar_type:null
         }
         let fac_photo_obj = {
             profile_url:null,
@@ -113,6 +115,8 @@ import { current_user } from "../stores/current_user_store";
             profile_rejected:null
         }
         let addproof_obj = {
+            address_number:null,
+            address_type:null,
             address_name:null,
             address_url:null,
             address_verified:null,
@@ -122,20 +126,25 @@ import { current_user } from "../stores/current_user_store";
             can_cheque_name:null,
             can_cheque_url:null,
             can_cheque_verified:null,
-            can_cheque_rejected:null
+            can_cheque_rejected:null,
+            can_cheque_num:null,
+            can_cheque_type:null
         };
         let dl_photo_obj = {
             dl_lic_num:null,
             dl_lic_name:null,
             dl_lic_url:null,
             dl_verified:null,
-            dl_rejected:null
+            dl_rejected:null,
+            dl_lic_type:null
         };
         let new_off_file_obj = {
             offer_name:null,
             offer_url:null,
             offer_verified:null,
-            offer_rejected:null
+            offer_rejected:null,
+            offer_number:null,
+            offer_type:null
         };
         let gst_doc_obj = {
             gst_name:null,
@@ -148,7 +157,9 @@ import { current_user } from "../stores/current_user_store";
             blk_cheque_name:null,
             blk_cheque_url:null,
             blk_cheque_verified:null,
-            blk_cheque_rejected:null
+            blk_cheque_rejected:null,
+            blk_cheque_num:null,
+            blk_cheque_type:null
 
         // doc_category: "Blank Cheque",
         // doc_number: null,
@@ -164,7 +175,9 @@ import { current_user } from "../stores/current_user_store";
            passbook_name:null,
            passbook_url:null,
            passbook_verified:null,
-           passbook_rejected:null
+           passbook_rejected:null,
+           passbook_num:null,
+            passbook_type:null
                 
             // doc_category: "Passbook",
             //     doc_type: "passbook",
@@ -180,7 +193,9 @@ import { current_user } from "../stores/current_user_store";
             acc_stmt_name:null,
             acc_stmt_url:null,
             acc_stmt_verified:null,
-            acc_stmt_rejected:null
+            acc_stmt_rejected:null,
+            acc_stmt_num:null,
+            acc_stmt_type:null
                 // doc_category: "Account Statement",
                 // doc_type: "acc-stat",
                 // facility_id: null,
@@ -504,7 +519,8 @@ import { current_user } from "../stores/current_user_store";
                         pan_attach : facility_document_data[i].file_url,
                         pan_name : facility_document_data[i].file_name,
                         pan_verified : facility_document_data[i].verified,
-                        pan_rejected : facility_document_data[i].rejected};
+                        pan_rejected : facility_document_data[i].rejected,
+                        pan_type:facility_document_data[i].doc_type};
                         
                     }
                     
@@ -517,7 +533,8 @@ import { current_user } from "../stores/current_user_store";
                         aadhar_attach : facility_document_data[i].file_url,
                         aadhar_name : facility_document_data[i].file_name,
                         aadhar_verified : facility_document_data[i].verified,
-                        aadhar_rejected : facility_document_data[i].rejected};
+                        aadhar_rejected : facility_document_data[i].rejected,
+                        aadhar_type:facility_document_data[i].doc_type};
                         
                     }
                     else if(facility_document_data[i].doc_type == "fac-photo"){
@@ -531,6 +548,8 @@ import { current_user } from "../stores/current_user_store";
                         // console.log("Inside addproof photo")
                         addproof_obj = {address_name : facility_document_data[i].file_name,   
                         address_url : facility_document_data[i].file_url,
+                        address_number:facility_document_data[i].doc_number,
+                        address_type:facility_document_data[i].doc_type,
                         address_verified : facility_document_data[i].verified,
                         address_rejected : facility_document_data[i].rejected};
                     }
@@ -539,28 +558,38 @@ import { current_user } from "../stores/current_user_store";
                         can_cheque_obj = {can_cheque_name : facility_document_data[i].file_name,
                         can_cheque_url : facility_document_data[i].file_url,
                         can_cheque_verified : facility_document_data[i].verified,
-                        can_cheque_rejected : facility_document_data[i].rejected};
+                        can_cheque_rejected : facility_document_data[i].rejected,
+                        can_cheque_num:facility_document_data[i].doc_number,
+                        can_cheque_type:facility_document_data[i].doc_type};
                     }
                     else if(facility_document_data[i].doc_type == "blcheque"){
                         // console.log("Inside can cheque")
                         blk_cheque_obj = {blk_cheque_name : facility_document_data[i].file_name,
                         blk_cheque_url : facility_document_data[i].file_url,
                         blk_cheque_verified : facility_document_data[i].verified,
-                        blk_cheque_rejected : facility_document_data[i].rejected};
+                        blk_cheque_rejected : facility_document_data[i].rejected,
+                        blk_cheque_num:facility_document_data[i].doc_number,
+                        blk_cheque_type:facility_document_data[i].doc_type};
                     }
                     else if(facility_document_data[i].doc_type == "passbook"){
                         // console.log("Inside can cheque")
                         passbook_obj= {passbook_name : facility_document_data[i].file_name,
                         passbook_url : facility_document_data[i].file_url,
                         passbook_verified : facility_document_data[i].verified,
-                        passbook_rejected : facility_document_data[i].rejected};
+                        passbook_rejected : facility_document_data[i].rejected,
+                        passbook_num:facility_document_data[i].doc_number,
+                        passbook_type:facility_document_data[i].doc_type
+                    };
                     }
                     else if(facility_document_data[i].doc_type == "acc-stat"){
                         // console.log("Inside can cheque")
                         acc_stmt_obj= {acc_stmt_name : facility_document_data[i].file_name,
                         acc_stmt_url : facility_document_data[i].file_url,
                         acc_stmt_verified : facility_document_data[i].verified,
-                        acc_stmt_rejected : facility_document_data[i].rejected};
+                        acc_stmt_rejected : facility_document_data[i].rejected,
+                        acc_stmt_num:facility_document_data[i].doc_number,
+                        acc_stmt_type:facility_document_data[i].doc_type
+                    };
                     }
                     else if(facility_document_data[i].doc_type == "dl-photo"){
                         // console.log("Inside dl photo")
@@ -571,14 +600,17 @@ import { current_user } from "../stores/current_user_store";
                         dl_lic_num : facility_document_data[i].doc_number,
                         dl_lic_url : facility_document_data[i].file_url,
                         dl_verified : facility_document_data[i].verified,
-                        dl_rejected : facility_document_data[i].rejected};
+                        dl_rejected : facility_document_data[i].rejected,
+                        dl_lic_type:facility_document_data[i].doc_type};
                     }
                     else if(facility_document_data[i].doc_type == "newOffFile"){
                         // console.log("Inside newOffFile")
                         new_off_file_obj = {offer_name : facility_document_data[i].file_name,
                         offer_url : facility_document_data[i].file_url,
                         offer_verified : facility_document_data[i].verified,
-                        offer_rejected : facility_document_data[i].rejected};
+                        offer_rejected : facility_document_data[i].rejected,
+                        offer_number:facility_document_data[i].doc_number,
+                        offer_type:facility_document_data[i].doc_type};
                         
                     }
                     else if(facility_document_data[i].doc_type == "voter-id-proof"){
