@@ -214,6 +214,7 @@ import { current_user } from "../stores/current_user_store";
         let selectTag,addRemark,selectsearch;
         let city = "-";
         let facility_address,facility_postal,facility_password,location_id,status_name;
+        let all_addresses = [];
         let new_fac_remarks = [];
         let facility_created_date;
         let select_tag_data,serv_ch_data;
@@ -803,15 +804,21 @@ import { current_user } from "../stores/current_user_store";
                     facility_password = "ntex@123";
                 }
                 for (var j = 0;j < $facility_data_store.addresess.length;j++){
+                    if($facility_data_store.addresess[j].address_type != "Facility"){
+                        all_addresses.push($facility_data_store.addresess[j])
+                    }
+                    console.log("all_address",all_addresses)
                     for(let k=0;k<scope_data.length;k++){
                         if($facility_data_store.addresess[j].state == scope_data[k].location_state){
                             gst_doc_type[j] = "gst-certificate-" + scope_data[k].state_code;
                         }
                     }
                     gst_doc_type=gst_doc_type
+
                     
                     if ($facility_data_store.addresess[j].default_address == "1") {
                         facility_address =$facility_data_store.addresess[j].address;
+                       
                         facility_postal =$facility_data_store.addresess[j].postal;
                         city = $facility_data_store.addresess[j].city;
                         location_id = $facility_data_store.addresess[j].location_id;
@@ -820,6 +827,7 @@ import { current_user } from "../stores/current_user_store";
     
                     }
                 }
+                all_addresses=all_addresses
                 console.log("facility_document_data",facility_document_data)
                 
                 for (var i = 0; i < facility_document_data.length; i++) {
@@ -2083,8 +2091,8 @@ import { current_user } from "../stores/current_user_store";
                         <span class="text-textgrey pr-1 text-base xs:text-xs">Home / Workforce</span>
                         <span class="Username ">
                             <img src="{$img_url_name.img_name}/delivery.png" class="userIconMedia" alt="">
-                            <span class="xs:hidden sm:hidden">{#if $facility_data_store.facility_name}{$facility_data_store.facility_name}{:else}-{/if}</span>
-                            <span class="userDesignation">(Associate - {#if $facility_data_store.facility_type}{$facility_data_store.facility_type}{:else}-{/if} / ID - {#if $facility_data_store.name}{$facility_data_store.name}{:else}-{/if}) </span> 
+                            <!-- <span class="xs:hidden sm:hidden">{#if $facility_data_store.facility_name}{$facility_data_store.facility_name}{:else}-{/if}</span> -->
+                            <span class="xs:hidden sm:hidden">(Associate - {#if $facility_data_store.facility_type}{$facility_data_store.facility_type}{:else}-{/if} / ID - {#if $facility_data_store.name}{$facility_data_store.name}{:else}-{/if}) </span> 
                         </span>
                     </p>
                     <div class="w-full flex justify-end mt-5">
@@ -2474,7 +2482,8 @@ import { current_user } from "../stores/current_user_store";
         pancard_obj={pancard_obj} admin = {admin}
         is_adhoc_facility = {is_adhoc_facility}
         tags_for_ass_arr = {tags_for_ass_arr}
-        tags_to_display = {tags_to_display}/>
+        tags_to_display = {tags_to_display}
+        all_addresses = {all_addresses}/>
         
         {:else if change_to == "Work_details"}
         <WorkDetails new_off_file_obj={new_off_file_obj} facility_modified_date={facility_modified_date} city={city}
