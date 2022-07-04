@@ -24,7 +24,7 @@
             import Toast from './toast.svelte';
             import { SvelteToast, toast } from '@zerodevx/svelte-toast'
             import {success_toast ,error_toast,warning_toast} from '../../services/toast_theme';
-            import {get_cas_user, activate_cas_user , create_cas_user} from "../../services/vmt_verify_services"
+            import {get_cas_user, activate_cas_user , create_cas_user,approve_reject_status} from "../../services/vmt_verify_services"
             // import {check_facility_status} from '.././onboardsummaryComponent.svelte';
 
             let show_spinner = false;
@@ -39,6 +39,8 @@
             let gst_doc_type=[];
             let temp6 = "add_tag";
             let libera_username = "";
+            let document_number;
+            let document_type;
             // export let facility_document_data = [];
         let query;
             export let tags_for_ass_arr=[];
@@ -56,7 +58,9 @@
                 address_name:null,
                 address_url:null,
                 address_verified:null,
-                address_rejected:null
+                address_rejected:null,
+                address_number:null,
+                address_type:null
             };
         export let gst_doc_obj = {
                 gst_name:null,
@@ -426,6 +430,18 @@
     }
     function openViewModel(data,doc_number){
         document.getElementById("img_model").style.display = "block";
+        // if(data == "new_doc"){
+        //         console.log("inside new_doc view")
+                
+        //         for(let i=0;i<facility_document_data.length;i++){
+        //             // console.log("inside for view new_doc")
+        //             if(doc_number == facility_document_data[i].doc_category){
+        //                 image_path = $page.url.origin+facility_document_data[i].file_url;
+        //                 alt_image = "uploaded document";
+                        
+        //             }
+        //         }
+        //     }
         if(data == "aadhar"){
             image_path = $page.url.origin+aadhar_obj.aadhar_attach;
             // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+aadhar_obj.aadhar_attach);
@@ -440,6 +456,9 @@
 
             var ext = addproof_obj.address_url.split('.').reverse()[0]
             image_path = $page.url.origin+addproof_obj.address_url;
+            console.log("document_type",document_type,"document_number",document_number)
+            document_type = addproof_obj.address_type;
+            document_number = addproof_obj.address_number;
             if(ext == "pdf"){
                 console.log("inside ext matched")
                 document.getElementById("img_model_url").innerHTML = '<embed src='+image_path+' type="application/pdf" width="100%" height="100%" alt='+{alt_image}+'>'

@@ -52,12 +52,15 @@
             import {get_pravesh_properties_method} from "../../services/workdetails_services";
             import {get_date_format} from "../../services/date_format_servives";
             // import {onFileSelected} from '../onboardsummaryComponent.svelte'
+            import {approve_reject_status} from "../../services/vmt_verify_services";
     
         let id_card_data = [];
         let profile_url = "";
         let show_spinner = false;
         let toast_text;
         let toast_type;
+        let reject_doc;
+        let approve_doc;
         let routeNext = "";
         let routeBgv = "";
         let temp = "Add";
@@ -100,6 +103,7 @@
         export let changed_dl_num;
         export let changed_voter_num;
         export let pancard_obj = {
+            pan_type:null,
             pan_num:null,
             pan_attach:null,
             pan_name:null,
@@ -107,6 +111,8 @@
             pan_rejected:null
         }
         export let aadhar_obj = {
+           
+            aadhar_type:null,
             aadhar_num:null,
             aadhar_attach:null,
             aadhar_name:null,
@@ -115,7 +121,8 @@
         }
         
         export let dl_photo_obj = {
-
+           
+            dl_lic_type:null,
             dl_lic_num:null,
             dl_lic_name:null,
             dl_lic_url:null,
@@ -238,6 +245,8 @@
     function openViewModel(data,doc_number){
         document.getElementById("img_model").style.display = "block";
         if(data == "aadhar"){
+            reject_doc = "aadhar"
+            approve_doc = "aadhar"
             alt_image = "aadhar proof";
             image_path = $page.url.origin+aadhar_obj.aadhar_attach;
             var ext = aadhar_obj.aadhar_attach.split('.').reverse()[0]
@@ -254,10 +263,13 @@
             }
         }
         else if(data == "pan"){
+            reject_doc = "pan"
+            approve_doc = "pan"
             console.log("inside aadhar view",document.getElementById("img_model_url"))
             var ext = pancard_obj.pan_attach.split('.').reverse()[0]
             image_path = $page.url.origin+pancard_obj.pan_attach;
             alt_image = "pan-card proof";
+            
             if(ext == "pdf"){
                 console.log("inside ext matched")
                 document.getElementById("img_model_url").innerHTML = '<embed src='+image_path+' type="application/pdf" width="100%" height="100%" alt='+alt_image+'>'
@@ -284,6 +296,8 @@
         //     alt_image = "address proof";
         // }
         else if(data == "licence"){
+            reject_doc = "licence"
+            approve_doc = "licence"
             image_path = $page.url.origin+dl_photo_obj.dl_lic_url;
             console.log("image_path",image_path)
             // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+dl_lic_attach);
@@ -326,10 +340,15 @@
         
     }
 
-    async function docApproveRejected(doc_cat){
+    async function docApproveRejected(doc_cat,doc_name){
     
-    let document_load,new_status
-    console.log("doc_cat",doc_cat)
+    let document_load,new_status,new_doc_name
+        if(doc_name.reject_doc){
+            new_doc_name = doc_name.reject_doc;
+        }
+        else if(doc_name.approve_doc){
+            new_doc_name = doc_name.approve_doc;
+        }
     show_spinner = true;
     if(doc_cat == "approve"){
         new_status="DV"
@@ -337,13 +356,40 @@
     else if(doc_cat == "reject"){
         new_status="RJ"
     }
-    document_load = {
+    if(new_doc_name == "pan"){
+        document_load = {
     "resource_id":$facility_id.facility_id_number,
-    "doc_number":document_number,
+    "doc_number":pancard_obj.pan_num,
     "status_type":new_status,
     "status":"true",
-    "doc_type":document_type
+    "doc_type":pancard_obj.pan_type
     }
+    }
+    else if(new_doc_name == "aadhar"){
+        document_load = {
+    "resource_id":$facility_id.facility_id_number,
+    "doc_number":aadhar_obj.aadhar_num,
+    "status_type":new_status,
+    "status":"true",
+    "doc_type":aadhar_obj.aadhar_type
+    }
+    }
+    else if(new_doc_name == "licence"){
+        document_load = {
+    "resource_id":$facility_id.facility_id_number,
+    "doc_number":dl_photo_obj.dl_lic_num,
+    "status_type":new_status,
+    "status":"true",
+    "doc_type":dl_photo_obj.dl_lic_type
+    }
+    }
+    // document_load = {
+    // "resource_id":$facility_id.facility_id_number,
+    // "doc_number":document_number,
+    // "status_type":new_status,
+    // "status":"true",
+    // "doc_type":document_type
+    // }
     let doc_res = await approve_reject_status(document_load)
     
     try{
@@ -865,8 +911,8 @@ function closeApproveViewModel(){
                 </button>
             </div> -->
             <div class="flex justify-end p-2">
-                <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium mr-2" on:click={()=>{docApproveRejected("reject")}}>Reject</button>
-                <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium mr-2" on:click={()=>{docApproveRejected("approve")}}>Approve</button>
+                <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium mr-2" on:click={()=>{docApproveRejected("reject",{reject_doc})}}>Reject</button>
+                <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium mr-2" on:click={()=>{docApproveRejected("approve",{approve_doc})}}>Approve</button>
        
                 <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5  inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel()}}">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
