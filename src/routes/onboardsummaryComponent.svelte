@@ -194,6 +194,7 @@ import { current_user } from "../stores/current_user_store";
             voter_id_number:null
         }
         let fac_tag_pay_to_ass = false;
+        let fac_type_pay_to_ass = false;
         let text_pattern = /^[a-zA-Z_ ]+$/;
         let recrun_pattern =  /^[^-\s](?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9 _-]+)$/;
         let city_select;
@@ -608,6 +609,102 @@ import { current_user } from "../stores/current_user_store";
 
             }
 
+            let facility_data_res = await facility_data();
+            try{
+                if(facility_data_res != "null"){
+                  
+            facility_data_store.set(
+                JSON.parse(JSON.stringify(facility_data_res.body.data[0]))
+            
+            )
+    
+            duplicate_facility_data_store.set(
+                JSON.parse(JSON.stringify(facility_data_res.body.data[0]))
+            )
+            
+            let id_date_format = new Date($facility_data_store.details_updated_on);
+            id_new_date = get_date_format(id_date_format,"dd-mm-yyyy-hh-mm");
+            console.log("facility_data",$facility_data_store);
+            let temp_date = $facility_data_store.date_of_birth;
+            console.log("temp date date of birth", temp_date);
+            let temp = new Date(temp_date);
+            console.log("temp", temp);
+            $facility_data_store['dob'] = get_date_format(temp, "dd-mm-yyyy");
+            
+            // new_fac_remarks = $facility_data_store.remarks.split("\n");
+            // console.log("new_fac_remarks",new_fac_remarks)
+            
+            let new_facility_date_format = new Date($facility_data_store.creation);
+            facility_created_date = get_date_format(new_facility_date_format,"dd-mm-yyyy-hh-mm");
+            
+            let new_doc_date_format = new Date($facility_data_store.creation);
+            facility_doc_date =get_date_format(new_doc_date_format,"dd-mm-yyyy-hh-mm");
+            
+            let facility_date_format = new Date($facility_data_store.modified);
+            facility_modified_date = get_date_format(facility_date_format,"dd-mm-yyyy-hh-mm");
+            
+    
+            
+    
+                if($facility_data_store.status.includes("Rejected")){
+                   
+                    $facility_data_store.status = "Rejected";
+                    status_name = $facility_data_store.status;
+                }
+                if ($facility_data_store.password == "" || facility_password == "") {
+                    facility_password = "ntex@123";
+                }
+                for (var j = 0;j < $facility_data_store.addresess.length;j++){
+                    if($facility_data_store.addresess[j].address_type != "Facility"){
+                        all_addresses.push($facility_data_store.addresess[j])
+                    }
+                    
+                    for(let k=0;k<scope_data.length;k++){
+                        if($facility_data_store.addresess[j].state == scope_data[k].location_state){
+                            gst_doc_type[j] = "gst-certificate-" + scope_data[k].state_code;
+                        }
+                    }
+                    gst_doc_type=gst_doc_type
+
+                    
+                    if ($facility_data_store.addresess[j].default_address == "1") {
+                        facility_address =$facility_data_store.addresess[j].address;
+                       
+                        facility_postal =$facility_data_store.addresess[j].postal;
+                        city = $facility_data_store.addresess[j].city;
+                        location_id = $facility_data_store.addresess[j].location_id;
+                        // console.log("location_id",location_id)
+                        // console.log("city",city)
+    
+                    }
+                }
+                all_addresses=all_addresses
+                console.log("facility_document_data",facility_document_data)
+                
+                for (var i = 0; i < facility_document_data.length; i++) {
+                    for(let j=0; j<gst_doc_type.length;j++){
+                        if(facility_document_data[i].doc_type == gst_doc_type[j]){
+                            gst_doc_obj = facility_document_data[i];
+                            
+                            console.log("gst_doc_obj",gst_doc_obj)
+                            gst_doc_arr.push(gst_doc_obj);
+                        }
+                    }
+                }
+                gst_doc_arr=gst_doc_arr;
+                console.log("gst_doc_arr onboard",gst_doc_arr)
+            }
+        }
+        catch(err) {
+            // toast_type = "error";
+            // toast_text = facility_data_res.body.message;
+            error_toast(facility_data_res.body.message)
+            
+            }
+
+
+
+
             let session_user_response = await get_current_user_function();
             if(session_user_response.body.status == "green"){
                 // console.log("current user response",session_user_response.body.data.user);
@@ -617,7 +714,7 @@ import { current_user } from "../stores/current_user_store";
 
             }
             console.log("current user store",$current_user);
-           
+           console.log("$facility_data_store.facility_type 6221",$facility_data_store.facility_type)
     
             let fac_tag_res = await show_fac_tags($facility_data_store.facility_type);
             
@@ -699,12 +796,15 @@ import { current_user } from "../stores/current_user_store";
                     }
                     }
                 }
+                
+                console.log("$facility_data_store.facility_type",$facility_data_store.facility_type)
                 for(let i=0;i<new_arr.length;i++){
-                   if(new_arr[i] == $facility_data_store.facility_type && fac_tag_pay_to_ass == false){
-                    fac_tag_pay_to_ass = true;
+                   if(new_arr[i] == $facility_data_store.facility_type){
+                    fac_type_pay_to_ass = true;
+                    // console.log("fac_tag_pay_to_ass",fac_tag_pay_to_ass)
                    }
                 }
-
+                console.log("fac_type_pay_to_ass",fac_type_pay_to_ass)
                 console.log("fac_tag_pay_to_ass",fac_tag_pay_to_ass)
 
 
@@ -758,98 +858,7 @@ import { current_user } from "../stores/current_user_store";
         }
     
     
-            let facility_data_res = await facility_data();
-            try{
-                if(facility_data_res != "null"){
-                  
-            facility_data_store.set(
-                JSON.parse(JSON.stringify(facility_data_res.body.data[0]))
             
-            )
-    
-            duplicate_facility_data_store.set(
-                JSON.parse(JSON.stringify(facility_data_res.body.data[0]))
-            )
-            
-            let id_date_format = new Date($facility_data_store.details_updated_on);
-            id_new_date = get_date_format(id_date_format,"dd-mm-yyyy-hh-mm");
-            console.log("facility_data",$facility_data_store);
-            let temp_date = $facility_data_store.date_of_birth;
-            console.log("temp date date of birth", temp_date);
-            let temp = new Date(temp_date);
-            console.log("temp", temp);
-            $facility_data_store['dob'] = get_date_format(temp, "dd-mm-yyyy");
-            
-            // new_fac_remarks = $facility_data_store.remarks.split("\n");
-            // console.log("new_fac_remarks",new_fac_remarks)
-            
-            let new_facility_date_format = new Date($facility_data_store.creation);
-            facility_created_date = get_date_format(new_facility_date_format,"dd-mm-yyyy-hh-mm");
-            
-            let new_doc_date_format = new Date($facility_data_store.creation);
-            facility_doc_date =get_date_format(new_doc_date_format,"dd-mm-yyyy-hh-mm");
-            
-            let facility_date_format = new Date($facility_data_store.modified);
-            facility_modified_date = get_date_format(facility_date_format,"dd-mm-yyyy-hh-mm");
-            
-    
-            
-    
-                if($facility_data_store.status.includes("Rejected")){
-                   
-                    $facility_data_store.status = "Rejected";
-                    status_name = $facility_data_store.status;
-                }
-                if ($facility_data_store.password == "" || facility_password == "") {
-                    facility_password = "ntex@123";
-                }
-                for (var j = 0;j < $facility_data_store.addresess.length;j++){
-                    if($facility_data_store.addresess[j].address_type != "Facility"){
-                        all_addresses.push($facility_data_store.addresess[j])
-                    }
-                    console.log("all_address",all_addresses)
-                    for(let k=0;k<scope_data.length;k++){
-                        if($facility_data_store.addresess[j].state == scope_data[k].location_state){
-                            gst_doc_type[j] = "gst-certificate-" + scope_data[k].state_code;
-                        }
-                    }
-                    gst_doc_type=gst_doc_type
-
-                    
-                    if ($facility_data_store.addresess[j].default_address == "1") {
-                        facility_address =$facility_data_store.addresess[j].address;
-                       
-                        facility_postal =$facility_data_store.addresess[j].postal;
-                        city = $facility_data_store.addresess[j].city;
-                        location_id = $facility_data_store.addresess[j].location_id;
-                        // console.log("location_id",location_id)
-                        // console.log("city",city)
-    
-                    }
-                }
-                all_addresses=all_addresses
-                console.log("facility_document_data",facility_document_data)
-                
-                for (var i = 0; i < facility_document_data.length; i++) {
-                    for(let j=0; j<gst_doc_type.length;j++){
-                        if(facility_document_data[i].doc_type == gst_doc_type[j]){
-                            gst_doc_obj = facility_document_data[i];
-                            
-                            console.log("gst_doc_obj",gst_doc_obj)
-                            gst_doc_arr.push(gst_doc_obj);
-                        }
-                    }
-                }
-                gst_doc_arr=gst_doc_arr;
-                console.log("gst_doc_arr onboard",gst_doc_arr)
-            }
-        }
-        catch(err) {
-            // toast_type = "error";
-            // toast_text = facility_data_res.body.message;
-            error_toast(facility_data_res.body.message)
-            
-            }
     
         let bgv_pass_data=[
             $facility_data_store.org_id,
@@ -2466,7 +2475,7 @@ import { current_user } from "../stores/current_user_store";
                 <div class="{work_active}" on:click={() => {change_to = "Work_details",work_active="active",asso_active="",id_active="",bank_active=""}}>Work Details</div>
                 <div class="{id_active}" on:click={() => {change_to = "Identity_details",work_active="",asso_active="",id_active="active",bank_active=""}}>Identity Proof</div>
                 
-                {#if fac_tag_pay_to_ass == true}
+                {#if fac_tag_pay_to_ass == true || fac_type_pay_to_ass == true}
                 <div class="{bank_active}" on:click={() => {change_to = "Bank_details",work_active="",asso_active="",id_active="",bank_active="active"}}>Bank Details</div>
                 {/if}
                 
