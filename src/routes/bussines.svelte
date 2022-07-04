@@ -51,6 +51,7 @@
     }
     onMount(async () =>{
         show_spinner = true;
+        
         let response = await get_verticles_fun();
         if(response.body.status =="green"){
             console.log("verticles api response",response);
