@@ -107,7 +107,7 @@
             acc_stmt_verified:null,
             acc_stmt_rejected:null
         }
-    
+    console.log("Bank Objs",acc_stmt_obj,passbook_obj,blk_cheque_obj,can_cheque_obj)
     
         let text_pattern = /^[a-zA-Z_ ]+$/;
         let recrun_pattern =  /^[^-\s](?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9 _-]+)$/;

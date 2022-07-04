@@ -536,28 +536,28 @@ import { current_user } from "../stores/current_user_store";
                     }
                     else if(facility_document_data[i].doc_type == "can-cheque"){
                         // console.log("Inside can cheque")
-                        can_cheque_obj.push = {can_cheque_name : facility_document_data[i].file_name,
+                        can_cheque_obj = {can_cheque_name : facility_document_data[i].file_name,
                         can_cheque_url : facility_document_data[i].file_url,
                         can_cheque_verified : facility_document_data[i].verified,
                         can_cheque_rejected : facility_document_data[i].rejected};
                     }
                     else if(facility_document_data[i].doc_type == "blcheque"){
                         // console.log("Inside can cheque")
-                        blk_cheque_obj.push = {blk_cheque_name : facility_document_data[i].file_name,
+                        blk_cheque_obj = {blk_cheque_name : facility_document_data[i].file_name,
                         blk_cheque_url : facility_document_data[i].file_url,
                         blk_cheque_verified : facility_document_data[i].verified,
                         blk_cheque_rejected : facility_document_data[i].rejected};
                     }
                     else if(facility_document_data[i].doc_type == "passbook"){
                         // console.log("Inside can cheque")
-                        passbook_obj.push = {passbook_name : facility_document_data[i].file_name,
+                        passbook_obj= {passbook_name : facility_document_data[i].file_name,
                         passbook_url : facility_document_data[i].file_url,
                         passbook_verified : facility_document_data[i].verified,
                         passbook_rejected : facility_document_data[i].rejected};
                     }
                     else if(facility_document_data[i].doc_type == "acc-stat"){
                         // console.log("Inside can cheque")
-                        acc_stmt_obj.push = {acc_stmt_name : facility_document_data[i].file_name,
+                        acc_stmt_obj= {acc_stmt_name : facility_document_data[i].file_name,
                         acc_stmt_url : facility_document_data[i].file_url,
                         acc_stmt_verified : facility_document_data[i].verified,
                         acc_stmt_rejected : facility_document_data[i].rejected};
@@ -595,7 +595,7 @@ import { current_user } from "../stores/current_user_store";
                     //     toast_text = "No Document Found";
                     // }
                 }
-                console.log("facility_document_data",facility_document_data)
+                console.log("acc_stmt_obj",acc_stmt_obj)
                
                
                 
