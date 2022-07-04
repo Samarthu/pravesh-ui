@@ -185,6 +185,7 @@
 
         }
         console.log("page name on identity", page_name);
+        console.log("facility store",$facility_data_store);
         console.log("document store", $documents_store.documents);
 
         console.log("duplicate document store", $duplicate_documents_store);
@@ -1183,12 +1184,9 @@ warning_toast("warning")
 
                 if (
                     (!pan_card_data.doc_number || !pan_card_data.file_name) &&
-                    !adhar_card_data.doc_number &&
-                    !adhar_card_data.file_name &&
-                    !voter_id_card_data.doc_number &&
-                    !voter_id_card_data.file_name &&
-                    !driving_license_data.doc_number &&
-                    !driving_license_data.file_name
+                    (!adhar_card_data.doc_number || !adhar_card_data.file_name) &&
+                    (!voter_id_card_data.doc_number || !voter_id_card_data.file_name) &&
+                    (!driving_license_data.doc_number || !driving_license_data.file_name)
                 ) {
                     valid = false;
                     // console.log("condition works");
