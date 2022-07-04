@@ -651,11 +651,15 @@ import { current_user } from "../stores/current_user_store";
                     $facility_data_store.status = "Rejected";
                     status_name = $facility_data_store.status;
                 }
-                if ($facility_data_store.password == "" || facility_password == "") {
+                console.log("$facility_data_store.password ",$facility_data_store.password )
+                if (!$facility_data_store.password || facility_password == "") {
+                    console.log("Inside default pass")
                     facility_password = "ntex@123";
                 }
                 else{
+                    
                     facility_password = $facility_data_store.password;
+                    console.log("facility_password",facility_password)
                 }
                 for (var j = 0;j < $facility_data_store.addresess.length;j++){
                     if($facility_data_store.addresess[j].address_type != "Facility"){
@@ -779,7 +783,8 @@ import { current_user } from "../stores/current_user_store";
                            is_adhoc_facility = true;
                        }
                    }
-                if($pravesh_properties.properties.default_org_app_password[0]){
+                if($pravesh_properties.properties.default_org_app_password[0] && !facility_password){
+                    console.log("Inside pravesh props default pass")
                     facility_password = $pravesh_properties.properties.default_org_app_password[0]
                 }
                 
