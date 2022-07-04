@@ -365,7 +365,7 @@ import { current_user } from "../stores/current_user_store";
                             itadmin = true
                         }
                     }
-    
+                    console.log("Is_admin",admin)
                 }
             }
             catch(err) {
@@ -765,6 +765,7 @@ import { current_user } from "../stores/current_user_store";
                 );
                 if($pravesh_properties.properties.offer_letter_required_associates.includes($facility_data_store.facility_type) && admin == true){
                        show_upload_btn = true;
+                       
                    }
                    for(let i=0;i < show_fac_array.length;i++){
                        
@@ -775,7 +776,6 @@ import { current_user } from "../stores/current_user_store";
                            is_adhoc_facility = true;
                        }
                    }
-                   console.log("is_adhoc_facility",is_adhoc_facility)
                 if($pravesh_properties.properties.default_org_app_password[0]){
                     facility_password = $pravesh_properties.properties.default_org_app_password[0]
                 }

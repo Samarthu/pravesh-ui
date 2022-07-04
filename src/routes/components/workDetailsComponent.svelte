@@ -1997,8 +1997,10 @@
                                         </a>
                                     </p>
                                 {:else}
+                                
                                 {#if remove_upload_btn == false}
-                                    {#if show_upload_btn == "true"}
+                                    {#if show_upload_btn == true}
+                                   
                                         <p class="flex items-center smButtonText" on:click={uploadOfferLetter}>
                                             <a href="" class="smButton modal-open">
                                                 Upload 
