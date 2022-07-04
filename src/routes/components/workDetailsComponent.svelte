@@ -202,7 +202,7 @@
             // $: cheque_date = new Date();
             let file_data;
             let showbtn = 0;
-            let selectTag,addRemark,selectsearch;
+            // let selectTag,addRemark,selectsearch;
             export let city;
             export let show_upload_btn;
             export let remove_upload_btn;
@@ -1356,7 +1356,7 @@
         console.log("handle tag clicked",show_spinner)
         let new_tag_id
         try {   
-            show_spinner = false;
+           
         //     if(all_tags_res.body.status == "green"){
         
         for(let i=0; i < all_tags_res.body.data.length; i++){
@@ -1366,15 +1366,22 @@
             }
             
         }
-        if(!select_tag_data){
-            selectTag = 1;
-            if(!tag_remark){
-            addRemark = 1;
-                if(!serv_ch_data){
-                    selectsearch=1;
-                }
-            }   
-
+        if(!select_tag_data || select_tag_data == "-1"){
+            
+            show_spinner = false;
+            error_toast("Please Select tag name")
+            return
+        }
+        else if(!tag_remark){
+            show_spinner = false;
+            error_toast("Please Enter Remark")
+            return
+        }
+        else if(select_tag_data == "Pay My Service Charge" && !serv_ch_data){
+       
+            show_spinner = false;
+            error_toast("Please Select Service Charge Data")
+            return
         }
         else{
            
@@ -1388,7 +1395,6 @@
                 
                 console.log("Show spinner inadding new tag ",show_spinner)
                 if(submit_fac_res.body.status == "green"){
-
                     // toast_type = "success";
                     // toast_text = submit_fac_res.body.message;
                     success_toast(submit_fac_res.body.message)
@@ -2094,11 +2100,11 @@
                                                     {/each}
                                                     {/if}
                                                 </select>
-                                                {#if selectTag == "1"}
+                                                <!-- {#if selectTag == "1"}
                                                 <div class="text-red-500">
                                                     "Select tag name"
                                                 </div>
-                                                {/if}
+                                                {/if} -->
 
                                                 <div class="formSelectArrow ">
                                                     <img src="{$img_url_name.img_name}/selectarrow.png"
@@ -2182,12 +2188,12 @@
                                         </div>
                                         <div class="flex px-2 py-0 items-center xs:flex-wrap">
 
-                                            {#if addRemark == "1"}
+                                            <!-- {#if addRemark == "1"}
 
                                             <div class="text-red-500">
                                                 "Please enter a remark"
                                             </div>
-                                            {/if}
+                                            {/if} -->
                                         </div>
 
                                     </div>
@@ -2263,10 +2269,10 @@
                                                     {show_fac.deactivation_date}{/if}
                                                 </td>
                                                 <td>
-                                                    <div class="flex justify-center">
+                                                    <button class="flex justify-center">
                                                         <img src="{$img_url_name.img_name}/reject.png" alt=""
                                                             on:click={remove_tag_con_model} />
-                                                    </div>
+                                                    </button>
                                                 </td>
                                             </tr>
 

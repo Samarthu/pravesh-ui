@@ -46,6 +46,7 @@
             let check_selected = false;
             let id_new_date='';
             let all_tags_res;
+            export let all_addresses;
             export let fac_photo_obj = {
                 profile_url:null,
                 profile_verified:null,
@@ -77,7 +78,6 @@
         let child_check = false;
         let unique_id;
         let show_gst_view_btn = false;
-        
             let text_pattern = /^[a-zA-Z_ ]+$/;
         //     let recrun_pattern =  /^[^-\s](?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9 _-]+)$/;
             let city_select;
@@ -864,6 +864,19 @@
                     
             //     }
             // }  
+    }
+    function owner_details(){
+        ownerDetsModel.style.display = "block";
+        
+    }
+    function closeOwnerDets(){
+        ownerDetsModel.style.display = "none"
+    }
+    function viewaddressDetsModel(){
+        addressDetsModel.style.display = "block";
+    }
+    function closeaddressDetsModel(){
+        addressDetsModel.style.display = "none";
     }
             
     async function linkChild() {
@@ -1659,7 +1672,7 @@
                  <p class="imgName">{$facility_data_store.facility_name}</p>
                  </div> -->
                  <div class="text-2xl xsl:text-xl break-all">{#if $facility_data_store.facility_name}{$facility_data_store.facility_name}{:else}<p>-</p>{/if}</div>
-                <p class="imgName">{#if $facility_data_store.facility_name}{$facility_data_store.facility_name}{:else}<p>-</p>{/if}
+                <!-- <p class="imgName">{#if $facility_data_store.facility_name}{$facility_data_store.facility_name}{:else}<p>-</p>{/if} -->
                 </div>
                  <!-- {/if} -->
              </div>
@@ -1811,7 +1824,7 @@
                                  {#if !addproof_obj.address_name}
                                  <p>Not Provided</p>
                                  {:else}
-                                 <img src={$page.url.origin+addproof_obj.address_url} class="w-5 mr-2" alt="demo">
+                                 <img src={$page.url.origin+addproof_obj.address_url} class="w-5 mr-2" alt="">
                                  <p class="detailLbale">{addproof_obj.address_name}</p>
                                  {/if}
                              </div>
@@ -1922,6 +1935,22 @@
                  <br>
              </div>
              {/if}
+             
+             <div class="userInfoSec3">
+                <p class="flex items-start smButtonText" on:click={owner_details}>
+                    <a href="" class="smButton modal-open">
+                       Owner Details
+                    </a>
+                </p>
+            </div>
+            <div class="userInfoSec3">
+                <p class="flex items-start smButtonText" on:click={viewaddressDetsModel}>
+                    <a href="" class="smButton modal-open">
+                       All Addresses
+                    </a>
+                </p>
+            </div>
+             
          </div> 
      </div>
      <!-- GST Details modal -->
@@ -3034,6 +3063,100 @@
 </div>
 
 <!--Remove Tag Confirmation modal -->
+<!-- Owner Dets Details modal -->
+<div class="hidden" id="ownerDetsModel">
+    <div class=" viewDocmodal  ">
+        <div class="bglightcolormodal" />
+        <div class="allDocmodalsuccessbodyErp rounded-lg">
+            <div class="">
+                <div class="viewDocPanmainbodyModal">
+                    <div class="flex justify-between mb-3">
+                        <div class="leftmodalInfo">
+                            <p class="text-lg text-erBlue font-medium  ">
+                                <span class=""> Owner Details</span>
+                            </p>
+
+                        </div>
+                        <button class="rightmodalclose" on:click={closeOwnerDets}>
+                            <img src="{$img_url_name.img_name}/blackclose.svg" alt="" />
+                        </button>
+                    </div>
+                    <table class="table  w-full text-center mt-2 ">
+                        <thead class="theadpopover h-10">
+                            <tr>
+                                <th>Name</th>
+                                <th>Mobile Number</th>
+                                <th> Birth Date</th>
+                                <th>Gender</th>
+
+                            </tr>
+                        </thead>
+                        <tbody class="tbodypopover">
+                           <tr class="border-b">
+                                <td>{$facility_data_store.facility_name}</td>
+                                <td>{$facility_data_store.phone_number}</td>
+                                <td>{$facility_data_store.date_of_birth}</td>
+                                <td>{$facility_data_store.gender}</td>
+                                
+                            </tr>
+                           
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Owner Dets Details modal -->
+
+<!-- Owner Addresses modal -->
+<div class="hidden" id="addressDetsModel">
+    <div class=" viewDocmodal  ">
+        <div class="bglightcolormodal" />
+        <div class="allDocmodalsuccessbodyErp rounded-lg">
+            <div class="">
+                <div class="viewDocPanmainbodyModal">
+                    <div class="flex justify-between mb-3">
+                        <div class="leftmodalInfo">
+                            <p class="text-lg text-erBlue font-medium  ">
+                                <span class="">Associate's All Addresses</span>
+                            </p>
+
+                        </div>
+                        <button class="rightmodalclose" on:click={closeaddressDetsModel}>
+                            <img src="{$img_url_name.img_name}/blackclose.svg" alt="" />
+                        </button>
+                    </div>
+                    <table class="table  w-full text-center mt-2 ">
+                        <thead class="theadpopover h-10">
+                            <tr>
+                                <th>Address Type</th>
+                                <th>City name</th>
+                                <th>Address</th>
+                                <th>Pincode</th>
+
+                            </tr>
+                        </thead>
+                        <tbody class="tbodypopover">
+                            {#each all_addresses as address}
+                           <tr class="border-b">
+                                <td>{address.address_type}</td>
+                                <td>{address.city}</td>
+                                <td>{address.address}</td>
+                                <td>{address.postal}</td>
+                                
+                            </tr>
+                           {/each}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Owner Addresses modal -->
 
 
 <Toast type={toast_type}  text={toast_text}/>
