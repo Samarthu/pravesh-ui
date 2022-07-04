@@ -1678,8 +1678,13 @@
              </div>
 
              <div class="contact_details" style="border-right: 1px solid lightgray">
-                 <div class="px-5 py-4 text-erBlue font-medium">
+                 <div class="px-5 py-4 text-erBlue font-medium flex justify-between">
                      <label for="">Contact Details</label>
+                     <p class="flex items-start smButtonText" on:click={viewaddressDetsModel}>
+                        <a href="" class="smButton modal-open">
+                           All Addresses
+                        </a>
+                    </p>
                  </div>
                  <div class="userInfoSec px-5  flex items-start ">
                      <img src="{$img_url_name.img_name}/location1.png" alt="">
@@ -1914,7 +1919,7 @@
 
                  </div>
              </div>
-             {#if is_adhoc_facility == false}
+             <!-- {#if is_adhoc_facility == false} -->
              <div class="contact_details">
                  <div class="userInfoSec3">
                      <div class="flex items-start">
@@ -1924,32 +1929,27 @@
                              <!-- <p class="detailData">2</p> -->
                          </div>
                      </div>
-                     <div class="userStatus ">
+                     
                          <p class="flex items-center smButtonText" on:click={linkChild}>
                              <a href="" class="smButton modal-open">
                                  Link/View
                              </a>
                          </p>
-                     </div>
+                     
                  </div>
-                 <br>
+                 <div class="userInfoSec3">
+                    <p class="flex items-start smButtonText" on:click={owner_details}>
+                        <a href="" class="smButton modal-open">
+                           Owner Details
+                        </a>
+                    </p>
+                </div>
+
              </div>
-             {/if}
+             <!-- {/if} -->
              
-             <div class="userInfoSec3">
-                <p class="flex items-start smButtonText" on:click={owner_details}>
-                    <a href="" class="smButton modal-open">
-                       Owner Details
-                    </a>
-                </p>
-            </div>
-            <div class="userInfoSec3">
-                <p class="flex items-start smButtonText" on:click={viewaddressDetsModel}>
-                    <a href="" class="smButton modal-open">
-                       All Addresses
-                    </a>
-                </p>
-            </div>
+            
+            
              
          </div> 
      </div>
