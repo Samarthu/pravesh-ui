@@ -2337,7 +2337,7 @@ warning_toast("warning")
                             </div>
                         </div>
                         {form_message}
-                        <button
+                        <!-- <button
                             on:click|preventDefault={() => {
                                 temp_function();
                             }}
@@ -2348,7 +2348,7 @@ warning_toast("warning")
                                 temp_value_filled();
                             }}
                             class="saveandproceed">fill_value</button
-                        >
+                        > -->
                     </div>
                 </form>
             </div>
