@@ -1625,6 +1625,75 @@
         
     }
 
+    async function docApproveRejected(doc_cat){
+    
+    let document_load,new_status
+    console.log("doc_cat",doc_cat)
+    show_spinner = true;
+    if(doc_cat == "approve"){
+        new_status="DV"
+    }
+    else if(doc_cat == "reject"){
+        new_status="RJ"
+    }
+    document_load = {
+    "resource_id":$facility_id.facility_id_number,
+    "doc_number":document_number,
+    "status_type":new_status,
+    "status":"true",
+    "doc_type":document_type
+    }
+    let doc_res = await approve_reject_status(document_load)
+    
+    try{
+        if(doc_res.body.status == "green"){
+            show_spinner = false;
+            // toast_text = doc_res.body.message;
+            // toast_type = "success";
+            success_toast(doc_res.body.message)
+
+
+            let facility_document_res = await facility_document();
+            try{
+                if(facility_document_res != "null"){
+                facility_document_data = [];
+                facility_document_data = facility_document_res.body.data;
+                    for(let i=0;i<facility_document_data.length;i++){
+                    let doc_modified_format = new Date(facility_document_data[i].modified);
+                    let doc_modified_date = get_date_format(doc_modified_format,"dd-mm-yyyy-hh-mm");
+                    
+                    facility_document_data[i].modified = doc_modified_date
+                        facility_document_data = facility_document_data.sort((a, b) => new Date(b.modified) - new Date(a.modified));
+                    
+                    closeApproveViewModel();
+                    }
+                
+                }
+            }
+            catch(err){
+                show_spinner = false;
+                // toast_type = "error";
+                // toast_text = err;
+                error_toast(err)
+
+                closeApproveViewModel();
+            }
+        }
+    }
+    catch(err){
+        show_spinner = false;
+        // toast_text = err;
+        // toast_type = "error";
+        error_toast(err)
+
+    }
+        
+}
+function closeApproveViewModel(){
+    img_model_approve_rej.style.display = "none";
+    document.getElementById("img_model").style.display = "none";
+}
+
     const onFileSelected = (e,doctext) => {
         let img = e.target.files[0];
         if (img.size <= allowed_pdf_size) {
@@ -2352,8 +2421,16 @@
 <div id="img_model" tabindex="-1" aria-hidden="true" role ="dialog" class=" actionDialogueOnboard" hidden>
     <div class="pancardDialogueOnboardWrapper ">
         <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
-            <div class="flex justify-end p-2">
+            <!-- <div class="flex justify-end p-2">
                 <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel()}}">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
+                </button>
+            </div> -->
+            <div class="flex justify-end p-2">
+                <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium mr-2" on:click={()=>{docApproveRejected("reject")}}>Reject</button>
+                <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium mr-2" on:click={()=>{docApproveRejected("approve")}}>Approve</button>
+       
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5  inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel()}}">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
                 </button>
             </div>

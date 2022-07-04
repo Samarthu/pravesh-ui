@@ -654,6 +654,9 @@ import { current_user } from "../stores/current_user_store";
                 if ($facility_data_store.password == "" || facility_password == "") {
                     facility_password = "ntex@123";
                 }
+                else{
+                    facility_password = $facility_data_store.password;
+                }
                 for (var j = 0;j < $facility_data_store.addresess.length;j++){
                     if($facility_data_store.addresess[j].address_type != "Facility"){
                         all_addresses.push($facility_data_store.addresess[j])
@@ -1037,10 +1040,7 @@ import { current_user } from "../stores/current_user_store";
         function close_docs(){
             modalid.style.display = "none";
         }
-        function closeApproveViewModel(){
-            img_model_approve_rej.style.display = "none";
-            document.getElementById("img_model").style.display = "none";
-        }
+       
         function openViewModel(data,doc_number){
             
             console.log("Inside functin")
@@ -2079,6 +2079,10 @@ import { current_user } from "../stores/current_user_store";
 
             }
                 
+        }
+        function closeApproveViewModel(){
+            img_model_approve_rej.style.display = "none";
+            document.getElementById("img_model").style.display = "none";
         }
         
         // async function new_doc_cat_func(data){
