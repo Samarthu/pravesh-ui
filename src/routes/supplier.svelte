@@ -881,16 +881,18 @@ else
     function update_associate(fac_name){
         console.log("fac_name",fac_name)
         show_spinner = true;
-        let associate_id;
-        console.log("supplier_data_from_service",supplier_data_from_service)
-        for(let i=0;i<supplier_data_from_service.length;i++){
-            if(fac_name == supplier_data_from_service[i].name){
-                associate_id = supplier_data_from_service[i].name
-            }
+        // let associate_id;
+        // console.log("supplier_data_from_service",supplier_data_from_service)
+        // for(let i=0;i<supplier_data_from_service.length;i++){
+        //     if(fac_name == supplier_data_from_service[i].name){
+        //         associate_id = supplier_data_from_service[i].name
+        //         console.log("supplier_data_from_service[i].name",supplier_data_from_service[i].name)
+        //         console.log("associate_id",associate_id)
+        //     }
             // goto("onboardsummary?unFacID="+associate_id,'_blank');
                 
-            window.open("onboardsummary?unFacID="+associate_id, "_blank");
-        }
+            window.open("onboardsummary?unFacID="+fac_name, "_blank");
+        // }
         show_spinner = false;
     }
 
