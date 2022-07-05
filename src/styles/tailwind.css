@@ -2791,3 +2791,11 @@ tr:nth-child(even) {background-color: #f2f2f2;}
 .associate_expanded tr td{
     @apply align-baseline
 }
+
+.tabletrheader tr th{
+    @apply text-font13px font-normal bg-bgthead text-white text-left py-3 px-2
+}
+
+.tabletrBody tr td{
+    @apply text-font13px font-normal text-textdarkgrey text-left py-4 px-2 align-baseline
+}
