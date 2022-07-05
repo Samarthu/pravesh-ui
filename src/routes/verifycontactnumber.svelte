@@ -54,10 +54,12 @@ let countdown = 10;
 onMount(async () => {
 
     page_name =  $page.url["pathname"].split("/").pop();
+    document.getElementById("perfect_sign").style.visibility = "hidden";
     if(!$facility_data_store.org_id){
             goto("facility_type_select",{replaceState:false})
 
         }
+
     if($facility_id.facility_id_number){
         if($duplicate_facility_data_store.phone_number == $facility_data_store.phone_number ){
         show_send_otp_button = false;
@@ -114,14 +116,17 @@ async function check_mobile_number(){
         valid = false;
         mobile_number_message = "Please enter a valid Mobile number";
         send_otp_disabled = true;
+        document.getElementById("perfect_sign").style.visibility = "hidden";
     }
     else{
         mobile_number_message = "";
+        document.getElementById("perfect_sign").style.visibility = "visible";
     }
 
     }else{
         valid = false;
         mobile_number_message = "Please enter a Mobile number";
+        document.getElementById("perfect_sign").style.visibility = "hidden";
         send_otp_disabled = true;
     }
     
@@ -143,16 +148,19 @@ async function check_mobile_number(){
             if(valid_mobile_number_response.body.data == true){
                 // console.log("mobile no available");
                 send_otp_disabled = false;
+                document.getElementById("perfect_sign").style.visibility = "visible";
                 
 
 
             }
             else if(valid_mobile_number_response.body.data == false){
                 mobile_number_message = valid_mobile_number_response.body.message
+                document.getElementById("perfect_sign").style.visibility = "hidden";
             }
         }
         catch{
             error_toast("Unable to verify mobile number")
+            document.getElementById("perfect_sign").style.visibility = "hidden";
             // toast_type = "error";
             // toast_text = "Unable to verify mobile number";
 
@@ -459,8 +467,14 @@ function number_cahanged(){
                             </span>
                             <input type="text" class="inputbox" bind:value={$facility_data_store.phone_number} on:input={()=> check_mobile_number()} on:change={()=>{number_cahanged()}}>
                         </div>
+                        <div class="ml-3 flex items-center gap-2 text-bgGreen xsl:mt-2 " id="perfect_sign">
+                            <img src="{$img_url_name.img_name}/checked.png" alt="verified img">  Perfect
+                          </div>
                     </div>
+                  
                 </div>
+                
+
 
             </div>
 

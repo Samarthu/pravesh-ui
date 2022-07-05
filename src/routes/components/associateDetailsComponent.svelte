@@ -7,7 +7,8 @@
             import {get_date_format} from "../../services/date_format_servives";
             import {bank_details_info,cheque_details,facility_document,show_fac_tags,get_loc_scope,
                 facility_data,facility_bgv_init,all_facility_tags,gst_details,client_details,add_gst_dets,
-                list_child_data,remove_child,reset_deact_status,child_data,get_libera_login,check_if_already_child} from "../../services/onboardsummary_services";
+                list_child_data,remove_child,reset_deact_status,child_data,get_libera_login,check_if_already_child
+                ,owner_details_ser,save_owner_dets} from "../../services/onboardsummary_services";
             import {img_url_name} from '../../stores/flags_store';
             import {facility_id} from "../../stores/facility_id_store"
             import {facility_data_store} from "../../stores/facility_store";
@@ -24,7 +25,7 @@
             import Toast from './toast.svelte';
             import { SvelteToast, toast } from '@zerodevx/svelte-toast'
             import {success_toast ,error_toast,warning_toast} from '../../services/toast_theme';
-            import {get_cas_user, activate_cas_user , create_cas_user} from "../../services/vmt_verify_services"
+            import {get_cas_user, activate_cas_user , create_cas_user,approve_reject_status} from "../../services/vmt_verify_services"
             // import {check_facility_status} from '.././onboardsummaryComponent.svelte';
 
             let show_spinner = false;
@@ -39,6 +40,14 @@
             let gst_doc_type=[];
             let temp6 = "add_tag";
             let libera_username = "";
+            let document_number;
+            let document_type;
+            let owner_dets_arr = [];
+            let owner_fir_name= "";
+            let owner_last_name= "";
+            let owner_dob= "";
+            let owner_mob_no= "";
+            let owner_gender="-1"
             // export let facility_document_data = [];
         let query;
             export let tags_for_ass_arr=[];
@@ -46,6 +55,7 @@
             let check_selected = false;
             let id_new_date='';
             let all_tags_res;
+            export let all_addresses;
             export let fac_photo_obj = {
                 profile_url:null,
                 profile_verified:null,
@@ -55,7 +65,9 @@
                 address_name:null,
                 address_url:null,
                 address_verified:null,
-                address_rejected:null
+                address_rejected:null,
+                address_number:null,
+                address_type:null
             };
         export let gst_doc_obj = {
                 gst_name:null,
@@ -77,7 +89,6 @@
         let child_check = false;
         let unique_id;
         let show_gst_view_btn = false;
-        
             let text_pattern = /^[a-zA-Z_ ]+$/;
         //     let recrun_pattern =  /^[^-\s](?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9 _-]+)$/;
             let city_select;
@@ -92,6 +103,7 @@
             // let showbtn = 0;
         export let facility_address;
         export let facility_password;
+        console.log("facility_password",facility_password)
         export let city;
         export let facility_postal;
         export let is_adhoc_facility;
@@ -425,6 +437,18 @@
     }
     function openViewModel(data,doc_number){
         document.getElementById("img_model").style.display = "block";
+        // if(data == "new_doc"){
+        //         console.log("inside new_doc view")
+                
+        //         for(let i=0;i<facility_document_data.length;i++){
+        //             // console.log("inside for view new_doc")
+        //             if(doc_number == facility_document_data[i].doc_category){
+        //                 image_path = $page.url.origin+facility_document_data[i].file_url;
+        //                 alt_image = "uploaded document";
+                        
+        //             }
+        //         }
+        //     }
         if(data == "aadhar"){
             image_path = $page.url.origin+aadhar_obj.aadhar_attach;
             // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+aadhar_obj.aadhar_attach);
@@ -439,6 +463,9 @@
 
             var ext = addproof_obj.address_url.split('.').reverse()[0]
             image_path = $page.url.origin+addproof_obj.address_url;
+            console.log("document_type",document_type,"document_number",document_number)
+            document_type = addproof_obj.address_type;
+            document_number = addproof_obj.address_number;
             if(ext == "pdf"){
                 console.log("inside ext matched")
                 document.getElementById("img_model_url").innerHTML = '<embed src='+image_path+' type="application/pdf" width="100%" height="100%" alt='+{alt_image}+'>'
@@ -481,7 +508,76 @@
         
     }
     
-            
+    async function docApproveRejected(doc_cat){
+    
+    let document_load,new_status
+    console.log("doc_cat",doc_cat)
+    show_spinner = true;
+    if(doc_cat == "approve"){
+        new_status="DV"
+    }
+    else if(doc_cat == "reject"){
+        new_status="RJ"
+    }
+    document_load = {
+    "resource_id":$facility_id.facility_id_number,
+    "doc_number":document_number,
+    "status_type":new_status,
+    "status":"true",
+    "doc_type":document_type
+    }
+    let doc_res = await approve_reject_status(document_load)
+    
+    try{
+        if(doc_res.body.status == "green"){
+            show_spinner = false;
+            // toast_text = doc_res.body.message;
+            // toast_type = "success";
+            success_toast(doc_res.body.message)
+
+
+            let facility_document_res = await facility_document();
+            try{
+                if(facility_document_res != "null"){
+                facility_document_data = [];
+                facility_document_data = facility_document_res.body.data;
+                    for(let i=0;i<facility_document_data.length;i++){
+                    let doc_modified_format = new Date(facility_document_data[i].modified);
+                    let doc_modified_date = get_date_format(doc_modified_format,"dd-mm-yyyy-hh-mm");
+                    
+                    facility_document_data[i].modified = doc_modified_date
+                        facility_document_data = facility_document_data.sort((a, b) => new Date(b.modified) - new Date(a.modified));
+                    
+                    closeApproveViewModel();
+                    }
+                
+                }
+            }
+            catch(err){
+                show_spinner = false;
+                // toast_type = "error";
+                // toast_text = err;
+                error_toast(err)
+
+                closeApproveViewModel();
+            }
+        }
+    }
+    catch(err){
+        show_spinner = false;
+        // toast_text = err;
+        // toast_type = "error";
+        error_toast(err)
+
+    }
+        
+}
+function closeApproveViewModel(){
+    img_model_approve_rej.style.display = "none";
+    document.getElementById("img_model").style.display = "none";
+}        
+
+
     //     function editWorkDetail() {
     //     let replaceState = false;
     //     goto(routeNext, { replaceState });
@@ -864,6 +960,105 @@
                     
             //     }
             // }  
+    }
+    async function owner_details(){
+        show_spinner = true;
+        ownerDetsModel.style.display = "block";
+        let owner_dets_res = await owner_details_ser();
+      try {
+        owner_dets_arr = [];
+        if(owner_dets_res.body.data){
+            show_spinner = false;
+          owner_dets_arr =owner_dets_res.body.data
+         
+        }
+        else{
+            show_spinner = false;
+        }
+      } catch (err) {
+            show_spinner = false;
+            error_toast(err)
+      }
+        
+    }
+    function closeOwnerDets(){
+        ownerDetsModel.style.display = "none"
+    }
+    function viewaddressDetsModel(){
+        addressDetsModel.style.display = "block";
+    }
+    function closeaddressDetsModel(){
+        addressDetsModel.style.display = "none";
+    }
+    function addnewowner(){
+        addownerModel.style.display = "block"
+    }
+    function closeaddnewowner(){
+        addownerModel.style.display = "none"
+        owner_fir_name=""
+        owner_last_name=""
+        owner_dob=""
+        owner_mob_no=""
+        owner_gender=""
+    }
+    async function addNewOwnerFunc(){
+
+        show_spinner = true
+        if(!owner_fir_name){
+            error_toast("Please Enter Owner First Name")
+            show_spinner = false
+            return
+        }
+        if(!owner_last_name){
+            error_toast("Please Enter Owner Last Name")
+            show_spinner = false
+            
+            return
+        }
+        if(!owner_dob){
+            error_toast("Please Enter Owner Date Of Birth")
+            show_spinner = false
+            return
+        }
+        if(!owner_mob_no){
+            error_toast("Please Enter Owner MObile Number")
+            show_spinner = false
+            return
+        }
+        if(!owner_gender || owner_gender == "-1"){
+            error_toast("Please Select Owner Gender")
+            show_spinner = false
+            return
+        }
+        let owner_dets_payload = {
+            "date_of_birth": owner_dob,
+            "facility_id": $facility_id.facility_id_number,
+            "first_name": owner_fir_name,
+            "gender": owner_gender,
+            "last_name": owner_last_name,
+            "mobile_number": owner_mob_no
+        }
+        let owner_dets_res = await save_owner_dets(owner_dets_payload)
+        try {
+            if(owner_dets_res.body.status == "green"){
+                addownerModel.style.display = "none"
+                owner_fir_name=""
+                owner_last_name=""
+                owner_dob=""
+                owner_mob_no=""
+                owner_gender=""
+            show_spinner = false
+            success_toast(owner_dets_res.body.message)
+
+            }
+            else{
+                error_toast(owner_dets_res.body.message)
+                show_spinner = false
+            }
+        } catch (err) {
+            show_spinner = false
+            error_toast(err) 
+        }
     }
             
     async function linkChild() {
@@ -1659,14 +1854,19 @@
                  <p class="imgName">{$facility_data_store.facility_name}</p>
                  </div> -->
                  <div class="text-2xl xsl:text-xl break-all">{#if $facility_data_store.facility_name}{$facility_data_store.facility_name}{:else}<p>-</p>{/if}</div>
-                <p class="imgName">{#if $facility_data_store.facility_name}{$facility_data_store.facility_name}{:else}<p>-</p>{/if}
+                <!-- <p class="imgName">{#if $facility_data_store.facility_name}{$facility_data_store.facility_name}{:else}<p>-</p>{/if} -->
                 </div>
                  <!-- {/if} -->
              </div>
 
              <div class="contact_details" style="border-right: 1px solid lightgray">
-                 <div class="px-5 py-4 text-erBlue font-medium">
+                 <div class="px-5 py-4 text-erBlue font-medium flex justify-between">
                      <label for="">Contact Details</label>
+                     <p class="flex items-start smButtonText" on:click={viewaddressDetsModel}>
+                        <a href="" class="smButton modal-open">
+                           All Addresses
+                        </a>
+                    </p>
                  </div>
                  <div class="userInfoSec px-5  flex items-start ">
                      <img src="{$img_url_name.img_name}/location1.png" alt="">
@@ -1811,7 +2011,7 @@
                                  {#if !addproof_obj.address_name}
                                  <p>Not Provided</p>
                                  {:else}
-                                 <img src={$page.url.origin+addproof_obj.address_url} class="w-5 mr-2" alt="demo">
+                                 <img src={$page.url.origin+addproof_obj.address_url} class="w-5 mr-2" alt="">
                                  <p class="detailLbale">{addproof_obj.address_name}</p>
                                  {/if}
                              </div>
@@ -1901,7 +2101,7 @@
 
                  </div>
              </div>
-             {#if is_adhoc_facility == false}
+             <!-- {#if is_adhoc_facility == false} -->
              <div class="contact_details">
                  <div class="userInfoSec3">
                      <div class="flex items-start">
@@ -1911,17 +2111,33 @@
                              <!-- <p class="detailData">2</p> -->
                          </div>
                      </div>
-                     <div class="userStatus ">
+                     
                          <p class="flex items-center smButtonText" on:click={linkChild}>
                              <a href="" class="smButton modal-open">
                                  Link/View
                              </a>
                          </p>
-                     </div>
+                     
                  </div>
-                 <br>
+                 <div class="userInfoSec3">
+                    <button class="flex items-start smButtonText" on:click={addnewowner}>
+                        <a href="" class="smButton modal-open">
+                           Add Owner
+                        </a>
+                    </button>
+                    <button class="flex items-start smButtonText" on:click={owner_details}>
+                        <a href="" class="smButton modal-open">
+                           Owner Details
+                        </a>
+                    </button>
+                </div>
+
              </div>
-             {/if}
+             <!-- {/if} -->
+             
+            
+            
+             
          </div> 
      </div>
      <!-- GST Details modal -->
@@ -2912,11 +3128,26 @@
 <div id="img_model" tabindex="-1" aria-hidden="true" role ="dialog" class=" actionDialogueOnboard" hidden>
     <div class="pancardDialogueOnboardWrapper ">
         <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
-            <div class="flex justify-end p-2">
+            <!-- <div class="flex justify-end p-2">
+              
+                    <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium mr-2" on:click={()=>{docApproveRejected("reject")}}>Reject</button>
+                    <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium mr-2" on:click={()=>{docApproveRejected("approve")}}>Approve</button>
+        
+                
                 <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel()}}">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
                 </button>
+            </div> -->
+
+            <div class="flex justify-end p-2">
+                <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium mr-2" on:click={()=>{docApproveRejected("reject")}}>Reject</button>
+                <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium mr-2" on:click={()=>{docApproveRejected("approve")}}>Approve</button>
+       
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5  inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel()}}">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
+                </button>
             </div>
+
             <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
                 
                 <img src={image_path} id="img_model_url" class="mx-auto" alt="{alt_image}">
@@ -3034,7 +3265,194 @@
 </div>
 
 <!--Remove Tag Confirmation modal -->
+<!-- Owner Dets Details modal -->
+<div class="hidden" id="ownerDetsModel">
+    <div class=" viewDocmodal  ">
+        <div class="bglightcolormodal" />
+        <div class="allDocmodalsuccessbodyErp rounded-lg">
+            <div class="">
+                <div class="viewDocPanmainbodyModal">
+                    <div class="flex justify-between mb-3">
+                        <div class="leftmodalInfo">
+                            <p class="text-lg text-erBlue font-medium  ">
+                                <span class=""> Owner Details</span>
+                            </p>
+
+                        </div>
+                        <button class="rightmodalclose" on:click={closeOwnerDets}>
+                            <img src="{$img_url_name.img_name}/blackclose.svg" alt="" />
+                        </button>
+                    </div>
+                    <table class="table  w-full text-center mt-2 ">
+                        <thead class="theadpopover h-10">
+                            <tr>
+                                <th>Name</th>
+                                <th>Mobile Number</th>
+                                <th> Birth Date</th>
+                                <th>Gender</th>
+
+                            </tr>
+                        </thead>
+                        <tbody class="tbodypopover">
+                            {#each owner_dets_arr as owner_dets}
+                           <tr class="border-b">
+                                <td>{#if owner_dets.first_name}{owner_dets.first_name}{:else}<p></p>{/if}</td>
+                                <td>{#if owner_dets.mobile_number}{owner_dets.mobile_number}{:else}<p></p>{/if}</td>
+                                <td>{#if owner_dets.date_of_birth}{owner_dets.date_of_birth}{:else}<p></p>{/if}</td>
+                                <td>{#if owner_dets.gender}{owner_dets.gender}{:else}<p></p>{/if}</td>
+                                
+                            </tr>
+                           {/each}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Owner Addresses modal -->
 
 
+<div class="hidden" id="addressDetsModel">
+    <div class="modalMain">
+        <div class="modalOverlay"></div>
+
+        <div class="modalContainer">
+            <div class="modalHeadConmb-0 sticky top-0 bg-white z-zindex99">
+                <div class="leftmodalInfo">
+                    <p class="modalTitleText">Associate's All Addresses</p>
+                </div>
+                <button class="rightmodalclose" on:click={closeaddressDetsModel}>
+                    <img src="{$img_url_name.img_name}/blackclose.svg" alt="" />
+                </button>
+            </div>
+            <div class="modalContent">
+                <div class="ConModalContent">
+                    <table class="table  w-full text-center mt-2 ">
+                        <thead class="tabletrheader h-10">
+                            <tr>
+                                <th>Address Type</th>
+                                <th>City name</th>
+                                <th>Address</th>
+                                <th>Pincode</th>
+
+                            </tr>
+                        </thead>
+                        <tbody class="tabletrBody">
+                            {#each all_addresses as address}
+                           <tr class="border-b">
+                                <td>{address.address_type}</td>
+                                <td>{address.city}</td>
+                                <td><div class="address w-80 break-all flex flex-wrap">
+                                    <p>{address.address}</p>
+                               </div></td>
+                                <td>{address.postal}</td>
+                                
+                            </tr>
+                           {/each}
+                        </tbody>
+                    </table>
+
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Owner Addresses modal -->
+<!-- Full screen Add Owner Details  -->
+
+<div class="hidden" id = "addownerModel">
+    <div class="modalMain">
+        <div class="modalOverlay"></div>
+
+        <div class="modalContainerAuto  xsl:top-1 xsl:max-h-full xsl:bottom-2">
+            <div class="modalHeadCon xsl:sticky top-0 bg-white z-zindex99">
+                <div class="leftmodalInfo">
+                    <p class="modalTitleText"> Owner Details </p>
+                </div>
+                <div class="rightmodalclose">
+                    <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal" on:click = {closeaddnewowner}>
+                </div>
+            </div>
+            <div class="modalContent">
+                <div class="GstModalContent">
+                    <div>
+                        <div class="bgAddSectio">
+                           
+                            <div class="addGstForm pt-4">
+                               
+
+                                <div class="grid grid-cols-2 px-4 py-1 gap-4 xsl:grid-cols-1">
+                                    <div class="w-full">
+                                        <div class="py-1">
+                                            <div class="light14grey  mb-1">First Name <span class="text-mandatorysign">*</span></div>
+                                            <div class="w-full">
+                                                <input class="inputboxpopover" type="text" bind:value={owner_fir_name}>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="w-full">
+                                        <div class="py-1">
+                                            <div class="light14grey  mb-1">Last Name <span class="text-mandatorysign">*</span></div>
+                                            <div class="w-full">
+                                                <input class="inputboxpopover" type="text" bind:value={owner_last_name}>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 px-4 py-1 gap-4 xsl:grid-cols-1">
+                                    <div class="w-full">
+                                        <div class="py-1">
+                                            <div class="light14grey  mb-1">Date of Birth <span class="text-mandatorysign">*</span></div>
+                                            <div class="w-full">
+                                                <input type="date" class="inputboxcursortext px-4" bind:value={owner_dob} onkeydown="return false" max={new Date().toISOString().split('T')[0]}>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="w-full">
+                                        <div class="py-1">
+                                            <div class="light14grey  mb-1">Mobile Number </div>
+                                            <div class="w-full">
+                                                <input class="inputboxpopover" type="number" bind:value={owner_mob_no}>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2  px-4 py-1 gap-4 xsl:grid-cols-1">
+                                    <div class="w-full">
+                                        <div class="light14grey mb-1"> Gender <span class="text-mandatorysign">*</span></div>
+                                        <div class="formInnerwidthfull ">
+                                            <select class="inputboxpopover" bind:value={owner_gender}>
+                                                <option class="pt-6" value = "-1">Select</option>
+                                                <option class="pt-6" value="Male">Male</option>
+                                                <option class="pt-6" value="Female">Female</option>
+                                            </select>
+                                            <div class="formSelectArrow ">
+                                                <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                              
+                                <div class="actionButtons pt-4">
+                                    <div class="updateAction">
+                                        <button class="ErBlueButton" on:click={addNewOwnerFunc}>Submit</button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Full screen Add Owner Details  -->
 <Toast type={toast_type}  text={toast_text}/>
 <SvelteToast />

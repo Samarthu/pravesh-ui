@@ -52,12 +52,15 @@
             import {get_pravesh_properties_method} from "../../services/workdetails_services";
             import {get_date_format} from "../../services/date_format_servives";
             // import {onFileSelected} from '../onboardsummaryComponent.svelte'
+            import {approve_reject_status} from "../../services/vmt_verify_services";
     
         let id_card_data = [];
         let profile_url = "";
         let show_spinner = false;
         let toast_text;
         let toast_type;
+        let reject_doc;
+        let approve_doc;
         let routeNext = "";
         let routeBgv = "";
         let temp = "Add";
@@ -100,6 +103,7 @@
         export let changed_dl_num;
         export let changed_voter_num;
         export let pancard_obj = {
+            pan_type:null,
             pan_num:null,
             pan_attach:null,
             pan_name:null,
@@ -107,6 +111,8 @@
             pan_rejected:null
         }
         export let aadhar_obj = {
+           
+            aadhar_type:null,
             aadhar_num:null,
             aadhar_attach:null,
             aadhar_name:null,
@@ -115,7 +121,8 @@
         }
         
         export let dl_photo_obj = {
-
+           
+            dl_lic_type:null,
             dl_lic_num:null,
             dl_lic_name:null,
             dl_lic_url:null,
@@ -123,7 +130,12 @@
             dl_rejected:null
         };
         export let voter_id_object = {
-            voter_id_number:null
+            voter_id_number:null,
+            voter_id_name:null,
+            voter_id_url:null,
+            voter_id_verified:null,
+            voter_id_rejected:null,
+            voter_id_type:null
         }
     
         let text_pattern = /^[a-zA-Z_ ]+$/;
@@ -238,6 +250,8 @@
     function openViewModel(data,doc_number){
         document.getElementById("img_model").style.display = "block";
         if(data == "aadhar"){
+            reject_doc = "aadhar"
+            approve_doc = "aadhar"
             alt_image = "aadhar proof";
             image_path = $page.url.origin+aadhar_obj.aadhar_attach;
             var ext = aadhar_obj.aadhar_attach.split('.').reverse()[0]
@@ -254,10 +268,30 @@
             }
         }
         else if(data == "pan"){
+            reject_doc = "pan"
+            approve_doc = "pan"
             console.log("inside aadhar view",document.getElementById("img_model_url"))
-            var ext = pancard_obj.pan_attach.split('.').reverse()[0]
             image_path = $page.url.origin+pancard_obj.pan_attach;
             alt_image = "pan-card proof";
+            
+            var ext = pancard_obj.pan_attach.split('.').reverse()[0]
+            if(ext == "pdf"){
+                console.log("inside ext matched")
+                document.getElementById("img_model_url").innerHTML = '<embed src='+image_path+' type="application/pdf" width="100%" height="100%" alt='+alt_image+'>'
+            }
+            else{
+                document.getElementById("img_model_url").innerHTML = '<img src='+image_path+' class="mx-auto" alt='+alt_image+'>'
+                
+            }
+        }
+        else if(data == "voter"){
+            reject_doc = "voter"
+            approve_doc = "voter"
+            console.log("inside voter view",document.getElementById("img_model_url"))
+            image_path = $page.url.origin+voter_id_object.voter_id_url;
+            alt_image = "voter id proof";
+            
+            var ext = voter_id_object.voter_id_url.split('.').reverse()[0]
             if(ext == "pdf"){
                 console.log("inside ext matched")
                 document.getElementById("img_model_url").innerHTML = '<embed src='+image_path+' type="application/pdf" width="100%" height="100%" alt='+alt_image+'>'
@@ -284,6 +318,8 @@
         //     alt_image = "address proof";
         // }
         else if(data == "licence"){
+            reject_doc = "licence"
+            approve_doc = "licence"
             image_path = $page.url.origin+dl_photo_obj.dl_lic_url;
             console.log("image_path",image_path)
             // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+dl_lic_attach);
@@ -325,6 +361,118 @@
         }
         
     }
+
+    async function docApproveRejected(doc_cat,doc_name){
+    
+    let document_load,new_status,new_doc_name
+        if(doc_name.reject_doc){
+            new_doc_name = doc_name.reject_doc;
+        }
+        else if(doc_name.approve_doc){
+            new_doc_name = doc_name.approve_doc;
+        }
+    show_spinner = true;
+    if(doc_cat == "approve"){
+        new_status="DV"
+    }
+    else if(doc_cat == "reject"){
+        new_status="RJ"
+    }
+    if(new_doc_name == "pan"){
+        document_load = {
+    "resource_id":$facility_id.facility_id_number,
+    "doc_number":pancard_obj.pan_num,
+    "status_type":new_status,
+    "status":"true",
+    "doc_type":pancard_obj.pan_type
+    }
+    }
+    else if(new_doc_name == "voter"){
+        document_load = {
+    "resource_id":$facility_id.facility_id_number,
+    "doc_number":voter_id_object.voter_id_number,
+    "status_type":new_status,
+    "status":"true",
+    "doc_type":voter_id_object.voter_id_type
+    }
+    }
+    else if(new_doc_name == "aadhar"){
+        document_load = {
+    "resource_id":$facility_id.facility_id_number,
+    "doc_number":aadhar_obj.aadhar_num,
+    "status_type":new_status,
+    "status":"true",
+    "doc_type":aadhar_obj.aadhar_type
+    }
+    }
+    else if(new_doc_name == "licence"){
+        document_load = {
+    "resource_id":$facility_id.facility_id_number,
+    "doc_number":dl_photo_obj.dl_lic_num,
+    "status_type":new_status,
+    "status":"true",
+    "doc_type":dl_photo_obj.dl_lic_type
+    }
+    }
+    // document_load = {
+    // "resource_id":$facility_id.facility_id_number,
+    // "doc_number":document_number,
+    // "status_type":new_status,
+    // "status":"true",
+    // "doc_type":document_type
+    // }
+    let doc_res = await approve_reject_status(document_load)
+    
+    try{
+        if(doc_res.body.status == "green"){
+            show_spinner = false;
+            // toast_text = doc_res.body.message;
+            // toast_type = "success";
+            success_toast(doc_res.body.message)
+
+
+            let facility_document_res = await facility_document();
+            try{
+                if(facility_document_res != "null"){
+                facility_document_data = [];
+                facility_document_data = facility_document_res.body.data;
+                    for(let i=0;i<facility_document_data.length;i++){
+                    let doc_modified_format = new Date(facility_document_data[i].modified);
+                    let doc_modified_date = get_date_format(doc_modified_format,"dd-mm-yyyy-hh-mm");
+                    
+                    facility_document_data[i].modified = doc_modified_date
+                        facility_document_data = facility_document_data.sort((a, b) => new Date(b.modified) - new Date(a.modified));
+                    
+                    closeApproveViewModel();
+                    }
+                
+                }
+            }
+            catch(err){
+                show_spinner = false;
+                // toast_type = "error";
+                // toast_text = err;
+                error_toast(err)
+
+                closeApproveViewModel();
+            }
+        }
+    }
+    catch(err){
+        show_spinner = false;
+        // toast_text = err;
+        // toast_type = "error";
+        error_toast(err)
+
+    }
+        
+}
+function closeApproveViewModel(){
+    img_model_approve_rej.style.display = "none";
+    document.getElementById("img_model").style.display = "none";
+}
+
+
     const onFileSelected = (e,doctext) => {
         let img = e.target.files[0];
         if (img.size <= allowed_pdf_size) {
@@ -584,9 +732,9 @@
         </div>
 
         <div class="IdentityProofColSec" style="border-right: 1px solid lightgray">
-            <div class="px-5 py-4 text-erBlue font-medium">
+            <!-- <div class="px-5 py-4 text-erBlue font-medium">
                 <label for="">Documents</label>
-            </div>
+            </div> -->
 
             <div class="userInfoSecPadding">
                 <div class="wrapperInfoFirst">
@@ -779,6 +927,69 @@
                     </div>
                 </div>
             </div>
+            <div class="userInfoSecPadding">
+                <div class="wrapperInfoFirst">
+                    <div class="flex items-start">
+                        <img src="{$img_url_name.img_name}/offerlatter.png" alt="" class="w-5 h-5">
+                        <div class="pl-4">
+                            <p class="detailLbale">Voter ID Attachment</p>
+                        </div>
+                    </div>
+                {#if voter_id_object.voter_id_rejected == "1"}
+                <p class="rejectText pr-3">
+                    <img
+                        src="{$img_url_name.img_name}/reject.png"
+                        alt=""
+                        class="pr-2"
+                    /> Reject
+                </p>
+                {:else if voter_id_object.voter_id_verified == "1"}
+                
+                    <p class="verifiedTextGreen pr-3">
+                        <img
+                            src="{$img_url_name.img_name}/checked.png"
+                            alt=""
+                            class="pr-1"
+                        />
+                        Verified
+                    </p>
+               
+                {:else if voter_id_object.voter_id_verified == "0" && voter_id_object.voter_id_rejected == "0"}
+                    <p class="verifyText pr-3">
+                        <img
+                            src="{$img_url_name.img_name}/timer.png"
+                            alt=""
+                            class="pr-2"
+                        />
+                        Verification Pending
+                    </p>
+               {/if}
+                   
+
+                </div>
+                <div class="wrapperInfo ">
+                    <div class="flex items-start">
+                        <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
+                        <div class="pl-4 flex items-center">
+                            {#if !voter_id_object.voter_id_name}
+                            <p>Not Provided</p>
+                            {:else}
+                            <img src={$page.url.origin+voter_id_object.voter_id_url} class="mr-2 w-5" alt="">
+                            <p class="detailLbale">{voter_id_object.voter_id_name}</p>
+                            {/if}
+                        </div>
+                    </div>
+                    <div class="userStatus ">
+                        <p class="verifyText">
+                            {#if voter_id_object.voter_id_url}
+                            <a href="" class="smButton">
+                                <img src="{$img_url_name.img_name}/view.png" alt="" on:click="{()=>{openViewModel("voter")}}">
+                            </a>
+                            {/if}
+                        </p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div> 
  
@@ -788,8 +999,16 @@
 <div id="img_model" tabindex="-1" aria-hidden="true" role ="dialog" class=" actionDialogueOnboard" hidden>
     <div class="pancardDialogueOnboardWrapper ">
         <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
-            <div class="flex justify-end p-2">
+            <!-- <div class="flex justify-end p-2">
                 <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel()}}">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
+                </button>
+            </div> -->
+            <div class="flex justify-end p-2">
+                <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium mr-2" on:click={()=>{docApproveRejected("reject",{reject_doc})}}>Reject</button>
+                <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium mr-2" on:click={()=>{docApproveRejected("approve",{approve_doc})}}>Approve</button>
+       
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5  inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel()}}">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
                 </button>
             </div>

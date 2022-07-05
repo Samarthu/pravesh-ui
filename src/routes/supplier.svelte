@@ -53,7 +53,11 @@
     let vendor_checkbox = false;
     let onboarded_by_me_checkbox = false;
     let workforce_checkbox = true;
-    let org_selected = "";
+    let org_id_selected;
+    let org_selected= ""
+    $:if(org_id_selected){
+        org_id_selection()
+    }
     // let status_pill_flag = false;
     let status_for_highlight = "";
     let new_associate_data;
@@ -101,58 +105,7 @@
         //     new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending"}  
         //     }
         
-        async function clearedSearchFunc(){
-            if(status != "-1"){
-                if(onboarded_by_me_checkbox == true){ 
-                    new_associate_data = {city:city,limit:limit,org_id:org_selected,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}
-
-                }
-                else{
-                new_associate_data = {city:city,limit:limit,org_id:org_selected,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: status}  
-                }
-                json_associate_data=JSON.stringify(new_associate_data);
-                //  console.log("json_associate_data",json_associate_data)
-                let cleared_search_res=await supplier_data(json_associate_data);
-                try{
-                    if(cleared_search_res.body.status == "green"){
-                        supplier_data_from_service = cleared_search_res.body.data.data_list;
-                        total_count_associates = cleared_search_res.body.data.total_records;
-                        
-                        for(let i=0;i<supplier_data_from_service.length;i++){
-                            supplier_data_from_service[i].expand = false;
-                        }
-
-                        // console.log("RESULT",result)
-                        result = true;
-                        // console.log("RESULT",result)
-                        // filter_vendortype_res = await filter_vendortype_data();
-                        new_drop_limit=parseInt(drop_limit)
-                        if(total_count_associates > new_drop_limit){
-                            var total_pages=Math.ceil(total_count_associates/new_drop_limit)
-                            pages = createPagesArray(total_pages)
-                            new_pages =[];
-                            // console.log("pagesRESULT",pages)
-                            for(let pagination in pages){
-                                if(pagination>0 && pagination <= 3){
-                                    // console.log("PAGES") 
-                                    new_pages.push(pagination)
-                                    mapped_pages=new_pages.map(Number)  
-                                    // console.log("mappedpagesRESULT inside",mapped_pages)
-                                }
-                            }
-                        }
-
-                    }
-                }
-                catch(err) {
-                    // toast_type = "error";
-                    // toast_text = err;
-                    error_toast(err)
-
-                }
-            }
-
-        }
+        
         // async function user_data () {
         // logged_user_data = await logged_user();
         // // console.log("logged_user_datalogged_user_data",logged_user_data)
@@ -259,7 +212,6 @@
         else{
             paramString = paramString
         }
-       
     // }
     if(paramString == undefined){
     //   show_pagination = true;
@@ -420,8 +372,70 @@ else
             show_spinner = false;
             ///////////ORG LIST/////////////
     });
+
+    function org_id_selection(){
+        for(let i=0;i<org_data_arr.length;i++){
+            if(org_id_selected == org_data_arr[i].org_name){
+                org_selected = org_data_arr[i].org_id
+            }
+        }
+    }
     
-   
+    async function clearedSearchFunc(){
+            if(status != "-1"){
+                if(onboarded_by_me_checkbox == true){ 
+                    new_associate_data = {city:city,limit:limit,org_id:org_selected,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}
+
+                }
+                else{
+                new_associate_data = {city:city,limit:limit,org_id:org_selected,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: status}  
+                }
+                json_associate_data=JSON.stringify(new_associate_data);
+                //  console.log("json_associate_data",json_associate_data)
+                let cleared_search_res=await supplier_data(json_associate_data);
+                try{
+                    if(cleared_search_res.body.status == "green"){
+                        supplier_data_from_service = cleared_search_res.body.data.data_list;
+                        total_count_associates = cleared_search_res.body.data.total_records;
+                        
+                        for(let i=0;i<supplier_data_from_service.length;i++){
+                            supplier_data_from_service[i].expand = false;
+                        }
+
+                        // console.log("RESULT",result)
+                        result = true;
+                        // console.log("RESULT",result)
+                        // filter_vendortype_res = await filter_vendortype_data();
+                        new_drop_limit=parseInt(drop_limit)
+                        if(total_count_associates > new_drop_limit){
+                            var total_pages=Math.ceil(total_count_associates/new_drop_limit)
+                            pages = createPagesArray(total_pages)
+                            new_pages =[];
+                            // console.log("pagesRESULT",pages)
+                            for(let pagination in pages){
+                                if(pagination>0 && pagination <= 3){
+                                    // console.log("PAGES") 
+                                    new_pages.push(pagination)
+                                    mapped_pages=new_pages.map(Number)  
+                                    // console.log("mappedpagesRESULT inside",mapped_pages)
+                                }
+                            }
+                        }
+
+                    }
+                }
+                catch(err) {
+                    // toast_type = "error";
+                    // toast_text = err;
+                    error_toast(err)
+
+                }
+            }
+
+        }
+
+
+
 
     function createPagesArray(total) {
     let arr = []
@@ -865,17 +879,20 @@ else
 
 
     function update_associate(fac_name){
+        // console.log("fac_name",fac_name)
         show_spinner = true;
-        let associate_id;
-        console.log("supplier_data_from_service",supplier_data_from_service)
-        for(let i=0;i<supplier_data_from_service.length;i++){
-            if(fac_name == supplier_data_from_service[i].name){
-                associate_id = supplier_data_from_service[i].name
-            }
+        // let associate_id;
+        // console.log("supplier_data_from_service",supplier_data_from_service)
+        // for(let i=0;i<supplier_data_from_service.length;i++){
+        //     if(fac_name == supplier_data_from_service[i].name){
+        //         associate_id = supplier_data_from_service[i].name
+        //         console.log("supplier_data_from_service[i].name",supplier_data_from_service[i].name)
+        //         console.log("associate_id",associate_id)
+        //     }
             // goto("onboardsummary?unFacID="+associate_id,'_blank');
                 
-            window.open("onboardsummary?unFacID="+associate_id, "_blank");
-        }
+            window.open("onboardsummary?unFacID="+fac_name, "_blank");
+        // }
         show_spinner = false;
     }
 
@@ -886,7 +903,88 @@ else
     //     }
     // };
 
+    async function resetfilterButton(){
+        vendor_checkbox = false;
+        workforce_checkbox = false;
+        document.getElementById("select_city").value = "-1"
+        document.getElementById("select_status").value = "-1"
+        document.getElementById("select_vendor_type").value = "-1"
+        city = "-1";
+        org_id_selected= "-1"
+        org_selected = "";
+        status = "";
+        new_vendor_type = "";
+        
+
+
+        if(onboarded_by_me_checkbox == true){
+            
+            new_associate_data = {city:city,limit:new_drop_limit,org_id:org_selected,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,myOnboard: true,username:username,userid:userid}
+        }
+        else
+        {
+            new_associate_data = {city:city,limit:new_drop_limit,org_id:org_selected,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status} 
+        }
+
+        json_associate_new_data=JSON.stringify(new_associate_data);
+        let filter_res =await supplier_data(json_associate_new_data);
+            try{
+                if(filter_res.body.status == "green"){
+                    show_spinner = false;
+                    supplier_data_from_service = filter_res.body.data.data_list;
+                    total_count_associates = filter_res.body.data.total_records; 
+                    for(let i=0;i<supplier_data_from_service.length;i++){
+                        supplier_data_from_service[i].expand = false;
+                    }
+                //     if(total_count_associates > 20){
+                  
+                // total_pages = Math.ceil(total_count_associates/new_drop_limit)
+                // pages = createPagesArray(total_pages)
+                // new_pages =[];
+                //     // if(show_pagination == true){
+                //         for(let pagination in pages){
+                            
+                //             if(pagination>0 && pagination <= 3){
+                //                 // console.log("PAGES") 
+                //                 new_pages.push(pagination)
+                //                 mapped_pages=new_pages.map(Number)  
+                //                 console.log("mapped_pages",mapped_pages)
+                //             }
+                    
+                //         // }
+                //     }
+                // }
+
+                if(total_count_associates > new_drop_limit){
+                    next_prev_disable = false;
+                  
+                  total_pages = Math.ceil(total_count_associates/new_drop_limit)
+  
+                  pages = createPagesArray(total_pages)
+                  new_pages =[];
+                      // if(show_pagination == true){
+                          for(let pagination in pages){
+                              
+                              if(pagination>0 && pagination <= 3){
+                                
+                                  new_pages.push(pagination)
+                                  mapped_pages=new_pages.map(Number)  
+                                
+                                  console.log("mapped_pages",mapped_pages)
+                              }
+                      
+                          }
+                      }
+                
+                }
+            }
+            catch(err){
+                error_toast(err)
+                show_spinner=false;
+            }
+    }
     async function filterButton(){
+        show_spinner = true;
         pagenumber = 1;
         dropdown_disable = false;
         // mapped_pages = [];
@@ -910,7 +1008,6 @@ else
             }    
         } 
         status = document.getElementById("select_status").value.trim();
-        console.log("status",status)
         if(status != "-1"){
         if(onboarded_by_me_checkbox == true){
             
@@ -925,6 +1022,7 @@ else
         let filter_res =await supplier_data(json_associate_new_data);
             try{
                 if(filter_res.body.status == "green"){
+                    show_spinner = false;
                     supplier_data_from_service = filter_res.body.data.data_list;
                     total_count_associates = filter_res.body.data.total_records; 
                     for(let i=0;i<supplier_data_from_service.length;i++){
@@ -975,10 +1073,12 @@ else
                   }
                     console.log("supplier_data_from_service here",supplier_data_from_service)
                 }
+                else{
+                    show_spinner = false;
+                }
             }
             catch(err) {
-                // toast_type = "error";
-                // toast_text = err;
+                show_spinner = false
                 error_toast(err)
 
             } 
@@ -1412,9 +1512,19 @@ else
     function close_deact_associate(){
         // fac_obj_arr = [];
         deactivate_asso_profile.style.display = "none";
+        deact_date = "";
     }
-    function open_deact_initiate_model(){
-        initiateDeact.style.display = "block";
+function open_deact_initiate_model(stat){
+        if(stat == "deact_later"){
+            if(!deact_date){
+                error_toast("Please select date for deactivating the profile later")
+                return
+            }
+            initiateDeact.style.display = "block";
+        }
+        else if(stat == "deact_imm"){
+            initiateDeact.style.display = "block";
+        }
     }
     function close_deact_initiate_module(){
         // fac_obj_arr = [];
@@ -1613,8 +1723,9 @@ else
                                                         >
                                                             <select
                                                                 class="selectInputbox"
-                                                            bind:value = {org_selected}>
-                                                            <option value="">Select</option>
+                                                                id= "select_org"
+                                                            bind:value = {org_id_selected}>
+                                                            <option value="-1">Select</option>
                                                             {#each org_data_arr as org}
                                                                 <option
                                                                     class="pt-6"
@@ -1758,6 +1869,11 @@ else
                                                     >
                                                     <button
                                                         href="#"
+                                                        class="filterApplybtn mr-4" on:click={resetfilterButton}
+                                                        >Reset</button
+                                                    >
+                                                    <button
+                                                        href="#"
                                                         class="filterApplybtn" on:click={filterButton}
                                                         >Apply</button
                                                     >
@@ -1842,9 +1958,10 @@ else
                                                         >
                                                         <select
                                                         class="selectInputbox"
-                                                        bind:value = {org_selected}>
+                                                        id= "select_org"
+                                                        bind:value = {org_id_selected}>
                                                         
-                                                        <option value="">Select</option>
+                                                        <option value="-1">Select</option>
                                                         {#each org_data_arr as org}
                                                             <option
                                                                 class="pt-6"
@@ -1988,6 +2105,11 @@ else
                                                         class="filterCancelbtn close"
                                                         >Cancel</a
                                                     >
+                                                    <button
+                                                    href="#"
+                                                    class="filterApplybtn mr-4" on:click={resetfilterButton}
+                                                    >Reset</button
+                                                >
                                                     <button
                                                         href="#"
                                                         class="filterApplybtn" on:click={filterButton}
@@ -4140,14 +4262,14 @@ else
                     </div>
                     <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 mt-5" >
                       <div class="flex">
-                        <button class="ErBlueButton" on:click|preventDefault={open_deact_initiate_model}>Deactivate Immediately </button>
+                        <button class="ErBlueButton" on:click|preventDefault={open_deact_initiate_model("deact_imm")}>Deactivate Immediately </button>
                       </div>  
                    
                       <div class="formInnerGroup ">
-                        <input type="date" class="inputboxcursortext px-4" bind:value={deact_date} onkeydown="return false">
+                        <input type="date" class="inputboxcursortext px-4" bind:value={deact_date} onkeydown="return false" min={new Date(new Date().getTime()+(1*24*60*60*1000)).toISOString().split('T')[0]}>
                      </div>
                      <div class="flex">
-                        <button class="ErButton bg-bgmandatorysign" on:click|preventDefault={open_deact_initiate_model}>Deactivate on Date </button>
+                        <button class="ErButton bg-bgmandatorysign" on:click|preventDefault={open_deact_initiate_model("deact_later")}>Deactivate on Date </button>
                       </div>  
                           <div class="pt-3 flex justify-center">
                             <button type="button" class="dialogueSingleButton" on:click|preventDefault={close_deact_associate}>Close</button>
@@ -4162,7 +4284,7 @@ else
          <!--Initiate Module -->
     
     
-    <div id="initiateDeact" class="hidden">
+    <div id="initiateDeact" hidden>
         <div  class="actionDialogueOnboard ">
             <div class="pancardDialogueOnboardWrapper ">
                 <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">

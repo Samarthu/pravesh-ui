@@ -42,7 +42,7 @@
             import { goto } from "$app/navigation";
             import {get_pravesh_properties_method} from "../../services/workdetails_services";
             import {get_client_org_mapping,get_client_details,get_specific_name,get_change_associte,get_assoc_types,send_associate_req,save_mapping} from '../../services/vmt_verify_services'
-            
+            import {approve_reject_status} from "../../services/vmt_verify_services";
             // import {onFileSelected} from '../onboardsummaryComponent.svelte'
         
             let show_spinner = false;
@@ -171,7 +171,9 @@
                 offer_name:null,
                 offer_url:null,
                 offer_verified:null,
-                offer_rejected:null
+                offer_rejected:null,
+                offer_number:null,
+                offer_type:null
             };
             export let admin;
             export let is_adhoc_facility;
@@ -202,7 +204,7 @@
             // $: cheque_date = new Date();
             let file_data;
             let showbtn = 0;
-            let selectTag,addRemark,selectsearch;
+            // let selectTag,addRemark,selectsearch;
             export let city;
             export let show_upload_btn;
             export let remove_upload_btn;
@@ -1356,7 +1358,7 @@
         console.log("handle tag clicked",show_spinner)
         let new_tag_id
         try {   
-            show_spinner = false;
+           
         //     if(all_tags_res.body.status == "green"){
         
         for(let i=0; i < all_tags_res.body.data.length; i++){
@@ -1366,15 +1368,23 @@
             }
             
         }
-        if(!select_tag_data){
-            selectTag = 1;
-            if(!tag_remark){
-            addRemark = 1;
-                if(!serv_ch_data){
-                    selectsearch=1;
-                }
-            }   
-
+        if(!select_tag_data || select_tag_data == "-1"){
+            
+            show_spinner = false;
+            error_toast("Please Select tag name")
+            return
+        }
+        else if(!tag_remark){
+            show_spinner = false;
+            error_toast("Please Enter Remark")
+            return
+        }
+        else if(select_tag_data == "Pay My Service Charge"){
+            if(!serv_ch_data || serv_ch_data =="-1"){
+                show_spinner = false;
+                error_toast("Please Select Service Charge Data")
+                return
+            }
         }
         else{
            
@@ -1388,7 +1398,6 @@
                 
                 console.log("Show spinner inadding new tag ",show_spinner)
                 if(submit_fac_res.body.status == "green"){
-
                     // toast_type = "success";
                     // toast_text = submit_fac_res.body.message;
                     success_toast(submit_fac_res.body.message)
@@ -1551,41 +1560,43 @@
 
     function openViewModel(data,doc_number){
         document.getElementById("img_model").style.display = "block";
-        if(data == "aadhar"){
-            image_path = $page.url.origin+aadhar_obj.aadhar_attach;
-            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+aadhar_obj.aadhar_attach);
-            alt_image = "aadhar proof";
-        }
-        else if(data == "pan"){
-            image_path = $page.url.origin+pancard_obj.pan_attach;
-            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+pancard_obj.pan_attach);
-            alt_image = "pan-card proof";
-        }
-        else if(data == "address"){
-            image_path = $page.url.origin+addproof_obj.address_url;
-            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+addproof_obj.address_url);
-            alt_image = "address proof";
-        }
-        else if(data == "licence"){
-            image_path = $page.url.origin+dl_lic_attach;
-            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+dl_lic_attach);
-            alt_image = "driving licence proof";
-        }
-        else if(data == "offer"){
+        // if(data == "aadhar"){
+        //     image_path = $page.url.origin+aadhar_obj.aadhar_attach;
+        //     // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+aadhar_obj.aadhar_attach);
+        //     alt_image = "aadhar proof";
+        // }
+        // else if(data == "pan"){
+        //     image_path = $page.url.origin+pancard_obj.pan_attach;
+        //     // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+pancard_obj.pan_attach);
+        //     alt_image = "pan-card proof";
+        // }
+        // else if(data == "address"){
+        //     image_path = $page.url.origin+addproof_obj.address_url;
+        //     // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+addproof_obj.address_url);
+        //     alt_image = "address proof";
+        // }
+        // else if(data == "licence"){
+        //     image_path = $page.url.origin+dl_lic_attach;
+        //     // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+dl_lic_attach);
+        //     alt_image = "driving licence proof";
+        // }
+        if(data == "offer"){
             image_path = $page.url.origin+new_off_file_obj.offer_url;
+            document_number = new_off_file_obj.offer_number;
+            document_type = new_off_file_obj.offer_type;
             // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+new_off_file_obj.offer_url);
             alt_image = "offer letter proof";
         }
-        else if(data == "can_cheque"){
-            image_path = $page.url.origin+can_cheque_obj.can_cheque_url;
-            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+can_cheque_obj.can_cheque_url);
-            alt_image = "cancel cheque proof";
-        }
-        else if(data == "cheque_disp"){
-            image_path = $page.url.origin+cheque_disp_obj.cheque_disp_url;
-            // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+new_cheque.file_url);
-            alt_image = "cheque proof";
-        } 
+        // else if(data == "can_cheque"){
+        //     image_path = $page.url.origin+can_cheque_obj.can_cheque_url;
+        //     // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+can_cheque_obj.can_cheque_url);
+        //     alt_image = "cancel cheque proof";
+        // }
+        // else if(data == "cheque_disp"){
+        //     image_path = $page.url.origin+cheque_disp_obj.cheque_disp_url;
+        //     // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+new_cheque.file_url);
+        //     alt_image = "cheque proof";
+        // } 
         else if(data == "view_physical_contract"){
             for(let i=0;i<work_contract_arr.length;i++){
                 if(work_contract_arr[i].assigned_id == doc_number){
@@ -1618,6 +1629,75 @@
        
         
     }
+
+    async function docApproveRejected(doc_cat){
+    
+            let document_load,new_status
+            console.log("doc_cat",doc_cat)
+            show_spinner = true;
+            if(doc_cat == "approve"){
+                new_status="DV"
+            }
+            else if(doc_cat == "reject"){
+                new_status="RJ"
+            }
+            document_load = {
+            "resource_id":facility_id,
+            "doc_number":document_number,
+            "status_type":new_status,
+            "status":"true",
+            "doc_type":document_type
+            }
+            let doc_res = await approve_reject_status(document_load)
+            
+            try{
+                if(doc_res.body.status == "green"){
+                    show_spinner = false;
+                    // toast_text = doc_res.body.message;
+                    // toast_type = "success";
+                    success_toast(doc_res.body.message)
+
+    
+                    let facility_document_res = await facility_document();
+                    try{
+                        if(facility_document_res != "null"){
+                        facility_document_data = [];
+                        facility_document_data = facility_document_res.body.data;
+                            for(let i=0;i<facility_document_data.length;i++){
+                            let doc_modified_format = new Date(facility_document_data[i].modified);
+                            let doc_modified_date = get_date_format(doc_modified_format,"dd-mm-yyyy-hh-mm");
+                            
+                            facility_document_data[i].modified = doc_modified_date
+                                facility_document_data = facility_document_data.sort((a, b) => new Date(b.modified) - new Date(a.modified));
+                            
+                            closeApproveViewModel();
+                            }
+                        
+                        }
+                    }
+                    catch(err){
+                        show_spinner = false;
+                        // toast_type = "error";
+                        // toast_text = err;
+                        error_toast(err)
+
+                        closeApproveViewModel();
+                    }
+                }
+            }
+            catch(err){
+                show_spinner = false;
+                // toast_text = err;
+                // toast_type = "error";
+                error_toast(err)
+
+            }
+                
+        }
+        function closeApproveViewModel(){
+            img_model_approve_rej.style.display = "none";
+            document.getElementById("img_model").style.display = "none";
+        }
 
     const onFileSelected = (e,doctext) => {
         let img = e.target.files[0];
@@ -1991,8 +2071,10 @@
                                         </a>
                                     </p>
                                 {:else}
+                                
                                 {#if remove_upload_btn == false}
-                                    {#if show_upload_btn == "true"}
+                                    {#if show_upload_btn == true}
+                                   
                                         <p class="flex items-center smButtonText" on:click={uploadOfferLetter}>
                                             <a href="" class="smButton modal-open">
                                                 Upload 
@@ -2094,11 +2176,11 @@
                                                     {/each}
                                                     {/if}
                                                 </select>
-                                                {#if selectTag == "1"}
+                                                <!-- {#if selectTag == "1"}
                                                 <div class="text-red-500">
                                                     "Select tag name"
                                                 </div>
-                                                {/if}
+                                                {/if} -->
 
                                                 <div class="formSelectArrow ">
                                                     <img src="{$img_url_name.img_name}/selectarrow.png"
@@ -2182,12 +2264,12 @@
                                         </div>
                                         <div class="flex px-2 py-0 items-center xs:flex-wrap">
 
-                                            {#if addRemark == "1"}
+                                            <!-- {#if addRemark == "1"}
 
                                             <div class="text-red-500">
                                                 "Please enter a remark"
                                             </div>
-                                            {/if}
+                                            {/if} -->
                                         </div>
 
                                     </div>
@@ -2263,10 +2345,10 @@
                                                     {show_fac.deactivation_date}{/if}
                                                 </td>
                                                 <td>
-                                                    <div class="flex justify-center">
+                                                    <button class="flex justify-center">
                                                         <img src="{$img_url_name.img_name}/reject.png" alt=""
                                                             on:click={remove_tag_con_model} />
-                                                    </div>
+                                                    </button>
                                                 </td>
                                             </tr>
 
@@ -2344,8 +2426,16 @@
 <div id="img_model" tabindex="-1" aria-hidden="true" role ="dialog" class=" actionDialogueOnboard" hidden>
     <div class="pancardDialogueOnboardWrapper ">
         <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
-            <div class="flex justify-end p-2">
+            <!-- <div class="flex justify-end p-2">
                 <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel()}}">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
+                </button>
+            </div> -->
+            <div class="flex justify-end p-2">
+                <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium mr-2" on:click={()=>{docApproveRejected("reject")}}>Reject</button>
+                <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium mr-2" on:click={()=>{docApproveRejected("approve")}}>Approve</button>
+       
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5  inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel()}}">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
                 </button>
             </div>

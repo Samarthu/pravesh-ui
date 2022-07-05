@@ -13,7 +13,6 @@ const get_date_format = (date,format) =>{
         let name = months[month-1];
         let half_name = half_months[month-1];
 
-        console.log("11 name",name)
         // console.log("type of month",typeof(month));
         if(month < 10){
             month = "0"+String(month);

@@ -21,10 +21,13 @@
             import Toast from './toast.svelte';
             import { SvelteToast, toast } from '@zerodevx/svelte-toast'
             import {success_toast ,error_toast,warning_toast} from '../../services/toast_theme';
+            import {approve_reject_status} from "../../services/vmt_verify_services";
 
         let show_spinner = false;
         let toast_text;
         let toast_type;
+        let reject_doc;
+        let approve_doc;
         let routeNext = "";
         let routeBgv = "";
         let temp = "Add";
@@ -87,25 +90,33 @@
             can_cheque_name:null,
             can_cheque_url:null,
             can_cheque_verified:null,
-            can_cheque_rejected:null
+            can_cheque_rejected:null,
+            can_cheque_num:null,
+            can_cheque_type:null
         };
         export let blk_cheque_obj = {
             blk_cheque_name:null,
             blk_cheque_url:null,
             blk_cheque_verified:null,
-            blk_cheque_rejected:null
+            blk_cheque_rejected:null,
+            blk_cheque_num:null,
+            blk_cheque_type:null
         }
         export let passbook_obj = {
             passbook_name:null,
             passbook_url:null,
             passbook_verified:null,
-            passbook_rejected:null
+            passbook_rejected:null,
+            passbook_num:null,
+            passbook_type:null
         }
         export let acc_stmt_obj = {
             acc_stmt_name:null,
             acc_stmt_url:null,
             acc_stmt_verified:null,
-            acc_stmt_rejected:null
+            acc_stmt_rejected:null,
+            acc_stmt_num:null,
+            acc_stmt_type:null
         }
     
     
@@ -246,6 +257,7 @@
     function openViewModel(data,doc_number){
         document.getElementById("img_model").style.display = "block";
         if(data == "aadhar"){
+            
             image_path = $page.url.origin+aadhar_obj.aadhar_attach;
             // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+aadhar_obj.aadhar_attach);
             alt_image = "aadhar proof";
@@ -271,19 +283,27 @@
             alt_image = "offer letter proof";
         }
         else if(data == "can_cheque"){
+            reject_doc = "can_cheque"
+            approve_doc = "can_cheque"
             image_path = $page.url.origin+can_cheque_obj.can_cheque_url;
             // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+can_cheque_obj.can_cheque_url);
             alt_image = "cancel cheque proof";
         }
         else if(data == "blk_cheque"){
+            reject_doc = "blk_cheque"
+            approve_doc = "blk_cheque"
             image_path = $page.url.origin+blk_cheque_obj.blk_cheque_url;
             alt_image = "blank cheque proof";
         }
         else if(data == "passbook"){
+            reject_doc = "passbook"
+            approve_doc = "passbook"
             image_path = $page.url.origin+passbook_obj.passbook_url;
             alt_image = "passbook proof";
         }
         else if(data == "acc_stmt"){
+            reject_doc = "acc_stmt"
+            approve_doc = "acc_stmt"
             image_path = $page.url.origin+acc_stmt_obj.acc_stmt_url;
             alt_image = "account statement proof";
         }
@@ -307,6 +327,111 @@
         }
         
     }
+
+    async function docApproveRejected(doc_cat,doc_name){
+    
+    let document_load,new_status,new_doc_name
+    if(doc_name.reject_doc){
+            new_doc_name = doc_name.reject_doc;
+        }
+        else if(doc_name.approve_doc){
+            new_doc_name = doc_name.approve_doc;
+        }
+    console.log("doc_cat",doc_cat)
+    show_spinner = true;
+    if(doc_cat == "approve"){
+        new_status="DV"
+    }
+    else if(doc_cat == "reject"){
+        new_status="RJ"
+    }
+
+    if(new_doc_name == "can_cheque"){
+        document_load = {
+        "resource_id":$facility_id.facility_id_number,
+        "doc_number":can_cheque_obj.can_cheque_num,
+        "status_type":new_status,
+        "status":"true",
+        "doc_type":can_cheque_obj.can_cheque_type
+        }
+    }
+    else if(new_doc_name == "blk_cheque"){
+        document_load = {
+        "resource_id":$facility_id.facility_id_number,
+        "doc_number":blk_cheque_obj.blk_cheque_num,
+        "status_type":new_status,
+        "status":"true",
+        "doc_type":blk_cheque_obj.blk_cheque_type
+        }
+    }
+    else if(new_doc_name == "acc_stmt"){
+        document_load = {
+        "resource_id":$facility_id.facility_id_number,
+        "doc_number":acc_stmt_obj.acc_stmt_num,
+        "status_type":new_status,
+        "status":"true",
+        "doc_type":acc_stmt_obj.acc_stmt_type
+        }
+    }
+    else if(new_doc_name == "passbook"){
+        document_load = {
+        "resource_id":$facility_id.facility_id_number,
+        "doc_number":passbook_obj.passbook_num,
+        "status_type":new_status,
+        "status":"true",
+        "doc_type":passbook_obj.passbook_type
+        }
+    }
+    let doc_res = await approve_reject_status(document_load)
+    
+    try{
+        if(doc_res.body.status == "green"){
+            show_spinner = false;
+            // toast_text = doc_res.body.message;
+            // toast_type = "success";
+            success_toast(doc_res.body.message)
+
+
+            let facility_document_res = await facility_document();
+            try{
+                if(facility_document_res != "null"){
+                facility_document_data = [];
+                facility_document_data = facility_document_res.body.data;
+                    for(let i=0;i<facility_document_data.length;i++){
+                    let doc_modified_format = new Date(facility_document_data[i].modified);
+                    let doc_modified_date = get_date_format(doc_modified_format,"dd-mm-yyyy-hh-mm");
+                    
+                    facility_document_data[i].modified = doc_modified_date
+                        facility_document_data = facility_document_data.sort((a, b) => new Date(b.modified) - new Date(a.modified));
+                    
+                    closeApproveViewModel();
+                    }
+                
+                }
+            }
+            catch(err){
+                show_spinner = false;
+                // toast_type = "error";
+                // toast_text = err;
+                error_toast(err)
+
+                closeApproveViewModel();
+            }
+        }
+    }
+    catch(err){
+        show_spinner = false;
+        // toast_text = err;
+        // toast_type = "error";
+        error_toast(err)
+
+    }
+        
+}
+function closeApproveViewModel(){
+    img_model_approve_rej.style.display = "none";
+    document.getElementById("img_model").style.display = "none";
+}
     
     const onFileSelected = (e,doctext) => {
         let img = e.target.files[0];
@@ -646,40 +771,40 @@
                  <div class="attachment mt-5">
                      <div class="flex items-start">
                          <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
-                         <div class="pl-4 flex items-center">
+                         <div class="pl-4 flex items-center w-full justify-between mb-3">
                              <p class="detailLbale">Cancel Cheque Attachment</p>
-
+                             {#if can_cheque_obj.can_cheque_rejected == "1"}
+                             <p class="rejectText pr-3">
+                                 <img
+                                     src="{$img_url_name.img_name}/reject.png"
+                                     alt=""
+                                     class="pr-2"
+                                 /> Rejected
+                             </p>
+                             {:else if can_cheque_obj.can_cheque_verified == "1"}
+                             
+                                 <p class="verifiedTextGreen pr-3">
+                                     <img
+                                         src="{$img_url_name.img_name}/checked.png"
+                                         alt=""
+                                         class="pr-1"
+                                     />
+                                     Verified
+                                 </p>
+                            
+                             {:else if can_cheque_obj.can_cheque_verified == "0" && can_cheque_obj.can_cheque_rejected == "0"}
+                                 <p class="verifyText pr-3">
+                                     <img
+                                         src="{$img_url_name.img_name}/timer.png"
+                                         alt=""
+                                         class="pr-2"
+                                     />
+                                     Verification Pending
+                                 </p>
+                            {/if}
                          </div>
-                     </div>
-                     {#if can_cheque_obj.can_cheque_rejected == "1"}
-                 <p class="rejectText pr-3">
-                     <img
-                         src="{$img_url_name.img_name}/reject.png"
-                         alt=""
-                         class="pr-2"
-                     /> Rejected
-                 </p>
-                 {:else if can_cheque_obj.can_cheque_verified == "1"}
-                 
-                     <p class="verifiedTextGreen pr-3">
-                         <img
-                             src="{$img_url_name.img_name}/checked.png"
-                             alt=""
-                             class="pr-1"
-                         />
-                         Verified
-                     </p>
-                
-                 {:else if can_cheque_obj.can_cheque_verified == "0" && can_cheque_obj.can_cheque_rejected == "0"}
-                     <p class="verifyText pr-3">
-                         <img
-                             src="{$img_url_name.img_name}/timer.png"
-                             alt=""
-                             class="pr-2"
-                         />
-                         Verification Pending
-                     </p>
-                {/if}
+                    </div>
+                     
                  </div>
                  <div class="wrapperInfo ">
                      <div class="flex items-start">
@@ -708,40 +833,40 @@
                  <div class="attachment mt-5">
                     <div class="flex items-start">
                         <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
-                        <div class="pl-4 flex items-center">
+                        <div class="pl-4 flex items-center w-full justify-between mb-3">
                             <p class="detailLbale">Blank Cheque Attachment</p>
-
+                            {#if blk_cheque_obj.blk_cheque_rejected == "1"}
+                            <p class="rejectText pr-3">
+                                <img
+                                    src="{$img_url_name.img_name}/reject.png"
+                                    alt=""
+                                    class="pr-2"
+                                /> Rejected
+                            </p>
+                            {:else if blk_cheque_obj.blk_cheque_verified == "1"}
+                            
+                                <p class="verifiedTextGreen pr-3">
+                                    <img
+                                        src="{$img_url_name.img_name}/checked.png"
+                                        alt=""
+                                        class="pr-1"
+                                    />
+                                    Verified
+                                </p>
+                           
+                            {:else if blk_cheque_obj.blk_cheque_verified == "0" && blk_cheque_obj.blk_cheque_rejected == "0"}
+                                <p class="verifyText pr-3">
+                                    <img
+                                        src="{$img_url_name.img_name}/timer.png"
+                                        alt=""
+                                        class="pr-2"
+                                    />
+                                    Verification Pending
+                                </p>
+                           {/if}
                         </div>
                     </div>
-                    {#if blk_cheque_obj.blk_cheque_rejected == "1"}
-                <p class="rejectText pr-3">
-                    <img
-                        src="{$img_url_name.img_name}/reject.png"
-                        alt=""
-                        class="pr-2"
-                    /> Rejected
-                </p>
-                {:else if blk_cheque_obj.blk_cheque_verified == "1"}
-                
-                    <p class="verifiedTextGreen pr-3">
-                        <img
-                            src="{$img_url_name.img_name}/checked.png"
-                            alt=""
-                            class="pr-1"
-                        />
-                        Verified
-                    </p>
-               
-                {:else if blk_cheque_obj.blk_cheque_verified == "0" && blk_cheque_obj.blk_cheque_rejected == "0"}
-                    <p class="verifyText pr-3">
-                        <img
-                            src="{$img_url_name.img_name}/timer.png"
-                            alt=""
-                            class="pr-2"
-                        />
-                        Verification Pending
-                    </p>
-               {/if}
+                    
                 </div>
                 <div class="wrapperInfo ">
                     <div class="flex items-start">
@@ -770,40 +895,40 @@
                 <div class="attachment mt-5">
                     <div class="flex items-start">
                         <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
-                        <div class="pl-4 flex items-center">
+                        <div class="pl-4 flex items-center  w-full justify-between mb-3">
                             <p class="detailLbale">Passbook Attachment</p>
-
+                            {#if passbook_obj.passbook_rejected == "1"}
+                            <p class="rejectText pr-3">
+                                <img
+                                    src="{$img_url_name.img_name}/reject.png"
+                                    alt=""
+                                    class="pr-2"
+                                /> Rejected
+                            </p>
+                            {:else if passbook_obj.passbook_verified == "1"}
+                            
+                                <p class="verifiedTextGreen pr-3">
+                                    <img
+                                        src="{$img_url_name.img_name}/checked.png"
+                                        alt=""
+                                        class="pr-1"
+                                    />
+                                    Verified
+                                </p>
+                           
+                            {:else if passbook_obj.passbook_verified == "0" && passbook_obj.passbook_rejected == "0"}
+                                <p class="verifyText pr-3">
+                                    <img
+                                        src="{$img_url_name.img_name}/timer.png"
+                                        alt=""
+                                        class="pr-2"
+                                    />
+                                    Verification Pending
+                                </p>
+                           {/if}
                         </div>
                     </div>
-                    {#if passbook_obj.passbook_rejected == "1"}
-                <p class="rejectText pr-3">
-                    <img
-                        src="{$img_url_name.img_name}/reject.png"
-                        alt=""
-                        class="pr-2"
-                    /> Rejected
-                </p>
-                {:else if passbook_obj.passbook_verified == "1"}
-                
-                    <p class="verifiedTextGreen pr-3">
-                        <img
-                            src="{$img_url_name.img_name}/checked.png"
-                            alt=""
-                            class="pr-1"
-                        />
-                        Verified
-                    </p>
-               
-                {:else if passbook_obj.passbook_verified == "0" && passbook_obj.passbook_rejected == "0"}
-                    <p class="verifyText pr-3">
-                        <img
-                            src="{$img_url_name.img_name}/timer.png"
-                            alt=""
-                            class="pr-2"
-                        />
-                        Verification Pending
-                    </p>
-               {/if}
+                    
                 </div>
                 <div class="wrapperInfo ">
                     <div class="flex items-start">
@@ -832,40 +957,40 @@
                 <div class="attachment mt-5">
                     <div class="flex items-start">
                         <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
-                        <div class="pl-4 flex items-center">
+                        <div class="pl-4 flex items-center  w-full justify-between mb-3">
                             <p class="detailLbale">Account Statement Attachment</p>
-
+                            {#if acc_stmt_obj.acc_stmt_rejected == "1"}
+                            <p class="rejectText pr-3">
+                                <img
+                                    src="{$img_url_name.img_name}/reject.png"
+                                    alt=""
+                                    class="pr-2"
+                                /> Rejected
+                            </p>
+                            {:else if acc_stmt_obj.acc_stmt_verified == "1"}
+                            
+                                <p class="verifiedTextGreen pr-3">
+                                    <img
+                                        src="{$img_url_name.img_name}/checked.png"
+                                        alt=""
+                                        class="pr-1"
+                                    />
+                                    Verified
+                                </p>
+                           
+                            {:else if acc_stmt_obj.acc_stmt_verified == "0" && acc_stmt_obj.acc_stmt_rejected == "0"}
+                                <p class="verifyText pr-3">
+                                    <img
+                                        src="{$img_url_name.img_name}/timer.png"
+                                        alt=""
+                                        class="pr-2"
+                                    />
+                                    Verification Pending
+                                </p>
+                           {/if}
                         </div>
                     </div>
-                    {#if acc_stmt_obj.acc_stmt_rejected == "1"}
-                <p class="rejectText pr-3">
-                    <img
-                        src="{$img_url_name.img_name}/reject.png"
-                        alt=""
-                        class="pr-2"
-                    /> Rejected
-                </p>
-                {:else if acc_stmt_obj.acc_stmt_verified == "1"}
-                
-                    <p class="verifiedTextGreen pr-3">
-                        <img
-                            src="{$img_url_name.img_name}/checked.png"
-                            alt=""
-                            class="pr-1"
-                        />
-                        Verified
-                    </p>
-               
-                {:else if acc_stmt_obj.acc_stmt_verified == "0" && acc_stmt_obj.acc_stmt_rejected == "0"}
-                    <p class="verifyText pr-3">
-                        <img
-                            src="{$img_url_name.img_name}/timer.png"
-                            alt=""
-                            class="pr-2"
-                        />
-                        Verification Pending
-                    </p>
-               {/if}
+                    
                 </div>
                 <div class="wrapperInfo ">
                     <div class="flex items-start">
@@ -1491,8 +1616,16 @@
 <div id="img_model" tabindex="-1" aria-hidden="true" role ="dialog" class=" actionDialogueOnboard" hidden>
     <div class="pancardDialogueOnboardWrapper ">
         <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
-            <div class="flex justify-end p-2">
+            <!-- <div class="flex justify-end p-2">
                 <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel()}}">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
+                </button>
+            </div> -->
+            <div class="flex justify-end p-2">
+                <button type="button" class="btnreject px-pt21 py-p9px bg-bgmandatorysign text-white rounded-br5 font-medium mr-2" on:click={()=>{docApproveRejected("reject",{reject_doc})}}>Reject</button>
+                <button type="button" class="btnApprove px-pt21 py-p9px bg-bgGreenApprove text-white rounded-br5 font-medium mr-2" on:click={()=>{docApproveRejected("approve",{approve_doc})}}>Approve</button>
+       
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5  inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" data-modal-toggle="authentication-modal" on:click="{()=>{closeViewModel()}}">
                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>  
                 </button>
             </div>

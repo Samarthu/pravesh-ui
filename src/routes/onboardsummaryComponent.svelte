@@ -98,14 +98,16 @@ import { current_user } from "../stores/current_user_store";
             pan_attach:null,
             pan_name:null,
             pan_verified:null,
-            pan_rejected:null
+            pan_rejected:null,
+            pan_type:null
         }
         let aadhar_obj = {
             aadhar_num:null,
             aadhar_attach:null,
             aadhar_name:null,
             aadhar_verified:null,
-            aadhar_rejected:null
+            aadhar_rejected:null,
+            aadhar_type:null
         }
         let fac_photo_obj = {
             profile_url:null,
@@ -113,6 +115,8 @@ import { current_user } from "../stores/current_user_store";
             profile_rejected:null
         }
         let addproof_obj = {
+            address_number:null,
+            address_type:null,
             address_name:null,
             address_url:null,
             address_verified:null,
@@ -122,20 +126,25 @@ import { current_user } from "../stores/current_user_store";
             can_cheque_name:null,
             can_cheque_url:null,
             can_cheque_verified:null,
-            can_cheque_rejected:null
+            can_cheque_rejected:null,
+            can_cheque_num:null,
+            can_cheque_type:null
         };
         let dl_photo_obj = {
             dl_lic_num:null,
             dl_lic_name:null,
             dl_lic_url:null,
             dl_verified:null,
-            dl_rejected:null
+            dl_rejected:null,
+            dl_lic_type:null
         };
         let new_off_file_obj = {
             offer_name:null,
             offer_url:null,
             offer_verified:null,
-            offer_rejected:null
+            offer_rejected:null,
+            offer_number:null,
+            offer_type:null
         };
         let gst_doc_obj = {
             gst_name:null,
@@ -148,7 +157,9 @@ import { current_user } from "../stores/current_user_store";
             blk_cheque_name:null,
             blk_cheque_url:null,
             blk_cheque_verified:null,
-            blk_cheque_rejected:null
+            blk_cheque_rejected:null,
+            blk_cheque_num:null,
+            blk_cheque_type:null
 
         // doc_category: "Blank Cheque",
         // doc_number: null,
@@ -164,7 +175,9 @@ import { current_user } from "../stores/current_user_store";
            passbook_name:null,
            passbook_url:null,
            passbook_verified:null,
-           passbook_rejected:null
+           passbook_rejected:null,
+           passbook_num:null,
+            passbook_type:null
                 
             // doc_category: "Passbook",
             //     doc_type: "passbook",
@@ -180,7 +193,9 @@ import { current_user } from "../stores/current_user_store";
             acc_stmt_name:null,
             acc_stmt_url:null,
             acc_stmt_verified:null,
-            acc_stmt_rejected:null
+            acc_stmt_rejected:null,
+            acc_stmt_num:null,
+            acc_stmt_type:null
                 // doc_category: "Account Statement",
                 // doc_type: "acc-stat",
                 // facility_id: null,
@@ -191,9 +206,15 @@ import { current_user } from "../stores/current_user_store";
                 // user_id: null,
             };
         let voter_id_object = {
-            voter_id_number:null
+            voter_id_number:null,
+            voter_id_name:null,
+            voter_id_url:null,
+            voter_id_verified:null,
+            voter_id_rejected:null,
+            voter_id_type:null
         }
         let fac_tag_pay_to_ass = false;
+        let fac_type_pay_to_ass = false;
         let text_pattern = /^[a-zA-Z_ ]+$/;
         let recrun_pattern =  /^[^-\s](?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9 _-]+)$/;
         let city_select;
@@ -214,6 +235,7 @@ import { current_user } from "../stores/current_user_store";
         let selectTag,addRemark,selectsearch;
         let city = "-";
         let facility_address,facility_postal,facility_password,location_id,status_name;
+        let all_addresses = [];
         let new_fac_remarks = [];
         let facility_created_date;
         let select_tag_data,serv_ch_data;
@@ -363,7 +385,7 @@ import { current_user } from "../stores/current_user_store";
                             itadmin = true
                         }
                     }
-    
+                    console.log("Is_admin",admin)
                 }
             }
             catch(err) {
@@ -502,7 +524,8 @@ import { current_user } from "../stores/current_user_store";
                         pan_attach : facility_document_data[i].file_url,
                         pan_name : facility_document_data[i].file_name,
                         pan_verified : facility_document_data[i].verified,
-                        pan_rejected : facility_document_data[i].rejected};
+                        pan_rejected : facility_document_data[i].rejected,
+                        pan_type:facility_document_data[i].doc_type};
                         
                     }
                     
@@ -515,7 +538,8 @@ import { current_user } from "../stores/current_user_store";
                         aadhar_attach : facility_document_data[i].file_url,
                         aadhar_name : facility_document_data[i].file_name,
                         aadhar_verified : facility_document_data[i].verified,
-                        aadhar_rejected : facility_document_data[i].rejected};
+                        aadhar_rejected : facility_document_data[i].rejected,
+                        aadhar_type:facility_document_data[i].doc_type};
                         
                     }
                     else if(facility_document_data[i].doc_type == "fac-photo"){
@@ -529,36 +553,48 @@ import { current_user } from "../stores/current_user_store";
                         // console.log("Inside addproof photo")
                         addproof_obj = {address_name : facility_document_data[i].file_name,   
                         address_url : facility_document_data[i].file_url,
+                        address_number:facility_document_data[i].doc_number,
+                        address_type:facility_document_data[i].doc_type,
                         address_verified : facility_document_data[i].verified,
                         address_rejected : facility_document_data[i].rejected};
                     }
                     else if(facility_document_data[i].doc_type == "can-cheque"){
                         // console.log("Inside can cheque")
-                        can_cheque_obj.push = {can_cheque_name : facility_document_data[i].file_name,
+                        can_cheque_obj = {can_cheque_name : facility_document_data[i].file_name,
                         can_cheque_url : facility_document_data[i].file_url,
                         can_cheque_verified : facility_document_data[i].verified,
-                        can_cheque_rejected : facility_document_data[i].rejected};
+                        can_cheque_rejected : facility_document_data[i].rejected,
+                        can_cheque_num:facility_document_data[i].doc_number,
+                        can_cheque_type:facility_document_data[i].doc_type};
                     }
                     else if(facility_document_data[i].doc_type == "blcheque"){
                         // console.log("Inside can cheque")
-                        blk_cheque_obj.push = {blk_cheque_name : facility_document_data[i].file_name,
+                        blk_cheque_obj = {blk_cheque_name : facility_document_data[i].file_name,
                         blk_cheque_url : facility_document_data[i].file_url,
                         blk_cheque_verified : facility_document_data[i].verified,
-                        blk_cheque_rejected : facility_document_data[i].rejected};
+                        blk_cheque_rejected : facility_document_data[i].rejected,
+                        blk_cheque_num:facility_document_data[i].doc_number,
+                        blk_cheque_type:facility_document_data[i].doc_type};
                     }
                     else if(facility_document_data[i].doc_type == "passbook"){
                         // console.log("Inside can cheque")
-                        passbook_obj.push = {passbook_name : facility_document_data[i].file_name,
+                        passbook_obj= {passbook_name : facility_document_data[i].file_name,
                         passbook_url : facility_document_data[i].file_url,
                         passbook_verified : facility_document_data[i].verified,
-                        passbook_rejected : facility_document_data[i].rejected};
+                        passbook_rejected : facility_document_data[i].rejected,
+                        passbook_num:facility_document_data[i].doc_number,
+                        passbook_type:facility_document_data[i].doc_type
+                    };
                     }
                     else if(facility_document_data[i].doc_type == "acc-stat"){
                         // console.log("Inside can cheque")
-                        acc_stmt_obj.push = {acc_stmt_name : facility_document_data[i].file_name,
+                        acc_stmt_obj= {acc_stmt_name : facility_document_data[i].file_name,
                         acc_stmt_url : facility_document_data[i].file_url,
                         acc_stmt_verified : facility_document_data[i].verified,
-                        acc_stmt_rejected : facility_document_data[i].rejected};
+                        acc_stmt_rejected : facility_document_data[i].rejected,
+                        acc_stmt_num:facility_document_data[i].doc_number,
+                        acc_stmt_type:facility_document_data[i].doc_type
+                    };
                     }
                     else if(facility_document_data[i].doc_type == "dl-photo"){
                         // console.log("Inside dl photo")
@@ -569,14 +605,17 @@ import { current_user } from "../stores/current_user_store";
                         dl_lic_num : facility_document_data[i].doc_number,
                         dl_lic_url : facility_document_data[i].file_url,
                         dl_verified : facility_document_data[i].verified,
-                        dl_rejected : facility_document_data[i].rejected};
+                        dl_rejected : facility_document_data[i].rejected,
+                        dl_lic_type:facility_document_data[i].doc_type};
                     }
                     else if(facility_document_data[i].doc_type == "newOffFile"){
                         // console.log("Inside newOffFile")
                         new_off_file_obj = {offer_name : facility_document_data[i].file_name,
                         offer_url : facility_document_data[i].file_url,
                         offer_verified : facility_document_data[i].verified,
-                        offer_rejected : facility_document_data[i].rejected};
+                        offer_rejected : facility_document_data[i].rejected,
+                        offer_number:facility_document_data[i].doc_number,
+                        offer_type:facility_document_data[i].doc_type};
                         
                     }
                     else if(facility_document_data[i].doc_type == "voter-id-proof"){
@@ -585,6 +624,11 @@ import { current_user } from "../stores/current_user_store";
                             changed_voter_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, '*');
                         }
                         voter_id_object = {voter_id_number : facility_document_data[i].doc_number,
+                            voter_id_name : facility_document_data[i].file_name,
+                            voter_id_url : facility_document_data[i].file_url,
+                            voter_id_verified : facility_document_data[i].verified,
+                            voter_id_rejected : facility_document_data[i].rejected,
+                            voter_id_type:facility_document_data[i].doc_type
                         };
                         
                     }
@@ -593,10 +637,7 @@ import { current_user } from "../stores/current_user_store";
                     //     toast_text = "No Document Found";
                     // }
                 }
-                console.log("facility_document_data",facility_document_data)
-               
-               
-                
+                // console.log("acc_stmt_obj",acc_stmt_obj)    
             }
             }
             catch(err) {
@@ -607,6 +648,107 @@ import { current_user } from "../stores/current_user_store";
 
             }
 
+            let facility_data_res = await facility_data();
+            try{
+                if(facility_data_res != "null"){
+                  
+            facility_data_store.set(
+                JSON.parse(JSON.stringify(facility_data_res.body.data[0])))
+    
+            duplicate_facility_data_store.set(
+                JSON.parse(JSON.stringify(facility_data_res.body.data[0]))
+            )
+            
+            let id_date_format = new Date($facility_data_store.details_updated_on);
+            id_new_date = get_date_format(id_date_format,"dd-mm-yyyy-hh-mm");
+            console.log("facility_data",$facility_data_store);
+            let temp_date = $facility_data_store.date_of_birth;
+            console.log("temp date date of birth", temp_date);
+            let temp = new Date(temp_date);
+            console.log("temp", temp);
+            $facility_data_store['dob'] = get_date_format(temp, "dd-mm-yyyy");
+            
+            // new_fac_remarks = $facility_data_store.remarks.split("\n");
+            // console.log("new_fac_remarks",new_fac_remarks)
+            
+            let new_facility_date_format = new Date($facility_data_store.creation);
+            facility_created_date = get_date_format(new_facility_date_format,"dd-mm-yyyy-hh-mm");
+            
+            let new_doc_date_format = new Date($facility_data_store.creation);
+            facility_doc_date =get_date_format(new_doc_date_format,"dd-mm-yyyy-hh-mm");
+            
+            let facility_date_format = new Date($facility_data_store.modified);
+            facility_modified_date = get_date_format(facility_date_format,"dd-mm-yyyy-hh-mm");
+            
+    
+            
+    
+                if($facility_data_store.status.includes("Rejected")){
+                   
+                    $facility_data_store.status = "Rejected";
+                    status_name = $facility_data_store.status;
+                }
+                console.log("$facility_data_store.password ",$facility_data_store.password )
+                if (!$facility_data_store.password || facility_password == "") {
+                    console.log("Inside default pass")
+                    facility_password = "ntex@123";
+                }
+                else{
+                    
+                    facility_password = $facility_data_store.password;
+                    console.log("facility_password",facility_password)
+                }
+                for (var j = 0;j < $facility_data_store.addresess.length;j++){
+                    if($facility_data_store.addresess[j].address_type != "Facility"){
+                        all_addresses.push($facility_data_store.addresess[j])
+                    }
+                    
+                    for(let k=0;k<scope_data.length;k++){
+                        if($facility_data_store.addresess[j].state == scope_data[k].location_state){
+                            gst_doc_type[j] = "gst-certificate-" + scope_data[k].state_code;
+                        }
+                    }
+                    gst_doc_type=gst_doc_type
+
+                    
+                    if ($facility_data_store.addresess[j].default_address == "1") {
+                        facility_address =$facility_data_store.addresess[j].address;
+                       
+                        facility_postal =$facility_data_store.addresess[j].postal;
+                        city = $facility_data_store.addresess[j].city;
+                        location_id = $facility_data_store.addresess[j].location_id;
+                        // console.log("location_id",location_id)
+                        // console.log("city",city)
+    
+                    }
+                }
+                all_addresses=all_addresses
+                console.log("facility_document_data",facility_document_data)
+                
+                for (var i = 0; i < facility_document_data.length; i++) {
+                    for(let j=0; j<gst_doc_type.length;j++){
+                        if(facility_document_data[i].doc_type == gst_doc_type[j]){
+                            gst_doc_obj = facility_document_data[i];
+                            
+                            console.log("gst_doc_obj",gst_doc_obj)
+                            gst_doc_arr.push(gst_doc_obj);
+                        }
+                    }
+                }
+                gst_doc_arr=gst_doc_arr;
+                console.log("gst_doc_arr onboard",gst_doc_arr)
+            }
+        }
+        catch(err) {
+            // toast_type = "error";
+            // toast_text = facility_data_res.body.message;
+            error_toast(facility_data_res.body.message)
+            
+            }
+
+
+
+
             let session_user_response = await get_current_user_function();
             if(session_user_response.body.status == "green"){
                 // console.log("current user response",session_user_response.body.data.user);
@@ -616,7 +758,7 @@ import { current_user } from "../stores/current_user_store";
 
             }
             console.log("current user store",$current_user);
-           
+           console.log("$facility_data_store.facility_type 6221",$facility_data_store.facility_type)
     
             let fac_tag_res = await show_fac_tags($facility_data_store.facility_type);
             
@@ -667,6 +809,7 @@ import { current_user } from "../stores/current_user_store";
                 );
                 if($pravesh_properties.properties.offer_letter_required_associates.includes($facility_data_store.facility_type) && admin == true){
                        show_upload_btn = true;
+                       
                    }
                    for(let i=0;i < show_fac_array.length;i++){
                        
@@ -677,8 +820,8 @@ import { current_user } from "../stores/current_user_store";
                            is_adhoc_facility = true;
                        }
                    }
-                   console.log("is_adhoc_facility",is_adhoc_facility)
-                if($pravesh_properties.properties.default_org_app_password[0]){
+                if($pravesh_properties.properties.default_org_app_password[0] && !facility_password){
+                    console.log("Inside pravesh props default pass")
                     facility_password = $pravesh_properties.properties.default_org_app_password[0]
                 }
                 
@@ -698,12 +841,15 @@ import { current_user } from "../stores/current_user_store";
                     }
                     }
                 }
+                
+                console.log("$facility_data_store.facility_type",$facility_data_store.facility_type)
                 for(let i=0;i<new_arr.length;i++){
-                   if(new_arr[i] == $facility_data_store.facility_type && fac_tag_pay_to_ass == false){
-                    fac_tag_pay_to_ass = true;
+                   if(new_arr[i] == $facility_data_store.facility_type){
+                    fac_type_pay_to_ass = true;
+                    // console.log("fac_tag_pay_to_ass",fac_tag_pay_to_ass)
                    }
                 }
-
+                console.log("fac_type_pay_to_ass",fac_type_pay_to_ass)
                 console.log("fac_tag_pay_to_ass",fac_tag_pay_to_ass)
 
 
@@ -757,91 +903,7 @@ import { current_user } from "../stores/current_user_store";
         }
     
     
-            let facility_data_res = await facility_data();
-            try{
-                if(facility_data_res != "null"){
-                  
-            facility_data_store.set(
-                JSON.parse(JSON.stringify(facility_data_res.body.data[0]))
             
-            )
-    
-            duplicate_facility_data_store.set(
-                JSON.parse(JSON.stringify(facility_data_res.body.data[0]))
-            )
-            
-            let id_date_format = new Date($facility_data_store.details_updated_on);
-            id_new_date = get_date_format(id_date_format,"dd-mm-yyyy-hh-mm");
-            console.log("facility_data",$facility_data_store);
-            let temp_date = $facility_data_store.date_of_birth;
-            console.log("temp date date of birth", temp_date);
-            let temp = new Date(temp_date);
-            console.log("temp", temp);
-            $facility_data_store['dob'] = get_date_format(temp, "dd-mm-yyyy");
-            
-            // new_fac_remarks = $facility_data_store.remarks.split("\n");
-            // console.log("new_fac_remarks",new_fac_remarks)
-            
-            let new_facility_date_format = new Date($facility_data_store.creation);
-            facility_created_date = get_date_format(new_facility_date_format,"dd-mm-yyyy-hh-mm");
-            
-            let new_doc_date_format = new Date($facility_data_store.creation);
-            facility_doc_date =get_date_format(new_doc_date_format,"dd-mm-yyyy-hh-mm");
-            
-            let facility_date_format = new Date($facility_data_store.modified);
-            facility_modified_date = get_date_format(facility_date_format,"dd-mm-yyyy-hh-mm");
-            
-    
-            
-    
-                if($facility_data_store.status.includes("Rejected")){
-                   
-                    $facility_data_store.status = "Rejected";
-                    status_name = $facility_data_store.status;
-                }
-                if ($facility_data_store.password == "" || facility_password == "") {
-                    facility_password = "ntex@123";
-                }
-                for (var j = 0;j < $facility_data_store.addresess.length;j++){
-                    for(let k=0;k<scope_data.length;k++){
-                        if($facility_data_store.addresess[j].state == scope_data[k].location_state){
-                            gst_doc_type[j] = "gst-certificate-" + scope_data[k].state_code;
-                        }
-                    }
-                    gst_doc_type=gst_doc_type
-                    
-                    if ($facility_data_store.addresess[j].default_address == "1") {
-                        facility_address =$facility_data_store.addresess[j].address;
-                        facility_postal =$facility_data_store.addresess[j].postal;
-                        city = $facility_data_store.addresess[j].city;
-                        location_id = $facility_data_store.addresess[j].location_id;
-                        // console.log("location_id",location_id)
-                        // console.log("city",city)
-    
-                    }
-                }
-                console.log("facility_document_data",facility_document_data)
-                
-                for (var i = 0; i < facility_document_data.length; i++) {
-                    for(let j=0; j<gst_doc_type.length;j++){
-                        if(facility_document_data[i].doc_type == gst_doc_type[j]){
-                            gst_doc_obj = facility_document_data[i];
-                            
-                            console.log("gst_doc_obj",gst_doc_obj)
-                            gst_doc_arr.push(gst_doc_obj);
-                        }
-                    }
-                }
-                gst_doc_arr=gst_doc_arr;
-                console.log("gst_doc_arr onboard",gst_doc_arr)
-            }
-        }
-        catch(err) {
-            // toast_type = "error";
-            // toast_text = facility_data_res.body.message;
-            error_toast(facility_data_res.body.message)
-            
-            }
     
         let bgv_pass_data=[
             $facility_data_store.org_id,
@@ -1020,10 +1082,7 @@ import { current_user } from "../stores/current_user_store";
         function close_docs(){
             modalid.style.display = "none";
         }
-        function closeApproveViewModel(){
-            img_model_approve_rej.style.display = "none";
-            document.getElementById("img_model").style.display = "none";
-        }
+       
         function openViewModel(data,doc_number){
             
             console.log("Inside functin")
@@ -2063,6 +2122,10 @@ import { current_user } from "../stores/current_user_store";
             }
                 
         }
+        function closeApproveViewModel(){
+            img_model_approve_rej.style.display = "none";
+            document.getElementById("img_model").style.display = "none";
+        }
         
         // async function new_doc_cat_func(data){
         //     console.log("inside new_doc_cat_func")
@@ -2083,8 +2146,8 @@ import { current_user } from "../stores/current_user_store";
                         <span class="text-textgrey pr-1 text-base xs:text-xs">Home / Workforce</span>
                         <span class="Username ">
                             <img src="{$img_url_name.img_name}/delivery.png" class="userIconMedia" alt="">
-                            <span class="xs:hidden sm:hidden">{#if $facility_data_store.facility_name}{$facility_data_store.facility_name}{:else}-{/if}</span>
-                            <span class="userDesignation">(Associate - {#if $facility_data_store.facility_type}{$facility_data_store.facility_type}{:else}-{/if} / ID - {#if $facility_data_store.name}{$facility_data_store.name}{:else}-{/if}) </span> 
+                            <!-- <span class="xs:hidden sm:hidden">{#if $facility_data_store.facility_name}{$facility_data_store.facility_name}{:else}-{/if}</span> -->
+                            <span class="xs:hidden sm:hidden">(Associate - {#if $facility_data_store.facility_type}{$facility_data_store.facility_type}{:else}-{/if} / ID - {#if $facility_data_store.name}{$facility_data_store.name}{:else}-{/if}) </span> 
                         </span>
                     </p>
                     <div class="w-full flex justify-end mt-5">
@@ -2458,7 +2521,7 @@ import { current_user } from "../stores/current_user_store";
                 <div class="{work_active}" on:click={() => {change_to = "Work_details",work_active="active",asso_active="",id_active="",bank_active=""}}>Work Details</div>
                 <div class="{id_active}" on:click={() => {change_to = "Identity_details",work_active="",asso_active="",id_active="active",bank_active=""}}>Identity Proof</div>
                 
-                {#if fac_tag_pay_to_ass == true}
+                {#if fac_tag_pay_to_ass == true || fac_type_pay_to_ass == true}
                 <div class="{bank_active}" on:click={() => {change_to = "Bank_details",work_active="",asso_active="",id_active="",bank_active="active"}}>Bank Details</div>
                 {/if}
                 
@@ -2474,7 +2537,8 @@ import { current_user } from "../stores/current_user_store";
         pancard_obj={pancard_obj} admin = {admin}
         is_adhoc_facility = {is_adhoc_facility}
         tags_for_ass_arr = {tags_for_ass_arr}
-        tags_to_display = {tags_to_display}/>
+        tags_to_display = {tags_to_display}
+        all_addresses = {all_addresses}/>
         
         {:else if change_to == "Work_details"}
         <WorkDetails new_off_file_obj={new_off_file_obj} facility_modified_date={facility_modified_date} city={city}
