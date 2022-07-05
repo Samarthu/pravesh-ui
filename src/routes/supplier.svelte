@@ -879,6 +879,7 @@ else
 
 
     function update_associate(fac_name){
+        console.log("fac_name",fac_name)
         show_spinner = true;
         let associate_id;
         console.log("supplier_data_from_service",supplier_data_from_service)
