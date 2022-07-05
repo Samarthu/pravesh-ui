@@ -7,7 +7,7 @@
             import {get_date_format} from "../../services/date_format_servives";
             import {bank_details_info,cheque_details,facility_document,show_fac_tags,get_loc_scope,
                 facility_data,facility_bgv_init,all_facility_tags,gst_details,client_details,add_gst_dets,
-                list_child_data,remove_child,reset_deact_status,child_data,get_libera_login,check_if_already_child} from "../../services/onboardsummary_services";
+                list_child_data,remove_child,reset_deact_status,child_data,get_libera_login,check_if_already_child,owner_details_ser} from "../../services/onboardsummary_services";
             import {img_url_name} from '../../stores/flags_store';
             import {facility_id} from "../../stores/facility_id_store"
             import {facility_data_store} from "../../stores/facility_store";
@@ -41,6 +41,7 @@
             let libera_username = "";
             let document_number;
             let document_type;
+            let owner_dets_arr = [];
             // export let facility_document_data = [];
         let query;
             export let tags_for_ass_arr=[];
@@ -954,8 +955,24 @@ function closeApproveViewModel(){
             //     }
             // }  
     }
-    function owner_details(){
+    async function owner_details(){
+        show_spinner = true;
         ownerDetsModel.style.display = "block";
+        let owner_dets_res = await owner_details_ser();
+      try {
+        owner_dets_arr = [];
+        if(owner_dets_res.body.data){
+            show_spinner = false;
+          owner_dets_arr =owner_dets_res.body.data
+         
+        }
+        else{
+            show_spinner = false;
+        }
+      } catch (err) {
+            show_spinner = false;
+            error_toast(err)
+      }
         
     }
     function closeOwnerDets(){
@@ -3196,14 +3213,15 @@ function closeApproveViewModel(){
                             </tr>
                         </thead>
                         <tbody class="tbodypopover">
+                            {#each owner_dets_arr as owner_dets}
                            <tr class="border-b">
-                                <td>{$facility_data_store.facility_name}</td>
-                                <td>{$facility_data_store.phone_number}</td>
-                                <td>{$facility_data_store.date_of_birth}</td>
-                                <td>{$facility_data_store.gender}</td>
+                                <td>{#if owner_dets.first_name}{owner_dets.first_name}{:else}<p></p>{/if}</td>
+                                <td>{#if owner_dets.mobile_number}{owner_dets.mobile_number}{:else}<p></p>{/if}</td>
+                                <td>{#if owner_dets.date_of_birth}{owner_dets.date_of_birth}{:else}<p></p>{/if}</td>
+                                <td>{#if owner_dets.gender}{owner_dets.gender}{:else}<p></p>{/if}</td>
                                 
                             </tr>
-                           
+                           {/each}
                         </tbody>
                     </table>
                 </div>

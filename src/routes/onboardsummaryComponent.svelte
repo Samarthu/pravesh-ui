@@ -206,7 +206,12 @@ import { current_user } from "../stores/current_user_store";
                 // user_id: null,
             };
         let voter_id_object = {
-            voter_id_number:null
+            voter_id_number:null,
+            voter_id_name:null,
+            voter_id_url:null,
+            voter_id_verified:null,
+            voter_id_rejected:null,
+            voter_id_type:null
         }
         let fac_tag_pay_to_ass = false;
         let fac_type_pay_to_ass = false;
@@ -619,6 +624,11 @@ import { current_user } from "../stores/current_user_store";
                             changed_voter_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, '*');
                         }
                         voter_id_object = {voter_id_number : facility_document_data[i].doc_number,
+                            voter_id_name : facility_document_data[i].file_name,
+                            voter_id_url : facility_document_data[i].file_url,
+                            voter_id_verified : facility_document_data[i].verified,
+                            voter_id_rejected : facility_document_data[i].rejected,
+                            voter_id_type:facility_document_data[i].doc_type
                         };
                         
                     }
@@ -627,10 +637,7 @@ import { current_user } from "../stores/current_user_store";
                     //     toast_text = "No Document Found";
                     // }
                 }
-                console.log("acc_stmt_obj",acc_stmt_obj)
-               
-               
-                
+                // console.log("acc_stmt_obj",acc_stmt_obj)    
             }
             }
             catch(err) {
@@ -646,9 +653,7 @@ import { current_user } from "../stores/current_user_store";
                 if(facility_data_res != "null"){
                   
             facility_data_store.set(
-                JSON.parse(JSON.stringify(facility_data_res.body.data[0]))
-            
-            )
+                JSON.parse(JSON.stringify(facility_data_res.body.data[0])))
     
             duplicate_facility_data_store.set(
                 JSON.parse(JSON.stringify(facility_data_res.body.data[0]))

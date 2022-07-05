@@ -130,7 +130,12 @@
             dl_rejected:null
         };
         export let voter_id_object = {
-            voter_id_number:null
+            voter_id_number:null,
+            voter_id_name:null,
+            voter_id_url:null,
+            voter_id_verified:null,
+            voter_id_rejected:null,
+            voter_id_type:null
         }
     
         let text_pattern = /^[a-zA-Z_ ]+$/;
@@ -266,10 +271,27 @@
             reject_doc = "pan"
             approve_doc = "pan"
             console.log("inside aadhar view",document.getElementById("img_model_url"))
-            var ext = pancard_obj.pan_attach.split('.').reverse()[0]
             image_path = $page.url.origin+pancard_obj.pan_attach;
             alt_image = "pan-card proof";
             
+            var ext = pancard_obj.pan_attach.split('.').reverse()[0]
+            if(ext == "pdf"){
+                console.log("inside ext matched")
+                document.getElementById("img_model_url").innerHTML = '<embed src='+image_path+' type="application/pdf" width="100%" height="100%" alt='+alt_image+'>'
+            }
+            else{
+                document.getElementById("img_model_url").innerHTML = '<img src='+image_path+' class="mx-auto" alt='+alt_image+'>'
+                
+            }
+        }
+        else if(data == "voter"){
+            reject_doc = "voter"
+            approve_doc = "voter"
+            console.log("inside voter view",document.getElementById("img_model_url"))
+            image_path = $page.url.origin+voter_id_object.voter_id_url;
+            alt_image = "voter id proof";
+            
+            var ext = voter_id_object.voter_id_url.split('.').reverse()[0]
             if(ext == "pdf"){
                 console.log("inside ext matched")
                 document.getElementById("img_model_url").innerHTML = '<embed src='+image_path+' type="application/pdf" width="100%" height="100%" alt='+alt_image+'>'
@@ -363,6 +385,15 @@
     "status_type":new_status,
     "status":"true",
     "doc_type":pancard_obj.pan_type
+    }
+    }
+    else if(new_doc_name == "voter"){
+        document_load = {
+    "resource_id":$facility_id.facility_id_number,
+    "doc_number":voter_id_object.voter_id_number,
+    "status_type":new_status,
+    "status":"true",
+    "doc_type":voter_id_object.voter_id_type
     }
     }
     else if(new_doc_name == "aadhar"){
@@ -701,9 +732,9 @@ function closeApproveViewModel(){
         </div>
 
         <div class="IdentityProofColSec" style="border-right: 1px solid lightgray">
-            <div class="px-5 py-4 text-erBlue font-medium">
+            <!-- <div class="px-5 py-4 text-erBlue font-medium">
                 <label for="">Documents</label>
-            </div>
+            </div> -->
 
             <div class="userInfoSecPadding">
                 <div class="wrapperInfoFirst">
@@ -890,6 +921,69 @@ function closeApproveViewModel(){
                             {#if dl_photo_obj.dl_lic_url}
                             <a href="" class="smButton">
                                 <img src="{$img_url_name.img_name}/view.png" alt="" on:click="{()=>{openViewModel("licence")}}">
+                            </a>
+                            {/if}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="userInfoSecPadding">
+                <div class="wrapperInfoFirst">
+                    <div class="flex items-start">
+                        <img src="{$img_url_name.img_name}/offerlatter.png" alt="" class="w-5 h-5">
+                        <div class="pl-4">
+                            <p class="detailLbale">Voter ID Attachment</p>
+                        </div>
+                    </div>
+                {#if voter_id_object.voter_id_rejected == "1"}
+                <p class="rejectText pr-3">
+                    <img
+                        src="{$img_url_name.img_name}/reject.png"
+                        alt=""
+                        class="pr-2"
+                    /> Reject
+                </p>
+                {:else if voter_id_object.voter_id_verified == "1"}
+                
+                    <p class="verifiedTextGreen pr-3">
+                        <img
+                            src="{$img_url_name.img_name}/checked.png"
+                            alt=""
+                            class="pr-1"
+                        />
+                        Verified
+                    </p>
+               
+                {:else if voter_id_object.voter_id_verified == "0" && voter_id_object.voter_id_rejected == "0"}
+                    <p class="verifyText pr-3">
+                        <img
+                            src="{$img_url_name.img_name}/timer.png"
+                            alt=""
+                            class="pr-2"
+                        />
+                        Verification Pending
+                    </p>
+               {/if}
+                   
+
+                </div>
+                <div class="wrapperInfo ">
+                    <div class="flex items-start">
+                        <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
+                        <div class="pl-4 flex items-center">
+                            {#if !voter_id_object.voter_id_name}
+                            <p>Not Provided</p>
+                            {:else}
+                            <img src={$page.url.origin+voter_id_object.voter_id_url} class="mr-2 w-5" alt="">
+                            <p class="detailLbale">{voter_id_object.voter_id_name}</p>
+                            {/if}
+                        </div>
+                    </div>
+                    <div class="userStatus ">
+                        <p class="verifyText">
+                            {#if pancard_obj.pan_attach}
+                            <a href="" class="smButton">
+                                <img src="{$img_url_name.img_name}/view.png" alt="" on:click="{()=>{openViewModel("voter")}}">
                             </a>
                             {/if}
                         </p>

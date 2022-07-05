@@ -318,6 +318,13 @@ const check_if_already_child = ()=>{
         },true)  
 }
 
+const owner_details_ser = ()=>{
+    let owner_details_url = "/api/resource/Facility?filters=[[%22name%22,%22=%22,%22"+new_facility_id+"%22]]&fields=[%22`tabPersonal%20Detail`.`first_name`%22,%22`tabPersonal%20Detail`.`last_name`%22,%22`tabPersonal%20Detail`.`mobile_number`%22,%22`tabPersonal%20Detail`.`date_of_birth`%22,%22`tabPersonal%20Detail`.`gender`%22]";
+    return request(
+        owner_details_url,{
+        method: "GET"
+        },true)  
+}
 
 
 
@@ -357,5 +364,6 @@ export {
     reset_deact_status,
     initiateBGV,
     get_libera_login,
-    check_if_already_child
+    check_if_already_child,
+    owner_details_ser
 }
