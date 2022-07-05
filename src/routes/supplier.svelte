@@ -900,14 +900,88 @@ else
     //     }
     // };
 
-    function resetfilterButton(){
+    async function resetfilterButton(){
         vendor_checkbox = false;
         workforce_checkbox = false;
         document.getElementById("select_city").value = "-1"
         document.getElementById("select_status").value = "-1"
         document.getElementById("select_vendor_type").value = "-1"
+        city = "-1";
+        org_id_selected= "-1"
+        org_selected = "";
+        status = "";
+        new_vendor_type = "";
+        
+
+
+        if(onboarded_by_me_checkbox == true){
+            
+            new_associate_data = {city:city,limit:new_drop_limit,org_id:org_selected,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,myOnboard: true,username:username,userid:userid}
+        }
+        else
+        {
+            new_associate_data = {city:city,limit:new_drop_limit,org_id:org_selected,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status} 
+        }
+
+        json_associate_new_data=JSON.stringify(new_associate_data);
+        let filter_res =await supplier_data(json_associate_new_data);
+            try{
+                if(filter_res.body.status == "green"){
+                    show_spinner = false;
+                    supplier_data_from_service = filter_res.body.data.data_list;
+                    total_count_associates = filter_res.body.data.total_records; 
+                    for(let i=0;i<supplier_data_from_service.length;i++){
+                        supplier_data_from_service[i].expand = false;
+                    }
+                //     if(total_count_associates > 20){
+                  
+                // total_pages = Math.ceil(total_count_associates/new_drop_limit)
+                // pages = createPagesArray(total_pages)
+                // new_pages =[];
+                //     // if(show_pagination == true){
+                //         for(let pagination in pages){
+                            
+                //             if(pagination>0 && pagination <= 3){
+                //                 // console.log("PAGES") 
+                //                 new_pages.push(pagination)
+                //                 mapped_pages=new_pages.map(Number)  
+                //                 console.log("mapped_pages",mapped_pages)
+                //             }
+                    
+                //         // }
+                //     }
+                // }
+
+                if(total_count_associates > new_drop_limit){
+                    next_prev_disable = false;
+                  
+                  total_pages = Math.ceil(total_count_associates/new_drop_limit)
+  
+                  pages = createPagesArray(total_pages)
+                  new_pages =[];
+                      // if(show_pagination == true){
+                          for(let pagination in pages){
+                              
+                              if(pagination>0 && pagination <= 3){
+                                
+                                  new_pages.push(pagination)
+                                  mapped_pages=new_pages.map(Number)  
+                                
+                                  console.log("mapped_pages",mapped_pages)
+                              }
+                      
+                          }
+                      }
+                
+                }
+            }
+            catch(err){
+                error_toast(err)
+                show_spinner=false;
+            }
     }
     async function filterButton(){
+        show_spinner = true;
         pagenumber = 1;
         dropdown_disable = false;
         // mapped_pages = [];
@@ -931,7 +1005,6 @@ else
             }    
         } 
         status = document.getElementById("select_status").value.trim();
-        console.log("status",status)
         if(status != "-1"){
         if(onboarded_by_me_checkbox == true){
             
@@ -946,6 +1019,7 @@ else
         let filter_res =await supplier_data(json_associate_new_data);
             try{
                 if(filter_res.body.status == "green"){
+                    show_spinner = false;
                     supplier_data_from_service = filter_res.body.data.data_list;
                     total_count_associates = filter_res.body.data.total_records; 
                     for(let i=0;i<supplier_data_from_service.length;i++){
@@ -996,10 +1070,12 @@ else
                   }
                     console.log("supplier_data_from_service here",supplier_data_from_service)
                 }
+                else{
+                    show_spinner = false;
+                }
             }
             catch(err) {
-                // toast_type = "error";
-                // toast_text = err;
+                show_spinner = false
                 error_toast(err)
 
             } 
@@ -1636,7 +1712,7 @@ else
                                                                 class="selectInputbox"
                                                                 id= "select_org"
                                                             bind:value = {org_id_selected}>
-                                                            <option value="">Select</option>
+                                                            <option value="-1">Select</option>
                                                             {#each org_data_arr as org}
                                                                 <option
                                                                     class="pt-6"
@@ -1872,7 +1948,7 @@ else
                                                         id= "select_org"
                                                         bind:value = {org_id_selected}>
                                                         
-                                                        <option value="">Select</option>
+                                                        <option value="-1">Select</option>
                                                         {#each org_data_arr as org}
                                                             <option
                                                                 class="pt-6"
