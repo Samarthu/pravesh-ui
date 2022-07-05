@@ -879,7 +879,7 @@ else
 
 
     function update_associate(fac_name){
-        console.log("fac_name",fac_name)
+        // console.log("fac_name",fac_name)
         show_spinner = true;
         // let associate_id;
         // console.log("supplier_data_from_service",supplier_data_from_service)
@@ -1512,9 +1512,19 @@ else
     function close_deact_associate(){
         // fac_obj_arr = [];
         deactivate_asso_profile.style.display = "none";
+        deact_date = "";
     }
-    function open_deact_initiate_model(){
-        initiateDeact.style.display = "block";
+function open_deact_initiate_model(stat){
+        if(stat == "deact_later"){
+            if(!deact_date){
+                error_toast("Please select date for deactivating the profile later")
+                return
+            }
+            initiateDeact.style.display = "block";
+        }
+        else if(stat == "deact_imm"){
+            initiateDeact.style.display = "block";
+        }
     }
     function close_deact_initiate_module(){
         // fac_obj_arr = [];
@@ -4252,14 +4262,14 @@ else
                     </div>
                     <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 mt-5" >
                       <div class="flex">
-                        <button class="ErBlueButton" on:click|preventDefault={open_deact_initiate_model}>Deactivate Immediately </button>
+                        <button class="ErBlueButton" on:click|preventDefault={open_deact_initiate_model("deact_imm")}>Deactivate Immediately </button>
                       </div>  
                    
                       <div class="formInnerGroup ">
-                        <input type="date" class="inputboxcursortext px-4" bind:value={deact_date} onkeydown="return false" min={new Date().toISOString().split('T')[0]}>
+                        <input type="date" class="inputboxcursortext px-4" bind:value={deact_date} onkeydown="return false" min={new Date(new Date().getTime()+(1*24*60*60*1000)).toISOString().split('T')[0]}>
                      </div>
                      <div class="flex">
-                        <button class="ErButton bg-bgmandatorysign" on:click|preventDefault={open_deact_initiate_model}>Deactivate on Date </button>
+                        <button class="ErButton bg-bgmandatorysign" on:click|preventDefault={open_deact_initiate_model("deact_later")}>Deactivate on Date </button>
                       </div>  
                           <div class="pt-3 flex justify-center">
                             <button type="button" class="dialogueSingleButton" on:click|preventDefault={close_deact_associate}>Close</button>
@@ -4274,7 +4284,7 @@ else
          <!--Initiate Module -->
     
     
-    <div id="initiateDeact" class="hidden">
+    <div id="initiateDeact" hidden>
         <div  class="actionDialogueOnboard ">
             <div class="pancardDialogueOnboardWrapper ">
                 <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
