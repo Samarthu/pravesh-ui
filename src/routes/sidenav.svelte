@@ -100,10 +100,10 @@
                 </button>
             </li>
             <li   class="listItem">
-                <!-- <a href="javascript:void(0)" 
+                <a href="javascript:void(0)" 
              class="{current === 'routeToPageOnboard' ? 'active' : ''}"
                 on:click="{() => current = 'routeToPageOnboard'}"
-                > -->
+                >
                     <!-- class="active" -->
                     <button on:click={() =>routeToPageOnboard()}>
 
@@ -146,7 +146,7 @@
                     </svg>
                     <span class="menuname">Onboard New</span>
                     </button>
-                <!-- </a> -->
+                </a>
             </li>
             
             <li on:click={routeToPageSupplier} class="listItem">
@@ -195,7 +195,9 @@
             </li>
 
             <li class="listItem relative group">
-                <a  href="javascript:void(0)">
+                <a href="javascript:void(0)"
+                class="{current === 'associateDropdown' ? 'active' : ''}"
+                on:click="{() => current = 'associateDropdown'}">
                     <svg class="svgIcon" width="22" height="22" viewBox="0 0 22 22" fill="none">
                         <path
                             d="M14.9286 18.0714V16.5C14.9286 15.6664 14.5975 14.867 14.0081 14.2776C13.4187 13.6882 12.6193 13.3571 11.7857 13.3571H5.5C4.66647 13.3571 3.86707 13.6882 3.27767 14.2776C2.68827 14.867 2.35715 15.6664 2.35715 16.5V18.0714"
@@ -225,6 +227,9 @@
 
 
             <li class="listItem" on:click="{routeToPageReports}">
+            <a href="javascript:void(0)"
+            class="{current === 'routeToPageReports' ? 'active' : ''}"
+            on:click="{() => current = 'routeToPageReports'}">
                 <button class="" href="javascript:void(0)">
                     <svg
                         class="svgIcon"
@@ -250,6 +255,7 @@
                     </svg>
                     <span class="menuname">Reports</span>
                 </button>
+            </a>
             </li>
 
             <li class="listItem">
