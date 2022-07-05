@@ -7,7 +7,8 @@
             import {get_date_format} from "../../services/date_format_servives";
             import {bank_details_info,cheque_details,facility_document,show_fac_tags,get_loc_scope,
                 facility_data,facility_bgv_init,all_facility_tags,gst_details,client_details,add_gst_dets,
-                list_child_data,remove_child,reset_deact_status,child_data,get_libera_login,check_if_already_child,owner_details_ser} from "../../services/onboardsummary_services";
+                list_child_data,remove_child,reset_deact_status,child_data,get_libera_login,check_if_already_child
+                ,owner_details_ser,save_owner_dets} from "../../services/onboardsummary_services";
             import {img_url_name} from '../../stores/flags_store';
             import {facility_id} from "../../stores/facility_id_store"
             import {facility_data_store} from "../../stores/facility_store";
@@ -994,10 +995,15 @@ function closeApproveViewModel(){
     }
     function closeaddnewowner(){
         addownerModel.style.display = "none"
+        owner_fir_name=""
+        owner_last_name=""
+        owner_dob=""
+        owner_mob_no=""
+        owner_gender=""
     }
     async function addNewOwnerFunc(){
+
         show_spinner = true
-        owner_dets_arr = []
         if(!owner_fir_name){
             error_toast("Please Enter Owner First Name")
             show_spinner = false
@@ -1025,12 +1031,32 @@ function closeApproveViewModel(){
             return
         }
         let owner_dets_payload = {
-
+            "date_of_birth": owner_dob,
+            "facility_id": $facility_id.facility_id_number,
+            "first_name": owner_fir_name,
+            "gender": owner_gender,
+            "last_name": owner_last_name,
+            "mobile_number": owner_mob_no
         }
-        let owner_dets_res = await owner_dets_sub(owner_dets_payload)
+        let owner_dets_res = await save_owner_dets(owner_dets_payload)
         try {
-            
+            if(owner_dets_res.body.status == "green"){
+                addownerModel.style.display = "none"
+                owner_fir_name=""
+                owner_last_name=""
+                owner_dob=""
+                owner_mob_no=""
+                owner_gender=""
+            show_spinner = false
+            success_toast(owner_dets_res.body.message)
+
+            }
+            else{
+                error_toast(owner_dets_res.body.message)
+                show_spinner = false
+            }
         } catch (err) {
+            show_spinner = false
             error_toast(err) 
         }
     }
@@ -2094,11 +2120,16 @@ function closeApproveViewModel(){
                      
                  </div>
                  <div class="userInfoSec3">
-                    <p class="flex items-start smButtonText" on:click={owner_details}>
+                    <button class="flex items-start smButtonText" on:click={addnewowner}>
+                        <a href="" class="smButton modal-open">
+                           Add Owner
+                        </a>
+                    </button>
+                    <button class="flex items-start smButtonText" on:click={owner_details}>
                         <a href="" class="smButton modal-open">
                            Owner Details
                         </a>
-                    </p>
+                    </button>
                 </div>
 
              </div>
@@ -3378,7 +3409,7 @@ function closeApproveViewModel(){
                                         <div class="py-1">
                                             <div class="light14grey  mb-1">Date of Birth <span class="text-mandatorysign">*</span></div>
                                             <div class="w-full">
-                                                <input class="inputboxpopover" type="text" bind:value={owner_dob}>
+                                                <input type="date" class="inputboxcursortext px-4" bind:value={owner_dob} onkeydown="return false" max={new Date().toISOString().split('T')[0]}>
                                             </div>
                                         </div>
                                     </div>

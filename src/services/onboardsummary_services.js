@@ -326,6 +326,15 @@ const owner_details_ser = ()=>{
         },true)  
 }
 
+const save_owner_dets = (data) =>{
+    let save_owner_dets_url = '/api/method/pravesh.facility.routes.facility.add_owner_details';
+    return request(
+        save_owner_dets_url, 
+        {  method: "POST",
+            body:JSON.stringify(data),            
+        },true)
+}
+
 
 
 
@@ -365,5 +374,6 @@ export {
     initiateBGV,
     get_libera_login,
     check_if_already_child,
-    owner_details_ser
+    owner_details_ser,
+    save_owner_dets
 }
