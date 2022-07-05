@@ -981,7 +981,7 @@ function closeApproveViewModel(){
                     </div>
                     <div class="userStatus ">
                         <p class="verifyText">
-                            {#if pancard_obj.pan_attach}
+                            {#if voter_id_object.voter_id_url}
                             <a href="" class="smButton">
                                 <img src="{$img_url_name.img_name}/view.png" alt="" on:click="{()=>{openViewModel("voter")}}">
                             </a>
