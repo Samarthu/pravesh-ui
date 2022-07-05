@@ -110,6 +110,18 @@ const bulk_search_ser = (data) =>{
         },true)
 }
 
+const bulk_emp_map = (data) =>{
+    let bulk_emp_map_url = '/api/method/pravesh.facility.routes.facility.map_bulk_emp_id';
+    return request(
+        bulk_emp_map_url, 
+        {  
+            method: "POST",
+            headers: { "contains-array": "yes" ,"Content-Type": "application/json"},
+            body:JSON.stringify(data),       
+               
+        },true)
+}
+
 export{
     demo_api_fun,
     dashboard_data,
@@ -119,6 +131,7 @@ export{
     copy_parent_func,
     download_beejak_docs,
     find_by_one_ser,
-    bulk_search_ser
+    bulk_search_ser,
+    bulk_emp_map
     //download_docs,
 }
