@@ -53,7 +53,11 @@
     let vendor_checkbox = false;
     let onboarded_by_me_checkbox = false;
     let workforce_checkbox = true;
-    let org_selected = "";
+    let org_id_selected;
+    let org_selected= ""
+    $:if(org_id_selected){
+        org_id_selection()
+    }
     // let status_pill_flag = false;
     let status_for_highlight = "";
     let new_associate_data;
@@ -101,58 +105,7 @@
         //     new_associate_data = {city: "-1",limit:limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending"}  
         //     }
         
-        async function clearedSearchFunc(){
-            if(status != "-1"){
-                if(onboarded_by_me_checkbox == true){ 
-                    new_associate_data = {city:city,limit:limit,org_id:org_selected,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}
-
-                }
-                else{
-                new_associate_data = {city:city,limit:limit,org_id:org_selected,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: status}  
-                }
-                json_associate_data=JSON.stringify(new_associate_data);
-                //  console.log("json_associate_data",json_associate_data)
-                let cleared_search_res=await supplier_data(json_associate_data);
-                try{
-                    if(cleared_search_res.body.status == "green"){
-                        supplier_data_from_service = cleared_search_res.body.data.data_list;
-                        total_count_associates = cleared_search_res.body.data.total_records;
-                        
-                        for(let i=0;i<supplier_data_from_service.length;i++){
-                            supplier_data_from_service[i].expand = false;
-                        }
-
-                        // console.log("RESULT",result)
-                        result = true;
-                        // console.log("RESULT",result)
-                        // filter_vendortype_res = await filter_vendortype_data();
-                        new_drop_limit=parseInt(drop_limit)
-                        if(total_count_associates > new_drop_limit){
-                            var total_pages=Math.ceil(total_count_associates/new_drop_limit)
-                            pages = createPagesArray(total_pages)
-                            new_pages =[];
-                            // console.log("pagesRESULT",pages)
-                            for(let pagination in pages){
-                                if(pagination>0 && pagination <= 3){
-                                    // console.log("PAGES") 
-                                    new_pages.push(pagination)
-                                    mapped_pages=new_pages.map(Number)  
-                                    // console.log("mappedpagesRESULT inside",mapped_pages)
-                                }
-                            }
-                        }
-
-                    }
-                }
-                catch(err) {
-                    // toast_type = "error";
-                    // toast_text = err;
-                    error_toast(err)
-
-                }
-            }
-
-        }
+        
         // async function user_data () {
         // logged_user_data = await logged_user();
         // // console.log("logged_user_datalogged_user_data",logged_user_data)
@@ -259,7 +212,6 @@
         else{
             paramString = paramString
         }
-       
     // }
     if(paramString == undefined){
     //   show_pagination = true;
@@ -420,8 +372,70 @@ else
             show_spinner = false;
             ///////////ORG LIST/////////////
     });
+
+    function org_id_selection(){
+        for(let i=0;i<org_data_arr.length;i++){
+            if(org_id_selected == org_data_arr[i].org_name){
+                org_selected = org_data_arr[indexedDB].org_id
+            }
+        }
+    }
     
-   
+    async function clearedSearchFunc(){
+            if(status != "-1"){
+                if(onboarded_by_me_checkbox == true){ 
+                    new_associate_data = {city:city,limit:limit,org_id:org_selected,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}
+
+                }
+                else{
+                new_associate_data = {city:city,limit:limit,org_id:org_selected,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: status}  
+                }
+                json_associate_data=JSON.stringify(new_associate_data);
+                //  console.log("json_associate_data",json_associate_data)
+                let cleared_search_res=await supplier_data(json_associate_data);
+                try{
+                    if(cleared_search_res.body.status == "green"){
+                        supplier_data_from_service = cleared_search_res.body.data.data_list;
+                        total_count_associates = cleared_search_res.body.data.total_records;
+                        
+                        for(let i=0;i<supplier_data_from_service.length;i++){
+                            supplier_data_from_service[i].expand = false;
+                        }
+
+                        // console.log("RESULT",result)
+                        result = true;
+                        // console.log("RESULT",result)
+                        // filter_vendortype_res = await filter_vendortype_data();
+                        new_drop_limit=parseInt(drop_limit)
+                        if(total_count_associates > new_drop_limit){
+                            var total_pages=Math.ceil(total_count_associates/new_drop_limit)
+                            pages = createPagesArray(total_pages)
+                            new_pages =[];
+                            // console.log("pagesRESULT",pages)
+                            for(let pagination in pages){
+                                if(pagination>0 && pagination <= 3){
+                                    // console.log("PAGES") 
+                                    new_pages.push(pagination)
+                                    mapped_pages=new_pages.map(Number)  
+                                    // console.log("mappedpagesRESULT inside",mapped_pages)
+                                }
+                            }
+                        }
+
+                    }
+                }
+                catch(err) {
+                    // toast_type = "error";
+                    // toast_text = err;
+                    error_toast(err)
+
+                }
+            }
+
+        }
+
+
+
 
     function createPagesArray(total) {
     let arr = []
@@ -1613,7 +1627,7 @@ else
                                                         >
                                                             <select
                                                                 class="selectInputbox"
-                                                            bind:value = {org_selected}>
+                                                            bind:value = {org_id_selected}>
                                                             <option value="">Select</option>
                                                             {#each org_data_arr as org}
                                                                 <option
@@ -1842,7 +1856,7 @@ else
                                                         >
                                                         <select
                                                         class="selectInputbox"
-                                                        bind:value = {org_selected}>
+                                                        bind:value = {org_id_selected}>
                                                         
                                                         <option value="">Select</option>
                                                         {#each org_data_arr as org}
