@@ -42,6 +42,11 @@
             let document_number;
             let document_type;
             let owner_dets_arr = [];
+            let owner_fir_name= "";
+            let owner_last_name= "";
+            let owner_dob= "";
+            let owner_mob_no= "";
+            let owner_gender="-1"
             // export let facility_document_data = [];
         let query;
             export let tags_for_ass_arr=[];
@@ -983,6 +988,51 @@ function closeApproveViewModel(){
     }
     function closeaddressDetsModel(){
         addressDetsModel.style.display = "none";
+    }
+    function addnewowner(){
+        addownerModel.style.display = "block"
+    }
+    function closeaddnewowner(){
+        addownerModel.style.display = "none"
+    }
+    async function addNewOwnerFunc(){
+        show_spinner = true
+        owner_dets_arr = []
+        if(!owner_fir_name){
+            error_toast("Please Enter Owner First Name")
+            show_spinner = false
+            return
+        }
+        if(!owner_last_name){
+            error_toast("Please Enter Owner Last Name")
+            show_spinner = false
+            
+            return
+        }
+        if(!owner_dob){
+            error_toast("Please Enter Owner Date Of Birth")
+            show_spinner = false
+            return
+        }
+        if(!owner_mob_no){
+            error_toast("Please Enter Owner MObile Number")
+            show_spinner = false
+            return
+        }
+        if(!owner_gender || owner_gender == "-1"){
+            error_toast("Please Select Owner Gender")
+            show_spinner = false
+            return
+        }
+        let owner_dets_payload = {
+
+        }
+        let owner_dets_res = await owner_dets_sub(owner_dets_payload)
+        try {
+            
+        } catch (err) {
+            error_toast(err) 
+        }
     }
             
     async function linkChild() {
@@ -3230,28 +3280,26 @@ function closeApproveViewModel(){
     </div>
 </div>
 
-<!-- Owner Dets Details modal -->
-
 <!-- Owner Addresses modal -->
-<div class="hidden" id="addressDetsModel">
-    <div class=" viewDocmodal  ">
-        <div class="bglightcolormodal" />
-        <div class="allDocmodalsuccessbodyErp rounded-lg">
-            <div class="">
-                <div class="viewDocPanmainbodyModal">
-                    <div class="flex justify-between mb-3">
-                        <div class="leftmodalInfo">
-                            <p class="text-lg text-erBlue font-medium  ">
-                                <span class="">Associate's All Addresses</span>
-                            </p>
 
-                        </div>
-                        <button class="rightmodalclose" on:click={closeaddressDetsModel}>
-                            <img src="{$img_url_name.img_name}/blackclose.svg" alt="" />
-                        </button>
-                    </div>
+
+<div class="hidden" id="addressDetsModel">
+    <div class="modalMain">
+        <div class="modalOverlay"></div>
+
+        <div class="modalContainer">
+            <div class="modalHeadConmb-0 sticky top-0 bg-white z-zindex99">
+                <div class="leftmodalInfo">
+                    <p class="modalTitleText">Associate's All Addresses</p>
+                </div>
+                <button class="rightmodalclose" on:click={closeaddressDetsModel}>
+                    <img src="{$img_url_name.img_name}/blackclose.svg" alt="" />
+                </button>
+            </div>
+            <div class="modalContent">
+                <div class="ConModalContent">
                     <table class="table  w-full text-center mt-2 ">
-                        <thead class="theadpopover h-10">
+                        <thead class="tabletrheader h-10">
                             <tr>
                                 <th>Address Type</th>
                                 <th>City name</th>
@@ -3260,26 +3308,120 @@ function closeApproveViewModel(){
 
                             </tr>
                         </thead>
-                        <tbody class="tbodypopover">
+                        <tbody class="tabletrBody">
                             {#each all_addresses as address}
                            <tr class="border-b">
                                 <td>{address.address_type}</td>
                                 <td>{address.city}</td>
-                                <td>{address.address}</td>
+                                <td><div class="address w-80 break-all flex flex-wrap">
+                                    <p>{address.address}</p>
+                               </div></td>
                                 <td>{address.postal}</td>
                                 
                             </tr>
                            {/each}
                         </tbody>
                     </table>
+
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Owner Addresses modal -->
+<!-- Full screen Add Owner Details  -->
+
+<div class="hidden" id = "addownerModel">
+    <div class="modalMain">
+        <div class="modalOverlay"></div>
+
+        <div class="modalContainerAuto  xsl:top-1 xsl:max-h-full xsl:bottom-2">
+            <div class="modalHeadCon xsl:sticky top-0 bg-white z-zindex99">
+                <div class="leftmodalInfo">
+                    <p class="modalTitleText"> Owner Details </p>
+                </div>
+                <div class="rightmodalclose">
+                    <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" alt="closemodal" on:click = {closeaddnewowner}>
+                </div>
+            </div>
+            <div class="modalContent">
+                <div class="GstModalContent">
+                    <div>
+                        <div class="bgAddSectio">
+                           
+                            <div class="addGstForm pt-4">
+                               
+
+                                <div class="grid grid-cols-2 px-4 py-1 gap-4 xsl:grid-cols-1">
+                                    <div class="w-full">
+                                        <div class="py-1">
+                                            <div class="light14grey  mb-1">First Name <span class="text-mandatorysign">*</span></div>
+                                            <div class="w-full">
+                                                <input class="inputboxpopover" type="text" bind:value={owner_fir_name}>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="w-full">
+                                        <div class="py-1">
+                                            <div class="light14grey  mb-1">Last Name <span class="text-mandatorysign">*</span></div>
+                                            <div class="w-full">
+                                                <input class="inputboxpopover" type="text" bind:value={owner_last_name}>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 px-4 py-1 gap-4 xsl:grid-cols-1">
+                                    <div class="w-full">
+                                        <div class="py-1">
+                                            <div class="light14grey  mb-1">Date of Birth <span class="text-mandatorysign">*</span></div>
+                                            <div class="w-full">
+                                                <input class="inputboxpopover" type="text" bind:value={owner_dob}>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="w-full">
+                                        <div class="py-1">
+                                            <div class="light14grey  mb-1">Mobile Number </div>
+                                            <div class="w-full">
+                                                <input class="inputboxpopover" type="number" bind:value={owner_mob_no}>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2  px-4 py-1 gap-4 xsl:grid-cols-1">
+                                    <div class="w-full">
+                                        <div class="light14grey mb-1"> Gender <span class="text-mandatorysign">*</span></div>
+                                        <div class="formInnerwidthfull ">
+                                            <select class="inputboxpopover" bind:value={owner_gender}>
+                                                <option class="pt-6" value = "-1">Select</option>
+                                                <option class="pt-6" value="Male">Male</option>
+                                                <option class="pt-6" value="Female">Female</option>
+                                            </select>
+                                            <div class="formSelectArrow ">
+                                                <img src="{$img_url_name.img_name}/selectarrow.png" class="w-5 h-auto" alt="">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                              
+                                <div class="actionButtons pt-4">
+                                    <div class="updateAction">
+                                        <button class="ErBlueButton" on:click={addNewOwnerFunc}>Submit</button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<!-- Owner Addresses modal -->
-
-
+<!-- Full screen Add Owner Details  -->
 <Toast type={toast_type}  text={toast_text}/>
 <SvelteToast />

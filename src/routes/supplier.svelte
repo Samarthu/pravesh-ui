@@ -376,7 +376,7 @@ else
     function org_id_selection(){
         for(let i=0;i<org_data_arr.length;i++){
             if(org_id_selected == org_data_arr[i].org_name){
-                org_selected = org_data_arr[indexedDB].org_id
+                org_selected = org_data_arr[i].org_id
             }
         }
     }
@@ -900,6 +900,13 @@ else
     //     }
     // };
 
+    function resetfilterButton(){
+        vendor_checkbox = false;
+        workforce_checkbox = false;
+        document.getElementById("select_city").value = "-1"
+        document.getElementById("select_status").value = "-1"
+        document.getElementById("select_vendor_type").value = "-1"
+    }
     async function filterButton(){
         pagenumber = 1;
         dropdown_disable = false;
@@ -1627,6 +1634,7 @@ else
                                                         >
                                                             <select
                                                                 class="selectInputbox"
+                                                                id= "select_org"
                                                             bind:value = {org_id_selected}>
                                                             <option value="">Select</option>
                                                             {#each org_data_arr as org}
@@ -1772,6 +1780,11 @@ else
                                                     >
                                                     <button
                                                         href="#"
+                                                        class="filterApplybtn mr-4" on:click={resetfilterButton}
+                                                        >Reset</button
+                                                    >
+                                                    <button
+                                                        href="#"
                                                         class="filterApplybtn" on:click={filterButton}
                                                         >Apply</button
                                                     >
@@ -1856,6 +1869,7 @@ else
                                                         >
                                                         <select
                                                         class="selectInputbox"
+                                                        id= "select_org"
                                                         bind:value = {org_id_selected}>
                                                         
                                                         <option value="">Select</option>
@@ -2002,6 +2016,11 @@ else
                                                         class="filterCancelbtn close"
                                                         >Cancel</a
                                                     >
+                                                    <button
+                                                    href="#"
+                                                    class="filterApplybtn mr-4" on:click={resetfilterButton}
+                                                    >Reset</button
+                                                >
                                                     <button
                                                         href="#"
                                                         class="filterApplybtn" on:click={filterButton}
@@ -4158,7 +4177,7 @@ else
                       </div>  
                    
                       <div class="formInnerGroup ">
-                        <input type="date" class="inputboxcursortext px-4" bind:value={deact_date} onkeydown="return false">
+                        <input type="date" class="inputboxcursortext px-4" bind:value={deact_date} onkeydown="return false" min={new Date().toISOString().split('T')[0]}>
                      </div>
                      <div class="flex">
                         <button class="ErButton bg-bgmandatorysign" on:click|preventDefault={open_deact_initiate_model}>Deactivate on Date </button>
