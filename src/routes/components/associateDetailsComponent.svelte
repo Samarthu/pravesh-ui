@@ -384,6 +384,11 @@
        }
        else{
         let img = e.target.files[0];
+        let extention_name = image.name.slice((image.name.lastIndexOf(".") - 1 >>> 0) + 2);
+        // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
+       
+        if(extention_name == "pdf" || extention_name == "jpg" || extention_name == "png" || extention_name == "jpeg"){
+ 
         if (img.size <= allowed_pdf_size) {
             console.log("img", img);
             
@@ -428,7 +433,12 @@
                 Number(allowed_pdf_size / 1048576) +
                 "MB ."
         );
-    };
+    }
+    }
+        else{
+            error_toast("Invalid File Type!")
+
+        };
     }
         
     }

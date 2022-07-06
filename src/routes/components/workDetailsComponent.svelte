@@ -18,7 +18,7 @@
                     work_details_data,print_data,get_physical_contracts,save_physical_contract,get_station_details,
                     get_all_accepted_contracts} from "../../services/onboardsummary_services";
             import {bgv_data_store} from '../../stores/bgv_store'
-        //     import {uploadDocs} from "../services/bgv_services";
+            import {uploadDocs} from "../../services/bgv_services";
             import {get_date_format} from "../../services/date_format_servives";
             // import {bank_details,cheque_details,facility_document,show_fac_tags,get_loc_scope,
             //     facility_data,facility_bgv_init,all_facility_tags} from "../../services/onboardsummary_services";
@@ -79,7 +79,6 @@
             let tags_for_ass_arr=[];
             let check_selected;
             let id_new_date='';
-            let username;
             let all_tags_res;
             let work_contract_arr = [];
             let physical_contract_arr = [];
@@ -97,6 +96,7 @@
             let contract_tab_val = "e-cont";
             // export let facility_name;
             export let facility_id;
+            export let username;
             let id_select;
             let stat_select;
             let stat_code = "";
@@ -1119,14 +1119,38 @@
         //     }
             
         // }
+}
+    async function upload_offer_func(){
 
+        let new_doc_payload = {"documents":[{
+            "file_name":new_offer_img,
+            "doc_category":"Offer Letter",
+            "status":"created",
+            "resource_id":facility_id,
+            "user_id":username,
+            "doc_number":"",
+            "doc_type":"newOffFile",
+            "facility_id":facility_id,
+            "remarks":"Offer Letter Upload",
+            "pod":new_offer_name}]}
+            
+            console.log("new_doc_payload",new_doc_payload)
+            let save_doc_res = await uploadDocs(new_doc_payload);
+            try {
+                if(save_doc_res.body.status == "green"){
+                    show_spinner = false;
+                    // toast_type = "success"
+                    // toast_text = save_doc_res.body.message;
+                    success_toast(save_doc_res.body.message)
+                }
+            } 
+            catch (err) {
+                show_spinner = false;
+                // toast_type = "error";
+                // toast_text = err;
+                error_toast(err)
 
-
-
-
-
-
-
+            }
     }
 
     function closeWorkorganization() {
@@ -1701,6 +1725,11 @@
 
     const onFileSelected = (e,doctext) => {
         let img = e.target.files[0];
+        let extention_name = image.name.slice((image.name.lastIndexOf(".") - 1 >>> 0) + 2);
+        // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
+       
+        if(extention_name == "pdf" || extention_name == "jpg" || extention_name == "png" || extention_name == "jpeg"){
+ 
         if (img.size <= allowed_pdf_size) {
             console.log("img", img);
             
@@ -1746,7 +1775,12 @@
                 Number(allowed_pdf_size / 1048576) +
                 "MB ."
         );
-    };
+    }
+    }
+        else{
+            error_toast("Invalid File Type!")
+
+        }
         
     }
     function workContract() {
@@ -2055,8 +2089,10 @@
                                 <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
                                 <div class="pl-4 flex items-center">
                                     
-                                    {#if !new_off_file_obj.offer_name}
+                                    {#if show_upload_btn == false}
                                     <p>Not Required</p>
+                                    {:else if !new_off_file_obj.offer_name}
+                                    <p>-</p>
                                     {:else}
                                     <img src={$page.url.origin+new_off_file_obj.offer_url} class="w-5 mr-2" alt="offer letter">
                                     <p class="detailLbale">{new_off_file_obj.offer_name}</p>
@@ -2084,6 +2120,7 @@
                                         <p></p>
                                     {/if}
                                 {/if}
+                                
                                 {/if}
                                
 
@@ -3166,11 +3203,12 @@
                         <label
                             class="cursor-pointer flex"
                         >
-                            <div
+                            <button
                                 class="ErBlueButton"
                             >
                                 Select File
-                            </div>
+                            </button>
+                            
                             <input
                                 type="file"
                                 class="hidden"
@@ -3187,6 +3225,11 @@
                         </label>
                         <p>{new_offer_img}</p>
                     </div>
+                    <button
+                    class="ErBlueButton" on:click={upload_offer_func}
+                >
+                    Upload 
+                </button>
                 </form>
             </div>
         </div>
