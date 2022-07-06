@@ -4262,14 +4262,14 @@ function open_deact_initiate_model(stat){
                     </div>
                     <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 mt-5" >
                       <div class="flex">
-                        <button class="ErBlueButton" on:click|preventDefault={open_deact_initiate_model("deact_imm")}>Deactivate Immediately </button>
+                        <button class="ErBlueButton" on:click|preventDefault={()=>open_deact_initiate_model("deact_imm")}>Deactivate Immediately</button>
                       </div>  
                    
                       <div class="formInnerGroup ">
                         <input type="date" class="inputboxcursortext px-4" bind:value={deact_date} onkeydown="return false" min={new Date(new Date().getTime()+(1*24*60*60*1000)).toISOString().split('T')[0]}>
                      </div>
                      <div class="flex">
-                        <button class="ErButton bg-bgmandatorysign" on:click|preventDefault={open_deact_initiate_model("deact_later")}>Deactivate on Date </button>
+                        <button class="ErButton bg-bgmandatorysign" on:click|preventDefault={()=>open_deact_initiate_model("deact_later")}>Deactivate on Date </button>
                       </div>  
                           <div class="pt-3 flex justify-center">
                             <button type="button" class="dialogueSingleButton" on:click|preventDefault={close_deact_associate}>Close</button>
