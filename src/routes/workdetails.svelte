@@ -50,9 +50,13 @@
     import { each } from "svelte/internal";
     import { vercticle_name } from "../stores/verticle_store";
     import { facility_id } from "../stores/facility_id_store";
-    import { SvelteToast, toast } from '@zerodevx/svelte-toast'
-    import {success_toast ,error_toast,warning_toast} from '../services/toast_theme';
-// import { facility_document } from "src/services/onboardsummary_services";
+    import { SvelteToast, toast } from "@zerodevx/svelte-toast";
+    import {
+        success_toast,
+        error_toast,
+        warning_toast,
+    } from "../services/toast_theme";
+    // import { facility_document } from "src/services/onboardsummary_services";
     // import { vercticle_name } from "src/stores/verticle_store";
     let temp_name;
     let org_array = [];
@@ -108,8 +112,6 @@
     let vendor_message = "";
     let msme_message = "";
     export let is_adhoc_facility = false;
-
-   
 
     function route() {
         // let valid = true;
@@ -196,7 +198,27 @@
             }
         } else if ($facility_data_store.msme_registered == "1") {
             if ($facility_id.facility_id_number) {
-                msme_message = "";
+                let msme_flag = false;
+                for (let i = 0; i < $documents_store.documents.length; i++) {
+                    if (
+                        $duplicate_documents_store.documents[i][
+                            "doc_category"
+                        ] == "MSME Certificate"
+                    ) {
+                        msme_flag = true;
+                    }
+                }
+                if (!msme_flag) {
+                    if (msme_data.file_name && msme_data.file_name) {
+                        msme_message = "";
+                    } else {
+                        valid = false;
+                        msme_message = "Please upload a msme certificate";
+                        error_toast("Please upload a msme certificate");
+                    }
+                }
+
+                // msme_message = "";
             } else {
                 if (msme_data.file_name == null) {
                     valid = false;
@@ -229,53 +251,57 @@
         //     }
         // }
 
-        if(!$facility_id.facility_id_number){
+        if (!$facility_id.facility_id_number) {
             if (
-            $facility_data_store.msme_registered == 1 ||
-            $facility_data_store.msme_registered == "1"
-        ) {
-            if (msme_data.file_name && msme_data.pod) {
-                for (let i = 0; i < $documents_store.documents.length; i++) {
-                    if (
-                        $documents_store.documents[i]["doc_category"] ==
-                        "MSME Certificate"
+                $facility_data_store.msme_registered == 1 ||
+                $facility_data_store.msme_registered == "1"
+            ) {
+                if (msme_data.file_name && msme_data.pod) {
+                    for (
+                        let i = 0;
+                        i < $documents_store.documents.length;
+                        i++
                     ) {
-                        console.log("msme deleted");
-                        $documents_store.documents.splice(i, 1);
+                        if (
+                            $documents_store.documents[i]["doc_category"] ==
+                            "MSME Certificate"
+                        ) {
+                            console.log("msme deleted");
+                            $documents_store.documents.splice(i, 1);
+                        }
                     }
+                    $documents_store.documents.push(msme_data);
+                    console.log("msme_data", $documents_store);
                 }
-                $documents_store.documents.push(msme_data);
-                console.log("msme_data", $documents_store);
+            }
+        } else {
+            if (
+                $facility_data_store.msme_registered == 1 ||
+                $facility_data_store.msme_registered == "1"
+            ) {
+                if (msme_data.file_name && msme_data.pod) {
+                    msme_data.status = "active";
+                    msme_data.resource_id = $facility_id.facility_id_number;
+                    msme_data.user_id = $current_user.username;
+                    for (
+                        let i = 0;
+                        i < $documents_store.documents.length;
+                        i++
+                    ) {
+                        if (
+                            $documents_store.documents[i]["doc_category"] ==
+                            "MSME Certificate"
+                        ) {
+                            console.log("msme deleted");
+                            $documents_store.documents.splice(i, 1);
+                        }
+                    }
+                    $documents_store.documents.push(msme_data);
+                    console.log("msme_data", $documents_store);
+                }
             }
         }
 
-        }
-        else{
-            if (
-            $facility_data_store.msme_registered == 1 ||
-            $facility_data_store.msme_registered == "1"
-        ) {
-            if (msme_data.file_name && msme_data.pod) {
-                msme_data.status = "active";
-                msme_data.resource_id = $facility_id.facility_id_number;
-                msme_data.user_id = $current_user.username;
-                for (let i = 0; i < $documents_store.documents.length; i++) {
-                    if (
-                        $documents_store.documents[i]["doc_category"] ==
-                        "MSME Certificate"
-                    ) {
-                        console.log("msme deleted");
-                        $documents_store.documents.splice(i, 1);
-                    }
-                }
-                $documents_store.documents.push(msme_data);
-                console.log("msme_data", $documents_store);
-            }
-        }
-
-        }
-
-        
         if (valid) {
             let replaceState = false;
 
@@ -327,23 +353,23 @@
 
     routeTo = "verifycontactnumber";
     onMount(async () => {
-    //     window.onbeforeunload = function(event)
-    // {
-    //     if(confirm("All data will be Lost!") == true){
-    //         if(!$facility_data_store.org_id){
-    //         goto("facility_type_select",{replaceState:false})
+        //     window.onbeforeunload = function(event)
+        // {
+        //     if(confirm("All data will be Lost!") == true){
+        //         if(!$facility_data_store.org_id){
+        //         goto("facility_type_select",{replaceState:false})
 
-    //     }
-    //     else{
-    //         alert($facility_id.facility_id_number)
+        //     }
+        //     else{
+        //         alert($facility_id.facility_id_number)
 
-    //     }
+        //     }
 
-    //     }
-    //     else{
+        //     }
+        //     else{
 
-    //     }
-    // };
+        //     }
+        // };
         show_spinner = true;
         console.log("page_name", page_name);
         console.log("page info", $page.url);
@@ -354,16 +380,14 @@
         console.log("window location", window.location.href);
 
         console.log("facility_data_store", $facility_data_store);
-        console.log("facility documnet store",$documents_store);
+        console.log("facility documnet store", $documents_store);
         console.log("facility id", $facility_id.facility_id_number);
-    //     if(confirm("All data will be Lost!") == true){
-            
-    // }
-    if(!$facility_data_store.org_id){
-            goto("facility_type_select",{replaceState:false})
+        //     if(confirm("All data will be Lost!") == true){
 
+        // }
+        if (!$facility_data_store.org_id) {
+            goto("facility_type_select", { replaceState: false });
         }
-        
 
         if ($facility_id.facility_id_number) {
             console.log("inside facility id is present");
@@ -379,7 +403,7 @@
                 show_spinner = false;
                 // toast_text = "No domain found for this organization";
                 // toast_type = "error";
-                error_toast("No domain found for this organization")
+                error_toast("No domain found for this organization");
             }
 
             let get_category_response =
@@ -450,11 +474,10 @@
                         //     edit_msme_data["file_name"];
                     }
                 }
-                for(let i = 0;i< $documents_store.documents.length;i++){
+                for (let i = 0; i < $documents_store.documents.length; i++) {
                     if (
-                        $documents_store.documents[i][
-                            "doc_category"
-                        ] == "MSME Certificate"
+                        $documents_store.documents[i]["doc_category"] ==
+                        "MSME Certificate"
                     ) {
                         console.log(
                             "msme_certificate",
@@ -462,15 +485,13 @@
                         );
                         // edit_msme_data.file_name = $documents_store.documents[i]["file_name"];
                         // edit_msme_data['file_url'] = $documents_store.documents[i]["file_url"];
-                        msme_data =
-                            $documents_store.documents[i];
+                        msme_data = $documents_store.documents[i];
                         console.log("msme_data", msme_data);
                         // edit_document_link =
                         //     $page.url.origin +
                         //     "/files/" +
                         //     edit_msme_data["file_name"];
                     }
-
                 }
             } else {
                 $facility_data_store.msme_registered = "0";
@@ -697,12 +718,17 @@
         } else {
             show_spinner = false;
             // alert("Session user not found error!");
-            error_toast("Session user not found error!")
+            error_toast("Session user not found error!");
         }
     }
     function reset_non_msme() {
-        msme_message="";
+        msme_message = "";
         console.log("inside reset non msme");
+        console.log(
+            "$facility_data_store.msme_registered",
+            $facility_data_store.msme_registered
+        );
+
         if ($facility_data_store.msme_registered == "1") {
             $facility_data_store.non_msme_confirmed_by = null;
             $facility_data_store.non_msme_confirmed_on = null;
@@ -751,7 +777,7 @@
                 } else {
                     show_spinner = false;
                     // alert("Session user not found error!");
-                    error_toast("Session user not found error!")
+                    error_toast("Session user not found error!");
                 }
 
                 // console.log("current on",$facility_data_store.non_msme_confirmed_on);
@@ -916,66 +942,68 @@
         // var cookie_data = document.cookie;
         // console.log("cookie data", cookie_data);
         let pdf = e.target.files[0];
-        let extention_name = pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2);
+        let extention_name = pdf.name.slice(
+            ((pdf.name.lastIndexOf(".") - 1) >>> 0) + 2
+        );
         // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
-       
-        if(extention_name == "pdf" || extention_name == "jpg" || extention_name == "png" || extention_name == "jpeg"){
+
+        if (
+            extention_name == "pdf" ||
+            extention_name == "jpg" ||
+            extention_name == "png" ||
+            extention_name == "jpeg"
+        ) {
             if (pdf.size < allowed_pdf_size) {
-            pdf_name = pdf.name;
-            // msme_store.set({
-            //     file_name: pdf.name
-            // });
-            // $:msme_store.set({
-            //     file_name: pdf.name
-            // });
-            // $msme_store.file_name = pdf.name;
-            msme_data.file_name = pdf.name;
-
-            // temp_name = $msme_store.file_name;
-            // msme_store.subscribe((value) => {
-            //     temp_name = value.file_name;
-            // });
-            // console.log("store",);
-
-            console.log("pdf name", msme_data.file_name);
-            let reader = new FileReader();
-            reader.readAsDataURL(pdf);
-            reader.onload = (e) => {
-                fileinput = e.target.result;
+                pdf_name = pdf.name;
                 // msme_store.set({
-                //     pod: e.target.result
+                //     file_name: pdf.name
                 // });
-                // $msme_store.pod = fileinput;
-                msme_data.pod = fileinput;
-                // console.log("msme data pod",msme_data.pod);
-                if (!$current_user.email) {
-                    console.log("inside if statement file upload");
-                    get_current_user();
-                }
-                // $msme_store.user_id = $current_user.email;
-                msme_data.user_id = $current_user.email;
-                msme_data = msme_data;
-                msme_message = "";
+                // $:msme_store.set({
+                //     file_name: pdf.name
+                // });
+                // $msme_store.file_name = pdf.name;
+                msme_data.file_name = pdf.name;
 
-                console.log("msme store user id", msme_data);
-            };
+                // temp_name = $msme_store.file_name;
+                // msme_store.subscribe((value) => {
+                //     temp_name = value.file_name;
+                // });
+                // console.log("store",);
+
+                console.log("pdf name", msme_data.file_name);
+                let reader = new FileReader();
+                reader.readAsDataURL(pdf);
+                reader.onload = (e) => {
+                    fileinput = e.target.result;
+                    // msme_store.set({
+                    //     pod: e.target.result
+                    // });
+                    // $msme_store.pod = fileinput;
+                    msme_data.pod = fileinput;
+                    // console.log("msme data pod",msme_data.pod);
+                    if (!$current_user.email) {
+                        console.log("inside if statement file upload");
+                        get_current_user();
+                    }
+                    // $msme_store.user_id = $current_user.email;
+                    msme_data.user_id = $current_user.email;
+                    msme_data = msme_data;
+                    msme_message = "";
+
+                    console.log("msme store user id", msme_data);
+                };
+            } else {
+                alert(
+                    "File size is greater than " +
+                        Number(allowed_pdf_size / 1048576) +
+                        "MB. Please upload a file less than " +
+                        Number(allowed_pdf_size / 1048576) +
+                        "MB ."
+                );
+            }
         } else {
-            alert(
-                "File size is greater than " +
-                    Number(allowed_pdf_size / 1048576) +
-                    "MB. Please upload a file less than " +
-                    Number(allowed_pdf_size / 1048576) +
-                    "MB ."
-            );
+            error_toast("Incorrect File Type!");
         }
-            
-
-
-        }else{
-            error_toast("Incorrect File Type!")
-        }
-
-       
     };
     //     function open_pdf_window(base_64_string){
     //         let new_url = base_64_string.substring(base_64_string.indexOf(",")+1);
@@ -1611,19 +1639,19 @@
                                 </div>
                             </div>
                             <div class="formGroup ">
-                            {#if $facility_id.facility_id_number}
-                                {#if edit_msme_data.file_name}
-                                    <a
-                                        href={$page.url.origin +
-                                            edit_msme_data.file_url}
-                                        target="_blank"
-                                        class="text-blue-600 text-decoration-line: underline"
-                                        >{edit_msme_data.file_name}</a
-                                    >
-                                    <br />
-                                {/if}
-                            {/if}<br />
-                        </div>
+                                {#if $facility_id.facility_id_number}
+                                    {#if edit_msme_data.file_name}
+                                        <a
+                                            href={$page.url.origin +
+                                                edit_msme_data.file_url}
+                                            target="_blank"
+                                            class="text-blue-600 text-decoration-line: underline"
+                                            >{edit_msme_data.file_name}</a
+                                        >
+                                        <br />
+                                    {/if}
+                                {/if}<br />
+                            </div>
                         </div>
                     </div>
                 </form>

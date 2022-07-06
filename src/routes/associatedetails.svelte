@@ -864,7 +864,7 @@
         // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
 
         if (
-            extention_name == "pdf" ||
+           
             extention_name == "jpg" ||
             extention_name == "png" ||
             extention_name == "jpeg"
@@ -1358,7 +1358,7 @@
                                             <input
                                                 type="file"
                                                 class="hidden"
-                                                accept=".jpg, .jpeg, .png, .pdf"
+                                                accept=".jpg, .jpeg, .png"
                                                 on:change={(e) =>
                                                     onFileSelected(e)}
                                                 bind:this={fileinput}
