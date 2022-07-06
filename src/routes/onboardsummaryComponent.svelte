@@ -1242,6 +1242,12 @@ import { current_user } from "../stores/current_user_store";
         const onFileSelected = (e,doctext) => {
             show_spinner = true;
             let img = e.target.files[0];
+            let extention_name = image.name.slice((image.name.lastIndexOf(".") - 1 >>> 0) + 2);
+        // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
+       
+        if(extention_name == "pdf" || extention_name == "jpg" || extention_name == "png" || extention_name == "jpeg"){
+ 
+
             if (img && img.size <= allowed_pdf_size) {
                 console.log("img", img);
                 
@@ -1310,6 +1316,11 @@ import { current_user } from "../stores/current_user_store";
                     Number(allowed_pdf_size / 1048576) +
                     "MB ."
             );
+        }
+        }
+        else{
+            error_toast("Invalid File Type!")
+
         };
             
         }
@@ -1996,7 +2007,8 @@ import { current_user } from "../stores/current_user_store";
             }
             
             console.log("document_url",document_url)
-    
+            username = $current_user.username
+
             let new_doc_payload = {"documents":[{
             "file_name":document_name,
             "doc_category":selected_doc_type_name,
@@ -2549,7 +2561,8 @@ import { current_user } from "../stores/current_user_store";
         aadhar_obj ={aadhar_obj}
         dl_photo_obj={dl_photo_obj}
         pancard_obj={pancard_obj}
-        location_id = {location_id}/>
+        location_id = {location_id}
+        username = {$current_user.username}/>
     
         {:else if change_to == "Identity_details"}
         <IdentityProof pancard_obj={pancard_obj}

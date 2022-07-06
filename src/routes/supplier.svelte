@@ -986,6 +986,7 @@ else
     async function filterButton(){
         show_spinner = true;
         pagenumber = 1;
+        new_vendor_type = ""
         dropdown_disable = false;
         // mapped_pages = [];
         vendor_type_select = document.getElementById("select_vendor_type").value.trim();
