@@ -1,6 +1,43 @@
 <script>
 
     import { img_url_name } from "../stores/flags_store";
+    import {facility_id} from "../stores/facility_id_store";
+    import { SvelteToast, toast } from '@zerodevx/svelte-toast'
+    import {success_toast ,error_toast,warning_toast} from '../services/toast_theme';
+    import Toast from './components/toast.svelte';
+    import { allowed_pdf_size } from "../services/pravesh_config";
+    import {bulk_emp_map} from "../services/dashboard_services";
+    import Spinner from "./components/spinner.svelte";
+
+    let toast_text = "";
+    let toast_type = null;
+    let excel_data="";
+    let excel_upload_message = "";
+    let excel_img = "";
+    let show_spinner = false;
+
+    var finJson;
+    function process_wb(wb) {
+	var output = "";
+	output = JSON.stringify(to_json(wb), 2, 2);
+	finJson = output;
+    }
+
+    function to_json(workbook) {
+        var result = {};
+        workbook.SheetNames.forEach(function (sheetName) {
+            var roa = X.utils.sheet_to_row_object_array(workbook.Sheets[sheetName]);
+            if (roa.length > 0) {
+                result[sheetName] = roa;
+            }
+        });
+        return result;
+    }
+    var X;
+
+    if(!$facility_id.facility_id_number){
+        console.log("id not found err")
+    }
 
     function sampleTemplate(){
         modalid.style.display = "block";
@@ -10,40 +47,152 @@
         modalid.style.display = "none";
     }
 
-    async function download_csv_file() {  
-        // let count = 0 ;
-        // let csvFileData = csvBody + ele.month_year.replace("_"," - ")+ ","+ele.org_id + "," + ele.station_code + "," + ele.resource_id + "," + count + "\n";
+    function convert_to_excel(element_id, type, fn, sheet_name = "client_details") {
+        var elt = document.getElementById(element_id);
+        var wb = XLSX.utils.table_to_book(elt, { sheet: sheet_name });
+        XLSX.writeFile(wb, fn + "." + type);
+    }
 
+    var X;
+    const onFileSelected = (e,doctext) => {
+        console.log("INside onfile selected")
+        X = XLSX;
+        var files = e.target.files;
+        var f = files[0];
+        let img = e.target.files[0];
+        if (f != undefined) {
+            if (img.size <= allowed_pdf_size) {
+                console.log("img", img);
+                
+                if(doctext == "excel_upload"){
+                    console.log("Photo log uploaded")  
+                    excel_img = img.name;
+                    console.log("excel_img",excel_img)  
+                }
+                var reader = new FileReader()
+                // reader.readAsBinaryString(img);
+                reader.onload = function () {
+                console.log("reader",reader.result);
+                
+                if(doctext == "excel_upload"){
+                    excel_data = reader.result;
+                    var wb;
+                    wb = X.read(excel_data, { type: 'binary' });
+                    process_wb(wb);
+                    // console.log("photo_data",reader.result);
+                    // toast_text = "Doc Selected";
+                    // toast_type = "success";
+                    success_toast("Doc Selected")
+                    }
+                }
+                    // var reader = new FileReader();
+                    reader.readAsBinaryString(f);
+                    reader.onerror = function (error) {
+                    console.log("Error: ", error);
+                    }
+            }
+            else {
+            alert(
+                "File size is greater than " +
+                    Number(allowed_pdf_size / 1048576) +
+                    "MB. Please upload a file less than " +
+                    Number(allowed_pdf_size / 1048576) +
+                    "MB ."
+            );
+        };
+    }
+}
 
-        var csvFileData = [  
-            ['a','a','a','a','a','a'],
-            ['a','a','a','a','a','a']
-            // [notonboarded_data[0].month_year,notonboarded_data[0].org_id,notonboarded_data[0].station_code,notonboarded_data[0].resource_id,count]  
-        ]; 
+    function download_template(){
+        var data = document.getElementById('template_download');
+        var file = XLSX.utils.table_to_book(data, {sheet: "sheet1"});
+        XLSX.write(file, { bookType: 'xlsx', bookSST: true, type: 'base64' });
+        XLSX.writeFile(file, 'Bulk Empoloyee ID Template.' + 'xlsx');
+        convert_to_excel(tabID, 'xlsx', fileTitle, sheet_name)
 
-        
-        //define the heading for each row of the data  
-        var csv = 'FacilityID , EmployeeID	 ,Client System ID, Client BGV ID , Client BGV Status, BGV Remarks  \n';  
+    }
+
+    async function final_map(){
+        let map_data = [];
+        let new_payload_map_data = [];
+        let bulk_emp_map_payload ;
+
+        finJson = JSON.parse(finJson);
+        // console.log("finJson",finJson)
+        // console.log("finJson",finJson.sheet1)
+
+        for (let k = 0; k < finJson.sheet1.length; k++) {
+            // var ele = finJson[k];
+            // console.log("im ele",ele)
+            map_data.push(finJson.sheet1[k]);
+        }
+
+        map_data = map_data;
+        console.log("im in map_data",map_data)
+        console.log("im in map_data",map_data[0].FacilityID)
+
+        if(!map_data[i].FacilityID){
+            error_toast("Please add Facility ID")
+        }
+
+        if(!map_data[i].EmployeeID){
+            error_toast("Please add Employee ID")
+        }
+
+        if(!map_data[i].ClientSystemID){
+            error_toast("Please add ClientSystem ID")
+        }
+
+        if(!map_data[i].BGVRemarks){
+            error_toast("Please add BGV Remarks")
+        }
+
+        if(!map_data[i].ClientBGVID){
+            error_toast("Please add ClientBGV ID")
+        }
+
+        for(let i=0;i<map_data.length;i++){
+
+            // {"id_data":[{"resourceID":"AXHN00112","clientEMPID":"12542667666767","clientSystemID":"manhuk@amazon.com","status":"Green","client_bgv_id":"15161717"},{"resourceID":"EFBH01100","clientEMPID":"10000332222","clientSystemID":"67653555@flipkart.com","status":"Red","client_bgv_id":"151617656"}]}
             
-        //merge the data with CSV  
-        csvFileData.forEach(function(row) {  
-                csv += row.join(',');  
-                csv += "\n";  
-        });  
-        
-        //display the created CSV data on the web browser   
-        document.write(csv);  
+            new_payload_map_data.push({"resourceID":map_data[i].FacilityID,"clientEMPID":map_data[i].EmployeeID,"clientSystemID":map_data[i].ClientSystemID,"status":map_data[i].BGVRemarks,"client_bgv_id":map_data[i].ClientBGVID});
+            bulk_emp_map_payload = {"id_data":new_payload_map_data}
+        }
+        console.log("im in bulk_emp_map",bulk_emp_map_payload)
 
-        
-        var hiddenElement = document.createElement('a');  
-        hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);  
-        hiddenElement.target = '_blank';  
+
+       let bulk_emp_map_res = await bulk_emp_map(bulk_emp_map_payload)
+       show_spinner = true;        
+       try{
+            if(bulk_emp_map_res.body.status == "green"){
+                show_spinner = false;
+                // toast_type = "success";
+                // toast_text = bulk_search_res.body.message;
+                success_toast(bulk_emp_map_res.body.message)
+            }
+            else{
+                show_spinner = false;
+                // toast_type = "error";
+                // toast_text = bulk_search_res.body.message;
+                error_toast(bulk_emp_map_res.body.message)
+
+            }
             
-        //provide the name for the CSV file to be downloaded  
-        hiddenElement.download = 'Bulk Data Mapping.xlsx';  
-        hiddenElement.click();  
-    } 
+        }
+        catch(err){
+            show_spinner = false;
+            // toast_type = "error";
+            // toast_text = err;
+            error_toast(err)
+
+        }
+    }
 </script>
+
+{#if show_spinner}
+    <Spinner />
+{/if}
+
 
 <div class="mainContent ">
     <div class="breadcrumb ">
@@ -79,7 +228,7 @@
                             </p>
 
                             <div class="planWOandSample flex gap-4 mt-6">
-                                <button class="ErBlueButton" on:click="{download_csv_file}">Planned Work Order</button>
+                                <button class="ErBlueButton" on:click="{download_template}">Download the Templete</button>
                                 <p class="flex items-center smButtonText">
                                     <button class="smButton" on:click="{sampleTemplate}">
                                         View Sample Format
@@ -94,17 +243,16 @@
 
                                 Select file <label class="cursor-pointer">
                                     <div class="uploadbutton">Upload</div>
-                                    <input type="file" class="hidden">
+                                    <input type="file" class="hidden" on:change={(e) =>
+                                        onFileSelected(e,"excel_upload")}
+                                        bind:value="{excel_data}">
+                                        <div class="text-red-500">{excel_upload_message}</div>
                                 </label>
+                                <p class="text-grey ml-4">{excel_img}</p>
+                                <div class="uploadbutton" on:click="{final_map}">Map</div>
                             </div>
                         </div>
-
-
                     </div>
-
-
-
-
 
                 </div>
             </div>
@@ -146,10 +294,10 @@
                                 <tr>
                                     <th>FacilityID</th>
                                     <th>EmployeeID</th>
-                                    <th>Client System ID</th>
-                                    <th>Client BGV ID</th>
-                                    <th>Client BGV Status</th>
-                                    <th>BGV Remarks</th>
+                                    <th>ClientSystemID</th>
+                                    <th>ClientBGVID</th>
+                                    <th>ClientBGVStatus</th>
+                                    <th>BGVRemarks</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -170,3 +318,35 @@
         </div>
     </div>
 </div>
+
+
+<!-- format  -->
+
+<table
+class="border-collapse border border-slate-400  table w-full  text-center workOrderTabel hidden" id="template_download">
+<thead>
+    <tr>
+        <th>FacilityID</th>
+        <th>EmployeeID</th>
+        <th>ClientSystemID</th>
+        <th>ClientBGVID</th>
+        <th>ClientBGVStatus</th>
+        <th>BGVRemarks</th>
+    </tr>
+</thead>
+<tbody>
+    <tr>
+        <td>344343334434</td>
+        <td>ABCd@Amazon.com</td>
+        <td>214234323</td>
+        <td>green</td>
+        <td>-</td>
+        <td>-</td>
+
+    </tr>
+</tbody>
+</table>
+
+
+<Toast type={toast_type}  text={toast_text}/>
+<SvelteToast />
