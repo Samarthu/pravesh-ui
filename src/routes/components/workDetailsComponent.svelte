@@ -268,7 +268,6 @@
             let is_e_grid_hidden = ""
             let is_phy_grid_hidden = "hidden";
             let new_offer_name = ""
-            let offer_upload_message =""
             let new_offer_img = ""
 
         /////////Document view Model//////
@@ -1610,7 +1609,7 @@
             document_number = new_off_file_obj.offer_number;
             document_type = new_off_file_obj.offer_type;
             // document.getElementById("img_model_url").getAttribute('src',$page.url.origin+new_off_file_obj.offer_url);
-            alt_image = "offer letter proof";
+            alt_image = "";
         }
         // else if(data == "can_cheque"){
         //     image_path = $page.url.origin+can_cheque_obj.can_cheque_url;
@@ -2095,7 +2094,7 @@
                                     {:else if !new_off_file_obj.offer_name}
                                     <p>-</p>
                                     {:else}
-                                    <img src={$page.url.origin+new_off_file_obj.offer_url} class="w-5 mr-2" alt="offer letter">
+                                    <img src={$page.url.origin+new_off_file_obj.offer_url} class="w-5 mr-2" alt="">
                                     <p class="detailLbale">{new_off_file_obj.offer_name}</p>
                                     {/if}
                                 </div>
@@ -3222,7 +3221,7 @@
                                 bind:value="{new_offer_name}"
 
                             />
-                            <div class="text-red-500">{offer_upload_message}</div>
+                            <!-- <div class="text-red-500">{offer_upload_message}</div> -->
                         </label>
                         <p>{new_offer_img}</p>
                     </div>
