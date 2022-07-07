@@ -465,7 +465,7 @@
         // // window.open(download_beejak_docs_res.body);
         // try{
             show_spinner =false;
-            // var a = document.createElement('a');
+            var a = document.createElement('a');
 			// var url = window.URL.createObjectURL(download_beejak_docs_res.body);
 			a.href = page_name+"/api/method/pravesh.facility.routes.document.get_beejak_invoices?invoice_ids="+invArr;
 			var filename = "BeejakInvoices";
