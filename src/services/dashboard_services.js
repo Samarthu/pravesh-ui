@@ -68,9 +68,7 @@ const download_beejak_docs = (beejak_id) =>{
         download_beejak_docs_url, {
         method: "POST",
         contentType: 'application/json',
-        xhrFields: {
-			responseType: 'blob'
-		}
+		responseType: 'blob',
     }, true
     ).then(response => response.blob())
     .then(function(myBlob) {
