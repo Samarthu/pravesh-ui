@@ -1527,7 +1527,7 @@
                         </div> -->
                         <div class="xsl:overflow-scroll mt-5 ">
                         <table class="table  w-full text-center mt-2 ">
-                            <thead class="theadpopover h-10">
+                            <thead class="h-10 tabletrheader">
                                 <tr>
                                     <th width="25%">Client Name</th>
                                     <th width="25%">Station Code</th>
@@ -1535,18 +1535,18 @@
                                     <th width="25%">Associate ID</th>
                                 </tr>
                             </thead>
-                            {#each find_by_arr as client}
-                            <tbody class="tbodycopyvendor outline">
+                            
+                            <tbody class="outline tabletrBody">
+                                {#each find_by_arr as client}
                                 <tr class="border-b">
-                                    <td>{#if client.org_specific_name}{client.org_specific_name}{:else}<p>-</p>{/if}</td>
+                                    
+                                    <td><div class="w-64 xsl:w-48 break-words text-center m-auto">{#if client.org_specific_name}{client.org_specific_name}{:else}<p>-</p>{/if}</div></td>
                                     <td>{#if client.conf_station_code}{client.conf_station_code}{:else}<p>-</p>{/if}</td>
-                                    <td>{#if client.facility_name}{client.facility_name}{:else}<p>-</p>{/if}</td>
+                                    <td><div class="w-64 xsl:w-48 break-words text-center m-auto">{#if client.facility_name}{client.facility_name}{:else}<p>-</p>{/if}</div></td>
                                     <td>{#if client.facility_id}{client.facility_id}{:else}<p>-</p>{/if}</td>
                                 </tr>
-                            
-
+                                {/each}
                             </tbody>
-                            {/each}
                         </table>
                     </div>
                     </div>

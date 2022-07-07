@@ -1241,7 +1241,7 @@ import { current_user } from "../stores/current_user_store";
     
         const onFileSelected = (e,doctext) => {
             show_spinner = true;
-            let img = e.target.files[0];
+            let image = e.target.files[0];
             let extention_name = image.name.slice((image.name.lastIndexOf(".") - 1 >>> 0) + 2);
         // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
        
@@ -2407,7 +2407,7 @@ import { current_user } from "../stores/current_user_store";
                                         </p>
                                         {/if} 
                                     {/if}  
-                                    
+
                                    {#if $facility_data_store.is_blacklisted == 1}
                                    <b> - ( Blacklisted )</b>  
                                    {:else if is_adhoc_facility == true}

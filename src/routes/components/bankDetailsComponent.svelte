@@ -434,7 +434,7 @@ function closeApproveViewModel(){
 }
     
     const onFileSelected = (e,doctext) => {
-        let img = e.target.files[0];
+        let image = e.target.files[0];
         let extention_name = image.name.slice((image.name.lastIndexOf(".") - 1 >>> 0) + 2);
         // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
        
