@@ -199,7 +199,7 @@
         } else if ($facility_data_store.msme_registered == "1") {
             if ($facility_id.facility_id_number) {
                 let msme_flag = false;
-                for (let i = 0; i < $documents_store.documents.length; i++) {
+                for (let i = 0; i < $duplicate_documents_store.documents.length; i++) {
                     if (
                         $duplicate_documents_store.documents[i][
                             "doc_category"
