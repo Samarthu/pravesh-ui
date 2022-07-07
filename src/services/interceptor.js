@@ -281,16 +281,20 @@ export function request(
     options = {
       headers: {
         "Content-Type": "application/json;charset=utf-8",
-        "dataType" : 'json',
+        // "dataType" : 'json',
         "Contains-Array" : 'true',
+        "responseType": 'blob'
       //   // "Accept": "application/json",
       //   "accept": "application/json"
         
       //   // "Access-Control-Allow-Origin": "https://elasticrun.in",
       //   // "Access-Control-Allow-Origin":" *"
         
-
+      
+       
+      
       },
+      
       
       ...options,
     };
