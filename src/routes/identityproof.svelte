@@ -180,10 +180,10 @@
     };
     onMount(async () => {
         page_name = $page.url["pathname"].split("/").pop();
-        if(!$facility_data_store.org_id){
-            goto("facility_type_select",{replaceState:false})
+        // if(!$facility_data_store.org_id){
+        //     goto("facility_type_select",{replaceState:false})
 
-        }
+        // }
         console.log("page name on identity", page_name);
         console.log("facility store",$facility_data_store);
         console.log("document store", $documents_store.documents);
@@ -1255,7 +1255,8 @@ warning_toast("warning")
                 let save_facility_response = await save_facility_function();
                 console.log("save_facility_response", save_facility_response);
                 show_dialouge = false;
-                if (save_facility_response.body.status == "green") {
+                if (save_facility_response.body.status == "green") 
+                {
                     try {
                         console.log("inside save try");
                         // alert("Facility saved successfully");
@@ -1437,7 +1438,8 @@ warning_toast("warning")
                         error_toast("Error in saving facility!");
                         show_spinner = false;
                     }
-                } else {
+                } 
+                else {
                     // if(save_facility_response.body.status == "red"){
                     //     alert("message :" +save_facility_response.body.message+"\n"
                     //     +"Traceback :"+save_facility_response.body.traceback);

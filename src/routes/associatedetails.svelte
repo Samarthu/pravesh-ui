@@ -194,9 +194,10 @@
     onMount(async () => {
         show_spinner = true;
         page_name = $page.url["pathname"].split("/").pop();
-        if (!$facility_data_store.org_id) {
-            goto("facility_type_select", { replaceState: false });
-        }
+        document.getElementById("perfect_name").style.visibility = "hidden";
+        // if (!$facility_data_store.org_id) {
+        //     goto("facility_type_select", { replaceState: false });
+        // }
         console.log("page_name", page_name);
         console.log("date", date);
         function get_max_date() {
@@ -820,21 +821,25 @@
                 try {
                     if (verify_name_response.body.data == true) {
                         facility_name_message = "";
+                        document.getElementById("perfect_name").style.visibility = "visible";
                     } else {
                         facility_name_message =
                             verify_name_response.body.message;
                             valid = false;
                             show_spinner = false;
+                            document.getElementById("perfect_name").style.visibility = "hidden";
                     }
                 } catch {
                     // toast_text = "Unable to verify facility name";
                     // toast_type = "error";
                     error_toast("Unable to verify facility name");
+                    document.getElementById("perfect_name").style.visibility = "hidden";
                     valid = false;
                     show_spinner = false;
                 }
             } else {
                 facility_name_message = "Please Enter Facility Name";
+                document.getElementById("perfect_name").style.visibility = "hidden";
                 show_spinner =  false;
             }
         } else {
@@ -842,6 +847,7 @@
             error_toast("Invalid Facility name");
             valid = false;
             show_spinner = false;
+            document.getElementById("perfect_name").style.visibility = "hidden";
         }
 
         }
@@ -858,7 +864,7 @@
         // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
 
         if (
-            extention_name == "pdf" ||
+           
             extention_name == "jpg" ||
             extention_name == "png" ||
             extention_name == "jpeg"
@@ -1235,9 +1241,13 @@
                                         bind:value={$facility_data_store.facility_name}
                                         on:blur={() => verify_facility_name()}
                                     />
+                                   
                                     <!-- <div class="text-red-500">
                                 {facility_name_message}
                             </div> -->
+                                </div>
+                                <div class="ml-3 flex items-center gap-2 text-bgGreen xsl:mt-2 " id="perfect_name">
+                                    <img src="{$img_url_name.img_name}/checked.png" alt="verified img">  Perfect
                                 </div>
                             </div>
                         </div>
@@ -1311,6 +1321,7 @@
                                     <input
                                         type="date"
                                         onkeydown="return false"
+                                        required
                                         max={temp_max_date}
                                         bind:value={date}
                                     />
@@ -1347,7 +1358,7 @@
                                             <input
                                                 type="file"
                                                 class="hidden"
-                                                accept=".jpg, .jpeg, .png, .pdf"
+                                                accept=".jpg, .jpeg, .png"
                                                 on:change={(e) =>
                                                     onFileSelected(e)}
                                                 bind:this={fileinput}
