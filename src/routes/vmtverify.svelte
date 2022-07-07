@@ -271,7 +271,7 @@
         console.log("zoom in")
             var GFG = document.getElementById("geeks");
             var currWidth = GFG.clientWidth;
-            GFG.style.width = (currWidth + 100) + "px";
+            GFG.style.width = (currWidth + 50) + "px";
         }
           
     function zoomout() {
@@ -283,8 +283,9 @@
     onMount(async () => {
         console.log("$facility_id.facility_id_number",$facility_id.facility_id_number)
         if(!$facility_id.facility_id_number){
-            toast_text = "facility not selected";
-            toast_type = "error";
+            // toast_text = "facility not selected";
+            // toast_type = "error";
+            error_toast("facility not selected")
             // goto("onboardsummary")
             setTimeout(goto("onboardsummary?unFacID="+$facility_id.facility_id_number, { replaceState:true }), 5000);
         }
@@ -670,8 +671,9 @@
 
             console.log("inside 1 facility_document_data", vmt_pan,pan_number)
             if(vmt_pan != pan_number){
-                toast_type = "error"
-                toast_text = "Enter valid Pan Number"
+                // toast_type = "error"
+                // toast_text = "Enter valid Pan Number"
+                error_toast("Enter valid Pan Number")
                 return
             }
             console.log("vmt-pan")
@@ -687,8 +689,9 @@
 
                 let pan_sub_res = await approve_reject_status(document_load)
                 show_spinner = false;
-                toast_text = "Pancard Approved";
-                toast_type = "success"
+                // toast_text = "Pancard Approved";
+                // toast_type = "success";
+                success_toast("Pancard Approved")
                 try{
                     console.log("inside pan_sub_res.body.status",pan_sub_res.body.status)
                     console.log(" inside condition ", pan_verified=="1")
@@ -703,8 +706,9 @@
                 }
             }
             else{
-                toast_text = "Please enter the Pan Number";
-                toast_type = "error";
+                // toast_text = "Please enter the Pan Number";
+                // toast_type = "error";
+                error_toast("Please enter the Pan Number")
             }
             
         }
@@ -712,8 +716,9 @@
         if (doc_cat == "voter"){   
             console.log("payload", $facility_data_store)
             if(vmt_voter != voter_number){
-                toast_type = "error"
-                toast_text = "Enter valid Voter ID"
+                // toast_type = "error"
+                // toast_text = "Enter valid Voter ID"
+                error_toast("Enter valid Voter ID")
                 return
             }
             if(vmt_voter!=0){
@@ -727,8 +732,9 @@
             }
             let voter_sub_res =await approve_reject_status(document_load)
             show_spinner = false;
-            toast_text = "VoterID Approved";
-            toast_type = "success"
+            // toast_text = "VoterID Approved";
+            // toast_type = "success";
+            success_toast("VoterID Approved")
             try{
                 console.log("voter_sub_res",voter_sub_res.body.status)
                     if(voter_sub_res.body.status == "green"){
@@ -741,15 +747,17 @@
                 }
             }
             else{
-                    toast_text = "Please enter the Voter Number";
-                    toast_type = "error";
+                    // toast_text = "Please enter the Voter Number";
+                    // toast_type = "error";
+                    error_toast("Please enter the Voter Number")
                 }
         }
 
         if (doc_cat == "aadhar"){
             if(vmt_aadhar != aadhar_number){
-                toast_type = "error"
-                toast_text = "Enter valid Aadhar Number"
+                // toast_type = "error"
+                // toast_text = "Enter valid Aadhar Number";
+                error_toast("Please enter valid Aadhar Number")
                 return
             }
             if (vmt_aadhar != 0){
@@ -763,8 +771,9 @@
             }
             let aadhar_sub_res =await approve_reject_status(document_load)
             show_spinner = false;
-            toast_text = "Aadhar Approved";
-            toast_type = "success"
+            // toast_text = "Aadhar Approved";
+            // toast_type = "success";
+            success_toast("Aadhar Approved")
             try{
                 if(aadhar_sub_res.body.status == "green"){
                     aadhar_success_flag = 1;
@@ -776,16 +785,18 @@
             }
             }
             else{
-                toast_text = "Please enter the Aadhar Number";
-                toast_type = "error";
+                // toast_text = "Please enter the Aadhar Number";
+                // toast_type = "error";
+                error_toast("Please enter Aadhar Number")
             }
             
         }
         
         if (doc_cat == "dl"){
             if(vmt_dl != dl_number){
-                toast_type = "error"
-                toast_text = "Enter valid DL Number"
+                // toast_type = "error"
+                // toast_text = "Enter valid DL Number";
+                error_toast("Please enter valid DL Number")
                 return
             }
             if (vmt_dl != 0){
@@ -799,8 +810,9 @@
             }
             let dl_sub_res =await approve_reject_status(document_load)
             show_spinner = false;
-            toast_text = "DL Approved";
-            toast_type = "success"
+            // toast_text = "DL Approved";
+            // toast_type = "success";
+            success_toast("DL Approved")
             try{
                     if(dl_sub_res.body.status == "green"){
                         dl_success_flag = 1;
@@ -812,8 +824,9 @@
                 }
             }
             else{
-                    toast_text = "Please enter the dl Number";
-                    toast_type = "error";
+                    // toast_text = "Please enter the dl Number";
+                    // toast_type = "error";
+                    error_toast("Please enter the DL Number")
                 }
         
         }
@@ -829,8 +842,9 @@
             }
             let address_sub_res =await approve_reject_status(document_load)
             show_spinner = false;
-            toast_text = "Address Approved";
-            toast_type = "success"
+            // toast_text = "Address Approved";
+            // toast_type = "success";
+            success_toast("Address Approved")
             try{
                 if(address_sub_res.body.status == "green"){
                     address_success_flag = 1
@@ -848,8 +862,9 @@
             console.log("123 $facility_data_store.facility_name",$facility_data_store.facility_name , off_Name)
             if(off_Name != $facility_data_store.facility_name && off_assoc_type != $facility_data_store.facility_type && off_vend_name != $facility_data_store.vendor_name){
                 console.log("inside not matched")
-                toast_text = "Please enter the valid details";
-                toast_type = "error";
+                // toast_text = "Please enter the valid details";
+                // toast_type = "error";
+                error_toast("Please enter the valid details")
                 return
             }
             if(off_Name != 0 && off_assoc_type != 0 && off_vend_name != 0 ){
@@ -867,8 +882,9 @@
                 }
                 let offer_sub_res =await approve_reject_status(document_load)
                 show_spinner = false;
-                toast_text = "Offer Letter Approved";
-                toast_type = "success"
+                // toast_text = "Offer Letter Approved";
+                // toast_type = "success";
+                success_toast("Offer Letter Approved")
                 try{
                     if(offer_sub_res.body.status == "green"){
                         offer_success_flag = 1;
@@ -880,8 +896,9 @@
                 }
             }
             else{
-                    toast_text = "Please enter all the fields";
-                    toast_type = "error";
+                    // toast_text = "Please enter all the fields";
+                    // toast_type = "error";
+                    error_toast("Please enter all the fields")
                 }
         }
             
@@ -977,8 +994,9 @@
             }
             let pan_sub_res = await approve_reject_status(document_load)
             show_spinner = false;
-            toast_text = "Pan Card rejected";
-            toast_type = "error"
+            // toast_text = "Pan Card rejected";
+            // toast_type = "error";
+            error_toast("Pan Card rejected")
             try{
                 if(pan_sub_res.body.status == "green"){
                     pan_reject_flag = 1;
@@ -1004,8 +1022,9 @@
             }
             let voter_sub_res =await approve_reject_status(document_load)
             show_spinner = false;
-            toast_text = "Voter ID Rejected";
-            toast_type = "error";
+            // toast_text = "Voter ID Rejected";
+            // toast_type = "error";
+            error_toast("Voter ID rejected")
             try{
                 console.log("voter_sub_res",voter_sub_res.body.status)
                     if(voter_sub_res.body.status == "green"){
@@ -1029,8 +1048,9 @@
             }
             let aadhar_sub_res =await approve_reject_status(document_load)
             show_spinner = false;
-            toast_text = "Aadhar Rejected";
-            toast_type = "error"
+            // toast_text = "Aadhar Rejected";
+            // toast_type = "error";
+            error_toast("Aadhar rejected")
             try{
                 if(aadhar_sub_res.body.status == "green"){
                     aadhar_reject_flag = 1;
@@ -1053,8 +1073,9 @@
             }
             let dl_sub_res =await approve_reject_status(document_load)
             show_spinner = false;
-            toast_text = "DL Rejected";
-            toast_type = "error"
+            // toast_text = "DL Rejected";
+            // toast_type = "error";
+            error_toast("DL rejected")
             try{
                     if(dl_sub_res.body.status == "green"){
                         dl_reject_flag = 1;
@@ -1078,8 +1099,9 @@
             }
             let address_sub_res =await approve_reject_status(document_load)
             show_spinner = false;
-            toast_text = "Address Rejected";
-            toast_type = "error"
+            // toast_text = "Address Rejected";
+            // toast_type = "error";
+            error_toast("Address rejected")
             try{
                 if(address_sub_res.body.status == "green"){
                     address_reject_flag = 1;
@@ -1103,8 +1125,9 @@
                 }
                 let offer_sub_res =await approve_reject_status(document_load)
                 show_spinner = false;
-                toast_text = "Offer Letter Rejected";
-                toast_type = "error"
+                // toast_text = "Offer Letter Rejected";
+                // toast_type = "error";
+                error_toast("Offer Letter rejected")
                 try{
                     if(offer_sub_res.body.status == "green"){
                         offer_reject_flag = 1;
@@ -1345,8 +1368,9 @@
                     console.log("final_approve_id_res",final_approve_id_res);
                     try{
                         if(final_approve_id_res.body.status == "green"){
-                            toast_text = final_approve_id_res.body.message;
-                            toast_type = "success";
+                            // toast_text = final_approve_id_res.body.message;
+                            // toast_type = "success";
+                            success_toast(final_approve_id_res.body.message)
                             show_spinner = false;
 
 
@@ -1561,8 +1585,9 @@
             let final_reject_id_res = await final_id_ver_rej({"documents":final_reject_data_arr})
                     try{
                         if(final_reject_id_res.body.status == "green"){
-                            toast_text = final_reject_id_res.body.message;
-                            toast_type = "success";
+                            // toast_text = final_reject_id_res.body.message;
+                            // toast_type = "success";
+                            success_toast(final_reject_id_res.body.message)
                             show_spinner = false;
 
 
@@ -1749,18 +1774,20 @@
     async function bank_approve(){
         console.log("Inside bank approve")
         if(acc_num == null && ifsc_code == null && acc_hold_name == null){
-            toast_text = "Please enter all the fields";
-            toast_type = "error"
+            // toast_text = "Please enter all the fields";
+            // toast_type = "error";
+            error_toast("Please enter all the fields")
             return
         }
         // if(!$bank_details){
-        //     toast_text = "data not found";
-        //     toast_type = "error"
+        //     // toast_text = "data not found";
+        //     // toast_type = "error"
         //     return
         // }
         if(acc_num != $bank_details.account_number && ifsc_code != $bank_details.ifsc_code && acc_hold_name != $bank_details.account_holder){
-            toast_text = "Details Mismatch";
-            toast_type = "error"
+            // toast_text = "Details Mismatch";
+            // toast_type = "error";
+            error_toast("Details Mismatch")
             return
         }
         else{
@@ -1780,6 +1807,7 @@
                         "remarks": remark
         }
             let bank_sub_res =await bank_approve_reject(document_load)
+            success_toast("Bank Details Submitted Successfully")
             show_spinner = false;
 
             try{
@@ -1830,6 +1858,7 @@
             "remarks": remark
         }
             let bank_sub_res =await bank_approve_reject(document_load)
+            success_toast("Bank Details Rejected")
             show_spinner = false;
             try{
                 if(bank_sub_res.body.status == "green"){
@@ -1852,6 +1881,7 @@
             }
             catch (err){
                 console.log("Bank details error")
+                error_toast("Bank details error")
             }
 
 
@@ -2210,8 +2240,9 @@
             console.log("final_bgv_verify_res",final_bgv_verify_res)
             if(final_bgv_verify_res.body.status == "green"){
                 console.log("TOAST OF BGV SUCCESSFUL")
-                toast_text = final_bgv_verify_res.body.message;
-                toast_type = "success";
+                // toast_text = final_bgv_verify_res.body.message;
+                // toast_type = "success";
+                success_toast(final_bgv_verify_res.body.message)
 
 
                 // window.location.reload();
@@ -2295,8 +2326,9 @@
             console.log("final_bgv_reject_res",final_bgv_reject_res)
             if(final_bgv_reject_res.body.status == "green"){
                 console.log("TOAST OF BGV REJECTED")
-                toast_text = final_bgv_reject_res.body.message;
-                toast_type = "success";
+                // toast_text = final_bgv_reject_res.body.message;
+                // toast_type = "success";
+                success_toast(final_bgv_reject_res.body.message)
                 // window.location.reload();
 
 
@@ -2519,8 +2551,9 @@
 
     async function openIDcard(){
         if($facility_data_store.status == "Deactive" ){
-            toast_text = "User is not active ";
-            toast_type = "error"
+            // toast_text = "User is not active ";
+            // toast_type = "error"
+            error_toast("User is not active ")
         }
         else{
             if(!profile_url){
@@ -2546,8 +2579,9 @@
                 }
             }
             else{
-                toast_text = "Upload Profile Pic ";
-                toast_type = "error"
+                // toast_text = "Upload Profile Pic ";
+                // toast_type = "error";
+                error_toast("Upload Profile Pic ")
             }
         }
 
@@ -2562,8 +2596,9 @@
         console.log("get_cas_user_res",get_cas_user_res)
 
         if(get_cas_user_res.status == "green"){
-            toast_text = "User is active";
-            toast_type = "success";
+            // toast_text = "User is active";
+            // toast_type = "success";
+            success_toast("User is active")
         }
         else{
             showCasUser.style.display = "block";
@@ -2594,8 +2629,9 @@
         workorganizationModel.style.display = "block";
         if($facility_data_store.status == "Deactive"){
             status_display = -1;
-            toast_text = "User is Deactive";
-            toast_type = "error";
+            // toast_text = "User is Deactive";
+            // toast_type = "error";
+            error_toast("User is Deactive")
         }
         let get_client_details_res = await get_client_details()
         try {
@@ -2607,8 +2643,9 @@
                 console.log("get_client_details_data",get_client_details_data)
             }
         } catch (err) {
-            toast_type = "error";
-            toast_text = get_client_details_res.body.message;
+            // toast_type = "error";
+            // toast_text = get_client_details_res.body.message;
+            error_toast(get_client_details_res.body.message)
         }
 
         let get_loc_scope_res = await get_loc_scope()
@@ -2637,8 +2674,9 @@
 
 
         } catch (error) {
-            toast_type = "error";
-            toast_text = get_loc_scope_res.body.message;
+            // toast_type = "error";
+            // toast_text = get_loc_scope_res.body.message;
+            error_toast(get_loc_scope_res.body.message)
         }
 
 
@@ -2682,13 +2720,15 @@
             // }
         }
         else{
-            toast_type = "error";
-            toast_text = "No client Data";
+            // toast_type = "error";
+            // toast_text = "No client Data";
+            error_toast("No client Data")
         }
         
         } catch(err) {
-            toast_type = "error";
-            toast_text = err;
+            // toast_type = "error";
+            // toast_text = err;
+            error_toast("error");
         
         }
 
@@ -2714,8 +2754,8 @@
                     // console.log("get_change_associte_data",get_change_associte_data)
                 }
         } catch (err) {
-            // toast_type = "error";
-            // toast_text = get_change_associte_res.body.message;
+            // // toast_type = "error";
+            // // toast_text = get_change_associte_res.body.message;
             console.log("inside error with associate")
         }
 
@@ -2749,8 +2789,9 @@
         
         // console.log("get_pravesh_properties_method",response)
         if(!id_select){
-            toast_text = "Please select organization";
-            toast_type = "error"
+            // toast_text = "Please select organization";
+            // toast_type = "error";
+            error_toast("Please select organization")
             return
         }
         let response = await get_pravesh_properties_method()
@@ -2765,14 +2806,16 @@
             for(let i = 0; i<mapping_blocked_data.length;i++){
                 // console.log("mapping_blocked_data inside if",mapping_blocked_data[i])
                 if(id_select == mapping_blocked_data[i]){
-                    toast_text = "Mapping is not allowed for this Organization";
-                    toast_type = "error"
+                    // toast_text = "Mapping is not allowed for this Organization";
+                    // toast_type = "error";
+                    error_toast("Mapping is not allowed for this Organization")
                     return
                 }
             }
             if($facility_data_store.is_bgv_verified == undefined || $facility_data_store.is_bgv_verified != 1){
-                toast_text = "BGV Verification Incomplete !!";
-                toast_type = "error"
+                // toast_text = "BGV Verification Incomplete !!";
+                // toast_type = "error";
+                error_toast("BGV Verification Incomplete !!")
                 return
             }
             var profileIncom = false;
@@ -2783,8 +2826,9 @@
                 profileIncom = true;
             }
             if (profileIncom) {
-                toast_text = "Upload both Pancard and Driving Licence first !!";
-                toast_type = "error"
+                // toast_text = "Upload both Pancard and Driving Licence first !!";
+                // toast_type = "error";
+                error_toast("Upload both Pancard and Driving Licence first !!")
                 return;
             }
             console.log("checking requestType",requestType)
@@ -2804,22 +2848,25 @@
                         
                         for(let i=0;i<get_client_details_data.length;i++){
                             if(get_client_details_data[i].mobile_number == phoneNumber){
-                                toast_text =  'Rabbit ID already requested for mob number <br>' + phoneNumber + "<br> Please update new number in <br> Basic Information Section under BGV <br> and try again";
-                                toast_type = "error"
+                                // toast_text =  'Rabbit ID already requested for mob number <br>' + phoneNumber + "<br> Please update new number in <br> Basic Information Section under BGV <br> and try again";
+                                // toast_type = "error";
+                                error_toast('Rabbit ID already requested for mob number <br>' + phoneNumber + "<br> Please update new number in <br> Basic Information Section under BGV <br> and try again")
                             }
                         }
 
                     }
                     if ($bgv_data_store.email_id == undefined || $bgv_data_store.email_id.trim().length == 0) {
-                        toast_type = "error"
-                        toast_text = "Please update email address in BGV form and then try"
+                        // toast_type = "error"
+                        // toast_text = "Please update email address in BGV form and then try";
+                        error_toast("Please update email address in BGV form and then try")
                         return;
                     }
                     
 
                     if ($bgv_data_store.is_email_verified != 1) {
-                        toast_type = "error"
-                        toast_text = "Please verify email address in BGV form and then try"
+                        // toast_type = "error"
+                        // toast_text = "Please verify email address in BGV form and then try";
+                        error_toast("Please verify email address in BGV form and then try")
                         return;
                     }
                     emailId = $bgv_data_store.email_id;
@@ -2829,19 +2876,22 @@
             
 
             if(!stat_select){
-                toast_text = "Please select Station";
-                toast_type = "error";
+                // toast_text = "Please select Station";
+                // toast_type = "error";
+                error_toast("Please select Station")
                 return
             }
 
             if(!stat_code){
-                toast_text = "Please select Specific Name or COMP Name";
-                toast_type = "error";
+                // toast_text = "Please select Specific Name or COMP Name";
+                // toast_type = "error";
+                error_toast("Please select Specific Name or COMP Name")
                 return
             }
             if(stat_code == "Create Only Rabbit ID/COMP ID" && requestType == ""){
-                toast_text = "Please select Rabbit Id or Comp Id option";
-                toast_type = "error";
+                // toast_text = "Please select Rabbit Id or Comp Id option";
+                // toast_type = "error";
+                error_toast("Please select Rabbit Id or Comp Id option")
             }
 
             let new_org_name
@@ -2886,8 +2936,9 @@
             console.log("final_save_mapping_res",final_save_mapping_res)
             // try {
                 if(final_save_mapping_res.body.status == "green"){
-                    toast_text = final_save_mapping_res.body.message;
-                    toast_type = "green";
+                    // toast_text = final_save_mapping_res.body.message;
+                    // toast_type = "green";
+                    success_toast(final_save_mapping_res.body.message)
 
 
 
@@ -2921,14 +2972,15 @@
             // }
         }
         else{
-            toast_type = "error";
-            toast_text = "No client Data";
+            // toast_type = "error";
+            // toast_text = "No client Data";
+            error_toast("No client Data")
         }
         
         } catch(err) {
-            toast_type = "error";
-            toast_text = err;
-        
+            // toast_type = "error";
+            // toast_text = err;
+            error_toast("error")
         }
 
 
@@ -2942,8 +2994,9 @@
                 }
             // }
              else {
-                toast_text = "Error occured while adding mapping";
-                toast_type = "error";
+                // toast_text = "Error occured while adding mapping";
+                // toast_type = "error";
+                error_toast("Error occured while adding mapping")
             }
         console.log("final_map_load",final_map_load)
 
@@ -2970,23 +3023,26 @@
         }
 
         if(!newType){
-            toast_text = "Please select New Type";
-            toast_type = "error";
+            // toast_text = "Please select New Type";
+            // toast_type = "error";
+            error_toast("Please select New Type")
             return
             }
 
             console.log("inside update_date_arr.includes(updated_start_date)",update_date_arr.includes(updated_start_date))
         if(!fromDate && update_date_arr.includes(updated_start_date) == true){
             
-            toast_text = "Please select vaild From date";
-            toast_type = "error";
+            // toast_text = "Please select vaild From date";
+            // toast_type = "error";
+            error_toast("Please select vaild From date")
             return
         }
 
 
         if(!assocRemarks){
-            toast_text = "Please select Remarks";
-            toast_type = "error";
+            // // toast_text = "Please select Remarks";
+            // // toast_type = "error";
+            error_toast("Please select Remarks")
             return
         }
 
@@ -3007,8 +3063,9 @@
                 if(send_associate_req_res.body.status == "green"){
                     get_change_associte_data = [];
                     console.log("inside final",get_change_associte_data)
-                    toast_text = send_associate_req_res.body.message;
-                    toast_type = "green";
+                    // // toast_text = send_associate_req_res.body.message;
+                    // toast_type = "green";
+                    success_toast(send_associate_req_res.body.message)
                     console.log("inside 2404")
                     let get_change_associte_res = await get_change_associte();
                     try {
@@ -3026,8 +3083,9 @@
                     }
                 }
             else {
-                toast_text = "Error occured while sending associate request";
+                // toast_text = "Error occured while sending associate request";
                 toast_type = "error";
+                error_toast("Error occured while sending associate request")
             }
             console.log("final_req_load",final_req_load)
     }
@@ -3078,14 +3136,15 @@
             // }
         }
         else{
-            toast_type = "error";
-            toast_text = "No client Data";
+            // toast_type = "error";
+            // // toast_text = "No client Data";
+            error_toast("No client Data")
         }
         
         } catch(err) {
-            toast_type = "error";
-            toast_text = get_client_data_mapping_res.body.message;
-        
+            // toast_type = "error";
+            // // toast_text = get_client_data_mapping_res.body.message;
+            error_toast(get_client_data_mapping_res.body.message)
         }
     }
 
@@ -3099,15 +3158,17 @@
 
         if(!exScore){
             console.log("im in reject score")
-            toast_text = "Please select Score";
-            toast_type = "error";
+            // // toast_text = "Please select Score";
+            // toast_type = "error";
+            error_toast("Please select Score")
             return
         }
 
         if(!exRemarks){
             console.log("im in reject ex")
-            toast_text = "Please select Remarks";
-            toast_type = "error";
+            // // toast_text = "Please select Remarks";
+            // toast_type = "error";
+            error_toast("Please select Remarks")
             return
         }
 
@@ -3128,15 +3189,17 @@
 
         if(!exScore){
             console.log("im in reject score")
-            toast_text = "Please select Score";
-            toast_type = "error";
+            // // toast_text = "Please select Score";
+            // toast_type = "error";
+            error_toast("Please select Score")
             return
         }
 
         if(!exRemarks){
             console.log("im in reject ex")
-            toast_text = "Please select Remarks";
-            toast_type = "error";
+            // // toast_text = "Please select Remarks";
+            // toast_type = "error";
+            error_toast("Please select Remarks")
             return
         }
 
@@ -3180,14 +3243,15 @@
             // }
         }
         else{
-            toast_type = "error";
-            toast_text = "No client Data";
+            // toast_type = "error";
+            // // toast_text = "No client Data";
+            error_toast("No client Data")
         }
         
         } catch(err) {
-            toast_type = "error";
-            toast_text = get_client_data_mapping_res.body.message;
-        
+            // toast_type = "error";
+            // // toast_text = get_client_data_mapping_res.body.message;
+            error_toast(get_client_data_mapping_res.body.message)        
         }
 
         let notonboardDate = new Date(notonbDate);
@@ -3206,8 +3270,9 @@
                 
             }
         } catch (error) {
-            toast_type = "error";
-            toast_text = not_onboarded_data_res.body.message;
+            // toast_type = "error";
+            // // toast_text = not_onboarded_data_res.body.message;
+            error_toast(not_onboarded_data_res.body.message)        
         }
 
 
@@ -3221,14 +3286,16 @@
         let count = 0 ;
 
         if(!stat_select){
-            toast_text = "Please select Station";
-            toast_type = "error";
+            // // toast_text = "Please select Station";
+            // toast_type = "error";
+            error_toast("Please select Station")        
             return
         }
 
         if(!id_select){
-            toast_text = "Please select organization";
-            toast_type = "error"
+            // // toast_text = "Please select organization";
+            // toast_type = "error";
+            error_toast("Please select organization")        
             return
         }
 
@@ -3253,8 +3320,9 @@
             console.log("inside daily work",count)
 
         } catch (error) {
-            toast_type = "error";
-            toast_text = not_onboarded_data_res.body.message;
+            // toast_type = "error";
+            // // toast_text = not_onboarded_data_res.body.message;
+            error_toast(not_onboarded_data_res.body.message)        
         }
 
         // let csvFileData = csvBody + ele.month_year.replace("_"," - ")+ ","+ele.org_id + "," + ele.station_code + "," + ele.resource_id + "," + count + "\n";
@@ -3791,8 +3859,9 @@
                          </div>   
 
                          <div class="imageZoom border rounded mt-2">
-                            <div id="hubble-container">
-                                <img src="{pan_url}" id="geeks">
+                            <div id="hubble-container w-full">
+                                <!-- <img src="{pan_url}" id="geeks"> -->
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/The_raging_hulk_-_Flickr_-_Stiller_Beobachter.jpg/2880px-The_raging_hulk_-_Flickr_-_Stiller_Beobachter.jpg" alt="Pan" id="geeks">
                                 <!-- <p >{pan_attach}</p> -->
                               </div>
   

@@ -8,6 +8,7 @@
     import { allowed_pdf_size } from "../services/pravesh_config";
     import {bulk_emp_map} from "../services/dashboard_services";
     import Spinner from "./components/spinner.svelte";
+    import { goto } from "$app/navigation";
 
     let toast_text = "";
     let toast_type = null;
@@ -15,6 +16,7 @@
     let excel_upload_message = "";
     let excel_img = "";
     let show_spinner = false;
+    let routePrev = "";
 
     var finJson;
     function process_wb(wb) {
@@ -187,6 +189,27 @@
 
         }
     }
+
+    function routeToDash() {
+        let replaceState = false;
+        goto(routePrev, { replaceState });
+    }
+
+    routePrev = "dashboard";
+
+
+
+
+
+//     function zoom(e) {
+//   var zoomer = e.currentTarget;
+//   e.offsetX ? (offsetX = e.offsetX) : (offsetX = e.touches[0].pageX);
+//   e.offsetY ? (offsetY = e.offsetY) : (offsetX = e.touches[0].pageX);
+//   x = (offsetX / zoomer.offsetWidth) * 100;
+//   y = (offsetY / zoomer.offsetHeight) * 100;
+//   zoomer.style.backgroundPosition = x + "% " + y + "%";
+// }
+
 </script>
 
 {#if show_spinner}
@@ -202,6 +225,8 @@
                     <span class="text-textgrey pr-1 text-base">Home /
                     </span> <span class="flex xs:text-base xs:items-center pl-2">Bulk Employee Mapping</span>
                 </p>
+                <button type="button"
+                class="px-p15 text-sm text-white font-medium py-p10 rounded bg-erBlue ml-3" on:click="{routeToDash}">Back</button>
             </div>
         </div>
     </div>
@@ -250,6 +275,15 @@
                                 </label>
                                 <p class="text-grey ml-4">{excel_img}</p>
                                 <div class="uploadbutton" on:click="{final_map}">Map</div>
+
+
+
+
+
+                                <!-- <figure class="zoom" onmousemove="zoom(event)" style="background-image: url(//res.cloudinary.com/active-bridge/image/upload/slide1.jpg)">
+                                    <img src="//res.cloudinary.com/active-bridge/image/upload/slide1.jpg" />
+                                  </figure> -->
+
                             </div>
                         </div>
                     </div>
@@ -350,3 +384,22 @@ class="border-collapse border border-slate-400  table w-full  text-center workOr
 
 <Toast type={toast_type}  text={toast_text}/>
 <SvelteToast />
+
+
+<!-- <style>
+    figure.zoom {
+  background-position: 50% 50%;
+  position: relative;
+  width: 500px;
+  overflow: hidden;
+  cursor: zoom-in;
+}
+figure.zoom img:hover {
+  opacity: 0;
+}
+figure.zoom img {
+  transition: opacity 0.5s;
+  display: block;
+  width: 100%;
+}
+</style> -->
