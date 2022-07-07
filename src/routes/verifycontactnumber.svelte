@@ -245,7 +245,7 @@ async function verify_otp(){
         otp_message="";
         if(verify_otp_response.body.message.data == true){
             otp_message_status = true;
-            otp_message="OTP Verified ( click on save button on the next section to save the data )"
+            otp_message="OTP Verified"
             $duplicate_facility_data_store.phone_number = $facility_data_store.phone_number;
             route();
 
@@ -455,7 +455,7 @@ function number_cahanged(){
         <div class="formTextSection">
             <p class="formLabelText ">Verify associate contact Number</p>
         </div>
-        <form action="#">
+        <form action="#" onsubmit="return false">
             <div class="formElements">
                 <div class="flex">
                     <div class="formGroup ">
@@ -465,7 +465,7 @@ function number_cahanged(){
                             <span class="searchicon">
                                 <img src="{$img_url_name.img_name}/mobilephone.png" class="placeholderIcon" alt="">
                             </span>
-                            <input type="text" class="inputbox" bind:value={$facility_data_store.phone_number} on:input={()=> check_mobile_number()} on:change={()=>{number_cahanged()}}>
+                            <input type="text" class="inputbox" bind:value={$facility_data_store.phone_number} on:input|preventDefault={()=> check_mobile_number()} on:change={()=>{number_cahanged()}}>
                         </div>
                         <div class="ml-3 flex items-center gap-2 text-bgGreen xsl:mt-2 " id="perfect_sign">
                             <img src="{$img_url_name.img_name}/checked.png" alt="verified img">  Perfect
@@ -507,7 +507,7 @@ function number_cahanged(){
             <p class="formLabelText ">OTP Verification</p>
             <p class="verifyDescription">A 6 digit OTP has been sent to associates mobile number </p>
         </div>
-        <form action="#">
+        <form action="#" onsubmit="return false">
             <div class="formElements">
                 <div class="flex">
                     <div class="formGroup ">
@@ -517,7 +517,7 @@ function number_cahanged(){
                             <span class="searchicon">
                                 <img src="{$img_url_name.img_name}/mobilephone.png" class="placeholderIcon" alt="">
                             </span>
-                            <input type="text" class="inputbox" bind:value={otp}>
+                            <input type="text" class="inputbox" bind:value={otp} >
                         </div>
                     </div>
                 </div>
@@ -542,11 +542,11 @@ function number_cahanged(){
                                 <span> OTP sent on {$facility_data_store.phone_number} <span class="cursor: pointer text-blue-600 text-decoration-line: underline cursor-pointer " on:click={()=>switch_toggele()}>Edit</span>  </span>
                             </p>
                             {#if resend_flag}
-                            <button on:click|preventDefault={()=>resend_otp_function()} class="ErBlueButton mt-3">Resend Otp</button>
+                            <button type="button" on:click|preventDefault={()=>resend_otp_function()} class="ErBlueButton mt-3">Resend Otp</button>
                             {/if}
 
                             
-                            <button on:click|preventDefault={()=>verify_otp()} class="ErBlueButton mt-3">Verify & Proceed</button>
+                            <button type="button" on:click|preventDefault={()=>verify_otp()} class="ErBlueButton mt-3">Verify & Proceed</button>
                         </div>
                     </div>
                 </div>
