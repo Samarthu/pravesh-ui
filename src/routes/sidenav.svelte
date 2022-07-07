@@ -3,6 +3,7 @@
 
     import { goto } from "$app/navigation";
     import {reset_all_stores} from '../services/pravesh_config';
+    import {img_url_name} from '../stores/flags_store';
 
     let routeOnboard = "";
     let routeDashboard = "";
@@ -72,9 +73,13 @@
 <div class="w-full flex">
     <div class="sidenav xshidden" id="mobilemenu">
         <ul class="menuList mt-mt19px">
-            <li class="listItem hidden xs:block">
-                <button on:click={() => routeToPageDashboard()} >
-                    <svg
+            <li class="listItem hidden xs:block" on:click={routeToPageDashboard}>
+                <a href="javascript:void(0)" 
+                class="{current === 'routeToPageDashboard' ? 'active' : ''}"
+                   on:click="{() => current = 'routeToPageDashboard'}"
+                   >
+                <!-- <button on:click={() => routeToPageDashboard()} > -->
+                    <!-- <svg
                         class="svgIcon"
                         width="22"
                         height="22"
@@ -95,9 +100,15 @@
                             stroke-linecap="round"
                             stroke-linejoin="round"
                         />
-                    </svg>
+                    </svg> -->
+                    <img
+                    src="{$img_url_name.img_name}/home.png"
+                    class="xs:hidden sm:hidden block"
+                    alt="homelogolg"
+                />
                     <span  class="menuname">Home</span>
-                </button>
+                <!-- </button> -->
+                </a>
             </li>
             <li   class="listItem">
                 <a href="javascript:void(0)" 
