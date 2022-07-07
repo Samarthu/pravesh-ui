@@ -72,8 +72,9 @@ const download_beejak_docs = (beejak_id) =>{
     }, true
     ).then(response => response.blob())
     .then(function(myBlob) {
-      var objectURL = URL.createObjectURL(myBlob);
-      console.log("objectURL",objectURL)
+        console.log("myBlob",myBlob)
+    //   var objectURL = URL.createObjectURL(myBlob);
+    //   console.log("objectURL",objectURL)
     //   myImage.src = objectURL;
     });
 }
