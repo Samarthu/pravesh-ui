@@ -23,6 +23,7 @@
     import Toast from './components/toast.svelte';
     import { SvelteToast, toast } from '@zerodevx/svelte-toast'
     import {success_toast ,error_toast,warning_toast} from '../services/toast_theme';
+    import { page } from "$app/stores";
     
     let toast_text = "";
     let toast_type = null;
@@ -73,6 +74,10 @@
 
     // console.log(dashboard)
     onMount(async () => {
+
+        page_name = $page.url["pathname"].split("/").pop();
+        console.log("bank pahge name", page_name);
+
         console.log("facility data store",$facility_data_store);
         console.log("facility id store",$facility_id);
 
@@ -454,25 +459,25 @@
             show_spinner = false;
             return;
         }
-        var download_beejak_docs_res =await  download_beejak_docs(invArr)
-        console.log("download_beejak_docs_res",download_beejak_docs_res)
-        // window.URL.createObjectURL(download_beejak_docs_res.body);
-        // window.open(download_beejak_docs_res.body);
-        try{
+        // var download_beejak_docs_res =await  download_beejak_docs(invArr)
+        // console.log("download_beejak_docs_res",download_beejak_docs_res)
+        // // window.URL.createObjectURL(download_beejak_docs_res.body);
+        // // window.open(download_beejak_docs_res.body);
+        // try{
             show_spinner =false;
-            var a = document.createElement('a');
-			var url = window.URL.createObjectURL(download_beejak_docs_res.body);
-			a.href = url;
+            // var a = document.createElement('a');
+			// var url = window.URL.createObjectURL(download_beejak_docs_res.body);
+			a.href = page_name+"/api/method/pravesh.facility.routes.document.get_beejak_invoices?invoice_ids="+invArr;
 			var filename = "BeejakInvoices";
-			var disposition = download_beejak_docs_res.xhr.getResponseHeader('Content-Disposition');
-			disposition = disposition.replace("filename=\"", "", 1)
-			disposition = disposition.slice(0, -1)
+			// var disposition = download_beejak_docs_res.xhr.getResponseHeader('Content-Disposition');
+			// disposition = disposition.replace("filename=\"", "", 1)
+			// disposition = disposition.slice(0, -1)
 
-			if (disposition && disposition.indexOf('attachment') !== -1) {
-				var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-				var matches = filenameRegex.exec(disposition);
-				if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
-			}
+			// if (disposition && disposition.indexOf('attachment') !== -1) {
+			// 	var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+			// 	var matches = filenameRegex.exec(disposition);
+			// 	if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
+			// }
 
 			a.download = filename;
 			a.target = "_blank";
@@ -481,15 +486,15 @@
 			a.remove();
 			window.URL.revokeObjectURL(url);
     }
-    catch(err){
-        show_spinner =false;
-        // toast_text=err
-        // toast_type = "error"
-        error_toast(err)
+    // catch(err){
+    //     show_spinner =false;
+    //     // toast_text=err
+    //     // toast_type = "error"
+    //     error_toast(err)
 
-    }
+    // }
 
-    }
+    // }
 
     function find_by_client_id(){
         find_by_client_id_model.style.display = "block";

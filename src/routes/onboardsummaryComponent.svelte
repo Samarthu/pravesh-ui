@@ -2410,6 +2410,9 @@ import { current_user } from "../stores/current_user_store";
                                     {#if is_adhoc_facility == true}
                                     <b> - ( Adhoc )</b>
                                    {/if}
+                                   {#if is_blacklisted == true}
+                                   <b> - ( Blacklisted )</b>  
+                                   {/if}
                                 </div>
                             </div>
                         </div>
