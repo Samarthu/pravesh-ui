@@ -3860,8 +3860,8 @@
 
                          <div class="imageZoom border rounded mt-2">
                             <div id="hubble-container w-full">
-                                <!-- <img src="{pan_url}" id="geeks"> -->
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/The_raging_hulk_-_Flickr_-_Stiller_Beobachter.jpg/2880px-The_raging_hulk_-_Flickr_-_Stiller_Beobachter.jpg" alt="Pan" id="geeks">
+                                <img src="{pan_url}" id="geeks">
+                                <!-- <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f2/The_raging_hulk_-_Flickr_-_Stiller_Beobachter.jpg/2880px-The_raging_hulk_-_Flickr_-_Stiller_Beobachter.jpg" alt="Pan" id="geeks"> -->
                                 <!-- <p >{pan_attach}</p> -->
                               </div>
   
@@ -3902,7 +3902,7 @@
                          </div>   
 
                          <div class="imageZoom border rounded mt-2">
-                            <div id="hubble-container">
+                            <div id="hubble-container w-full">
                                 <img src="{voter_url}"  id="geeks">
                             </div>
 
@@ -4005,7 +4005,7 @@
                              </div>   
 
                              <div class="imageZoom border rounded mt-2">
-                                <div id="hubble-container">
+                                <div id="hubble-container w-full">
                                     <img src="{aadhar_url}" id="geeks">
                                 </div>
 
@@ -4044,7 +4044,7 @@
                          </div>   
 
                          <div class="imageZoom border rounded mt-2">
-                            <div id="hubble-container">
+                            <div id="hubble-container w-full">
                                 <img src="{dl_url}" id="geeks">
                             </div>
 
@@ -4085,7 +4085,7 @@
                          </div>   
 
                          <div class="imageZoom border rounded mt-2">
-                            <div id="hubble-container">
+                            <div id="hubble-container w-full">
                                 <img src="{address_url}" id="geeks">
                             </div>
 
@@ -4128,7 +4128,7 @@
                          </div>   
 
                          <div class="imageZoom border rounded mt-2">
-                            <div id="hubble-container">
+                            <div id="hubble-container w-full">
                                 <img src="{offer_url}" id="geeks">
                             </div>
 
@@ -4248,7 +4248,7 @@
                      </div> -->
                      {#if show_blk_cheque == 1}
                      <div class="imageZoom border rounded mt-2">
-                        <div id="hubble-container">
+                        <div id="hubble-container w-full">
                           <!-- <img src="{blk_cheque_url}"  id="hubblepic"> -->
                           <img src="{blk_cheque_url}"  id="geeks">
                           <!-- id="hubblepic" -->
@@ -4265,7 +4265,7 @@
                      </div>
                      {:else if show_can_cheuque == 1}
                      <div class="imageZoom border rounded mt-2">
-                        <div id="hubble-container">
+                        <div id="hubble-container w-full">
                           <!-- <img src="{can_cheque_url}"  id="hubblepic"> -->
                           <img src="{can_cheque_url}"  id="geeks">
                           <!-- id="hubblepic" -->
@@ -4282,7 +4282,7 @@
                      </div>
                      {:else if show_passbook == 1}
                      <div class="imageZoom border rounded mt-2">
-                        <div id="hubble-container">
+                        <div id="hubble-container w-full">
                           <!-- <img src="{passbook_url}"  id="hubblepic"> -->
                           <img src="{passbook_url}"  id="geeks">
                           <!-- id="hubblepic" -->
@@ -4299,7 +4299,7 @@
                      </div>
                      {:else if show_acnt_stmt == 1}
                      <div class="imageZoom border rounded mt-2">
-                        <div id="hubble-container">
+                        <div id="hubble-container w-full">
                           <!-- <img src="{acc_stmt_url}"  id="hubblepic"> -->
                           <img src="{acc_stmt_url}"  id="geeks">
                           <!-- id="hubblepic" -->
@@ -4584,7 +4584,7 @@
                     </div>    
                     {#if show_aadhar == 1}
                     <div class="imageZoom border rounded mt-2">
-                        <div id="hubble-container">
+                        <div id="hubble-container w-full">
                             <img src="{aadhar_url}"  alt="AC" id="geeks" >
 
                         </div>
@@ -4595,7 +4595,7 @@
                      </div>
                      {:else if show_voter == 1}
                      <div class="imageZoom border rounded mt-2">
-                        <div id="hubble-container">
+                        <div id="hubble-container w-full">
                             <img src="{voter_url}"  id="geeks">
                         </div>
 
@@ -4612,7 +4612,7 @@
                      </div>
                      {:else if show_pass_photo ==1}
                      <div class="imageZoom border rounded mt-2">
-                        <div id="hubble-container">
+                        <div id="hubble-container w-full">
                             <img src="{pass_photo_url}"  id="geeks">
                         </div>
 
@@ -4779,7 +4779,7 @@
                      {#if !address_url}<p>No address document submitted</p>
                      {:else}
                      <div class="imageZoom border rounded mt-2">
-                        <div id="hubble-container">
+                        <div id="hubble-container w-full">
                             <img src="{address_url}" id="geeks">
                         </div>
 
@@ -4980,7 +4980,7 @@
                          {#if !dl_url}<p>No Driving Licence document submitted</p>
                          {:else}
                          <div class="imageZoom border rounded mt-2">
-                            <div id="hubble-container">
+                            <div id="hubble-container w-full">
                                 <img src="{dl_url}" id="geeks">
                             </div>
 
@@ -5098,7 +5098,7 @@
                         {#if !police_url}<p>No Police Verification document submitted</p>
                          {:else}
                         <div class="imageZoom border rounded mt-2">
-                            <div id="hubble-container">
+                            <div id="hubble-container w-full">
                                 <img src="{police_url}"  id="geeks">
                             </div>
 
@@ -5206,7 +5206,7 @@
                             {#if !dl_url}<p>No PanCard document submitted</p>
                             {:else}
                             <div class="imageZoom border rounded mt-2">
-                                <div id="hubble-container">
+                                <div id="hubble-container w-full">
                                     <img src="{pan_url}"  id="geeks">
                                     <!-- id="hubblepic" -->
                                 </div>
