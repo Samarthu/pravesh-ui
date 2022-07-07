@@ -20,8 +20,7 @@ const config = {
           },      
         paths: {
             assets: '',
-            // base: '/pravesh-ui'
-            base:'http://bswarm.ntex.com:81/SecondaryConsolidation/'
+            base: '/pravesh-ui'
         },
         adapter: adapter({
             // default options are shown
