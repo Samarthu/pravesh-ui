@@ -72,9 +72,12 @@ const download_beejak_docs = (beejak_id) =>{
 			responseType: 'blob'
 		}
     }, true
-    ).then((value)=>{
-        console.log("value",value)
-    })
+    ).then(response => response.blob())
+    .then(function(myBlob) {
+      var objectURL = URL.createObjectURL(myBlob);
+      console.log("objectURL",objectURL)
+    //   myImage.src = objectURL;
+    });
 }
 
 const find_by_one_ser =(key,key_type)=>{
