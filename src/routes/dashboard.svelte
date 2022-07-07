@@ -75,8 +75,8 @@
     // console.log(dashboard)
     onMount(async () => {
 
-        page_name = $page.url["pathname"].split("/").pop();
-        console.log("bank pahge name", page_name);
+        // page_name = $page.url["pathname"].split("/").pop();
+        // console.log("bank pahge name", page_name);
 
         console.log("facility data store",$facility_data_store);
         console.log("facility id store",$facility_id);
@@ -467,7 +467,8 @@
             show_spinner =false;
             var a = document.createElement('a');
 			// var url = window.URL.createObjectURL(download_beejak_docs_res.body);
-			a.href = page_name+"/api/method/pravesh.facility.routes.document.get_beejak_invoices?invoice_ids="+invArr;
+            var page_name = "https://doha-crun.elasticrun.in/api/method/pravesh.facility.routes.document.get_beejak_invoices?invoice_ids="+invArr
+			a.href = page_name
 			var filename = "BeejakInvoices";
 			// var disposition = download_beejak_docs_res.xhr.getResponseHeader('Content-Disposition');
 			// disposition = disposition.replace("filename=\"", "", 1)
@@ -484,7 +485,7 @@
 			document.body.append(a);
 			a.click();
 			a.remove();
-			window.URL.revokeObjectURL(url);
+			window.URL.revokeObjectURL(page_name);
     }
     // catch(err){
     //     show_spinner =false;
@@ -1345,8 +1346,8 @@
                             </div>
                         </div>
                         <div class="form-lable mt-5">
-                            <div class="formInnerGroup">
-                                <textarea class="inputboxcursortext" placeholder="Enter Unique Facility IDs here separated by new line" bind:value={facIds}></textarea>
+                            <div class="formInnerGroup" >
+                                <textarea class="inputboxcursortext resize-none"  rows="6" placeholder="Enter Unique Facility IDs here separated by new line" bind:value={facIds}></textarea>
                             </div>
                         </div>
 

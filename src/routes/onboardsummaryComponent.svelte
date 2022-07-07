@@ -2407,11 +2407,11 @@ import { current_user } from "../stores/current_user_store";
                                         </p>
                                         {/if} 
                                     {/if}  
-                                    {#if is_adhoc_facility == true}
-                                    <b> - ( Adhoc )</b>
-                                   {/if}
-                                   {#if is_blacklisted == true}
+                                    
+                                   {#if $facility_data_store.is_blacklisted == 1}
                                    <b> - ( Blacklisted )</b>  
+                                   {:else if is_adhoc_facility == true}
+                                   <b> - ( Adhoc )</b>
                                    {/if}
                                 </div>
                             </div>

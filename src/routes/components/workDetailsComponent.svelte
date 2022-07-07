@@ -1138,6 +1138,7 @@
             let save_doc_res = await uploadDocs(new_doc_payload);
             try {
                 if(save_doc_res.body.status == "green"){
+                    closeViewModel()
                     show_spinner = false;
                     // toast_type = "success"
                     // toast_text = save_doc_res.body.message;
@@ -1725,7 +1726,7 @@
 
     const onFileSelected = (e,doctext) => {
         let img = e.target.files[0];
-        let extention_name = image.name.slice((image.name.lastIndexOf(".") - 1 >>> 0) + 2);
+        let extention_name = img.name.slice((img.name.lastIndexOf(".") - 1 >>> 0) + 2);
         // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
        
         if(extention_name == "pdf" || extention_name == "jpg" || extention_name == "png" || extention_name == "jpeg"){
@@ -3203,16 +3204,16 @@
                         <label
                             class="cursor-pointer flex"
                         >
-                            <button
+                            <div
                                 class="ErBlueButton"
                             >
                                 Select File
-                            </button>
+                    </div>
                             
                             <input
                                 type="file"
                                 class="hidden"
-                                        on:change={(
+                                        on:change|preventDefault={(
                                             e
                                         ) =>
                                             onFileSelected(
@@ -3226,7 +3227,7 @@
                         <p>{new_offer_img}</p>
                     </div>
                     <button
-                    class="ErBlueButton" on:click={upload_offer_func}
+                    class="ErBlueButton" on:click|preventDefault={upload_offer_func}
                 >
                     Upload 
                 </button>
