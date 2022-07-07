@@ -36,6 +36,8 @@
     let bank_details_rejected = 0;
     let bank_details_rejected_display_name;
     let bgv_pending=0;
+    let onboarding_in_progress = 0;
+    let onboarding_in_progress_display_name;
     let bgv_pending_display_name;
     let id_verification_pending = 0;
     let id_verification_pending_display_name;
@@ -44,6 +46,8 @@
     let pending_offer_letter=0;
     let pending_offer_letter_display_name;
     let bgv_rejected = 0;
+    let bank_beneficiary_pending = 0;
+    let bank_beneficiary_pending_display_name;
     let bgv_rejected_display_name;
     let fac_count_array = [];
     let ven_type_arr = [];
@@ -159,6 +163,11 @@
                     id_verification_pending_display_name =
                         new_dash_data.display_name;
                 }
+                if (new_dash_data.name == "onboarding in progress") {
+                    onboarding_in_progress = new_dash_data.count;
+                    onboarding_in_progress_display_name =
+                        new_dash_data.display_name;
+                }
                 // if(new_dash_data.name == "bank details pending"){
                 //     bank_details_pending = new_dash_data.count
                 //     console.log("bank_details_pending++",bank_details_pending)
@@ -184,6 +193,10 @@
                 if (new_dash_data.name == "background verification rejected") {
                     bgv_rejected = new_dash_data.count;
                     bgv_rejected_display_name = new_dash_data.display_name;
+                }
+                if (new_dash_data.name == "bank beneficiary pending") {
+                    bank_beneficiary_pending = new_dash_data.count;
+                    bank_beneficiary_pending_display_name = new_dash_data.display_name;
                 }
             }
         }
@@ -295,8 +308,14 @@
     function id_verification_pending_clicked() {
         goto("./supplier?status=" + id_verification_pending_display_name);
     }
+    function onboarding_in_progress_clicked(){
+        goto("./supplier?status=" + onboarding_in_progress_display_name);
+    }
     function bank_verification_pending_clicked() {
         goto("./supplier?status=" + bank_verification_pending_display_name);
+    }
+    function bank_beneficiary_pending_clicked(){
+        goto("./supplier?status=" + bank_beneficiary_pending_display_name);
     }
     function pending_offer_clicked() {
         goto("./supplier?status=" + pending_offer_letter_display_name);
@@ -519,7 +538,7 @@
     }
     
     async function find_by_one(){
-        if(!find_by_data){
+        if(!find_by_data || find_by_data.length < 3){
             
             if(find_by == "clientname"){
                 // toast_text = "Enter Valid Client Name."
@@ -926,6 +945,37 @@
                     </p>
                 </div>
                 <div class="cards">
+
+                    <div
+                    class="cardActionother"
+                    on:click={onboarding_in_progress_clicked}
+                >
+                    <div class="cardContentText flex">
+                        <div class="cardimg mr-3">
+                            <img
+                                src="{$img_url_name.img_name}/pendingid.png"
+                                alt=""
+                            />
+                        </div>
+                        <div class="content">
+                            <h1 class="dashHeading ">
+                                Onboarding in Progress
+                            </h1>
+                            <p class="dashDes ">Pending from VMT Team</p>
+                        </div>
+                    </div>
+                    <div class="cardCount">
+                        <div class="bgcircleother ">
+                            <span class="countcircleother  "
+                                >{onboarding_in_progress}</span
+                            >
+                        </div>
+                    </div>
+                </div>
+
+
+
+
                     <div
                         class="cardActionother"
                         on:click={id_verification_pending_clicked}
@@ -952,6 +1002,7 @@
                             </div>
                         </div>
                     </div>
+                    
                     <div
                         class="cardActionother "
                         on:click={bank_verification_pending_clicked}
@@ -1007,7 +1058,7 @@
                         </div>
                     </div>
                     
-                    <div class="cardActionother " on:click={bgv_pending_clicked}>
+                    <div class="cardActionother " on:click={bank_beneficiary_pending_clicked}>
                         <div class="cardContentText flex">
                             <div class="cardimg mr-3">
                                 <img
@@ -1016,13 +1067,13 @@
                                 />
                             </div>
                             <div class="content">
-                                <h1 class="dashHeading ">BGV Pending</h1>
+                                <h1 class="dashHeading ">Bank Beneficiary Pending</h1>
                                 <p class="dashDes ">Take required action</p>
                             </div>
                         </div>
                         <div class="cardCount">
                             <div class="bgcircleother ">
-                                <span class="countcircleother">{bgv_pending}</span>
+                                <span class="countcircleother">{bank_beneficiary_pending}</span>
                             </div>
                         </div>
                     </div>
@@ -1529,23 +1580,29 @@
                         <table class="table  w-full text-center mt-2 ">
                             <thead class="h-10 tabletrheader">
                                 <tr>
-                                    <th width="25%">Client Name</th>
-                                    <th width="25%">Station Code</th>
-                                    <th width="25%">Associate Name</th>
-                                    <th width="25%">Associate ID</th>
+                                   <th width="25%"> <div class="text-center"> Client Name</div></th>
+                                     <th width="25%"><div class="text-center">  Station Code</div></th>
+                                    <th width="25%"><div class="text-center">  Associate Name</div></th>
+                                    <th width="25%"><div class="text-center">  Associate ID</div></th>
                                 </tr>
                             </thead>
                             
                             <tbody class="outline tabletrBody">
+                                {#if find_by_arr.length != 0}
                                 {#each find_by_arr as client}
                                 <tr class="border-b">
                                     
                                     <td><div class="w-64 xsl:w-48 break-words text-center m-auto">{#if client.org_specific_name}{client.org_specific_name}{:else}<p>-</p>{/if}</div></td>
-                                    <td>{#if client.conf_station_code}{client.conf_station_code}{:else}<p>-</p>{/if}</td>
+                                    <td> <div class=" text-center m-auto">{#if client.conf_station_code}{client.conf_station_code}{:else}<p>-</p>{/if}</div></td>
                                     <td><div class="w-64 xsl:w-48 break-words text-center m-auto">{#if client.facility_name}{client.facility_name}{:else}<p>-</p>{/if}</div></td>
-                                    <td>{#if client.facility_id}{client.facility_id}{:else}<p>-</p>{/if}</td>
+                                    <td> <div class=" text-center m-auto">{#if client.facility_id}{client.facility_id}{:else}<p>-</p>{/if}</div></td>
                                 </tr>
                                 {/each}
+                                {:else}
+                                    <div class="text-center m-auto">
+                                    <p class="ml-10">No Client Name Linking Found</p>
+                                </div>
+                                {/if}
                             </tbody>
                         </table>
                     </div>
