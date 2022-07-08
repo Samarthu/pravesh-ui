@@ -136,6 +136,7 @@
                 pan_verified:null,
                 pan_rejected:null
             }
+            export let document_data_load;
             export let aadhar_obj = {
                 aadhar_num:null,
                 aadhar_attach:null,
@@ -1138,6 +1139,7 @@
             try {
                 if(save_doc_res.body.status == "green"){
                     closeViewModel()
+                    document_data_load();
                     show_spinner = false;
                     // toast_type = "success"
                     // toast_text = save_doc_res.body.message;
@@ -1673,42 +1675,15 @@
             "doc_type":document_type
             }
             let doc_res = await approve_reject_status(document_load)
-            
             try{
                 if(doc_res.body.status == "green"){
                     show_spinner = false;
                     // toast_text = doc_res.body.message;
                     // toast_type = "success";
                     success_toast(doc_res.body.message)
-
-    
-                    let facility_document_res = await facility_document();
-                    try{
-                        if(facility_document_res != "null"){
-                        facility_document_data = [];
-                        facility_document_data = facility_document_res.body.data;
-                            for(let i=0;i<facility_document_data.length;i++){
-                            let doc_modified_format = new Date(facility_document_data[i].modified);
-                            let doc_modified_date = get_date_format(doc_modified_format,"dd-mm-yyyy-hh-mm");
-                            
-                            facility_document_data[i].modified = doc_modified_date
-                                facility_document_data = facility_document_data.sort((a, b) => new Date(b.modified) - new Date(a.modified));
-                            
-                            closeApproveViewModel();
-                            location.reload();
-                            }
-                        
-                        }
+                    closeApproveViewModel();
+                    document_data_load();
                     }
-                    catch(err){
-                        show_spinner = false;
-                        // toast_type = "error";
-                        // toast_text = err;
-                        error_toast(err)
-
-                        closeApproveViewModel();
-                    }
-                }
             }
             catch(err){
                 show_spinner = false;
@@ -2089,7 +2064,6 @@
                             <div class="flex items-start">
                                 <img src="{$img_url_name.img_name}/addressproof.png" class="invisible" alt="">
                                 <div class="pl-4 flex items-center">
-                                    
                                     {#if show_upload_btn == false}
                                     <p>Not Required</p>
                                     {:else if !new_off_file_obj.offer_name}

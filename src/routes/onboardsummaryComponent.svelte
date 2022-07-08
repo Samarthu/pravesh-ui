@@ -1007,7 +1007,8 @@ import { current_user } from "../stores/current_user_store";
                 
                 $documents_store.documents = JSON.parse(JSON.stringify(facility_document_res.body.data));
                 $duplicate_documents_store.documents = JSON.parse(JSON.stringify(facility_document_res.body.data));
-                // console.log("duplicate document store",$duplicate_documents_store)
+                
+                console.log("facility_document_res",facility_document_res)
     
                 // console.log("documents_store",$documents_store)
                 // for(let i=0;i < $documents_store.length;i++){
@@ -1015,7 +1016,10 @@ import { current_user } from "../stores/current_user_store";
                 // }
     
                 facility_document_data = facility_document_res.body.data;
+                console.log("facility_document_res",facility_document_data)
+    
                 for (var i = 0; i < facility_document_data.length; i++) {
+                    // console.log("facility_document_data",facility_document_data[i])
                     let doc_date_format = new Date(facility_document_data[i].creation);
 
                     
@@ -1025,9 +1029,10 @@ import { current_user } from "../stores/current_user_store";
                     let doc_modified_date = get_date_format(doc_modified_format,"dd-mm-yyyy-hh-mm");
                     facility_document_data[i].creation = doc_creation_date
                     facility_document_data[i].modified = doc_modified_date
-                    facility_document_data = facility_document_data.sort((a, b) => new Date(b.modified) - new Date(a.modified));
-                    
-                   
+                    // console.log("facility_document_data",facility_document_data[i])
+                    // facility_document_data = facility_document_data.sort((a, b) => new Date(b.modified) - new Date(a.modified));
+                    // console.log("facility_document_data[i].doc_type",facility_document_data[i])
+                    console.log("facility_document_data",facility_document_data[i])
                     
                     if(facility_document_data[i].doc_type == "pan-photo"){
                         if(facility_document_data[i].doc_number){
@@ -1042,7 +1047,7 @@ import { current_user } from "../stores/current_user_store";
                         
                     }
                     
-                    else if(facility_document_data[i].doc_type == "aadhar-id-proof"){
+                    if(facility_document_data[i].doc_type == "aadhar-id-proof"){
                         // console.log("Inside aadhar id proof")
                         if(facility_document_data[i].doc_number){
                             changed_aadhar_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, '*');
@@ -1055,15 +1060,25 @@ import { current_user } from "../stores/current_user_store";
                         aadhar_type:facility_document_data[i].doc_type};
                         
                     }
-                    else if(facility_document_data[i].doc_type == "fac-photo"){
+                    if(facility_document_data[i].doc_type == "fac-photo"){
                         // console.log("Inside pass photo")
                         fac_photo_obj={
                         profile_url : facility_document_data[i].file_url,
                         profile_verified : facility_document_data[i].verified,
                         profile_rejected : facility_document_data[i].rejected};
                     }
-                    else if(facility_document_data[i].doc_type == "addproof-photo"){
-                        // console.log("Inside addproof photo")
+                    if(facility_document_data[i].doc_type == "newOffFile"){
+                        console.log("Inside newOffFile")
+                        new_off_file_obj = {offer_name : facility_document_data[i].file_name,
+                        offer_url : facility_document_data[i].file_url,
+                        offer_verified : facility_document_data[i].verified,
+                        offer_rejected : facility_document_data[i].rejected,
+                        offer_number:facility_document_data[i].doc_number,
+                        offer_type:facility_document_data[i].doc_type};
+                        
+                    }
+                    if(facility_document_data[i].doc_type == "addproof-photo"){
+                        console.log("Inside addproof photo")
                         addproof_obj = {address_name : facility_document_data[i].file_name,   
                         address_url : facility_document_data[i].file_url,
                         address_number:facility_document_data[i].doc_number,
@@ -1071,7 +1086,7 @@ import { current_user } from "../stores/current_user_store";
                         address_verified : facility_document_data[i].verified,
                         address_rejected : facility_document_data[i].rejected};
                     }
-                    else if(facility_document_data[i].doc_type == "can-cheque"){
+                     if(facility_document_data[i].doc_type == "can-cheque"){
                         // console.log("Inside can cheque")
                         can_cheque_obj = {can_cheque_name : facility_document_data[i].file_name,
                         can_cheque_url : facility_document_data[i].file_url,
@@ -1080,7 +1095,7 @@ import { current_user } from "../stores/current_user_store";
                         can_cheque_num:facility_document_data[i].doc_number,
                         can_cheque_type:facility_document_data[i].doc_type};
                     }
-                    else if(facility_document_data[i].doc_type == "blcheque"){
+                     if(facility_document_data[i].doc_type == "blcheque"){
                         // console.log("Inside can cheque")
                         blk_cheque_obj = {blk_cheque_name : facility_document_data[i].file_name,
                         blk_cheque_url : facility_document_data[i].file_url,
@@ -1089,7 +1104,7 @@ import { current_user } from "../stores/current_user_store";
                         blk_cheque_num:facility_document_data[i].doc_number,
                         blk_cheque_type:facility_document_data[i].doc_type};
                     }
-                    else if(facility_document_data[i].doc_type == "passbook"){
+                     if(facility_document_data[i].doc_type == "passbook"){
                         // console.log("Inside can cheque")
                         passbook_obj= {passbook_name : facility_document_data[i].file_name,
                         passbook_url : facility_document_data[i].file_url,
@@ -1099,7 +1114,7 @@ import { current_user } from "../stores/current_user_store";
                         passbook_type:facility_document_data[i].doc_type
                     };
                     }
-                    else if(facility_document_data[i].doc_type == "acc-stat"){
+                     if(facility_document_data[i].doc_type == "acc-stat"){
                         // console.log("Inside can cheque")
                         acc_stmt_obj= {acc_stmt_name : facility_document_data[i].file_name,
                         acc_stmt_url : facility_document_data[i].file_url,
@@ -1109,7 +1124,7 @@ import { current_user } from "../stores/current_user_store";
                         acc_stmt_type:facility_document_data[i].doc_type
                     };
                     }
-                    else if(facility_document_data[i].doc_type == "dl-photo"){
+                     if(facility_document_data[i].doc_type == "dl-photo"){
                         // console.log("Inside dl photo")
                         if(facility_document_data[i].doc_number){
                             changed_dl_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, '*');
@@ -1121,17 +1136,8 @@ import { current_user } from "../stores/current_user_store";
                         dl_rejected : facility_document_data[i].rejected,
                         dl_lic_type:facility_document_data[i].doc_type};
                     }
-                    else if(facility_document_data[i].doc_type == "newOffFile"){
-                        // console.log("Inside newOffFile")
-                        new_off_file_obj = {offer_name : facility_document_data[i].file_name,
-                        offer_url : facility_document_data[i].file_url,
-                        offer_verified : facility_document_data[i].verified,
-                        offer_rejected : facility_document_data[i].rejected,
-                        offer_number:facility_document_data[i].doc_number,
-                        offer_type:facility_document_data[i].doc_type};
-                        
-                    }
-                    else if(facility_document_data[i].doc_type == "voter-id-proof"){
+                    
+                     if(facility_document_data[i].doc_type == "voter-id-proof"){
                         // console.log("Inside voter id proof")
                         if(facility_document_data[i].doc_number){
                             changed_voter_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, '*');
@@ -1149,8 +1155,10 @@ import { current_user } from "../stores/current_user_store";
                     //     toast_type = "error";
                     //     toast_text = "No Document Found";
                     // }
-                }
-                // console.log("acc_stmt_obj",acc_stmt_obj)    
+                }addproof_obj
+                console.log("addproof_obj",addproof_obj)    
+
+                console.log("new_off_file_obj",new_off_file_obj)    
             }
             }
             catch(err) {

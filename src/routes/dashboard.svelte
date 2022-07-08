@@ -64,6 +64,7 @@
     }
     let find_by="clientname";
     let plchldr = "Enter Client Name";
+    let no_details_client = "No Client Name Linking Found"
     let find_by_data = "";
     let find_by_arr = [];
     let bulk_search_var = false;
@@ -529,12 +530,15 @@
     function find_by_option_changed(){
         if(find_by == "clientname"){
             plchldr = "Enter Client Name"
+            no_details_client = "No Client Name Linking Found"
         }
         else if(find_by == "employeeid"){
             plchldr = "Enter Employee Id"
+            no_details_client = "No Employee ID Linking Found"
         }
         else if(find_by == "pancard"){
             plchldr = "Enter Pan Number"
+            no_details_client = "No PAN Number Linking Found"
         }
     }
     
@@ -551,7 +555,6 @@
                 error_toast("Enter Valid Employee ID.")
             }
             else if(find_by == "pancard"){
-                toast_text = "Enter Valid PanCard Number"
                 error_toast("Enter Valid PanCard Number.")
 
             }
@@ -1597,7 +1600,7 @@
                                 {:else}
                                 <tr>
                                     <td colspan="4">
-                                <div class="text-center m-auto"><p class="ml-10">No Client Name Linking Found</p></div>
+                                <div class="text-center m-auto"><p class="ml-10">{no_details_client}</p></div>
                                 </td>
                                 </tr>
                                 {/if}
