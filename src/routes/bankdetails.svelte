@@ -58,7 +58,7 @@
     let bank_type_message = "";
     let form_message = "";
     var acc_number_check = /^[0-9]*$/;
-    var ifsc_code_check = /^[A-Za-z]{4}\d{7}$/;
+    var ifsc_code_check = /^[A-Z]{4}[0][A-Z0-9]{6}$/;
     var account_holder_check = /^[a-zA-Z_\s]{5,}$/;
     let account_number_match_check = false;
 
