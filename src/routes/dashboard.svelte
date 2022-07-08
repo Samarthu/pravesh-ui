@@ -525,6 +525,7 @@
         find_by_client_id_model.style.display = "none";
         find_by_data=""
         find_by_arr=[];
+        
     }
 
     function find_by_option_changed(){
