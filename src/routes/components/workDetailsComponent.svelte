@@ -258,6 +258,8 @@
         ///////Document view Model/////////
             let alt_image="";
             let image_path;
+            let document_number=""
+            let document_type="";
             let new_contract_data = "";
             let cont_cost_center;
             let cont_warehouse = "";
@@ -878,9 +880,7 @@
         try {
             if(work_details_res.body.status == "green"){
                 show_spinner = false;
-                // toast_type = "success";
-                // toast_text = work_details_res.body.message;
-                success_toast(work_details_res.body.message)
+                // success_toast(work_details_res.body.message)
 
                 work_contract_arr = work_details_res.body.data;
                 for(let i=0;i<work_contract_arr.length;i++){
@@ -921,7 +921,7 @@
                 show_spinner = false;
                 // toast_type = "success";
                 // toast_text = physical_contract_res.body.message;
-                success_toast(physical_contract_res.body.message)
+                // success_toast(physical_contract_res.body.message)
 
                 physical_contract_arr = physical_contract_res.body.data;
             }
@@ -948,7 +948,7 @@
                 show_spinner = false;
                 // toast_type = "success";
                 // toast_text = all_accepted_contract_res.body.message;
-                success_toast(all_accepted_contract_res.body.message)
+                // success_toast(all_accepted_contract_res.body.message)
 
                 all_accepted_contract_arr = all_accepted_contract_res.body.data;
                 for(let i=0;i<all_accepted_contract_arr.length;i++){

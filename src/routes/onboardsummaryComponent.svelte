@@ -2442,11 +2442,10 @@ import { current_user } from "../stores/current_user_store";
                                     <p
                                         class="statusContentTag font-normal text-sm  "
                                     >
-                                        <img
-                                            src="{$img_url_name.img_name}/redcircle.png"
-                                            alt=""
-                                            class="w-3 h-3 mr-2"
-                                        />
+                                    <img src="{$img_url_name.img_name}/redcircle.png"
+                                    alt=""
+                                    class="w-3 h-3 mr-2"
+                                />
                                         Documents Rejected
                                     </p>
                                 </div>
@@ -2515,13 +2514,12 @@ import { current_user } from "../stores/current_user_store";
                                 </p>
                                     {:else if new_off_file_obj.offer_rejected == "1"} 
                                     <p
-                                    class="statusContentTag text-rejectcolor font-normal xs:w-5/12"
+                                    class="statusContentTag  font-normal xs:w-5/12"
                                 >
-                                    <img
-                                        src="{$img_url_name.img_name}/reject.png"
-                                        class="pr-2"
-                                        alt=""
-                                    />Offer letter Rejected
+                                <img src="{$img_url_name.img_name}/redcircle.png"
+                                alt=""
+                                class="w-3 h-3 mr-2"
+                            />Offer letter Rejected
                                 </p>
                                 <!-- {:else} -->
                                 {:else if new_off_file_obj.offer_verified == "0" && new_off_file_obj.offer_rejected == "0"}

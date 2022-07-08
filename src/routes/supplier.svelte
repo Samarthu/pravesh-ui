@@ -2859,10 +2859,19 @@ function open_deact_initiate_model(stat){
                                         <td>
                                             {#if facility_data.expand == false}
                                             <div class="shortInfo">
-                                                <div class="paddingrt ml-5">{#if facility_data.error ="" && facility_data.message == ""}
+                                                <div class="items-center">{#if facility_data.error ="" && facility_data.message == ""}
                                                         <p class="smallText">-</p>
                                                         {:else}
-                                                        <p class="smallText">1</p>
+                                                        <!-- <p class="smallText">1</p> -->
+                                                          {#if facility_data.error}
+                                                             <p class="itemList">{facility_data.error}</p>
+                                                             {:else}
+                                                                {#if facility_data.message == ""} 
+                                                                <p class="smallText">-</p>
+                                                                {:else}
+                                                                <p class="smallText">{facility_data.message}</p>
+                                                                {/if}
+                                                            {/if}
                                                         {/if}
                                                 </div>
                                             </div>

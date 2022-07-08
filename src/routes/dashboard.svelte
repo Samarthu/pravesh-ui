@@ -612,15 +612,18 @@
         error_toast("Please upload parseable excel ( .xlsx ) file ")
 		return;
 	}
-	try {
-		finJson = JSON.parse(finJson);
-        // console.log("finJson finJson",finJson)
-	} catch (err) {
-        show_spinner = false;
+	// try {
         
-        error_toast(err)
-		return;
-	}
+    //     if(finJson){
+	// 	    finJson = JSON.parse(finJson);
+    //     }   
+	// } catch (err) {
+    //     console.log("Inside catech")
+    //     show_spinner = false;
+        
+    //     error_toast(err)
+	// 	return;
+	// }
 	if (finJson.client_name_search === undefined || finJson.client_name_search == null) {
         
         error_toast("Client Name Details Missing");
@@ -651,7 +654,7 @@
     ,"search_type":find_by}
 
     let bulk_search_res = await bulk_search_ser(bulk_search_payload);
-    // console.log("bulk_search_res",bulk_search_res)
+    console.log("bulk_search_res",bulk_search_res)
     try{
         if(bulk_search_res.body.status == "green"){
             show_spinner = false;
@@ -1592,7 +1595,7 @@
                                 <tr class="border-b">
                                     
                                     <td><div class="w-64 xsl:w-48 break-words text-center m-auto">{#if client.org_specific_name}{client.org_specific_name}{:else}<p>-</p>{/if}</div></td>
-                                    <td> <div class=" text-center m-auto">{#if client.conf_station_code}{client.conf_station_code}{:else}<p>-</p>{/if}</div></td>
+                                    <td> <div class=" text-center m-auto">{#if client.conf_station_code}{client.conf_station_code.toUpperCase()}{:else}<p>-</p>{/if}</div></td>
                                     <td><div class="w-64 xsl:w-48 break-words text-center m-auto">{#if client.facility_name}{client.facility_name}{:else}<p>-</p>{/if}</div></td>
                                     <td> <div class=" text-center m-auto">{#if client.facility_id}{client.facility_id}{:else}<p>-</p>{/if}</div></td>
                                 </tr>
