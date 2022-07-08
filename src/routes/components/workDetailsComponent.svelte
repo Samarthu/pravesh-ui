@@ -1710,7 +1710,7 @@
         let extention_name = img.name.slice((img.name.lastIndexOf(".") - 1 >>> 0) + 2);
         // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
        
-        if(extention_name == "pdf" || extention_name == "jpg" || extention_name == "png" || extention_name == "jpeg"){
+        if(extention_name == "pdf" || extention_name == "jpg" || extention_name == "png" || extention_name == "jpeg" || extention_name == "csv" || extention_name == "xlsx"){
  
         if (img.size <= allowed_pdf_size) {
             console.log("img", img);
