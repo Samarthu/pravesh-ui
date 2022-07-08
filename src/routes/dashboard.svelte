@@ -525,6 +525,9 @@
         find_by_client_id_model.style.display = "none";
         find_by_data=""
         find_by_arr=[];
+        excel_img=""
+        excel_data=""
+
     }
 
     function find_by_option_changed(){
@@ -612,18 +615,15 @@
         error_toast("Please upload parseable excel ( .xlsx ) file ")
 		return;
 	}
-	// try {
+	try {
+        finJson = JSON.parse(finJson);  
+	} catch (err) {
+        console.log("Inside catech")
+        show_spinner = false;
         
-    //     if(finJson){
-	// 	    finJson = JSON.parse(finJson);
-    //     }   
-	// } catch (err) {
-    //     console.log("Inside catech")
-    //     show_spinner = false;
-        
-    //     error_toast(err)
-	// 	return;
-	// }
+        error_toast(err)
+		return;
+	}
 	if (finJson.client_name_search === undefined || finJson.client_name_search == null) {
         
         error_toast("Client Name Details Missing");

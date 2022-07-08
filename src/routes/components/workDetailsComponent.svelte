@@ -401,36 +401,42 @@
 
             console.log("contract_name",contract_name)
             if(!contract_name){
+                show_spinner=false
                 // toast_type = "error";
                 // toast_text = "Select Contract Type";
                 error_toast("Select Contract Type")
                 return
             }
             if(!org_selected || org_selected == "-1"){
+                show_spinner=false
                 // toast_type = "error";
                 // toast_text = "Select Organization Id";
                 error_toast("Select Organization Id")
                 return
             }
             if(!station_selected || station_selected == "-1"){
+                show_spinner=false
                 // toast_type = "error";
                 // toast_text = "Select Station Id";
                 error_toast("Select Station Id")
                 return
             }
             if(!cont_start_date){
+                show_spinner=false
                 // toast_type = "error";
                 // toast_text = "Select Start Date";
                 error_toast("Select Start Date")
                 return
             }
             if(!cont_end_date){
+                show_spinner=false
                 // toast_type = "error";
                 // toast_text = "Select End Date";
                 error_toast("Select End Date")
                 return
             }
             if(!phy_cont_file){
+                show_spinner=false
                 // toast_type = "error";
                 // toast_text = "Upload File";
                 error_toast("Upload File")
@@ -1711,7 +1717,7 @@
         let extention_name = img.name.slice((img.name.lastIndexOf(".") - 1 >>> 0) + 2);
         // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
        
-        if(extention_name == "pdf" || extention_name == "jpg" || extention_name == "png" || extention_name == "jpeg"){
+        if(extention_name == "pdf" || extention_name == "jpg" || extention_name == "png" || extention_name == "jpeg" || extention_name == "csv" || extention_name == "xlsx"){
  
         if (img.size <= allowed_pdf_size) {
             console.log("img", img);
@@ -1777,6 +1783,7 @@
     async function view_print_doc(assigned_id,type){
         console.log("Inside view print doc")
         console.log("view btn clicked",assigned_id,type)
+        console.log("work_contract_arr",work_contract_arr)
         view_contract = 1;
         let pass_contract_id
         // window.print();
@@ -1785,6 +1792,7 @@
                pass_contract_id = work_contract_arr[i].assigned_id;
             }
         }
+        console.log("pass_contract_id",pass_contract_id)
         let print_data_res = await print_data(pass_contract_id);
         try {
             if(print_data_res.body.status == "green" && print_data_res.body.data != false){
