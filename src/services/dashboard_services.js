@@ -68,13 +68,15 @@ const download_beejak_docs = (beejak_id) =>{
         download_beejak_docs_url, {
         method: "POST",
         contentType: 'application/json',
-        xhrFields: {
-			responseType: 'blob'
-		}
+		responseType: 'blob',
     }, true
-    ).then((value)=>{
-        console.log("value",value)
-    })
+    ).then(response => response.blob())
+    .then(function(myBlob) {
+        console.log("myBlob",myBlob)
+    //   var objectURL = URL.createObjectURL(myBlob);
+    //   console.log("objectURL",objectURL)
+    //   myImage.src = objectURL;
+    });
 }
 
 const find_by_one_ser =(key,key_type)=>{

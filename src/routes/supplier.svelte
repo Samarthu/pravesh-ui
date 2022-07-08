@@ -171,8 +171,8 @@
             else if(new_dash_data.name == "background verification rejected"){
                 bgv_rejected = new_dash_data.count
             }
-            else if(new_dash_data.name == "background verification pending"){
-                bgv_pending = new_dash_data.count
+            else if(new_dash_data.name == "bank beneficiery pending"){
+                bank_beneficiary_pending = new_dash_data.count
             }
             else if(new_dash_data.name  == "bank verification pending"){
                 bank_verification_pending = new_dash_data.count
@@ -506,6 +506,9 @@ else
                             else if(new_dash_data.name  == "bank verification pending"){
                                 bank_verification_pending = new_dash_data.count
                             }
+                            else if(new_dash_data.name  == "bank beneficiary pending"){
+                                bank_beneficiary_pending = new_dash_data.count
+                            }
 
                             
                         }
@@ -650,6 +653,9 @@ else
             }
             else if(new_dash_data.name  == "bank verification pending"){
                 bank_verification_pending = new_dash_data.count
+            }
+            else if(new_dash_data.name  == "bank beneficiary pending"){
+                bank_beneficiary_pending = new_dash_data.count
             }
         }
 
@@ -1086,13 +1092,14 @@ else
             
         }
         else if(status == "-1"){
+            show_spinner = false;
             // toast_type = "error"
             // toast_text ="Please select Status"
             error_toast("Please select Status")
-
             return
         }
         else if(vendor_type_select == "-1"){
+            show_spinner = false;
             // toast_type = "error"
             // toast_text ="Please select Associate/Vendor type"
             error_toast("Please select Associate/Vendor type")
@@ -2187,17 +2194,19 @@ function open_deact_initiate_model(stat){
                 <div class="SectionsCounts ">
                     <p class="PendingVeri">Pending Verification</p>
                     <div class="docRejctedCon flex gap-2">
-                        {#if status == "ID Verification Pending"}
+
+                       
+                        {#if status == "Onboarding in Progress"}
                         <button class="bgdocreject flex-grow" style="background-color: #dddd; border: 1px solid black;">
                             <div class="countHeading">
-                                ID Proof <span class="docRejectCount">{id_verification_pending}</span
+                                Onboarding In Progress <span class="docRejectCount">{onboarding_in_progress}</span
                                 >
                                 </div>
                         </button>
                         {:else}
                         <button class="bgdocreject flex-grow">
-                            <div class="countHeading" on:click={()=>status_pill_clicked("ID Verification Pending")}>
-                                ID Proof <span class="docRejectCount">{id_verification_pending}</span
+                            <div class="countHeading" on:click={()=>status_pill_clicked("Onboarding in Progress")}>
+                                Onboarding In Progress <span class="docRejectCount">{onboarding_in_progress}</span
                                 >
                                 </div>
                         </button>
@@ -2220,17 +2229,17 @@ function open_deact_initiate_model(stat){
                         </button>
                         {/if}
 
-                        {#if status == "Background Verification Pending"}
+                        {#if status == "Bank Beneficiary Pending"}
                         <button class="bgdocreject flex-grow" style="background-color: #dddd; border: 1px solid black;">
                             <div class="countHeading">
-                                BGV Pending <span class="docRejectCount">{bgv_pending}</span
+                                Bank Beneficiary Pending <span class="docRejectCount">{bank_beneficiary_pending}</span
                                 >
                                 </div>
                         </button>
                         {:else}
                         <button class="bgdocreject flex-grow">
-                            <div class="countHeading" on:click={()=>status_pill_clicked("Background Verification Pending")}>
-                                BGV Pending <span class="docRejectCount">{bgv_pending}</span
+                            <div class="countHeading" on:click={()=>status_pill_clicked("Bank Beneficiary Pending")}>
+                                Bank Beneficiary Pending <span class="docRejectCount">{bank_beneficiary_pending}</span
                                 >
                                 </div>
                         </button>
@@ -2362,8 +2371,8 @@ function open_deact_initiate_model(stat){
                                     class="idproof flex-grow flex whitespace-nowrap"
                                 >
                                     <p class="countHeading">
-                                        BGV Pending <span class="idproofcount"
-                                            >{bgv_rejected}</span
+                                        Bank Beneficiary Pending <span class="idproofcount"
+                                            >{bank_beneficiary_pending}</span
                                         >
                                     </p>
                                 </div>
@@ -2375,8 +2384,8 @@ function open_deact_initiate_model(stat){
                             <div class="docRejctedCon flex gap-2">
                                 <div class="bgdocreject flex-grow">
                                     <p class="countHeading whitespace-nowrap">
-                                        ID Proof <span class="docRejectCount"
-                                            >{id_proof_rejected}</span
+                                        Onboarding In Progress <span class="docRejectCount"
+                                            >{onboarding_in_progress}</span
                                         >
                                     </p>
                                 </div>
@@ -2850,10 +2859,19 @@ function open_deact_initiate_model(stat){
                                         <td>
                                             {#if facility_data.expand == false}
                                             <div class="shortInfo">
-                                                <div class="paddingrt ml-5">{#if facility_data.error ="" && facility_data.message == ""}
+                                                <div class="items-center">{#if facility_data.error ="" && facility_data.message == ""}
                                                         <p class="smallText">-</p>
                                                         {:else}
-                                                        <p class="smallText">1</p>
+                                                        <!-- <p class="smallText">1</p> -->
+                                                          {#if facility_data.error}
+                                                             <p class="itemList">{facility_data.error}</p>
+                                                             {:else}
+                                                                {#if facility_data.message == ""} 
+                                                                <p class="smallText">-</p>
+                                                                {:else}
+                                                                <p class="smallText">{facility_data.message}</p>
+                                                                {/if}
+                                                            {/if}
                                                         {/if}
                                                 </div>
                                             </div>

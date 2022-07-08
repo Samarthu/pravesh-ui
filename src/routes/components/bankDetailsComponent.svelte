@@ -86,6 +86,7 @@
         //     address_verified:null,
         //     address_rejected:null
         // };
+        export let document_data_load;
         export let can_cheque_obj = {
             can_cheque_name:null,
             can_cheque_url:null,
@@ -384,40 +385,16 @@
     }
     let doc_res = await approve_reject_status(document_load)
     
+    
     try{
         if(doc_res.body.status == "green"){
             show_spinner = false;
             // toast_text = doc_res.body.message;
             // toast_type = "success";
             success_toast(doc_res.body.message)
-
-
-            let facility_document_res = await facility_document();
-            try{
-                if(facility_document_res != "null"){
-                facility_document_data = [];
-                facility_document_data = facility_document_res.body.data;
-                    for(let i=0;i<facility_document_data.length;i++){
-                    let doc_modified_format = new Date(facility_document_data[i].modified);
-                    let doc_modified_date = get_date_format(doc_modified_format,"dd-mm-yyyy-hh-mm");
-                    
-                    facility_document_data[i].modified = doc_modified_date
-                        facility_document_data = facility_document_data.sort((a, b) => new Date(b.modified) - new Date(a.modified));
-                    
-                    closeApproveViewModel();
-                    }
-                
-                }
+            closeApproveViewModel();
+            document_data_load();
             }
-            catch(err){
-                show_spinner = false;
-                // toast_type = "error";
-                // toast_text = err;
-                error_toast(err)
-
-                closeApproveViewModel();
-            }
-        }
     }
     catch(err){
         show_spinner = false;
@@ -428,13 +405,14 @@
     }
         
 }
+
 function closeApproveViewModel(){
     img_model_approve_rej.style.display = "none";
     document.getElementById("img_model").style.display = "none";
 }
     
     const onFileSelected = (e,doctext) => {
-        let img = e.target.files[0];
+        let image = e.target.files[0];
         let extention_name = image.name.slice((image.name.lastIndexOf(".") - 1 >>> 0) + 2);
         // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
        

@@ -23,6 +23,7 @@
     import Toast from './components/toast.svelte';
     import { SvelteToast, toast } from '@zerodevx/svelte-toast'
     import {success_toast ,error_toast,warning_toast} from '../services/toast_theme';
+    import { page } from "$app/stores";
     
     let toast_text = "";
     let toast_type = null;
@@ -35,6 +36,8 @@
     let bank_details_rejected = 0;
     let bank_details_rejected_display_name;
     let bgv_pending=0;
+    let onboarding_in_progress = 0;
+    let onboarding_in_progress_display_name;
     let bgv_pending_display_name;
     let id_verification_pending = 0;
     let id_verification_pending_display_name;
@@ -43,6 +46,8 @@
     let pending_offer_letter=0;
     let pending_offer_letter_display_name;
     let bgv_rejected = 0;
+    let bank_beneficiary_pending = 0;
+    let bank_beneficiary_pending_display_name;
     let bgv_rejected_display_name;
     let fac_count_array = [];
     let ven_type_arr = [];
@@ -59,6 +64,7 @@
     }
     let find_by="clientname";
     let plchldr = "Enter Client Name";
+    let no_details_client = "No Client Name Linking Found"
     let find_by_data = "";
     let find_by_arr = [];
     let bulk_search_var = false;
@@ -73,6 +79,10 @@
 
     // console.log(dashboard)
     onMount(async () => {
+
+        // page_name = $page.url["pathname"].split("/").pop();
+        // console.log("bank pahge name", page_name);
+
         console.log("facility data store",$facility_data_store);
         console.log("facility id store",$facility_id);
 
@@ -154,6 +164,11 @@
                     id_verification_pending_display_name =
                         new_dash_data.display_name;
                 }
+                if (new_dash_data.name == "onboarding in progress") {
+                    onboarding_in_progress = new_dash_data.count;
+                    onboarding_in_progress_display_name =
+                        new_dash_data.display_name;
+                }
                 // if(new_dash_data.name == "bank details pending"){
                 //     bank_details_pending = new_dash_data.count
                 //     console.log("bank_details_pending++",bank_details_pending)
@@ -179,6 +194,10 @@
                 if (new_dash_data.name == "background verification rejected") {
                     bgv_rejected = new_dash_data.count;
                     bgv_rejected_display_name = new_dash_data.display_name;
+                }
+                if (new_dash_data.name == "bank beneficiary pending") {
+                    bank_beneficiary_pending = new_dash_data.count;
+                    bank_beneficiary_pending_display_name = new_dash_data.display_name;
                 }
             }
         }
@@ -290,8 +309,14 @@
     function id_verification_pending_clicked() {
         goto("./supplier?status=" + id_verification_pending_display_name);
     }
+    function onboarding_in_progress_clicked(){
+        goto("./supplier?status=" + onboarding_in_progress_display_name);
+    }
     function bank_verification_pending_clicked() {
         goto("./supplier?status=" + bank_verification_pending_display_name);
+    }
+    function bank_beneficiary_pending_clicked(){
+        goto("./supplier?status=" + bank_beneficiary_pending_display_name);
     }
     function pending_offer_clicked() {
         goto("./supplier?status=" + pending_offer_letter_display_name);
@@ -454,42 +479,43 @@
             show_spinner = false;
             return;
         }
-        var download_beejak_docs_res =await  download_beejak_docs(invArr)
-        console.log("download_beejak_docs_res",download_beejak_docs_res)
-        // window.URL.createObjectURL(download_beejak_docs_res.body);
-        // window.open(download_beejak_docs_res.body);
-        try{
+        // var download_beejak_docs_res =await  download_beejak_docs(invArr)
+        // console.log("download_beejak_docs_res",download_beejak_docs_res)
+        // // window.URL.createObjectURL(download_beejak_docs_res.body);
+        // // window.open(download_beejak_docs_res.body);
+        // try{
             show_spinner =false;
             var a = document.createElement('a');
-			var url = window.URL.createObjectURL(download_beejak_docs_res.body);
-			a.href = url;
+			// var url = window.URL.createObjectURL(download_beejak_docs_res.body);
+            var page_name = "https://doha-crun.elasticrun.in/api/method/pravesh.facility.routes.document.get_beejak_invoices?invoice_ids="+invArr
+			a.href = page_name
 			var filename = "BeejakInvoices";
-			var disposition = download_beejak_docs_res.xhr.getResponseHeader('Content-Disposition');
-			disposition = disposition.replace("filename=\"", "", 1)
-			disposition = disposition.slice(0, -1)
+			// var disposition = download_beejak_docs_res.xhr.getResponseHeader('Content-Disposition');
+			// disposition = disposition.replace("filename=\"", "", 1)
+			// disposition = disposition.slice(0, -1)
 
-			if (disposition && disposition.indexOf('attachment') !== -1) {
-				var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-				var matches = filenameRegex.exec(disposition);
-				if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
-			}
+			// if (disposition && disposition.indexOf('attachment') !== -1) {
+			// 	var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+			// 	var matches = filenameRegex.exec(disposition);
+			// 	if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
+			// }
 
 			a.download = filename;
 			a.target = "_blank";
 			document.body.append(a);
 			a.click();
 			a.remove();
-			window.URL.revokeObjectURL(url);
+			window.URL.revokeObjectURL(page_name);
     }
-    catch(err){
-        show_spinner =false;
-        // toast_text=err
-        // toast_type = "error"
-        error_toast(err)
+    // catch(err){
+    //     show_spinner =false;
+    //     // toast_text=err
+    //     // toast_type = "error"
+    //     error_toast(err)
 
-    }
+    // }
 
-    }
+    // }
 
     function find_by_client_id(){
         find_by_client_id_model.style.display = "block";
@@ -497,23 +523,27 @@
     }
     function close_find_by_client_id(){
         find_by_client_id_model.style.display = "none";
-        
+        find_by_data=""
+        find_by_arr=[];
     }
 
     function find_by_option_changed(){
         if(find_by == "clientname"){
             plchldr = "Enter Client Name"
+            no_details_client = "No Client Name Linking Found"
         }
         else if(find_by == "employeeid"){
             plchldr = "Enter Employee Id"
+            no_details_client = "No Employee ID Linking Found"
         }
         else if(find_by == "pancard"){
             plchldr = "Enter Pan Number"
+            no_details_client = "No PAN Number Linking Found"
         }
     }
     
     async function find_by_one(){
-        if(!find_by_data){
+        if(!find_by_data || find_by_data.length < 3){
             
             if(find_by == "clientname"){
                 // toast_text = "Enter Valid Client Name."
@@ -525,7 +555,6 @@
                 error_toast("Enter Valid Employee ID.")
             }
             else if(find_by == "pancard"){
-                toast_text = "Enter Valid PanCard Number"
                 error_toast("Enter Valid PanCard Number.")
 
             }
@@ -580,22 +609,24 @@
     console.log("finJson",finJson);
 	if (finJson === undefined || finJson === "") {
         show_spinner = false;
-        toast_type="error"
-        toast_text = "Please upload parseable <br>excel ( .xlsx ) file "
+        error_toast("Please upload parseable excel ( .xlsx ) file ")
 		return;
 	}
-	try {
-		finJson = JSON.parse(finJson);
-        // console.log("finJson finJson",finJson)
-	} catch (err) {
-        show_spinner = false;
-        toast_type="error";
-        toast_text = err
-		return;
-	}
+	// try {
+        
+    //     if(finJson){
+	// 	    finJson = JSON.parse(finJson);
+    //     }   
+	// } catch (err) {
+    //     console.log("Inside catech")
+    //     show_spinner = false;
+        
+    //     error_toast(err)
+	// 	return;
+	// }
 	if (finJson.client_name_search === undefined || finJson.client_name_search == null) {
-        toast_type="error";
-        toast_text = "Client Name Details Missing";
+        
+        error_toast("Client Name Details Missing");
         show_spinner = false;
 		return;
 	}
@@ -606,14 +637,14 @@
     var stationCode = new_obj['Station Code'];
     
     if(!storeName){
-        toast_type="error";
-        toast_text = "Client Name Data Missing In Uploaded File";
+        
+        error_toast("Client Name Data Missing In Uploaded File");
         show_spinner = false;
 		return;
     }
     else if(!stationCode){
-        toast_type="error";
-        toast_text = "Station Code Data Missing In Uploaded File";
+        
+        error_toast("Station Code Data Missing In Uploaded File");
         show_spinner = false;
 		return;
     }
@@ -623,7 +654,7 @@
     ,"search_type":find_by}
 
     let bulk_search_res = await bulk_search_ser(bulk_search_payload);
-    // console.log("bulk_search_res",bulk_search_res)
+    console.log("bulk_search_res",bulk_search_res)
     try{
         if(bulk_search_res.body.status == "green"){
             show_spinner = false;
@@ -673,14 +704,12 @@
         }
         else{
             show_spinner = false;
-            toast_type="error"
-            toast_text=loc_data_res.body.message
+            error_toast(loc_data_res.body.message)
         }
         
         } catch(err) {
             show_spinner = false
-            toast_type="error"
-            toast_text=err;
+            error_toast(err);
         
         }
     }
@@ -711,20 +740,17 @@
         console.log("copy_parent_data",unique_fac_id,city_selected,station_selected); 
         if(!unique_fac_id){
             show_spinner = false;
-            toast_type="error";
-            toast_text="Please Enter Unique Vendor ID"
+            error_toast("Please Enter Unique Vendor ID")
             return;
         }
         else if(!city_selected || city_selected =="-1"){
             show_spinner = false;
-            toast_type="error";
-            toast_text="Please Select a Location"
+            error_toast("Please Select a Location")
             return;
         }
         else if(!station_selected || station_selected == "-1"){
             show_spinner = false;
-            toast_type="error";
-            toast_text="Please select a station"
+            error_toast("Please select a station")
             return;
         }  
         console.log("station_selected",station_selected)
@@ -920,7 +946,38 @@
                     </p>
                 </div>
                 <div class="cards">
+
                     <div
+                    class="cardActionother"
+                    on:click={onboarding_in_progress_clicked}
+                >
+                    <div class="cardContentText flex">
+                        <div class="cardimg mr-3">
+                            <img
+                                src="{$img_url_name.img_name}/pendingid.png"
+                                alt=""
+                            />
+                        </div>
+                        <div class="content">
+                            <h1 class="dashHeading ">
+                                Onboarding in Progress
+                            </h1>
+                            <p class="dashDes ">Pending from VMT Team</p>
+                        </div>
+                    </div>
+                    <div class="cardCount">
+                        <div class="bgcircleother ">
+                            <span class="countcircleother  "
+                                >{onboarding_in_progress}</span
+                            >
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+                    <!-- <div
                         class="cardActionother"
                         on:click={id_verification_pending_clicked}
                     >
@@ -945,7 +1002,8 @@
                                 >
                             </div>
                         </div>
-                    </div>
+                    </div> -->
+                    
                     <div
                         class="cardActionother "
                         on:click={bank_verification_pending_clicked}
@@ -1001,7 +1059,7 @@
                         </div>
                     </div>
                     
-                    <div class="cardActionother " on:click={bgv_pending_clicked}>
+                    <div class="cardActionother " on:click={bank_beneficiary_pending_clicked}>
                         <div class="cardContentText flex">
                             <div class="cardimg mr-3">
                                 <img
@@ -1010,13 +1068,13 @@
                                 />
                             </div>
                             <div class="content">
-                                <h1 class="dashHeading ">BGV Pending</h1>
+                                <h1 class="dashHeading ">Bank Beneficiary Pending</h1>
                                 <p class="dashDes ">Take required action</p>
                             </div>
                         </div>
                         <div class="cardCount">
                             <div class="bgcircleother ">
-                                <span class="countcircleother">{bgv_pending}</span>
+                                <span class="countcircleother">{bank_beneficiary_pending}</span>
                             </div>
                         </div>
                     </div>
@@ -1340,8 +1398,8 @@
                             </div>
                         </div>
                         <div class="form-lable mt-5">
-                            <div class="formInnerGroup">
-                                <textarea class="inputboxcursortext" placeholder="Enter Unique Facility IDs here separated by new line" bind:value={facIds}></textarea>
+                            <div class="formInnerGroup" >
+                                <textarea class="inputboxcursortext resize-none"  rows="6" placeholder="Enter Unique Facility IDs here separated by new line" bind:value={facIds}></textarea>
                             </div>
                         </div>
 
@@ -1438,10 +1496,11 @@
                                 <tbody class="tbodycopyvendor outline">
                                     <tr class="border-b">
                                         <td>AXHN</td>
-                                        <td>EFBH</td>
+                                        <td>NDA Ram Kumar/ NTEX/12313</td>
                                     </tr>
                                     <tr>
-                                        <td>NDA Ram Kumar/ NTEX/12313</td>
+                                        
+                                        <td>EFBH</td>
                                         <td>Vendor_ER_Shyam Kumar</td>
                                     </tr>
                                 
@@ -1521,26 +1580,34 @@
                         </div> -->
                         <div class="xsl:overflow-scroll mt-5 ">
                         <table class="table  w-full text-center mt-2 ">
-                            <thead class="theadpopover h-10">
+                            <thead class="h-10 tabletrheader">
                                 <tr>
-                                    <th width="25%">Client Name</th>
-                                    <th width="25%">Station Code</th>
-                                    <th width="25%">Associate Name</th>
-                                    <th width="25%">Associate ID</th>
+                                   <th width="25%"> <div class="text-center"> Client Name</div></th>
+                                     <th width="25%"><div class="text-center">  Station Code</div></th>
+                                    <th width="25%"><div class="text-center">  Associate Name</div></th>
+                                    <th width="25%"><div class="text-center">  Associate ID</div></th>
                                 </tr>
                             </thead>
-                            {#each find_by_arr as client}
-                            <tbody class="tbodycopyvendor outline">
-                                <tr class="border-b">
-                                    <td>{#if client.org_specific_name}{client.org_specific_name}{:else}<p>-</p>{/if}</td>
-                                    <td>{#if client.conf_station_code}{client.conf_station_code}{:else}<p>-</p>{/if}</td>
-                                    <td>{#if client.facility_name}{client.facility_name}{:else}<p>-</p>{/if}</td>
-                                    <td>{#if client.facility_id}{client.facility_id}{:else}<p>-</p>{/if}</td>
-                                </tr>
                             
-
+                            <tbody class="outline tabletrBody">
+                                {#if find_by_arr.length != 0}
+                                {#each find_by_arr as client}
+                                <tr class="border-b">
+                                    
+                                    <td><div class="w-64 xsl:w-48 break-words text-center m-auto">{#if client.org_specific_name}{client.org_specific_name}{:else}<p>-</p>{/if}</div></td>
+                                    <td> <div class=" text-center m-auto">{#if client.conf_station_code}{client.conf_station_code.toUpperCase()}{:else}<p>-</p>{/if}</div></td>
+                                    <td><div class="w-64 xsl:w-48 break-words text-center m-auto">{#if client.facility_name}{client.facility_name}{:else}<p>-</p>{/if}</div></td>
+                                    <td> <div class=" text-center m-auto">{#if client.facility_id}{client.facility_id}{:else}<p>-</p>{/if}</div></td>
+                                </tr>
+                                {/each}
+                                {:else}
+                                <tr>
+                                    <td colspan="4">
+                                <div class="text-center m-auto"><p class="ml-10">{no_details_client}</p></div>
+                                </td>
+                                </tr>
+                                {/if}
                             </tbody>
-                            {/each}
                         </table>
                     </div>
                     </div>

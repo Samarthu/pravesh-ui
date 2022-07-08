@@ -102,6 +102,7 @@
         export let changed_aadhar_num;
         export let changed_dl_num;
         export let changed_voter_num;
+        export  let document_data_load;
         export let pancard_obj = {
             pan_type:null,
             pan_num:null,
@@ -429,34 +430,9 @@
             // toast_text = doc_res.body.message;
             // toast_type = "success";
             success_toast(doc_res.body.message)
-
-
-            let facility_document_res = await facility_document();
-            try{
-                if(facility_document_res != "null"){
-                facility_document_data = [];
-                facility_document_data = facility_document_res.body.data;
-                    for(let i=0;i<facility_document_data.length;i++){
-                    let doc_modified_format = new Date(facility_document_data[i].modified);
-                    let doc_modified_date = get_date_format(doc_modified_format,"dd-mm-yyyy-hh-mm");
-                    
-                    facility_document_data[i].modified = doc_modified_date
-                        facility_document_data = facility_document_data.sort((a, b) => new Date(b.modified) - new Date(a.modified));
-                    
-                    closeApproveViewModel();
-                    }
-                
-                }
+            closeApproveViewModel();
+            document_data_load();
             }
-            catch(err){
-                show_spinner = false;
-                // toast_type = "error";
-                // toast_text = err;
-                error_toast(err)
-
-                closeApproveViewModel();
-            }
-        }
     }
     catch(err){
         show_spinner = false;
@@ -474,7 +450,7 @@ function closeApproveViewModel(){
 
 
     const onFileSelected = (e,doctext) => {
-        let img = e.target.files[0];
+        let image = e.target.files[0];
         let extention_name = image.name.slice((image.name.lastIndexOf(".") - 1 >>> 0) + 2);
         // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
        

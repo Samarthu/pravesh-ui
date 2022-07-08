@@ -48,10 +48,12 @@
             let owner_dob= "";
             let owner_mob_no= "";
             let owner_gender="-1"
+            var phone_num_pattern = /^((\+*)((0[ -]*)*|((91 )*))((\d{12})+|(\d{10})+))|\d{5}([- ]*)\d{6}/;
             // export let facility_document_data = [];
         let query;
             export let tags_for_ass_arr=[];
             export let tags_to_display = [];
+            export let document_data_load;
             let check_selected = false;
             let id_new_date='';
             let all_tags_res;
@@ -383,7 +385,7 @@
             
        }
        else{
-        let img = e.target.files[0];
+        let image = e.target.files[0];
         let extention_name = image.name.slice((image.name.lastIndexOf(".") - 1 >>> 0) + 2);
         // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
        
@@ -537,41 +539,15 @@
     "doc_type":document_type
     }
     let doc_res = await approve_reject_status(document_load)
-    
     try{
         if(doc_res.body.status == "green"){
             show_spinner = false;
             // toast_text = doc_res.body.message;
             // toast_type = "success";
             success_toast(doc_res.body.message)
-
-
-            let facility_document_res = await facility_document();
-            try{
-                if(facility_document_res != "null"){
-                facility_document_data = [];
-                facility_document_data = facility_document_res.body.data;
-                    for(let i=0;i<facility_document_data.length;i++){
-                    let doc_modified_format = new Date(facility_document_data[i].modified);
-                    let doc_modified_date = get_date_format(doc_modified_format,"dd-mm-yyyy-hh-mm");
-                    
-                    facility_document_data[i].modified = doc_modified_date
-                        facility_document_data = facility_document_data.sort((a, b) => new Date(b.modified) - new Date(a.modified));
-                    
-                    closeApproveViewModel();
-                    }
-                
-                }
+            closeApproveViewModel();
+            document_data_load();
             }
-            catch(err){
-                show_spinner = false;
-                // toast_type = "error";
-                // toast_text = err;
-                error_toast(err)
-
-                closeApproveViewModel();
-            }
-        }
     }
     catch(err){
         show_spinner = false;
@@ -1014,12 +990,12 @@ function closeApproveViewModel(){
     async function addNewOwnerFunc(){
 
         show_spinner = true
-        if(!owner_fir_name){
+        if(!owner_fir_name.trim()){
             error_toast("Please Enter Owner First Name")
             show_spinner = false
             return
         }
-        if(!owner_last_name){
+        if(!owner_last_name.trim()){
             error_toast("Please Enter Owner Last Name")
             show_spinner = false
             
@@ -1030,8 +1006,8 @@ function closeApproveViewModel(){
             show_spinner = false
             return
         }
-        if(!owner_mob_no){
-            error_toast("Please Enter Owner MObile Number")
+        if(!owner_mob_no.toString().match(phone_num_pattern)){
+            error_toast("Please Enter Valid Owner MObile Number")
             show_spinner = false
             return
         }
@@ -3096,7 +3072,7 @@ function closeApproveViewModel(){
                 <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
     
                     <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0 mt-4">
-                        <label class="block  tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-state">
+                        <label class="block  tracking-wide text-gray-700 font-bold mb-2" for="grid-state">
                             Are You Sure To Reset Deactivation Status!
                         </label>
                         <div class="relative">
