@@ -605,8 +605,7 @@
     console.log("finJson",finJson);
 	if (finJson === undefined || finJson === "") {
         show_spinner = false;
-        toast_type="error"
-        toast_text = "Please upload parseable <br>excel ( .xlsx ) file "
+        error_toast("Please upload parseable excel ( .xlsx ) file ")
 		return;
 	}
 	try {
@@ -614,13 +613,13 @@
         // console.log("finJson finJson",finJson)
 	} catch (err) {
         show_spinner = false;
-        toast_type="error";
-        toast_text = err
+        
+        error_toast(err)
 		return;
 	}
 	if (finJson.client_name_search === undefined || finJson.client_name_search == null) {
-        toast_type="error";
-        toast_text = "Client Name Details Missing";
+        
+        error_toast("Client Name Details Missing");
         show_spinner = false;
 		return;
 	}
@@ -631,14 +630,14 @@
     var stationCode = new_obj['Station Code'];
     
     if(!storeName){
-        toast_type="error";
-        toast_text = "Client Name Data Missing In Uploaded File";
+        
+        error_toast("Client Name Data Missing In Uploaded File");
         show_spinner = false;
 		return;
     }
     else if(!stationCode){
-        toast_type="error";
-        toast_text = "Station Code Data Missing In Uploaded File";
+        
+        error_toast("Station Code Data Missing In Uploaded File");
         show_spinner = false;
 		return;
     }
@@ -698,14 +697,12 @@
         }
         else{
             show_spinner = false;
-            toast_type="error"
-            toast_text=loc_data_res.body.message
+            error_toast(loc_data_res.body.message)
         }
         
         } catch(err) {
             show_spinner = false
-            toast_type="error"
-            toast_text=err;
+            error_toast(err);
         
         }
     }
@@ -736,20 +733,17 @@
         console.log("copy_parent_data",unique_fac_id,city_selected,station_selected); 
         if(!unique_fac_id){
             show_spinner = false;
-            toast_type="error";
-            toast_text="Please Enter Unique Vendor ID"
+            error_toast("Please Enter Unique Vendor ID")
             return;
         }
         else if(!city_selected || city_selected =="-1"){
             show_spinner = false;
-            toast_type="error";
-            toast_text="Please Select a Location"
+            error_toast("Please Select a Location")
             return;
         }
         else if(!station_selected || station_selected == "-1"){
             show_spinner = false;
-            toast_type="error";
-            toast_text="Please select a station"
+            error_toast("Please select a station")
             return;
         }  
         console.log("station_selected",station_selected)
@@ -1495,10 +1489,11 @@
                                 <tbody class="tbodycopyvendor outline">
                                     <tr class="border-b">
                                         <td>AXHN</td>
-                                        <td>EFBH</td>
+                                        <td>NDA Ram Kumar/ NTEX/12313</td>
                                     </tr>
                                     <tr>
-                                        <td>NDA Ram Kumar/ NTEX/12313</td>
+                                        
+                                        <td>EFBH</td>
                                         <td>Vendor_ER_Shyam Kumar</td>
                                     </tr>
                                 
