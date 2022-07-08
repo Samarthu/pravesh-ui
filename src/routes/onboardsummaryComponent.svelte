@@ -2718,7 +2718,8 @@ import { current_user } from "../stores/current_user_store";
         is_adhoc_facility = {is_adhoc_facility}
         tags_for_ass_arr = {tags_for_ass_arr}
         tags_to_display = {tags_to_display}
-        all_addresses = {all_addresses}/>
+        all_addresses = {all_addresses}
+        document_data_load={document_data_load}/>
         
         {:else if change_to == "Work_details"}
         <WorkDetails new_off_file_obj={new_off_file_obj} facility_modified_date={facility_modified_date} city={city}
@@ -2730,7 +2731,8 @@ import { current_user } from "../stores/current_user_store";
         dl_photo_obj={dl_photo_obj}
         pancard_obj={pancard_obj}
         location_id = {location_id}
-        username = {$current_user.username}/>
+        username = {$current_user.username}
+        document_data_load={document_data_load}/>
     
         {:else if change_to == "Identity_details"}
         <IdentityProof pancard_obj={pancard_obj}
@@ -2743,7 +2745,8 @@ import { current_user } from "../stores/current_user_store";
         voter_id_object = {voter_id_object}
         fac_photo_obj={fac_photo_obj}
         id_new_date={id_new_date} admin = {admin}
-        is_adhoc_facility = {is_adhoc_facility}/>
+        is_adhoc_facility = {is_adhoc_facility}
+        document_data_load={document_data_load}/>
         
         {:else if change_to == "Bank_details"}
         <BankDetails bank_values_from_store = {bank_values_from_store}
@@ -2753,7 +2756,8 @@ import { current_user } from "../stores/current_user_store";
          passbook_obj = {passbook_obj}
          bank_new_date={bank_new_date} admin = {admin}
          is_adhoc_facility = {is_adhoc_facility}
-         bank_details_req_fac = {new_arr}/>
+         bank_details_req_fac = {new_arr}
+         document_data_load={document_data_load}/>
         {/if}
     
         

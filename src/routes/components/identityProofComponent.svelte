@@ -102,6 +102,7 @@
         export let changed_aadhar_num;
         export let changed_dl_num;
         export let changed_voter_num;
+        export  let document_data_load;
         export let pancard_obj = {
             pan_type:null,
             pan_num:null,
@@ -444,7 +445,7 @@
                         facility_document_data = facility_document_data.sort((a, b) => new Date(b.modified) - new Date(a.modified));
                     
                     closeApproveViewModel();
-                    window.location.reload();
+                    document_data_load();
                     }
                 
                 }
