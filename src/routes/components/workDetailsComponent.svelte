@@ -3588,14 +3588,16 @@
                                             <div class="w-full">
                                                 <div class="light14grey mb-1">From Date</div>
                                                 <div class="formInnerwidthfull ">
-                                                    <input type="date" class="inputboxpopoverdate" bind:value="{fromDate}" onkeydown="return false">
+                                                    <!-- <input type="date" class="inputboxpopoverdate" bind:value="{fromDate}" onkeydown="return false"> -->
+                                                    <input type="date" class="inputboxpopoverdate"  min={new Date().toISOString().split('T')[0]} bind:value="{fromDate}" onkeydown="return false">
                                                 </div>
 
                                             </div>
                                             <div class="w-full">
                                                 <div class="light14grey mb-1">To Date</div>
                                                 <div class="formInnerwidthfull ">
-                                                    <input type="date" class="inputboxpopoverdate" onkeydown="return false">
+                                                    <!-- <input type="date" class="inputboxpopoverdate" onkeydown="return false"> -->
+                                                    <input type="date" class="inputboxpopoverdate"  min={new Date().toISOString().split('T')[0]} bind:value="{fromDate}" onkeydown="return false">
                                                 </div>
                                                 <div class="w-full">
                                                     <div class="light14greylong mb-1 invisible"></div>
