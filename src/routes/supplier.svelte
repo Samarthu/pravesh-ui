@@ -2205,7 +2205,7 @@ function open_deact_initiate_model(stat){
                         </button>
                         {:else}
                         <button class="bgdocreject flex-grow">
-                            <div class="countHeading" on:click={()=>status_pill_clicked("ID Verification Pending")}>
+                            <div class="countHeading" on:click={()=>status_pill_clicked("Onboarding in Progress")}>
                                 Onboarding In Progress <span class="docRejectCount">{onboarding_in_progress}</span
                                 >
                                 </div>

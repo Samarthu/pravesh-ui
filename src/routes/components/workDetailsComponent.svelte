@@ -1695,6 +1695,7 @@
                                 facility_document_data = facility_document_data.sort((a, b) => new Date(b.modified) - new Date(a.modified));
                             
                             closeApproveViewModel();
+                            location.reload();
                             }
                         
                         }

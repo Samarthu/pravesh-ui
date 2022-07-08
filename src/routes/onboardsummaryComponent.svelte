@@ -486,167 +486,168 @@ import { current_user } from "../stores/current_user_store";
             // }
         
             /////////bank details/////////////
-            let facility_document_res = await facility_document();
-            try{
+            // let facility_document_res = await facility_document();
+            // try{
                 
-                if(facility_document_res != "null"){
+            //     if(facility_document_res != "null"){
                     
                 
-                $documents_store.documents = JSON.parse(JSON.stringify(facility_document_res.body.data));
-                $duplicate_documents_store.documents = JSON.parse(JSON.stringify(facility_document_res.body.data));
-                // console.log("duplicate document store",$duplicate_documents_store)
+            //     $documents_store.documents = JSON.parse(JSON.stringify(facility_document_res.body.data));
+            //     $duplicate_documents_store.documents = JSON.parse(JSON.stringify(facility_document_res.body.data));
+            //     // console.log("duplicate document store",$duplicate_documents_store)
     
-                // console.log("documents_store",$documents_store)
-                // for(let i=0;i < $documents_store.length;i++){
-                //     console.log("Document data from store",$documents_store[i].doc_type);
-                // }
+            //     // console.log("documents_store",$documents_store)
+            //     // for(let i=0;i < $documents_store.length;i++){
+            //     //     console.log("Document data from store",$documents_store[i].doc_type);
+            //     // }
     
-                facility_document_data = facility_document_res.body.data;
-                for (var i = 0; i < facility_document_data.length; i++) {
-                    let doc_date_format = new Date(facility_document_data[i].creation);
+            //     facility_document_data = facility_document_res.body.data;
+            //     for (var i = 0; i < facility_document_data.length; i++) {
+            //         let doc_date_format = new Date(facility_document_data[i].creation);
 
                     
 
-                    let doc_modified_format = new Date(facility_document_data[i].modified);
-                    let doc_creation_date = get_date_format(doc_date_format,"dd-mm-yyyy-hh-mm");
-                    let doc_modified_date = get_date_format(doc_modified_format,"dd-mm-yyyy-hh-mm");
-                    facility_document_data[i].creation = doc_creation_date
-                    facility_document_data[i].modified = doc_modified_date
-                    facility_document_data = facility_document_data.sort((a, b) => new Date(b.modified) - new Date(a.modified));
+            //         let doc_modified_format = new Date(facility_document_data[i].modified);
+            //         let doc_creation_date = get_date_format(doc_date_format,"dd-mm-yyyy-hh-mm");
+            //         let doc_modified_date = get_date_format(doc_modified_format,"dd-mm-yyyy-hh-mm");
+            //         facility_document_data[i].creation = doc_creation_date
+            //         facility_document_data[i].modified = doc_modified_date
+            //         facility_document_data = facility_document_data.sort((a, b) => new Date(b.modified) - new Date(a.modified));
                     
                    
                     
-                    if(facility_document_data[i].doc_type == "pan-photo"){
-                        if(facility_document_data[i].doc_number){
-                            changed_pan_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, '*');
-                        }
-                        pancard_obj = {pan_num : facility_document_data[i].doc_number,
-                        pan_attach : facility_document_data[i].file_url,
-                        pan_name : facility_document_data[i].file_name,
-                        pan_verified : facility_document_data[i].verified,
-                        pan_rejected : facility_document_data[i].rejected,
-                        pan_type:facility_document_data[i].doc_type};
+            //         if(facility_document_data[i].doc_type == "pan-photo"){
+            //             if(facility_document_data[i].doc_number){
+            //                 changed_pan_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, '*');
+            //             }
+            //             pancard_obj = {pan_num : facility_document_data[i].doc_number,
+            //             pan_attach : facility_document_data[i].file_url,
+            //             pan_name : facility_document_data[i].file_name,
+            //             pan_verified : facility_document_data[i].verified,
+            //             pan_rejected : facility_document_data[i].rejected,
+            //             pan_type:facility_document_data[i].doc_type};
                         
-                    }
+            //         }
                     
-                    else if(facility_document_data[i].doc_type == "aadhar-id-proof"){
-                        // console.log("Inside aadhar id proof")
-                        if(facility_document_data[i].doc_number){
-                            changed_aadhar_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, '*');
-                        }
-                        aadhar_obj = {aadhar_num : facility_document_data[i].doc_number,
-                        aadhar_attach : facility_document_data[i].file_url,
-                        aadhar_name : facility_document_data[i].file_name,
-                        aadhar_verified : facility_document_data[i].verified,
-                        aadhar_rejected : facility_document_data[i].rejected,
-                        aadhar_type:facility_document_data[i].doc_type};
+            //         else if(facility_document_data[i].doc_type == "aadhar-id-proof"){
+            //             // console.log("Inside aadhar id proof")
+            //             if(facility_document_data[i].doc_number){
+            //                 changed_aadhar_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, '*');
+            //             }
+            //             aadhar_obj = {aadhar_num : facility_document_data[i].doc_number,
+            //             aadhar_attach : facility_document_data[i].file_url,
+            //             aadhar_name : facility_document_data[i].file_name,
+            //             aadhar_verified : facility_document_data[i].verified,
+            //             aadhar_rejected : facility_document_data[i].rejected,
+            //             aadhar_type:facility_document_data[i].doc_type};
                         
-                    }
-                    else if(facility_document_data[i].doc_type == "fac-photo"){
-                        // console.log("Inside pass photo")
-                        fac_photo_obj={
-                        profile_url : facility_document_data[i].file_url,
-                        profile_verified : facility_document_data[i].verified,
-                        profile_rejected : facility_document_data[i].rejected};
-                    }
-                    else if(facility_document_data[i].doc_type == "addproof-photo"){
-                        // console.log("Inside addproof photo")
-                        addproof_obj = {address_name : facility_document_data[i].file_name,   
-                        address_url : facility_document_data[i].file_url,
-                        address_number:facility_document_data[i].doc_number,
-                        address_type:facility_document_data[i].doc_type,
-                        address_verified : facility_document_data[i].verified,
-                        address_rejected : facility_document_data[i].rejected};
-                    }
-                    else if(facility_document_data[i].doc_type == "can-cheque"){
-                        // console.log("Inside can cheque")
-                        can_cheque_obj = {can_cheque_name : facility_document_data[i].file_name,
-                        can_cheque_url : facility_document_data[i].file_url,
-                        can_cheque_verified : facility_document_data[i].verified,
-                        can_cheque_rejected : facility_document_data[i].rejected,
-                        can_cheque_num:facility_document_data[i].doc_number,
-                        can_cheque_type:facility_document_data[i].doc_type};
-                    }
-                    else if(facility_document_data[i].doc_type == "blcheque"){
-                        // console.log("Inside can cheque")
-                        blk_cheque_obj = {blk_cheque_name : facility_document_data[i].file_name,
-                        blk_cheque_url : facility_document_data[i].file_url,
-                        blk_cheque_verified : facility_document_data[i].verified,
-                        blk_cheque_rejected : facility_document_data[i].rejected,
-                        blk_cheque_num:facility_document_data[i].doc_number,
-                        blk_cheque_type:facility_document_data[i].doc_type};
-                    }
-                    else if(facility_document_data[i].doc_type == "passbook"){
-                        // console.log("Inside can cheque")
-                        passbook_obj= {passbook_name : facility_document_data[i].file_name,
-                        passbook_url : facility_document_data[i].file_url,
-                        passbook_verified : facility_document_data[i].verified,
-                        passbook_rejected : facility_document_data[i].rejected,
-                        passbook_num:facility_document_data[i].doc_number,
-                        passbook_type:facility_document_data[i].doc_type
-                    };
-                    }
-                    else if(facility_document_data[i].doc_type == "acc-stat"){
-                        // console.log("Inside can cheque")
-                        acc_stmt_obj= {acc_stmt_name : facility_document_data[i].file_name,
-                        acc_stmt_url : facility_document_data[i].file_url,
-                        acc_stmt_verified : facility_document_data[i].verified,
-                        acc_stmt_rejected : facility_document_data[i].rejected,
-                        acc_stmt_num:facility_document_data[i].doc_number,
-                        acc_stmt_type:facility_document_data[i].doc_type
-                    };
-                    }
-                    else if(facility_document_data[i].doc_type == "dl-photo"){
-                        // console.log("Inside dl photo")
-                        if(facility_document_data[i].doc_number){
-                            changed_dl_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, '*');
-                        }
-                        dl_photo_obj = {dl_lic_name : facility_document_data[i].file_name,
-                        dl_lic_num : facility_document_data[i].doc_number,
-                        dl_lic_url : facility_document_data[i].file_url,
-                        dl_verified : facility_document_data[i].verified,
-                        dl_rejected : facility_document_data[i].rejected,
-                        dl_lic_type:facility_document_data[i].doc_type};
-                    }
-                    else if(facility_document_data[i].doc_type == "newOffFile"){
-                        // console.log("Inside newOffFile")
-                        new_off_file_obj = {offer_name : facility_document_data[i].file_name,
-                        offer_url : facility_document_data[i].file_url,
-                        offer_verified : facility_document_data[i].verified,
-                        offer_rejected : facility_document_data[i].rejected,
-                        offer_number:facility_document_data[i].doc_number,
-                        offer_type:facility_document_data[i].doc_type};
+            //         }
+            //         else if(facility_document_data[i].doc_type == "fac-photo"){
+            //             // console.log("Inside pass photo")
+            //             fac_photo_obj={
+            //             profile_url : facility_document_data[i].file_url,
+            //             profile_verified : facility_document_data[i].verified,
+            //             profile_rejected : facility_document_data[i].rejected};
+            //         }
+            //         else if(facility_document_data[i].doc_type == "addproof-photo"){
+            //             // console.log("Inside addproof photo")
+            //             addproof_obj = {address_name : facility_document_data[i].file_name,   
+            //             address_url : facility_document_data[i].file_url,
+            //             address_number:facility_document_data[i].doc_number,
+            //             address_type:facility_document_data[i].doc_type,
+            //             address_verified : facility_document_data[i].verified,
+            //             address_rejected : facility_document_data[i].rejected};
+            //         }
+            //         else if(facility_document_data[i].doc_type == "can-cheque"){
+            //             // console.log("Inside can cheque")
+            //             can_cheque_obj = {can_cheque_name : facility_document_data[i].file_name,
+            //             can_cheque_url : facility_document_data[i].file_url,
+            //             can_cheque_verified : facility_document_data[i].verified,
+            //             can_cheque_rejected : facility_document_data[i].rejected,
+            //             can_cheque_num:facility_document_data[i].doc_number,
+            //             can_cheque_type:facility_document_data[i].doc_type};
+            //         }
+            //         else if(facility_document_data[i].doc_type == "blcheque"){
+            //             // console.log("Inside can cheque")
+            //             blk_cheque_obj = {blk_cheque_name : facility_document_data[i].file_name,
+            //             blk_cheque_url : facility_document_data[i].file_url,
+            //             blk_cheque_verified : facility_document_data[i].verified,
+            //             blk_cheque_rejected : facility_document_data[i].rejected,
+            //             blk_cheque_num:facility_document_data[i].doc_number,
+            //             blk_cheque_type:facility_document_data[i].doc_type};
+            //         }
+            //         else if(facility_document_data[i].doc_type == "passbook"){
+            //             // console.log("Inside can cheque")
+            //             passbook_obj= {passbook_name : facility_document_data[i].file_name,
+            //             passbook_url : facility_document_data[i].file_url,
+            //             passbook_verified : facility_document_data[i].verified,
+            //             passbook_rejected : facility_document_data[i].rejected,
+            //             passbook_num:facility_document_data[i].doc_number,
+            //             passbook_type:facility_document_data[i].doc_type
+            //         };
+            //         }
+            //         else if(facility_document_data[i].doc_type == "acc-stat"){
+            //             // console.log("Inside can cheque")
+            //             acc_stmt_obj= {acc_stmt_name : facility_document_data[i].file_name,
+            //             acc_stmt_url : facility_document_data[i].file_url,
+            //             acc_stmt_verified : facility_document_data[i].verified,
+            //             acc_stmt_rejected : facility_document_data[i].rejected,
+            //             acc_stmt_num:facility_document_data[i].doc_number,
+            //             acc_stmt_type:facility_document_data[i].doc_type
+            //         };
+            //         }
+            //         else if(facility_document_data[i].doc_type == "dl-photo"){
+            //             // console.log("Inside dl photo")
+            //             if(facility_document_data[i].doc_number){
+            //                 changed_dl_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, '*');
+            //             }
+            //             dl_photo_obj = {dl_lic_name : facility_document_data[i].file_name,
+            //             dl_lic_num : facility_document_data[i].doc_number,
+            //             dl_lic_url : facility_document_data[i].file_url,
+            //             dl_verified : facility_document_data[i].verified,
+            //             dl_rejected : facility_document_data[i].rejected,
+            //             dl_lic_type:facility_document_data[i].doc_type};
+            //         }
+            //         else if(facility_document_data[i].doc_type == "newOffFile"){
+            //             // console.log("Inside newOffFile")
+            //             new_off_file_obj = {offer_name : facility_document_data[i].file_name,
+            //             offer_url : facility_document_data[i].file_url,
+            //             offer_verified : facility_document_data[i].verified,
+            //             offer_rejected : facility_document_data[i].rejected,
+            //             offer_number:facility_document_data[i].doc_number,
+            //             offer_type:facility_document_data[i].doc_type};
                         
-                    }
-                    else if(facility_document_data[i].doc_type == "voter-id-proof"){
-                        // console.log("Inside voter id proof")
-                        if(facility_document_data[i].doc_number){
-                            changed_voter_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, '*');
-                        }
-                        voter_id_object = {voter_id_number : facility_document_data[i].doc_number,
-                            voter_id_name : facility_document_data[i].file_name,
-                            voter_id_url : facility_document_data[i].file_url,
-                            voter_id_verified : facility_document_data[i].verified,
-                            voter_id_rejected : facility_document_data[i].rejected,
-                            voter_id_type:facility_document_data[i].doc_type
-                        };
+            //         }
+            //         else if(facility_document_data[i].doc_type == "voter-id-proof"){
+            //             // console.log("Inside voter id proof")
+            //             if(facility_document_data[i].doc_number){
+            //                 changed_voter_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, '*');
+            //             }
+            //             voter_id_object = {voter_id_number : facility_document_data[i].doc_number,
+            //                 voter_id_name : facility_document_data[i].file_name,
+            //                 voter_id_url : facility_document_data[i].file_url,
+            //                 voter_id_verified : facility_document_data[i].verified,
+            //                 voter_id_rejected : facility_document_data[i].rejected,
+            //                 voter_id_type:facility_document_data[i].doc_type
+            //             };
                         
-                    }
-                    // else{
-                    //     toast_type = "error";
-                    //     toast_text = "No Document Found";
-                    // }
-                }
-                // console.log("acc_stmt_obj",acc_stmt_obj)    
-            }
-            }
-            catch(err) {
+            //         }
+            //         // else{
+            //         //     toast_type = "error";
+            //         //     toast_text = "No Document Found";
+            //         // }
+            //     }
+            //     // console.log("acc_stmt_obj",acc_stmt_obj)    
+            // }
+            // }
+            // catch(err) {
            
-            // toast_type = "error";
-            // toast_text = err;
-            error_toast(err)
+            // // toast_type = "error";
+            // // toast_text = err;
+            // error_toast(err)
 
-            }
+            // }
+            document_data_load();
 
             let facility_data_res = await facility_data();
             try{
@@ -996,6 +997,170 @@ import { current_user } from "../stores/current_user_store";
         show_spinner = false;
         
     }); 
+
+    async function document_data_load (){
+        let facility_document_res = await facility_document();
+            try{
+                
+                if(facility_document_res != "null"){
+                    
+                
+                $documents_store.documents = JSON.parse(JSON.stringify(facility_document_res.body.data));
+                $duplicate_documents_store.documents = JSON.parse(JSON.stringify(facility_document_res.body.data));
+                // console.log("duplicate document store",$duplicate_documents_store)
+    
+                // console.log("documents_store",$documents_store)
+                // for(let i=0;i < $documents_store.length;i++){
+                //     console.log("Document data from store",$documents_store[i].doc_type);
+                // }
+    
+                facility_document_data = facility_document_res.body.data;
+                for (var i = 0; i < facility_document_data.length; i++) {
+                    let doc_date_format = new Date(facility_document_data[i].creation);
+
+                    
+
+                    let doc_modified_format = new Date(facility_document_data[i].modified);
+                    let doc_creation_date = get_date_format(doc_date_format,"dd-mm-yyyy-hh-mm");
+                    let doc_modified_date = get_date_format(doc_modified_format,"dd-mm-yyyy-hh-mm");
+                    facility_document_data[i].creation = doc_creation_date
+                    facility_document_data[i].modified = doc_modified_date
+                    facility_document_data = facility_document_data.sort((a, b) => new Date(b.modified) - new Date(a.modified));
+                    
+                   
+                    
+                    if(facility_document_data[i].doc_type == "pan-photo"){
+                        if(facility_document_data[i].doc_number){
+                            changed_pan_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, '*');
+                        }
+                        pancard_obj = {pan_num : facility_document_data[i].doc_number,
+                        pan_attach : facility_document_data[i].file_url,
+                        pan_name : facility_document_data[i].file_name,
+                        pan_verified : facility_document_data[i].verified,
+                        pan_rejected : facility_document_data[i].rejected,
+                        pan_type:facility_document_data[i].doc_type};
+                        
+                    }
+                    
+                    else if(facility_document_data[i].doc_type == "aadhar-id-proof"){
+                        // console.log("Inside aadhar id proof")
+                        if(facility_document_data[i].doc_number){
+                            changed_aadhar_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, '*');
+                        }
+                        aadhar_obj = {aadhar_num : facility_document_data[i].doc_number,
+                        aadhar_attach : facility_document_data[i].file_url,
+                        aadhar_name : facility_document_data[i].file_name,
+                        aadhar_verified : facility_document_data[i].verified,
+                        aadhar_rejected : facility_document_data[i].rejected,
+                        aadhar_type:facility_document_data[i].doc_type};
+                        
+                    }
+                    else if(facility_document_data[i].doc_type == "fac-photo"){
+                        // console.log("Inside pass photo")
+                        fac_photo_obj={
+                        profile_url : facility_document_data[i].file_url,
+                        profile_verified : facility_document_data[i].verified,
+                        profile_rejected : facility_document_data[i].rejected};
+                    }
+                    else if(facility_document_data[i].doc_type == "addproof-photo"){
+                        // console.log("Inside addproof photo")
+                        addproof_obj = {address_name : facility_document_data[i].file_name,   
+                        address_url : facility_document_data[i].file_url,
+                        address_number:facility_document_data[i].doc_number,
+                        address_type:facility_document_data[i].doc_type,
+                        address_verified : facility_document_data[i].verified,
+                        address_rejected : facility_document_data[i].rejected};
+                    }
+                    else if(facility_document_data[i].doc_type == "can-cheque"){
+                        // console.log("Inside can cheque")
+                        can_cheque_obj = {can_cheque_name : facility_document_data[i].file_name,
+                        can_cheque_url : facility_document_data[i].file_url,
+                        can_cheque_verified : facility_document_data[i].verified,
+                        can_cheque_rejected : facility_document_data[i].rejected,
+                        can_cheque_num:facility_document_data[i].doc_number,
+                        can_cheque_type:facility_document_data[i].doc_type};
+                    }
+                    else if(facility_document_data[i].doc_type == "blcheque"){
+                        // console.log("Inside can cheque")
+                        blk_cheque_obj = {blk_cheque_name : facility_document_data[i].file_name,
+                        blk_cheque_url : facility_document_data[i].file_url,
+                        blk_cheque_verified : facility_document_data[i].verified,
+                        blk_cheque_rejected : facility_document_data[i].rejected,
+                        blk_cheque_num:facility_document_data[i].doc_number,
+                        blk_cheque_type:facility_document_data[i].doc_type};
+                    }
+                    else if(facility_document_data[i].doc_type == "passbook"){
+                        // console.log("Inside can cheque")
+                        passbook_obj= {passbook_name : facility_document_data[i].file_name,
+                        passbook_url : facility_document_data[i].file_url,
+                        passbook_verified : facility_document_data[i].verified,
+                        passbook_rejected : facility_document_data[i].rejected,
+                        passbook_num:facility_document_data[i].doc_number,
+                        passbook_type:facility_document_data[i].doc_type
+                    };
+                    }
+                    else if(facility_document_data[i].doc_type == "acc-stat"){
+                        // console.log("Inside can cheque")
+                        acc_stmt_obj= {acc_stmt_name : facility_document_data[i].file_name,
+                        acc_stmt_url : facility_document_data[i].file_url,
+                        acc_stmt_verified : facility_document_data[i].verified,
+                        acc_stmt_rejected : facility_document_data[i].rejected,
+                        acc_stmt_num:facility_document_data[i].doc_number,
+                        acc_stmt_type:facility_document_data[i].doc_type
+                    };
+                    }
+                    else if(facility_document_data[i].doc_type == "dl-photo"){
+                        // console.log("Inside dl photo")
+                        if(facility_document_data[i].doc_number){
+                            changed_dl_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, '*');
+                        }
+                        dl_photo_obj = {dl_lic_name : facility_document_data[i].file_name,
+                        dl_lic_num : facility_document_data[i].doc_number,
+                        dl_lic_url : facility_document_data[i].file_url,
+                        dl_verified : facility_document_data[i].verified,
+                        dl_rejected : facility_document_data[i].rejected,
+                        dl_lic_type:facility_document_data[i].doc_type};
+                    }
+                    else if(facility_document_data[i].doc_type == "newOffFile"){
+                        // console.log("Inside newOffFile")
+                        new_off_file_obj = {offer_name : facility_document_data[i].file_name,
+                        offer_url : facility_document_data[i].file_url,
+                        offer_verified : facility_document_data[i].verified,
+                        offer_rejected : facility_document_data[i].rejected,
+                        offer_number:facility_document_data[i].doc_number,
+                        offer_type:facility_document_data[i].doc_type};
+                        
+                    }
+                    else if(facility_document_data[i].doc_type == "voter-id-proof"){
+                        // console.log("Inside voter id proof")
+                        if(facility_document_data[i].doc_number){
+                            changed_voter_num = facility_document_data[i].doc_number.replace(/.(?=.{4})/g, '*');
+                        }
+                        voter_id_object = {voter_id_number : facility_document_data[i].doc_number,
+                            voter_id_name : facility_document_data[i].file_name,
+                            voter_id_url : facility_document_data[i].file_url,
+                            voter_id_verified : facility_document_data[i].verified,
+                            voter_id_rejected : facility_document_data[i].rejected,
+                            voter_id_type:facility_document_data[i].doc_type
+                        };
+                        
+                    }
+                    // else{
+                    //     toast_type = "error";
+                    //     toast_text = "No Document Found";
+                    // }
+                }
+                // console.log("acc_stmt_obj",acc_stmt_obj)    
+            }
+            }
+            catch(err) {
+           
+            // toast_type = "error";
+            // toast_text = err;
+            error_toast(err)
+
+            }
+    }
     function check_facility_status(message) {
         if (!$facility_data_store.status && $facility_data_store.status != undefined && $facility_data_store.is_blacklisted == 1) {
             

@@ -429,7 +429,7 @@
             // toast_text = doc_res.body.message;
             // toast_type = "success";
             success_toast(doc_res.body.message)
-
+            
 
             let facility_document_res = await facility_document();
             try{
@@ -444,6 +444,7 @@
                         facility_document_data = facility_document_data.sort((a, b) => new Date(b.modified) - new Date(a.modified));
                     
                     closeApproveViewModel();
+                    window.location.reload();
                     }
                 
                 }

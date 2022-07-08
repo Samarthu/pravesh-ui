@@ -522,7 +522,8 @@
     }
     function close_find_by_client_id(){
         find_by_client_id_model.style.display = "none";
-        
+        find_by_data=""
+        find_by_arr=[];
     }
 
     function find_by_option_changed(){
@@ -970,7 +971,7 @@
 
 
 
-                    <div
+                    <!-- <div
                         class="cardActionother"
                         on:click={id_verification_pending_clicked}
                     >
@@ -995,7 +996,7 @@
                                 >
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                     
                     <div
                         class="cardActionother "
@@ -1594,9 +1595,11 @@
                                 </tr>
                                 {/each}
                                 {:else}
-                                    <div class="text-center m-auto">
-                                    <p class="ml-10">No Client Name Linking Found</p>
-                                </div>
+                                <tr>
+                                    <td colspan="4">
+                                <div class="text-center m-auto"><p class="ml-10">No Client Name Linking Found</p></div>
+                                </td>
+                                </tr>
                                 {/if}
                             </tbody>
                         </table>
