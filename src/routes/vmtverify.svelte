@@ -4577,8 +4577,7 @@
                                 <p class="text-sm mb-2 xsl:text-xs">Passport Photo</p>
                                 <div class="tabforDocItem {pass_photo_act}">
                                     <img src="{$img_url_name.img_name}/passportpic.png" alt="" class="w-16 xsl:w-14 p-1" on:click="{()=>img_change("pass_photo")}">
-                                </div>
-                                <p>Pass Photo document not Submitted</p>    
+                                </div>  
                             </div>    
                         {/if}
                     </div>    

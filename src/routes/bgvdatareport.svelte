@@ -88,7 +88,7 @@
     <div class="breadcrumb ">
         <div class="breadcrumb-section">
             <p class="breadcrumbtext"><span class="text-textgrey pr-1 text-base">Home / Reports /
-                </span> <span class="flex xs:text-base xs:items-center">Associates not onboarded </span>
+                </span> <span class="flex xs:text-base xs:items-center">Get BGV Data </span>
                 <button type="button" class="px-p15 text-sm text-white font-medium py-p10 rounded bg-erBlue ml-3 ml-auto" on:click="{routeToReports}">Back</button>
             </p>
         </div>

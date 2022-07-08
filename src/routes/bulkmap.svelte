@@ -133,26 +133,6 @@
         console.log("im in map_data",map_data)
         console.log("im in map_data",map_data[0].FacilityID)
 
-        if(!map_data[i].FacilityID){
-            error_toast("Please add Facility ID")
-        }
-
-        if(!map_data[i].EmployeeID){
-            error_toast("Please add Employee ID")
-        }
-
-        if(!map_data[i].ClientSystemID){
-            error_toast("Please add ClientSystem ID")
-        }
-
-        if(!map_data[i].BGVRemarks){
-            error_toast("Please add BGV Remarks")
-        }
-
-        if(!map_data[i].ClientBGVID){
-            error_toast("Please add ClientBGV ID")
-        }
-
         for(let i=0;i<map_data.length;i++){
 
             // {"id_data":[{"resourceID":"AXHN00112","clientEMPID":"12542667666767","clientSystemID":"manhuk@amazon.com","status":"Green","client_bgv_id":"15161717"},{"resourceID":"EFBH01100","clientEMPID":"10000332222","clientSystemID":"67653555@flipkart.com","status":"Red","client_bgv_id":"151617656"}]}
@@ -162,6 +142,26 @@
         }
         console.log("im in bulk_emp_map",bulk_emp_map_payload)
 
+
+        if(!map_data[i].FacilityID){
+            error_toast("Please add Facility ID")
+        }
+
+        // if(!map_data[i].EmployeeID){
+        //     error_toast("Please add Employee ID")
+        // }
+
+        // if(!map_data[i].ClientSystemID){
+        //     error_toast("Please add ClientSystem ID")
+        // }
+
+        // if(!map_data[i].BGVRemarks){
+        //     error_toast("Please add BGV Remarks")
+        // }
+
+        // if(!map_data[i].ClientBGVID){
+        //     error_toast("Please add ClientBGV ID")
+        // }
 
        let bulk_emp_map_res = await bulk_emp_map(bulk_emp_map_payload)
        show_spinner = true;        
@@ -275,10 +275,6 @@
                                 </label>
                                 <p class="text-grey ml-4">{excel_img}</p>
                                 <div class="uploadbutton" on:click="{final_map}">Map</div>
-
-
-
-
 
                                 <!-- <figure class="zoom" onmousemove="zoom(event)" style="background-image: url(//res.cloudinary.com/active-bridge/image/upload/slide1.jpg)">
                                     <img src="//res.cloudinary.com/active-bridge/image/upload/slide1.jpg" />
