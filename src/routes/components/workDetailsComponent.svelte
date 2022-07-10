@@ -1795,8 +1795,8 @@
         console.log("pass_contract_id",assigned_id)
         let print_data_res = await print_data(assigned_id);
         try {
-            // if(print_data_res.body.status == "green" && print_data_res.body.data != false){
-                if(print_data_res.body.status == "green"){
+            if(print_data_res.body.status == "green" && print_data_res.body.data != false){
+                // if(print_data_res.body.status == "green"){
                 
                 show_spinner = false;
                 // toast_type = "success";
@@ -1804,9 +1804,13 @@
                 success_toast( print_data_res.body.message)
 
                 print_data_arr = print_data_res.body.data;
+                console.log("print_data_arr outside",print_data_arr)
                 esign_data_arr = print_data_res.body.data.esign
-               
+                console.log("esign_data_arr outside",esign_data_arr)
+
+
                 for(let i = 0;i<work_contract_arr.length;i++){
+                    console.log("inside for loop work_contract_arr")
                     if(assigned_id == work_contract_arr[i].assigned_id && work_contract_arr[i].contract_accepted == 1){
                         
                             if(type == "view"){
