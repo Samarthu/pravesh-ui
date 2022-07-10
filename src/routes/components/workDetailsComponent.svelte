@@ -1795,7 +1795,8 @@
         console.log("pass_contract_id",assigned_id)
         let print_data_res = await print_data(assigned_id);
         try {
-            if(print_data_res.body.status == "green" && print_data_res.body.data != false){
+            // if(print_data_res.body.status == "green" && print_data_res.body.data != false){
+                if(print_data_res.body.status == "green"){
                 
                 show_spinner = false;
                 // toast_type = "success";
