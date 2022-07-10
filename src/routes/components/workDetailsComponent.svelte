@@ -1778,15 +1778,15 @@
         console.log("view btn clicked",assigned_id,type)
         console.log("work_contract_arr",work_contract_arr)
         view_contract = 1;
-        let pass_contract_id
-        // window.print();
-        for(let i = 0;i<work_contract_arr.length;i++){
-            if(assigned_id == work_contract_arr[i].assigned_id){
-               pass_contract_id = work_contract_arr[i].assigned_id;
-            }
-        }
-        console.log("pass_contract_id",pass_contract_id)
-        let print_data_res = await print_data(pass_contract_id);
+        // let pass_contract_id
+        // // window.print();
+        // for(let i = 0;i<work_contract_arr.length;i++){
+        //     if(assigned_id == work_contract_arr[i].assigned_id){
+        //        pass_contract_id = work_contract_arr[i].assigned_id;
+        //     }
+        // }
+        console.log("pass_contract_id",assigned_id)
+        let print_data_res = await print_data(assigned_id);
         try {
             if(print_data_res.body.status == "green" && print_data_res.body.data != false){
                 

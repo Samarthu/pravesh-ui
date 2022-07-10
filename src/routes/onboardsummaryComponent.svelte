@@ -1414,8 +1414,8 @@ import { current_user } from "../stores/current_user_store";
     
         const onFileSelected = (e,doctext) => {
             show_spinner = true;
-            let image = e.target.files[0];
-            let extention_name = image.name.slice((image.name.lastIndexOf(".") - 1 >>> 0) + 2);
+            let img = e.target.files[0];
+            let extention_name = img.name.slice((img.name.lastIndexOf(".") - 1 >>> 0) + 2);
         // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
        
         if(extention_name == "pdf" || extention_name == "jpg" || extention_name == "png" || extention_name == "jpeg" || extention_name == "csv" || extention_name == "xlsx"){
