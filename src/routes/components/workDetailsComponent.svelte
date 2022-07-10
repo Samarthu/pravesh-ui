@@ -105,7 +105,7 @@
             let status_display = 0; 
             let org_AN_flag = 0;
             let get_client_details_data = [];
-            let newType;
+            let newType = "-1";
             let attendenceType;
             let get_client_data_mapping_data = [];
             let station_code_arr = [];
@@ -117,6 +117,7 @@
 
         //    ASSOCIATE TYPE VARS
         let fromDate;
+        let toDate;
         let assocRemarks = "";
         let get_assoc_types_data = [];
         let get_change_associte_data =[];
@@ -532,6 +533,7 @@
         station_code_arr = [];
         console.log("station_code",station_code.toLowerCase())
         let get_specific_name_res = await get_specific_name(station_code.toLowerCase())
+        show_spinner = false
         try{
             if(get_specific_name_res.body.status == "green"){
                 show_spinner = false
@@ -640,6 +642,7 @@
             if($facility_data_store.is_bgv_verified == undefined || $facility_data_store.is_bgv_verified != 1){
                 // toast_text = "BGV Verification Incomplete !!";
                 // toast_type = "error"
+                show_spinner = false
                 error_toast("BGV Verification Incomplete !!")
                 return
             }
@@ -1221,6 +1224,8 @@
         // new Date(fromDate)
         let new_start_date = new Date(fromDate);
         let updated_start_date = get_date_format(new_start_date,"yyyy-mm-dd");
+        let new_end_date = new Date(toDate);
+        let updated_end_date = get_date_format(new_end_date,"yyyy-mm-dd");
         let get_change_associte_res = await get_change_associte();
         let get_assoc_types_res = await get_assoc_types($facility_data_store.org_id,$facility_data_store.station_code);
 
@@ -1229,16 +1234,17 @@
 
         }
 
-        if(!newType){
+        console.log("im in fromDate",fromDate)
+        if(!newType || newType=="-1"){
             // toast_text = "Please select New Type";
             // toast_type = "error";
             error_toast("Please select New Type")
-
+            
             return
-            }
+        }
 
             console.log("inside update_date_arr.includes(updated_start_date)",update_date_arr.includes(updated_start_date))
-        if(!fromDate && update_date_arr.includes(updated_start_date) == true){
+        if(!fromDate || update_date_arr.includes(updated_start_date) == true || fromDate == undefined){
             
             // toast_text = "Please select vaild From date";
             // toast_type = "error";
@@ -1262,6 +1268,7 @@
                 "facility_type": $facility_data_store.facility_type,
                 "attendance_facility_type": newType,
                 "from_date": updated_start_date,
+                // "to_date":updated_end_date,
                 "property_type":'facility_type',
                 "property_value": attendenceType,
                 "remark": assocRemarks,
@@ -3550,7 +3557,7 @@
                                                 <div class="light14grey mb-1">New Type</div>
                                                 <div class="formInnerwidthfull ">
                                                     <select class="inputboxpopover" bind:value="{newType}">
-                                                        <option class="pt-6">Select</option>
+                                                        <option class="pt-6" value="-1">Select</option>
                                                         {#each get_assoc_types_data as assoc}
                                                             <option
                                                                 class="pt-6" 
@@ -3597,7 +3604,7 @@
                                                 <div class="light14grey mb-1">To Date</div>
                                                 <div class="formInnerwidthfull ">
                                                     <!-- <input type="date" class="inputboxpopoverdate" onkeydown="return false"> -->
-                                                    <input type="date" class="inputboxpopoverdate"  min={new Date().toISOString().split('T')[0]} bind:value="{fromDate}" onkeydown="return false">
+                                                    <input type="date" class="inputboxpopoverdate"  min={new Date().toISOString().split('T')[0]} bind:value="{toDate}" onkeydown="return false">
                                                 </div>
                                                 <div class="w-full">
                                                     <div class="light14greylong mb-1 invisible"></div>

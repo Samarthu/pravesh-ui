@@ -273,11 +273,11 @@
             </div>
         </div>
 
-        <div class="downloadLink flex mt-3 justify-end">
+        <!-- <div class="downloadLink flex mt-3 justify-end">
             <p class="flex gap-2 py-3"><img src="../src/img/download.png" alt="">Download Report</p>
-        </div>
+        </div> -->
 
-        <div class="getTableData bg-white">
+        <!-- <div class="getTableData bg-white">
             <table class="table  w-full text-center mt-2 ">
                 <thead class="tHeadAssociate">
                     <tr>
@@ -299,7 +299,7 @@
                     </tr>
                 </tbody>
             </table>
-        </div>
+        </div> -->
     </div>
 
     <!--End Associates not onboarded -->
