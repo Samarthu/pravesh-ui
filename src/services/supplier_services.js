@@ -136,6 +136,14 @@ const deactivate_assocaite=(fac_id,date)=>{
     }, true)
     
 }
+const add_remark_func=(data)=>{
+    let add_remark_func_url = '/api/method/pravesh.facility.routes.facility_audit_trail.update_fac_audit_trail';
+    return request(
+        add_remark_func_url, {
+        method: "POST",
+        body:JSON.stringify(data)
+    }, true)
+}
 
 
 export{
@@ -147,5 +155,6 @@ export{
    filter_vendortype_data,
    search_supplier,
    onboard_by_me_sup,
-   deactivate_assocaite
+   deactivate_assocaite,
+   add_remark_func
 }
