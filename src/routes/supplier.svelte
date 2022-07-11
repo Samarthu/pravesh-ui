@@ -6,7 +6,7 @@
     import {supplier_data} from '../services/supplier_services';
     import {filter_city_data} from '../services/supplier_services';
     import {filter_status_data} from '../services/supplier_services';
-    import {filter_vendortype_data,search_supplier,onboard_by_me_sup,
+    import {filter_vendortype_data,search_supplier,onboard_by_me_sup,add_remark_func,
     deactivate_assocaite} from '../services/supplier_services';
     import {audit_trail_data} from '../services/supplier_services';
     import {logged_user} from '../services/supplier_services';
@@ -1623,43 +1623,66 @@ function open_deact_initiate_model(stat){
         }
         show_spinner = false;
     }
-    async function deactivate_profile_later(){
-        console.log("inside deactivate profile",fac_obj)
-        show_spinner = true;
-        // if(fac_id && date != ""){
-        //     var deactivate_user_imm_res = await deactivate_assocaite(fac_id,date);
-        // }
-        // else{
-            var deactivate_user_imm_res = await deactivate_assocaite(fac_id);
-        // }
-        try{
-            if(deactivate_user_imm_res.body.status == "green"){
-                show_spinner = false;
-                // toast_type = "success";
-                // toast_text = deactivate_user_imm_res.body.status;
-                success_toast(deactivate_user_imm_res.body.status)
+    // async function deactivate_profile_later(){
+    //     console.log("inside deactivate profile",fac_obj)
+    //     show_spinner = true;
+    //     // if(fac_id && date != ""){
+    //     //     var deactivate_user_imm_res = await deactivate_assocaite(fac_id,date);
+    //     // }
+    //     // else{
+    //         var deactivate_user_imm_res = await deactivate_assocaite(fac_id);
+    //     // }
+    //     try{
+    //         if(deactivate_user_imm_res.body.status == "green"){
+    //             show_spinner = false;
+    //             // toast_type = "success";
+    //             // toast_text = deactivate_user_imm_res.body.status;
+    //             success_toast(deactivate_user_imm_res.body.status)
 
-            }
-            else{
-                show_spinner = false;
-                // toast_type = "error";
-                // toast_text = "Error in deactivating profile"
-                error_toast("Error in deactivating profile")
-            }
+    //         }
+    //         else{
+    //             show_spinner = false;
+    //             // toast_type = "error";
+    //             // toast_text = "Error in deactivating profile"
+    //             error_toast("Error in deactivating profile")
+    //         }
 
-        }
-        catch(err){
-            show_spinner = false;
-            // toast_type deactivate_user_imm_res.body.statuseactivate_user_imm_res.body.status;
-            error_toast(deactivate_user_imm_res.body.status)
-        }
-    }
+    //     }
+    //     catch(err){
+    //         show_spinner = false;
+    //         // toast_type deactivate_user_imm_res.body.statuseactivate_user_imm_res.body.status;
+    //         error_toast(deactivate_user_imm_res.body.status)
+    //     }
+    // }
 
-function addRemark(){
-    addRemarkModel.style.display == "block"
+function addRemark(facility_id){
+    fac_obj = facility_id;
+    console.log("facility_idfacility_id",fac_obj)
+    
+    addRemarkModel.style.display = "block"
 }
 function closeaddRemark(){
-    addRemarkModel.style.display == "none"
+    addRemarkModel.style.display = "none"
+    new_remarks = "";
+}
+async function add_new_remark(){
+   
+    show_spinner = true
+    let remark_payload = {"facility_id":fac_obj,"remarks":new_remarks,"audit":"audit"}
+    let add_new_remark_res = await add_remark_func(remark_payload);
+    try {
+        new_remarks = "";
+        if(add_new_remark_res.body.status == "green"){
+            show_spinner = false
+            success_toast(add_new_remark_res.body.message)
+        }else{
+            show_spinner = false
+            error_toast(add_new_remark_res.body.message) 
+        }
+        
+    } catch (error) {
+      error_toast(error)  
+    }
 }
 
 </script>
@@ -2949,7 +2972,7 @@ function closeaddRemark(){
                                             {/if}
                                             <p class="verifyText">
                                                 <a href="" class="smButton">
-                                                    <img src="{$img_url_name.img_name}/edit.png" alt="" on:click="{()=>addRemark}">
+                                                    <img src="{$img_url_name.img_name}/edit.png" alt="" on:click|preventDefault="{()=>addRemark(facility_data.name)}">
                                                 </a>
                                             </p>
                                         </td>
@@ -4400,7 +4423,7 @@ function closeaddRemark(){
     <!--Initiate Module -->
 
     <!--BG Final Reject modal -->
-<div id="Final_bg_Reject_modal" class="hidden">
+<div id="addRemarkModel" hidden>
     <div  class="actionDialogueOnboard ">
         <div class="pancardDialogueOnboardWrapper ">
             <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
@@ -4446,7 +4469,7 @@ function closeaddRemark(){
                       </div>
                    
                       <div class="pt-3 flex justify-center">
-                        <button type="button" class="dialogueNobutton   " on:click="{final_bgv_reject_func}">Submit</button>
+                        <button type="button" class="dialogueNobutton   " on:click="{add_new_remark}">Submit</button>
                 </form>
             </div>
         </div>
