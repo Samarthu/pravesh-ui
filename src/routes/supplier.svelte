@@ -438,10 +438,12 @@ else
 
 
     function createPagesArray(total) {
+        console.log("toatal",total)
     let arr = []
     for(let i = 1; i <= total; i++) {
         arr.push(i)
     }
+    console.log("arr",arr)
     return arr
     }
 
@@ -720,19 +722,22 @@ else
         show_spinner = true;
         if(status != "-1"){
             show_spinner = false;
-            // console.log("pages.length",pages.length)
+            console.log("pages.length",pages.length)
             last_num_from_pages = pages.length
-            console.log("last_num",last_num_from_pages)
+            console.log("last_num_from_pages",last_num_from_pages)
             console.log("pagenumber",pagenumber)
-            // if(mapped_pages.includes(last_num_from_pages)){
-
-                // }
-                //  else{  
-        for (var i = 0; i < mapped_pages.length; i++){       
-            mapped_pages[i] = mapped_pages[i] + 1;
-            //    }
+            if(!mapped_pages.includes(last_num_from_pages)){
+                for (var i = 0; i < mapped_pages.length; i++){       
+                mapped_pages[i] = mapped_pages[i] + 1;
+               }
             }
-            // console.log("mapped_pagessss",mapped_pages)
+            //      else{  
+            
+           
+            
+            // }
+            
+           
             // console.log("mapped_pagessss",mapped_pages[0])
             pageChange(mapped_pages[2])
         }
@@ -2538,11 +2543,11 @@ function open_deact_initiate_model(stat){
                                 <ul class="pagiWrapper ">
                                     <li>
                                         {#if pagenumber == "1" || next_prev_disable == true}
-                                        <button class="preNextbtn" style="background: #dddddd; pointer-events: none;">
+                                        <button class="preNextbtn" id = "prevbtn" style="background: #dddddd; pointer-events: none;">
                                             Previous</button
                                         >
                                         {:else}
-                                        <button class="preNextbtn"on:click={previous_function}>
+                                        <button class="preNextbtn" id = "prevbtn" on:click={previous_function}>
                                             Previous</button
                                         >
                                         {/if}
@@ -2596,11 +2601,11 @@ function open_deact_initiate_model(stat){
 
                                     <li>
                                         {#if pagenumber > last_num_from_pages  || next_prev_disable == true}
-                                        <button class="preNextbtn" style="background: #dddddd; pointer-events: none;">
+                                        <button class="preNextbtn" id = "nextbtn" style="background: #dddddd; pointer-events: none;">
                                             Next</button
                                         >
                                         {:else}
-                                        <button class="preNextbtn" on:click={next_function}>
+                                        <button class="preNextbtn" id = "nextbtn" on:click={next_function}>
                                             Next</button
                                         >
                                         {/if}
