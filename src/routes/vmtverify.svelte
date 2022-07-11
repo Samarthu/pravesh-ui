@@ -3645,8 +3645,6 @@
                 {#if $bgv_config_store.is_basic_info_mandatory =="0" && $bgv_config_store.is_address_info_mandatory =="0" && $bgv_config_store.is_driving_license_mandatory =="0"
                 && $bgv_config_store.is_police_verification_mandatory =="0" && $bgv_config_store.is_pan_info_mandatory =="0"}
                 <div class="flex  justify-between items-center py-3 px-4 Menu {is_bgv_active}" on:click={() => {temp_display = "display_bgv_details",menu_click("bgv")}} hidden>
-                    <p>BGV<p>
-                        <!-- <img src="{$img_url_name.img_name}/downarrowwhite.svg"> --> 
                 </div>
                 {:else}
                 <div class="flex  justify-between items-center py-3 px-4 Menu {is_bgv_active}" on:click={() => {temp_display = "display_bgv_details",menu_click("bgv")}}>
