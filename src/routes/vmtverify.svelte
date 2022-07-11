@@ -3636,15 +3636,22 @@
                 <div class="flex  justify-between items-center py-3 px-4 Menu {is_id_active}" on:click={() => {temp_display = "display_id_proof",menu_click("id")}}>
                     <p>ID Proof<p>
                         <!-- <img src="{$img_url_name.img_name}/downarrowwhite.svg"> -->
-                        <img src="{$img_url_name.img_name}/downarrowwhite.svg" alt="">
+                        <!-- <img src="{$img_url_name.img_name}/downarrowwhite.svg" alt=""> -->
                 </div>
                 <div class="flex  justify-between items-center py-3 px-4 Menu {is_bank_active}" on:click={() => {temp_display = "display_bank_details",menu_click("bank")}}>
                     <p>Bank Details<p>
-                        <img src="{$img_url_name.img_name}/downarrowwhite.svg">
+                        <!-- <img src="{$img_url_name.img_name}/downarrowwhite.svg"> -->
                 </div>
                 <div class="flex  justify-between items-center py-3 px-4 Menu {is_bgv_active}" on:click={() => {temp_display = "display_bgv_details",menu_click("bgv")}}>
+                    {#if $bgv_config_store.is_basic_info_mandatory =="0" && $bgv_config_store.is_address_info_mandatory =="0" && $bgv_config_store.is_driving_license_mandatory =="0"
+                    && $bgv_config_store.is_police_verification_mandatory =="0" && $bgv_config_store.is_pan_info_mandatory =="0"}
+                    <div>
+                        BGV is not applicable
+                    </div>
+                    {:else}
                     <p>BGV<p>
-                        <img src="{$img_url_name.img_name}/downarrowwhite.svg">
+                        <!-- <img src="{$img_url_name.img_name}/downarrowwhite.svg"> -->
+                    {/if}
                 </div>
             </div>
         </div>
