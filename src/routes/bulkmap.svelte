@@ -195,7 +195,7 @@
         goto(routePrev, { replaceState });
     }
 
-    routePrev = "dashboard";
+    routePrev = "reports";
 
 
 

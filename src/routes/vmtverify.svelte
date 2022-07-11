@@ -197,7 +197,7 @@
     let stat_select;
     let id_select;
     let newType;
-    let attendenceType;
+    let attendenceType ="-1";
     let get_specific_name_data = [];
     let station_code_arr = [];
     let get_change_associte_data = [];
@@ -3022,12 +3022,20 @@
 
         }
 
-        if(!newType){
+        if(!newType || newType == "-1"){
+            // toast_text = "Please select New Type";
+            // toast_type = "error";
+            error_toast("Please select New Associate Type")
+            return
+        }
+
+
+        if(!attendenceType || attendenceType == "-1"){
             // toast_text = "Please select New Type";
             // toast_type = "error";
             error_toast("Please select New Type")
             return
-            }
+        }
 
             console.log("inside update_date_arr.includes(updated_start_date)",update_date_arr.includes(updated_start_date))
         if(!fromDate && update_date_arr.includes(updated_start_date) == true){
@@ -3611,7 +3619,14 @@
             <!-- activetab -->
             <li class=" {is_id_active}" on:click={() => {temp_display = "display_id_proof",menu_click("id")}}>ID Proof</li>
             <li class="{is_bank_active}" on:click={() => {temp_display = "display_bank_details",menu_click("bank")}}>Bank Details</li>
+            {#if $bgv_config_store.is_basic_info_mandatory =="0" && $bgv_config_store.is_address_info_mandatory =="0" && $bgv_config_store.is_driving_license_mandatory =="0"
+            && $bgv_config_store.is_police_verification_mandatory =="0" && $bgv_config_store.is_pan_info_mandatory =="0"}
+            <div>
+                BGV is not applicable
+            </div>
+            {:else}
             <li class="{is_bgv_active}" on:click={() => {temp_display = "display_bgv_details",menu_click("bgv")}}>BGV</li>
+            {/if}
         </ul>
     </div>
     <div class="grid grid-cols-5 gap-4 bg-lighterGrey xsl:grid-cols-1">
@@ -4530,6 +4545,13 @@
               {#if change_to == "basic_details"}
               {#if $bgv_config_store.is_basic_info_mandatory =="0"}
 
+              <div>
+                This section is not applicable for this user
+            </div>
+
+
+              {:else} 
+
               <div class="grid grid-cols-7 gap-4 mt-3 xsl:grid-cols-1 ">
                 <!-- Attachment section -->
                 <div class="m-4 col-span-4 xsl:m-2 ">
@@ -4765,11 +4787,8 @@
                         </div>    
                 </div>  
               </div> 
-              {:else} 
 
-              <div>
-                  This section is not applicable for this user
-              </div>
+
               {/if}   
 
               {/if}   
@@ -6126,7 +6145,7 @@
                                                 <div class="light14grey mb-1">Type of Attendance</div>
                                                 <div class="formInnerwidthfull ">
                                                     <select class="inputboxpopover" bind:value="{attendenceType}">
-                                                        <option class="pt-6">Select</option>
+                                                        <option class="pt-6" value="-1">Select</option>
                                                         {#each get_assoc_types_data as assoc}
                                                             <option
                                                                 class="pt-6" 
