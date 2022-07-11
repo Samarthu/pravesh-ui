@@ -2,9 +2,11 @@
     import { goto } from "$app/navigation";
     import {get_client_org_mapping, get_specific_name, not_onboarded_data} from "../services/vmt_verify_services";
     import { get_loc_scope} from "../services/onboardsummary_services";
+    import { SvelteToast, toast } from '@zerodevx/svelte-toast';
     import Toast from './components/toast.svelte';
     import Spinner from "./components/spinner.svelte";
     import {get_date_format} from '../services/date_format_servives';
+    import {success_toast ,error_toast,warning_toast} from '../services/toast_theme';
 
     let stat_select;
     let id_select;
@@ -60,13 +62,13 @@
             // }
         }
         else{
-            toast_type = "error";
-            toast_text = "No client Data";
+            // toast_type = "error";
+            // toast_text = "No client Data";
+            error_toast("No client Data")
         }
         
         } catch(err) {
-            toast_type = "error";
-            toast_text = err;
+            error_toast(err)
         
     }
     }
@@ -130,18 +132,28 @@
     async function download_csv_file() {  
         let count = 0 ;
 
-        if(!stat_select){
-            toast_text = "Please select Station";
-            toast_type = "error";
-            return
-        }
-
+        console.log("im in ",id_select)
         if(!id_select){
-            toast_text = "Please select organization";
-            toast_type = "error"
+            console.log("inside idselect",id_select)
+            // toast_text = "Please select organization";
+            // toast_type = "error"
+            error_toast("Please select organization")
             return
         }
 
+        if(!stat_select){
+            // toast_text = "Please select Station";
+            // toast_type = "error";
+            error_toast("Please select Station")
+            return
+        }
+
+        if(!notonbDate){
+            // toast_text = "Please select Station";
+            // toast_type = "error";
+            error_toast("Please select Date")
+            return
+        }
 
         let notonboardDate = new Date(notonbDate);
         let new_date =get_date_format(notonboardDate,"MMMM/YYYY");
@@ -163,8 +175,9 @@
             console.log("inside daily work",count)
 
         } catch (error) {
-            toast_type = "error";
-            toast_text = not_onboarded_data_res.body.message;
+            // toast_type = "error";
+            // toast_text = not_onboarded_data_res.body.message;
+            error_toast(not_onboarded_data_res.body.message)
         }
 
         // let csvFileData = csvBody + ele.month_year.replace("_"," - ")+ ","+ele.org_id + "," + ele.station_code + "," + ele.resource_id + "," + count + "\n";
@@ -305,3 +318,5 @@
     <!--End Associates not onboarded -->
 
 </div>
+
+<SvelteToast />
