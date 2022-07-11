@@ -37,7 +37,8 @@
     let filter_city_array = [];
     let filter_vendortype_array = [];
     let city; 
-    let next_prev_disable = false;
+    let next_dis = false;
+    let prev_dis = false;
     let dropdown_disable = false;
     let searchTerm;
     let new_city;
@@ -129,7 +130,8 @@
     let json_associate_data,json_associate_new_data;
     
     onMount(async () =>{
-        next_prev_disable = true;
+        next_dis = true;
+        prev_dis = true;
        
         show_spinner = true;
     let dashboard_res = await dashboard_data();
@@ -286,12 +288,14 @@ else
         new_drop_limit=parseInt(drop_limit)
         total_count_associates = res.body.data.total_records;
         if(total_count_associates > new_drop_limit){
-            next_prev_disable = false;
+            next_dis = false;
+            prev_dis = false;
             total_pages = Math.ceil(total_count_associates/new_drop_limit)
             pages = createPagesArray(total_pages)
         }
         else{
-            next_prev_disable = true;
+            next_dis = true;
+            prev_dis = true;
         }
         }
 
@@ -449,7 +453,8 @@ else
 
     async function onboarded_check_func(){
         dropdown_disable = false;
-        next_prev_disable = false;
+        next_dis = false;
+        prev_dis = false;
         searchTerm = "";
         show_spinner = true;
         
@@ -532,7 +537,8 @@ else
                         new_pages =[];
                         mapped_pages=[];
                         if(total_count_associates > new_drop_limit){
-                        next_prev_disable = false;
+                            next_dis = false;
+                            prev_dis = false;
                         total_pages = Math.ceil(total_count_associates/new_drop_limit)
 
                         pages = createPagesArray(total_pages)
@@ -552,7 +558,8 @@ else
                             }
                         }
                         else{
-                            next_prev_disable = true;
+                            next_dis = true;
+                            prev_dis = true;
                         }
 
 
@@ -677,7 +684,8 @@ else
             new_pages =[];
             mapped_pages=[];
             if(total_count_associates > new_drop_limit){
-                next_prev_disable = false;
+                next_dis = false;
+                prev_dis = false;
                 total_pages = Math.ceil(total_count_associates/new_drop_limit)
 
                 pages = createPagesArray(total_pages)
@@ -697,7 +705,8 @@ else
                     }
                 }
                 else{
-                    next_prev_disable = true;
+                    next_dis = true;
+                    prev_dis = true;
                 }
             // status_pill_clicked(status);
             // console.log("status afta",status)
@@ -729,17 +738,38 @@ else
             if(!mapped_pages.includes(last_num_from_pages)){
                 for (var i = 0; i < mapped_pages.length; i++){       
                 mapped_pages[i] = mapped_pages[i] + 1;
+                if(!mapped_pages[2]){
+                    pageChange(mapped_pages[0]) 
+                }
+                else{
+                    pageChange(mapped_pages[2])
+                }
+                if(mapped_pages[i] == last_num_from_pages){
+                    console.log("LAst PASGE")
+                    next_dis = true;
+                    
+                }
+                else{
+                    next_dis = false;
+                    
+                }
                }
             }
-            //      else{  
-            
-           
-            
+            // for(let i=0;i<mapped_pages.length;i++){
+            //     // if(mapped_pages[])
+            //     // console.log("mapped[i",mapped_pages[2])
+            //     if(!mapped_pages[2]){
+            //         pageChange(mapped_pages[0]) 
+            //     }
+            //     else{
+            //         pageChange(mapped_pages[2])
+            //     }
+               
             // }
-            
+            // pageChange(mapped_pages[2])
            
             // console.log("mapped_pagessss",mapped_pages[0])
-            pageChange(mapped_pages[2])
+            // pageChange(mapped_pages[2])
         }
         else{
             show_spinner = false;
@@ -761,6 +791,7 @@ else
                     mapped_pages[i] = mapped_pages[i] - 1;
                 }
             }
+            next_dis = false;
             pageChange(mapped_pages[0])
         }
         else{
@@ -967,7 +998,8 @@ else
                 // }
 
                 if(total_count_associates > new_drop_limit){
-                    next_prev_disable = false;
+                    next_dis = false;
+                    prev_dis = false;
                   
                   total_pages = Math.ceil(total_count_associates/new_drop_limit)
   
@@ -1060,7 +1092,8 @@ else
                 // }
 
                 if(total_count_associates > new_drop_limit){
-                    next_prev_disable = false;
+                    next_dis = false;
+                    prev_dis = false;
                   
                   total_pages = Math.ceil(total_count_associates/new_drop_limit)
   
@@ -1081,7 +1114,8 @@ else
                       }
                   }
                   else{
-                    next_prev_disable = true;
+                    next_dis = true;
+                    prev_dis = true;
                   }
                     console.log("supplier_data_from_service here",supplier_data_from_service)
                 }
@@ -1156,7 +1190,8 @@ else
                 new_pages =[];
                 mapped_pages=[];
                 if(total_count_associates > new_drop_limit){
-                next_prev_disable = false;
+                    next_dis = false;
+            prev_dis = false;
                 total_pages = Math.ceil(total_count_associates/new_drop_limit)
 
                 pages = createPagesArray(total_pages)
@@ -1176,7 +1211,8 @@ else
                     }
                 }
                 else{
-                    next_prev_disable = true;
+                    next_dis = true;
+                    prev_dis = true;
                 }
                 // status_pill_flag = true;
             }
@@ -1382,7 +1418,8 @@ else
                 if(total_count_associates > new_drop_limit){
                     new_pages =[];
                     mapped_pages=[];
-                    next_prev_disable = false;
+                    next_dis = false;
+                    prev_dis = false;
                     total_pages = Math.ceil(total_count_associates/new_drop_limit)
                     // console.log("page_count_______",total_pages)
                     pages = createPagesArray(total_pages)
@@ -1403,7 +1440,8 @@ else
                     }
                 }
                 else{
-                    next_prev_disable = true;
+                    next_dis = true;
+                    prev_dis = true;
                 }
         // console.log("pages,,,,,",pages)
 
@@ -2542,7 +2580,7 @@ function open_deact_initiate_model(stat){
                             <nav aria-label="Page navigation">
                                 <ul class="pagiWrapper ">
                                     <li>
-                                        {#if pagenumber == "1" || next_prev_disable == true}
+                                        {#if pagenumber == "1" || prev_dis == true}
                                         <button class="preNextbtn" id = "prevbtn" style="background: #dddddd; pointer-events: none;">
                                             Previous</button
                                         >
@@ -2600,7 +2638,7 @@ function open_deact_initiate_model(stat){
                                     </li> -->
 
                                     <li>
-                                        {#if pagenumber > last_num_from_pages  || next_prev_disable == true}
+                                        {#if pagenumber > last_num_from_pages  || next_dis == true}
                                         <button class="preNextbtn" id = "nextbtn" style="background: #dddddd; pointer-events: none;">
                                             Next</button
                                         >
