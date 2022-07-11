@@ -1699,18 +1699,22 @@ function closeApproveViewModel(){
 
         if(get_cas_user_res.body.message == "User is already activated"){
             show_spinner = false;
+            console.log("activated user")
             success_toast(get_cas_user_res.body.message)
 
         }
-        else if(get_cas_user_res.body.status == "User is Deactive in CAS"){
+        else if(get_cas_user_res.body.message == "User is Deactive in CAS"){
             showCasUser.style.display = "block";
             show_spinner = false;
                 cas_flag = 1;
+                console.log("im in User is Deactive in CAS")
                 error_toast("user is deactive")
         }
         else{
             showCasUser.style.display = "block";
+            show_spinner = false;
             create_cas_flag == 1;
+            console.log("im in User create new CAS")
             error_toast("user not found")
             
             // if(get_cas_user_res.message = "User is Deactive in CAS" || get_cas_user_res.status == "red"){

@@ -322,12 +322,12 @@
                             class="border-collapse border border-slate-400  table w-full  text-center workOrderTabel">
                             <thead>
                                 <tr>
-                                    <th>FacilityID</th>
-                                    <th>EmployeeID</th>
-                                    <th>ClientSystemID</th>
-                                    <th>ClientBGVID</th>
-                                    <th>ClientBGVStatus</th>
-                                    <th>BGVRemarks</th>
+                                    <th>Facility ID</th>
+                                    <th>Employee ID</th>
+                                    <th>Client System ID</th>
+                                    <th>Client BGV ID</th>
+                                    <th>Client BGV Status</th>
+                                    <th>BGV Remarks</th>
                                 </tr>
                             </thead>
                             <tbody>
