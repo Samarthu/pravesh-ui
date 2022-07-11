@@ -1713,7 +1713,7 @@ function closeApproveViewModel(){
         else if(get_cas_user_res.body.message == "User is not found in CAS"){
             showCasUser.style.display = "block";
             show_spinner = false;
-            create_cas_flag == 1;
+            create_cas_flag = 1;
             console.log("im in User create new CAS")
             error_toast("user not found")
             
@@ -3191,16 +3191,16 @@ function closeApproveViewModel(){
                 <div class="pt-3 flex justify-center" on:click="{create_cas}">
                     <button type="button" class="dialogueSingleButton">Create User</button>
                 </div>
-                {:else if active_flag == 1}
+                {:else if create_cas_flag == 1}
                 <div class="justify-center">
                     <p>
-                        User is Activated
+                        User is not in Cas
                     </p>
                 </div>
                 <div class="pt-3 flex justify-center" on:click="{create_cas}">
                     <button type="button" class="dialogueSingleButton">Create User</button>
                 </div>
-                {:else if create_cas_flag == 1}
+                {:else if active_flag == 1}
                 <div class="justify-center">
                     <p>
                         User is not in Cas
