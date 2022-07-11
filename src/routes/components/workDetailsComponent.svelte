@@ -1427,16 +1427,15 @@
             error_toast("Please Enter Remark")
             return
         }
-        else if(select_tag_data == "Pay My Service Charge"){
-            if(!serv_ch_data || serv_ch_data =="-1"){
+        else if(select_tag_data == "Pay My Service Charge" && (!serv_ch_data || serv_ch_data =="-1")){
                 show_spinner = false;
                 error_toast("Please Select Service Charge Data")
                 return
-            }
+            
         }
         else{
            
-            // console.log("select_tag_data",select_tag_data)
+            console.log("select_tag_data INSIDE")
             
             if(serv_ch_data=="-1")
             serv_ch_data="";

@@ -15,6 +15,7 @@
     import {img_url_name} from '../stores/flags_store';
     import Spinner from "./components/spinner.svelte";
     import { goto } from '$app/navigation';
+    import {get_date_format} from "../services/date_format_servives";
     import Toast from './components/toast.svelte';
     import { SvelteToast, toast } from '@zerodevx/svelte-toast'
     import {success_toast ,error_toast,warning_toast} from '../services/toast_theme';
@@ -905,6 +906,14 @@ else
                 audit_details_array = audit_res.body.data
                 audit_supplier_data = datalist_name;
                 audit_supplier_address = audit_supplier_data.addresess[0].city
+                audit_details_array.reverse();
+                    for(let i=0;i < audit_details_array.length;i++){
+                        console.log("audit_details_array",audit_details_array)
+                    let new_date = new Date(audit_details_array[i].creation)
+                    console.log("new_date",new_date)
+                    audit_details_array[i].creation = get_date_format(new_date,"dd-mm-yyyy-hh-mm")
+                    
+                    }
             }
         }
         catch(err){
@@ -1673,6 +1682,7 @@ async function add_new_remark(){
     try {
         new_remarks = "";
         if(add_new_remark_res.body.status == "green"){
+            closeaddRemark()
             show_spinner = false
             success_toast(add_new_remark_res.body.message)
         }else{
@@ -3931,19 +3941,27 @@ async function add_new_remark(){
     </div>
 </div>
 
-<div class="supplierInfoModalSection" id="supplierInfoModal">
-    <!-- {#each audit_supplier_data as audit_data}  -->
+
+
+
+<!-- NEW AUDIT TRAIL -->
+
+<div class="supplierInfoModalSection " id="supplierInfoModal">
     <div class="mainSupInfo">
         <div class="p-4">
             <div class="supInfoWrapper ">
                 <div class="infoUserdetailsSection ">
                     <div class="detailsInfoSection">
                         <div class="tdfirstDetailsformodal">
-                            <div class="itemListForBaseline">
-                                <div class="smallText w-w115px ">
+                            <div class="itemList ">
+                                <div class="smallText w-w115px">Associate ID</div>
+                                <div class="smLable">{audit_supplier_data.name}</div>
+                            </div>
+                            <div class="itemListForBaseline ">
+                                <div class="smallText w-w115px">
                                     Associate Name
                                 </div>
-                                <div class="smLable w-64 xsl:w-48">{audit_supplier_data.facility_name}</div>
+                                <div class="smLable break-all w-64 xsl:w-48">{audit_supplier_data.facility_name}</div>
                             </div>
                             <div class="itemList ">
                                 <div class="smallText w-w115px">
@@ -3951,21 +3969,12 @@ async function add_new_remark(){
                                 </div>
                                 <div class="smLable">{audit_supplier_data.facility_type}</div>
                             </div>
-                            <div class="itemList ">
-                                <div class="smallText w-w115px">Associate ID</div>
-                                <div class="smLable">{audit_supplier_data.name}</div>
-                            </div>
+                            
                             <div class="itemList">
-                                <div class="smallText w-w115px">Location</div>
-                                <div class="smLable"  style="max-width: 50%;">
-                                    <!-- {#each audit_supplier_data.addresess as curr_address}
-                                    {curr_address.address}
-                                    {/each} -->
-                                    {audit_supplier_address}
-                                   
-                                </div>
+                                <div class="smallText w-w115px break-all">Location</div>
+                                <div class="smLable">{audit_supplier_address}</div>
                             </div>
-                            <div class="itemList">
+                            <!-- <div class="itemList">
                                 <div class="smallText w-w115px">Status</div>
                                 <div class="statusinformation">
                                     <div class="statusWrapper  ">
@@ -3984,9 +3993,18 @@ async function add_new_remark(){
                                         {/if}
                                         {audit_supplier_data.status}
                                     </div>
-                                    <!-- <p class="text-xs text-grey ml-4">
-                                        (ID Proof)
-                                    </p> -->
+                                    
+                                </div>
+                            </div> -->
+
+                            <div class="itemList">
+                                <div class="smallText w-w115px">Status</div>
+                                <div class="statusinformation">
+                                    <div class="statusWrapper  ">
+                                        <!-- <div class="statusredcircle" /> -->
+                                        {audit_supplier_data.status}
+                                    </div>
+                                    
                                 </div>
                             </div>
                         </div>
@@ -4020,12 +4038,17 @@ async function add_new_remark(){
                     />
                 </div> -->
 
-                <div class="timelinescroll ">
+               
+            <div class="timelinescroll ">
+                    {#each audit_details_array as new_audit_data}
                     <div class="flex md:contents">
+                        
                         <div class="timelinesection">
+                            
                             <div class="timeline ">
                                 <div class="timelineGreyline" />
                             </div>
+                           
                             <div class="timelineImg ">
                                 <img
                                     src="{$img_url_name.img_name}/chat2.svg"
@@ -4034,19 +4057,29 @@ async function add_new_remark(){
                                 />
                             </div>
                         </div>
+                        
                         <div class="timelineContent ">
-                            {#each audit_details_array as new_audit_data}
-                            <h3 class="timeCommenterName ">
-                                {new_audit_data.owner}
-                                <span class="timeCommentDate "
-                                    >{new_audit_data.creation}</span
-                                >
-                            </h3>
-                            <div class="timeStatus  timeStatusbglightPink">
-                                <p class="timeCircle" />
-                                {new_audit_data.remarks}
-                            </div>
-                            {/each}
+                          
+                                <h3 class="timeCommenterName ">
+                                    {new_audit_data.owner}
+                                    <span class="timeCommentDate "
+                                        >{new_audit_data.creation}</span
+                                    >
+                                </h3>
+                                <!-- <div class="timeStatus  timeStatusbglightPink">
+                                    <p class="timeCircle" />
+                                    {new_audit_data.remarks}
+                                   
+                                    <p>({new_audit_data.status})</p>
+                                </div> -->
+                                <div class="timeStatusbglightPink">
+                                    <div class="flex items-center text-font13px font-normal  p-2 pb-0">
+                                    <p class="timeCircle"></p>  {new_audit_data.remarks}
+                                    </div>
+                                    <p class="text-font13px text-textdarkgrey font-normal p-2 pl-4">({new_audit_data.status})</p>
+                                </div>
+
+                           
                         </div>
                     </div>
                     <!-- <div class="flex md:contents">
@@ -4062,285 +4095,18 @@ async function add_new_remark(){
                                 />
                             </div>
                         </div>
-                        <div class="timelineContent ">
-                            <h3 class="timeCommenterName ">
-                                Selvaraj Jayaraman
-                                <span class="timeCommentDate "
-                                    >Thurs, 07 Sept 21, 12:24 PM</span
-                                >
-                            </h3>
-                            <div class="timeStatus  timeStatusbglightPink">
-                                <p class="timeCircle" />
-                                 Pancard number mismatch
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex md:contents">
-                        <div class="timelinesection">
-                            <div class="timeline ">
-                                <div class="timelineGreyline" />
-                            </div>
-                            <div class="timelineImg ">
-                                <img
-                                    src="{$img_url_name.img_name}/chat2.svg"
-                                    class="w-5 h-5"
-                                    alt=""
-                                />
-                            </div>
-                        </div>
-                        <div class="timelineContent ">
-                            <h3 class="timeCommenterName ">
-                                Akshay Saini
-                                <span class="timeCommentDate "
-                                    >Thurs, 07 Sept 21, 12:24 PM</span
-                                >
-                            </h3>
-                            <div class="timeStatus  timeStatusbglightPurple">
-                                <p class="timeCircle" />
-                                 Vendor details verified
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex md:contents">
-                        <div class="timelinesection">
-                            <div class="timeline ">
-                                <div class="timelineGreyline" />
-                            </div>
-                            <div class="timelineImg ">
-                                <img
-                                    src="{$img_url_name.img_name}/chat2.svg"
-                                    class="w-5 h-5"
-                                    alt=""
-                                />
-                            </div>
-                        </div>
-                        <div class="timelineContent ">
-                            <h3 class="timeCommenterName ">
-                                Selvaraj Jayaraman
-                                <span class="timeCommentDate "
-                                    >Thurs, 07 Sept 21, 12:24 PM</span
-                                >
-                            </h3>
-                            <div class="timeStatus  timeStatusbglightPurple">
-                                <p class="timeCircle" />
-                                 Vendor Details
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex md:contents">
-                        <div class="timelinesection">
-                            <div class="timeline ">
-                                <div class="timelineGreyline" />
-                            </div>
-                            <div class="timelineImg ">
-                                <img
-                                    src="{$img_url_name.img_name}/chat2.svg"
-                                    class="w-5 h-5"
-                                    alt=""
-                                />
-                            </div>
-                        </div>
-                        <div class="timelineContent ">
-                            <h3 class="timeCommenterName ">
-                                Vivekanand Dasar
-                                <span class="timeCommentDate "
-                                    >Thurs, 07 Sept 21, 12:24 PM</span
-                                >
-                            </h3>
-                            <div class="timeStatus  timeStatusbglightGreen">
-                                <p class="timeCircle" />
-                                 Voter ID not clear
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex md:contents">
-                        <div class="timelinesection">
-                            <div class="timeline ">
-                                <div class="timelineGreyline" />
-                            </div>
-                            <div class="timelineImg ">
-                                <img
-                                    src="{$img_url_name.img_name}/chat2.svg"
-                                    class="w-5 h-5"
-                                    alt=""
-                                />
-                            </div>
-                        </div>
-                        <div class="timelineContent ">
-                            <h3 class="timeCommenterName ">
-                                Vivekanand Dasar
-                                <span class="timeCommentDate "
-                                    >Thurs, 07 Sept 21, 12:24 PM</span
-                                >
-                            </h3>
-                            <div class="timeStatus  timeStatusbglightPink">
-                                <p class="timeCircle" />
-                                 Voter ID not clear
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex md:contents">
-                        <div class="timelinesection">
-                            <div class="timeline ">
-                                <div class="timelineGreyline" />
-                            </div>
-                            <div class="timelineImg ">
-                                <img
-                                    src="{$img_url_name.img_name}/chat2.svg"
-                                    class="w-5 h-5"
-                                    alt=""
-                                />
-                            </div>
-                        </div>
-                        <div class="timelineContent ">
-                            <h3 class="timeCommenterName ">
-                                Vivekanand Dasar
-                                <span class="timeCommentDate "
-                                    >Thurs, 07 Sept 21, 12:24 PM</span
-                                >
-                            </h3>
-                            <div class="timeStatus  timeStatusbglightPink">
-                                <p class="timeCircle" />
-                                 Voter ID not clear
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex md:contents">
-                        <div class="timelinesection">
-                            <div class="timeline ">
-                                <div class="timelineGreyline" />
-                            </div>
-                            <div class="timelineImg ">
-                                <img
-                                    src="{$img_url_name.img_name}/chat2.svg"
-                                    class="w-5 h-5"
-                                    alt=""
-                                />
-                            </div>
-                        </div>
-                        <div class="timelineContent ">
-                            <h3 class="timeCommenterName ">
-                                Vivekanand Dasar
-                                <span class="timeCommentDate "
-                                    >Thurs, 07 Sept 21, 12:24 PM</span
-                                >
-                            </h3>
-                            <div class="timeStatus  timeStatusbglightPink">
-                                <p class="timeCircle" />
-                                 Voter ID not clear
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex md:contents">
-                        <div class="timelinesection">
-                            <div class="timeline ">
-                                <div class="timelineGreyline" />
-                            </div>
-                            <div class="timelineImg ">
-                                <img
-                                    src="{$img_url_name.img_name}/chat2.svg"
-                                    class="w-5 h-5"
-                                    alt=""
-                                />
-                            </div>
-                        </div>
-                        <div class="timelineContent ">
-                            <h3 class="timeCommenterName ">
-                                Vivekanand Dasar
-                                <span class="timeCommentDate "
-                                    >Thurs, 07 Sept 21, 12:24 PM</span
-                                >
-                            </h3>
-                            <div class="timeStatus  timeStatusbglightPink">
-                                <p class="timeCircle" />
-                                 Voter ID not clear
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex md:contents">
-                        <div class="timelinesection">
-                            <div class="timeline ">
-                                <div class="timelineGreyline" />
-                            </div>
-                            <div class="timelineImg ">
-                                <img
-                                    src="{$img_url_name.img_name}/chat2.svg"
-                                    class="w-5 h-5"
-                                    alt=""
-                                />
-                            </div>
-                        </div>
-                        <div class="timelineContent ">
-                            <h3 class="timeCommenterName ">
-                                Vivekanand Dasar
-                                <span class="timeCommentDate "
-                                    >Thurs, 07 Sept 21, 12:24 PM</span
-                                >
-                            </h3>
-                            <div class="timeStatus  timeStatusbglightPink">
-                                <p class="timeCircle" />
-                                 Voter ID not clear
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex md:contents">
-                        <div class="timelinesection">
-                            <div class="timeline ">
-                                <div class="timelineGreyline" />
-                            </div>
-                            <div class="timelineImg ">
-                                <img
-                                    src="{$img_url_name.img_name}/chat2.svg"
-                                    class="w-5 h-5"
-                                    alt=""
-                                />
-                            </div>
-                        </div>
-                        <div class="timelineContent ">
-                            <h3 class="timeCommenterName ">
-                                Vivekanand Dasar
-                                <span class="timeCommentDate "
-                                    >Thurs, 07 Sept 21, 12:24 PM</span
-                                >
-                            </h3>
-                            <div class="timeStatus  timeStatusbglightPink">
-                                <p class="timeCircle" />
-                                 Voter ID not clear
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex md:contents">
-                        <div class="timelinesection">
-                            <div class="timeline ">
-                                <div class="timelineGreyline" />
-                            </div>
-                            <div class="timelineImg ">
-                                <img
-                                    src="{$img_url_name.img_name}/chat2.svg"
-                                    class="w-5 h-5"
-                                    alt=""
-                                />
-                            </div>
-                        </div>
-                        <div class="timelineContent ">
-                            <h3 class="timeCommenterName ">
-                                Vivekanand Dasar
-                                <span class="timeCommentDate "
-                                    >Thurs, 07 Sept 21, 12:24 PM</span
-                                >
-                            </h3>
-                            <div class="timeStatus  timeStatusbglightPink">
-                                <p class="timeCircle" />
-                                 Voter ID not clear
-                            </div>
-                        </div>
                     </div> -->
+                    {/each}
                 </div>
+
+
+
+
             </div>
         </div>
     </div>
 </div>
-
+<!-- NEW AUDIT TRAIL -->
 
     <!--  Deactivate Associate  modal -->
         <div class="actionDialogueOnboard hidden" id ="deactivate_asso_profile">
