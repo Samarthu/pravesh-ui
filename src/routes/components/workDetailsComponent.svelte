@@ -1428,14 +1428,12 @@
         else{
            
             // console.log("select_tag_data",select_tag_data)
-            show_fac_array = [];
+            
             if(serv_ch_data=="-1")
             serv_ch_data="";
             // console.log("serv_ch_data",serv_ch_data)
             let submit_fac_res = await submit_fac_tag_data(new_tag_id,select_tag_data,tag_date,tag_remark,serv_ch_data)
             try {
-                
-                console.log("Show spinner inadding new tag ",show_spinner)
                 if(submit_fac_res.body.status == "green"){
                     // toast_type = "success";
                     // toast_text = submit_fac_res.body.message;
@@ -1448,6 +1446,7 @@
                     // console.log("Blsnk values",select_tag_data,serv_ch_data,tag_date,tag_remark)
 
                     let temp_res = await show_fac_tags($facility_data_store.facility_type);
+                    show_fac_array = [];
                     show_fac_array = temp_res.body.data;
                     for(let i=0;i < show_fac_array.length;i++){
                         let new_date =new Date(show_fac_array[i].creation)
@@ -1717,7 +1716,7 @@
         let extention_name = img.name.slice((img.name.lastIndexOf(".") - 1 >>> 0) + 2);
         // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
        
-        if(extention_name == "pdf" || extention_name == "jpg" || extention_name == "png" || extention_name == "jpeg" || extention_name == "csv" || extention_name == "xlsx"){
+        if(extention_name == "pdf" || extention_name == "jpg" || extention_name == "png" || extention_name == "jpeg"){
  
         if (img.size <= allowed_pdf_size) {
             console.log("img", img);
@@ -1785,17 +1784,18 @@
         console.log("view btn clicked",assigned_id,type)
         console.log("work_contract_arr",work_contract_arr)
         view_contract = 1;
-        let pass_contract_id
-        // window.print();
-        for(let i = 0;i<work_contract_arr.length;i++){
-            if(assigned_id == work_contract_arr[i].assigned_id){
-               pass_contract_id = work_contract_arr[i].assigned_id;
-            }
-        }
-        console.log("pass_contract_id",pass_contract_id)
-        let print_data_res = await print_data(pass_contract_id);
+        // let pass_contract_id
+        // // window.print();
+        // for(let i = 0;i<work_contract_arr.length;i++){
+        //     if(assigned_id == work_contract_arr[i].assigned_id){
+        //        pass_contract_id = work_contract_arr[i].assigned_id;
+        //     }
+        // }
+        console.log("pass_contract_id",assigned_id)
+        let print_data_res = await print_data(assigned_id);
         try {
             if(print_data_res.body.status == "green" && print_data_res.body.data != false){
+                // if(print_data_res.body.status == "green"){
                 
                 show_spinner = false;
                 // toast_type = "success";
@@ -1803,9 +1803,13 @@
                 success_toast( print_data_res.body.message)
 
                 print_data_arr = print_data_res.body.data;
+                console.log("print_data_arr outside",print_data_arr)
                 esign_data_arr = print_data_res.body.data.esign
-               
+                console.log("esign_data_arr outside",esign_data_arr)
+
+
                 for(let i = 0;i<work_contract_arr.length;i++){
+                    console.log("inside for loop work_contract_arr")
                     if(assigned_id == work_contract_arr[i].assigned_id && work_contract_arr[i].contract_accepted == 1){
                         
                             if(type == "view"){
