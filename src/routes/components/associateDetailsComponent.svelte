@@ -1710,7 +1710,7 @@ function closeApproveViewModel(){
                 console.log("im in User is Deactive in CAS")
                 error_toast("user is deactive")
         }
-        else{
+        else if(get_cas_user_res.body.message == "User is not found in CAS"){
             showCasUser.style.display = "block";
             show_spinner = false;
             create_cas_flag == 1;
@@ -1727,6 +1727,10 @@ function closeApproveViewModel(){
             //     cas_flag = 2;
             //     show_spinner = false;
             // }
+        }
+        else{
+            show_spinner = false;
+            error_toast("something went wrong")
         }
     }
 
@@ -3199,7 +3203,7 @@ function closeApproveViewModel(){
                 {:else if create_cas_flag == 1}
                 <div class="justify-center">
                     <p>
-                        User is created
+                        User is not in Cas
                     </p>
                 </div>
                 <div class="pt-3 flex justify-center" on:click="{create_cas}">
