@@ -1695,30 +1695,34 @@ function closeApproveViewModel(){
     async function openCasUser(){
         let get_cas_user_res = await get_cas_user()
         show_spinner = true;
-        console.log("get_cas_user_res",get_cas_user_res)
+        console.log("get_cas_user_res",get_cas_user_res.body.message)
 
-        if(get_cas_user_res.body.status == "green"){
+        if(get_cas_user_res.body.message == "User is already activated"){
             show_spinner = false;
-            // toast_text = get_cas_user_res.body.message;
-            // toast_type = "success";
             success_toast(get_cas_user_res.body.message)
 
         }
+        else if(get_cas_user_res.body.status == "User is Deactive in CAS"){
+            showCasUser.style.display = "block";
+            show_spinner = false;
+                cas_flag = 1;
+                error_toast("user is deactive")
+        }
         else{
             showCasUser.style.display = "block";
+            create_cas_flag == 1;
+            error_toast("user not found")
             
-            if(get_cas_user_res.message = "User is Deactive in CAS" || get_cas_user_res.status == "red"){
-                show_spinner = false;
-                cas_flag = 1;
-                // toast_text = "user is deactive"
-                // toast_type = "error"
-                error_toast("user is deactive")
+            // if(get_cas_user_res.message = "User is Deactive in CAS" || get_cas_user_res.status == "red"){
+            //     show_spinner = false;
+            //     cas_flag = 1;
+            //     error_toast("user is deactive")
 
-            }
-            else{
-                cas_flag = 2;
-                show_spinner = false;
-            }
+            // }
+            // else{
+            //     cas_flag = 2;
+            //     show_spinner = false;
+            // }
         }
     }
 
