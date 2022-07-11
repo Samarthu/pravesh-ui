@@ -1428,14 +1428,12 @@
         else{
            
             // console.log("select_tag_data",select_tag_data)
-            show_fac_array = [];
+            
             if(serv_ch_data=="-1")
             serv_ch_data="";
             // console.log("serv_ch_data",serv_ch_data)
             let submit_fac_res = await submit_fac_tag_data(new_tag_id,select_tag_data,tag_date,tag_remark,serv_ch_data)
             try {
-                
-                console.log("Show spinner inadding new tag ",show_spinner)
                 if(submit_fac_res.body.status == "green"){
                     // toast_type = "success";
                     // toast_text = submit_fac_res.body.message;
@@ -1448,6 +1446,7 @@
                     // console.log("Blsnk values",select_tag_data,serv_ch_data,tag_date,tag_remark)
 
                     let temp_res = await show_fac_tags($facility_data_store.facility_type);
+                    show_fac_array = [];
                     show_fac_array = temp_res.body.data;
                     for(let i=0;i < show_fac_array.length;i++){
                         let new_date =new Date(show_fac_array[i].creation)
@@ -1717,7 +1716,7 @@
         let extention_name = img.name.slice((img.name.lastIndexOf(".") - 1 >>> 0) + 2);
         // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
        
-        if(extention_name == "pdf" || extention_name == "jpg" || extention_name == "png" || extention_name == "jpeg" || extention_name == "csv" || extention_name == "xlsx"){
+        if(extention_name == "pdf" || extention_name == "jpg" || extention_name == "png" || extention_name == "jpeg"){
  
         if (img.size <= allowed_pdf_size) {
             console.log("img", img);
