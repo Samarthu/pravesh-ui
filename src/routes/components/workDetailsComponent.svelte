@@ -106,7 +106,7 @@
             let org_AN_flag = 0;
             let get_client_details_data = [];
             let newType = "-1";
-            let attendenceType;
+            let attendenceType = "-1";
             let get_client_data_mapping_data = [];
             let station_code_arr = [];
             let station_data_array = [];
@@ -1238,8 +1238,17 @@
         if(!newType || newType=="-1"){
             // toast_text = "Please select New Type";
             // toast_type = "error";
-            error_toast("Please select New Type")
+            error_toast("Please select New Associate Type")
             
+            return
+        }
+
+        console.log("im in attendenceType",attendenceType)
+
+        if(!attendenceType || attendenceType == "-1"){
+            // toast_text = "Please select New Type";
+            // toast_type = "error";
+            error_toast("Please select Attendence Type")
             return
         }
 
@@ -3579,7 +3588,7 @@
                                                 <div class="light14grey mb-1">Type of Attendance</div>
                                                 <div class="formInnerwidthfull ">
                                                     <select class="inputboxpopover" bind:value="{attendenceType}">
-                                                        <option class="pt-6">Select</option>
+                                                        <option class="pt-6" value="-1">Select</option>
                                                         {#each get_assoc_types_data as assoc}
                                                             <option
                                                                 class="pt-6" 
