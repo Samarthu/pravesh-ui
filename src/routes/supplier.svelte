@@ -26,6 +26,7 @@
     let toast_text = "";
     let offset=0;
     let limit=20;
+    let new_remarks = "";
     let show_pagination = false;
     let userdetails,username,userid;
     let supplier_data_from_service = [];
@@ -4397,6 +4398,60 @@ function closeaddRemark(){
     </div>
     
     <!--Initiate Module -->
+
+    <!--BG Final Reject modal -->
+<div id="Final_bg_Reject_modal" class="hidden">
+    <div  class="actionDialogueOnboard ">
+        <div class="pancardDialogueOnboardWrapper ">
+            <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
+                <div class="modalHeadConmb-0">
+                    <div class="leftmodalInfo">
+                        <p class=""> Reject Remark</p>
+                    </div>
+                    <div class="rightmodalclose">
+                        <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" on:click="{closeaddRemark}">
+                    </div>
+                </div>
+                <form class="px-6 pb-4 space-y-6 lg:px-8 sm:pb-6 xl:pb-8 " action="#">
+    
+                    <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0 mt-4">
+                        <label class="block  tracking-wide text-gray-700 text-xs font-bold mb-2" for="grid-state">
+                          Please enter the remark
+                        </label>
+                        <div class="w-full ">
+                            <input type="text" class="inputboxVMT" bind:value={new_remarks}>
+                        </div>
+                        <!-- <div class="relative">
+                            <input type="text" bind:value="{bgv_remarks}"> -->
+                          <!-- <select class="block appearance-none w-full  border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500" id="grid-state" bind:value="{pan_info_res}">
+                            <option value="" selected disabled>Select</option>
+                            {#each rejReasonMap.panInfo as pan_info_rej}
+                            <option>{pan_info_rej} </option>
+                            {/each}
+                          </select> -->
+                          <!-- <select class="selectInputbox" bind:value="{pan_info_res}">
+                            <option value="" selected disabled>Select</option>
+                            {#each rejReasonMap.panInfo as pan_info_rej}
+                                <option
+                                class="pt-6" >
+                                    {pan_info_rej}
+                                    </option>
+                                {/each}
+                                
+                        </select> -->
+                          <!-- <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                            <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                          </div> -->
+                        <!-- </div> -->
+                      </div>
+                   
+                      <div class="pt-3 flex justify-center">
+                        <button type="button" class="dialogueNobutton   " on:click="{final_bgv_reject_func}">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div> 
+</div> 
         
 <Toast type={toast_type}  text={toast_text}/>
 <SvelteToast />
