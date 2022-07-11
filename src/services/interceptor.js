@@ -281,9 +281,9 @@ export function request(
     options = {
       headers: {
         "Content-Type": "application/json;charset=utf-8",
-        // "dataType" : 'json',
+        "dataType" : 'json',
         "Contains-Array" : 'true',
-        "responseType": 'blob'
+        // "responseType": 'blob'
       //   // "Accept": "application/json",
       //   "accept": "application/json"
         

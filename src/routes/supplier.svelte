@@ -239,7 +239,7 @@
             }
         }
         catch(err) {
-        message.innerHTML = "Error is  " + err;
+        error_toast(err)
         }
     }
 else
@@ -1327,7 +1327,7 @@ else
         dropdown_disable = false;
         console.log("Inside filter resukts",searchTerm)
         // console.log("inside seach term = ",searchTerm)
-        if(searchTerm == undefined){
+        if(searchTerm == undefined || searchTerm==""){
             // toast_type = "error";
             // toast_text = "Search should not be blank !";
             error_toast("Search should not be blank !")
@@ -1654,7 +1654,12 @@ function open_deact_initiate_model(stat){
         }
     }
 
-
+function addRemark(){
+    addRemarkModel.style.display == "block"
+}
+function closeaddRemark(){
+    addRemarkModel.style.display == "none"
+}
 
 </script>
     {#if show_spinner}
@@ -2715,7 +2720,7 @@ function open_deact_initiate_model(stat){
                                                 class="tdfirstshortInfo shortInfo"
                                                 id="shortInfo"> 
         
-                                                <p class="hText">{facility_data.facility_name}</p>
+                                                <p class="hText">{facility_data.name}</p>
                                                 <p class="text-xs text-grey">
                                                 
                                                 </p>
@@ -2912,7 +2917,7 @@ function open_deact_initiate_model(stat){
                                                                 {#if facility_data.message == ""} 
                                                                 <p class="smallText">-</p>
                                                                 {:else}
-                                                                <p class="smallText">{facility_data.message}</p>
+                                                                <p class="smallTextWrap">{facility_data.message}</p>
                                                                 {/if}
                                                             {/if}
                                                         {/if}
@@ -2941,6 +2946,11 @@ function open_deact_initiate_model(stat){
                                                 </div>
                                             </div>
                                             {/if}
+                                            <p class="verifyText">
+                                                <a href="" class="smButton">
+                                                    <img src="{$img_url_name.img_name}/edit.png" alt="" on:click="{()=>addRemark}">
+                                                </a>
+                                            </p>
                                         </td>
                                         <td>
                                             {#if facility_data.expand == false}

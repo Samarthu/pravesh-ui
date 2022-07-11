@@ -393,19 +393,18 @@
         show_spinner = true;
     var format = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]+/;
 	
-
-	if (docType == "beejakinv") {
-		downloadBeejakInvoices();
+    console.log("b4")
+    console.log("docType",docType)
+	if(docType == "beejakinv" && (facIds == undefined || facIds.trim().length == 0)) {
+        downloadBeejakInvoices();
         show_spinner = false;
-		return;
+        error_toast("Enter some Invoice numbers separated by new line")
+		return
 	}
-	
-	if (facIds == undefined || facIds.trim().length == 0) {
-        // toast_type = "error"
-        // toast_text = "Enter some facility IDs separated by new line"
+	else if(docType == "beejakinv" && (facIds == undefined || facIds.trim().length == 0)){
         error_toast("Enter some facility IDs separated by new line")
         show_spinner = false;
-		return;
+		return
 	}
 	if (format.test(facIds)) {
         // toast_type = "error"
@@ -1249,7 +1248,8 @@
                                     <tr class="">
                                         <td>
                                             <div class="formInnerGroupNote  mx-4">
-                                                <input type="input" class="inputboxpopover " placeholder="Enter Unique Facility ID" bind:value={unique_fac_id}>
+                                                
+                                                <input type="input" class="inputboxpopover " placeholder="Enter Unique Vendor ID" bind:value={unique_fac_id}>
                                              </div>
                                         </td>
                                         <td> 
@@ -1290,7 +1290,7 @@
                             </table>
                         </div>
                         <div class="flex mt-3 justify-center">
-                            <button class="ErBlueButton" on:click={copy_parent_data}>Copy Facility </button>
+                            <button class="ErBlueButton" on:click={copy_parent_data}>Copy Vendor </button>
                           </div> 
                     </div>
                 </div>
@@ -1399,7 +1399,11 @@
                         </div>
                         <div class="form-lable mt-5">
                             <div class="formInnerGroup" >
+                                {#if docType == "beejakinv"}
+                                <textarea class="inputboxcursortext resize-none"  rows="6" placeholder="Enter Invoice Number here separated by new line" bind:value={facIds}></textarea>
+                                {:else}
                                 <textarea class="inputboxcursortext resize-none"  rows="6" placeholder="Enter Unique Facility IDs here separated by new line" bind:value={facIds}></textarea>
+                                {/if}
                             </div>
                         </div>
 
