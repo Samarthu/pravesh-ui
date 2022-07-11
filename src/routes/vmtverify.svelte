@@ -4528,6 +4528,8 @@
             
               <!-- Verify Background  Basic Details-->
               {#if change_to == "basic_details"}
+              {#if $bgv_config_store.is_basic_info_mandatory =="0"}
+
               <div class="grid grid-cols-7 gap-4 mt-3 xsl:grid-cols-1 ">
                 <!-- Attachment section -->
                 <div class="m-4 col-span-4 xsl:m-2 ">
@@ -4763,6 +4765,13 @@
                         </div>    
                 </div>  
               </div> 
+              {:else} 
+
+              <div>
+                  This section is not applicable for this user
+              </div>
+              {/if}   
+
               {/if}   
 
 
