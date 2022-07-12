@@ -1697,11 +1697,18 @@ function closeApproveViewModel(){
         show_spinner = true;
         console.log("get_cas_user_res",get_cas_user_res.body.message)
 
-        if(get_cas_user_res.body.message == "User is already activated"){
-            show_spinner = false;
-            console.log("activated user")
-            success_toast(get_cas_user_res.body.message)
+        // if(get_cas_user_res.body.message == "User is already activated"){
+        //     show_spinner = false;
+        //     console.log("activated user")
+        //     success_toast(get_cas_user_res.body.message)
 
+        // }
+        if(get_cas_user_res.body.message == "User is not found in CAS"){
+            showCasUser.style.display = "block";
+            show_spinner = false;
+            create_cas_flag = 1;
+            console.log("im in User create new CAS")
+            error_toast("user not found")
         }
         else if(get_cas_user_res.body.message == "User is Deactive in CAS"){
             showCasUser.style.display = "block";
@@ -1710,12 +1717,12 @@ function closeApproveViewModel(){
                 console.log("im in User is Deactive in CAS")
                 error_toast("user is deactive")
         }
-        else if(get_cas_user_res.body.message == "User is not found in CAS"){
-            showCasUser.style.display = "block";
-            show_spinner = false;
-            create_cas_flag = 1;
-            console.log("im in User create new CAS")
-            error_toast("user not found")
+        // else if(get_cas_user_res.body.message == "User is not found in CAS"){
+        //     showCasUser.style.display = "block";
+        //     show_spinner = false;
+        //     create_cas_flag = 1;
+        //     console.log("im in User create new CAS")
+        //     error_toast("user not found")
             
             // if(get_cas_user_res.message = "User is Deactive in CAS" || get_cas_user_res.status == "red"){
             //     show_spinner = false;
@@ -1727,10 +1734,11 @@ function closeApproveViewModel(){
             //     cas_flag = 2;
             //     show_spinner = false;
             // }
-        }
+        // }
         else{
             show_spinner = false;
-            error_toast("something went wrong")
+            console.log("activated user")
+            success_toast(get_cas_user_res.body.message)
         }
     }
 
@@ -1741,7 +1749,7 @@ function closeApproveViewModel(){
             if(activate_cas_res.body.status == "green"){
                 closeCasUser();
                 show_spinner = false;
-                active_flag = 1;
+                // active_flag = 1;
                 // toast_text = "CAS is Active"
                 // toast_type = "success"
                 success_toast("CAS is Active")
@@ -1762,7 +1770,7 @@ function closeApproveViewModel(){
             if(create_cas_user_res.body.status == "green"){
                 show_spinner = false;
                 closeCasUser();
-                create_cas_flag = 1;
+                // create_cas_flag = 1;
                 // toast_text = "CAS User is Created"
                 // toast_type = "success"
                 success_toast("CAS User is Created")

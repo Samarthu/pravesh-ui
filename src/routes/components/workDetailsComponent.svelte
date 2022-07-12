@@ -1263,6 +1263,11 @@
         }
 
 
+        if(toDate < fromDate){
+            error_toast("To Date can't be greater than From Date")
+            return
+        }
+
         if(!assocRemarks){
             // toast_text = "Please select Remarks";
             // toast_type = "error";
