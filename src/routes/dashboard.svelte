@@ -647,28 +647,58 @@
         show_spinner = false;
 		return;
 	}
+    console.log("finjson later",finJson)
     show_spinner = false;
-    let new_obj = finJson.client_name_search[0]
-    console.log("find_by_data",new_obj['Client Name'])
-    var storeName = new_obj['Client Name'];
-    var stationCode = new_obj['Station Code'];
-    
-    if(!storeName){
-        
+    // const csvStr = finJson.client_name_search.map(m => [m.client_name_search])
+    // console.log("csvStr",csvStr)
+    let new_arr = [];
+    for(let i=0;i<finJson.client_name_search.length;i++){
+
+    if(!finJson.client_name_search[i]['Client Name']){
         error_toast("Client Name Data Missing In Uploaded File");
         show_spinner = false;
-		return;
+        return
     }
-    else if(!stationCode){
-        
+    else if(!finJson.client_name_search[i]['Station Code']){
         error_toast("Station Code Data Missing In Uploaded File");
         show_spinner = false;
-		return;
+        return
     }
+    // let new_obj = finJson.client_name_search[i]
+    // console.log("find_by_data",finJson.client_name_search[i]['Client Name'])
     
-    let bulk_search_payload = {"json":
-    [{"storeName":storeName,"stationCode":stationCode}]
-    ,"search_type":find_by}
+    new_arr.push({"storeName":finJson.client_name_search[i]['Client Name'],"stationCode":finJson.client_name_search[i]['Station Code']})
+    // var storeName = new_obj[i]['Client Name'];
+    // var stationCode = new_obj[i]['Station Code'];
+    
+    // let bulk_search_payload = {"json":[{"storeName":"DA_SHAIKH_AFASH_ALEEM_NTEX_104272215","stationCode":"IXUD"},{"storeName":"nda_azhar_khan_ntex_103566665","stationCode":"IXUD"}],"search_type":"clientname"}
+    }
+    console.log("new_arr",new_arr)
+    let bulk_search_payload = {"json":new_arr,"search_type":find_by}
+    // if(!storeName){
+        
+    //     error_toast("Client Name Data Missing In Uploaded File");
+    //     show_spinner = false;
+	// 	return;
+    // }
+    // else if(!stationCode){
+        
+    //     error_toast("Station Code Data Missing In Uploaded File");
+    //     show_spinner = false;
+	// 	return;
+    // }
+    // for(let i=0;i<finJson.client_name_search.length;i++){
+
+    
+    //     let new_obj = finJson.client_name_search[i]
+    //     console.log("find_by_data",new_obj['Client Name'])
+    //     var new_arr = [{"storeName":new_obj[i]['Client Name'],"stationCode":new_obj[i]['Station Code']}]
+    //     // var storeName = new_obj[i]['Client Name'];
+    //     // var stationCode = new_obj[i]['Station Code'];
+    //     console.log("new_arr",new_arr)
+    //     let bulk_search_payload = {"json":[{"storeName":"DA_SHAIKH_AFASH_ALEEM_NTEX_104272215","stationCode":"IXUD"},{"storeName":"nda_azhar_khan_ntex_103566665","stationCode":"IXUD"}],"search_type":"clientname"}
+    // }
+    
 
     let bulk_search_res = await bulk_search_ser(bulk_search_payload);
     console.log("bulk_search_res",bulk_search_res)

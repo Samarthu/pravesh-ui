@@ -1387,9 +1387,10 @@
             show_spinner = true;
             if(service_vend_res.body.status == "green"){
                 show_spinner = false;
+                tag_data_obj=[];
                 for(let i=0;i<service_vend_res.body.data.length;i++){
                     if(service_vend_res.body.data[i].location_id == location_id){
-                        tag_data_obj=[];
+                        
                         // tag_data_obj[service_vend_res.body.data[i].vendor_id] = service_vend_res.body.data[i].vendor_name;
                         tag_data_obj.push(service_vend_res.body.data[i]);
                     }
