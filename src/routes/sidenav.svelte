@@ -10,6 +10,7 @@
     let routeDownloads = "";
     let routeSupport = "";
     let routeReports = "";
+    let routeWo = "";
 
     export let url = "";
 
@@ -60,6 +61,16 @@
         goto(routeReports, { replaceState });
     }
 
+    // function routeToPageWorkOrder() {
+    //     let replaceState = false;
+    //     goto(routeWo, { replaceState });
+    // }
+
+    function routeToPageWorkOrder() {
+        let replaceState = false;
+        goto(routeWo, { replaceState });
+    }
+
     let current = 'routeToPageOnboard';
     routeOnboard = "facility_type_select"; 
     routeDashboard = "dashboard";
@@ -67,6 +78,7 @@
     routeDownloads = "downloads"; 
     routeSupport = "support"; 
     routeReports = "reports";
+    routeWo = "workorder";
 </script>
 
 <div class="w-full flex">
@@ -306,8 +318,10 @@
                     <span class="menuname">Attendance Tracker</span>
                 </a>
             </li>
-            <li class="listItem">
-                <a class="" href="javascript:void(0)">
+            <li class="listItem" on:click="{routeToPageWorkOrder}">
+                <a href="javascript:void(0)"
+                class="{current === 'routeToPageWorkOrder' ? 'active' : ''}"
+                on:click="{() => current = 'routeToPageWorkOrder'}">
                     <svg
                         class="svgIcon"
                         width="22"

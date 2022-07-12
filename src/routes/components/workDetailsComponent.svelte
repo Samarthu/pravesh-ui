@@ -574,6 +574,7 @@
         station_data_array = [];
         // console.log("orgOrganization_id",org_id)
         let get_loc_scope_res = await get_loc_scope(org_id)
+        // show_spinner = false;
                 for(let i=0;i<get_loc_scope_res.body.data.length;i++){
                     for(let j =0 ;j<get_loc_scope_res.body.data[i].stations.length;j++){
                         
@@ -599,7 +600,7 @@
     }
 
     async function finalMap(){ 
-        show_spinner = true
+        show_spinner = true;
         let phoneNumber,emailId;
         let orgSpecificNumber = [];
 
@@ -707,12 +708,14 @@
             if(!stat_code || stat_code=="-1"){
                 // toast_text = "Please select Specific Name or COMP Name";
                 // toast_type = "error";
+                show_spinner =false
                 error_toast("Please select Specific Name or COMP Name")
                 return
             }
             if(stat_code == "Create Only Rabbit ID/COMP ID" && requestType == ""){
                 // toast_text = "Please select Rabbit Id or Comp Id option";
                 // toast_type = "error";
+                show_spinner = false
                 error_toast("Please select Rabbit Id or Comp Id option")
                 
             }
@@ -756,6 +759,7 @@
             }
 
             let final_save_mapping_res = await save_mapping(final_map_load)
+            show_spinner = false;
             console.log("final_save_mapping_res",final_save_mapping_res)
             // try {
                 if(final_save_mapping_res.body.status == "green"){
@@ -770,27 +774,31 @@
 
 
                     let get_client_details_res = await get_client_details(facility_id)
-        try {
-            if (get_client_details_res != "null"){
-                for(let i=0; i< get_client_details_res.body.data.length;i++){
-                    get_client_details_data.push(get_client_details_res.body.data[i]);
+                    show_spinner = false
+                    try {
+                        if (get_client_details_res != "null"){
+                            for(let i=0; i< get_client_details_res.body.data.length;i++){
+                                get_client_details_data.push(get_client_details_res.body.data[i]);
+                            }
+                            get_client_details_data = get_client_details_data;
+                            console.log("get_client_details_data",get_client_details_data)
+                        }
+                    } catch (err) {
+                        // toast_type = "error";
+                        // toast_text = get_client_details_res.body.message;
+                        show_spinner = false;
+                        error_toast(err)
+                    }
                 }
-                get_client_details_data = get_client_details_data;
-                console.log("get_client_details_data",get_client_details_data)
-            }
-        } catch (err) {
-            // toast_type = "error";
-            // toast_text = get_client_details_res.body.message;
-            error_toast(err)
-        }
-        }
-            // }
-             else {
-                // toast_text = "Error occured while adding mapping";
-                // toast_type = "error";
-                error_toast("Error occured while adding mapping")
-            }
-        console.log("final_map_load",final_map_load)
+                        // }
+                else {
+                    // toast_text = "Error occured while adding mapping";
+                    // toast_type = "error";
+                    show_spinner = false;
+                    error_toast("Error occured while adding mapping")
+                }
+                        show_spinner = false;
+                    console.log("final_map_load",final_map_load)
 
     }
         onMount(async () => {
@@ -1069,8 +1077,9 @@
 
 
 
-
+        show_spinner = true;
         let get_client_data_mapping_res =  await get_client_org_mapping();
+        show_spinner = false;
         try {
             get_client_data_mapping_data = [];
         if(get_client_data_mapping_res.body.status == "green"){
@@ -3346,7 +3355,7 @@
                                                             </option>
                                                         {/each}
                                                         {:else }
-                                                        <option class="pt-6">Select</option>
+                                                        <option class="pt-6" value="-1">Select</option>
                                                         {#each station_code_arr as stat_code}
                                                             <option class="pt-6">
                                                                 {stat_code.trim()}
