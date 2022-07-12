@@ -944,6 +944,89 @@
     //     document.getElementById(id).innerHTML = msg;
     // }
 
+    function verify_new_otp(){
+        if(!personal_email.match(email_pattern)){
+            // toast_type = "error"
+            // toast_text = "Please Enter Email Id and then click on verify button";
+            error_toast("Please Enter Email Id and then click on verify button")
+
+            return
+        }
+        else{
+        otp_model_new.style.display = "block";
+        }
+    }
+    function close_otp_model(){
+        otp_model_new.style.display = "none";
+    }
+    
+
+    async function send_otp_func(){
+        show_spinner=true
+
+        if(personal_email || $bgv_data_store.email_id == personal_email){
+            show_spinner=false
+            console.log("inside personal email")
+        let sent_otp_res = await send_otp(personal_email);
+        try {
+            if(sent_otp_res.body.status == "green"){
+                show_spinner=false
+                // toast_text = "OTP Sent Successfully";
+                // toast_type = "success";
+                success_toast("OTP Sent Successfully")
+                verification_success = true;
+            }
+            else if($bgv_data_store.is_email_verified == 1){
+                show_spinner=false
+                verification_success = true;
+            }
+            else{
+                show_spinner=false
+                // toast_text = "OTP Sending Failed";
+                // toast_type = "error";
+                error_toast("OTP Sending Failed")
+
+            }
+            
+        } catch (error) {
+            show_spinner=false
+            // toast_type = "error";
+            // toast_text = error;
+            error_toast(error)
+
+        }
+        }
+        else{
+            show_spinner=false
+            error_toast("Entered email ID does not match the registered email ID")
+        }
+        
+    }
+    async function verify_email_otp(){
+        let verify_email_res =  await verify_email(otp_num,personal_email)
+        try {
+            if(verify_email_res.body.message.status == "green"){
+                // toast_text = verify_email_res.body.message.message;
+                // toast_type = "success";
+                success_toast(verify_email_res.body.message.message)
+
+                close_otp_model();
+            }
+            else{
+                // toast_text = verify_email_res.body.message.message;
+                // toast_type = "error";
+                error_toast(verify_email_res.body.message.message)
+
+            }
+            
+        } catch (error) {
+            // toast_type = "error";
+            // toast_text = error;
+            error_toast(error)
+
+        }
+    }
+
     async function submitBasicDets(){
         show_spinner = true;
             if(!new_profile_url && !new_profile_name){
@@ -1014,7 +1097,7 @@
                 show_spinner = false
             }
             if(!personal_email){
-            error_toast("Invalid Email Id")
+            error_toast("Please Enter Email Id")
             show_spinner = false
             return
             }
@@ -1023,10 +1106,12 @@
             show_spinner = false
             return
             }
-            else if($bgv_config_store.is_email_verification_mandatory == "1" && verification_success == false){
-                error_toast("Verify Email Id")
-                show_spinner = false
-            return
+            else if($bgv_data_store.is_email_verified == "0"){
+                if($bgv_config_store.is_email_verification_mandatory == "1" && verification_success == false){
+                    error_toast("Verify Email Id")
+                    show_spinner = false
+                return
+            }
             }
             else{
                 show_spinner = false
@@ -1289,7 +1374,7 @@
                 return  
             }
             else{
-                error_toast("pan_full_name","")
+              
                 show_spinner = false
             }
 
@@ -2058,77 +2143,7 @@
     routePrev = "onboardsummary?unFacID="+$facility_id.facility_id_number;
 
 
-    function verify_new_otp(){
-        if(!personal_email.match(email_pattern)){
-            // toast_type = "error"
-            // toast_text = "Please Enter Email Id and then click on verify button";
-            error_toast("Please Enter Email Id and then click on verify button")
-
-            return
-        }
-        else{
-        otp_model_new.style.display = "block";
-        }
-    }
-    function close_otp_model(){
-        otp_model_new.style.display = "none";
-    }
     
-
-    async function send_otp_func(){
-        console.log("otp")
-        if(!personal_email || $bgv_data_store.email_id != personal_email){
-        let sent_otp_res = await send_otp(personal_email);
-        try {
-            if(sent_otp_res.body.status == "green"){
-                // toast_text = "OTP Sent Successfully";
-                // toast_type = "success";
-                success_toast("OTP Sent Successfully")
-                verification_success = true;
-            }
-            else if($facility_data_store.email_verified == 1){
-                verification_success = true;
-            }
-            else{
-                // toast_text = "OTP Sending Failed";
-                // toast_type = "error";
-                error_toast("OTP Sending Failed")
-
-            }
-            
-        } catch (error) {
-            // toast_type = "error";
-            // toast_text = error;
-            error_toast(error)
-
-        }
-        }
-        
-    }
-    async function verify_email_otp(){
-        let verify_email_res =  await verify_email(otp_num,personal_email)
-        try {
-            if(verify_email_res.body.message.status == "green"){
-                // toast_text = verify_email_res.body.message.message;
-                // toast_type = "success";
-                success_toast(verify_email_res.body.message.message)
-
-                close_otp_model();
-            }
-            else{
-                // toast_text = verify_email_res.body.message.message;
-                // toast_type = "error";
-                error_toast(verify_email_res.body.message.message)
-
-            }
-            
-        } catch (error) {
-            // toast_type = "error";
-            // toast_text = error;
-            error_toast(error)
-
-        }
-    }
     
 </script>
 
