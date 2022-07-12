@@ -1015,7 +1015,7 @@
             else{
                 // toast_text = verify_email_res.body.message.message;
                 // toast_type = "error";
-                error_toast(verify_email_res.body.message.message)
+                error_toast("Please enter OTP")
 
             }
             
@@ -1175,7 +1175,7 @@
                 }
                 else{
                     show_spinner = false
-                    error_toast("hub_msg","")
+                    
                 }
             }
                 
