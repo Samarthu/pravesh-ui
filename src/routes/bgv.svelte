@@ -962,21 +962,28 @@
     
 
     async function send_otp_func(){
+        show_spinner=true
         console.log("otp")
-        if(!personal_email || $bgv_data_store.email_id != personal_email){
+        console.log("personal_email",personal_email)
+        console.log("$bgv_data_store.email_id",$bgv_data_store.email_id != personal_email)
+        if(personal_email || $bgv_data_store.email_id == personal_email){
+            show_spinner=false
             console.log("inside personal email")
         let sent_otp_res = await send_otp(personal_email);
         try {
             if(sent_otp_res.body.status == "green"){
+                show_spinner=false
                 // toast_text = "OTP Sent Successfully";
                 // toast_type = "success";
                 success_toast("OTP Sent Successfully")
                 verification_success = true;
             }
             else if($facility_data_store.email_verified == 1){
+                show_spinner=false
                 verification_success = true;
             }
             else{
+                show_spinner=false
                 // toast_text = "OTP Sending Failed";
                 // toast_type = "error";
                 error_toast("OTP Sending Failed")
@@ -984,11 +991,16 @@
             }
             
         } catch (error) {
+            show_spinner=false
             // toast_type = "error";
             // toast_text = error;
             error_toast(error)
 
         }
+        }
+        else{
+            show_spinner=false
+            error_toast("Entered email ID does not match the registered email ID")
         }
         
     }
