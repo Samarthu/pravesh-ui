@@ -620,7 +620,23 @@
                 error_toast("Please select Station")
                 show_spinner = false
                 return
-            }
+        }
+
+        if(!stat_code || stat_code=="-1"){
+                // toast_text = "Please select Specific Name or COMP Name";
+                // toast_type = "error";
+                show_spinner =false
+                error_toast("Please select Specific Name or COMP Name")
+                return
+        }
+
+        if(stat_code == "Create Only Rabbit ID/COMP ID" && requestType == ""){
+            // toast_text = "Please select Rabbit Id or Comp Id option";
+            // toast_type = "error";
+            show_spinner = false
+            error_toast("Please select Rabbit Id or Comp Id option")
+            return
+        }
 
         let response = await get_pravesh_properties_method()
         // console.log("id_select == response.body.data.mapping_blocked_org",id_select,)
@@ -704,21 +720,6 @@
                     emailId = $bgv_data_store.email_id;
             }
             }
-            
-            if(!stat_code || stat_code=="-1"){
-                // toast_text = "Please select Specific Name or COMP Name";
-                // toast_type = "error";
-                show_spinner =false
-                error_toast("Please select Specific Name or COMP Name")
-                return
-            }
-            if(stat_code == "Create Only Rabbit ID/COMP ID" && requestType == ""){
-                // toast_text = "Please select Rabbit Id or Comp Id option";
-                // toast_type = "error";
-                show_spinner = false
-                error_toast("Please select Rabbit Id or Comp Id option")
-                
-            }
 
             let new_org_name
             for(let i=0;i<get_client_data_mapping_data.length;i++){
@@ -728,20 +729,20 @@
 
             }
 
-            for(let i=0;i<station_code_arr.length;i++){
-                console.log("inside station_code_arr" , station_code_arr[i])
-                if(stat_code == station_code_arr[i]){
-                    let org_num = parseInt(station_code_arr[i].split("_").pop())
-                    if(isNaN(org_num) == false){
-                            orgSpecificNumber.push(station_code_arr[i].resource_idsplit("_").pop())
-                        }
-                }
-            }
+            // for(let i=0;i<station_code_arr.length;i++){
+            //     console.log("inside station_code_arr" , station_code_arr[i])
+            //     if(stat_code == station_code_arr[i]){
+            //         let org_num = parseInt(station_code_arr[i].split("_").pop())
+            //         if(isNaN(org_num) == false){
+            //                 orgSpecificNumber.push(station_code_arr[i].resource_idsplit("_").pop())
+            //             }
+            //     }
+            // }
 
-            if(stat_code == "Create Only Rabbit ID/COMP ID") {
-                stat_code = $bgv_data_store.facility_name ;
-                console.log("stat_code checking",stat_code)
-            }
+            // if(stat_code == "Create Only Rabbit ID/COMP ID") {
+            //     stat_code = $bgv_data_store.facility_name ;
+            //     console.log("stat_code checking",stat_code)
+            // }
 
             
                 let final_map_load = {
@@ -762,43 +763,43 @@
             show_spinner = false;
             console.log("final_save_mapping_res",final_save_mapping_res)
             // try {
-                if(final_save_mapping_res.body.status == "green"){
-                    // toast_text = final_save_mapping_res.body.message;
-                    // toast_type = "green";
-                    success_toast(final_save_mapping_res.body.message)
+                // if(final_save_mapping_res.body.status == "green"){
+                //     // toast_text = final_save_mapping_res.body.message;
+                //     // toast_type = "green";
+                //     success_toast(final_save_mapping_res.body.message)
 
-                    id_select = "";
-
-
+                //     id_select = "";
 
 
 
-                    let get_client_details_res = await get_client_details(facility_id)
-                    show_spinner = false
-                    try {
-                        if (get_client_details_res != "null"){
-                            for(let i=0; i< get_client_details_res.body.data.length;i++){
-                                get_client_details_data.push(get_client_details_res.body.data[i]);
-                            }
-                            get_client_details_data = get_client_details_data;
-                            console.log("get_client_details_data",get_client_details_data)
-                        }
-                    } catch (err) {
-                        // toast_type = "error";
-                        // toast_text = get_client_details_res.body.message;
-                        show_spinner = false;
-                        error_toast(err)
-                    }
-                }
-                        // }
-                else {
-                    // toast_text = "Error occured while adding mapping";
-                    // toast_type = "error";
-                    show_spinner = false;
-                    error_toast("Error occured while adding mapping")
-                }
-                        show_spinner = false;
-                    console.log("final_map_load",final_map_load)
+
+
+                //     let get_client_details_res = await get_client_details(facility_id)
+                //     show_spinner = false
+                //     try {
+                //         if (get_client_details_res != "null"){
+                //             for(let i=0; i< get_client_details_res.body.data.length;i++){
+                //                 get_client_details_data.push(get_client_details_res.body.data[i]);
+                //             }
+                //             get_client_details_data = get_client_details_data;
+                //             console.log("get_client_details_data",get_client_details_data)
+                //         }
+                //     } catch (err) {
+                //         // toast_type = "error";
+                //         // toast_text = get_client_details_res.body.message;
+                //         show_spinner = false;
+                //         error_toast(err)
+                //     }
+                // }
+                //         // }
+                // else {
+                //     // toast_text = "Error occured while adding mapping";
+                //     // toast_type = "error";
+                //     show_spinner = false;
+                //     error_toast("Error occured while adding mapping")
+                // }
+                //         show_spinner = false;
+                //     console.log("final_map_load",final_map_load)
 
     }
         onMount(async () => {
