@@ -2078,6 +2078,7 @@
     async function send_otp_func(){
         console.log("otp")
         if(!personal_email || $bgv_data_store.email_id != personal_email){
+            console.log("inside personal email")
         let sent_otp_res = await send_otp(personal_email);
         try {
             if(sent_otp_res.body.status == "green"){
