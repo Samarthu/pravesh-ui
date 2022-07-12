@@ -143,7 +143,7 @@
         console.log("im in bulk_emp_map",bulk_emp_map_payload)
 
 
-        if(!map_data[i].FacilityID){
+        if(!map_data[0].FacilityID){
             error_toast("Please add Facility ID")
         }
 
@@ -270,7 +270,7 @@
                                     <div class="uploadbutton">Upload</div>
                                     <input type="file" class="hidden" on:change={(e) =>
                                         onFileSelected(e,"excel_upload")}
-                                        bind:value="{excel_data}">
+                                        bind:value="{excel_data}" accept=".xls,.xlsx">
                                         <div class="text-red-500">{excel_upload_message}</div>
                                 </label>
                                 <p class="text-grey ml-4">{excel_img}</p>
