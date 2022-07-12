@@ -112,7 +112,7 @@
             };
             }
             else{
-                error_toast("Inavalid file format")
+                error_toast("Invalid file format")
             }
 
 

@@ -200,13 +200,13 @@
                     <div class="col-span-2  items-center ">
                         <div class="light14greylong">From Date</div>
                         <div class="formInnerGroupNote ">
-                            <input class="inputboxpopoverdate" type="date" bind:value="{fromdate}"  onkeydown="return false">
+                            <input class="inputboxpopoverdate" type="date" bind:value="{fromdate}" max={new Date().toISOString().split('T')[0]}  onkeydown="return false">
                         </div>
                     </div>
                     <div class="col-span-2  items-center ">
                         <div class="light14greylong">To Date</div>
                         <div class="formInnerGroupNote ">
-                            <input class="inputboxpopoverdate" type="date" bind:value="{todate}"  onkeydown="return false">
+                            <input class="inputboxpopoverdate" type="date" bind:value="{todate}" max={new Date().toISOString().split('T')[0]}  onkeydown="return false">
                         </div>
                     </div>
                     <div class="col-span-2  items-center ">
