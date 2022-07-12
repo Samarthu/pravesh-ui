@@ -228,6 +228,7 @@
     
     try{
             if(filter_res_from_dash.body.status == "green"){
+                
                 supplier_data_from_service = []
                 // supplier_data_from_service = filter_res_from_dash.body.data.data_list;
                 // total_count_associates = filter_res_from_dash.body.data.total_records;
@@ -237,6 +238,28 @@
                 if(total_count_associates > new_drop_limit){
                     total_pages = Math.ceil(total_count_associates/new_drop_limit)
                     pages = createPagesArray(total_pages)
+
+
+
+                //     total_pages = Math.ceil(total_count_associates/new_drop_limit)
+  
+                //   pages = createPagesArray(total_pages)
+                  new_pages =[];
+                      // if(show_pagination == true){
+                           
+                    // if(show_pagination == true){
+                        for(let pagination in pages){
+                            
+                            if(pagination>0 && pagination <= 3){
+                              
+                                new_pages.push(pagination)
+                                mapped_pages=new_pages.map(Number)  
+                              
+                                console.log("mapped_pages",mapped_pages)
+                            }
+                    
+                        // }
+                    }
                 }
             }
         }
@@ -257,6 +280,7 @@ else
     let res=await supplier_data(json_associate_data);
         try{
             if(res.body.status == "green"){
+                pagenumber = 1;
             // supplier_data_from_service = []
             supplier_data_from_service = res.body.data.data_list;
             total_count_associates = res.body.data.total_records;
@@ -1675,8 +1699,13 @@ function closeaddRemark(){
     new_remarks = "";
 }
 async function add_new_remark(){
-   
     show_spinner = true
+   if(!new_remarks.trim()){
+    show_spinner = false;
+    error_toast("Please Enter Remarks")
+    return;
+   }
+   
     let remark_payload = {"facility_id":fac_obj,"remarks":new_remarks,"audit":"audit"}
     let add_new_remark_res = await add_remark_func(remark_payload);
     try {
@@ -4195,7 +4224,7 @@ async function add_new_remark(){
             <div class="relative bg-white rounded-lg shadow max-w-2xl w-full">
                 <div class="modalHeadConmb-0">
                     <div class="leftmodalInfo">
-                        <p class=""> Reject Remark</p>
+                        <p class=""> Enter Remarks</p>
                     </div>
                     <div class="rightmodalclose">
                         <img src="{$img_url_name.img_name}/blackclose.svg" class="modal-close cursor-pointer" on:click="{closeaddRemark}">
