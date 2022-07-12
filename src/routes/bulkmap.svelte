@@ -62,8 +62,16 @@
         var files = e.target.files;
         var f = files[0];
         let img = e.target.files[0];
+        let file_format = img.name.slice(
+            ((img.name.lastIndexOf(".") - 1) >>> 0) + 2
+        );
+        console.log("check format 1",img,files,f)
+
         if (f != undefined) {
-            if (img.size <= allowed_pdf_size) {
+            console.log("check format 2",img,files,f)
+
+            if( file_format == "xlsx" || file_format == "xls"){
+                if (img.size <= allowed_pdf_size) {
                 console.log("img", img);
                 
                 if(doctext == "excel_upload"){
@@ -94,14 +102,20 @@
                     }
             }
             else {
-            alert(
-                "File size is greater than " +
-                    Number(allowed_pdf_size / 1048576) +
-                    "MB. Please upload a file less than " +
-                    Number(allowed_pdf_size / 1048576) +
-                    "MB ."
-            );
-        };
+                alert(
+                    "File size is greater than " +
+                        Number(allowed_pdf_size / 1048576) +
+                        "MB. Please upload a file less than " +
+                        Number(allowed_pdf_size / 1048576) +
+                        "MB ."
+                );
+            };
+            }
+            else{
+                error_toast("Inavalid file format")
+            }
+
+
     }
 }
 
@@ -274,7 +288,7 @@
                                         <div class="text-red-500">{excel_upload_message}</div>
                                 </label>
                                 <p class="text-grey ml-4">{excel_img}</p>
-                                <div class="uploadbutton" on:click="{final_map}">Map</div>
+                                <div class="uploadbutton cursor-pointer" on:click="{final_map}">Map</div>
 
                                 <!-- <figure class="zoom" onmousemove="zoom(event)" style="background-image: url(//res.cloudinary.com/active-bridge/image/upload/slide1.jpg)">
                                     <img src="//res.cloudinary.com/active-bridge/image/upload/slide1.jpg" />
