@@ -11,6 +11,7 @@
     let routeSupport = "";
     let routeReports = "";
     let routeWo = "";
+    let routeAttendence = "";
 
     export let url = "";
 
@@ -71,6 +72,11 @@
         goto(routeWo, { replaceState });
     }
 
+    function routeToPageAttendence() {
+        let replaceState = false;
+        goto(routeAttendence, { replaceState });
+    }
+
     let current = 'routeToPageOnboard';
     routeOnboard = "facility_type_select"; 
     routeDashboard = "dashboard";
@@ -79,6 +85,7 @@
     routeSupport = "support"; 
     routeReports = "reports";
     routeWo = "workorder";
+    routeAttendence = "attendence";
 </script>
 
 <div class="w-full flex">
@@ -270,8 +277,10 @@
             </a>
             </li>
 
-            <li class="listItem">
-                <a class="" href="javascript:void(0)">
+            <li class="listItem" on:click="{routeToPageAttendence}">
+                <a href="javascript:void(0)"
+                class="{current === 'routeToPageAttendence' ? 'active' : ''}"
+                on:click="{() => current = 'routeToPageAttendence'}">
                     <svg
                         class="svgIcon"
                         width="22"

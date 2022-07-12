@@ -1,9 +1,13 @@
+<script>
+    let temp = "";
+</script>
+
 <div class="mainContent ">
 
     <div class="breadcrumb ">
         <div class="breadcrumb-section">
-            <p class="breadcrumbtext"><span class="text-textgrey pr-1 text-base">Home / Reports /
-                </span> <span class="flex xs:text-base xs:items-center">Associates not onboarded </span>
+            <p class="breadcrumbtext"><span class="text-textgrey pr-1 text-base">Home / 
+                </span> <span class="flex xs:text-base xs:items-center">Attendance Trackor</span>
             </p>
         </div>
     </div>
@@ -77,9 +81,11 @@
                 <label >
                     <input type="checkbox"> Load Assigned but no In scan
                 </label>
-                <button class="ErBlueButton ml-3 xsl:mt-3">View Attendance</button>
+                <button class="ErBlueButton ml-3 xsl:mt-3" on:click={()=>{temp="a"}}>View Attendance</button>
             </div>
         </div>
+
+        {#if temp=="a"}
         <div class="downloadLink flex mt-8 justify-between xsl:flex-wrap xsl:gap-3">
             <div class="SearchInput">
                 <input
@@ -423,5 +429,6 @@
                 </tbody>
             </table>
         </div>
+        {/if}
     </div>
 </div>
