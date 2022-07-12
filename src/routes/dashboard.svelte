@@ -229,6 +229,10 @@
         var files = e.target.files;
         var f = files[0];
         let img = e.target.files[0];
+        let extention_name = img.name.slice((img.name.lastIndexOf(".") - 1 >>> 0) + 2);
+        // console.log("pdf size",   pdf.name.slice((pdf.name.lastIndexOf(".") - 1 >>> 0) + 2));
+       
+        if(extention_name == "xlsx" || extention_name == "csv"){
         if (f != undefined) {
             if (img.size <= allowed_pdf_size) {
                 console.log("img", img);
@@ -269,6 +273,11 @@
                     "MB ."
             );
         };
+    }
+    }
+    else{
+        error_toast("Invalid File Type!, Only .csv or .xlsx file type allowed")
+        return
     }
 }
 
