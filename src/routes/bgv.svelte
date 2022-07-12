@@ -963,9 +963,7 @@
 
     async function send_otp_func(){
         show_spinner=true
-        console.log("otp")
-        console.log("personal_email",personal_email)
-        console.log("$bgv_data_store.email_id",$bgv_data_store.email_id != personal_email)
+
         if(personal_email || $bgv_data_store.email_id == personal_email){
             show_spinner=false
             console.log("inside personal email")
@@ -978,7 +976,7 @@
                 success_toast("OTP Sent Successfully")
                 verification_success = true;
             }
-            else if($facility_data_store.email_verified == 1){
+            else if($bgv_data_store.is_email_verified == 1){
                 show_spinner=false
                 verification_success = true;
             }
@@ -1099,7 +1097,7 @@
                 show_spinner = false
             }
             if(!personal_email){
-            error_toast("Invalid Email Id")
+            error_toast("Please Enter Email Id")
             show_spinner = false
             return
             }
@@ -1108,10 +1106,12 @@
             show_spinner = false
             return
             }
-            else if($bgv_config_store.is_email_verification_mandatory == "1" && verification_success == false){
-                error_toast("Verify Email Id")
-                show_spinner = false
-            return
+            else if($bgv_data_store.is_email_verified == "0"){
+                if($bgv_config_store.is_email_verification_mandatory == "1" && verification_success == false){
+                    error_toast("Verify Email Id")
+                    show_spinner = false
+                return
+            }
             }
             else{
                 show_spinner = false
