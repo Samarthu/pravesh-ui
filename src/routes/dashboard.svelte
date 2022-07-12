@@ -423,6 +423,13 @@
         show_spinner = false;
 		return;
 	}
+
+    if(!facIds){
+        show_spinner=false;
+        error_toast("Enter some facility IDs separated by new line")
+        return
+    }
+
 	var facArr = facIds.split("\n");
 
 	if (facArr.length == 0) {
@@ -451,7 +458,8 @@
     async function downloadBeejakInvoices(){
         show_spinner = true;
 
-        if (facIds == undefined || facIds.trim().length == 0) {
+        if (facIds=="Enter some Invoice numbers separated by new line" && (facIds == undefined || facIds.trim().length == 0)) {
+           
             // toast_type = "error"
             // toast_text = "Enter some facility IDs separated by new line"
             error_toast("Enter some facility IDs separated by new line")
@@ -459,7 +467,7 @@
             show_spinner = false;
             return;
         }
-
+        if(facIds){
         var invArr = facIds.split("\n");
 
         if (invArr.length == 0) {
@@ -505,6 +513,7 @@
 			a.click();
 			a.remove();
 			window.URL.revokeObjectURL(page_name);
+    }
     }
     // catch(err){
     //     show_spinner =false;
