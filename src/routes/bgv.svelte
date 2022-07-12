@@ -1289,7 +1289,7 @@
                 return  
             }
             else{
-                error_toast("pan_full_name","")
+              
                 show_spinner = false
             }
 
