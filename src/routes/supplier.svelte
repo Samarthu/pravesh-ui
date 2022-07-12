@@ -1198,7 +1198,7 @@ else
         console.log()
         if(onboarded_by_me_checkbox == true){
             console.log("onboarded_by_me_checkbox true in status_pill_clicked")
-            new_associate_data = {city:"-1",myOnboard: true,org_id:org_selected,limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}
+            new_associate_data = {city:city,myOnboard: true,org_id:org_selected,limit:new_drop_limit,fac_type:new_vendor_type,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,username:username,userid:userid}
         }
         else
         {
@@ -1439,10 +1439,10 @@ else
 
         if(status != "-1"){
             if(onboarded_by_me_checkbox == true){    
-                    new_associate_data = {city: "-1",limit:new_drop_limit,org_id:org_selected,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,myOnboard: true,username:username,userid:userid}
+                    new_associate_data = {city: city,limit:new_drop_limit,fac_type:new_vendor_type,org_id:org_selected,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status,myOnboard: true,username:username,userid:userid}
                 }
                 else{
-                    new_associate_data = {city: "-1",limit:new_drop_limit,org_id:org_selected,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
+                    new_associate_data = {city: city,limit:new_drop_limit,fac_type:new_vendor_type,org_id:org_selected,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status:status}  
                 }
                 // new_associate_data = {city: "-1",limit:new_drop_limit,offset:offset,prevFlag: false,search_keyword: "",sortDesc: true,status: "Bank Details Pending",onboarded_by_me:true}
                 json_associate_new_data=JSON.stringify(new_associate_data);
