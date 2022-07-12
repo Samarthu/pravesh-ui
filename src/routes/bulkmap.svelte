@@ -123,7 +123,7 @@
         var data = document.getElementById('template_download');
         var file = XLSX.utils.table_to_book(data, {sheet: "sheet1"});
         XLSX.write(file, { bookType: 'xlsx', bookSST: true, type: 'base64' });
-        XLSX.writeFile(file, 'Bulk Empoloyee ID Template.' + 'xlsx');
+        XLSX.writeFile(file, 'client_details.' + 'xlsx');
         convert_to_excel(tabID, 'xlsx', fileTitle, sheet_name)
 
     }

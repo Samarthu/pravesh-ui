@@ -2799,3 +2799,11 @@ tr:nth-child(even) {background-color: #f2f2f2;}
 .tabletrBody tr td{
     @apply text-font13px font-normal text-textdarkgrey text-left py-4 px-2 align-baseline
 }
+
+.step2{
+    @apply flex justify-center gap-16 font-light text-blackshade text-base bg-bglightgreycolor py-5 mb-3 xsl:flex-wrap xsl:gap-5
+}
+
+.step2 div.active{
+    @apply  bg-red-600
+}

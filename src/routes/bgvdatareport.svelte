@@ -37,32 +37,44 @@
         }
 
         if(!bgv_org || bgv_org=="-1"){
-            toast_type = "error";
-            toast_text = "Please select Organization"
+            // toast_type = "error";
+            // toast_text = "Please select Organization"
+            error_toast("Please select Organization")
             return
         }
 
         else if(!enteredon){
-            toast_type = "error";
-            toast_text = "Please select Data Type"
+            // toast_type = "error";
+            // toast_text = "Please select Data Type"
+            error_toast("Please select Data Type")
             return
         }
 
         else if(!fromdate){
-            toast_type = "error";
-            toast_text = "Please select from Date"
+            // toast_type = "error";
+            // toast_text = "Please select from Date"
+            error_toast("Please select from Date")
             return
         }
 
         else if(!todate){
-            toast_type = "error";
-            toast_text = "Please select To Date"
+            // toast_type = "error";
+            // toast_text = "Please select To Date"
+            error_toast("Please select To Date")
             return
         }
 
         else if(!bgv_format){
-            toast_type = "error";
-            toast_text = "Please select Report Format Type"
+            // toast_type = "error";
+            // toast_text = "Please select Report Format Type"
+            error_toast("Please select Report Format Type")
+            return
+        }
+
+        else if(todate < fromdate){
+            // toast_type = "error";
+            // toast_text = "Invalid To Date selected"
+            error_toast("Invalid To Date selected")
             return
         }
         

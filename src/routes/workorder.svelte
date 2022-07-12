@@ -1,4 +1,48 @@
+
+<script>
+
+    import {img_url_name} from '../stores/flags_store';
+
+    let temp = "";
+    let main_tab = "a";
+    let filter1 = "b";
+    let raisewo = "a";
+    let details_active = "active";
+    let items_active = "";
+    let charge_details_active = "";
+
+    function routeToMainReport() {
+        main_tab = "a"
+    }
+
+    function open_tab1(){
+        a.style.display = "block";
+    }
+
+    function open_tab2(){
+        b.style.display = "block";
+    }
+
+    function open_tab3(){
+        c.style.display = "block";
+    }
+
+    function closeA(){
+        a.style.display = "none";
+    }
+
+    function closeB(){
+        b.style.display = "none";
+    }
+
+    function closeC(){
+        c.style.display = "none";
+    }
+</script>
+
+
 <div class="mainContent ">
+    {#if main_tab=="a"}
     <div class="breadcrumb ">
         <div class="breadcrumb-section">
             <div class="breadcrumbtext flex justify-between">
@@ -6,56 +50,98 @@
                     <span class="text-textgrey pr-1 text-base">Home /
                     </span> <span class="flex xs:text-base xs:items-center pl-2">Work Order</span>
                 </p>
-                <button class="ErBlueButton">Estimate Work Order</button>
+                <!-- <button class="ErBlueButton" on:change={main_tab = "b"}>Estimate Work Order</button> -->
             </div>
         </div>
     </div>
+    {/if}
 
+    {#if main_tab=="a"}
     <!-- work Order view -->
     <div class="workOrderView ">
         <div class="px-5 grid grid-cols-4 gap-9 mt-8 xsl:grid-cols-1 xsl:gap-6">
             <div class="reportCard bg-white rounded-lg">
                 <h3>Estimate Work Order</h3>
-                <p>Filter work order Estimate, raise new work order estimate, View poast work order.</p>
+                <p>Filter work order Estimate, raise new work order estimate, View post work order.</p>
                 <div class="text-right">
-                    <button class="ErBlueButton">Go</button>
+                    <button class="ErBlueButton" on:click={()=>{main_tab="b",filter1="b"}}>Go</button>
                 </div>
             </div>
             <div class="reportCard bg-white rounded-lg">
                 <h3>Work Order </h3>
                 <p>Filter work order, raise new work order & create work Order</p>
                 <div class="text-right">
-                    <button class="ErBlueButton">Go</button>
+                    <button class="ErBlueButton" on:click={()=>{main_tab="b",filter1="a"}}>Go</button>
                 </div>
             </div>
             <!-- <div class="reportCard bg-white rounded-lg">
                 <h3>BGV Data </h3>
                 <p>Get background verification data report of all associates</p>
                 <div class="text-right">
-                    <button class="ErBlueButton">Get Data</button>
+                    <button class="ErBlueButton" on:click={()=>{temp="b"}}>Get Data</button>
                 </div>
             </div> -->
         </div>
     </div>
     <!-- End work Order view -->
+    {/if}
 
+    {#if main_tab=="b"}
+    <!-- <div class="breadcrumb "> -->
+        <!-- <div class="breadcrumb-section"> -->
+    {#if filter1=="a"}
+    <div class="breadcrumb ">
+        <div class="breadcrumb-section">
+            <div class="breadcrumbtext flex justify-between">
+                <p class="flex">
+                    <span class="text-textgrey pr-1 text-base cursor-pointer" on:click="{routeToMainReport}" >Home /
+                    </span> <span class="flex xs:text-base xs:items-center pl-2">Work Order</span>
+                </p>
+                <button class="ErBlueButton" on:click={()=>{filter1="b",temp=""}}>Estimate Work Order</button>
+            </div>
+        </div>
+    </div>
+    {/if}
+
+    {#if filter1=="b"}
+    <div class="breadcrumb ">
+        <div class="breadcrumb-section">
+            <div class="breadcrumbtext flex justify-between">
+                <p class="flex">
+                    <span class="text-textgrey pr-1 text-base cursor-pointer" on:click="{routeToMainReport}">Home /
+                    </span> <span class="flex xs:text-base xs:items-center pl-2">Estimate Work Order</span>
+                </p>
+                <button class="ErBlueButton" on:click={()=>{filter1="a"}}>Work Order</button>
+            </div>
+        </div>
+    </div>
+    {/if}
+        <!-- </div> -->
+    <!-- </div> -->
     <!-- All Work Orders-->
-    <div class="px-5  mt-8 hidden">
+    <div class="px-5  mt-8 hidde">
 
         <div class="allWorkOrder flex justify-between items-center xsl:flex-wrap">
                 <div class="AllworkOrderTitle">
                     <p class="mb-0 text-lg font-medium text-blackshade">All Work Orders</p>
                 </div>
                 <div class="AllworkOrderTitleActions">
-                    <button class="ErBlueButton ">Filter WO Status</button>
-                    <button class="ErBlueButton ">Raise New WO</button>
+                    {#if filter1=="a"}
+                    <button class="ErBlueButton " on:click="{open_tab1}" on:click={()=>{temp="a"}}>Filter WO Status</button>
+                    <button class="ErBlueButton " on:click="{open_tab2}" on:click={()=>{temp="b"}}>Raise New WO</button>
+                    <button class="ErBlueButton " on:click="{open_tab3}" on:click={()=>{temp="c"}}>Create Bulk WO Request</button>
+                    {/if}
+                    {#if filter1=="b"}
+                    <button class="ErBlueButton " >Filter WO Estimate</button>
+                    <button class="ErBlueButton " >Raise New WO Estimate</button>
                     <button class="ErBlueButton ">Create Bulk WO Request</button>
+                    {/if}
                 </div>
         </div>
+    <!-- Filter WO Status -->
 
-         <!-- Filter WO Status -->
-
-    <div class="FilterWorkStatus hidden">
+    {#if temp=="a"}
+    <div class="FilterWorkStatus hidde" id="a">
         <div class="mt-3">
             <div class="caretforImage">
                  <img src="../src/img/caret.svg" class="caretBulkemp" alt="">
@@ -63,9 +149,16 @@
             <div class="getReportCard bg-white rounded-lg">
                 <div class="flex justify-between">
                 <h3>Filter work order status </h3>
-                <p>
+                <!-- <p>
                     <img src="../src/img/closeCrossBlack.svg" alt="">
-                </p>
+                </p> -->
+                <div class="closebuttonsection" on:click={closeA}>
+                    <img
+                        src="{$img_url_name.img_name}/close.png"
+                        class="closesup"
+                        alt=""
+                    />
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-7 gap-6 pb-5 xsl:grid-cols-1 xsl:gap-2">
@@ -178,12 +271,14 @@
             </div>
         </div>
     </div>
+    {/if}
 
     <!--End Filter WO Status -->
 
 
-       <!-- Raise New WO -->
-       <div class="RaiseNewWorkOrder hidden">
+    <!-- Raise New WO -->
+    {#if temp=="b"}
+       <div class="RaiseNewWorkOrder hidde" id="b">
         <div class="mt-3">
             <div class="caretforImage">
                  <img src="../src/img/caret.svg" class="caretBulkemp" alt="">
@@ -191,21 +286,29 @@
             <div class="getReportCard bg-white rounded-lg">
                 <div class="flex justify-between">
                 <h3>Raise New Work Order </h3>
-                <p>
+                <!-- <p>
                     <img src="../src/img/closeCrossBlack.svg" alt="">
-                </p>
-                </div>
-
-                <div class="stepMenus">
-                    <div class="flex justify-center gap-16 font-light text-blackshade text-base bg-bglightgreycolor py-5 mb-3 xsl:flex-wrap xsl:gap-5">
-                        <p>1. Submit Work Order Details</p>
-                        <p>2. Submit Work Order Items</p>
-                        <p>3. Submit Charge Details</p>
+                </p> -->
+                <div class="closebuttonsection" on:click={closeB}>
+                    <img
+                        src="{$img_url_name.img_name}/close.png"
+                        class="closesup"
+                        alt=""
+                    />
                     </div>
                 </div>
 
+                <div class="stepMenus">
+                    <div class="step2">
+                        <div class="{details_active} cursor-pointer p-2" on:click={()=>{raisewo="a",details_active="active",items_active="",charge_details_active=""}}>1. Submit Work Order Details</div>
+                        <div class="{items_active} cursor-pointer p-2" on:click={()=>{raisewo="b",details_active="",items_active="active",charge_details_active=""}}>2. Submit Work Order Items</div>
+                        <div class="{charge_details_active} cursor-pointer p-2" on:click={()=>{raisewo="c",details_active="",items_active="",charge_details_active="active"}}>3. Submit Charge Details</div>
+                    </div>
+                </div>
+
+                {#if raisewo=="a"}
                 <!-- Submit Work Order Details -->
-                <div class="submitWorkOrderDetails hidden">
+                <div class="submitWorkOrderDetails hidde">
                 <div class="grid grid-cols-10 xsl:grid-cols-1 gap-6 ">
                     <div class="col-span-1 "></div>
                         <div class="col-span-4 mb-5">
@@ -348,14 +451,16 @@
                         
                      </div>
                      <div class="col-span-1 flex items-end">
-                         <button class="ErBlueButton">Next</button>
+                         <button class="ErBlueButton" on:click={()=>{raisewo="b"}}>Next</button>
                      </div>
                 </div>
                   </div>
                 <!--End Submit Work Order Details -->
+                {/if}
 
+                {#if raisewo=="b"}
                  <!-- Submit Work Order Items -->
-                 <div class="submitWorkOrderItems hidden">
+                 <div class="submitWorkOrderItems hidde">
                  <div class="grid grid-cols-4 xsl:grid-cols-1 gap-6 px-5 xsl:gap-2 xsl:px-0">
                         <div class="col-span-2 mb-5 xsl:mb-0">
                         <div class="flex">
@@ -462,15 +567,17 @@
                     </div>
                  </div>
                  <div class="flex justify-end gap-3 mt-10">
-                    <button class="ErBlueButton">Prev</button>
-                    <button class="ErBlueButton">Next</button>
+                    <button class="ErBlueButton" on:click={()=>{raisewo="a"}}>Prev</button>
+                    <button class="ErBlueButton" on:click={()=>{raisewo="c"}}>Next</button>
                 </div>
 
                  </div>
                 <!--End Submit Work Order Items -->
+                {/if}
 
+                {#if raisewo=="c"}
                  <!-- Submit Charge Details -->
-                 <div class="submitChargeDetails hidden">
+                 <div class="submitChargeDetails hidde">
                     <div class="grid grid-cols-10 xsl:grid-cols-1 gap-6 ">
                         <div class="col-span-1 "></div>
                             <div class="col-span-4 mb-5">
@@ -547,20 +654,23 @@
                     </div>
                     <div class="SubmitChanges">
                         <div class="flex justify-end gap-3 mt-10">
-                            <button class="ErBlueButton">Prev</button>
+                            <button class="ErBlueButton" on:click={()=>{raisewo="b"}}>Prev</button>
                             <button class="ErBlueButton">Submit New WO</button>
                         </div>
                      </div>
                  </div>
                 <!--End Submit Charge Details -->
+                {/if}
             </div>
         </div>
        </div>
+    {/if}
     <!--End Raise New WO -->
 
 
     <!-- Create Bulk WO Request -->
-    <div class="FilterWorkStatus hidden">
+    {#if temp=="c"}
+    <div class="FilterWorkStatus hidde" id="c">
         <div class="mt-3">
             <div class="caretforImage">
                  <img src="../src/img/caret.svg" class="caretBulkemp" alt="">
@@ -568,9 +678,16 @@
             <div class="getReportCard bg-white rounded-lg">
                 <div class="flex justify-between">
                 <h3>Create Bulk WO Request </h3>
-                <p>
-                    <img src="../src/img/closeCrossBlack.svg" alt="">
-                </p>
+                <!-- <a>
+                    <img src="{$img_url_name.img_name}/close.png" alt="" on:click="{closeC}">
+                </a> -->
+                <div class="closebuttonsection" on:click={closeC}>
+                <img
+                    src="{$img_url_name.img_name}/close.png"
+                    class="closesup"
+                    alt=""
+                />
+                </div>
                 </div>
 
                 <div class="grid grid-cols-6 gap-6 pb-5 xsl:grid-cols-1 xsl:gap-2">
@@ -623,6 +740,7 @@
             </div>
         </div>
     </div>
+    {/if}
     <!--End Create Bulk WO Request -->
     
 
@@ -980,6 +1098,7 @@
         </div>
     </div>
     <!-- End All Work Orders -->
+    {/if}
 
 
 </div>
