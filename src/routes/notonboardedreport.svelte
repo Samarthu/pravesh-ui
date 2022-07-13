@@ -276,7 +276,7 @@
                 <div class="col-span-2  items-center ">
                     <div class="light14greylong">Select Month and Year</div>
                     <div class="formInnerGroupNote ">
-                        <input class="inputboxpopoverdate" type="date" bind:value="{notonbDate}" onkeydown="return false">
+                        <input class="inputboxpopoverdate" type="month" bind:value="{notonbDate}" onkeydown="return false">
                     </div>
                 </div>
 

@@ -696,7 +696,9 @@
                             if(get_client_details_data[i].mobile_number == phoneNumber){
                                 // toast_text =  'Rabbit ID already requested for mob number <br>' + phoneNumber + "<br> Please update new number in <br> Basic Information Section under BGV <br> and try again";
                                 // toast_type = "error"
+                                show_spinner = false;
                                 error_toast('Rabbit ID already requested for mob number <br>' + phoneNumber + "<br> Please update new number in <br> Basic Information Section under BGV <br> and try again")
+                                return
                             }
                         }
 
@@ -705,7 +707,7 @@
                         // toast_type = "error"
                         // toast_text = "Please update email address in BGV form and then try"
                         error_toast("Please update email address in BGV form and then try")
-
+                        show_spinner = false;
                         return;
                     }
                     
@@ -1177,6 +1179,10 @@
     function closeWorkorganization() {
         get_client_details_data = [];
         get_client_data_mapping_data = [];
+        id_select=""
+        stat_select=""
+        emp_number=""
+        requestType=""
         workorganizationModel.style.display = "none";
     }
 
