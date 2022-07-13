@@ -2805,5 +2805,5 @@ tr:nth-child(even) {background-color: #f2f2f2;}
 }
 
 .step2 div.active{
-    @apply  bg-red-600
+    @apply  bg-white
 }
