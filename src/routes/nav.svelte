@@ -33,7 +33,7 @@
     routeDashboard = "dashboard"; 
 </script>
 
-<nav class="navbarTop">
+<nav class="navbarTop ">
     <div class="top-left">
         <div class="flex items-center">
             <div on:click={routeToPageDashboard} class="homelogo" id="mobileBar">
